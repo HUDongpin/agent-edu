@@ -12,7 +12,7 @@ Every program is a list of steps. The only question is *who picks them*. Three p
 |---|---|---|
 | **1 · [The Handbook](handbook.html)** | eleven illustrated sections, twenty interactive diagrams | nothing |
 | **2 · [The Lab](play.html)** | four hands-on stages in the browser — a real API call, the rules wall, your own prompt, **and twenty cases that score it** | a DeepSeek key · ~1¢ |
-| **3 · [The Python Course](course/)** | five more stages — the agent loop, a permission gate, a mandatory reviewer, prompt injection | Python · ~2¢ |
+| **3 · [The Course](course/)** | five more stages — the agent loop, a permission gate, a mandatory reviewer, prompt injection | TypeScript · ~2¢ |
 
 Teaching it? There's a **[90-minute lesson plan](TEACHING.md)**.
 
@@ -66,25 +66,26 @@ Plus **09 Which one, when** — a comparison table and a decision tree — and *
 
 ---
 
-## Why the architecture looks like this
+## Architecture
 
-It began as one self-contained HTML file, and that was a deliberate choice: emailable, offline, nothing to rot. Adding nine languages ended it. Nine dictionaries hand-copied across three pages would drift, and a drifted translation is worse than none — so there is now a small shared `assets/` folder:
+It began as one self-contained HTML file. Nine languages ended that: nine dictionaries hand-copied across three pages would drift, and a drifted translation is worse than none. Per-locale URLs then ended the no-build-step rule too — with one shared URL, search engines only ever indexed the English copy.
 
-| File | What it is |
+So it is now **Next.js 16 / React 19 / TypeScript, exported as static files** (`output: "export"`). No server: the handbook is scripted and the lab talks to the model provider straight from your browser with your own key, so hosting stays free and there is no runtime that can leak anything.
+
+| | |
 |---|---|
-| `assets/i18n.js` | Every user-facing string, in nine languages. One file, one source of truth. |
-| `assets/brand.css` | Design tokens, header, footer, language menu. Written in CSS *logical* properties so `dir="rtl"` mirrors the layout for Arabic with no second stylesheet. |
-| `assets/shell.js` | Injects the same header and footer everywhere; wires language, theme and the mobile nav. |
-| `assets/logo.svg` | The mark. Uses `currentColor` so it takes the right depth of blue per theme. |
+| `app/[locale]/` | home, handbook and lab — 30 prerendered pages, 9 locales |
+| `messages/*.json` | every string, one flat file per language. A translator edits one line; no React, no build |
+| `lib/flowchart.ts` | the diagram engine, byte-identical to the verified original |
+| `lib/handbook/` | the handbook's verified markup and its 22 widget modules |
+| `course/` | the nine-stage TypeScript course |
+| `legacy/` | the original single-file HTML, and the Python course |
 
-Everything else still holds: **no build step, no framework, no dependency, no tracking, and not one external request.** Clone it and open `index.html`; that is the whole install.
+Two things were deliberately **ported, not rewritten**: the flowchart engine and the handbook's widgets. Twenty diagrams were verified for text overlap, edge-through-node crossings and greyscale legibility; rewriting them in React idiom would have risked all of that and shown the reader nothing new. React owns mounting, the verified imperative code owns behaviour.
 
-### The pages
-
-- **`index.html`** — the platform home: curriculum, outcomes, progress, FAQ.
-- **`handbook.html`** — the original eleven-section illustrated guide, with twenty diagrams.
-- **`play.html`** — the browser lab: four hands-on stages against a real model.
-- **`course/`** — the Python course, five more stages.
+```bash
+npm install && npm run dev
+```
 
 ## Languages
 

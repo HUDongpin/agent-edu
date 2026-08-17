@@ -17,6 +17,7 @@
 # Recorded model replies (may contain your prompts; regenerate locally)
 course/cafe/fixtures.*.json
 course/progress.json
+legacy/course-python/cafe/fixtures.*.json
 
 # ---------------------------------------------------------------------------
 # Build output and dependencies

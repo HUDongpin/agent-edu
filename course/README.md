@@ -1,26 +1,23 @@
-# Part 2 — build the thing
+# Part 3 — build the thing
 
-The [web page](../index.html) gives you the mental model in 45 minutes. It does not make you a practitioner, because you never write anything and every model reply on it is scripted.
+The [handbook](../app) gives you the mental model and the [lab](../app) gets your hands on it. This is the other half: **one café, nine stages, real API calls, on your own machine.** At the end you have an agent you built, an eval suite that scores it, and a harness you would leave running overnight.
 
-This is the other half. **One café, nine commits, real API calls.** At the end you have an agent you built, an eval suite that scores it, and a harness you would leave running overnight.
-
-> **Before you start: this part assumes you can read and write basic Python.** Not much — functions, dicts, a `for` loop — but if that sentence made you uneasy, you are not the problem and you are not stuck. Do **[Part 1.5](../play.html)** first: the same first four lessons, in your browser, with nothing to install and no Python at all. Come back here when you want the agent loop.
+> **This part assumes you can read and write basic TypeScript** — functions, objects, a `for` loop, `await`. Not much more. If that made you uneasy, do the **Lab** first: the same first four lessons, in your browser, nothing to install.
 
 ## Before you start
 
 ```bash
-pip install anthropic
+npm install
 export DEEPSEEK_API_KEY=sk-...             # platform.deepseek.com/api_keys
 # ...or, if you'd rather run it on Claude:
 export ANTHROPIC_API_KEY=sk-ant-...        # console.anthropic.com
-cd course
-python stage0_hello/run.py
+npx tsx course/stage0-hello/run.ts
 ```
 
-Each stage is a folder with a `README.md` and a `run.py` containing one or two `TODO`s. Fill them in, run it, then grade yourself:
+Each stage is a folder with a `README.md` and a `run.ts` containing one or two `TODO`s. Fill them in, run it, then grade yourself:
 
 ```bash
-python check.py 0
+npx tsx course/check.ts 0
 ```
 
 **No API key?** Add `--offline` to any command to replay recorded answers. Every stage runs. But stage 2's entire lesson is watching the same question come back different, and a recording cannot show you that — so borrow a key for at least stages 2 to 4 if you possibly can.
@@ -31,79 +28,49 @@ python check.py 0
 
 ## Two providers, one seam
 
-The course runs on **DeepSeek** or on **Anthropic's Claude**, and not one line of any stage changes between them. Set whichever key you have; if you have both, pick with `CAFE_PROVIDER`.
+The course runs on **DeepSeek** or on **Anthropic's Claude**, and not one line of any stage changes between them.
 
 ```bash
 export DEEPSEEK_API_KEY=sk-...      # default if both are set
-export ANTHROPIC_API_KEY=sk-ant-...
 export CAFE_PROVIDER=anthropic      # force one
 export CAFE_MODEL=deepseek-v4-pro   # or a different model on either
 ```
 
-That works because DeepSeek publishes an **Anthropic-compatible endpoint**, so the same `anthropic` SDK drives both with a different `base_url`. Stages 5 and 6 build raw `tool_use` / `tool_result` blocks by hand and never notice.
+That works because DeepSeek publishes an **Anthropic-compatible endpoint**, so the same `@anthropic-ai/sdk` drives both with a different `baseURL`. Stages 5 and 6 build raw `tool_use` / `tool_result` blocks by hand and never notice.
 
-The differences that *don't* vanish are the interesting part, and all of them live in [`cafe/llm.py`](cafe/llm.py):
+The differences that *don't* vanish are the interesting part, and all of them live in [`cafe/llm.ts`](cafe/llm.ts):
 
 | | Anthropic | DeepSeek |
 |---|---|---|
-| structured outputs | native — the reply **cannot** be the wrong shape | **accepted and silently ignored.** You get prose. `llm.py` asks in the prompt and validates the answer itself |
-| "think harder" | `output_config.effort` | `thinking: {type: disabled}` — and left on with a small `max_tokens`, it spends the whole budget thinking and returns an **empty string with no error** |
-| token counting | counts your text | counts the whole request, ~83 tokens of scaffolding included, so `llm.py` subtracts the floor |
+| structured outputs | native — the reply **cannot** be the wrong shape | **accepted and silently ignored.** You get prose. `llm.ts` asks in the prompt and validates the answer itself |
+| "think harder" | `output_config.effort` | `thinking: {type:"disabled"}` — and left on with a small `max_tokens`, it spends the whole budget thinking and returns an **empty string with no error** |
+| token counting | counts your text | counts the whole request, ~83 tokens of scaffolding included, so `llm.ts` subtracts the floor |
 | price | flat | **halves off-peak** (outside 01:00–04:00 and 06:00–10:00 UTC) |
 
-This is what a provider abstraction is actually for. Not "swap the URL" — anyone can do that. It is knowing which of your assumptions were really vendor behaviour, and the only way to find out is to run the same suite against two of them. Try it: `CAFE_PROVIDER=... python check.py 3` and compare the scores.
-
-## Using this with a class
-
-There is a **[90-minute lesson plan](../TEACHING.md)** with timings, what to demo live, and where to stop.
-
-Worth knowing if you are teaching in mainland China: the DeepSeek path needs **no VPN**, costs about **two cents per learner** for the whole course, and `deepseek-v4-flash` is fast enough to run live in front of a room. That is the main reason this course is provider-agnostic rather than Claude-only.
+This is what a provider abstraction is actually for. Not "swap the URL" — anyone can do that. It is knowing which of your assumptions were really vendor behaviour, and the only way to find out is to run the same suite against two of them.
 
 ## The nine stages
 
 | | Stage | You write | What it teaches |
 |---|---|---|---|
-| 0 | [hello](stage0_hello/) | one API call | your key works |
-| 1 | [kiosk](stage1_kiosk/) | if/else rules | the wall that starts all of this |
-| 2 | [prompt](stage2_prompt/) | a system prompt | **the same question, five different answers** |
-| 3 | [evals](stage3_evals/) | wire up 20 cases | you can't `assert` any more — you measure |
-| 4 | [context](stage4_context/) | the menu, in the prompt | most "bad model" is "never told" |
-| 5 | [loop](stage5_loop/) | the agent loop itself | tools, failure, recovery, a step limit |
-| 6 | [harness](stage6_harness/) | retry, gate, log | same model, four different mornings |
-| 7 | [graph](stage7_graph/) | a router and a reviewer | request vs guarantee |
-| 8 | [security](stage8_security/) | trust boundaries | your input can give orders |
+| 0 | [hello](stage0-hello/) | one API call | your key works |
+| 1 | [kiosk](stage1-kiosk/) | if/else rules | the wall that starts all of this |
+| 2 | [prompt](stage2-prompt/) | a system prompt | **the same question, five different answers** |
+| 3 | [evals](stage3-evals/) | wire up 20 cases | you can't `assert` any more — you measure |
+| 4 | [context](stage4-context/) | the menu, in the prompt | most "bad model" is "never told" |
+| 5 | [loop](stage5-loop/) | the agent loop itself | tools, failure, recovery, a step limit |
+| 6 | [harness](stage6-harness/) | retry, gate, log | same model, four different mornings |
+| 7 | [graph](stage7-graph/) | a router and a reviewer | request vs guarantee |
+| 8 | [security](stage8-security/) | two defences | input that tries to give orders |
 
-**Evals come third on purpose.** Once you have a number, every later stage is a measurement instead of an argument — and "change one thing, re-run the set" becomes a habit rather than a chapter.
+**Evals come third on purpose.** Once you have a number, every later change is a measurement instead of an argument.
 
-## The shared package
-
-`cafe/` is the part you don't write. Read it anyway — it is short:
-
-- **`llm.py`** — the only place that talks to the API. Model id, effort, cost tracking, and the `--offline` record/replay seam.
-- **`menu.py`** — the café's menu, and the ground truth the eval checks against.
-- **`evalset.py`** — the twenty cases and the scorer. The most important file here.
-- **`tools.py`** — the tools the agent may call from stage 5, rigged to fail realistically.
-
-## If you only do two stages
-
-Do **2 and 3**. First real call, first eval. That pair turns a reader into a practitioner more than the other seven combined: stage 2 is where nondeterminism stops being a word you read and becomes a thing that happened to you, and stage 3 is where you get the tool for coping with it.
-
-## Honest limits
-
-- The tools are fake. A real integration brings auth, pagination, rate limits and partial failure — none of which are here.
-- The eval is twenty cases. A production set is hundreds, and mostly harvested from real bugs.
-- Stage 8 shows the plainest possible injection. Real attacks are subtler, and defence in depth is a field, not a stage.
-
-What is real: the API calls, the nondeterminism, the failures your agent recovers from, and the money it spends.
-
----
+**If you only do two stages: do 3 and 4.** Watching one number move from 7/20 to 19/20 because you told the model what it was selling is the single most useful thing here.
 
 ## Your report card
 
-Every stage that produces a number records it. See the lot at once:
-
 ```bash
-python report.py
+npx tsx course/report.ts
 ```
 
 ```
@@ -119,17 +86,16 @@ The 20 café cases deliberately **stop** at stage 4. An agent placing restock or
 
 The café is a stand-in. The last thing to do is throw it away.
 
-Pick a domain you actually know: a library's returns desk, a lab booking system, a tutoring service, your own inbox. Then build the same nine things for it —
+Pick a domain you actually know: a library's returns desk, a lab booking system, a tutoring service, your own inbox. Then build the same nine things for it — the rules version and the phrasing that breaks it; a prompt that replaces the rules; **twenty cases of your own**; the context the model needs and lacks; a tool and the loop; a gate on the one action you could not undo; a step no model may skip; and the input that comes from a stranger.
 
-1. the rules version, and the phrasing that breaks it
-2. a prompt that replaces the rules
-3. **twenty cases of your own**, twelve rule-checked, eight judged
-4. whatever context the model needs and does not have
-5. a tool it can call, and the loop
-6. a gate on the one action you could not undo
-7. a step no model is allowed to skip
-8. the input that comes from a stranger
+Nobody will grade it. The point is that you now know what the twenty cases *are* for your own domain — which is the part a café cannot teach.
 
-Nobody will grade it. The point is that you now know what the twenty cases *are* for your own domain — which is the part that cannot be taught by a café.
+## Honest limits
 
-Licensed [MIT](../LICENSE), same as the rest of this repo. Corrections and extra stages welcome via [issues](https://github.com/HUDongpin/agent-edu/issues).
+Nothing here makes you a machine-learning engineer; it is about **building systems that call models**, which is a different job. The security stage is an introduction to one attack, not a security course. And every model behaviour shown is **as of the model you run it on** — some will be wrong in a year. The questions will not be.
+
+---
+
+Licensed [MIT](../LICENSE). Corrections and extra stages welcome via [issues](https://github.com/HUDongpin/agent-edu/issues).
+
+**A Python version of this course** is preserved at [`legacy/course-python/`](../legacy/course-python/). It teaches the identical nine stages; Python remains the lingua franca of AI engineering, so if that is where you want the skills to land, start there instead.

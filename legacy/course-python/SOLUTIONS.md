@@ -1,7 +1,7 @@
 # Reference solutions
 
 One section per stage, showing the `TODO`s filled in. These are *a* way, not *the* way —
-if yours passes `check.ts`, yours is right.
+if yours passes `check.py`, yours is right.
 
 Try first. A solution you read is worth much less than one you argued with.
 
@@ -63,9 +63,9 @@ Do not chat. Return only the order."""
 ## Stage 3 — point the eval at your prompt
 
 ```python
-# stage3-evals/run.ts already puts stage2-prompt/ on sys.path, so:
+# stage3_evals/run.py already puts stage2_prompt/ on sys.path, so:
 
-from run import take_order          # this is stage2-prompt/run.ts
+from run import take_order          # this is stage2_prompt/run.py
 
 SYSTEM_UNDER_TEST = take_order
 
@@ -76,8 +76,8 @@ SYSTEM_UNDER_TEST = take_order
 # The version you would actually ship puts the prompt in its own module:
 #
 #     cafe/order_taker.py     ->  SYSTEM, take_order()
-#     stage2-prompt/run.ts    ->  from cafe.order_taker import take_order
-#     stage3-evals/run.ts     ->  from cafe.order_taker import take_order
+#     stage2_prompt/run.py    ->  from cafe.order_taker import take_order
+#     stage3_evals/run.py     ->  from cafe.order_taker import take_order
 #
 # One definition, two importers, no path games. Worth doing once you have
 # felt why.
@@ -127,7 +127,7 @@ Do not chat. Return only the order."""
 ```python
 from cafe import tools
 
-# Replace the `raise SystemExit(...)` in stage5-loop/run.ts with this:
+# Replace the `raise SystemExit(...)` in stage5_loop/run.py with this:
 
         # 1. The assistant's turn goes back verbatim. Do not rebuild it and do
         #    not filter it — it carries the tool_use blocks the next turn has
