@@ -1,0 +1,36 @@
+# Stage 4 — give it the menu
+
+**Goal:** fix the failures from stage 3 by changing what the model can *see*, not how you ask.
+
+```bash
+python stage4_context/run.py
+```
+
+One `TODO`: put the menu and the edge-case rules into the prompt. Then:
+
+```bash
+python check.py 4
+```
+
+`check.py` asks for **at least 16/20** — a real improvement over the stage-2 baseline, not a one-case wobble.
+
+## What to notice
+
+You did not write a better instruction. You gave the model a fact it could not have known. Most "the model is bad at this" turns out to be "the model was never told."
+
+Compare the two prompts side by side. Stage 2's was an instruction; stage 4's is an instruction plus a *briefing*.
+
+## Where this stops working
+
+Try pasting something big into the prompt — a thousand fake menu items, or the entire text of a novel. Two things happen:
+
+1. Cost and latency climb, because you pay for every token on **every single call**.
+2. The score can go *down*, because the one line that mattered is now buried in noise.
+
+That is the actual discipline: not "give the model everything", but "give the model the few things that matter for *this* request". At scale you stop pasting and start retrieving — fetch the three relevant menu items rather than all seven hundred. The eval you built in stage 3 is what tells you whether your retrieval is actually picking the right three.
+
+## The bit people skip
+
+Run `python stage4_context/run.py` twice and compare the token counts it prints. Context is not free, and it is the line item that grows fastest as a system gets more capable. In stage 5, it grows on *every turn of a loop*.
+
+**Next:** [stage 5 — let it act](../stage5_loop/README.md)

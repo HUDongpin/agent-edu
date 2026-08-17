@@ -1,0 +1,23 @@
+# ---------------------------------------------------------------------------
+# Secrets. This repo is public. Nothing in this block may ever be committed.
+# ---------------------------------------------------------------------------
+*.docx
+*.doc
+.~*
+.env
+.env.*
+*.key
+*secret*
+*credential*
+*API*Key*
+*api*key*
+
+# Recorded model replies (may contain your prompts; regenerate locally)
+course/cafe/fixtures.*.json
+
+# Junk
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/

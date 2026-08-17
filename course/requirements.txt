@@ -1,0 +1,3 @@
+# One SDK drives both providers: DeepSeek publishes an Anthropic-compatible
+# endpoint, so the same client talks to Claude and to deepseek-v4-*.
+anthropic>=0.116
