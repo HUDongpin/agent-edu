@@ -1,26 +1,24 @@
-# 🎛️ The Control Handoff
+# aicourse.top — Top AI course
 
-**An interactive, illustrated introduction to agentic engineering — for people who are new to software engineering.**
+**Learn to build with AI, from first principles — written for people who are new to software engineering.**
 
-Every program is a list of steps. The only question is *who picks them*. This page walks through eight answers to that question, and lets you **run every one of them yourself**.
+Every program is a list of steps. The only question is *who picks them*. Three parts, about four hours, and you finish having built a working agent and an eval suite that scores it.
 
-**▶ [Open the live version](https://hudongpin.github.io/agent-edu/)** · no install, no account, no API key
+**▶ [aicourse.top](https://agent-edu-kohl.vercel.app/)** · free · no account · no tracking · nine languages
 
-It comes in three parts, and each one asks a bit more of you.
+<img src="assets/logo-lockup.svg" alt="aicourse.top — top AI course" width="252">
 
 | | | Needs |
 |---|---|---|
-| **Part 1** — [the page](https://agent-edu-kohl.vercel.app/) | the mental model, 45 minutes, eleven sections | nothing |
-| **Part 1.5** — [build one](https://agent-edu-kohl.vercel.app/play.html) | four stages in your browser: a real API call, the rules wall, a prompt you write, **and twenty cases that score it** | a DeepSeek key · ~1p |
-| **Part 2** — [`course/`](course/) | five more stages in Python: the agent loop, a permission gate, a reviewer that can't be skipped, prompt injection | Python · ~2¢ |
+| **1 · [The Handbook](handbook.html)** | eleven illustrated sections, twenty interactive diagrams | nothing |
+| **2 · [The Lab](play.html)** | four hands-on stages in the browser — a real API call, the rules wall, your own prompt, **and twenty cases that score it** | a DeepSeek key · ~1¢ |
+| **3 · [The Python Course](course/)** | five more stages — the agent loop, a permission gate, a mandatory reviewer, prompt injection | Python · ~2¢ |
 
 Teaching it? There's a **[90-minute lesson plan](TEACHING.md)**.
 
-![The landing section: a title reading "Every program is a list of steps. The only question is who picks them", a left rail listing eleven sections, and a scatter chart called The Dial](docs/preview.png)
-
 ---
 
-## Just open the file
+## Just open it
 
 There is no build step, no `npm install`, no dev server.
 
@@ -29,11 +27,9 @@ git clone https://github.com/HUDongpin/agent-edu.git
 open agent-edu/index.html
 ```
 
-Or download `index.html` on its own and double-click it. It works offline, on a plane, on a school computer with the network locked down. Email it to someone and it still works.
+It works offline, on a plane, on a locked-down school computer. Nothing is loaded from anywhere else.
 
-**Nothing here is a real AI — by default.** Every "model" reply is scripted. That is deliberate: it keeps the patterns legible, makes the page free to run forever, and means it can never break because a key expired. The *behaviour* is faithful; the answers are not generated.
-
-**Except one box, if you want it.** Section 02 has a ⚡ *live mode*: paste your own [DeepSeek](https://platform.deepseek.com/api_keys) key and the same prompt you assembled goes to a real model, so you can watch it come back different — and get checked against the real menu price. Your key lives in that browser tab (`sessionStorage`) and is gone when you close it; it goes to `api.deepseek.com` and nowhere else. Until you switch it on, the page makes **no outbound requests at all**.
+**Nothing here is a real AI — by default.** Every "model" reply in the handbook is scripted, so the patterns stay legible and the page can never break because a key expired. The Lab is the exception: give it your own [DeepSeek](https://platform.deepseek.com/api_keys) key and it calls a real model, so you can watch the same question come back different. Your key stays in that browser tab and goes to `api.deepseek.com` and nowhere else.
 
 ---
 
@@ -70,30 +66,49 @@ Plus **09 Which one, when** — a comparison table and a decision tree — and *
 
 ---
 
-## Why one 219 KB file — on purpose
+## Why the architecture looks like this
 
-This is a deliberate architectural choice, not laziness or a missing build config. **Please don't split it into modules.**
+It began as one self-contained HTML file, and that was a deliberate choice: emailable, offline, nothing to rot. Adding nine languages ended it. Nine dictionaries hand-copied across three pages would drift, and a drifted translation is worse than none — so there is now a small shared `assets/` folder:
 
-- It has to survive being **downloaded, emailed, and opened offline** by someone with a locked-down machine. One file always does; a bundle usually doesn't.
-- It has to still work **in five years**. No dependencies means nothing to rot, no `npm audit`, no lockfile, no CDN that quietly 404s.
-- A learner can **read the whole source** — it is the teaching material *and* a worked example of a self-contained page.
-- Zero external requests means **zero tracking**, which matters when it's put in front of a classroom. (The one exception is opt-in live mode, which calls DeepSeek only after you paste a key and press the button.)
+| File | What it is |
+|---|---|
+| `assets/i18n.js` | Every user-facing string, in nine languages. One file, one source of truth. |
+| `assets/brand.css` | Design tokens, header, footer, language menu. Written in CSS *logical* properties so `dir="rtl"` mirrors the layout for Arabic with no second stylesheet. |
+| `assets/shell.js` | Injects the same header and footer everywhere; wires language, theme and the mobile nav. |
+| `assets/logo.svg` | The mark. Uses `currentColor` so it takes the right depth of blue per theme. |
 
-Inside, it is organised in clear blocks: design tokens → base CSS → per-section CSS → HTML sections → a small SVG flowchart engine → one JS module per section.
+Everything else still holds: **no build step, no framework, no dependency, no tracking, and not one external request.** Clone it and open `index.html`; that is the whole install.
 
----
+### The pages
+
+- **`index.html`** — the platform home: curriculum, outcomes, progress, FAQ.
+- **`handbook.html`** — the original eleven-section illustrated guide, with twenty diagrams.
+- **`play.html`** — the browser lab: four hands-on stages against a real model.
+- **`course/`** — the Python course, five more stages.
+
+## Languages
+
+The interface is fully translated into nine languages, and Arabic flips the whole layout to right-to-left:
+
+English · Español · Français · Deutsch · 简体中文 · 繁體中文 · 日本語 · 한국어 · العربية
+
+Pick one from the 🌐 menu, or link straight to it with `?lang=ar`. Your choice is remembered in the browser.
+
+**The long-form articles in the handbook are still English.** The interface around them is translated; the essays are not, and a banner says so in your language rather than pretending otherwise. Untranslated English keeps `dir="ltr"` inside the Arabic shell, so punctuation and code samples stay the right way round.
+
+Every string lives in [`assets/i18n.js`](assets/i18n.js) — one object per language. To fix a translation, edit one line. To add a language, copy the English block, translate the values, and add one row to `LANGS` (set `dir:"rtl"` if it needs it). The language menu shows each translation's coverage automatically, so a partial contribution is useful rather than embarrassing.
 
 ## Contributing a section
 
 New sections are genuinely welcome — *tool design*, *cost engineering* and *human-in-the-loop design* are all obvious gaps. Here's the whole recipe.
 
-**1. Claim a colour.** Add three tokens in each of the three theme blocks near the top (`:root`, the `prefers-color-scheme: dark` media block, **and** `:root[data-theme="dark"]` — all three, or your section goes invisible when someone toggles the theme).
+**1. Claim a colour.** Add three tokens in each of the three theme blocks near the top of `handbook.html` (`:root`, the `prefers-color-scheme: dark` media block, **and** `:root[data-theme="dark"]` — all three, or your section goes invisible when someone toggles the theme).
 
 ```css
 --sage:#4A6B52;  --sage-soft:#E6EEE8;  --sage-line:#A8C4B0;
 ```
 
-**2. Add a rail entry** and a `<section class="panel">` that sets `--sec` to your hue. Copy the shape of an existing section: eyebrow → `<h2>` with an emoji → `.rule` → thesis → *(the recall card and deps bar are injected automatically)* → method strip → plain-English box → mechanism flowchart → the interactive → three takeaways.
+**2. Add a rail entry** in `handbook.html` and a `<section class="panel">` that sets `--sec` to your hue. Copy the shape of an existing section: eyebrow → `<h2>` with an emoji → `.rule` → thesis → *(the recall card and deps bar are injected automatically)* → method strip → plain-English box → mechanism flowchart → the interactive → three takeaways.
 
 **3. Register it in the three tables** in the connective-tissue block, so the page can wire it up:
 
@@ -138,11 +153,11 @@ And the two that catch the most:
 
 ```bash
 # the whole script block must parse
-node --check <(sed -n '/<script>/,/<\/script>/p' index.html | sed '1d;$d')
+node --check <(sed -n '/<script>/,/<\/script>/p' handbook.html | sed '1d;$d')
 
 # nothing may be LOADED from off-site. (<a href> links to GitHub are fine —
 # this looks only at script/img/link, and ignores inline data: URIs.)
-grep -o 'src="[^"]*"\|<link[^>]*href="[^"]*"' index.html | grep -v 'data:' || echo "clean"
+grep -o 'src="[^"]*"\|<link[^>]*href="[^"]*"' handbook.html | grep -v 'data:\|assets/' || echo "clean"
 ```
 
 **House style:** British spelling, sentence case in prose, no em-dash-free rewriting of existing copy just to match a linter. Prefer deleting a widget over adding one — the page has been trimmed once already for exactly that reason.
@@ -153,7 +168,7 @@ grep -o 'src="[^"]*"\|<link[^>]*href="[^"]*"' index.html | grep -v 'data:' || ec
 
 The live link is GitHub Pages serving this repo directly:
 
-1. Name the file **`index.html`** in the repo root, so the URL is a clean `/`.
+1. Keep **`index.html`** in the repo root, so the URL is a clean `/`.
 2. **Settings → Pages → Source: Deploy from a branch → `main` → `/ (root)` → Save.**
 3. Wait a minute, then visit `https://<your-username>.github.io/<repo>/`.
 4. If you fork it, update `og:url`, `og:image`, `twitter:image` and the two footer links in the `<head>` and footer — they point at this repo.
@@ -161,29 +176,6 @@ The live link is GitHub Pages serving this repo directly:
 No workflow file and no `.nojekyll` are needed: a plain HTML file at the root is served as-is.
 
 ---
-
-## Part 1.5 — [build one, in your browser](play.html)
-
-The gap between "read a page" and "clone a repo, install Python, get an API key" is where most people quit. So the first four stages happen in the browser with nothing installed:
-
-**0** your first real model call, and what it cost · **1** a rule-based till you extend until you feel the wall · **2** a prompt you write yourself · **3** the same twenty cases the Python course uses, scored live — then press *Add the menu* and watch the number move.
-
-That last screen is the whole argument of the course in one number, and it costs about a penny to see.
-
-## Part 2 — [the hands-on course](course/)
-
-Part 1 tells you *that* a loop recovers from a failed tool call. Part 2 has you write the loop and watch it happen, against a real model that really does give you a different answer to the same question.
-
-| | Stage | What it teaches |
-|---|---|---|
-| 0–1 | hello · kiosk | your key works; the wall that rules hit |
-| **2–3** | **prompt · evals** | **the same question, five answers — then how to measure that** |
-| 4–5 | context · loop | most "bad model" is "never told"; then tools, failure, recovery |
-| 6–8 | harness · graph · security | same model, four different mornings; request vs guarantee; input that gives orders |
-
-It runs on **DeepSeek or Claude** with no stage changes — DeepSeek ships an Anthropic-compatible endpoint, so one SDK drives both. Running the same eval on two providers is the fastest way to learn which of your assumptions were really just one vendor's behaviour.
-
-Python, one dependency, and **under 2 cents** of tokens end to end on `deepseek-v4-flash` (a few dollars on Claude Opus — same code either way, which is the point). `--offline` replays recorded answers if you have no key. Evals land third on purpose: once you have a number, every later change is a measurement instead of an argument.
 
 ## Licence
 

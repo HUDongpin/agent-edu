@@ -1,0 +1,243 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>aicourse.top — Top AI course</title>
+<meta name="description" content="A free, open course in agentic engineering for people new to software engineering. Three parts, about four hours. Finish having built a working AI agent and an eval suite that scores it. Nine languages, no account, MIT licensed.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FBFBFD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12151F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="aicourse.top">
+<meta property="og:title" content="aicourse.top — Top AI course">
+<meta property="og:description" content="Learn to build with AI, from first principles. Free, open, nine languages.">
+<meta property="og:url" content="https://aicourse.top/">
+<meta property="og:image" content="https://aicourse.top/docs/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://aicourse.top/docs/og-card.png">
+<link rel="stylesheet" href="assets/brand.css">
+
+<style>
+/* ---------------- home page only ---------------- */
+.hero{padding:56px 0 40px;text-align:center}
+.hero h1{font-size:clamp(30px,5.2vw,52px);line-height:1.1;margin:14px auto 0;max-width:19ch}
+.hero h1 .soft{color:var(--ink-3);display:block}
+.hero .lede{font-size:clamp(16px,1.9vw,19px);color:var(--ink-2);max-width:62ch;
+  margin:20px auto 0}
+.hero .acts{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.hero .free{margin-top:14px;font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+:root[lang="ar"] .hero .free{font-family:var(--sans)}
+
+.sect{padding:44px 0}
+.sect > h2{font-size:clamp(22px,3vw,30px);text-align:center}
+.sect > .sub{text-align:center;max-width:56ch;margin:9px auto 0;color:var(--ink-3)}
+
+/* ---- track cards ---- */
+.tracks{display:grid;gap:18px;margin-top:30px;
+  grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.track{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:22px;position:relative;overflow:hidden;
+  transition:border-color .15s, transform .15s}
+.track:hover{border-color:var(--brand);transform:translateY(-2px)}
+.track::before{content:"";position:absolute;inset-block-start:0;inset-inline:0;height:4px;
+  background:var(--tc,var(--brand))}
+.track .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:700;color:var(--tc,var(--brand))}
+:root[lang="ar"] .track .tag{letter-spacing:0;font-family:var(--sans)}
+.track h3{font-size:21px;margin:6px 0 9px}
+.track p{font-size:14.5px;margin:0 0 14px;flex:1 1 auto}
+.track .meta{font-size:12.5px;color:var(--ink-3);font-family:var(--mono);margin-bottom:14px}
+:root[lang="ar"] .track .meta{font-family:var(--sans)}
+.track .num{position:absolute;inset-block-start:14px;inset-inline-end:16px;
+  font-size:44px;font-weight:800;color:var(--tc,var(--brand));opacity:.11;line-height:1}
+
+/* ---- outcomes ---- */
+.grid2{display:grid;gap:16px;margin-top:28px;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.out{display:flex;gap:13px;background:var(--card);border:1px solid var(--line);
+  border-radius:11px;padding:16px}
+.out .ico{flex:0 0 auto;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+  background:var(--brand-soft);color:var(--brand);font-size:17px}
+.out h4{font-size:15px;margin:0 0 3px}
+.out p{font-size:13.5px;margin:0}
+
+.who{display:grid;gap:14px;margin-top:26px;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.who div{background:var(--bg-2);border:1px solid var(--line-2);border-radius:11px;padding:15px}
+.who h4{font-size:14.5px;margin:0 0 3px}
+.who p{font-size:13px;margin:0;color:var(--ink-3)}
+
+/* ---- progress ---- */
+.progwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;margin-top:24px}
+.progbar{height:8px;background:var(--line-2);border-radius:999px;overflow:hidden;margin:14px 0 4px}
+.progbar span{display:block;height:100%;background:var(--green);border-radius:999px;
+  transition:width .4s ease}
+.proglist{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:6px 18px;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.proglist li{font-size:13.5px;color:var(--ink-3);display:flex;gap:8px;align-items:baseline}
+.proglist li.done{color:var(--ink)}
+.proglist .tick{font-family:var(--mono);width:1.1em;flex:0 0 auto}
+.proglist li.done .tick{color:var(--green)}
+
+/* ---- faq ---- */
+.faq{margin-top:24px;display:grid;gap:9px}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:11px;
+  padding:13px 16px}
+.faq summary{font-weight:650;cursor:pointer;font-size:15px;list-style:none;
+  display:flex;align-items:center;gap:9px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::before{content:"＋";color:var(--brand);font-weight:700;flex:0 0 auto}
+.faq details[open] summary::before{content:"−"}
+.faq p{margin:9px 0 0;font-size:14px}
+.faq summary:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:4px}
+</style>
+
+<a class="skip" href="#main" data-i18n="ui.start">Skip to content</a>
+<div data-shell="home"></div>
+
+<main id="main" class="shellwrap">
+
+  <section class="hero">
+    <span class="eyebrow" data-i18n="home.kicker"></span>
+    <h1><span data-i18n="home.h1"></span> <span class="soft" data-i18n="home.h1b"></span></h1>
+    <p class="lede" data-i18n="home.lede"></p>
+    <div class="acts">
+      <a class="btn primary" href="play.html"><span data-i18n="home.cta"></span><span class="arrow">→</span></a>
+      <a class="btn" href="#curriculum" data-i18n="home.cta2"></a>
+    </div>
+    <p class="free" data-i18n="home.free"></p>
+  </section>
+
+  <section class="sect" id="curriculum">
+    <h2 data-i18n="home.pathTitle"></h2>
+    <p class="sub" data-i18n="home.pathLede"></p>
+    <div class="tracks">
+      <article class="track" style="--tc:var(--brand)">
+        <span class="num" aria-hidden="true">1</span>
+        <span class="tag" data-i18n="track.1.tag"></span>
+        <h3 data-i18n="track.1.title"></h3>
+        <p data-i18n="track.1.desc"></p>
+        <div class="meta" data-i18n="track.1.meta"></div>
+        <a class="btn" href="handbook.html"><span data-i18n="track.1.cta"></span><span class="arrow">→</span></a>
+      </article>
+      <article class="track" style="--tc:var(--green)">
+        <span class="num" aria-hidden="true">2</span>
+        <span class="tag" data-i18n="track.2.tag"></span>
+        <h3 data-i18n="track.2.title"></h3>
+        <p data-i18n="track.2.desc"></p>
+        <div class="meta" data-i18n="track.2.meta"></div>
+        <a class="btn primary" href="play.html"><span data-i18n="track.2.cta"></span><span class="arrow">→</span></a>
+      </article>
+      <article class="track" style="--tc:var(--violet)">
+        <span class="num" aria-hidden="true">3</span>
+        <span class="tag" data-i18n="track.3.tag"></span>
+        <h3 data-i18n="track.3.title"></h3>
+        <p data-i18n="track.3.desc"></p>
+        <div class="meta" data-i18n="track.3.meta"></div>
+        <a class="btn" href="https://github.com/HUDongpin/agent-edu/tree/main/course" rel="noopener"><span data-i18n="track.3.cta"></span><span class="arrow">→</span></a>
+      </article>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2 data-i18n="home.learnTitle"></h2>
+    <div class="grid2">
+      <div class="out"><span class="ico" aria-hidden="true">🎛️</span>
+        <div><h4 data-i18n="home.learn1"></h4><p data-i18n="home.learn1d"></p></div></div>
+      <div class="out"><span class="ico" aria-hidden="true">📊</span>
+        <div><h4 data-i18n="home.learn2"></h4><p data-i18n="home.learn2d"></p></div></div>
+      <div class="out"><span class="ico" aria-hidden="true">🔁</span>
+        <div><h4 data-i18n="home.learn3"></h4><p data-i18n="home.learn3d"></p></div></div>
+      <div class="out"><span class="ico" aria-hidden="true">🔒</span>
+        <div><h4 data-i18n="home.learn4"></h4><p data-i18n="home.learn4d"></p></div></div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2 data-i18n="home.forTitle"></h2>
+    <div class="who">
+      <div><h4 data-i18n="home.for1"></h4><p data-i18n="home.for1d"></p></div>
+      <div><h4 data-i18n="home.for2"></h4><p data-i18n="home.for2d"></p></div>
+      <div><h4 data-i18n="home.for3"></h4><p data-i18n="home.for3d"></p></div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2 data-i18n="home.progTitle"></h2>
+    <div class="progwrap">
+      <div id="progEmpty" class="muted" data-i18n="home.progNone"></div>
+      <div id="progReal" hidden>
+        <div class="row" style="display:flex;justify-content:space-between;align-items:baseline">
+          <strong id="progCount"></strong>
+          <button class="iconbtn" id="progReset" type="button" data-i18n="home.progReset"></button>
+        </div>
+        <div class="progbar"><span id="progFill" style="width:0%"></span></div>
+        <ul class="proglist" id="progList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2 data-i18n="home.faqTitle"></h2>
+    <div class="faq">
+      <details><summary data-i18n="home.q1"></summary><p data-i18n="home.a1"></p></details>
+      <details><summary data-i18n="home.q2"></summary><p data-i18n="home.a2"></p></details>
+      <details><summary data-i18n="home.q3"></summary><p data-i18n="home.a3"></p></details>
+      <details><summary data-i18n="home.q4"></summary><p data-i18n="home.a4"></p></details>
+    </div>
+  </section>
+
+</main>
+
+<div data-shell-foot></div>
+
+<script src="assets/i18n.js"></script>
+<script src="assets/shell.js"></script>
+<script>
+"use strict";
+/* Progress, read from the same localStorage object the handbook and lab write. */
+(function () {
+  var PROG = "ae.progress";
+  function read() { try { return JSON.parse(localStorage.getItem(PROG) || "{}"); } catch (e) { return {}; } }
+  function sections() {
+    try { return (localStorage.getItem("tch.seen") || "").split(",").filter(Boolean).length; }
+    catch (e) { return 0; }
+  }
+  var ITEMS = [
+    ["track.1.title", function () { var n = sections(); return n >= 6 ? n + "/11" : false; }],
+    ["home.learn1",   function (p) { return !!p.play0; }],
+    ["home.learn2",   function (p) { return p.evalBest ? p.evalBest + "/20" : false; }],
+    ["track.3.title", function (p) { return !!p.part2; }]
+  ];
+  function paint() {
+    var p = read();
+    var states = ITEMS.map(function (it) {
+      var v = it[1](p);
+      return { label: I18N.t(it[0]), done: !!v, note: typeof v === "string" ? v : "" };
+    });
+    var n = states.filter(function (s) { return s.done; }).length;
+    document.getElementById("progEmpty").hidden = n > 0;
+    document.getElementById("progReal").hidden = n === 0;
+    if (!n) return;
+    document.getElementById("progCount").textContent =
+      n + " " + I18N.t("ui.of") + " " + ITEMS.length;
+    document.getElementById("progFill").style.width = (n / ITEMS.length * 100) + "%";
+    var ul = document.getElementById("progList");
+    ul.innerHTML = "";
+    states.forEach(function (s) {
+      var li = document.createElement("li");
+      li.className = s.done ? "done" : "";
+      li.innerHTML = '<span class="tick">' + (s.done ? "✓" : "○") + "</span><span></span>";
+      li.lastChild.textContent = s.label + (s.note ? "  " + s.note : "");
+      ul.appendChild(li);
+    });
+  }
+  document.getElementById("progReset").addEventListener("click", function () {
+    try { localStorage.removeItem(PROG); localStorage.removeItem("tch.seen"); } catch (e) {}
+    paint();
+  });
+  window.onLangChange = paint;   // shell.js calls this after every apply()
+  paint();
+  window.addEventListener("focus", paint);
+})();
+</script>

@@ -1,12 +1,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Build one — agentic engineering, hands on</title>
+<title>The Lab · aicourse.top</title>
 <meta name="description" content="Four hands-on stages in your browser: make your first model call, hit the wall that rules hit, write a prompt, then score it against 20 real cases. No install.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#FBFBFD" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#12151F" media="(prefers-color-scheme: dark)">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234C6B8A'/%3E%3Crect x='6' y='9' width='20' height='4' rx='2' fill='%23E8B04B'/%3E%3Crect x='6' y='15' width='13' height='4' rx='2' fill='%236FA98A'/%3E%3Crect x='6' y='21' width='7' height='4' rx='2' fill='%23C96A5B'/%3E%3C/svg%3E">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 
+<link rel="stylesheet" href="assets/brand.css">
 <style>
 :root{
   --bg:#FBFBFD; --card:#FFFFFF; --ink:#16192B; --ink-2:#3D4359; --ink-3:#5C6379;
@@ -150,7 +151,9 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
 </style>
 
 <a class="skip" href="#main">Skip to the stages</a>
-<div class="wrap">
+<div data-shell="lab"></div>
+<div class="shellwrap"><p class="langnote" id="enOnly" hidden data-i18n="note.englishOnly"></p></div>
+<div class="wrap en-content" dir="ltr">
 
 <header class="top">
   <span class="eyebrow">Part 1.5 · hands on, in this tab</span>
@@ -161,7 +164,7 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
   <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek key</a>
   and about a penny.</p>
   <div class="row" style="margin-top:10px">
-    <a class="btn" href="index.html">← the illustrated page</a>
+    <a class="btn" href="handbook.html">← <span data-i18n="track.1.title"></span></a>
     <span class="spacer"></span>
     <button class="btn" id="themeBtn" type="button">◐ theme</button>
   </div>
@@ -341,7 +344,7 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
 </main>
 
 <footer>
-  <p>Part of <a href="index.html">The Control Handoff</a> ·
+  <p>Part of <a href="handbook.html">the handbook</a> ·
   <a href="https://github.com/HUDongpin/agent-edu" rel="noopener">source</a> · MIT.
   Your key never leaves this tab except to DeepSeek. Nothing is logged anywhere.</p>
 </footer>
@@ -748,3 +751,6 @@ window.addEventListener('hashchange',()=>{
   if(m&&+m!==at) go(+m);
 });
 </script>
+<div data-shell-foot></div>
+<script src="assets/i18n.js"></script>
+<script src="assets/shell.js"></script>

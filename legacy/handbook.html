@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Control Handoff</title>
+<title>The Handbook · aicourse.top</title>
 <meta name="description" content="An interactive, illustrated introduction to agentic engineering for beginners: plain code, prompts, context, loops, graphs, harnesses, evaluation and security. One self-contained HTML file, no build, no dependencies.">
 <meta name="author" content="HU Dongpin">
 <meta name="theme-color" content="#F6F7FC" media="(prefers-color-scheme: light)">
@@ -23,7 +23,8 @@
 <meta name="twitter:image" content="https://hudongpin.github.io/agent-edu/docs/og-card.png">
 
 <!-- the favicon is the page's own who's-driving bar: human blue, model amber -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2316192B'/%3E%3Crect x='5' y='13' width='13' height='6' rx='2' fill='%235B9BE0'/%3E%3Crect x='18' y='13' width='9' height='6' rx='2' fill='%23F0B455'/%3E%3C/svg%3E">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/brand.css">
 <style>
 /* ============================================================
    TOKENS
@@ -617,6 +618,8 @@ figcaption{font-family:var(--serif);font-size:15.6px;color:var(--ink-3);line-hei
 </head>
 <body>
 <a class="skip" href="#main">Skip to the section content</a>
+<div data-shell="handbook"></div>
+<div class="shellwrap"><p class="langnote" id="enOnly" hidden data-i18n="note.englishOnly"></p></div>
 <header class="masthead">
   <div class="rainbow" aria-hidden="true">
     <span style="background:var(--green)"></span><span style="background:var(--blue)"></span><span style="background:var(--teal)"></span><span style="background:var(--amber)"></span><span style="background:var(--magenta)"></span><span style="background:var(--amber)"></span><span style="background:var(--violet)"></span><span style="background:var(--steel)"></span><span style="background:var(--olive)"></span><span style="background:var(--bronze)"></span><span style="background:var(--indigo)"></span><span style="background:var(--coral)"></span>
@@ -634,21 +637,21 @@ figcaption{font-family:var(--serif);font-size:15.6px;color:var(--ink-3);line-hei
   </div>
 </header>
 
-<div class="shell">
+<div class="shell en-content" dir="ltr">
   <nav class="rail" aria-label="Sections">
     <div class="rail-title">The progression <span class="railcount" id="railCount"></span></div>
     <ul class="rail-list" role="tablist" aria-orientation="vertical" id="rail">
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-start"   aria-controls="p-start"   aria-selected="true"  data-p="start"   style="--c:var(--green)"><span class="stn"></span><span class="lbl"><span class="num">00</span>🧭 Start here</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-code"    aria-controls="p-code"    aria-selected="false" data-p="code"    style="--c:var(--blue)"><span class="stn"></span><span class="lbl"><span class="num">01</span>📜 Writing code</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-prompt"  aria-controls="p-prompt"  aria-selected="false" data-p="prompt"  style="--c:var(--teal)"><span class="stn"></span><span class="lbl"><span class="num">02</span>💬 Prompt engineering</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-context" aria-controls="p-context" aria-selected="false" data-p="context" style="--c:var(--magenta)"><span class="stn"></span><span class="lbl"><span class="num">03</span>🎒 Context engineering</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-loop"    aria-controls="p-loop"    aria-selected="false" data-p="loop"    style="--c:var(--amber)"><span class="stn"></span><span class="lbl"><span class="num">04</span>🔁 Loop engineering</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-graph"   aria-controls="p-graph"   aria-selected="false" data-p="graph"   style="--c:var(--violet)"><span class="stn"></span><span class="lbl"><span class="num">05</span>🕸️ Graph engineering</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-harness" aria-controls="p-harness" aria-selected="false" data-p="harness" style="--c:var(--steel)"><span class="stn"></span><span class="lbl"><span class="num">06</span>🔩 Harness engineering</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-evals" aria-controls="p-evals" aria-selected="false" data-p="evals" style="--c:var(--olive)"><span class="stn"></span><span class="lbl"><span class="num">07</span>📊 Evaluation engineering</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-security" aria-controls="p-security" aria-selected="false" data-p="security" style="--c:var(--bronze)"><span class="stn"></span><span class="lbl"><span class="num">08</span>🔒 Security engineering</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-compare" aria-controls="p-compare" aria-selected="false" data-p="compare" style="--c:var(--indigo)"><span class="stn"></span><span class="lbl"><span class="num">09</span>🧩 Which one, when</span></button></li>
-      <li role="presentation"><button class="rail-btn" role="tab" id="tab-play" aria-controls="p-play" aria-selected="false" data-p="play" style="--c:var(--coral)"><span class="stn"></span><span class="lbl"><span class="num">10</span>🎮 Play the game</span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-start"   aria-controls="p-start"   aria-selected="true"  data-p="start"   style="--c:var(--green)"><span class="stn"></span><span class="lbl"><span class="num">00</span>🧭 <span data-i18n="hb.start">Start here</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-code"    aria-controls="p-code"    aria-selected="false" data-p="code"    style="--c:var(--blue)"><span class="stn"></span><span class="lbl"><span class="num">01</span>📜 <span data-i18n="hb.code">Writing code</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-prompt"  aria-controls="p-prompt"  aria-selected="false" data-p="prompt"  style="--c:var(--teal)"><span class="stn"></span><span class="lbl"><span class="num">02</span>💬 <span data-i18n="hb.prompt">Prompt engineering</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-context" aria-controls="p-context" aria-selected="false" data-p="context" style="--c:var(--magenta)"><span class="stn"></span><span class="lbl"><span class="num">03</span>🎒 <span data-i18n="hb.context">Context engineering</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-loop"    aria-controls="p-loop"    aria-selected="false" data-p="loop"    style="--c:var(--amber)"><span class="stn"></span><span class="lbl"><span class="num">04</span>🔁 <span data-i18n="hb.loop">Loop engineering</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-graph"   aria-controls="p-graph"   aria-selected="false" data-p="graph"   style="--c:var(--violet)"><span class="stn"></span><span class="lbl"><span class="num">05</span>🕸️ <span data-i18n="hb.graph">Graph engineering</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-harness" aria-controls="p-harness" aria-selected="false" data-p="harness" style="--c:var(--steel)"><span class="stn"></span><span class="lbl"><span class="num">06</span>🔩 <span data-i18n="hb.harness">Harness engineering</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-evals" aria-controls="p-evals" aria-selected="false" data-p="evals" style="--c:var(--olive)"><span class="stn"></span><span class="lbl"><span class="num">07</span>📊 <span data-i18n="hb.evals">Evaluation engineering</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-security" aria-controls="p-security" aria-selected="false" data-p="security" style="--c:var(--bronze)"><span class="stn"></span><span class="lbl"><span class="num">08</span>🔒 <span data-i18n="hb.security">Security engineering</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-compare" aria-controls="p-compare" aria-selected="false" data-p="compare" style="--c:var(--indigo)"><span class="stn"></span><span class="lbl"><span class="num">09</span>🧩 <span data-i18n="hb.compare">Which one, when</span></span></button></li>
+      <li role="presentation"><button class="rail-btn" role="tab" id="tab-play" aria-controls="p-play" aria-selected="false" data-p="play" style="--c:var(--coral)"><span class="stn"></span><span class="lbl"><span class="num">10</span>🎮 <span data-i18n="hb.play">Play the game</span></span></button></li>
     </ul>
     <div class="rail-foot">
       <p class="mono-note">🔌 Everything here runs on your own machine. No internet, no AI model, no account. The "model" replies are scripted so you can see the pattern.</p>
@@ -1550,7 +1553,7 @@ figcaption{font-family:var(--serif);font-size:15.6px;color:var(--ink-3);line-hei
         <p style="margin-top:10px;font-size:16.5px"><strong>Part 1.5 is four stages you can do right now, in this browser</strong> — one real API call, the wall that rules hit, a prompt you write, and then <em>twenty cases that score it</em>. No install, no repo, about a penny. Start there.</p>
         <p style="margin-top:8px;font-size:16.5px"><strong>Part 2 is the other five stages</strong>, in Python: the agent loop, tools that fail on purpose, a permission gate, a reviewer that cannot be skipped, and prompt injection.</p>
         <div class="row" style="margin-top:13px">
-          <a class="btn primary" style="--sec:var(--olive);text-decoration:none" href="play.html">🛠️ Build one — start here →</a>
+          <a class="btn primary" style="--sec:var(--olive);text-decoration:none" href="play.html">🛠️ <span data-i18n="track.2.cta"></span> →</a>
           <a class="btn" style="text-decoration:none" href="https://github.com/HUDongpin/agent-edu/tree/main/course" rel="noopener">Part 2 (Python) →</a>
         </div>
       </div>
@@ -3620,3 +3623,6 @@ const RECALL={
 </script>
 </body>
 </html>
+<div data-shell-foot></div>
+<script src="assets/i18n.js"></script>
+<script src="assets/shell.js"></script>

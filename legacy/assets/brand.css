@@ -1,0 +1,206 @@
+/* aicourse.top — platform shell
+   ---------------------------------------------------------------------------
+   Header, footer, language menu and the design tokens every page shares.
+
+   Written with CSS *logical* properties throughout (margin-inline-start rather
+   than margin-left, and so on) so that setting dir="rtl" on <html> mirrors the
+   whole layout for Arabic without a second stylesheet. */
+
+:root{
+  /* neutrals */
+  --bg:#FBFBFD; --bg-2:#F4F5F9; --card:#FFFFFF;
+  --ink:#16192B; --ink-2:#3D4359; --ink-3:#5C6379;
+  --line:#DCDFE9; --line-2:#EBEDF3;
+
+  /* brand */
+  --brand:#26456F; --brand-2:#33578A; --brand-soft:#E8EEF6; --brand-line:#A9C0D8;
+  --gold:#8A5D0F; --gold-mark:#E0A32E; --gold-soft:#FBEFD8; --gold-line:#E0BE7C;
+
+  /* The logo A. PedaNova light blue (#90D0F5) is only 1.68:1 on white, so the
+     light theme uses the SAME hue deepened to 3.79:1. Dark gets the exact
+     brand colour. Both are hsl(202°) — it reads as one blue, not two. */
+  --logo-a:#1B8ACB;
+
+  /* functional palette, shared with the handbook's diagrams */
+  --green:#2F6B4F; --green-soft:#E2F0E8; --green-line:#9CC7B0;
+  --red:#9C3B31;   --red-soft:#FBE7E4;   --red-line:#E2A79F;
+  --violet:#5B4A8A;--violet-soft:#ECE7F7;--violet-line:#BCACDE;
+
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",
+         "Noto Sans","Noto Sans Arabic","Noto Sans SC","Noto Sans TC",
+         "Noto Sans JP","Noto Sans KR",Arial,sans-serif;
+
+  --radius:13px;
+  --shadow:0 1px 2px rgba(22,25,43,.05), 0 8px 24px -12px rgba(22,25,43,.14);
+  --maxw:1120px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#12151F; --bg-2:#171B27; --card:#191D2B;
+    --ink:#EAEDF8; --ink-2:#BFC6DA; --ink-3:#98A0B8;
+    --line:#2C3244; --line-2:#232838;
+    --brand:#8FB4DA; --brand-2:#A8C6E4; --brand-soft:#1B2636; --brand-line:#3B5573;
+    --gold:#E5BC72; --gold-mark:#E5BC72; --gold-soft:#33270F; --gold-line:#6E5522;
+    --green:#8FCCAC; --green-soft:#152A20; --green-line:#2F5C45;
+    --red:#E9A79E;   --red-soft:#301B18;   --red-line:#6B3A33;
+    --violet:#BFAEE4;--violet-soft:#211B33;--violet-line:#463A68;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    --logo-a:#90D0F5;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12151F; --bg-2:#171B27; --card:#191D2B;
+  --ink:#EAEDF8; --ink-2:#BFC6DA; --ink-3:#98A0B8;
+  --line:#2C3244; --line-2:#232838;
+  --brand:#8FB4DA; --brand-2:#A8C6E4; --brand-soft:#1B2636; --brand-line:#3B5573;
+  --gold:#E5BC72; --gold-mark:#E5BC72; --gold-soft:#33270F; --gold-line:#6E5522;
+  --green:#8FCCAC; --green-soft:#152A20; --green-line:#2F5C45;
+  --red:#E9A79E;   --red-soft:#301B18;   --red-line:#6B3A33;
+  --violet:#BFAEE4;--violet-soft:#211B33;--violet-line:#463A68;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  --logo-a:#90D0F5;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility}
+
+/* Arabic reads better a touch larger and looser */
+:root[lang="ar"] body{font-size:17px;line-height:1.85}
+
+.shellwrap{max-width:var(--maxw);margin-inline:auto;padding-inline:20px}
+
+a{color:inherit;text-underline-offset:2px}
+h1,h2,h3{letter-spacing:-.015em;margin:0}
+p{margin:0 0 12px;color:var(--ink-2)}
+:root[lang="ar"] h1,:root[lang="ar"] h2,:root[lang="ar"] h3{letter-spacing:0}
+
+.skip{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);
+  white-space:nowrap}
+.skip:focus{position:static;width:auto;height:auto;clip-path:none;
+  padding:9px 13px;background:var(--brand-soft);border-radius:9px;display:inline-block}
+
+/* ============================ header ============================ */
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:saturate(160%) blur(12px);border-block-end:1px solid var(--line)}
+@supports not (backdrop-filter:blur(1px)){ .topbar{background:var(--bg)} }
+.topbar-in{max-width:var(--maxw);margin-inline:auto;padding:10px 20px;
+  display:flex;align-items:center;gap:14px;min-width:0}
+.topbar-in > *{min-width:0}
+
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--logo-a);
+  flex:0 0 auto}
+.logo svg{display:block;width:32px;height:32px;flex:0 0 auto}
+.logo .wm{font-size:19px;font-weight:750;letter-spacing:-.03em;color:var(--ink);
+  white-space:nowrap}
+.logo .wm i{font-style:normal;color:var(--gold)}
+.logo .tagline{display:block;font-family:var(--mono);font-size:8.6px;letter-spacing:.2em;
+  color:var(--ink-3);text-transform:uppercase;margin-block-start:-3px}
+
+.mainnav{display:flex;gap:2px;margin-inline-start:14px;flex:1 1 auto}
+.mainnav a{font-size:14px;font-weight:600;color:var(--ink-2);text-decoration:none;
+  padding:7px 11px;border-radius:8px;white-space:nowrap}
+.mainnav a:hover{background:var(--bg-2);color:var(--ink)}
+.mainnav a[aria-current="page"]{color:var(--brand);background:var(--brand-soft)}
+
+.topacts{display:flex;gap:7px;align-items:center;flex:0 0 auto}
+
+.iconbtn{font:inherit;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;
+  gap:6px;padding:7px 11px;border-radius:9px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink);cursor:pointer;white-space:nowrap}
+.iconbtn:hover{border-color:var(--brand)}
+.iconbtn:focus-visible,.mainnav a:focus-visible,.logo:focus-visible{
+  outline:2px solid var(--brand);outline-offset:2px}
+
+/* language menu */
+.langwrap{position:relative}
+.langmenu{position:absolute;inset-block-start:calc(100% + 7px);inset-inline-end:0;
+  min-width:216px;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);padding:6px;z-index:60}
+.langmenu[hidden]{display:none}
+.langmenu button{display:flex;width:100%;align-items:center;gap:10px;font:inherit;
+  font-size:14px;padding:8px 10px;border:0;background:none;color:var(--ink);
+  border-radius:8px;cursor:pointer;text-align:start}
+.langmenu button:hover{background:var(--bg-2)}
+.langmenu button[aria-current="true"]{background:var(--brand-soft);color:var(--brand);
+  font-weight:650}
+.langmenu .en{margin-inline-start:auto;font-size:11.5px;color:var(--ink-3);
+  font-family:var(--mono)}
+.langmenu .flag{font-size:16px;line-height:1}
+
+.navtoggle{display:none}
+@media(max-width:860px){
+  .mainnav{display:none;position:absolute;inset-block-start:100%;inset-inline:0;
+    background:var(--card);border-block-end:1px solid var(--line);flex-direction:column;
+    padding:8px;gap:2px;box-shadow:var(--shadow)}
+  .mainnav.open{display:flex}
+  .navtoggle{display:inline-flex}
+  .logo .tagline{display:none}
+}
+/* Below ~520px the wordmark plus three buttons no longer fit on one row, and
+   the overflow pushed the whole page sideways — worst in RTL, where it hid
+   the start of every line. Shrink the brand and drop the language name; the
+   globe and the flag still say what the button does. */
+@media(max-width:520px){
+  .topbar-in{padding-inline:14px;gap:8px}
+  .logo{gap:7px}
+  .logo svg{width:27px;height:27px}
+  .logo .wm{font-size:16px}
+  #aeLangNow{display:none}
+  .iconbtn{padding:7px 9px}
+}
+@media(max-width:380px){
+  .logo .wm{font-size:0}                 /* mark only; the name is in <title> */
+  .logo .wm i{font-size:0}
+}
+
+/* ============================ footer ============================ */
+.sitefoot{margin-block-start:70px;border-block-start:1px solid var(--line);
+  background:var(--bg-2)}
+.sitefoot-in{max-width:var(--maxw);margin-inline:auto;padding:30px 20px 40px;
+  display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.sitefoot h4{font-size:13px;margin:0 0 8px;color:var(--ink)}
+.sitefoot p,.sitefoot li{font-size:13.5px;color:var(--ink-3);margin:0 0 6px}
+.sitefoot ul{list-style:none;padding:0;margin:0}
+.sitefoot a{color:var(--ink-2)}
+
+/* ============================ shared bits ============================ */
+.btn{font:inherit;font-size:14.5px;font-weight:650;padding:10px 18px;border-radius:10px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:8px;line-height:1.35}
+.btn:hover:not(:disabled){border-color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--bg)}
+.btn.primary:hover{background:var(--brand-2);border-color:var(--brand-2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.btn .arrow{display:inline-block}
+:root[dir="rtl"] .btn .arrow{transform:scaleX(-1)}
+
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;
+  font-weight:700;color:var(--brand)}
+:root[lang="ar"] .eyebrow{letter-spacing:0;font-family:var(--sans)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.muted{color:var(--ink-3);font-size:13.5px}
+
+.langnote{border-inline-start:4px solid var(--gold);background:var(--gold-soft);
+  padding:11px 14px;border-radius:0 10px 10px 0;font-size:13.5px;color:var(--ink-2);
+  margin:16px 0}
+:root[dir="rtl"] .langnote{border-radius:10px 0 0 10px}
+
+/* Content not yet translated stays LTR even when the shell is RTL. Arabic
+   readers get a localised interface; the English article keeps its own
+   direction so punctuation, wrapping and code samples stay correct. Faking
+   RTL on English text just puts the full stops on the wrong side. */
+[dir="ltr"]{direction:ltr;text-align:start}
+:root[dir="rtl"] .en-content{direction:ltr;text-align:left}
+:root[dir="rtl"] .en-content .langnote{text-align:start}
+
+/* selects must never clip their own label, in either direction */
+select{width:auto;max-width:100%;flex:0 1 auto;
+  padding-inline-end:28px;text-overflow:ellipsis}
+
+@media print{ .topbar,.sitefoot,.langwrap,.navtoggle{display:none!important} }

@@ -1,28 +1,54 @@
 # ---------------------------------------------------------------------------
 # Secrets. This repo is public. Nothing in this block may ever be committed.
+# (create-next-app overwrote this file once already — if you re-scaffold,
+#  check this block survived before you run `git add`.)
 # ---------------------------------------------------------------------------
 *.docx
 *.doc
 .~*
 .env
 .env.*
+*.pem
 *.key
 *secret*
 *credential*
 *API*Key*
-*api*key*
 
 # Recorded model replies (may contain your prompts; regenerate locally)
 course/cafe/fixtures.*.json
 course/progress.json
 
-# Local dev tooling, not part of the project
+# ---------------------------------------------------------------------------
+# Build output and dependencies
+# ---------------------------------------------------------------------------
+/node_modules
+/.next/
+/out/
+/build
+/coverage
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Python virtualenvs, anywhere in the tree
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Local dev tooling
 .claude/
 
 # Junk
 .DS_Store
-__pycache__/
-*.pyc
-.venv/
-venv/
-.vercel
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*

@@ -12,6 +12,9 @@
 
 # Not part of the website
 course/
+legacy/
+.next/
+out/
 .claude/
 TEACHING.md
 .git/
