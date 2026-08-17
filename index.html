@@ -597,6 +597,14 @@ figcaption{font-family:var(--serif);font-size:15.6px;color:var(--ink-3);line-hei
     border:1px solid var(--line);background:var(--bg);color:var(--ink)}
   .keyin:focus{outline:2px solid var(--sec);outline-offset:1px}
   .modelout.live-wait{opacity:.5}
+  .prog{border:1px solid var(--line);border-radius:11px;padding:12px 13px;
+    background:var(--card);margin-top:15px}
+  .prog ul{list-style:none;margin:9px 0 0;padding:0;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:5px 13px}
+  .prog li{font-size:13px;color:var(--ink-3);display:flex;gap:7px;align-items:baseline}
+  .prog li.done{color:var(--ink)}
+  .prog .tick{font-family:var(--mono);font-size:12px;width:1.1em;flex:0 0 auto}
+  .prog li.done .tick{color:var(--green)}
   .livebar a{color:var(--ink);text-decoration:underline;text-underline-offset:2px;
     text-decoration-thickness:1px}
   .livebar a:hover{text-decoration-thickness:2px}
@@ -668,6 +676,15 @@ figcaption{font-family:var(--serif);font-size:15.6px;color:var(--ink-3);line-hei
           <figcaption style="margin-top:9px"><strong>Only four marks appear here on purpose.</strong> Context, harness, evaluation and security engineering have no honest position on these two axes — none of them is a way of getting the work done, so none of them “finishes a job” at all. That is precisely what makes them different, and it is why they sit underneath the map below rather than somewhere on this chart.</figcaption>
         </figure>
       </div>
+    </div>
+
+    <div class="prog" id="progCard" hidden>
+      <div class="row" style="justify-content:space-between">
+        <strong style="font-size:14px">🧭 Where you are</strong>
+        <span class="mono-note" id="progPct"></span>
+      </div>
+      <ul id="progList"></ul>
+      <p class="small" style="margin:10px 0 0" id="progNext"></p>
     </div>
 
     <div class="cards4 mt16">
@@ -1530,9 +1547,11 @@ figcaption{font-family:var(--serif);font-size:15.6px;color:var(--ink-3);line-hei
       <div class="card-h" style="background:var(--olive-soft)"><span>🛠️ Ready to build one?</span></div>
       <div class="card-b">
         <p style="font-size:16.5px">This page gave you the mental model. It did not make you a practitioner — you never wrote anything, and every "model" reply here was scripted.</p>
-        <p style="margin-top:10px;font-size:16.5px"><strong>Part 2 is nine stages where you build the same café for real</strong> against the Claude API: your own prompt, your own eval suite, your own agent loop, your own permission gate. A few dollars of tokens end to end.</p>
+        <p style="margin-top:10px;font-size:16.5px"><strong>Part 1.5 is four stages you can do right now, in this browser</strong> — one real API call, the wall that rules hit, a prompt you write, and then <em>twenty cases that score it</em>. No install, no repo, about a penny. Start there.</p>
+        <p style="margin-top:8px;font-size:16.5px"><strong>Part 2 is the other five stages</strong>, in Python: the agent loop, tools that fail on purpose, a permission gate, a reviewer that cannot be skipped, and prompt injection.</p>
         <div class="row" style="margin-top:13px">
-          <a class="btn primary" style="--sec:var(--olive);text-decoration:none" href="https://github.com/HUDongpin/agent-edu/tree/main/course" rel="noopener">Open the hands-on course →</a>
+          <a class="btn primary" style="--sec:var(--olive);text-decoration:none" href="play.html">🛠️ Build one — start here →</a>
+          <a class="btn" style="text-decoration:none" href="https://github.com/HUDongpin/agent-edu/tree/main/course" rel="noopener">Part 2 (Python) →</a>
         </div>
       </div>
     </div>
@@ -2296,6 +2315,58 @@ const RECALL={
   function syncToggles(){ $$('.tg',tgBox).forEach(b=>b.setAttribute('aria-pressed',on[b.dataset.id]?'true':'false')); }
   $('#pAll').addEventListener('click',()=>{PARTS.forEach(p=>on[p.id]=true);syncToggles();seen=new Set();runs=0;render(true);});
   $('#pNone').addEventListener('click',()=>{PARTS.forEach(p=>on[p.id]=false);syncToggles();seen=new Set();runs=0;render(true);});
+  /* ---- shared progress: this page, Part 1.5 and the Python course ----
+     One localStorage object, written by play.html too, so the learner sees
+     one journey rather than three disconnected things. No account, no
+     server, no tracking — it never leaves the browser. */
+  (function(){
+    const PROG='ae.progress';
+    const read=()=>{try{return JSON.parse(localStorage.getItem(PROG)||'{}')}catch(e){return{}}};
+    /* Read sections straight from storage, NOT from the enclosing `seen` —
+       that one counts distinct model answers in this section and is a
+       different thing entirely. */
+    const sectionsRead=()=>{try{
+      return (localStorage.getItem('tch.seen')||'').split(',').filter(Boolean).length;
+    }catch(e){return 0;}};
+    const ITEMS=[
+      ['read',  'Read the page',            ()=>sectionsRead()>=6, ()=>sectionsRead()+'/11 sections'],
+      ['play0', 'Made a real model call',   p=>!!p.play0],
+      ['play1', 'Felt the rules wall',      p=>!!p.play1],
+      ['play2', 'Wrote a prompt',           p=>!!p.play2],
+      ['play3', 'Scored it on 20 cases',    p=>p.evalBest?('best '+p.evalBest+'/20'):false],
+      ['part2', 'Built the agent (Part 2)', p=>!!p.part2]
+    ];
+    function paint(){
+      const p=read();
+      const card=$('#progCard'), ul=$('#progList');
+      const states=ITEMS.map(([k,label,test,extra])=>{
+        const v=test(p); return {label,done:!!v,
+          note:typeof v==='string'?v:(extra?extra():'')};
+      });
+      const n=states.filter(s=>s.done).length;
+      if(!n){ card.hidden=true; return; }      // nothing to brag about yet
+      card.hidden=false;
+      ul.innerHTML='';
+      states.forEach(st=>{
+        const li=document.createElement('li');
+        li.className=st.done?'done':'';
+        li.innerHTML='<span class="tick">'+(st.done?'✓':'○')+'</span><span>'+
+          esc(st.label)+(st.note?' <span class="mono-note">'+esc(st.note)+'</span>':'')+'</span>';
+        ul.appendChild(li);
+      });
+      $('#progPct').textContent=n+' of '+ITEMS.length;
+      const nextUp=states.findIndex(s=>!s.done);
+      $('#progNext').innerHTML = nextUp<0
+        ? 'All of it. Now throw the café away and do <a href="https://github.com/HUDongpin/agent-edu/blob/main/course/README.md" rel="noopener">stage 9</a> on a domain you actually know.'
+        : 'Next: '+esc(states[nextUp].label)+
+          (nextUp>0&&nextUp<5?' — <a href="play.html">Part 1.5</a> takes about twenty minutes.':'');
+    }
+    paint();
+    window.addEventListener('storage',paint);
+    window.addEventListener('focus',paint);
+    window.__paintProgress=paint;
+  })();
+
   /* ---- live mode: the one place this page talks to a real model ------
      Everything else here is scripted on purpose. This is opt-in, uses the
      reader's OWN key, holds it in sessionStorage (gone when the tab closes)

@@ -4,6 +4,8 @@ The [web page](../index.html) gives you the mental model in 45 minutes. It does 
 
 This is the other half. **One café, nine commits, real API calls.** At the end you have an agent you built, an eval suite that scores it, and a harness you would leave running overnight.
 
+> **Before you start: this part assumes you can read and write basic Python.** Not much — functions, dicts, a `for` loop — but if that sentence made you uneasy, you are not the problem and you are not stuck. Do **[Part 1.5](../play.html)** first: the same first four lessons, in your browser, with nothing to install and no Python at all. Come back here when you want the agent loop.
+
 ## Before you start
 
 ```bash
@@ -51,6 +53,12 @@ The differences that *don't* vanish are the interesting part, and all of them li
 
 This is what a provider abstraction is actually for. Not "swap the URL" — anyone can do that. It is knowing which of your assumptions were really vendor behaviour, and the only way to find out is to run the same suite against two of them. Try it: `CAFE_PROVIDER=... python check.py 3` and compare the scores.
 
+## Using this with a class
+
+There is a **[90-minute lesson plan](../TEACHING.md)** with timings, what to demo live, and where to stop.
+
+Worth knowing if you are teaching in mainland China: the DeepSeek path needs **no VPN**, costs about **two cents per learner** for the whole course, and `deepseek-v4-flash` is fast enough to run live in front of a room. That is the main reason this course is provider-agnostic rather than Claude-only.
+
 ## The nine stages
 
 | | Stage | You write | What it teaches |
@@ -89,5 +97,39 @@ Do **2 and 3**. First real call, first eval. That pair turns a reader into a pra
 What is real: the API calls, the nondeterminism, the failures your agent recovers from, and the money it spends.
 
 ---
+
+## Your report card
+
+Every stage that produces a number records it. See the lot at once:
+
+```bash
+python report.py
+```
+
+```
+  3  evals      7/20  ← your baseline
+  4  context    19/20  with the menu in context
+  ...
+  The only number that matters: 7/20 → 19/20 (+12)
+```
+
+The 20 café cases deliberately **stop** at stage 4. An agent placing restock orders is not taking orders, so stages 5–8 report the measure that actually fits them — money spent unattended, drafts the reviewer stopped, the refund the cap held. Forcing one suite onto every stage would look tidier and tell you less.
+
+## Stage 9 — build your own
+
+The café is a stand-in. The last thing to do is throw it away.
+
+Pick a domain you actually know: a library's returns desk, a lab booking system, a tutoring service, your own inbox. Then build the same nine things for it —
+
+1. the rules version, and the phrasing that breaks it
+2. a prompt that replaces the rules
+3. **twenty cases of your own**, twelve rule-checked, eight judged
+4. whatever context the model needs and does not have
+5. a tool it can call, and the loop
+6. a gate on the one action you could not undo
+7. a step no model is allowed to skip
+8. the input that comes from a stranger
+
+Nobody will grade it. The point is that you now know what the twenty cases *are* for your own domain — which is the part that cannot be taught by a café.
 
 Licensed [MIT](../LICENSE), same as the rest of this repo. Corrections and extra stages welcome via [issues](https://github.com/HUDongpin/agent-edu/issues).

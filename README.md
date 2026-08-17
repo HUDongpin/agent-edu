@@ -6,7 +6,15 @@ Every program is a list of steps. The only question is *who picks them*. This pa
 
 **▶ [Open the live version](https://hudongpin.github.io/agent-edu/)** · no install, no account, no API key
 
-It comes in two parts. **Part 1** is the page above: the mental model, in 45 minutes, with nothing to install. **Part 2** is [`course/`](course/): nine stages where you build the same café for real against the Claude API, and finish with an agent, an eval suite and a harness you wrote yourself.
+It comes in three parts, and each one asks a bit more of you.
+
+| | | Needs |
+|---|---|---|
+| **Part 1** — [the page](https://agent-edu-kohl.vercel.app/) | the mental model, 45 minutes, eleven sections | nothing |
+| **Part 1.5** — [build one](https://agent-edu-kohl.vercel.app/play.html) | four stages in your browser: a real API call, the rules wall, a prompt you write, **and twenty cases that score it** | a DeepSeek key · ~1p |
+| **Part 2** — [`course/`](course/) | five more stages in Python: the agent loop, a permission gate, a reviewer that can't be skipped, prompt injection | Python · ~2¢ |
+
+Teaching it? There's a **[90-minute lesson plan](TEACHING.md)**.
 
 ![The landing section: a title reading "Every program is a list of steps. The only question is who picks them", a left rail listing eleven sections, and a scatter chart called The Dial](docs/preview.png)
 
@@ -153,6 +161,14 @@ The live link is GitHub Pages serving this repo directly:
 No workflow file and no `.nojekyll` are needed: a plain HTML file at the root is served as-is.
 
 ---
+
+## Part 1.5 — [build one, in your browser](play.html)
+
+The gap between "read a page" and "clone a repo, install Python, get an API key" is where most people quit. So the first four stages happen in the browser with nothing installed:
+
+**0** your first real model call, and what it cost · **1** a rule-based till you extend until you feel the wall · **2** a prompt you write yourself · **3** the same twenty cases the Python course uses, scored live — then press *Add the menu* and watch the number move.
+
+That last screen is the whole argument of the course in one number, and it costs about a penny to see.
 
 ## Part 2 — [the hands-on course](course/)
 

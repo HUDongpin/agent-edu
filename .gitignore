@@ -14,6 +14,10 @@
 
 # Recorded model replies (may contain your prompts; regenerate locally)
 course/cafe/fixtures.*.json
+course/progress.json
+
+# Local dev tooling, not part of the project
+.claude/
 
 # Junk
 .DS_Store
@@ -21,3 +25,4 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+.vercel

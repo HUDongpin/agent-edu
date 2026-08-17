@@ -1,0 +1,750 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Build one — agentic engineering, hands on</title>
+<meta name="description" content="Four hands-on stages in your browser: make your first model call, hit the wall that rules hit, write a prompt, then score it against 20 real cases. No install.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FBFBFD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12151F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234C6B8A'/%3E%3Crect x='6' y='9' width='20' height='4' rx='2' fill='%23E8B04B'/%3E%3Crect x='6' y='15' width='13' height='4' rx='2' fill='%236FA98A'/%3E%3Crect x='6' y='21' width='7' height='4' rx='2' fill='%23C96A5B'/%3E%3C/svg%3E">
+
+<style>
+:root{
+  --bg:#FBFBFD; --card:#FFFFFF; --ink:#16192B; --ink-2:#3D4359; --ink-3:#5C6379;
+  --line:#DCDFE9; --line-2:#EBEDF3;
+  --blue:#3B5C82; --blue-soft:#E6EDF5; --blue-line:#A9C0D8;
+  --amber:#8A5D0F; --amber-soft:#FBEFD8; --amber-line:#E0BE7C;
+  --green:#2F6B4F; --green-soft:#E2F0E8; --green-line:#9CC7B0;
+  --red:#9C3B31; --red-soft:#FBE7E4; --red-line:#E2A79F;
+  --violet:#5B4A8A; --violet-soft:#ECE7F7; --violet-line:#BCACDE;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --sec:var(--blue);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#12151F; --card:#191D2B; --ink:#EAEDF8; --ink-2:#BFC6DA; --ink-3:#98A0B8;
+    --line:#2C3244; --line-2:#232838;
+    --blue:#8FB4DA; --blue-soft:#1B2636; --blue-line:#3B5573;
+    --amber:#E5BC72; --amber-soft:#33270F; --amber-line:#6E5522;
+    --green:#8FCCAC; --green-soft:#152A20; --green-line:#2F5C45;
+    --red:#E9A79E; --red-soft:#301B18; --red-line:#6B3A33;
+    --violet:#BFAEE4; --violet-soft:#211B33; --violet-line:#463A68;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12151F; --card:#191D2B; --ink:#EAEDF8; --ink-2:#BFC6DA; --ink-3:#98A0B8;
+  --line:#2C3244; --line-2:#232838;
+  --blue:#8FB4DA; --blue-soft:#1B2636; --blue-line:#3B5573;
+  --amber:#E5BC72; --amber-soft:#33270F; --amber-line:#6E5522;
+  --green:#8FCCAC; --green-soft:#152A20; --green-line:#2F5C45;
+  --red:#E9A79E; --red-soft:#301B18; --red-line:#6B3A33;
+  --violet:#BFAEE4; --violet-soft:#211B33; --violet-line:#463A68;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1020px;margin:0 auto;padding:26px 20px 90px}
+a{color:var(--ink);text-underline-offset:2px}
+h1{font-size:29px;line-height:1.2;margin:0 0 8px;letter-spacing:-.015em}
+h2{font-size:22px;margin:0 0 6px;letter-spacing:-.01em}
+h3{font-size:15px;margin:0 0 6px}
+p{margin:0 0 11px;color:var(--ink-2)}
+code,kbd{font-family:var(--mono);font-size:.88em;background:var(--line-2);
+  padding:1px 5px;border-radius:4px}
+.skip{position:absolute;width:1px;height:1px;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap}
+.skip:focus{position:static;width:auto;height:auto;clip-path:none;
+  padding:8px 12px;background:var(--blue-soft);border-radius:8px;display:inline-block}
+
+header.top{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:20px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--sec);font-weight:700}
+.lede{font-size:17px;color:var(--ink-2);max-width:74ch}
+
+/* stepper */
+.steps{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 22px}
+.step{flex:1 1 150px;min-width:0;text-align:left;background:var(--card);
+  border:1px solid var(--line);border-radius:10px;padding:9px 11px;cursor:pointer;
+  font:inherit;color:var(--ink-3);position:relative;transition:.12s}
+.step:hover{border-color:var(--sec)}
+.step .n{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;display:block;font-weight:700}
+.step .t{font-size:13.5px;font-weight:650;color:var(--ink);display:block;line-height:1.3}
+.step[aria-selected="true"]{border-color:var(--sec);box-shadow:inset 0 0 0 1px var(--sec);
+  background:var(--blue-soft)}
+.step.done .n::after{content:" ✓";color:var(--green)}
+.step:focus-visible{outline:2px solid var(--sec);outline-offset:2px}
+
+.stage{display:none}
+.stage.on{display:block;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  margin:14px 0;overflow:hidden}
+.card-h{padding:9px 13px;border-bottom:1px solid var(--line);font-weight:650;
+  font-size:13.5px;display:flex;align-items:center;gap:9px;background:var(--line-2)}
+.card-b{padding:13px}
+.spacer{flex:1}
+.small{font-size:13px;color:var(--ink-3);line-height:1.55}
+.mono-note{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+.btn{font:inherit;font-size:13.5px;font-weight:600;padding:7px 14px;border-radius:8px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--sec)}
+.btn.primary{background:var(--sec);border-color:var(--sec);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#12151F}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .btn.primary{color:#12151F}
+}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible{outline:2px solid var(--sec);outline-offset:2px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+input[type=text],input[type=password],textarea,select{
+  font:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;
+  border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  width:100%;min-width:0;font-family:var(--mono)}
+textarea{resize:vertical;line-height:1.55}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--sec);outline-offset:1px}
+
+.out{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;word-break:break-word;
+  background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px;
+  min-height:52px;line-height:1.5}
+.out.wait{opacity:.5}
+
+.keybar{border:1px solid var(--amber-line);background:var(--amber-soft);
+  border-radius:11px;padding:12px 13px;margin:14px 0}
+
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;
+  border-radius:999px;font-family:var(--mono)}
+.pill.ok{background:var(--green-soft);color:var(--green);border:1px solid var(--green-line)}
+.pill.bad{background:var(--red-soft);color:var(--red);border:1px solid var(--red-line)}
+.pill.neutral{background:var(--line-2);color:var(--ink-3);border:1px solid var(--line)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line-2);
+  vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:700}
+td.mono{font-family:var(--mono);font-size:12px}
+.scroll{overflow-x:auto}
+
+.big{font-family:var(--mono);font-size:32px;font-weight:700;line-height:1;
+  font-variant-numeric:tabular-nums}
+.meter{display:flex;gap:14px;flex-wrap:wrap;align-items:baseline}
+.bar{height:9px;background:var(--line-2);border-radius:999px;overflow:hidden;margin-top:7px}
+.bar span{display:block;height:100%;background:var(--green);border-radius:999px;
+  transition:width .35s ease}
+
+.note{border-left:4px solid var(--sec);background:var(--blue-soft);padding:11px 13px;
+  border-radius:0 9px 9px 0;margin:14px 0;font-size:14px}
+.note strong{color:var(--ink)}
+.win{border-left-color:var(--green);background:var(--green-soft)}
+.warn{border-left-color:var(--amber);background:var(--amber-soft)}
+
+.nav{display:flex;gap:9px;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:13px;color:var(--ink-3)}
+.lock{opacity:.55;pointer-events:none}
+@media(max-width:640px){ h1{font-size:24px} .wrap{padding:18px 14px 70px} }
+</style>
+
+<a class="skip" href="#main">Skip to the stages</a>
+<div class="wrap">
+
+<header class="top">
+  <span class="eyebrow">Part 1.5 · hands on, in this tab</span>
+  <h1>🛠️ Build one</h1>
+  <p class="lede">Four stages. You make a real model call, hit the wall that rules hit,
+  write a prompt, and then <strong>score it against twenty real orders</strong> — and watch the
+  number move. Nothing to install, no repo to clone. You need a
+  <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek key</a>
+  and about a penny.</p>
+  <div class="row" style="margin-top:10px">
+    <a class="btn" href="index.html">← the illustrated page</a>
+    <span class="spacer"></span>
+    <button class="btn" id="themeBtn" type="button">◐ theme</button>
+  </div>
+</header>
+
+<div class="keybar">
+  <div class="row" style="gap:8px">
+    <strong style="font-size:14px">🔑 Your key</strong>
+    <span class="pill neutral" id="keyState">not set</span>
+    <span class="spacer"></span>
+    <span class="mono-note" id="spendNote">no calls yet</span>
+  </div>
+  <div class="row" style="gap:7px;margin-top:9px">
+    <input id="key" type="password" placeholder="sk-… your own DeepSeek key"
+           spellcheck="false" autocomplete="off" aria-label="Your DeepSeek API key" style="flex:1 1 220px">
+    <button class="btn primary" id="keySave" type="button">Save</button>
+    <button class="btn" id="keyClear" type="button">Forget</button>
+    <select id="model" aria-label="Model" style="flex:0 1 200px">
+      <option value="deepseek-v4-flash">deepseek-v4-flash (cheap)</option>
+      <option value="deepseek-v4-pro">deepseek-v4-pro (3× price)</option>
+    </select>
+  </div>
+  <p class="small" style="margin:9px 0 0">
+    Held in this browser tab only (<code>sessionStorage</code>) and gone when you close it.
+    Sent to <code>api.deepseek.com</code> and nowhere else — this page has no server and no
+    analytics. It is one file; you can read all of it.
+  </p>
+</div>
+
+<nav class="steps" id="steps" role="tablist" aria-label="Stages"></nav>
+
+<main id="main">
+
+<!-- ============ STAGE 0 ============ -->
+<section class="stage" id="s0" role="tabpanel" aria-labelledby="tab0">
+  <span class="eyebrow">Stage 0</span>
+  <h2>☎️ Your first call</h2>
+  <p>Before anything clever: prove the wire works. Type a question, press send, and look at
+  what comes back — including what it <em>cost</em>, which almost every tutorial hides from you.</p>
+
+  <div class="card">
+    <div class="card-h"><span>Ask it anything</span></div>
+    <div class="card-b">
+      <textarea id="s0q" rows="3">Explain what an API is, to someone who has never written code. Two sentences.</textarea>
+      <div class="row" style="margin-top:9px">
+        <button class="btn primary" id="s0run" type="button">Send →</button>
+        <span class="mono-note" id="s0meta"></span>
+      </div>
+      <div class="out" id="s0out" style="margin-top:11px">(nothing yet)</div>
+    </div>
+  </div>
+
+  <div class="note"><strong>What to notice.</strong> Two numbers came back with your answer:
+  tokens in and tokens out. Tokens are what you are billed for, and output costs about three
+  times input. Every design decision in the next three stages is a trade against that number.</div>
+  <div class="nav"><button class="btn primary" data-go="1" type="button">Next: the wall →</button></div>
+</section>
+
+<!-- ============ STAGE 1 ============ -->
+<section class="stage" id="s1" role="tabpanel" aria-labelledby="tab1">
+  <span class="eyebrow">Stage 1 · no model at all</span>
+  <h2>🧱 The kiosk that can't</h2>
+  <p>Here is a café till built the ordinary way: rules in, orders out. Fast, free, perfectly
+  predictable. <strong>Add rules until it handles all ten phrasings below.</strong> Real customers wrote them.</p>
+
+  <div class="card">
+    <div class="card-h"><span>Your rules</span><span class="spacer"></span>
+      <span class="mono-note" id="ruleCount">2 rules</span></div>
+    <div class="card-b">
+      <div class="row" style="gap:6px">
+        <input id="rPhrase" type="text" placeholder="if the text contains…" style="flex:2 1 180px">
+        <select id="rItem" style="flex:1 1 130px" aria-label="Item"></select>
+        <select id="rSize" style="flex:0 1 90px" aria-label="Size">
+          <option value="S">small</option><option value="L">large</option>
+        </select>
+        <button class="btn primary" id="rAdd" type="button">Add rule</button>
+      </div>
+      <div class="scroll"><table id="rTable" style="margin-top:11px"><thead><tr>
+        <th>contains</th><th>orders</th><th></th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><span>What ten real customers said</span><span class="spacer"></span>
+      <span class="pill neutral" id="s1score">0 / 10</span></div>
+    <div class="card-b"><div class="scroll"><table id="s1table"><thead><tr>
+      <th>they said</th><th>your kiosk</th><th></th></tr></thead><tbody></tbody></table></div>
+      <div class="bar" style="margin-top:11px"><span id="s1bar" style="width:0%"></span></div>
+    </div>
+  </div>
+
+  <div id="s1verdict"></div>
+  <div class="nav"><button class="btn" data-go="0" type="button">← back</button>
+    <button class="btn primary" data-go="2" type="button">Next: write a prompt →</button></div>
+</section>
+
+<!-- ============ STAGE 2 ============ -->
+<section class="stage" id="s2" role="tabpanel" aria-labelledby="tab2">
+  <span class="eyebrow">Stage 2 · a model, at last</span>
+  <h2>💬 Write the prompt</h2>
+  <p>Same job, no rules. You write instructions instead, and the model handles phrasings you
+  never anticipated. <strong>Do not paste the menu yet</strong> — stage 3 is where you find out what that costs you.</p>
+
+  <div class="card">
+    <div class="card-h"><span>Your system prompt</span><span class="spacer"></span>
+      <span class="mono-note" id="s2words">0 words</span></div>
+    <div class="card-b">
+      <textarea id="s2sys" rows="7" placeholder="You are the till at a small café…"></textarea>
+      <div class="row" style="margin-top:9px">
+        <button class="btn" id="s2seed" type="button">Start me off</button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="s2run" type="button">Run on 3 orders →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><span>What came back</span></div>
+    <div class="card-b" id="s2out"><p class="small">Write a prompt and press run.</p></div>
+  </div>
+
+  <div id="s2verdict"></div>
+  <div class="nav"><button class="btn" data-go="1" type="button">← back</button>
+    <button class="btn primary" data-go="3" type="button">Next: measure it →</button></div>
+</section>
+
+<!-- ============ STAGE 3 ============ -->
+<section class="stage" id="s3" role="tabpanel" aria-labelledby="tab3">
+  <span class="eyebrow">Stage 3 · the one that changes how you work</span>
+  <h2>📊 Score it against twenty orders</h2>
+  <p>You cannot tell whether a prompt is good by reading its answers. You need cases, and a
+  number. Twelve of these twenty are checked by plain code; eight need a
+  <strong>second model call to judge them</strong>, because "correct" is a judgement.</p>
+
+  <div class="card">
+    <div class="card-h"><span>Run the suite</span><span class="spacer"></span>
+      <span class="mono-note" id="s3cost">~28 calls · about $0.002</span></div>
+    <div class="card-b">
+      <div class="row">
+        <button class="btn primary" id="s3run" type="button">Run 20 cases →</button>
+        <button class="btn" id="s3menu" type="button">＋ Add the menu, then re-run</button>
+        <span class="spacer"></span>
+        <span class="mono-note" id="s3prog"></span>
+      </div>
+      <div class="meter" style="margin-top:13px">
+        <div><span class="big" id="s3score">—</span><span class="mono-note"> / 20</span>
+          <div class="mono-note" id="s3label">not run yet</div></div>
+        <div style="flex:1;min-width:150px"><div class="bar"><span id="s3bar" style="width:0%"></span></div></div>
+      </div>
+      <div class="scroll"><table id="s3table" style="margin-top:13px"><thead><tr>
+        <th>case</th><th>they said</th><th>how</th><th>why it failed</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+
+  <div id="s3verdict"></div>
+
+  <div class="card" id="doneCard" style="display:none;border-color:var(--green-line)">
+    <div class="card-h" style="background:var(--green-soft)"><span>🎓 That's Part 1.5</span></div>
+    <div class="card-b">
+      <p>You made a real call, felt the wall, wrote a prompt, and measured it. That last one is
+      the habit the rest of the field runs on.</p>
+      <p><strong>Part 2 picks up at stage 4</strong> and needs Python: the agent loop, tools that fail
+      on purpose, a permission gate, a router with a reviewer that cannot be skipped, and
+      prompt injection. Same café, so nothing to relearn.</p>
+      <div class="row" style="margin-top:11px">
+        <a class="btn primary" href="https://github.com/HUDongpin/agent-edu/tree/main/course"
+           target="_blank" rel="noopener">Open Part 2 →</a>
+        <button class="btn" id="copyCode" type="button">Copy my progress code</button>
+      </div>
+      <p class="small" id="codeOut" style="margin-top:9px"></p>
+    </div>
+  </div>
+
+  <div class="nav"><button class="btn" data-go="2" type="button">← back</button></div>
+</section>
+
+</main>
+
+<footer>
+  <p>Part of <a href="index.html">The Control Handoff</a> ·
+  <a href="https://github.com/HUDongpin/agent-edu" rel="noopener">source</a> · MIT.
+  Your key never leaves this tab except to DeepSeek. Nothing is logged anywhere.</p>
+</footer>
+</div>
+
+<script>
+"use strict";
+const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- shared progress (index.html reads the same key) ---------- */
+const PROG='ae.progress';
+const prog=()=>{try{return JSON.parse(localStorage.getItem(PROG)||'{}')}catch(e){return{}}};
+const mark=(k,v)=>{try{const p=prog();p[k]=v===undefined?true:v;
+  localStorage.setItem(PROG,JSON.stringify(p))}catch(e){}};
+
+/* ---------- theme ---------- */
+$('#themeBtn').addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const dark=cur?cur==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+});
+
+/* ---------- the café (identical to cafe/menu.py) ---------- */
+const MENU={'flat white':{S:4.20,L:5.10},'latte':{S:4.00,L:4.90},
+  'cappuccino':{S:4.00,L:4.90},'americano':{S:3.40,L:4.10},
+  'hot chocolate':{S:3.50,L:4.20},'tea':{S:2.80,L:3.40},'orange juice':{S:3.60,L:4.40}};
+const NON_COFFEE=['hot chocolate','tea','orange juice'];
+const priceOf=(n,s)=>{const m=MENU[String(n||'').trim().toLowerCase()];
+  return m?m[String(s||'S').trim().toUpperCase()]:undefined;};
+function menuText(){
+  let out='MENU (name, small price, large price)';
+  for(const [n,p] of Object.entries(MENU))
+    out+=`\n  ${n.padEnd(14)} S $${p.S.toFixed(2)}   L $${p.L.toFixed(2)}`+
+         (NON_COFFEE.includes(n)?'':'  [contains coffee]');
+  return out;
+}
+
+/* ---------- DeepSeek ---------- */
+const DS={
+  K:'ae.ds.key', ep:'https://api.deepseek.com/chat/completions',
+  get key(){try{return sessionStorage.getItem(DS.K)||''}catch(e){return''}},
+  set key(v){try{v?sessionStorage.setItem(DS.K,v):sessionStorage.removeItem(DS.K)}catch(e){}},
+  spent:{in:0,out:0,calls:0},
+  async call(messages,{json=false,max=900}={}){
+    if(!DS.key) throw new Error('no key saved — paste one at the top of the page');
+    const body={model:$('#model').value,max_tokens:max,messages,
+      thinking:{type:'disabled'}};
+    if(json) body.response_format={type:'json_object'};
+    /* One retry, and only for transport failures. A dropped connection is not
+       a bad prompt, and scoring it as one would quietly corrupt your eval —
+       but a 400 or a 401 IS a real failure and must not be retried away. */
+    let r=null;
+    for(let attempt=0;attempt<2;attempt++){
+      try{
+        r=await fetch(DS.ep,{method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+DS.key},
+          body:JSON.stringify(body)});
+        break;
+      }catch(netErr){
+        if(attempt) throw new Error('network failed twice: '+netErr.message);
+        await new Promise(z=>setTimeout(z,700));
+      }
+    }
+    const j=await r.json().catch(()=>null);
+    if(!r.ok||!j) throw new Error((j&&j.error&&j.error.message)||('HTTP '+r.status));
+    const u=j.usage||{};
+    DS.spent.in+=u.prompt_tokens||0; DS.spent.out+=u.completion_tokens||0; DS.spent.calls++;
+    paintSpend();
+    const t=((j.choices||[{}])[0].message||{}).content||'';
+    if(!t.trim()) throw new Error('empty answer came back — try again');
+    return t;
+  },
+  /* deepseek-v4-flash off-peak USD/1M: in .22 out .66 (peak doubles) */
+  usd(){return (DS.spent.in*0.22+DS.spent.out*0.66)/1e6;}
+};
+function paintSpend(){
+  $('#spendNote').textContent = DS.spent.calls
+    ? `${DS.spent.calls} call(s) · ${DS.spent.in} in / ${DS.spent.out} out · ~$${DS.usd().toFixed(5)}`
+    : 'no calls yet';
+}
+function paintKey(){
+  const has=!!DS.key;
+  $('#keyState').textContent=has?'saved for this tab':'not set';
+  $('#keyState').className='pill '+(has?'ok':'neutral');
+  $('#key').value=has?'••••••••••••••••':'';
+  $('#keySave').textContent=has?'Replace':'Save';
+  $('#keyClear').disabled=!has;
+}
+$('#keySave').addEventListener('click',()=>{const v=$('#key').value.trim();
+  if(v&&!v.startsWith('••'))DS.key=v; paintKey();});
+$('#keyClear').addEventListener('click',()=>{DS.key=''; paintKey();});
+paintKey(); paintSpend();
+
+/* extract JSON from a reply that was asked for JSON */
+function asJSON(text){
+  let t=text.trim().replace(/^```(?:json)?/,'').replace(/```$/,'').trim();
+  if(!t.startsWith('{')){const a=t.indexOf('{'),b=t.lastIndexOf('}');
+    if(a<0||b<=a) throw new Error('expected JSON, got prose: '+t.slice(0,90));
+    t=t.slice(a,b+1);}
+  return JSON.parse(t);
+}
+
+/* ---------- stepper ---------- */
+const STAGES=[['0','Your first call'],['1','The wall'],['2','Write the prompt'],['3','Measure it']];
+let at=0;
+const stepsBox=$('#steps');
+STAGES.forEach(([n,t],i)=>{
+  const b=document.createElement('button');
+  b.className='step'; b.type='button'; b.id='tab'+i; b.setAttribute('role','tab');
+  b.setAttribute('aria-controls','s'+i);
+  b.innerHTML=`<span class="n">Stage ${n}</span><span class="t">${esc(t)}</span>`;
+  b.addEventListener('click',()=>go(i));
+  stepsBox.appendChild(b);
+});
+function go(i){
+  at=i;
+  $$('.stage').forEach((s,k)=>s.classList.toggle('on',k===i));
+  $$('.step').forEach((s,k)=>s.setAttribute('aria-selected',k===i?'true':'false'));
+  location.hash='stage'+i;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(+b.dataset.go)));
+function paintDone(){
+  const p=prog();
+  $$('.step').forEach((s,k)=>s.classList.toggle('done',!!p['play'+k]));
+}
+
+/* ================= STAGE 0 ================= */
+$('#s0run').addEventListener('click',async()=>{
+  const out=$('#s0out'), q=$('#s0q').value.trim();
+  if(!q){out.textContent='Type a question first.';return;}
+  out.classList.add('wait'); out.textContent='asking…'; $('#s0run').disabled=true;
+  const before={...DS.spent};
+  try{
+    out.textContent=await DS.call([{role:'user',content:q}]);
+    $('#s0meta').textContent=`${DS.spent.in-before.in} tokens in · ${DS.spent.out-before.out} out`;
+    mark('play0'); paintDone();
+  }catch(e){ out.textContent='✗ '+e.message; }
+  finally{ out.classList.remove('wait'); $('#s0run').disabled=false; }
+});
+
+/* ================= STAGE 1 ================= */
+const TESTS=['tea','large tea','large flat white','two teas','americano, small',
+  'LARGE FLAT WHITE!!!','could I grab a large flat white when you get a sec',
+  'flat white, make it large','something warm for my kid, no coffee','the usual'];
+let RULES=[{c:'large tea',n:'tea',s:'L'},{c:'tea',n:'tea',s:'S'}];
+$('#rItem').innerHTML=Object.keys(MENU).map(n=>`<option>${n}</option>`).join('');
+
+function kiosk(said){
+  const t=said.toLowerCase().trim();
+  for(const r of RULES) if(t.includes(r.c.toLowerCase())) return {name:r.n,size:r.s,price:priceOf(r.n,r.s)};
+  return null;
+}
+function paintRules(){
+  const tb=$('#rTable tbody'); tb.innerHTML='';
+  RULES.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="mono">${esc(r.c)}</td><td class="mono">${esc(r.n)} · ${r.s}</td>`;
+    const td=document.createElement('td'); td.style.textAlign='right';
+    const x=document.createElement('button'); x.className='btn'; x.type='button';
+    x.style.padding='2px 9px'; x.textContent='✕';
+    x.addEventListener('click',()=>{RULES.splice(i,1);paintRules();});
+    td.appendChild(x); tr.appendChild(td); tb.appendChild(tr);
+  });
+  $('#ruleCount').textContent=RULES.length+' rule'+(RULES.length===1?'':'s');
+  runTests();
+}
+$('#rAdd').addEventListener('click',()=>{
+  const c=$('#rPhrase').value.trim(); if(!c)return;
+  RULES.unshift({c,n:$('#rItem').value,s:$('#rSize').value});
+  $('#rPhrase').value=''; paintRules();
+});
+$('#rPhrase').addEventListener('keydown',e=>{if(e.key==='Enter')$('#rAdd').click();});
+
+function runTests(){
+  const tb=$('#s1table tbody'); tb.innerHTML=''; let ok=0;
+  TESTS.forEach(t=>{
+    const got=kiosk(t); if(got)ok++;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="mono">${esc(t)}</td>`+
+      `<td class="mono">${got?esc(got.name)+' · '+got.size+' · $'+(got.price||0).toFixed(2):'—'}</td>`+
+      `<td><span class="pill ${got?'ok':'bad'}">${got?'ok':'no idea'}</span></td>`;
+    tb.appendChild(tr);
+  });
+  $('#s1score').textContent=ok+' / 10';
+  $('#s1score').className='pill '+(ok>=8?'ok':ok>=4?'neutral':'bad');
+  $('#s1bar').style.width=(ok*10)+'%';
+  const v=$('#s1verdict');
+  if(ok>=8){
+    v.innerHTML=`<div class="note warn"><strong>Look at what you had to write.</strong>
+      ${RULES.length} rules for ten sentences — and you had to think of each phrasing
+      <em>before the customer did</em>. Tomorrow someone says “one large flat white, ta”
+      and you are back here. That is the wall. It is not a bug in your code; it is the
+      shape of the problem.<br><br>Notice also what this kiosk is unarguably good at:
+      same input, same output, every time, free, instantly. Do not throw that away in
+      stage 2. Most of a real system should still look like this.</div>`;
+    mark('play1'); paintDone();
+  } else if(ok>0){
+    v.innerHTML=`<div class="note"><strong>Keep going.</strong> Add rules until you have
+      at least 8 of 10. Watch how many it takes — and which ones you cannot get at all.</div>`;
+  } else v.innerHTML='';
+}
+paintRules();
+
+/* ================= STAGE 2 ================= */
+const SEED=`You are the till at a small café. Turn what the customer said into an order.
+
+Reply as JSON: {"items":[{"name":..., "size":"S" or "L", "price":number}], "total":number, "needs_confirmation":boolean}
+
+Sizes are S or L; if nobody says a size, use S.
+If the order is vague or you had to guess, set needs_confirmation to true.`;
+$('#s2seed').addEventListener('click',()=>{$('#s2sys').value=SEED;countWords();});
+function countWords(){const w=$('#s2sys').value.trim();
+  $('#s2words').textContent=(w?w.split(/\s+/).length:0)+' words';}
+$('#s2sys').addEventListener('input',countWords); countWords();
+
+const SAMPLES=['could I grab a large flat white when you get a sec',
+  'two teas','something warm for my kid, no coffee'];
+
+async function takeOrder(said,sys){
+  const t=await DS.call([{role:'system',content:sys},
+    {role:'user',content:`Customer said: ${JSON.stringify(said)}. Reply with JSON only.`}],
+    {json:true,max:700});
+  return asJSON(t);
+}
+$('#s2run').addEventListener('click',async()=>{
+  const sys=$('#s2sys').value.trim(), box=$('#s2out');
+  if(!sys){box.innerHTML='<p class="small">Write a prompt first (or press “Start me off”).</p>';return;}
+  $('#s2run').disabled=true; box.innerHTML='<p class="small">asking on 3 orders…</p>';
+  try{
+    const got=await Promise.all(SAMPLES.map(s=>takeOrder(s,sys).then(o=>[s,o,null]).catch(e=>[s,null,e])));
+    box.innerHTML='';
+    let invented=0;
+    got.forEach(([said,o,err])=>{
+      const d=document.createElement('div'); d.style.marginBottom='11px';
+      if(err){d.innerHTML=`<div class="mono-note">${esc(said)}</div>
+        <div class="out" style="border-color:var(--red-line)">✗ ${esc(err.message)}</div>`;}
+      else{
+        const first=(o.items||[])[0]||{};
+        const real=priceOf(first.name,first.size);
+        const wrong=real===undefined||Math.abs((first.price||0)-real)>0.005;
+        if(wrong)invented++;
+        d.innerHTML=`<div class="mono-note">${esc(said)}</div>
+          <div class="out">${esc(JSON.stringify(o))}</div>
+          <div class="small" style="margin-top:4px">${wrong
+            ? `⚠️ quoted <code>${esc(String(first.price))}</code> for ${esc(String(first.name))} — the menu says <code>${real===undefined?'not on the menu':real}</code>`
+            : `✓ price matches the menu`}</div>`;
+      }
+      box.appendChild(d);
+    });
+    $('#s2verdict').innerHTML=invented
+      ? `<div class="note warn"><strong>It invented ${invented} of 3 prices.</strong>
+         Of course it did — you never gave it the menu. It had no way to know the real
+         numbers and no way to know it was guessing, so it guessed confidently. Hold that
+         thought: stage 3 measures exactly how much this costs you.</div>`
+      : `<div class="note"><strong>Prices happen to match this time.</strong> That is luck,
+         not knowledge — nothing in your prompt contains the menu. Stage 3 will show you
+         whether it holds up across twenty orders.</div>`;
+    mark('play2'); paintDone();
+  }catch(e){ box.innerHTML=`<div class="out" style="border-color:var(--red-line)">✗ ${esc(e.message)}</div>`; }
+  finally{ $('#s2run').disabled=false; }
+});
+
+/* ================= STAGE 3 ================= */
+/* ported verbatim from course/cafe/evalset.py */
+function named(o,...want){
+  const got=(o.items||[]).map(i=>[String(i.name||'').trim().toLowerCase(),
+                                  String(i.size||'').trim().toUpperCase()]);
+  const k=a=>a.map(x=>x.join('|')).sort().join(',');
+  if(k(got)!==k(want)) return [false,`items were ${JSON.stringify(got)}, expected ${JSON.stringify(want)}`];
+  for(const i of (o.items||[])){
+    const w=priceOf(i.name,i.size);
+    if(w===undefined||Math.abs(i.price-w)>0.005)
+      return [false,`${i.name} priced ${i.price}, menu says ${w===undefined?'not on the menu':w}`];
+  }
+  const total=want.reduce((s,[n,z])=>s+priceOf(n,z),0);
+  if(Math.abs((o.total??-1)-total)>0.005) return [false,`total was ${o.total}, expected ${total.toFixed(2)}`];
+  return [true,'ok'];
+}
+const CASES=[
+ ['large-flat-white','large flat white please','rule',o=>named(o,['flat white','L'])],
+ ['two-teas','two teas','rule',o=>named(o,['tea','S'],['tea','S'])],
+ ['latte-americano','a small latte and a large americano','rule',o=>named(o,['latte','S'],['americano','L'])],
+ ['the-usual',"I'll have the usual",'judge','The order is impossible to know from the message alone, so needs_confirmation must be true.'],
+ ['hot-choc','hot chocolate please','rule',o=>named(o,['hot chocolate','S'])],
+ ['make-it-large','flat white, make it large','rule',o=>named(o,['flat white','L'])],
+ ['orange-juice','can I get an orange juice','rule',o=>named(o,['orange juice','S'])],
+ ['kid-no-coffee','something warm for my kid, no coffee','judge','The item must be a caffeine-free menu item (hot chocolate, tea or orange juice) and needs_confirmation must be true, because the customer did not name a drink.'],
+ ['tea-for-mum','a tea for my mum','rule',o=>named(o,['tea','S'])],
+ ['large-cappuccino','large cappuccino','rule',o=>named(o,['cappuccino','L'])],
+ ['a-coffee','just a coffee','judge','Several menu items are coffee, so the model cannot know which one; needs_confirmation must be true.'],
+ ['two-lattes-tea','two large lattes and a small tea','rule',o=>named(o,['latte','L'],['latte','L'],['tea','S'])],
+ ['kids-drink','a kids drink','judge','The item must be caffeine-free and on the menu, and needs_confirmation must be true.'],
+ ['americano-small','americano, small','rule',o=>named(o,['americano','S'])],
+ ['nothing-sweet',"something that isn't too sweet",'judge','This is a preference, not an order; needs_confirmation must be true.'],
+ ['same-as-yesterday','same as yesterday','judge','There is no record of yesterday in the message, so needs_confirmation must be true.'],
+ ['one-of-each-tea','one tea in each size','rule',o=>named(o,['tea','S'],['tea','L'])],
+ ['black-coffee','black coffee','judge',"Americano is the reasonable reading of 'black coffee' on this menu; picking it is correct, and so is flagging for confirmation. Inventing an item that is not on the menu is wrong."],
+ ['shouty','LARGE FLAT WHITE!!!','rule',o=>named(o,['flat white','L'])],
+ ['a-treat','surprise me with a treat','judge','The customer named no drink, so needs_confirmation must be true.'],
+];
+
+async function judge(said,order,standard){
+  const t=await DS.call([
+    {role:'system',content:'You grade one output against one written standard. You are not judging style, only whether the standard is met. Reply as JSON.'},
+    {role:'user',content:`A café customer said: ${JSON.stringify(said)}\nThe order-taking system produced: ${JSON.stringify(order)}\n\nStandard to judge against: ${standard}\n\nDoes the output meet the standard? Be strict. Reply as JSON {"passes":boolean,"why":string}.`}],
+    {json:true,max:400});
+  const v=asJSON(t);
+  return [!!v.passes, String(v.why||'')];
+}
+
+/* small concurrency pool — 28 sequential calls is a long wait */
+async function pool(items,n,fn){
+  const out=new Array(items.length); let i=0;
+  await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{
+    while(i<items.length){const k=i++; out[k]=await fn(items[k],k);}
+  }));
+  return out;
+}
+
+let menuAdded=false, lastScore=null;
+$('#s3menu').addEventListener('click',()=>{
+  const box=$('#s2sys');
+  if(!menuAdded){
+    box.value=(box.value.trim()||SEED)+'\n\n'+menuText()+
+      '\n\nOnly ever order items on this menu, at exactly these prices. If they ask for '+
+      'something not on it, order nothing and set needs_confirmation to true.';
+    menuAdded=true; $('#s3menu').textContent='✓ menu added — re-run';
+    countWords();
+  }
+  $('#s3run').click();
+});
+
+$('#s3run').addEventListener('click',async()=>{
+  const sys=$('#s2sys').value.trim();
+  if(!sys){ $('#s3verdict').innerHTML='<div class="note warn">Write a prompt in stage 2 first.</div>'; return; }
+  $('#s3run').disabled=true; $('#s3menu').disabled=true;
+  const tb=$('#s3table tbody'); tb.innerHTML=''; let done=0;
+  $('#s3label').textContent='running…';
+  const results=await pool(CASES,4,async(c)=>{
+    const [id,said,kind,spec]=c;
+    let ok,why;
+    try{
+      const order=await takeOrder(said,sys);
+      [ok,why]= kind==='rule' ? spec(order) : await judge(said,order,spec);
+    }catch(e){ ok=false; why=e.message; }
+    $('#s3prog').textContent=`${++done} / ${CASES.length}`;
+    return {id,said,kind,ok,why};
+  });
+  const score=results.filter(r=>r.ok).length;
+  results.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="mono">${esc(r.id)}</td><td class="mono">${esc(r.said)}</td>`+
+      `<td><span class="pill ${r.ok?'ok':'bad'}">${r.kind}</span></td>`+
+      `<td class="small">${r.ok?'':esc(r.why).slice(0,120)}</td>`;
+    tb.appendChild(tr);
+  });
+  $('#s3score').textContent=score;
+  $('#s3bar').style.width=(score/CASES.length*100)+'%';
+  $('#s3bar').style.background=score>=16?'var(--green)':score>=10?'var(--amber)':'var(--red)';
+  const prev=lastScore; lastScore=score;
+  const best=Math.max(score, prog().evalBest||0); mark('evalBest',best);
+  $('#s3label').textContent=`${DS.spent.calls} calls so far · ~$${DS.usd().toFixed(4)}`;
+
+  let v='';
+  if(prev===null){
+    v=`<div class="note"><strong>That is your baseline.</strong> Write it down: ${score}/20.
+       Now look at the failures — how many are the model being stupid, and how many are it
+       never having been told something? Press <em>“Add the menu”</em> and find out.</div>`;
+  } else if(score>prev){
+    v=`<div class="note win"><strong>${prev} → ${score}.</strong> Same model, same twenty
+       questions, same temperature. The only thing that changed is that you told it what
+       it was selling. <strong>Most “the model is bad” is really “the model was never told”</strong>
+       — and you only know that because you had a number before and after.
+       That is the whole discipline: stop arguing, start measuring.</div>`;
+    mark('play3'); paintDone(); $('#doneCard').style.display='';
+  } else if(score<prev){
+    v=`<div class="note warn"><strong>${prev} → ${score} — it went down.</strong> That happens,
+       and finding out costs two cents instead of a week. Read the failures: something you
+       added is fighting something already there.</div>`;
+  } else {
+    v=`<div class="note"><strong>No change (${score}).</strong> Worth knowing. A change that
+       does nothing is a change you can delete — and you would never have known without the suite.</div>`;
+  }
+  if(score>=16){ mark('play3'); paintDone(); $('#doneCard').style.display=''; }
+  $('#s3verdict').innerHTML=v;
+  $('#s3run').disabled=false; $('#s3menu').disabled=false;
+});
+
+$('#copyCode').addEventListener('click',()=>{
+  const p=prog();
+  const code=`AE1.5 stages=${[0,1,2,3].filter(i=>p['play'+i]).join('')||'none'} eval=${p.evalBest||0}/20`;
+  navigator.clipboard?.writeText(code).catch(()=>{});
+  $('#codeOut').textContent='Copied: '+code+'  — paste it wherever you keep notes; the course README explains it.';
+});
+
+/* ---------- boot ---------- */
+paintDone();
+const h=(location.hash.match(/^#stage([0-3])$/)||[])[1];
+go(h?+h:0);
+window.addEventListener('hashchange',()=>{
+  const m=(location.hash.match(/^#stage([0-3])$/)||[])[1];
+  if(m&&+m!==at) go(+m);
+});
+</script>

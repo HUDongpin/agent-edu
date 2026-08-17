@@ -1,0 +1,22 @@
+# Vercel uploads the working directory, NOT the git tree. .gitignore does not
+# apply here. Anything secret must be listed again, explicitly.
+*.docx
+*.doc
+.~*
+.env
+.env.*
+*.key
+*secret*
+*credential*
+*API*Key*
+
+# Not part of the website
+course/
+.claude/
+TEACHING.md
+.git/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store

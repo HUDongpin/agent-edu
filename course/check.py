@@ -11,6 +11,8 @@ import importlib.util
 import pathlib
 import sys
 
+import report
+
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
@@ -43,6 +45,7 @@ def check_0(m):
     if not isinstance(getattr(m, "answer", None), str) or not m.answer.strip():
         bad("no answer came back")
     ok("an answer came back")
+    report.record(0, ok=True)
 
 
 def check_1(m):
@@ -61,6 +64,12 @@ def check_1(m):
         print("        'one large flat white, ta'")
     else:
         ok("the long phrasing still fails — that is the finding, not a bug")
+    phrasings = ["tea", "large tea", "large flat white", "two teas",
+                 "americano, small", "LARGE FLAT WHITE!!!",
+                 "could I grab a large flat white when you get a sec",
+                 "flat white, make it large",
+                 "something warm for my kid, no coffee", "the usual"]
+    report.record(1, passing=sum(m.take_order(p) is not None for p in phrasings))
 
 
 def check_2(m):
@@ -74,6 +83,10 @@ def check_2(m):
     if not order["items"]:
         bad("it ordered nothing")
     ok(f"a clear order parses: {order['items'][0].get('name')}")
+    report.record(2, distinct=len({
+        __import__("json").dumps(m.take_order("something warm for my kid, no coffee",
+                                              variant=i), sort_keys=True)
+        for i in range(3)}))
 
 
 def check_3(m):
@@ -82,7 +95,9 @@ def check_3(m):
     ok("the eval is pointed at your prompt")
     from cafe import evalset
     score, _ = evalset.run(m.SYSTEM_UNDER_TEST, verbose=False)
+    report.record(3, score=score)
     ok(f"it ran: {score}/{len(evalset.CASES)} — write that number down")
+    ok("recorded. `python report.py` shows it next to every later stage")
 
 
 def check_4(m):
@@ -93,6 +108,7 @@ def check_4(m):
     if score < 16:
         bad(f"scored {score}/20, wanted at least 16. Still failing: "
             f"{', '.join(failures)}")
+    report.record(4, score=score)
     ok(f"scored {score}/20 with the menu in context")
 
 
@@ -106,6 +122,7 @@ def check_5(m):
     if not tools.LOG:
         bad("the manager was never emailed")
     ok("the manager was told")
+    report.record(5, orders=len(orders))
 
 
 def check_6(m):
@@ -116,6 +133,7 @@ def check_6(m):
     if all_on["spent"] > m.APPROVAL_THRESHOLD:
         bad(f"spent ${all_on['spent']:.2f} with the gate on — it is not gating")
     ok(f"the gate held: ${all_on['spent']:.2f} spent unattended")
+    report.record(6, gated=round(all_on["spent"], 2))
     no_gate = m.run_agent({**m.ALL_ON, "gate": False})
     if no_gate["spent"] <= all_on["spent"]:
         print("  NOTE  the ungated run did not spend more this time. Run it "
@@ -133,6 +151,7 @@ def check_7(m):
     if len(m.SENT) != 1:
         bad(f"send() was called {len(m.SENT)} times on one message")
     ok("exactly one reply was sent, and only via send()")
+    report.record(7, blocked=int(unreviewed.strip() != reviewed.strip()))
     if unreviewed.strip() == reviewed.strip():
         print("  NOTE  both drafts came out the same this time. The guarantee "
               "still holds — but re-run to see it bite.")
@@ -150,6 +169,7 @@ def check_8(m):
     ok("no address list left the building")
     labelled = m.handle(poisoned, label_as_data=True, cap_tools=True)
     ok(f"labelled run refunded ${labelled['refund_amount']:.2f}")
+    report.record(8, capped=round(capped["refund_amount"], 2))
 
 
 CHECKS = {0: check_0, 1: check_1, 2: check_2, 3: check_3, 4: check_4,
@@ -171,3 +191,5 @@ if __name__ == "__main__":
         # An unfinished TODO is the normal state of this course, not a crash.
         raise SystemExit(f"  TODO  {exc}\n\n  Finish that one and run this again.\n")
     print(f"\n  stage {stage} complete.\n")
+    if stage in (3, 4, 8):
+        print("  (run `python report.py` to see the whole picture)\n")
