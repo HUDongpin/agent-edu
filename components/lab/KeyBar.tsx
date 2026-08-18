@@ -1,56 +1,131 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
 import { useI18n } from "../I18nProvider";
-import { getKey, setKey, spend, usd, type Model } from "@/lib/deepseek";
+import { hasKey, hasKeyOnServer, setKey, spend, subscribeKey, usd, type Model } from "@/lib/deepseek";
 
+const PROVIDER = "https://platform.deepseek.com/api_keys";
+
+/**
+ * Connecting a model — the first thing a reader meets in the Lab, and the
+ * point at which most of them used to leave.
+ *
+ * The old version was a password box with the placeholder "sk-…" and a note
+ * about where the key is *stored*. For someone who has never written code
+ * that answers a question they have not asked yet: they do not know what a
+ * key is, that they have to make one, that it is free to make, or that this
+ * whole page costs about a penny. So the panel explains before it asks, and
+ * the three steps are numbered because that is what a person follows.
+ *
+ * Once a key is saved the explanation collapses to a single line — it has
+ * done its job and should stop taking up the top of the page.
+ */
 export default function KeyBar({
-  model, onModel, tick,
-}: { model: Model; onModel: (m: Model) => void; tick: number }) {
+  model, onModel,
+}: {
+  model: Model;
+  onModel: (m: Model) => void;
+}) {
   const { t } = useI18n();
-  const [has, setHas] = useState(false);
+  const has = useSyncExternalStore(subscribeKey, hasKey, hasKeyOnServer);
   const [draft, setDraft] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [what, setWhat] = useState(false);
+  const inputId = useId();
+  const whatId = useId();
 
-  useEffect(() => { setHas(!!getKey()); }, []);
+  const open = !has || editing;
+
+  function save() {
+    const v = draft.trim();
+    if (!v) return;
+    setKey(v);
+    setDraft("");
+    setEditing(false);
+  }
 
   return (
-    <div className="keybar">
-      <div className="row" style={{ gap: 8 }}>
-        <strong style={{ fontSize: 14 }}>🔑 {t("lab.keyTitle")}</strong>
-        <span className={"pill " + (has ? "ok" : "neutral")}>
-          {has ? t("lab.keySet") : t("lab.keyNone")}
-        </span>
+    <section className={"keypanel" + (has ? " ready" : "")} id="labkey" aria-labelledby={`${inputId}-h`}>
+      <div className="keyhead">
+        <span className="keydot" aria-hidden="true">{has ? "✓" : "🔑"}</span>
+        <h2 id={`${inputId}-h`}>{has ? t("lab.keySaved") : t("lab.setup.title")}</h2>
         <span className="spacer" />
-        <span className="mono-note">
-          {spend.calls
-            ? `${spend.calls} · ${spend.in} in / ${spend.out} out · ~$${usd().toFixed(5)}`
-            : t("lab.noCalls")}
-        </span>
+        {spend.calls > 0 && (
+          <span className="mono-note keyspend">
+            {spend.calls} {t("lab.spendCalls")} · ~${usd().toFixed(4)}
+          </span>
+        )}
+        {has && !editing && (
+          <button className="iconbtn" type="button" onClick={() => { setEditing(true); setDraft(""); }}>
+            {t("lab.keyChange")}
+          </button>
+        )}
       </div>
-      <div className="row" style={{ gap: 7, marginTop: 9 }}>
-        <input
-          type="password" className="keyin" spellCheck={false} autoComplete="off"
-          aria-label={t("lab.keyTitle")} placeholder="sk-…"
-          value={has && !draft ? "••••••••••••••••" : draft}
-          onChange={(e) => setDraft(e.target.value)}
-          style={{ flex: "1 1 220px" }}
-        />
-        <button className="btn primary" type="button" onClick={() => {
-          const v = draft.trim();
-          if (v && !v.startsWith("••")) { setKey(v); setHas(true); setDraft(""); }
-        }}>{has ? t("lab.keyReplace") : t("lab.keySave")}</button>
-        <button className="btn" type="button" disabled={!has}
-          onClick={() => { setKey(""); setHas(false); setDraft(""); }}>
-          {t("lab.keyForget")}
-        </button>
-        <select className="keyin" aria-label="Model" value={model}
-          onChange={(e) => onModel(e.target.value as Model)} style={{ flex: "0 1 200px" }}>
-          <option value="deepseek-v4-flash">deepseek-v4-flash</option>
-          <option value="deepseek-v4-pro">deepseek-v4-pro</option>
+
+      {open && (
+        <div className="keybody">
+          <p className="keylede">{t("lab.setup.lede")}</p>
+
+          <button
+            className="whatis" type="button" aria-expanded={what} aria-controls={whatId}
+            onClick={() => setWhat((w) => !w)}
+          >
+            <span aria-hidden="true">{what ? "−" : "＋"}</span> {t("lab.setup.whatIs")}
+          </button>
+          <p id={whatId} className="whatbody" hidden={!what}>{t("lab.setup.whatIsBody")}</p>
+
+          <ol className="keysteps">
+            {(["1", "2", "3"] as const).map((n) => (
+              <li key={n}>
+                <b>{t(`lab.setup.s${n}`)}</b>
+                <span>{t(`lab.setup.s${n}d`)}</span>
+                {n === "1" && (
+                  <a className="btn" href={PROVIDER} target="_blank" rel="noopener noreferrer">
+                    {t("lab.setup.getKey")}
+                    <span className="arrow" aria-hidden="true">↗</span>
+                  </a>
+                )}
+              </li>
+            ))}
+          </ol>
+
+          <label className="keylabel" htmlFor={inputId}>{t("lab.keyTitle")}</label>
+          <div className="row" style={{ gap: 8 }}>
+            <input
+              id={inputId} type="password" className="keyin" spellCheck={false}
+              autoComplete="off" placeholder={t("lab.keyPlaceholder")}
+              value={draft} onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") save(); }}
+              style={{ flex: "1 1 240px" }}
+            />
+            <button className="btn primary" type="button" disabled={!draft.trim()} onClick={save}>
+              {t("lab.keySave")}
+            </button>
+            {has && (
+              <button className="btn" type="button" onClick={() => { setEditing(false); setDraft(""); }}>
+                {t("ui.close")}
+              </button>
+            )}
+          </div>
+          <p className="keysafe">🔒 {t("lab.keyNote")}</p>
+        </div>
+      )}
+
+      <div className="keyfoot">
+        <label htmlFor={`${inputId}-m`}>{t("lab.model")}</label>
+        <select
+          id={`${inputId}-m`} value={model}
+          onChange={(e) => onModel(e.target.value as Model)}
+        >
+          <option value="deepseek-v4-flash">{t("lab.modelFast")}</option>
+          <option value="deepseek-v4-pro">{t("lab.modelSmart")}</option>
         </select>
+        {has && !editing && (
+          <button className="linky" type="button" onClick={() => { setKey(""); setDraft(""); }}>
+            {t("lab.keyForget")}
+          </button>
+        )}
       </div>
-      <p className="small" style={{ margin: "9px 0 0" }}>{t("lab.keyNote")}</p>
-      <span hidden>{tick}</span>
-    </div>
+    </section>
   );
 }

@@ -125,6 +125,7 @@ export default function Catalog({ locale }: { locale: string }) {
                   </div>
                   <h3>{t(`c.${c.id}.title`)}</h3>
                   <p>{t(`c.${c.id}.blurb`)}</p>
+                  {c.external && <p className="tracknote">↗ {t("track.3.note")}</p>}
                   <div className="cfoot">
                     {soon ? (
                       <span className="pill neutral">{t("cat.soonBadge")}</span>
@@ -147,7 +148,7 @@ export default function Catalog({ locale }: { locale: string }) {
               <li key={c.id} className={"ccard" + (soon ? " soon" : "")}>
                 {soon ? <div className="cinner">{inner}</div>
                   : c.external
-                    ? <a className="cinner" href={href} rel="noopener">{inner}</a>
+                    ? <a className="cinner" href={href} target="_blank" rel="noopener noreferrer">{inner}</a>
                     : <Link className="cinner" href={href}>{inner}</Link>}
               </li>
             );
