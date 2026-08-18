@@ -38,7 +38,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           <Link className="btn primary" href={p("/lab/")}>
             {t("home.cta")}<span className="arrow">→</span>
           </Link>
-          <a className="btn" href="#curriculum">{t("home.cta2")}</a>
+          <Link className="btn" href={p("/courses/")}>{t("home.cta2")}</Link>
         </div>
         <p className="free">{t("home.free")}</p>
       </section>

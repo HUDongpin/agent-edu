@@ -543,3 +543,56 @@ td.mono{font-family:var(--mono);font-size:12px}
    in the DOM because the first widget binds to it on start-up; hiding it is
    safer than deleting it and re-testing 22 widgets. */
 .masthead #themeBtn{display:none}
+
+
+/* ======================= course catalogue ======================= */
+.filters{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 16px;margin-bottom:22px}
+.filt{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1 1 150px}
+.filt label{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;font-weight:700;color:var(--ink-3)}
+:root[lang="ar"] .filt label{letter-spacing:0;font-family:var(--sans)}
+.filt select{font:inherit;font-size:14px;padding:8px 10px;border-radius:9px;
+  border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  width:100%;max-width:none;flex:0 0 auto}
+.filt select:focus{outline:2px solid var(--brand);outline-offset:1px}
+.filt-meta{display:flex;gap:10px;align-items:center;margin-inline-start:auto;
+  font-size:13.5px;color:var(--ink-3);flex:0 0 auto;padding-block-end:2px}
+
+.ccards{list-style:none;margin:0;padding:0;display:grid;gap:18px;
+  grid-template-columns:repeat(auto-fill,minmax(285px,1fr))}
+.ccard{display:flex}
+.cinner{display:flex;flex-direction:column;width:100%;text-decoration:none;color:inherit;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;transition:border-color .15s,transform .15s,box-shadow .15s}
+a.cinner:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:var(--shadow)}
+a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.ccard.soon .cinner{opacity:.62}
+.ccard.soon{cursor:default}
+
+.cover{background:var(--bg-2);border-block-end:1px solid var(--line);
+  aspect-ratio:19/10;display:grid;place-items:center}
+.cover svg{width:100%;height:100%;display:block}
+
+.cbody{padding:14px 16px 15px;display:flex;flex-direction:column;flex:1 1 auto}
+.cmeta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:11.5px;
+  color:var(--ink-3);font-family:var(--mono);margin-bottom:8px}
+:root[lang="ar"] .cmeta{font-family:var(--sans)}
+.ctag{border:1px solid;border-radius:999px;padding:1px 8px;font-weight:700}
+.cbody h3{font-size:18px;margin:0 0 6px}
+.cbody p{font-size:14px;margin:0 0 14px;color:var(--ink-2);flex:1 1 auto;line-height:1.55}
+.cfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cprog{display:flex;align-items:center;gap:8px;flex:1 1 110px;min-width:0}
+.cbar{flex:1 1 auto;height:6px;background:var(--line-2);border-radius:999px;overflow:hidden}
+.cbar span{display:block;height:100%;border-radius:999px;transition:width .4s ease}
+.cpct{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;flex:0 0 auto}
+.cgo{font-size:13.5px;font-weight:650;white-space:nowrap;flex:0 0 auto}
+:root[dir="rtl"] .cgo .arrow{transform:scaleX(-1);display:inline-block}
+
+@media(max-width:560px){
+  .filters{gap:11px;padding:12px}
+  .filt{flex:1 1 100%}
+  .filt-meta{margin-inline-start:0}
+}

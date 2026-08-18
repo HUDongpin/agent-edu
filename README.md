@@ -4,7 +4,7 @@
 
 Every program is a list of steps. The only question is *who picks them*. Three parts, about four hours, and you finish having built a working agent and an eval suite that scores it.
 
-**▶ [aicourse.top](https://agent-edu-kohl.vercel.app/)** · free · no account · no tracking · nine languages
+**▶ [aicourse.top](https://agent-edu-kohl.vercel.app/)** · free · no account · no ads · anonymous page counts only · nine languages
 
 <img src="assets/logo-lockup.svg" alt="aicourse.top — top AI course" width="252">
 

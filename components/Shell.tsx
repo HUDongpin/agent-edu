@@ -32,6 +32,7 @@ export default async function Shell({
 
   const nav = [
     { href: p("/"), key: "nav.home" },
+    { href: p("/courses/"), key: "nav.courses" },
     { href: p("/handbook/"), key: "nav.handbook" },
     { href: p("/lab/"), key: "nav.lab" },
   ];
@@ -81,6 +82,7 @@ export default async function Shell({
           <div>
             <h4>{t("home.pathTitle")}</h4>
             <ul>
+              <li><Link href={p("/courses/")}>{t("nav.courses")}</Link></li>
               <li><Link href={p("/handbook/")}>{t("track.1.title")}</Link></li>
               <li><Link href={p("/lab/")}>{t("track.2.title")}</Link></li>
               <li>

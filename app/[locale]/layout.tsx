@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import Shell from "@/components/Shell";
 import { LOCALE_CODES, getMessages, metaFor, translator } from "@/lib/i18n";
 import type { ReactNode } from "react";
@@ -71,6 +72,11 @@ export default async function LocaleLayout({
         <Shell locale={locale} messages={messages}>
           {children}
         </Shell>
+        {/* Anonymous page-view counts, no cookies and no cross-site profile.
+            It is still analytics, so the copy says so rather than claiming
+            "no tracking" — see home.free / home.a1 / lab.keyNote. On hosts
+            other than Vercel the endpoint 404s and nothing is collected. */}
+        <Analytics />
       </body>
     </html>
   );
