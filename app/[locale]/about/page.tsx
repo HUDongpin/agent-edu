@@ -58,12 +58,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       </section>
 
       <section className="sect" style={{ paddingTop: 22 }}>
-        <span className="eyebrow">{t("ab.creatorLabel")}</span>
+        <h2 className="eyebrow">{t("ab.creatorLabel")}</h2>
         <div style={{ marginTop: 12 }}><Card p={CREATOR} t={t} lead /></div>
       </section>
 
       <section className="sect">
-        <span className="eyebrow">{t("ab.teamLabel")}</span>
+        <h2 className="eyebrow">{t("ab.teamLabel")}</h2>
         <p className="sub" style={{ textAlign: "start", margin: "8px 0 0" }}>{t("ab.teamLede")}</p>
         <div className="people">
           {TEAM.map((p) => <Card key={p.id} p={p} t={t} />)}
@@ -75,7 +75,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <div className="out" style={{ alignItems: "flex-start" }}>
             <span className="ico" aria-hidden="true">❓</span>
             <div>
-              <h4>{t("ab.whyTitle")}</h4>
+              <h3>{t("ab.whyTitle")}</h3>
               <p>{t("ab.why1")}</p>
               <p style={{ marginBottom: 0 }}>{t("ab.why2")}</p>
             </div>
@@ -83,7 +83,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <div className="out" style={{ alignItems: "flex-start" }}>
             <span className="ico" aria-hidden="true">🔧</span>
             <div>
-              <h4>{t("ab.howTitle")}</h4>
+              <h3>{t("ab.howTitle")}</h3>
               <p>{t("ab.how1")}</p>
               <p style={{ marginBottom: 0 }}>{t("ab.how2")}</p>
             </div>
