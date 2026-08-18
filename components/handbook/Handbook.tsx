@@ -48,7 +48,7 @@ export default function Handbook() {
       <div className="shellwrap">
         {locale !== "en" && <p className="langnote">{t("note.englishOnly")}</p>}
       </div>
-      <div ref={host} className="en-content" dir="ltr" />
+      <div ref={host} className="hb en-content" dir="ltr" />
     </>
   );
 }
