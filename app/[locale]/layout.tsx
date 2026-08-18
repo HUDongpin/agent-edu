@@ -40,7 +40,7 @@ export async function generateMetadata(
       images: [{ url: "/docs/og-card.png", width: 2400, height: 1260 }],
     },
     twitter: { card: "summary_large_image", images: ["/docs/og-card.png"] },
-    icons: { icon: "/logo.svg" },
+    icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }] },
   };
 }
 

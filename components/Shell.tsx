@@ -35,6 +35,7 @@ export default async function Shell({
     { href: p("/courses/"), key: "nav.courses" },
     { href: p("/handbook/"), key: "nav.handbook" },
     { href: p("/lab/"), key: "nav.lab" },
+    { href: p("/about/"), key: "nav.about" },
   ];
 
   return (
@@ -83,6 +84,7 @@ export default async function Shell({
             <h4>{t("home.pathTitle")}</h4>
             <ul>
               <li><Link href={p("/courses/")}>{t("nav.courses")}</Link></li>
+              <li><Link href={p("/about/")}>{t("nav.about")}</Link></li>
               <li><Link href={p("/handbook/")}>{t("track.1.title")}</Link></li>
               <li><Link href={p("/lab/")}>{t("track.2.title")}</Link></li>
               <li>

@@ -596,3 +596,29 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   .filt{flex:1 1 100%}
   .filt-meta{margin-inline-start:0}
 }
+
+
+/* ======================= about / people ======================= */
+.person{display:flex;gap:18px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:20px}
+.person.lead{border-inline-start-width:4px;border-inline-start-color:var(--brand)}
+.portrait{flex:0 0 auto}
+.portrait svg{width:100%;height:100%;display:block}
+.pbody{min-width:0;flex:1 1 auto}
+.prole{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;display:block}
+:root[lang="ar"] .prole{letter-spacing:0;font-family:var(--sans)}
+.pbody h3{font-size:20px;margin:5px 0 3px}
+.person.lead .pbody h3{font-size:23px}
+.paff{font-size:13.5px;color:var(--ink-3);margin:0 0 10px}
+.pbio{font-size:14.5px;margin:0 0 12px;line-height:1.62}
+.pareas{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:0 0 11px}
+.pareas li{font-size:11.5px;font-weight:650;border:1px solid;border-radius:999px;
+  padding:2px 9px;opacity:.9}
+.plinks{font-size:13px;margin:0;color:var(--ink-3)}
+.plinks a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+.people{display:grid;gap:16px;margin-top:16px;
+  grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+@media(max-width:520px){
+  .person{flex-direction:column;gap:13px}
+}
