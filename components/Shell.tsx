@@ -72,12 +72,12 @@ export default async function Shell({
       <footer className="sitefoot">
         <div className="sitefoot-in">
           <div>
-            <h4><span className="wm">aicourse.top</span></h4>
+            <h2><span className="wm">aicourse.top</span></h2>
             <p>{t("brand.sub")}</p>
             <p className="muted">{t("foot.licence")}</p>
           </div>
           <div>
-            <h4>{t("home.pathTitle")}</h4>
+            <h2>{t("home.pathTitle")}</h2>
             <ul>
               <li><Link href={p("/courses/")}>{t("nav.courses")}</Link></li>
               <li><Link href={p("/about/")}>{t("nav.about")}</Link></li>
@@ -91,7 +91,7 @@ export default async function Shell({
             </ul>
           </div>
           <div>
-            <h4>{t("nav.lang")}</h4>
+            <h2>{t("nav.lang")}</h2>
             <p className="muted">{t("note.langHelp")}</p>
             <p>
               <a href="https://github.com/HUDongpin/agent-edu/tree/main/messages" rel="noopener">
@@ -100,7 +100,7 @@ export default async function Shell({
             </p>
           </div>
           <div>
-            <h4>{t("foot.source")}</h4>
+            <h2>{t("foot.source")}</h2>
             <p><a href="https://github.com/HUDongpin/agent-edu" rel="noopener">github.com/HUDongpin/agent-edu</a></p>
             <p className="muted">
               {t("foot.built")} <a href="https://github.com/HUDongpin" rel="noopener">HU Dongpin</a>

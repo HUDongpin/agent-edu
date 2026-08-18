@@ -102,7 +102,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           {outcomes.map((o) => (
             <div className="out" key={o.title}>
               <span className="ico" aria-hidden="true">{o.icon}</span>
-              <div><h4>{o.title}</h4><p>{o.desc}</p></div>
+              <div><h3>{o.title}</h3><p>{o.desc}</p></div>
             </div>
           ))}
         </div>
@@ -112,7 +112,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <h2>{t("home.forTitle")}</h2>
         <div className="who">
           {["1", "2", "3"].map((i) => (
-            <div key={i}><h4>{t(`home.for${i}`)}</h4><p>{t(`home.for${i}d`)}</p></div>
+            <div key={i}><h3>{t(`home.for${i}`)}</h3><p>{t(`home.for${i}d`)}</p></div>
           ))}
         </div>
       </section>

@@ -94,12 +94,14 @@ const FC = (function(){
     if (fs==='e'||fs==='w') return [{x:p2.x,y:p1.y}];
     return [{x:p1.x,y:p2.y}];
   }
+  let fcSeq = 0;
   function draw(svg,spec){
     svg.innerHTML='';
     if (spec.viewBox) svg.setAttribute('viewBox',spec.viewBox);
+    const sfx = '-' + (++fcSeq);
     const defs=el('defs');
     [['fcA','var(--line-2)'],['fcY','var(--green)'],['fcN','var(--red)'],['fcS','var(--violet)']].forEach(([id,c])=>{
-      const m=el('marker',{id:id,viewBox:'0 0 9 9',refX:'7.5',refY:'4.5',markerWidth:'5.5',markerHeight:'5.5',orient:'auto-start-reverse'});
+      const m=el('marker',{id:id+sfx,viewBox:'0 0 9 9',refX:'7.5',refY:'4.5',markerWidth:'5.5',markerHeight:'5.5',orient:'auto-start-reverse'});
       m.appendChild(el('path',{d:'M0,0 L9,4.5 L0,9 z',fill:c}));
       defs.appendChild(m);
     });
@@ -115,7 +117,7 @@ const FC = (function(){
       const pts=[p1].concat(via,[p2]);
       const kind=e.kind||'';
       const p=el('path',{d:roundPath(pts,e.r),class:'fc-e '+kind+(e.dash?' dash':''),
-        'marker-end':'url(#'+(kind==='yes'?'fcY':kind==='no'?'fcN':'fcA')+')'});
+        'marker-end':'url(#'+(kind==='yes'?'fcY':kind==='no'?'fcN':'fcA')+sfx+')'});
       svg.appendChild(p);
       out.edges[e.from+'>'+e.to]=p;
       if (e.label){

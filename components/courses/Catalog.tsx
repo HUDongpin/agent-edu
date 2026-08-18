@@ -123,7 +123,7 @@ export default function Catalog({ locale }: { locale: string }) {
                     <span>·</span>
                     <span>{c.minutes} {t("cat.minutes")}</span>
                   </div>
-                  <h3>{t(`c.${c.id}.title`)}</h3>
+                  <h2>{t(`c.${c.id}.title`)}</h2>
                   <p>{t(`c.${c.id}.blurb`)}</p>
                   {c.external && <p className="tracknote">↗ {t("track.3.note")}</p>}
                   <div className="cfoot">
