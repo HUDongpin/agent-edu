@@ -1,6 +1,13 @@
 import Link from "next/link";
 import Progress from "@/components/Progress";
-import { getMessages, translator } from "@/lib/i18n";
+import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
+
+/* Every route under [locale] declares its own params. The layout's are not
+   inherited for export purposes, and without this the exporter cannot tell
+   which locales `/` expands to. */
+export function generateStaticParams() {
+  return LOCALE_CODES.map((locale) => ({ locale }));
+}
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
