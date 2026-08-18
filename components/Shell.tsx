@@ -5,7 +5,7 @@ import ThemeToggle from "./ThemeToggle";
 import MobileNav from "./MobileNav";
 import NavLinks from "./NavLinks";
 import { I18nProvider } from "./I18nProvider";
-import { LOCALES, coverage, getMessages, translator, type Messages } from "@/lib/i18n";
+import { LOCALES, coverage, translator, type Messages } from "@/lib/i18n";
 import type { ReactNode } from "react";
 
 async function coverageMap(): Promise<Record<string, number>> {
@@ -41,7 +41,7 @@ export default async function Shell({
 
   return (
     <I18nProvider locale={locale} messages={messages}>
-      <a className="skip" href="#main">{t("ui.start")}</a>
+      <a className="skip" href="#main">{t("ui.skip")}</a>
 
       <header className="topbar">
         <div className="topbar-in">

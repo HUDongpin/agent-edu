@@ -22,8 +22,25 @@ export const spend = { in: 0, out: 0, calls: 0 };
 export function getKey(): string {
   try { return sessionStorage.getItem(KEY) || ""; } catch { return ""; }
 }
+
+/* Whether a key is saved is browser-only state, and React has to be told when
+   it changes. Subscribing to it beats reading it in an effect: an effect can
+   only run after a first render that already claimed there was no key. */
+const watchers = new Set<() => void>();
+export function subscribeKey(fn: () => void): () => void {
+  watchers.add(fn);
+  return () => { watchers.delete(fn); };
+}
+export function hasKey(): boolean { return getKey() !== ""; }
+/** On the server there is no session storage, and so never a key. */
+export function hasKeyOnServer(): boolean { return false; }
+
 export function setKey(v: string): void {
-  try { v ? sessionStorage.setItem(KEY, v) : sessionStorage.removeItem(KEY); } catch { /* private mode */ }
+  try {
+    if (v) sessionStorage.setItem(KEY, v);
+    else sessionStorage.removeItem(KEY);
+  } catch { /* private mode */ }
+  for (const fn of watchers) fn();
 }
 export function usd(): number {
   return (spend.in * PRICE_IN + spend.out * PRICE_OUT) / 1e6;
@@ -34,12 +51,34 @@ export function resetSpend(): void {
 
 export interface Msg { role: "system" | "user" | "assistant"; content: string }
 
+/** Thrown before any request when the reader has not saved a key yet. */
+export const NO_KEY = "ae:no-key";
+
+/**
+ * Turn whatever came back into one of a handful of message keys.
+ *
+ * Providers answer failures in their own words — "Authentication Fails",
+ * "Insufficient Balance", a bare HTTP 429 — and none of that tells a reader
+ * who has never written code what to actually do. Every branch here maps to
+ * a sentence that names the next action.
+ */
+export function errorKey(e: unknown): string {
+  const raw = e instanceof Error ? e.message : String(e);
+  const m = raw.toLowerCase();
+  if (raw === NO_KEY || m.includes("no key")) return "lab.err.noKey";
+  if (m.includes("401") || m.includes("auth") || m.includes("invalid api key")) return "lab.err.badKey";
+  if (m.includes("402") || m.includes("balance") || m.includes("quota") || m.includes("credit")) return "lab.err.noCredit";
+  if (m.includes("429") || m.includes("rate limit") || m.includes("busy") || m.includes("503")) return "lab.err.busy";
+  if (m.includes("network") || m.includes("failed to fetch") || m.includes("load failed")) return "lab.err.network";
+  return "lab.err.generic";
+}
+
 export async function call(
   messages: Msg[],
   { json = false, max = 900, model = "deepseek-v4-flash" as Model } = {},
 ): Promise<string> {
   const key = getKey();
-  if (!key) throw new Error("no key saved");
+  if (!key) throw new Error(NO_KEY);
 
   const body: Record<string, unknown> = {
     model,
