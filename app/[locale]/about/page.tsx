@@ -18,7 +18,8 @@ export async function generateMetadata(
 function Card({ p, t, lead = false }: { p: Person; t: (k: string) => string; lead?: boolean }) {
   return (
     <article className={"person" + (lead ? " lead" : "")}>
-      <Portrait initials={p.initials} hue={p.hue} size={lead ? 96 : 76} />
+      <Portrait initials={p.initials} hue={p.hue} photo={p.photo} focus={p.focus}
+        size={lead ? 96 : 76} />
       <div className="pbody">
         <span className="prole" style={{ color: p.hue }}>{t(`ab.p.${p.id}.role`)}</span>
         <h3>{p.name}</h3>

@@ -1,14 +1,31 @@
+/* eslint-disable @next/next/no-img-element */
+
 /**
- * A generated monogram, used instead of a photograph.
+ * A portrait, or a generated monogram when there is no photograph.
  *
- * Two reasons, both deliberate: hotlinking a headshot would add an external
- * request to a site whose whole claim is that it makes none, and re-hosting
- * someone else's portrait is not ours to do. The mark echoes the logo's
- * summit motif so the page still looks designed rather than unfinished.
+ * Photos are self-hosted in /public/team rather than hotlinked, so the page
+ * still makes no third-party request. Only the people whose portraits are
+ * published on the project's own sites have one; the rest fall back to a
+ * monogram that echoes the logo's summit motif, so a missing photo reads as
+ * a design choice rather than a broken image.
+ *
+ * `object-position` is per-person because a portrait cropped to a circle
+ * needs to be centred on the face, not on the middle of the frame.
  */
 export default function Portrait({
-  initials, hue, size = 84,
-}: { initials: string; hue: string; size?: number }) {
+  initials, hue, size = 84, photo, focus,
+}: {
+  initials: string; hue: string; size?: number;
+  photo?: string; focus?: string;
+}) {
+  if (photo) {
+    return (
+      <div className="portrait photo" style={{ width: size, height: size, color: hue }}>
+        <img src={photo} alt="" width={size} height={size} loading="lazy" decoding="async"
+          style={{ objectPosition: focus ?? "center 30%" }} />
+      </div>
+    );
+  }
   return (
     <div className="portrait" style={{ width: size, height: size, color: hue }} aria-hidden="true">
       <svg viewBox="0 0 84 84">

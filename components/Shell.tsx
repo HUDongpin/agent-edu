@@ -3,6 +3,7 @@ import Logo from "./Logo";
 import LanguageMenu from "./LanguageMenu";
 import ThemeToggle from "./ThemeToggle";
 import MobileNav from "./MobileNav";
+import NavLinks from "./NavLinks";
 import { I18nProvider } from "./I18nProvider";
 import { LOCALES, coverage, getMessages, translator, type Messages } from "@/lib/i18n";
 import type { ReactNode } from "react";
@@ -53,12 +54,7 @@ export default async function Shell({
           </Link>
 
           <MobileNav label={t("nav.menu")}>
-            {nav.map((n) => (
-              <Link key={n.key} href={n.href}>{t(n.key)}</Link>
-            ))}
-            <a href="https://github.com/HUDongpin/agent-edu/tree/main/course" rel="noopener">
-              {t("nav.course")}
-            </a>
+            <NavLinks items={nav.map((n) => ({ href: n.href, label: t(n.key) }))} />
             <a href="https://github.com/HUDongpin/agent-edu/blob/main/TEACHING.md" rel="noopener">
               {t("nav.teach")}
             </a>

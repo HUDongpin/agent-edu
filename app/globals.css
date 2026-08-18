@@ -622,3 +622,21 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 @media(max-width:520px){
   .person{flex-direction:column;gap:13px}
 }
+
+.portrait.photo{border-radius:50%;overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px var(--line), 0 0 0 4px color-mix(in srgb,currentColor 14%,transparent)}
+.portrait.photo img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* The current page, marked with aria-current so the highlight and the
+   screen-reader announcement can never drift apart. A tinted pill alone was
+   too close to :hover to read as "you are here", so it also carries weight
+   and an underline anchored to the text. */
+.mainnav a[aria-current="page"]{
+  color:var(--brand);background:var(--brand-soft);font-weight:700;
+  position:relative}
+.mainnav a[aria-current="page"]::after{
+  content:"";position:absolute;inset-inline:11px;bottom:2px;height:2px;
+  border-radius:2px;background:var(--brand)}
+@media(max-width:860px){
+  .mainnav a[aria-current="page"]::after{inset-inline:11px;bottom:4px}
+}

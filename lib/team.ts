@@ -11,8 +11,12 @@
 export interface Person {
   id: string;
   name: string;
-  /** Roman initials for the generated monogram. */
+  /** Roman initials, used when there is no photograph. */
   initials: string;
+  /** Self-hosted portrait. Absent where no published photo exists. */
+  photo?: string;
+  /** CSS object-position, so a circular crop lands on the face. */
+  focus?: string;
   hue: string;
   /** Areas of work — keys into messages, so they translate. */
   areas: string[];
@@ -23,6 +27,8 @@ export const CREATOR: Person = {
   id: "peter",
   name: "Dr. Peter HU Dongpin",
   initials: "PH",
+  photo: "/team/peter.jpg",
+  focus: "center 22%",
   hue: "var(--brand)",
   areas: ["tel", "analytics", "aied", "appdev"],
   links: [
@@ -38,6 +44,8 @@ export const TEAM: Person[] = [
     id: "hwang",
     name: "Prof. Gwo-Jen Hwang",
     initials: "GH",
+    photo: "/team/hwang.jpg",
+    focus: "center 18%",
     hue: "var(--violet)",
     areas: ["aied", "mobile", "game", "flipped"],
     links: [{ label: "3D ENA", href: "https://www.3dena.com/team" }],
@@ -46,6 +54,8 @@ export const TEAM: Person[] = [
     id: "tu",
     name: "Dr. Yun-Fang Tu",
     initials: "YT",
+    photo: "/team/tu.jpg",
+    focus: "center 20%",
     hue: "var(--green)",
     areas: ["genai", "digital", "edm", "network"],
     links: [{ label: "3D ENA", href: "https://www.3dena.com/team" }],
@@ -54,6 +64,8 @@ export const TEAM: Person[] = [
     id: "yu",
     name: "Mr. YU Jianxing",
     initials: "YJ",
+    photo: "/team/yu.jpg",
+    focus: "center 14%",
     hue: "var(--gold-mark)",
     areas: ["ena", "qe", "discourse", "software"],
     links: [{ label: "3D ENA", href: "https://www.3dena.com/team" }],
