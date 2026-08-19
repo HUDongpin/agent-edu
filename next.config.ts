@@ -12,7 +12,7 @@ import type { NextConfig } from "next";
  * router eagerly pre-generate every dynamic path and log a spurious
  * "missing param" error for /[locale] on every start — noise that would
  * happily hide a real error. Builds are unaffected: `next build` runs with
- * NODE_ENV=production and still exports all 30 pages.
+ * NODE_ENV=production and still exports all 50 pages.
  */
 const isBuild = process.env.NODE_ENV === "production";
 

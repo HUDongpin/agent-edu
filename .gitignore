@@ -47,6 +47,10 @@ __pycache__/
 # Local dev tooling
 .claude/
 
+# Private working notes. Untracked is not enough: `git add -A` would stage
+# these into a public repo.
+2026*_claude suggestions*.md
+
 # Junk
 .DS_Store
 npm-debug.log*
