@@ -606,7 +606,7 @@ const RECALL={
       $('#progNext').innerHTML = nextUp<0
         ? 'All of it. Now throw the café away and do <a href="https://github.com/HUDongpin/agent-edu/blob/main/course/README.md" rel="noopener">stage 9</a> on a domain you actually know.'
         : 'Next: '+esc(states[nextUp].label)+
-          (nextUp>0&&nextUp<5?' — <a href="play.html">Part 1.5</a> takes about twenty minutes.':'');
+          (nextUp>0&&nextUp<5?' — <a href="../lab/">Part 1.5</a> takes about twenty minutes.':'');
     }
     paint();
     window.addEventListener('storage',paint);

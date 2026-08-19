@@ -5,9 +5,6 @@ import MARKUP from "@/lib/handbook/markup";
 import initHandbook from "@/lib/handbook/behaviour";
 import { useI18n } from "../I18nProvider";
 
-const RAIL = ["start", "code", "prompt", "context", "loop", "graph",
-  "harness", "evals", "security", "compare", "play"];
-
 /**
  * The handbook: verified markup rendered by React, driven by the original
  * imperative widgets.
@@ -43,12 +40,17 @@ export default function Handbook() {
     setReady(true);
   }, []);
 
-  /* Translate the rail after mount, and again when the language changes. */
+  /* Translate the rail after mount, and again when the language changes.
+   *
+   * Every element the markup marks with data-i18n, not a hard-coded list of
+   * rail ids: the closing call to action into the lab carries
+   * data-i18n="track.2.cta" and was rendering as an empty button because the
+   * list only covered hb.* keys. */
   useEffect(() => {
     if (!ready || !host.current) return;
-    for (const id of RAIL) {
-      const el = host.current.querySelector(`[data-i18n="hb.${id}"]`);
-      if (el) el.textContent = t(`hb.${id}`);
+    for (const el of host.current.querySelectorAll<HTMLElement>("[data-i18n]")) {
+      const key = el.dataset.i18n;
+      if (key) el.textContent = t(key);
     }
   }, [ready, locale, t]);
 
