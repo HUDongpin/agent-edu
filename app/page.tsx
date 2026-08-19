@@ -1,4 +1,5 @@
 import { LOCALE_CODES, DEFAULT_LOCALE } from "@/lib/i18n";
+import { urlFor } from "@/lib/seo";
 
 /**
  * The root page, `/`.
@@ -45,7 +46,7 @@ export default function RootPage() {
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="refresh" content={`0; url=/${DEFAULT_LOCALE}/`} />
-        <link rel="canonical" href={`https://aicourse.top/${DEFAULT_LOCALE}/`} />
+        <link rel="canonical" href={urlFor(DEFAULT_LOCALE)} />
         <title>aicourse.top</title>
         <script dangerouslySetInnerHTML={{ __html: script }} />
       </head>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import Shell from "@/components/Shell";
 import { LOCALE_CODES, getMessages, metaFor, translator } from "@/lib/i18n";
+import { SITE, seoFor } from "@/lib/seo";
 import type { ReactNode } from "react";
 
 export function generateStaticParams() {
@@ -10,36 +11,25 @@ export function generateStaticParams() {
 
 export const dynamicParams = false;
 
-const SITE = "https://aicourse.top";
-
 export async function generateMetadata(
   { params }: { params: Promise<{ locale: string }> },
 ): Promise<Metadata> {
   const { locale } = await params;
   const t = translator(await getMessages(locale));
 
-  /* hreflang for every locale. This is the whole reason the site moved to
-     per-locale URLs: with one shared URL, search engines only ever indexed
-     the English copy. */
-  const languages: Record<string, string> = {};
-  for (const code of LOCALE_CODES) languages[code] = `${SITE}/${code}/`;
-  languages["x-default"] = `${SITE}/en/`;
-
+  /* The locale root's own metadata. Each page under it sets its own — the
+     hreflang set has to name that page in nine languages, not this one.
+     Only the card and the favicon are genuinely site-wide. */
   return {
     metadataBase: new URL(SITE),
-    title: `${t("brand.name")} — ${t("brand.tag")}`,
-    description: t("home.lede"),
-    alternates: { canonical: `${SITE}/${locale}/`, languages },
-    openGraph: {
-      type: "website",
-      siteName: t("brand.name"),
-      title: `${t("brand.name")} — ${t("brand.tag")}`,
-      description: t("brand.sub"),
-      url: `${SITE}/${locale}/`,
+    ...seoFor({
       locale,
-      images: [{ url: "/docs/og-card.png", width: 2400, height: 1260 }],
-    },
-    twitter: { card: "summary_large_image", images: ["/docs/og-card.png"] },
+      page: "",
+      title: `${t("brand.name")} — ${t("brand.tag")}`,
+      description: t("home.lede"),
+      ogDescription: t("brand.sub"),
+      siteName: t("brand.name"),
+    }),
     icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }] },
   };
 }

@@ -2,6 +2,8 @@ import Link from "next/link";
 import Progress from "@/components/Progress";
 import { FixedSteps, ModelStep } from "@/components/home/Decide";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
+import { SITE, urlFor } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
 
 /* Every route under [locale] declares its own params. The layout's are not
    inherited for export purposes, and without this the exporter cannot tell
@@ -32,8 +34,23 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     desc: t(`home.learn${i}d`),
   }));
 
+  /* The site itself, once, on the locale root. Everything asserted here is
+     on the page already: it is free, it has no account, and the people are
+     named on /about/. */
+  const org = {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "@id": `${SITE}/#org`,
+    name: t("brand.name"),
+    url: urlFor(locale),
+    description: t("brand.sub"),
+    inLanguage: locale,
+    sameAs: ["https://github.com/HUDongpin/agent-edu"],
+  };
+
   return (
     <div className="shellwrap">
+      <JsonLd data={org} />
       <section className="hero">
         <span className="eyebrow">{t("home.kicker")}</span>
         <h1>

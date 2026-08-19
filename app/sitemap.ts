@@ -1,8 +1,6 @@
 import type { MetadataRoute } from "next";
 import { LOCALE_CODES, DEFAULT_LOCALE } from "@/lib/i18n";
-
-const SITE = "https://aicourse.top";
-const PAGES = ["", "courses/", "handbook/", "lab/", "about/"];
+import { PAGES, urlFor } from "@/lib/seo";
 
 export const dynamic = "force-static";
 
@@ -25,14 +23,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return PAGES.flatMap((page) =>
     LOCALE_CODES.map((locale) => ({
-      url: `${SITE}/${locale}/${page}`,
+      url: urlFor(locale, page),
       lastModified: new Date("2026-08-18"),
       changeFrequency: "monthly" as const,
       priority: page === "" ? 1 : 0.8,
       alternates: {
         languages: Object.fromEntries([
-          ...LOCALE_CODES.map((code) => [code, `${SITE}/${code}/${page}`]),
-          ["x-default", `${SITE}/${DEFAULT_LOCALE}/${page}`],
+          ...LOCALE_CODES.map((code) => [code, urlFor(code, page)]),
+          ["x-default", urlFor(DEFAULT_LOCALE, page)],
         ]),
       },
     })),

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SITE } from "@/lib/seo";
 
 export const dynamic = "force-static";
 
@@ -10,7 +11,7 @@ export const dynamic = "force-static";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [{ userAgent: "*", allow: "/" }],
-    sitemap: "https://aicourse.top/sitemap.xml",
-    host: "https://aicourse.top",
+    sitemap: `${SITE}/sitemap.xml`,
+    host: SITE,
   };
 }

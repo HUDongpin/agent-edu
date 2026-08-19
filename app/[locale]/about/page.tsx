@@ -1,6 +1,7 @@
 import Portrait from "@/components/about/Portrait";
 import { CREATOR, TEAM, type Person } from "@/lib/team";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
+import { seoFor } from "@/lib/seo";
 import type { Metadata } from "next";
 
 export function generateStaticParams() {
@@ -12,7 +13,12 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { locale } = await params;
   const t = translator(await getMessages(locale));
-  return { title: `${t("ab.title")} · aicourse.top`, description: t("ab.lede") };
+  return seoFor({
+    locale, page: "about/",
+    title: `${t("ab.title")} · aicourse.top`,
+    description: t("ab.lede"),
+    siteName: t("brand.name"),
+  });
 }
 
 function Card({ p, t, lead = false }: { p: Person; t: (k: string) => string; lead?: boolean }) {
