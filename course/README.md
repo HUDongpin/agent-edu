@@ -1,10 +1,12 @@
 # Part 3 — build the thing
 
-The [handbook](../app) gives you the mental model and the [lab](../app) gets your hands on it. This is the other half: **one café, nine stages, real API calls, on your own machine.** At the end you have an agent you built, an eval suite that scores it, and a harness you would leave running overnight.
+The [handbook](https://aicourse.top/en/handbook/) gives you the mental model and the [Lab](https://aicourse.top/en/lab/) gets your hands on it. This is the other half: **one café, nine stages, real API calls, on your own machine.** At the end you have an agent you built, an eval suite that scores it, and a harness you would leave running overnight.
 
-> **This part assumes you can read and write basic TypeScript** — functions, objects, a `for` loop, `await`. Not much more. If that made you uneasy, do the **Lab** first: the same first four lessons, in your browser, nothing to install.
+> **This part assumes you can read and write basic TypeScript** — functions, objects, a `for` loop, `await`. Not much more. If that made you uneasy, do the **[Lab](https://aicourse.top/en/lab/)** first: the same ground as stages 0 to 4, in your browser, nothing to install.
 
 ## Before you start
+
+Everything below runs from the **repo root** — the course shares the site's `package.json`, so there is nothing to install in this folder.
 
 ```bash
 npm install
@@ -17,7 +19,7 @@ npx tsx course/stage0-hello/run.ts
 Each stage is a folder with a `README.md` and a `run.ts` containing one or two `TODO`s. Fill them in, run it, then grade yourself:
 
 ```bash
-npx tsx course/check.ts 0
+npx tsx course/check.ts 0      # or: npm run course 0
 ```
 
 **No API key?** Add `--offline` to any command to replay recorded answers. Every stage runs. But stage 2's entire lesson is watching the same question come back different, and a recording cannot show you that — so borrow a key for at least stages 2 to 4 if you possibly can.
@@ -70,7 +72,7 @@ This is what a provider abstraction is actually for. Not "swap the URL" — anyo
 ## Your report card
 
 ```bash
-npx tsx course/report.ts
+npx tsx course/report.ts       # or: npm run report
 ```
 
 ```

@@ -55,7 +55,7 @@ This is what a provider abstraction is actually for. Not "swap the URL" — anyo
 
 ## Using this with a class
 
-There is a **[90-minute lesson plan](../TEACHING.md)** with timings, what to demo live, and where to stop.
+There is a **[90-minute lesson plan](../../TEACHING.md)** with timings, what to demo live, and where to stop.
 
 Worth knowing if you are teaching in mainland China: the DeepSeek path needs **no VPN**, costs about **two cents per learner** for the whole course, and `deepseek-v4-flash` is fast enough to run live in front of a room. That is the main reason this course is provider-agnostic rather than Claude-only.
 
@@ -132,4 +132,4 @@ Pick a domain you actually know: a library's returns desk, a lab booking system,
 
 Nobody will grade it. The point is that you now know what the twenty cases *are* for your own domain — which is the part that cannot be taught by a café.
 
-Licensed [MIT](../LICENSE), same as the rest of this repo. Corrections and extra stages welcome via [issues](https://github.com/HUDongpin/agent-edu/issues).
+Licensed [MIT](../../LICENSE), same as the rest of this repo. Corrections and extra stages welcome via [issues](https://github.com/HUDongpin/agent-edu/issues).
