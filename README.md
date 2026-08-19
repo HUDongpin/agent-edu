@@ -73,9 +73,11 @@ So it is now **Next.js 16 / React 19 / TypeScript, exported as static files** (`
 |---|---|
 | `app/[locale]/` | the five pages — home, courses, handbook, lab, about — across 9 locales |
 | `messages/*.json` | every string, one flat file per language. A translator edits one line; no React, no build |
+| `messages/handbook/` | the handbook's article prose, extracted from the markup — same idea, one file per language |
 | `components/` | the shell React owns: nav, language menu, theme toggle, the Lab |
 | `lib/flowchart.ts` | the diagram engine, byte-identical to the verified original |
 | `lib/handbook/` | `markup.ts`, the verified handbook markup, and `behaviour.ts`, its 22 widget modules |
+| `scripts/` | `extract-handbook.mjs`, which turns the markup's text nodes into `messages/handbook/en.json` |
 | `course/` | the nine-stage TypeScript course |
 | `legacy/` | the original single-file HTML, and the Python course |
 
@@ -92,6 +94,10 @@ English · Español · Français · Deutsch · 简体中文 · 繁體中文 · �
 Pick one from the 🌐 menu, or link straight to it — each language is its own URL, so `/ar/handbook/` *is* the Arabic handbook. Your choice is remembered in the browser.
 
 **The long-form articles in the handbook are still English.** The interface around them is translated; the essays are not, and a banner says so in your language rather than pretending otherwise. Untranslated English keeps `dir="ltr"` inside the Arabic shell, so punctuation and code samples stay the right way round.
+
+Translating them is now a matter of filling in one file. `messages/handbook/en.json` holds the 560 strings of article prose, pulled out of the markup by `npm run handbook:extract`; copy it to `fr.json`, translate the values, and `/fr/handbook/` ships in French — the substitution happens at build time, so the exported file is French for a reader, for a crawler and for anyone with JavaScript off. No code change, and nothing to know about React. A part-finished file is fine and its strings appear straight away; the banner and the `en-content` wrapper only drop away once every key is filled in, because flipping a half-translated Arabic page to right-to-left would lay the paragraphs nobody had reached yet out backwards. The build prints what is still missing.
+
+Keys are `hb.body.<nearest ancestor id>.<nth text node>`, and text broken by an `<em>` or a link arrives in pieces: only text is replaced, never the tags around it, which is what keeps the verified markup and its 210 DOM queries intact. Readouts a widget rewrites as you use it — counters, verdicts, the game — come back in English, because those strings live in `behaviour.ts`.
 
 Every string lives in [`messages/`](messages/) — one flat JSON file per language, the same keys in each. To fix a translation, edit one line. To add a language, copy `en.json`, translate the values, and add a row to `LOCALES` in [`lib/i18n.ts`](lib/i18n.ts) (set `dir:"rtl"` if it needs it). A missing key falls back to English rather than rendering blank, and the menu shows each translation's coverage — so a partial contribution is useful rather than embarrassing.
 
@@ -131,11 +137,11 @@ FC.draw($('#fcYours'), {
 
 **5. Add a brief to the game** in the `BRIEFS` array, and your discipline to `A` and `ORDER`. Give it a `trap` explaining why the *wrong* answer is tempting — that field does most of the teaching.
 
-**6. Add your rail label to all nine `messages/*.json`** as `hb.yours`. The article stays English; the rail does not.
+**6. Add your rail label to all nine `messages/*.json`** as `hb.yours`, then run `npm run handbook:extract` so your prose joins `messages/handbook/en.json`. Adding a whole section is safe — it is its own container, so nobody else's keys move. Adding a paragraph *inside* an existing section renumbers the text nodes after it in that section, which quietly re-points any translation of them; `npm run handbook:check` fails when the file and the markup have drifted apart.
 
 ### Before you open a PR
 
-`npm run build` must pass and still say 50/50 pages. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported byte-for-byte from the verified single-file build, and `behaviour.ts` holds 210 DOM queries against the ids in `markup.ts`: fix a real bug in place, in the smallest diff you can, and don't rename an id, reformat, or turn it into JSX. `npm run lint` has pre-existing complaints about those files that are meant to stay.
+`npm run build` must pass and still say 50/50 pages, and `npm run handbook:check` must pass. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported byte-for-byte from the verified single-file build, and `behaviour.ts` holds 210 DOM queries against the ids in `markup.ts`: fix a real bug in place, in the smallest diff you can, and don't rename an id, reformat, or turn it into JSX. `npm run lint` has pre-existing complaints about those files that are meant to stay.
 
 Then the checks used on every change to the handbook. Open the page and paste them into the browser console:
 

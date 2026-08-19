@@ -29,6 +29,15 @@ language, nine languages, currently 100% covered. Adding a string to English
 without adding it to the other eight is a regression, not a to-do. A translator
 must be able to fix a line without knowing React.
 
+The handbook's article prose is the exception, and lives in `messages/handbook/`.
+`en.json` there is **generated** — never hand-edit it. Change the wording in
+`lib/handbook/markup.ts` and re-run `npm run handbook:extract`; `npm run
+handbook:check` fails when the two have drifted. The other eight are a
+translation queue rather than a regression: a locale with no file keeps the
+English prose, and dropping one in turns that language on at the next build.
+Keys carry an ordinal, so inserting a paragraph mid-section renumbers the text
+nodes after it — re-extract and re-check every table when you do.
+
 ## Static export
 `output: "export"`. No server, no middleware, no route handlers, no server
 actions, no `next/image` optimiser. The lab calls the model provider straight

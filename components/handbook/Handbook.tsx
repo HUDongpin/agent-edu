@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import MARKUP from "@/lib/handbook/markup";
+import { useEffect, useRef } from "react";
 import initHandbook from "@/lib/handbook/behaviour";
 import { useI18n } from "../I18nProvider";
 
@@ -10,8 +9,12 @@ import { useI18n } from "../I18nProvider";
  * imperative widgets.
  *
  * Same split as the flowchart engine — React owns mounting, the code that was
- * already verified owns behaviour. Once mounted we translate the rail labels
- * in place, so the navigation is localised even though the articles are not.
+ * already verified owns behaviour. The markup arrives as a prop because the
+ * text in it is now chosen per locale, on the server, at build time: see
+ * lib/handbook/localise.ts. Doing that swap in the browser, as this component
+ * used to, meant a crawler on /zh-Hans/handbook/ was served an entirely
+ * English page down to the rail labels, and the closing call into the lab was
+ * an empty button until script ran.
  *
  * The markup is rendered, not assigned to innerHTML in an effect. Assigning it
  * meant the eleven sections existed only after JavaScript ran: the served HTML
@@ -21,15 +24,19 @@ import { useI18n } from "../I18nProvider";
  * indexable. React does not diff dangerouslySetInnerHTML content, so the
  * widgets are still free to mutate the subtree afterwards.
  */
-export default function Handbook() {
+export default function Handbook({ html, localised }: { html: string; localised: boolean }) {
   const { t, locale } = useI18n();
-  const host = useRef<HTMLDivElement>(null);
-  const started = useRef(false);
-  const [ready, setReady] = useState(false);
+  const startedFor = useRef<string | null>(null);
 
+  /* Start the widgets once per body of markup.
+   *
+   * Once, so React's development double-invoke does not bind everything
+   * twice. Per body of markup, because switching language is a client-side
+   * navigation: React replaces the subtree with the new locale's HTML, and
+   * every listener the widgets had hung on it goes with the old nodes. */
   useEffect(() => {
-    if (!host.current || started.current) return;
-    started.current = true;
+    if (startedFor.current === html) return;
+    startedFor.current = html;
     try {
       initHandbook();
     } catch (err) {
@@ -37,33 +44,17 @@ export default function Handbook() {
       // still have value without it.
       console.error("handbook widget failed to start:", err);
     }
-    setReady(true);
-  }, []);
-
-  /* Translate the rail after mount, and again when the language changes.
-   *
-   * Every element the markup marks with data-i18n, not a hard-coded list of
-   * rail ids: the closing call to action into the lab carries
-   * data-i18n="track.2.cta" and was rendering as an empty button because the
-   * list only covered hb.* keys. */
-  useEffect(() => {
-    if (!ready || !host.current) return;
-    for (const el of host.current.querySelectorAll<HTMLElement>("[data-i18n]")) {
-      const key = el.dataset.i18n;
-      if (key) el.textContent = t(key);
-    }
-  }, [ready, locale, t]);
+  }, [html]);
 
   return (
     <>
       <div className="shellwrap">
-        {locale !== "en" && <p className="langnote">{t("note.englishOnly")}</p>}
+        {!localised && locale !== "en" && <p className="langnote">{t("note.englishOnly")}</p>}
       </div>
       <div
-        ref={host}
-        className="hb en-content"
-        dir="ltr"
-        dangerouslySetInnerHTML={{ __html: MARKUP }}
+        className={localised ? "hb" : "hb en-content"}
+        dir={localised ? undefined : "ltr"}
+        dangerouslySetInnerHTML={{ __html: html }}
       />
     </>
   );

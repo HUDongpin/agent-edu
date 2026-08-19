@@ -18,7 +18,9 @@
     "start": "next start",
     "lint": "eslint",
     "course": "tsx course/check.ts",
-    "report": "tsx course/report.ts"
+    "report": "tsx course/report.ts",
+    "handbook:extract": "node scripts/extract-handbook.mjs",
+    "handbook:check": "node scripts/extract-handbook.mjs --check"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",

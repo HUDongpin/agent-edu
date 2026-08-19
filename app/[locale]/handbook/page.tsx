@@ -1,4 +1,5 @@
 import Handbook from "@/components/handbook/Handbook";
+import { localiseHandbook } from "@/lib/handbook/localise";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
 import { seoFor } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -20,6 +21,13 @@ export async function generateMetadata(
   });
 }
 
-export default function HandbookPage() {
-  return <Handbook />;
+/* The markup is localised here rather than in the browser, so the exported
+   file for each locale is already in that language — the point of giving the
+   handbook nine URLs in the first place. */
+export default async function HandbookPage(
+  { params }: { params: Promise<{ locale: string }> },
+) {
+  const { locale } = await params;
+  const { html, localised } = await localiseHandbook(locale);
+  return <Handbook html={html} localised={localised} />;
 }
