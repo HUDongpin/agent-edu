@@ -1,7 +1,17 @@
 {
-  "name": "nextscaffold",
+  "name": "aicourse-top",
   "version": "0.1.0",
   "private": true,
+  "description": "aicourse.top — a free, open course in agentic engineering for people new to software engineering: an illustrated handbook, a browser lab and a TypeScript course, in nine languages.",
+  "license": "MIT",
+  "homepage": "https://aicourse.top",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HUDongpin/agent-edu.git"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
