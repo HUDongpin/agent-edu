@@ -1,37 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Cover from "./Cover";
 import { useI18n } from "../I18nProvider";
 import {
   COURSES, FORMATS, LEVELS, STATUSES, TOPICS,
-  type Course, type Format, type Level, type Status, type Topic,
+  type Format, type Level, type Status, type Topic,
 } from "@/lib/courses";
+import {
+  readLearningState,
+  readLearningStateOnServer,
+  selectCourseProgress,
+  subscribeLearningState,
+  type CourseProgress,
+} from "@/lib/progress";
 
 const ALL = "__all__";
-
-/** Progress lives in localStorage, so it can only be read after mount. */
-function useProgress(): Record<string, number> {
-  const [map, setMap] = useState<Record<string, number>>({});
-  useEffect(() => {
-    const read = () => {
-      let p: Record<string, unknown> = {};
-      let seen = 0;
-      try {
-        p = JSON.parse(localStorage.getItem("ae.progress") || "{}");
-        seen = (localStorage.getItem("tch.seen") || "").split(",").filter(Boolean).length;
-      } catch { /* private browsing: everything reads as 0 */ }
-      const next: Record<string, number> = {};
-      for (const c of COURSES) next[c.id] = Math.min(100, Math.max(0, c.progress(p, seen)));
-      setMap(next);
-    };
-    read();
-    window.addEventListener("focus", read);
-    return () => window.removeEventListener("focus", read);
-  }, []);
-  return map;
-}
 
 function Select({
   label, value, onChange, options, render,
@@ -53,7 +38,11 @@ function Select({
 
 export default function Catalog({ locale }: { locale: string }) {
   const { t } = useI18n();
-  const progress = useProgress();
+  const learning = useSyncExternalStore(
+    subscribeLearningState,
+    readLearningState,
+    readLearningStateOnServer,
+  );
 
   const [level, setLevel] = useState<string>(ALL);
   const [format, setFormat] = useState<string>(ALL);
@@ -70,10 +59,11 @@ export default function Catalog({ locale }: { locale: string }) {
 
   const dirty = [level, format, topic, status].some((v) => v !== ALL);
 
-  function cta(c: Course): string {
-    const pct = progress[c.id] ?? 0;
-    if (pct >= 100) return t("cat.review");
-    if (pct > 0) return t("cat.resume");
+  function cta(progress: CourseProgress): string {
+    if (progress.kind === "external") return t("track.3.cta");
+    if (progress.kind !== "tracked") return t("cat.start");
+    if (progress.status === "completed") return t("cat.review");
+    if (progress.status === "in-progress") return t("cat.resume");
     return t("cat.start");
   }
 
@@ -108,7 +98,7 @@ export default function Catalog({ locale }: { locale: string }) {
       ) : (
         <ul className="ccards">
           {shown.map((c) => {
-            const pct = progress[c.id] ?? 0;
+            const progress = selectCourseProgress(learning, c.id);
             const soon = c.status === "soon";
             const href = c.external ? c.href : `/${locale}${c.href}`;
             const inner = (
@@ -129,16 +119,25 @@ export default function Catalog({ locale }: { locale: string }) {
                   <div className="cfoot">
                     {soon ? (
                       <span className="pill neutral">{t("cat.soonBadge")}</span>
-                    ) : (
+                    ) : progress.kind === "external" ? (
+                      <span className="cgo" style={{ color: c.hue }}>
+                        {cta(progress)} <span className="arrow">↗</span>
+                      </span>
+                    ) : progress.kind === "tracked" ? (
                       <>
-                        <div className="cprog" title={`${pct}% ${t("cat.progress")}`}>
-                          <div className="cbar"><span style={{ width: `${pct}%`, background: c.hue }} /></div>
-                          <span className="cpct">{pct}%</span>
+                        <div className="cprog"
+                          title={`${progress.current} ${t("ui.of")} ${progress.total} · ${t("cat.progress")}`}>
+                          <div className="cbar">
+                            <span style={{ width: `${progress.percent}%`, background: c.hue }} />
+                          </div>
+                          <span className="cpct">{progress.current}/{progress.total}</span>
                         </div>
                         <span className="cgo" style={{ color: c.hue }}>
-                          {cta(c)} <span className="arrow">→</span>
+                          {cta(progress)} <span className="arrow">→</span>
                         </span>
                       </>
+                    ) : (
+                      <span className="cgo" style={{ color: c.hue }}>{cta(progress)}</span>
                     )}
                   </div>
                 </div>
