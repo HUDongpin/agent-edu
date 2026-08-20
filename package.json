@@ -27,6 +27,7 @@
     "release:check": "node scripts/check-release-readiness.mjs",
     "csp:check": "node scripts/check-csp.mjs",
     "csp:set": "node scripts/set-csp-stage.mjs",
+    "analytics:check": "node scripts/check-analytics.mjs",
     "secrets:check": "node scripts/check-secrets.mjs",
     "course": "tsx course/check.ts",
     "course:offline": "node --import tsx course/offline-preflight.ts --offline",
