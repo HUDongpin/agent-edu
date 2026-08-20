@@ -6,10 +6,30 @@ import Fail from "./Fail";
 import Stages, { type Stage } from "./Stages";
 import Rich from "../Rich";
 import { useI18n } from "../I18nProvider";
-import { asJSON, call, errorKey, getKey, pool, spend, usd, type Model } from "@/lib/deepseek";
+import {
+  asJSON,
+  billingSnapshot,
+  billingSnapshotOnServer,
+  call,
+  conservativePrice,
+  conservativePromptTokenUpperBound,
+  errorKey,
+  getKey,
+  keyStatusSnapshot,
+  subscribeBilling,
+  type Model,
+} from "@/lib/deepseek";
 import { mark, progressOnServer, progressSnapshot, readProgress, subscribeProgress } from "@/lib/progress";
 import { MENU, menuText, priceOf, type Order } from "@/lib/cafe/menu";
 import { CASES } from "@/lib/cafe/evalset";
+import {
+  EVAL_PLAN,
+  LAB_CONCURRENCY,
+  STAGE_1_PLAN,
+  STAGE_3_PLAN,
+  assertEvalShape,
+} from "@/lib/lab/plans";
+import { LabRunner, type LabRunTask } from "@/lib/lab/runner";
 
 const SEED = `You are the till at a small café. Turn what the customer said into an order.
 
@@ -22,21 +42,52 @@ const TESTS = ["tea", "large tea", "large flat white", "two teas", "americano, s
   "LARGE FLAT WHITE!!!", "could I grab a large flat white when you get a sec",
   "flat white, make it large", "something warm for my kid, no coffee", "the usual"];
 
+const PREVIEW_ORDERS = [
+  "could I grab a large flat white when you get a sec",
+  "two teas",
+  "something warm for my kid, no coffee",
+] as const;
+
+const JUDGE_SYSTEM = "You grade one output against one written standard. Not style — only whether the standard is met. Reply as JSON.";
+const MENU_GUARD = "Only ever order items on this menu, at exactly these prices. If they ask for something not on it, order nothing and set needs_confirmation to true.";
+
 const PANEL = "labpanel";
 
 type Rule = { c: string; n: string; s: "S" | "L" };
 type Row = { id: string; said: string; kind: string; ok: boolean; why: string };
 type Err = { key: string; detail?: string } | null;
+type ActiveBatch = { runId: string; kind: "preview" | "eval" } | null;
+
+const REQUEST_TIMEOUT_MS = 45_000;
+
+assertEvalShape(CASES.length, CASES.filter((item) => item.kind === "judge").length);
+
+function orderMessages(said: string, system: string) {
+  return [
+    { role: "system" as const, content: system },
+    {
+      role: "user" as const,
+      content: `Customer said: ${JSON.stringify(said)}. Reply with JSON only.`,
+    },
+  ];
+}
+
+function addMenu(system: string): string {
+  return (system.trim() || SEED) + "\n\n" + menuText() + "\n\n" + MENU_GUARD;
+}
 
 export default function Lab() {
   const { t, locale } = useI18n();
   const [stage, setStage] = useState(0);
   const [model, setModel] = useState<Model>("deepseek-v4-flash");
-  /* The running token spend lives in a module-level object, not in React
-     state, so that every caller shares one tally. Nothing tells React when it
-     moves; bump() is how a finished call asks for a repaint. */
-  const [, repaint] = useState(0);
-  const bump = () => repaint((n) => n + 1);
+  const billing = useSyncExternalStore(
+    subscribeBilling,
+    billingSnapshot,
+    billingSnapshotOnServer,
+  );
+  const [runner] = useState(() => new LabRunner());
+  const [activeBatch, setActiveBatch] = useState<ActiveBatch>(null);
+  useEffect(() => () => { runner.stop(); }, [runner]);
 
   /* Which steps are already finished, from the same store the home page and
      the catalogue read. Subscribed rather than loaded in an effect, so the
@@ -44,7 +95,7 @@ export default function Lab() {
   const raw = useSyncExternalStore(subscribeProgress, progressSnapshot, progressOnServer);
   const done = useMemo(() => {
     const p = readProgress(raw);
-    return [!!p.play0, !!p.play1, !!p.play2, Number(p.evalBest ?? 0) >= 16];
+    return [!!p.play0, !!p.play1, !!p.play2, !!p.play3];
   }, [raw]);
 
   // step 1 — the first call
@@ -71,66 +122,230 @@ export default function Lab() {
   // steps 3 and 4 — the prompt, then the score
   const [sys, setSys] = useState("");
   const [samples, setSamples] = useState<string[]>([]);
-  const [busy2, setBusy2] = useState(false);
   const [err2, setErr2] = useState<Err>(null);
   const [score, setScore] = useState<number | null>(null);
   const [prev, setPrev] = useState<number | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [prog, setProg] = useState("");
-  const [busy3, setBusy3] = useState(false);
   const [err3, setErr3] = useState<Err>(null);
   const [menuAdded, setMenuAdded] = useState(false);
 
-  async function takeOrder(said: string, system: string): Promise<Order> {
-    const txt = await call(
-      [{ role: "system", content: system },
-       { role: "user", content: `Customer said: ${JSON.stringify(said)}. Reply with JSON only.` }],
-      { json: true, max: 700, model });
-    return asJSON<Order>(txt);
+  const busy2 = activeBatch?.kind === "preview";
+  const busy3 = activeBatch?.kind === "eval";
+  const anyBatchBusy = activeBatch !== null;
+  const billingCost = `${t("lab.knownSubtotal")} $${billing.knownUsd.toFixed(5)}`
+    + (billing.providerRejectedCalls > 0
+      ? ` + ${billing.providerRejectedCalls} ${t("lab.billingRejected")}`
+      : "")
+    + (billing.hasUnknown
+      ? ` + ${billing.unknownAfterSendCalls} ${t("lab.billingUnknown")}`
+      : "");
+  const stage1Estimate = conservativePrice(
+    model,
+    conservativePromptTokenUpperBound([{ content: q }]),
+    STAGE_1_PLAN.maxOutputTokens,
+  ).usd;
+  const previewPromptTokens = PREVIEW_ORDERS.reduce((total, said) => (
+    total + conservativePromptTokenUpperBound(orderMessages(said, sys))
+  ), 0);
+  const stage3Estimate = conservativePrice(
+    model,
+    previewPromptTokens,
+    STAGE_3_PLAN.maxOutputTokens,
+  ).usd;
+  // Use the longer menu-augmented prompt so the same disclosure also covers
+  // the "Add the menu, then re-run" paid action.
+  const evalEstimateSystem = addMenu(sys);
+  const generatorPromptTokens = CASES.reduce((total, testCase) => (
+    total + conservativePromptTokenUpperBound(orderMessages(testCase.said, evalEstimateSystem))
+  ), 0);
+  const judgePromptTokens = CASES.reduce((total, testCase) => {
+    if (testCase.kind !== "judge") return total;
+    const fixedPrompt = conservativePromptTokenUpperBound([
+      { content: JUDGE_SYSTEM },
+      {
+        content: `A café customer said: ${JSON.stringify(testCase.said)}\nThe system produced: \n\nStandard: ${testCase.standard}\n\nDoes it meet the standard? Be strict. Reply as JSON {"passes":boolean,"why":string}.`,
+      },
+    ]);
+    // The generated order becomes judge input. Six prompt-token units per
+    // capped output token leaves room for JSON escaping and message framing.
+    return total + fixedPrompt + EVAL_PLAN.generatorMaxOutputTokens * 6;
+  }, 0);
+  const evalEstimate = conservativePrice(
+    model,
+    generatorPromptTokens + judgePromptTokens,
+    EVAL_PLAN.maxOutputTokens,
+  ).usd;
+
+  async function takeOrder(
+    said: string,
+    system: string,
+    maxTokens: number,
+    selectedModel: Model,
+    signal?: AbortSignal,
+  ): Promise<Order> {
+    const result = await call(orderMessages(said, system), {
+        json: true,
+        maxTokens,
+        model: selectedModel,
+        signal,
+        timeoutMs: REQUEST_TIMEOUT_MS,
+      });
+    return asJSON<Order>(result.text);
+  }
+
+  function errorDetail(error: unknown): string {
+    return error instanceof Error ? error.message : t("lab.err.content");
+  }
+
+  function paidKeyProblem(): string | null {
+    if (!getKey()) return "lab.err.noKey";
+    return keyStatusSnapshot() === "verified" ? null : "lab.err.unverified";
+  }
+
+  async function runPreview() {
+    setErr2(null);
+    if (busy0) return;
+    const keyProblem = paidKeyProblem();
+    if (keyProblem) { setErr2({ key: keyProblem }); return; }
+
+    const selectedModel = model;
+    type PreviewTask = LabRunTask<string> & { said: string };
+    const tasks: PreviewTask[] = PREVIEW_ORDERS.map((said) => ({
+      id: said,
+      said,
+      async run(context) {
+        context.checkpoint();
+        const order = await takeOrder(
+          said,
+          sys,
+          STAGE_3_PLAN.maxOutputTokensPerCall,
+          selectedModel,
+          context.signal,
+        );
+        return `${said}\n  → ${JSON.stringify(order)}`;
+      },
+    }));
+    const handle = runner.start(tasks, {
+      concurrency: STAGE_3_PLAN.calls,
+      onProgress: (completed, total) => setProg(`${completed} / ${total}`),
+      onContentFailure: (error, task) => (
+        `${task.said}\n  → ${t("lab.contentFailure")}: ${errorDetail(error)}`
+      ),
+    });
+    setActiveBatch({ runId: handle.runId, kind: "preview" });
+    setProg(`0 / ${PREVIEW_ORDERS.length}`);
+
+    const outcome = await handle.promise;
+    if (!runner.isCurrent(outcome.runId)) return;
+    setActiveBatch(null);
+    if (outcome.status === "completed") {
+      setSamples(outcome.results ?? []);
+      mark("play2");
+    } else if (outcome.status === "cancelled") {
+      setErr2({ key: "lab.err.cancelled" });
+    } else if (outcome.error) {
+      setErr2({ key: errorKey(outcome.error), detail: outcome.error.message });
+    }
   }
 
   async function runEval(system: string) {
     setErr3(null);
-    /* The commonest failure is the cheapest to catch: no key at all. Firing
-       twenty requests to learn that is a miserable way to find out. */
-    if (!getKey()) { setErr3({ key: "lab.err.noKey" }); return; }
+    if (busy0) return;
+    const keyProblem = paidKeyProblem();
+    if (keyProblem) { setErr3({ key: keyProblem }); return; }
 
-    setBusy3(true); setRows([]); let n0 = 0;
-    const res = await pool(CASES, 4, async (c) => {
-      let ok = false, why = "";
-      try {
-        const o = await takeOrder(c.said, system);
-        if (c.kind === "rule") { [ok, why] = c.rule!(o); }
-        else {
-          const v = asJSON<{ passes: boolean; why: string }>(await call([
-            { role: "system", content: "You grade one output against one written standard. Not style — only whether the standard is met. Reply as JSON." },
-            { role: "user", content: `A café customer said: ${JSON.stringify(c.said)}\nThe system produced: ${JSON.stringify(o)}\n\nStandard: ${c.standard}\n\nDoes it meet the standard? Be strict. Reply as JSON {"passes":boolean,"why":string}.` },
-          ], { json: true, max: 400, model }));
-          ok = !!v.passes; why = v.why ?? "";
+    const selectedModel = model;
+    type EvalTask = LabRunTask<Row> & { testCase: (typeof CASES)[number] };
+    const tasks: EvalTask[] = CASES.map((testCase) => ({
+      id: testCase.id,
+      testCase,
+      async run(context) {
+        context.checkpoint();
+        const order = await takeOrder(
+          testCase.said,
+          system,
+          EVAL_PLAN.generatorMaxOutputTokens,
+          selectedModel,
+          context.signal,
+        );
+        if (testCase.kind === "rule") {
+          const [ok, why] = testCase.rule!(order);
+          return {
+            id: testCase.id,
+            said: testCase.said,
+            kind: testCase.kind,
+            ok,
+            why,
+          };
         }
-      } catch (e) { ok = false; why = (e as Error).message; }
-      setProg(`${++n0} / ${CASES.length}`);
-      return { id: c.id, said: c.said, kind: c.kind, ok, why };
+
+        // A stopped or failed run must never start its case's judge request.
+        context.checkpoint();
+        const judge = await call([
+            { role: "system", content: JUDGE_SYSTEM },
+            { role: "user", content: `A café customer said: ${JSON.stringify(testCase.said)}\nThe system produced: ${JSON.stringify(order)}\n\nStandard: ${testCase.standard}\n\nDoes it meet the standard? Be strict. Reply as JSON {"passes":boolean,"why":string}.` },
+          ], {
+            json: true,
+            maxTokens: EVAL_PLAN.judgeMaxOutputTokens,
+            model: selectedModel,
+            signal: context.signal,
+            timeoutMs: REQUEST_TIMEOUT_MS,
+          });
+        const verdict = asJSON<{ passes: boolean; why?: string }>(judge.text);
+        return {
+          id: testCase.id,
+          said: testCase.said,
+          kind: testCase.kind,
+          ok: verdict.passes === true,
+          why: verdict.why ?? "",
+        };
+      },
+    }));
+
+    const handle = runner.start(tasks, {
+      concurrency: LAB_CONCURRENCY,
+      onProgress: (completed, total) => setProg(`${completed} / ${total}`),
+      onContentFailure: (error, task) => ({
+        id: task.testCase.id,
+        said: task.testCase.said,
+        kind: task.testCase.kind,
+        ok: false,
+        why: errorDetail(error),
+      }),
     });
-    /* Every case failing the same way is not a score of 0/20, it is a broken
-       connection — a rejected key, an empty account. Say so, rather than
-       handing back a table of twenty identical error strings. */
-    const n = res.filter((r) => r.ok).length;
-    if (n === 0) {
-      const keys = new Set(res.map((r) => errorKey(new Error(r.why))));
-      const only = keys.size === 1 ? [...keys][0] : null;
-      if (only && only !== "lab.err.generic") {
-        setErr3({ key: only, detail: res[0].why });
-        setBusy3(false); bump();
-        return;
+    setActiveBatch({ runId: handle.runId, kind: "eval" });
+    setProg(`0 / ${CASES.length}`);
+
+    const outcome = await handle.promise;
+    if (!runner.isCurrent(outcome.runId)) return;
+    setActiveBatch(null);
+    if (outcome.status === "cancelled") {
+      setErr3({ key: "lab.err.cancelled" });
+      return;
+    }
+    if (outcome.status !== "completed" || !outcome.results) {
+      if (outcome.error) {
+        setErr3({ key: errorKey(outcome.error), detail: outcome.error.message });
       }
+      return;
     }
 
+    const res = outcome.results;
+    const n = res.filter((r) => r.ok).length;
     setRows(res);
     setPrev(score); setScore(n);
     mark("evalBest", Math.max(n, Number(readProgress(progressSnapshot()).evalBest ?? 0)));
-    if (n >= 16) mark("play3");
-    setBusy3(false); bump();
+    // TODO(progress-v2): replace this compatibility write with
+    // recordLabStep("full-eval", { score: n }); a complete low score is still
+    // completion, while cancellation/system failure never reaches this line.
+    mark("play3");
+  }
+
+  function stopBatch() {
+    if (!activeBatch) return;
+    runner.stop(activeBatch.runId);
+    setProg(t("lab.stopping"));
   }
 
   const stages: Stage[] = [
@@ -169,15 +384,33 @@ export default function Lab() {
             <div className="card"><div className="card-b">
               <label className="fieldlabel" htmlFor="q0">{t("lab.s1.ask")}</label>
               <textarea id="q0" rows={3} dir="auto" value={q} onChange={(e) => setQ(e.target.value)} />
+              <p className="keysafe">
+                {t("lab.s1.callDisclosure")
+                  .replace("{model}", model)
+                  .replace("{cost}", `$${stage1Estimate.toFixed(5)}`)}
+              </p>
               <div className="row" style={{ marginTop: 10 }}>
-                <button className="btn primary" type="button" disabled={busy0} onClick={async () => {
-                  setBusy0(true); setErr0(null); setA0("");
-                  try { setA0(await call([{ role: "user", content: q }], { model })); mark("play0"); }
+                <button className="btn primary" type="button" disabled={busy0 || anyBatchBusy} onClick={async () => {
+                  setErr0(null);
+                  const keyProblem = paidKeyProblem();
+                  if (keyProblem) { setErr0({ key: keyProblem }); return; }
+                  setBusy0(true); setA0("");
+                  try {
+                    const result = await call([{ role: "user", content: q }], {
+                      model,
+                      maxTokens: STAGE_1_PLAN.maxOutputTokensPerCall,
+                      timeoutMs: REQUEST_TIMEOUT_MS,
+                    });
+                    setA0(result.text);
+                    mark("play0");
+                  }
                   catch (e) { setErr0({ key: errorKey(e), detail: (e as Error).message }); }
-                  finally { setBusy0(false); bump(); }
+                  finally { setBusy0(false); }
                 }}>{busy0 ? t("ui.loading") : t("ui.run")} <span className="arrow">→</span></button>
-                {spend.calls > 0 && (
-                  <span className="mono-note">{spend.calls} · ~${usd().toFixed(5)}</span>
+                {billing.dispatchedCalls > 0 && (
+                  <span className="mono-note">
+                    {billing.dispatchedCalls} {t("lab.spendCalls")} · {billingCost}
+                  </span>
                 )}
               </div>
               {err0 && <Fail msgKey={err0.key} detail={err0.detail} />}
@@ -249,37 +482,44 @@ export default function Lab() {
               <label className="fieldlabel" htmlFor="sys">{t("lab.s3.yours")}</label>
               <textarea id="sys" rows={7} dir="auto" value={sys} placeholder={t("lab.s3.hint")}
                 onChange={(e) => setSys(e.target.value)} />
+              <p className="keysafe">
+                {(stage === 2 ? t("lab.s3.callDisclosure") : t("lab.s4.callDisclosure"))
+                  .replace("{model}", model)
+                  .replace("{cost}", `$${(stage === 2 ? stage3Estimate : evalEstimate).toFixed(5)}`)}
+              </p>
               <div className="row" style={{ marginTop: 10 }}>
-                <button className="btn" type="button" onClick={() => setSys(SEED)}>{t("lab.s3.seed")}</button>
+                <button className="btn" type="button" disabled={anyBatchBusy}
+                  onClick={() => setSys(SEED)}>{t("lab.s3.seed")}</button>
                 <span className="spacer" />
                 {stage === 2 ? (
-                  <button className="btn primary" type="button" disabled={busy2 || !sys.trim()} onClick={async () => {
-                    setBusy2(true); setErr2(null); setSamples([]);
-                    const said = ["could I grab a large flat white when you get a sec", "two teas", "something warm for my kid, no coffee"];
-                    try {
-                      const out: string[] = [];
-                      for (const s of said) out.push(`${s}\n  → ${JSON.stringify(await takeOrder(s, sys))}`);
-                      setSamples(out); mark("play2");
-                    } catch (e) {
-                      setErr2({ key: errorKey(e), detail: (e as Error).message });
-                    } finally { setBusy2(false); bump(); }
-                  }}>{busy2 ? t("ui.loading") : t("lab.s3.run")} <span className="arrow">→</span></button>
+                  <>
+                    <button className="btn primary" type="button" disabled={busy0 || anyBatchBusy || !sys.trim()}
+                      onClick={() => void runPreview()}>
+                      {busy2 ? t("ui.loading") : t("lab.s3.run")} <span className="arrow">→</span>
+                    </button>
+                    {activeBatch && (
+                      <button className="btn" type="button" onClick={stopBatch}>{t("lab.stop")}</button>
+                    )}
+                    <span className="mono-note" aria-live="polite">{busy2 ? prog : ""}</span>
+                  </>
                 ) : (
                   <>
-                    <button className="btn primary" type="button" disabled={busy3 || !sys.trim()}
-                      onClick={() => runEval(sys)}>
+                    <button className="btn primary" type="button" disabled={busy0 || anyBatchBusy || !sys.trim()}
+                      onClick={() => void runEval(sys)}>
                       {busy3 ? t("ui.loading") : t("lab.s4.run")} <span className="arrow">→</span>
                     </button>
-                    <button className="btn" type="button" disabled={busy3 || !sys.trim()} onClick={() => {
-                      const withMenu = (sys.trim() || SEED) + "\n\n" + menuText() +
-                        "\n\nOnly ever order items on this menu, at exactly these prices. If they ask for something not on it, order nothing and set needs_confirmation to true.";
+                    <button className="btn" type="button" disabled={busy0 || anyBatchBusy || !sys.trim()} onClick={() => {
+                      const withMenu = addMenu(sys);
                       if (!menuAdded) { setSys(withMenu); setMenuAdded(true); }
-                      runEval(menuAdded ? sys : withMenu);
+                      void runEval(menuAdded ? sys : withMenu);
                     }}>
                       <span aria-hidden="true">{menuAdded ? "✓" : "＋"}</span>{" "}
                       {menuAdded ? t("lab.s4.menuIn") : t("lab.s4.addMenu")}
                     </button>
-                    <span className="mono-note" aria-live="polite">{prog}</span>
+                    {activeBatch && (
+                      <button className="btn" type="button" onClick={stopBatch}>{t("lab.stop")}</button>
+                    )}
+                    <span className="mono-note" aria-live="polite">{busy3 ? prog : ""}</span>
                   </>
                 )}
               </div>
@@ -305,7 +545,9 @@ export default function Lab() {
                       background: score >= 16 ? "var(--green)" : score >= 10 ? "var(--gold-mark)" : "var(--red)",
                     }} /></div>
                   </div>
-                  <span className="mono-note">{spend.calls} {t("lab.spendCalls")} · ~${usd().toFixed(4)}</span>
+                  <span className="mono-note">
+                    {billing.dispatchedCalls} {t("lab.spendCalls")} · {billingCost}
+                  </span>
                 </div>
                 {prev !== null && score > prev && (
                   <div className="langnote" style={{ borderInlineStartColor: "var(--green)", background: "var(--green-soft)" }}>
