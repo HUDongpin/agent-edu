@@ -14,6 +14,10 @@ export const MAX_FILE_BYTES = 32 * 1024 * 1024;
 export const MAX_ZIP_ENTRY_BYTES = 16 * 1024 * 1024;
 export const MAX_ZIP_TOTAL_BYTES = 64 * 1024 * 1024;
 export const MAX_ZIP_ENTRIES = 2_000;
+export const MAX_EMBEDDED_REPORT_ZIP_BYTES = 16 * 1024 * 1024;
+export const MAX_EMBEDDED_REPORT_BASE64_CHARS = 4 * Math.ceil(
+  MAX_EMBEDDED_REPORT_ZIP_BYTES / 3,
+);
 
 const ZIP_LOCAL_FILE = 0x04034b50;
 const ZIP_CENTRAL_FILE = 0x02014b50;
@@ -114,7 +118,25 @@ export function crc32(bytes) {
 }
 
 function displayPath(path) {
-  return String(path)
+  let redacted = String(path);
+  for (const value of KNOWN_PRIVATE_TEST_VALUES) {
+    redacted = redacted.split(value).join("[redacted-test-value]");
+  }
+  redacted = redacted
+    .replace(
+      /(?:sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{30,}|AIza[A-Za-z0-9_-]{30,}|AKIA[A-Z0-9]{16}|gsk_[A-Za-z0-9]{20,}|xai-[A-Za-z0-9_-]{20,})/gi,
+      "[redacted-credential]",
+    )
+    .replace(/\bbearer\s+[A-Za-z0-9._~+/=-]{8,}/gi, "Bearer [redacted]")
+    .replace(
+      /([?&](?:x-amz-signature|x-goog-signature|signature|sig|access_token|token|key-pair-id)=)[^&#\s]{3,}/gi,
+      "$1[redacted]",
+    )
+    .replace(
+      /(\b(?:api[_-]?key|x-api-key)\s*[=:]\s*)[^&#\s]{4,}/gi,
+      "$1[redacted]",
+    );
+  return redacted
     .replace(/[\u0000-\u001f\u007f]/g, "?")
     .slice(0, 500);
 }
@@ -163,9 +185,113 @@ export function sensitiveTextCategory(text) {
   return null;
 }
 
-function scanText(bytes, path) {
+function occurrenceOffsets(text, needle) {
+  const offsets = [];
+  let offset = 0;
+  while (offset <= text.length - needle.length) {
+    const found = text.indexOf(needle, offset);
+    if (found === -1) break;
+    offsets.push(found);
+    offset = found + needle.length;
+  }
+  return offsets;
+}
+
+function strictBase64Decode(payload, path) {
+  if (!payload || payload.length > MAX_EMBEDDED_REPORT_BASE64_CHARS) {
+    fail(payload ? "embedded-report-too-large" : "embedded-report-base64-invalid", path);
+  }
+  if (payload.length % 4 !== 0) fail("embedded-report-base64-invalid", path);
+  let padding = 0;
+  if (payload.endsWith("==")) padding = 2;
+  else if (payload.endsWith("=")) padding = 1;
+  const contentLength = payload.length - padding;
+  for (let index = 0; index < contentLength; index += 1) {
+    const code = payload.charCodeAt(index);
+    const valid =
+      (code >= 0x41 && code <= 0x5a) ||
+      (code >= 0x61 && code <= 0x7a) ||
+      (code >= 0x30 && code <= 0x39) ||
+      code === 0x2b ||
+      code === 0x2f;
+    if (!valid) fail("embedded-report-base64-invalid", path);
+  }
+  for (let index = contentLength; index < payload.length; index += 1) {
+    if (payload.charCodeAt(index) !== 0x3d) fail("embedded-report-base64-invalid", path);
+  }
+  const expectedBytes = payload.length / 4 * 3 - padding;
+  if (expectedBytes > MAX_EMBEDDED_REPORT_ZIP_BYTES) {
+    fail("embedded-report-too-large", path);
+  }
+  let decoded;
+  try {
+    decoded = Buffer.from(payload, "base64");
+  } catch {
+    fail("embedded-report-base64-invalid", path);
+  }
+  if (
+    decoded.length !== expectedBytes ||
+    decoded.length > MAX_EMBEDDED_REPORT_ZIP_BYTES ||
+    decoded.toString("base64") !== payload
+  ) {
+    fail("embedded-report-base64-invalid", path);
+  }
+  return decoded;
+}
+
+function scanEmbeddedPlaywrightReport(text, path, stats) {
+  const idPattern = /\bid\s*=\s*(?:"playwrightReportBase64"|'playwrightReportBase64'|playwrightReportBase64(?=[\s>]))/g;
+  const idMatches = [...text.matchAll(idPattern)];
+  const lowered = text.toLowerCase();
+  const dataPrefix = "data:application/zip;base64,";
+  const dataOffsets = occurrenceOffsets(lowered, dataPrefix);
+  if (idMatches.length === 0 && dataOffsets.length === 0) return text;
+  if (idMatches.length === 0) fail("embedded-report-unbound-data", path);
+  if (idMatches.length > 1) fail("embedded-report-duplicate", path);
+
+  const carriers = [
+    {
+      open: '<template id="playwrightReportBase64">',
+      close: "</template>",
+    },
+    {
+      open: '<script id="playwrightReportBase64" type="application/zip">',
+      close: "</script>",
+    },
+  ];
+  const carrierMatches = carriers.flatMap((carrier) => (
+    occurrenceOffsets(text, carrier.open).map((offset) => ({ ...carrier, offset }))
+  ));
+  if (carrierMatches.length !== 1) fail("embedded-report-shape-invalid", path);
+  const carrier = carrierMatches[0];
+  if (
+    idMatches[0].index < carrier.offset ||
+    idMatches[0].index >= carrier.offset + carrier.open.length
+  ) {
+    fail("embedded-report-shape-invalid", path);
+  }
+  if (dataOffsets.length !== 1) {
+    fail(dataOffsets.length > 1 ? "embedded-report-extra-data" : "embedded-report-shape-invalid", path);
+  }
+  const payloadStart = carrier.offset + carrier.open.length;
+  const closeOffset = text.indexOf(carrier.close, payloadStart);
+  if (closeOffset === -1) fail("embedded-report-shape-invalid", path);
+  const envelope = text.slice(payloadStart, closeOffset);
+  if (!envelope.startsWith(dataPrefix)) fail("embedded-report-shape-invalid", path);
+  const payload = envelope.slice(dataPrefix.length);
+  const embeddedPath = `${path}![embedded-report.zip]`;
+  const archive = strictBase64Decode(payload, embeddedPath);
+  if (stats.embeddedReports > 0) fail("embedded-report-duplicate", path);
+  stats.embeddedReports += 1;
+  stats.bytesScanned += archive.length;
+  scanZip(archive, embeddedPath, stats);
+  return `${text.slice(0, payloadStart)}[embedded report ZIP scanned]${text.slice(closeOffset)}`;
+}
+
+function scanText(bytes, path, stats) {
   const text = decodeText(bytes, path);
-  const category = sensitiveTextCategory(text);
+  const inspectedText = scanEmbeddedPlaywrightReport(text, path, stats);
+  const category = sensitiveTextCategory(inspectedText);
   if (category) fail(category, path);
 }
 
@@ -409,7 +535,7 @@ function scanZip(bytes, outerPath, stats) {
     ranges.push({ start: entry.localOffset, end: recordEnd, path: entry.entryPath });
     if (entry.directory) continue;
     const content = inflateEntry(bytes.subarray(dataStart, dataEnd), entry, entry.entryPath);
-    scanText(content, entry.entryPath);
+    scanText(content, entry.entryPath, stats);
     stats.zipEntries += 1;
     stats.bytesScanned += content.length;
   }
@@ -503,7 +629,7 @@ async function walk(root, rootLabel, rootReal, directory, stats) {
     if (!info.isFile()) fail("non-regular-file", label);
     const bytes = await readRegularFile(path, label);
     if (basename(path).toLowerCase().endsWith(".zip")) scanZip(bytes, label, stats);
-    else scanText(bytes, label);
+    else scanText(bytes, label, stats);
     stats.files += 1;
     stats.bytesScanned += bytes.length;
   }
@@ -513,8 +639,24 @@ export async function scanArtifactRoots(roots = DEFAULT_ARTIFACT_ROOTS, options 
   const cwd = resolve(options.cwd ?? process.cwd());
   const cwdReal = await realpath(cwd);
   const requestedRoots = [...roots];
-  if (requestedRoots.length === 0) return { roots: 0, missingRoots: 0, files: 0, zipEntries: 0, bytesScanned: 0 };
-  const stats = { roots: 0, missingRoots: 0, files: 0, zipEntries: 0, bytesScanned: 0 };
+  if (requestedRoots.length === 0) {
+    return {
+      roots: 0,
+      missingRoots: 0,
+      files: 0,
+      zipEntries: 0,
+      embeddedReports: 0,
+      bytesScanned: 0,
+    };
+  }
+  const stats = {
+    roots: 0,
+    missingRoots: 0,
+    files: 0,
+    zipEntries: 0,
+    embeddedReports: 0,
+    bytesScanned: 0,
+  };
   const seen = new Set();
 
   for (const requested of requestedRoots) {
@@ -560,7 +702,7 @@ if (invoked) {
     const roots = process.argv.length > 2 ? process.argv.slice(2) : DEFAULT_ARTIFACT_ROOTS;
     const stats = await scanArtifactRoots(roots);
     console.log(
-      `artifact privacy: PASS — ${stats.files} regular file(s) and ${stats.zipEntries} ZIP entry file(s) scanned; ${stats.missingRoots} root(s) absent`,
+      `artifact privacy: PASS — ${stats.files} regular file(s), ${stats.zipEntries} ZIP entry file(s), and ${stats.embeddedReports} embedded report(s) scanned; ${stats.missingRoots} root(s) absent`,
     );
   } catch (error) {
     if (error instanceof ArtifactPrivacyError) console.error(error.message);

@@ -13,6 +13,7 @@ import test from "node:test";
 import { deflateRawSync } from "node:zlib";
 import {
   ArtifactPrivacyError,
+  MAX_EMBEDDED_REPORT_BASE64_CHARS,
   MAX_FILE_BYTES,
   crc32,
   scanArtifactRoots,
@@ -91,6 +92,17 @@ function zip(entries: ZipEntry[]): Buffer {
   return Buffer.concat([...localRecords, central, end]);
 }
 
+function embeddedReportHtml(
+  archive: Buffer,
+  carrier: "template" | "script" = "template",
+): string {
+  const data = `data:application/zip;base64,${archive.toString("base64")}`;
+  if (carrier === "script") {
+    return `<html><body><script id="playwrightReportBase64" type="application/zip">${data}</script></body></html>`;
+  }
+  return `<html><body><template id="playwrightReportBase64">${data}</template></body></html>`;
+}
+
 async function inWorkspace(
   run: (fixture: { workspace: string; artifacts: string; root: string }) => Promise<void>,
 ) {
@@ -116,6 +128,7 @@ test("missing and empty artifact roots pass safely", async () => {
       missingRoots: 1,
       files: 0,
       zipEntries: 0,
+      embeddedReports: 0,
       bytesScanned: 0,
     });
   });
@@ -137,7 +150,109 @@ test("safe UTF-8 files and safe compressed ZIP entries pass", async () => {
     const result = await scanArtifactRoots([root], { cwd: workspace });
     assert.equal(result.files, 2);
     assert.equal(result.zipEntries, 2);
+    assert.equal(result.embeddedReports, 0);
     assert.ok(result.bytesScanned > Buffer.byteLength(text));
+  });
+});
+
+for (const carrier of ["template", "script"] as const) {
+  test(`safe embedded Playwright report in the exact ${carrier} carrier passes`, async () => {
+    await inWorkspace(async ({ workspace, artifacts, root }) => {
+      writeFileSync(join(artifacts, "index.html"), embeddedReportHtml(zip([
+        { name: "report.json", content: '{"status":"safe"}' },
+      ]), carrier));
+      const result = await scanArtifactRoots([root], { cwd: workspace });
+      assert.equal(result.files, 1);
+      assert.equal(result.embeddedReports, 1);
+      assert.equal(result.zipEntries, 1);
+    });
+  });
+}
+
+test("sensitive content inside the embedded report ZIP fails closed", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const secret = ["PW", "FAKE", "KEY", "DO", "NOT", "LEAK", "7f3d9c2a"].join("_");
+    writeFileSync(join(artifacts, "index.html"), embeddedReportHtml(zip([
+      { name: "report.json", content: JSON.stringify({ output: secret }) },
+    ])));
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace }),
+      (error: unknown) => {
+        assert.ok(error instanceof ArtifactPrivacyError);
+        assert.equal(error.category, "known-private-test-value");
+        assert.equal(error.message.includes(secret), false);
+        return true;
+      },
+    );
+  });
+});
+
+test("malformed carrier and non-canonical base64 fail closed", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const safeData = `data:application/zip;base64,${zip([
+      { name: "report.json", content: "safe" },
+    ]).toString("base64")}`;
+    writeFileSync(
+      join(artifacts, "index.html"),
+      `<script type="application/zip" id="playwrightReportBase64">${safeData}</script>`,
+    );
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace }),
+      (error: unknown) => category(error) === "embedded-report-shape-invalid",
+    );
+    writeFileSync(
+      join(artifacts, "index.html"),
+      '<template id="playwrightReportBase64">data:application/zip;base64,AB==</template>',
+    );
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace }),
+      (error: unknown) => category(error) === "embedded-report-base64-invalid",
+    );
+  });
+});
+
+test("duplicate embedded carriers and additional ZIP data URIs fail closed", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const report = embeddedReportHtml(zip([{ name: "report.json", content: "safe" }]));
+    writeFileSync(join(artifacts, "index.html"), `${report}${report}`);
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace }),
+      (error: unknown) => category(error) === "embedded-report-duplicate",
+    );
+    writeFileSync(
+      join(artifacts, "index.html"),
+      `${report}<span>data:application/zip;base64,AAAA</span>`,
+    );
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace }),
+      (error: unknown) => category(error) === "embedded-report-extra-data",
+    );
+  });
+});
+
+test("a second embedded report in another artifact file fails closed", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const report = embeddedReportHtml(zip([{ name: "report.json", content: "safe" }]));
+    writeFileSync(join(artifacts, "a.html"), report);
+    writeFileSync(join(artifacts, "b.html"), report);
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace }),
+      (error: unknown) => category(error) === "embedded-report-duplicate",
+    );
+  });
+});
+
+test("an oversized embedded report is rejected before base64 decoding", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const oversized = "A".repeat(MAX_EMBEDDED_REPORT_BASE64_CHARS + 4);
+    writeFileSync(
+      join(artifacts, "index.html"),
+      `<template id="playwrightReportBase64">data:application/zip;base64,${oversized}</template>`,
+    );
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace }),
+      (error: unknown) => category(error) === "embedded-report-too-large",
+    );
   });
 });
 
@@ -280,6 +395,67 @@ test("error messages contain category and path but never the matched value", asy
         assert.equal(error.category, "provider-api-key");
         assert.match(error.message, /provider-api-key: artifacts\/leak\.txt$/);
         assert.equal(error.message.includes(secret), false);
+        return true;
+      },
+    );
+  });
+});
+
+const sensitivePathCases = [
+  {
+    value: ["sk", "-", "P".repeat(28)].join(""),
+    filename(value: string) { return `failure-${value}.bin`; },
+  },
+  {
+    value: "path-private-bearer-value-12345",
+    filename(value: string) { return `failure-Bearer ${value}.bin`; },
+  },
+  {
+    value: "path-private-signature-value",
+    filename(value: string) { return `failure?sig=${value}`; },
+  },
+  {
+    value: ["PW", "FAKE", "KEY", "DO", "NOT", "LEAK", "7f3d9c2a"].join("_"),
+    filename(value: string) { return `failure-${value}.bin`; },
+  },
+];
+
+for (const [index, fixture] of sensitivePathCases.entries()) {
+  test(`filesystem error path ${index + 1} redacts its sensitive filename value`, async () => {
+    await inWorkspace(async ({ workspace, artifacts, root }) => {
+      writeFileSync(
+        join(artifacts, fixture.filename(fixture.value)),
+        Buffer.from([0xff, 0x00, 0xfe]),
+      );
+      await assert.rejects(
+        () => scanArtifactRoots([root], { cwd: workspace }),
+        (error: unknown) => {
+          assert.ok(error instanceof ArtifactPrivacyError);
+          assert.equal(error.category, "binary-or-invalid-utf8");
+          assert.equal(error.path.includes(fixture.value), false);
+          assert.equal(error.message.includes(fixture.value), false);
+          assert.match(error.path, /\[redacted/);
+          return true;
+        },
+      );
+    });
+  });
+}
+
+test("ZIP entry error paths redact a sensitive entry name", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const secret = ["PW", "FAKE", "KEY", "DO", "NOT", "LEAK", "7f3d9c2a"].join("_");
+    writeFileSync(join(artifacts, "trace.zip"), zip([
+      { name: `nested/${secret}.bin`, content: Buffer.from([0xff, 0x00, 0xfe]) },
+    ]));
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace }),
+      (error: unknown) => {
+        assert.ok(error instanceof ArtifactPrivacyError);
+        assert.equal(error.category, "binary-or-invalid-utf8");
+        assert.equal(error.path.includes(secret), false);
+        assert.equal(error.message.includes(secret), false);
+        assert.match(error.path, /nested\/\[redacted-test-value\]\.bin$/);
         return true;
       },
     );
