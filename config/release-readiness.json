@@ -15,6 +15,12 @@
     "sameAsEnglishAllowlist": [
       {
         "catalog": "site",
+        "key": "brand.name",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "aicourse.top is the product and domain name, not translatable interface copy."
+      },
+      {
+        "catalog": "site",
         "key": "ui.optional",
         "locales": ["de"],
         "reason": "Optional is the same correctly spelled German UI adjective."
