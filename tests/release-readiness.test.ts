@@ -29,9 +29,9 @@ type LooseConfig = Record<string, any>;
 type CatalogFixture = Record<string, Record<string, Record<string, string>>>;
 
 const PASS_AT = "2026-08-21T10:00:00.000Z";
-const CANDIDATE_SHA = "60f7edc6df76d8cb334899dd4a29d77f56374027";
+const CANDIDATE_SHA = "561339033d62e7e86acab2dbbe9856e24ed5c0b9";
 const CHECKPOINT_SHA = "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd";
-const WORKFLOW_SHA = "97e6086e5fc1d81b6b7468f8eaf0d5c48befe5ec";
+const WORKFLOW_SHA = "e5f4be91fb2f9e5950bd49b9c6ef03a2ed940ba4";
 const INTEGRATION_BRANCH = "codex/agent-edu-release-candidate";
 const DEPLOYMENT_ID = "dpl_releaseFixture20260821";
 const productionConfig = JSON.parse(
