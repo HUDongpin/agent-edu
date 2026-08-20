@@ -4,7 +4,7 @@
   "status": "pending",
   "updatedAt": "2026-08-21",
   "releaseTarget": {
-    "candidateCommitSha": "561339033d62e7e86acab2dbbe9856e24ed5c0b9",
+    "candidateCommitSha": "75b6d79d52b3e92928474768069894ec99975865",
     "checkpointSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
     "integrationBranch": "codex/agent-edu-release-candidate",
     "vercelDeploymentId": null,

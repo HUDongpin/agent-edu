@@ -29,7 +29,7 @@ type LooseConfig = Record<string, any>;
 type CatalogFixture = Record<string, Record<string, Record<string, string>>>;
 
 const PASS_AT = "2026-08-21T10:00:00.000Z";
-const CANDIDATE_SHA = "561339033d62e7e86acab2dbbe9856e24ed5c0b9";
+const CANDIDATE_SHA = "75b6d79d52b3e92928474768069894ec99975865";
 const CHECKPOINT_SHA = "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd";
 const WORKFLOW_SHA = "e5f4be91fb2f9e5950bd49b9c6ef03a2ed940ba4";
 const INTEGRATION_BRANCH = "codex/agent-edu-release-candidate";
