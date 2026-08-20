@@ -1,5 +1,17 @@
 import { expect, test, type Page } from "@playwright/test";
 
+const JOURNEY_LOCALES = [
+  "en",
+  "es",
+  "fr",
+  "de",
+  "zh-Hans",
+  "zh-Hant",
+  "ja",
+  "ko",
+  "ar",
+] as const;
+
 async function expectActiveHandbookTab(page: Page, id: string) {
   await expect(page.locator('.rail-btn[tabindex="0"]')).toHaveCount(1);
   await expect(page.locator('.rail-btn[aria-selected="true"]')).toHaveCount(1);
@@ -7,52 +19,67 @@ async function expectActiveHandbookTab(page: Page, id: string) {
   await expect(page.locator(id)).toHaveAttribute("aria-selected", "true");
 }
 
-test("static home → Handbook → Lab journey stays local", async ({ page }) => {
-  const providerRequests: string[] = [];
-  const unexpectedOrigins = new Set<string>();
-  const pageErrors: string[] = [];
-  const consoleErrors: string[] = [];
-
-  await page.route("https://api.deepseek.com/**", async (route) => {
-    providerRequests.push(route.request().url());
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({ choices: [{ message: { content: "mock" } }] }),
-    });
-  });
-  await page.route("**/_vercel/insights/script.js", (route) =>
-    route.fulfill({ status: 200, contentType: "text/javascript", body: "" }),
-  );
-
-  page.on("request", (request) => {
-    const origin = new URL(request.url()).origin;
-    if (origin !== "http://127.0.0.1:4173" && origin !== "https://api.deepseek.com") {
-      unexpectedOrigins.add(origin);
-    }
-  });
-  page.on("pageerror", (error) => pageErrors.push(error.message));
-  page.on("console", (message) => {
-    if (message.type() === "error") consoleErrors.push(message.text());
-  });
-
+test("the unprefixed root resolves to the English home", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/en\/$/);
   await expect(page.locator("h1")).toHaveCount(1);
-
-  await page.locator('a[href="/en/handbook/"]').first().click();
-  await expect(page).toHaveURL(/\/en\/handbook\/$/);
-  await expect(page.locator("h1")).toHaveCount(1);
-
-  await page.locator('a[href="/en/lab/"]').first().click();
-  await expect(page).toHaveURL(/\/en\/lab\/$/);
-  await expect(page.locator("h1")).toHaveCount(1);
-
-  expect(providerRequests, "navigation must not make a paid Provider request").toEqual([]);
-  expect([...unexpectedOrigins], "all network origins must be allow-listed").toEqual([]);
-  expect(pageErrors, "page errors").toEqual([]);
-  expect(consoleErrors, "console errors").toEqual([]);
 });
+
+for (const locale of JOURNEY_LOCALES) {
+  test(`${locale}: home → Handbook → Lab → Part 3 stays local`, async ({ page }) => {
+    const providerRequests: string[] = [];
+    const unexpectedOrigins = new Set<string>();
+    const pageErrors: string[] = [];
+    const consoleErrors: string[] = [];
+
+    await page.route("https://api.deepseek.com/**", async (route) => {
+      providerRequests.push(route.request().url());
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ choices: [{ message: { content: "mock" } }] }),
+      });
+    });
+    await page.route("**/_vercel/insights/script.js", (route) =>
+      route.fulfill({ status: 200, contentType: "text/javascript", body: "" }),
+    );
+
+    page.on("request", (request) => {
+      const origin = new URL(request.url()).origin;
+      if (origin !== "http://127.0.0.1:4173" && origin !== "https://api.deepseek.com") {
+        unexpectedOrigins.add(origin);
+      }
+    });
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    page.on("console", (message) => {
+      if (message.type() === "error") consoleErrors.push(message.text());
+    });
+
+    const prefix = `/${locale}`;
+    await page.goto(`${prefix}/`);
+    await expect(page).toHaveURL(new RegExp(`${prefix}/$`));
+    await expect(page.locator("html")).toHaveAttribute("lang", locale);
+    await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+    await expect(page.locator("h1")).toHaveCount(1);
+
+    await page.locator(`a[href="${prefix}/handbook/"]`).first().click();
+    await expect(page).toHaveURL(new RegExp(`${prefix}/handbook/$`));
+    await expect(page.locator("h1")).toHaveCount(1);
+
+    await page.locator(`a[href="${prefix}/lab/"]`).first().click();
+    await expect(page).toHaveURL(new RegExp(`${prefix}/lab/$`));
+    await expect(page.locator("h1")).toHaveCount(1);
+
+    await page.locator(`a[href="${prefix}/build/"]`).first().click();
+    await expect(page).toHaveURL(new RegExp(`${prefix}/build/$`));
+    await expect(page.locator("h1")).toHaveCount(1);
+
+    expect(providerRequests, "navigation must not make a paid Provider request").toEqual([]);
+    expect([...unexpectedOrigins], "all network origins must be allow-listed").toEqual([]);
+    expect(pageErrors, "page errors").toEqual([]);
+    expect(consoleErrors, "console errors").toEqual([]);
+  });
+}
 
 test("Handbook tabs switch orientation at 979/980 and reveal the active tab", async ({ page }) => {
   await page.setViewportSize({ width: 979, height: 800 });
