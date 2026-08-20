@@ -21,7 +21,9 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
+import { DEEPSEEK_PRICING, priceBandAt } from "../../lib/byok/pricing";
 import { createOfflineClient, offlineText } from "./offline";
+import { priceDeepSeekCourseUsage } from "./pricing";
 
 /* ---------------------------------------------------------------------------
  * Providers
@@ -38,7 +40,7 @@ interface Provider {
   env: string;
   baseURL?: string;
   model: string;
-  prices: { in: number; out: number; cachedIn: number };
+  prices?: { in: number; out: number; cachedIn: number };
   quirks: { jsonSchema: boolean };
   help: string;
 }
@@ -57,9 +59,9 @@ export const PROVIDERS: Record<string, Provider> = {
     env: "DEEPSEEK_API_KEY",
     baseURL: "https://api.deepseek.com/anthropic",
     model: "deepseek-v4-flash",
-    // USD per 1M tokens, off-peak. Peak is double and is applied below.
-    // Checked 2026-08-18 against api-docs.deepseek.com/quick_start/pricing.
-    prices: { in: 0.22, out: 0.66, cachedIn: 0.007 },
+    // Flash and Pro pricing come from lib/byok/pricing.ts, the same dated
+    // source used by the browser Lab. Keeping one snapshot prevents the CLI
+    // from silently pricing a CAFE_MODEL=deepseek-v4-pro run as Flash.
     // json_schema is ACCEPTED AND SILENTLY IGNORED by DeepSeek — you get
     // prose back and JSON.parse explodes. So we fall back to asking in the
     // prompt and validating ourselves. See schemaFallback().
@@ -88,8 +90,6 @@ const CFG = PROVIDERS[PROVIDER];
 
 /** One line to change for a different model; CAFE_MODEL overrides without editing. */
 export const MODEL = process.env.CAFE_MODEL || CFG.model;
-export const PRICE_IN = CFG.prices.in;
-export const PRICE_OUT = CFG.prices.out;
 
 /**
  * Effort: low | medium | high | xhigh | max. The course defaults to "low"
@@ -270,23 +270,35 @@ export async function tokens(text: string): Promise<number> {
   return Math.max(0, (await count(text)) - baseline);
 }
 
-/** DeepSeek halves its prices outside 01:00-04:00 and 06:00-10:00 UTC. */
-function isPeak(): boolean {
-  const h = new Date().getUTCHours();
-  return (h >= 1 && h < 4) || (h >= 6 && h < 10);
-}
-
 export function spend(): string {
   if (OFFLINE) return "offline — no tokens spent";
-  const mult = PROVIDER === "deepseek" && isPeak() ? 2 : 1;
-  const fresh = Math.max(0, spent.in - spent.cached);
-  const dollars =
-    ((fresh * PRICE_IN + spent.cached * CFG.prices.cachedIn + spent.out * PRICE_OUT) * mult) / 1e6;
   let note = "";
   if (spent.cached) note += ` (${spent.cached.toLocaleString()} cached)`;
-  if (mult > 1) note += " · peak rate";
-  return `${spent.calls} call(s) · ${spent.in.toLocaleString()} in / ` +
-    `${spent.out.toLocaleString()} out${note} · $${dollars.toFixed(4)} on ${MODEL}`;
+  const usage = `${spent.calls} call(s) · ${spent.in.toLocaleString()} in / ` +
+    `${spent.out.toLocaleString()} out${note}`;
+
+  if (PROVIDER === "deepseek") {
+    const band = priceBandAt();
+    const priced = priceDeepSeekCourseUsage(MODEL, {
+      inputTokens: spent.in,
+      cachedInputTokens: spent.cached,
+      outputTokens: spent.out,
+    }, band);
+    if (!priced.known) {
+      return `${usage} · cost unknown on ${MODEL} ` +
+        `(not safely priceable from the ${priced.checkedAt} DeepSeek snapshot)`;
+    }
+    return `${usage} · $${priced.usd.toFixed(4)} on ${MODEL} · ${band} rate · ` +
+      `prices checked ${DEEPSEEK_PRICING.checkedAt}`;
+  }
+
+  const prices = CFG.prices;
+  if (!prices) return `${usage} · cost unknown on ${MODEL}`;
+  const fresh = Math.max(0, spent.in - spent.cached);
+  const dollars = (
+    fresh * prices.in + spent.cached * prices.cachedIn + spent.out * prices.out
+  ) / 1e6;
+  return `${usage} · $${dollars.toFixed(4)} on ${MODEL}`;
 }
 
 /** Fail early and clearly, instead of deep inside a stack trace. */

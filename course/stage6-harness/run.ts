@@ -31,7 +31,7 @@ export interface Parts { retry: boolean; errors: boolean; gate: boolean; log: bo
  * enforced.
  */
 export async function callTool(
-  name: string, args: any, parts: Parts, approve: (q: string) => boolean = () => true,
+  name: string, args: any, parts: Parts, approve: (q: string) => boolean = nobodyIsAwake,
 ): Promise<[string, boolean]> {
   // -- gate ---------------------------------------------------------------
   // TODO 1: if parts.gate and this is a place_order that would take the run's
