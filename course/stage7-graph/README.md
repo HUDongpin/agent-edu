@@ -26,7 +26,7 @@ In stage 5 you could add *"always check your reply against the refund policy"* t
 
 Here, `send()` is only ever called from one place, and that place is downstream of `review()`. That is a guarantee. The difference is not the model's diligence — it is whether the wrong thing is *possible*.
 
-Notice this is ordinary Python: functions, an `if`, a loop with a retry cap. A "graph" is not a framework you install. It is your control flow, written down deliberately, with the model doing the thinking inside individual boxes.
+Notice this is ordinary TypeScript: functions, an `if`, and a loop with a retry cap. A "graph" is not a framework you install. It is your control flow, written down deliberately, with the model doing the thinking inside individual boxes.
 
 ## What you give up
 

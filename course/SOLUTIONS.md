@@ -185,12 +185,28 @@ Put this at the start of `callTool`, before any tool runs:
 ```ts
 if (parts.gate && name === "place_order") {
   const item = String(args.item ?? "");
-  const qty = Number(args.qty ?? 0);
-  const estimate = qty * (UNIT_COST[item] ?? 0);
-  const committed = tools.ORDERS.reduce(
-    (total, order) => total + order.qty * (UNIT_COST[order.item] ?? 0),
-    0,
-  );
+  const qty = args.qty;
+  const unitCost = UNIT_COST[item];
+
+  if (typeof qty !== "number" || !Number.isFinite(qty) || qty <= 0 || unitCost === undefined) {
+    if (parts.log) RUN_LOG.push(`BLOCKED invalid ${name}${JSON.stringify(args)}`);
+    return ["Blocked: item and positive finite quantity must have a known price.", true];
+  }
+
+  const estimate = qty * unitCost;
+  let committed = 0;
+  for (const order of tools.ORDERS) {
+    const cost = UNIT_COST[order.item];
+    if (cost === undefined || !Number.isFinite(order.qty) || order.qty <= 0) {
+      committed = Number.POSITIVE_INFINITY;
+      break;
+    }
+    committed += order.qty * cost;
+  }
+  if (!Number.isFinite(estimate) || !Number.isFinite(committed)) {
+    if (parts.log) RUN_LOG.push(`BLOCKED unpriceable ${name}${JSON.stringify(args)}`);
+    return ["Blocked: committed spend cannot be priced safely.", true];
+  }
 
   if (committed + estimate > APPROVAL_THRESHOLD) {
     const question =
@@ -212,8 +228,9 @@ if (parts.gate && name === "place_order") {
 ```
 
 The threshold is cumulative. A per-call limit can be stepped around by several individually
-small orders. The unattended approver fails closed, and the refusal explains enough for the
-model to adapt without weakening the gate.
+small orders. Unknown items, non-positive quantities and unpriceable prior orders fail closed;
+they must never inherit a zero-dollar price. The unattended approver fails closed, and the
+refusal explains enough for the model to adapt without weakening the gate.
 
 ### TODO 2: run the requested tool
 

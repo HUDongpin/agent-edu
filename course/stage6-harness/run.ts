@@ -38,6 +38,8 @@ export async function callTool(
   // TOTAL committed spend past APPROVAL_THRESHOLD, do not run it. Call
   // approve(question); if it returns false, return a plain-language refusal
   // as an error result so the model can adapt.
+  // Reject unknown item prices and non-positive/non-finite quantities before
+  // estimating. Missing cost data must fail closed, never become $0.
   //
   // Total, not just this one order. A per-order cap gets stepped around
   // without anyone intending it: refuse a single $180 order and the model

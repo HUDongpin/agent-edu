@@ -1,4 +1,4 @@
-/** The café. Same data the Python course uses, so the domain costs nothing. */
+/** The café shared by the browser Lab and current TypeScript course. */
 
 export const MENU: Record<string, { S: number; L: number }> = {
   "flat white":    { S: 4.2, L: 5.1 },
