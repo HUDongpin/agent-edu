@@ -49,7 +49,14 @@ export default function Stages({
   }
 
   return (
-    <div className="steps" role="tablist" aria-label={t("lab.stepsLabel")} ref={box} onKeyDown={keys}>
+    <div
+      className="steps"
+      role="tablist"
+      aria-label={t("lab.stepsLabel")}
+      aria-orientation="horizontal"
+      ref={box}
+      onKeyDown={keys}
+    >
       {stages.map((s, i) => (
         <button
           key={s.name}

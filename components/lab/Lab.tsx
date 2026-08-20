@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import KeyBar from "./KeyBar";
 import Fail from "./Fail";
@@ -942,11 +943,21 @@ export default function Lab() {
           <span className="arrow">←</span> {t("ui.back")}
         </button>
         <span className="labcount">{stage + 1} {t("ui.of")} {stages.length}</span>
-        <button className="btn primary" type="button"
-          disabled={busy0 || anyBatchBusy || stage === stages.length - 1}
-          onClick={() => setStage((s) => s + 1)}>
-          {t("ui.next")} <span className="arrow">→</span>
-        </button>
+        {stage === stages.length - 1 && !busy0 && !anyBatchBusy ? (
+          <Link
+            className="btn primary"
+            href={`/${locale}/build/`}
+            data-lab-handoff="part-3"
+          >
+            {t("track.3.cta")} <span className="arrow">→</span>
+          </Link>
+        ) : (
+          <button className="btn primary" type="button"
+            disabled={busy0 || anyBatchBusy || stage === stages.length - 1}
+            onClick={() => setStage((s) => s + 1)}>
+            {t("ui.next")} <span className="arrow">→</span>
+          </button>
+        )}
       </nav>
     </div>
   );

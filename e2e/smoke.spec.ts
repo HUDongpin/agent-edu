@@ -12,17 +12,76 @@ const JOURNEY_LOCALES = [
   "ar",
 ] as const;
 
+const CORE_ROUTES = ["", "handbook/", "lab/", "build/"] as const;
+const CORE_ROUTE_MARKERS: Record<(typeof CORE_ROUTES)[number], string> = {
+  "": "#curriculum",
+  "handbook/": "#rail",
+  "lab/": ".shellwrap.lab .labhero",
+  "build/": ".build-page .build-steps",
+};
+const RELEASE_VIEWPORTS = [390, 1440] as const;
+const RELEASE_THEMES = ["light", "dark"] as const;
+const ARABIC_MATRIX_WIDTHS = [390, 979, 980, 1440] as const;
+
 async function expectActiveHandbookTab(page: Page, id: string) {
   await expect(page.locator('.rail-btn[tabindex="0"]')).toHaveCount(1);
   await expect(page.locator('.rail-btn[aria-selected="true"]')).toHaveCount(1);
   await expect(page.locator(id)).toHaveAttribute("tabindex", "0");
   await expect(page.locator(id)).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator(id.replace("#tab-", "#p-"))).toHaveClass(/\bon\b/);
+}
+
+async function expectNoPageOverflow(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
+  });
+  await expect.poll(() => page.evaluate(() => {
+    const html = document.documentElement;
+    return Math.max(html.scrollWidth, document.body.scrollWidth) - html.clientWidth;
+  }), { message: "the document must not overflow the viewport horizontally" })
+    .toBeLessThanOrEqual(1);
+}
+
+async function installSavedTheme(page: Page, theme: "light" | "dark") {
+  await page.addInitScript((selectedTheme) => {
+    localStorage.setItem("ae.theme", selectedTheme);
+    (window as Window & { __firstFrameTheme?: string }).__firstFrameTheme = undefined;
+    requestAnimationFrame(() => {
+      (window as Window & { __firstFrameTheme?: string }).__firstFrameTheme =
+        document.documentElement.getAttribute("data-theme") ?? "";
+    });
+  }, theme);
+}
+
+async function expectActiveTabInsideRail(page: Page, id: string) {
+  const tab = page.locator(id);
+  const [railBox, tabBox, viewport] = await Promise.all([
+    page.locator("#rail").boundingBox(),
+    tab.boundingBox(),
+    page.evaluate(() => ({ width: innerWidth, height: innerHeight })),
+  ]);
+  expect(railBox, "Handbook rail bounding box").not.toBeNull();
+  expect(tabBox, `${id} bounding box`).not.toBeNull();
+  expect(tabBox!.x).toBeGreaterThanOrEqual(railBox!.x - 1);
+  expect(tabBox!.x + tabBox!.width).toBeLessThanOrEqual(railBox!.x + railBox!.width + 1);
+  expect(tabBox!.y).toBeGreaterThanOrEqual(railBox!.y - 1);
+  expect(tabBox!.y + tabBox!.height).toBeLessThanOrEqual(railBox!.y + railBox!.height + 1);
+  // Bounding boxes can land on a fractional device pixel. One CSS pixel of
+  // tolerance still proves the whole control is present in the viewport.
+  expect(tabBox!.x).toBeGreaterThanOrEqual(-1);
+  expect(tabBox!.x + tabBox!.width).toBeLessThanOrEqual(viewport.width + 1);
+  expect(tabBox!.y).toBeGreaterThanOrEqual(-1);
+  expect(tabBox!.y + tabBox!.height).toBeLessThanOrEqual(viewport.height + 1);
 }
 
 test("the unprefixed root resolves to the English home", async ({ page }) => {
-  await page.goto("/");
+  const response = await page.goto("/");
+  expect(response?.status()).toBe(200);
   await expect(page).toHaveURL(/\/en\/$/);
-  await expect(page.locator("h1")).toHaveCount(1);
+  await expect(page.locator("#curriculum")).toBeVisible();
 });
 
 for (const locale of JOURNEY_LOCALES) {
@@ -56,29 +115,152 @@ for (const locale of JOURNEY_LOCALES) {
     });
 
     const prefix = `/${locale}`;
-    await page.goto(`${prefix}/`);
+    const homeResponse = await page.goto(`${prefix}/`);
+    expect(homeResponse?.status(), `${prefix}/ must be a static 200`).toBe(200);
     await expect(page).toHaveURL(new RegExp(`${prefix}/$`));
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.locator("#curriculum")).toBeVisible();
 
-    await page.locator(`a[href="${prefix}/handbook/"]`).first().click();
-    await expect(page).toHaveURL(new RegExp(`${prefix}/handbook/$`));
-    await expect(page.locator("h1")).toHaveCount(1);
+    await page.locator(`main .hero a[href="${prefix}/handbook/"]`).click();
+    await expect.poll(() => page.evaluate(() => location.pathname))
+      .toBe(`${prefix}/handbook/`);
+    await expect(page.locator("#rail")).toBeVisible();
+    await page.locator("#tab-play").click();
+    await expectActiveHandbookTab(page, "#tab-play");
+    await expect(page).toHaveURL(/#play$/);
 
-    await page.locator(`a[href="${prefix}/lab/"]`).first().click();
+    await page.locator(`header.topbar a[href="${prefix}/lab/"]`).click();
     await expect(page).toHaveURL(new RegExp(`${prefix}/lab/$`));
-    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.locator(".shellwrap.lab .labhero")).toBeVisible();
+    await page.locator('.steps [role="tab"]').last().click();
+    await expect(page.locator('[data-lab-handoff="part-3"]')).toBeVisible();
 
-    await page.locator(`a[href="${prefix}/build/"]`).first().click();
+    await page.locator('[data-lab-handoff="part-3"]').click();
     await expect(page).toHaveURL(new RegExp(`${prefix}/build/$`));
-    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.locator(".build-page .build-steps")).toBeVisible();
 
     expect(providerRequests, "navigation must not make a paid Provider request").toEqual([]);
     expect([...unexpectedOrigins], "all network origins must be allow-listed").toEqual([]);
     expect(pageErrors, "page errors").toEqual([]);
     expect(consoleErrors, "console errors").toEqual([]);
   });
+}
+
+for (const locale of JOURNEY_LOCALES) {
+  for (const width of RELEASE_VIEWPORTS) {
+    for (const theme of RELEASE_THEMES) {
+      test(`${locale}: ${width}px ${theme} core-route layout`, async ({ page }) => {
+        const pageErrors: string[] = [];
+        const consoleErrors: string[] = [];
+        await page.setViewportSize({ width, height: 900 });
+        await installSavedTheme(page, theme);
+        await page.route("**/_vercel/insights/script.js", (route) =>
+          route.fulfill({ status: 200, contentType: "text/javascript", body: "" }),
+        );
+        page.on("pageerror", (error) => pageErrors.push(error.message));
+        page.on("console", (message) => {
+          if (message.type() === "error") consoleErrors.push(message.text());
+        });
+
+        for (const route of CORE_ROUTES) {
+          await test.step(`/${locale}/${route}`, async () => {
+            const response = await page.goto(`/${locale}/${route}`);
+            expect(response, "main-document response").not.toBeNull();
+            expect(response!.status(), `/${locale}/${route} must be a static 200`).toBe(200);
+            await expect(page.locator("html")).toHaveAttribute("lang", locale);
+            await expect(page.locator("html")).toHaveAttribute(
+              "dir",
+              locale === "ar" ? "rtl" : "ltr",
+            );
+            await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+            await expect.poll(() => page.evaluate(() =>
+              (window as Window & { __firstFrameTheme?: string }).__firstFrameTheme,
+            ), { message: "the saved theme must be present by the first animation frame" })
+              .toBe(theme);
+            await expect(page.locator(CORE_ROUTE_MARKERS[route])).toBeVisible();
+            await expectNoPageOverflow(page);
+          });
+        }
+        expect(pageErrors, "matrix page errors").toEqual([]);
+        expect(consoleErrors, "matrix console errors").toEqual([]);
+      });
+    }
+  }
+}
+
+for (const width of ARABIC_MATRIX_WIDTHS) {
+  for (const theme of RELEASE_THEMES) {
+    test(`ar: ${width}px ${theme} automated RTL keyboard baseline`, async ({ page }) => {
+      const expectedOrientation = width < 980 ? "horizontal" : "vertical";
+      await page.setViewportSize({ width, height: 900 });
+      await installSavedTheme(page, theme);
+      const response = await page.goto("/ar/handbook/#start");
+      expect(response?.status(), "/ar/handbook/ must be a static 200").toBe(200);
+
+      const rail = page.locator("#rail");
+      await expect(rail).toHaveAttribute("aria-orientation", expectedOrientation);
+      await page.locator("#tab-start").focus();
+      await page.keyboard.press("End");
+      await expectActiveHandbookTab(page, "#tab-play");
+      await expect(page.locator("#tab-play")).toBeFocused();
+      await expect(page).toHaveURL(/#play$/);
+      await expectActiveTabInsideRail(page, "#tab-play");
+
+      await page.keyboard.press("Home");
+      await expectActiveHandbookTab(page, "#tab-start");
+      await expect(page.locator("#tab-start")).toBeFocused();
+      await expect(page).toHaveURL(/#start$/);
+
+      if (expectedOrientation === "horizontal") {
+        await page.keyboard.press("ArrowLeft");
+        await expectActiveHandbookTab(page, "#tab-code");
+        await page.keyboard.press("ArrowRight");
+        await expectActiveHandbookTab(page, "#tab-start");
+      } else {
+        await page.keyboard.press("ArrowDown");
+        await expectActiveHandbookTab(page, "#tab-code");
+        await page.keyboard.press("ArrowUp");
+        await expectActiveHandbookTab(page, "#tab-start");
+        await page.keyboard.press("ArrowLeft");
+        await expectActiveHandbookTab(page, "#tab-start");
+        await page.keyboard.press("ArrowRight");
+        await expectActiveHandbookTab(page, "#tab-start");
+      }
+
+      await page.locator("#tab-compare").click();
+      await expectActiveHandbookTab(page, "#tab-compare");
+      await expectActiveTabInsideRail(page, "#tab-compare");
+      await expect(page.locator("#dialSvg")).toHaveCSS("direction", "ltr");
+      await expectNoPageOverflow(page);
+
+      if (width === 390 || width === 980) {
+        const table = page.locator("#p-compare .tablewrap");
+        await expect(page.locator("#p-compare .tablewrap + .scrollhint")).toBeVisible();
+        const scroll = await table.evaluate((element) => {
+          const style = getComputedStyle(element);
+          const rect = element.getBoundingClientRect();
+          return {
+            clientWidth: element.clientWidth,
+            scrollWidth: element.scrollWidth,
+            overflowX: style.overflowX,
+            left: rect.left,
+            right: rect.right,
+            viewport: document.documentElement.clientWidth,
+          };
+        });
+        expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
+        expect(["auto", "scroll"]).toContain(scroll.overflowX);
+        expect(scroll.left).toBeGreaterThanOrEqual(-1);
+        expect(scroll.right).toBeLessThanOrEqual(scroll.viewport + 1);
+      }
+
+      const buildResponse = await page.goto("/ar/build/");
+      expect(buildResponse?.status(), "/ar/build/ must be a static 200").toBe(200);
+      await expect(page.locator(".build-page pre[dir='ltr']").first()).toHaveCSS("direction", "ltr");
+      await expectNoPageOverflow(page);
+    });
+  }
 }
 
 test("Handbook tabs switch orientation at 979/980 and reveal the active tab", async ({ page }) => {
@@ -260,7 +442,7 @@ test("Lab cancellation, zero-score completion, privacy, and repeat announcements
   holdChatResponses = true;
   await page.getByRole("button", { name: "Run eval — up to 28 requests" }).click();
   await page.getByRole("button", { name: "Stop" }).click();
-  await expect(page.getByRole("alert")).toContainText("This run was stopped");
+  await expect(page.locator('.fail[role="alert"]')).toContainText("This run was stopped");
   await expect(page.locator("#lab-eval-result")).toHaveText("");
   await expect.poll(() => page.evaluate((storageKey) => {
     const raw = localStorage.getItem(storageKey);
@@ -295,7 +477,7 @@ test("Lab cancellation, zero-score completion, privacy, and repeat announcements
   await page.getByRole("button", { name: "Run eval — up to 28 requests" }).click();
   await expect(page.locator("#lab-eval-result")).toHaveText("");
   await page.getByRole("button", { name: "Stop" }).click();
-  await expect(page.getByRole("alert")).toContainText("This run was stopped");
+  await expect(page.locator('.fail[role="alert"]')).toContainText("This run was stopped");
   await expect(page.locator("#lab-eval-result")).toHaveText("");
   await expect.poll(() => page.evaluate((storageKey) => {
     const raw = localStorage.getItem(storageKey);
@@ -319,7 +501,10 @@ test("Handbook deep links, history, restoration, and the page-level H1 stay cons
   await expectActiveHandbookTab(page, "#tab-security");
 
   await page.goto("/en/");
-  await page.evaluate(() => localStorage.setItem("tch.section", "graph"));
+  await page.evaluate(() => {
+    localStorage.removeItem("ae.learning.v2");
+    localStorage.setItem("tch.section", "graph");
+  });
   await page.goto("/en/handbook/");
   await expect(page).toHaveURL(/#graph$/);
   await expectActiveHandbookTab(page, "#tab-graph");
