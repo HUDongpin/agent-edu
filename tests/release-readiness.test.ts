@@ -179,6 +179,7 @@ test("fully signed fixture evidence and complete locale fixtures pass", () => {
   const result = evaluateReleaseReadiness({
     config: passingConfig(),
     catalogs: passingCatalogs(),
+    projectRoot: process.cwd(),
   });
 
   assert.equal(result.ready, true);
@@ -190,7 +191,11 @@ test("fully signed fixture evidence and complete locale fixtures pass", () => {
 test("valid pending evidence blocks release without becoming a schema error", () => {
   const config = clone(productionConfig);
   config.localization.sameAsEnglishAllowlist = passingConfig().localization.sameAsEnglishAllowlist;
-  const result = evaluateReleaseReadiness({ config, catalogs: passingCatalogs() });
+  const result = evaluateReleaseReadiness({
+    config,
+    catalogs: passingCatalogs(),
+    projectRoot: process.cwd(),
+  });
 
   assert.equal(result.ready, false);
   assert.deepEqual(result.configIssues, []);

@@ -73,6 +73,8 @@ rejects optimistic aggregate statuses.
 1. Freeze the release commit and Vercel preview deployment ID.
 2. Run `npm test`, `npm run lint`, the normal build/smoke pipeline, and then
    `npm run release:check`.
+   Browser failure evidence may be uploaded only after `npm run artifacts:check`
+   passes; a rejected or unparseable artifact remains local and blocks upload.
 3. Complete the forms in this directory against that exact commit/deployment.
    For CSP, keep the candidate in `report-only` until Stage A passes; promote
    with `npm run csp:set -- enforced` only in a separately reviewed commit.
@@ -104,3 +106,7 @@ headers. A green run cannot prove that GitHub made the jobs required.
 - `github-readiness.md` — required checks and three consecutive green runs.
 - `rollback.md` — previous production target, ordinary revert PR, and recovery validation.
 - `pilot-protocol.md` — later six-learner/three-teacher pilot and its exit metrics.
+- `implementation-matrix.md` — approved roadmap requirements mapped to
+  repository evidence, deterministic gates, external work, and explicit non-goals.
+- `performance-verification.md` — static budgets, three-engine compatibility,
+  emulated resilience, physical-device, and field-CWV evidence boundaries.

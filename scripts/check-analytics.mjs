@@ -328,7 +328,9 @@ export function analyzeSource(file, text) {
   if (fileRule) prohibit(fileRule, sourceFile);
 
   for (const diagnostic of sourceFile.parseDiagnostics ?? []) {
-    const node = diagnostic.start === undefined ? sourceFile : sourceFile.getTokenAtPosition(diagnostic.start);
+    const node = diagnostic.start === undefined
+      ? sourceFile
+      : ts.getTokenAtPosition(sourceFile, diagnostic.start);
     add("source-parse-error", node);
   }
 

@@ -10,7 +10,7 @@ export default function Layout() {
 `;
 
 function ids(source: string, file = "components/Example.tsx"): string[] {
-  return analyzeSource(file, source).map((finding) => finding.id);
+  return analyzeSource(file, source).map((finding: { id: string }) => finding.id);
 }
 
 test("the existing Vercel Analytics page-view component is the only allowlisted integration", () => {
@@ -75,7 +75,11 @@ test("sensitive analytics payload vocabulary is reported without returning sourc
     "components/Unsafe.tsx",
     'analytics.track("saved", { prompt, reply, apiKey, billingPlan });',
   );
-  assert.ok(findings.some((finding) => finding.id === "analytics-sensitive-payload"));
+  assert.ok(
+    findings.some(
+      (finding: { id: string }) => finding.id === "analytics-sensitive-payload",
+    ),
+  );
   assert.equal(JSON.stringify(findings).includes("apiKey"), false);
   assert.equal(JSON.stringify(findings).includes("billingPlan"), false);
 });
@@ -89,6 +93,10 @@ test("analytics prose, sensitive product logic, and unrelated progress functions
     trackProgress(prompt.length);
   `;
   assert.deepEqual(ids(source), []);
+});
+
+test("unparseable source fails closed as a safe category instead of crashing the scanner", () => {
+  assert.ok(ids("const = ;").includes("source-parse-error"));
 });
 
 test("the repository source tree satisfies the source-only analytics policy", () => {

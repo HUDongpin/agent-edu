@@ -24,6 +24,7 @@
     "preview:test": "node scripts/serve-out.mjs",
     "routes:check": "node scripts/check-routes.mjs",
     "assets:check": "node scripts/check-static-assets.mjs",
+    "artifacts:check": "node scripts/check-artifacts.mjs test-results playwright-report",
     "release:check": "node scripts/check-release-readiness.mjs",
     "csp:check": "node scripts/check-csp.mjs",
     "csp:set": "node scripts/set-csp-stage.mjs",

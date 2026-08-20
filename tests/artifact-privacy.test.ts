@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   symlinkSync,
   truncateSync,
@@ -460,4 +461,30 @@ test("ZIP entry error paths redact a sensitive entry name", async () => {
       },
     );
   });
+});
+
+test("CI uploads browser evidence only after the privacy scanner succeeds", () => {
+  const workflow = readFileSync(
+    new URL("../.github/workflows/ci.yml", import.meta.url),
+    "utf8",
+  );
+  const packageJson = JSON.parse(
+    readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+  ) as { scripts?: Record<string, string> };
+
+  assert.equal(
+    packageJson.scripts?.["artifacts:check"],
+    "node scripts/check-artifacts.mjs test-results playwright-report",
+  );
+  assert.equal((workflow.match(/id: artifact_privacy/g) ?? []).length, 2);
+  assert.equal((workflow.match(/run: npm run artifacts:check/g) ?? []).length, 2);
+  assert.equal((workflow.match(/uses: actions\/upload-artifact@v7/g) ?? []).length, 2);
+  assert.equal(
+    (
+      workflow.match(
+        /if: \$\{\{ failure\(\) && steps\.artifact_privacy\.outcome == 'success' \}\}\n\s+uses: actions\/upload-artifact@v7/g,
+      ) ?? []
+    ).length,
+    2,
+  );
 });
