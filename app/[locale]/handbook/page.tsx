@@ -1,4 +1,5 @@
 import Handbook from "@/components/handbook/Handbook";
+import { loadWidgetCopy } from "@/lib/handbook/copy";
 import { localiseHandbook } from "@/lib/handbook/localise";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
 import { seoFor } from "@/lib/seo";
@@ -29,5 +30,6 @@ export default async function HandbookPage(
 ) {
   const { locale } = await params;
   const { html, localised } = await localiseHandbook(locale);
-  return <Handbook html={html} localised={localised} />;
+  const copy = await loadWidgetCopy(locale);
+  return <Handbook html={html} localised={localised} copy={copy} />;
 }
