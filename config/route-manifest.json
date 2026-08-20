@@ -14,9 +14,11 @@
   "localizedPaths": [
     "",
     "about",
+    "build",
     "courses",
     "handbook",
-    "lab"
+    "lab",
+    "teach"
   ],
   "staticRoutes": [
     "/",
@@ -30,6 +32,23 @@
   "requiredArtifacts": [
     "out/404.html",
     "out/404/index.html",
-    "out/_not-found/index.html"
-  ]
+    "out/_not-found/index.html",
+    "out/teacher-pack.txt"
+  ],
+  "requiredArtifactText": {
+    "out/404.html": [
+      "Choose a language",
+      "/ar/courses/"
+    ],
+    "out/en/build/index.html": [
+      "--offline",
+      "stage 0 complete.",
+      "course/progress.json"
+    ],
+    "out/teacher-pack.txt": [
+      "20 generator + up to 8 judge = 28 calls",
+      "Never share the teacher key",
+      "Project rubric"
+    ]
+  }
 }

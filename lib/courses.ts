@@ -40,8 +40,8 @@ export const COURSES: Course[] = [
     topic: "prompting", minutes: 40, status: "available", hue: "var(--green)",
   },
   {
-    id: "build", href: "https://github.com/HUDongpin/agent-edu/tree/main/course",
-    external: true, level: "intermediate", format: "code", topic: "agents",
+    id: "build", href: "/build/",
+    level: "intermediate", format: "code", topic: "agents",
     minutes: 150, status: "available", hue: "var(--violet)",
   },
   {

@@ -28,6 +28,7 @@ export function expandManifest(manifest) {
     ),
     publicRoutes: sortedUnique([...manifest.staticRoutes, ...localized], "public route list"),
     requiredArtifacts: sortedUnique(manifest.requiredArtifacts, "required artifact list"),
+    requiredArtifactText: manifest.requiredArtifactText ?? {},
   };
 }
 
@@ -46,8 +47,9 @@ function artifactFor(route) {
   return "out" + route + "/index.html";
 }
 
-function routeArtifacts(dir) {
+function routeArtifacts(dir, requiredArtifacts = []) {
   const found = [];
+  const required = new Set(requiredArtifacts);
   const walk = (current) => {
     for (const entry of readdirSync(current, { withFileTypes: true })) {
       const full = join(current, entry.name);
@@ -60,7 +62,8 @@ function routeArtifacts(dir) {
         entry.name === "index.html" ||
         rel === "out/404.html" ||
         rel === "out/robots.txt" ||
-        rel === "out/sitemap.xml"
+        rel === "out/sitemap.xml" ||
+        required.has(rel)
       ) {
         found.push(rel);
       }
@@ -93,7 +96,18 @@ export function checkRoutes() {
     [...expected.publicRoutes.map(artifactFor), ...expected.requiredArtifacts],
     "expected route artifact list",
   );
-  failDiff("Static route artifacts", diffSets(expectedArtifacts, routeArtifacts(OUT)));
+  failDiff("Static route artifacts", diffSets(expectedArtifacts, routeArtifacts(OUT, expected.requiredArtifacts)));
+
+  for (const [artifact, markers] of Object.entries(expected.requiredArtifactText)) {
+    if (!expectedArtifacts.includes(artifact)) {
+      throw new Error("requiredArtifactText names an undeclared artifact: " + artifact);
+    }
+    const html = readFileSync(join(PROJECT, artifact), "utf8");
+    const missing = markers.filter((marker) => !html.includes(marker));
+    if (missing.length) {
+      throw new Error(artifact + " is missing required recovery/handoff marker(s): " + missing.join(", "));
+    }
+  }
 
   console.log(
     "routes: " + expected.publicRoutes.length + " public + " +

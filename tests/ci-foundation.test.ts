@@ -33,12 +33,18 @@ test("every page has reciprocal nine-language SEO alternates and x-default", () 
   }
 });
 
-test("the committed route manifest expands to the verified 50-route baseline", () => {
+test("the committed route manifest expands to the build-page route set", () => {
   const manifest = JSON.parse(readFileSync("config/route-manifest.json", "utf8"));
   const expanded = expandManifest(manifest);
-  assert.equal(expanded.publicRoutes.length, 48);
-  assert.equal(expanded.prerenderRoutes.length, 50);
-  assert.equal(new Set(expanded.prerenderRoutes).size, 50);
+  assert.equal(expanded.publicRoutes.length, 66);
+  assert.equal(expanded.prerenderRoutes.length, 68);
+  assert.equal(new Set(expanded.prerenderRoutes).size, 68);
+  assert.deepEqual(expanded.requiredArtifactText["out/404.html"], [
+    "Choose a language",
+    "/ar/courses/",
+  ]);
+  assert.ok(expanded.requiredArtifactText["out/en/build/index.html"].includes("course/progress.json"));
+  assert.ok(expanded.requiredArtifactText["out/teacher-pack.txt"].includes("Project rubric"));
 });
 
 test("tracked-file secret rules fail closed without echoing matched values", () => {

@@ -10,9 +10,9 @@ Everything below runs from the **repo root** — the course shares the site's `p
 
 ```bash
 npm install
-export DEEPSEEK_API_KEY=sk-...             # platform.deepseek.com/api_keys
+export DEEPSEEK_API_KEY=your_key_here      # platform.deepseek.com/api_keys
 # ...or, if you'd rather run it on Claude:
-export ANTHROPIC_API_KEY=sk-ant-...        # console.anthropic.com
+export ANTHROPIC_API_KEY=your_key_here     # console.anthropic.com
 npx tsx course/stage0-hello/run.ts
 ```
 
@@ -22,18 +22,18 @@ Each stage is a folder with a `README.md` and a `run.ts` containing one or two `
 npx tsx course/check.ts 0      # or: npm run course 0
 ```
 
-**No API key?** Add `--offline` to any command to replay recorded answers. Every stage runs. But stage 2's entire lesson is watching the same question come back different, and a recording cannot show you that — so borrow a key for at least stages 2 to 4 if you possibly can.
+**No API key?** Add `--offline` to any command to replay recorded answers. Every stage runs. Stage 2's lesson includes watching the same question come back differently, which a recording cannot reproduce; if you later want that comparison, use a low-credit, revocable key of your own. Never borrow or share another person's credential.
 
 **Stuck?** [`SOLUTIONS.md`](SOLUTIONS.md) has every `TODO` filled in, one section per stage.
 
-**Cost:** far less than you would guess. A full run of all nine stages on `deepseek-v4-flash` came to **under 2 cents**. Every stage prints what it spent. On Claude Opus it is a few dollars — same code, ~250× the price, and stage 3 is how you find out whether that buys you anything.
+**Cost:** offline replay makes no Provider request. Live stages print measured usage and an estimate based on the model and the dated price table in the code. The total varies with Provider, model, cache, peak window and how often you re-run; an old sample total is not a promise. Check the estimate before a run and treat the Provider dashboard as the billing record. Claude can cost materially more than DeepSeek for the same exercise.
 
 ## Two providers, one seam
 
 The course runs on **DeepSeek** or on **Anthropic's Claude**, and not one line of any stage changes between them.
 
 ```bash
-export DEEPSEEK_API_KEY=sk-...      # default if both are set
+export DEEPSEEK_API_KEY=your_key_here # default if both are set
 export CAFE_PROVIDER=anthropic      # force one
 export CAFE_MODEL=deepseek-v4-pro   # or a different model on either
 ```
@@ -84,13 +84,15 @@ npx tsx course/report.ts       # or: npm run report
 
 The 20 café cases deliberately **stop** at stage 4. An agent placing restock orders is not taking orders, so stages 5–8 report the measure that actually fits them — money spent unattended, drafts the reviewer stopped, the refund the cap held. Forcing one suite onto every stage would look tidier and tell you less.
 
-## Stage 9 — build your own
+## [Stage 9 — build your own](stage9-project/)
 
 The café is a stand-in. The last thing to do is throw it away.
 
 Pick a domain you actually know: a library's returns desk, a lab booking system, a tutoring service, your own inbox. Then build the same nine things for it — the rules version and the phrasing that breaks it; a prompt that replaces the rules; **twenty cases of your own**; the context the model needs and lacks; a tool and the loop; a gate on the one action you could not undo; a step no model may skip; and the input that comes from a stranger.
 
 Nobody will grade it. The point is that you now know what the twenty cases *are* for your own domain — which is the part a café cannot teach.
+
+The [`stage9-project/`](stage9-project/) folder provides a Markdown artifact template, JSON eval template and evidence-based rubric. It asks for a problem boundary, failure input, minimal eval, irreversible gate, trust boundaries and candid retrospective; it does not prescribe one Provider, framework or prompt.
 
 ## Honest limits
 
@@ -100,4 +102,4 @@ Nothing here makes you a machine-learning engineer; it is about **building syste
 
 Licensed [MIT](../LICENSE). Corrections and extra stages welcome via [issues](https://github.com/HUDongpin/agent-edu/issues).
 
-**A Python version of this course** is preserved at [`legacy/course-python/`](../legacy/course-python/). It teaches the identical nine stages; Python remains the lingua franca of AI engineering, so if that is where you want the skills to land, start there instead.
+**A legacy Python edition** is preserved at [`legacy/course-python/`](../legacy/course-python/) for reference. The maintained Part 3 path described by the site, checks and progress file is this TypeScript course.

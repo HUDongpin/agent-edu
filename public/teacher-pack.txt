@@ -1,0 +1,68 @@
+AICOURSE.TOP — TEACHER QUICK PACK
+=================================
+
+Purpose
+-------
+Teach beginners to distinguish decisions fixed in code from decisions handed
+to a model, and to support that choice with a small evaluation and an explicit
+control boundary.
+
+Before the room
+---------------
+1. Open /en/handbook/ and /en/lab/ on the classroom browser and network.
+2. If using live calls, create a separate low-credit, revocable DeepSeek key.
+3. Run Save & test, one first call, the three-order preview, and one full Eval.
+4. Compare the model, usage and charge with the Provider dashboard.
+5. Prepare the no-key route: scripted Handbook + Lab step 2 + projected results.
+6. Never share the teacher key. Forget clears the tab; revocation happens at
+   the Provider.
+
+Call disclosure
+---------------
+Step 1: 1 paid request, max 250 output tokens.
+Step 3: up to 3 paid requests, max 3 x 300 output tokens.
+Eval: 20 generator + up to 8 judge = 28 calls, max 7,600 output tokens,
+concurrency 4.
+Recommended journey with two Evals: up to 60 calls / 16,350 output tokens.
+Each additional Eval can add 28 calls. Stop prevents new scheduling and attempts
+to abort up to four in-flight calls; an in-flight call may still be billed.
+
+45 / 90 / 180 minutes
+---------------------
+45: rules wall, teacher-led prompt preview, baseline Eval, add context, re-run.
+90: add Handbook prompt/context/eval, loop/graph, security and decision tree.
+180: learners run the Lab with their own keys or the no-key route, play the
+Control Room, then begin the local TypeScript course.
+
+Learner worksheet
+-----------------
+1. Give one phrasing the current rules miss and the extra rule it would need.
+2. Before Eval 1, predict the score and give one reason.
+3. Record the baseline, one failed case, and the likely failure source.
+4. Name one change and why it should affect that case.
+5. Before Eval 2, predict the direction and size of change.
+6. Record the new score, one improvement, and one regression.
+7. Name one decision for the model and one retained by code or a person.
+8. Transfer to a domain you know: failure input, minimal eval, irreversible gate.
+
+Project rubric (0 absent, 1 partial, 2 evidenced)
+-------------------------------------------------
+- Problem boundary: goal, non-goals, and model authority.
+- Failure input: concrete, realistic, reproducible.
+- Minimal eval: cases, expected evidence, and inspectable scoring.
+- Irreversible gate: code/person control before the action.
+- Trust boundaries: Provider, tools, secrets, and untrusted inputs.
+- Reflection: failures, regressions, cost, trade-offs, and next test.
+
+Acceptable evidence includes secret-free console output, small JSON/Markdown
+results, a code link, one failed-case trace, or a local report card. There is no
+single approved framework, Provider, or prompt; assess observable evidence and
+the quality of the trade-off.
+
+Privacy
+-------
+Keep observation sheets local. Never put learner keys, prompts, raw Provider
+bodies, replies, or identifiable work into the site, screenshots, or CI logs.
+
+Full plan: https://github.com/HUDongpin/agent-edu/blob/main/TEACHING.md
+Licence: MIT.

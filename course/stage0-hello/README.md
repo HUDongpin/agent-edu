@@ -1,11 +1,12 @@
 # Stage 0 — one call
 
-**Goal:** prove your key, your network and your Python all work, before anything else can confuse you.
+**Goal:** prove your TypeScript entry point, Provider configuration and network work before anything else can confuse you. With `--offline`, the same preflight proves the local code path without a key or network call.
 
 ```bash
-pip install anthropic
-export DEEPSEEK_API_KEY=sk-...           # platform.deepseek.com/api_keys
-# or: export ANTHROPIC_API_KEY=sk-ant-... # console.anthropic.com
+npm ci
+export DEEPSEEK_API_KEY=your_key_here     # platform.deepseek.com/api_keys
+# or: export ANTHROPIC_API_KEY=your_key_here
+#     export CAFE_PROVIDER=anthropic
 npx tsx course/stage0-hello/run.ts
 ```
 

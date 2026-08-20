@@ -115,13 +115,13 @@ export default function Catalog({ locale }: { locale: string }) {
                   </div>
                   <h2>{t(`c.${c.id}.title`)}</h2>
                   <p>{t(`c.${c.id}.blurb`)}</p>
-                  {c.external && <p className="tracknote">↗ {t("track.3.note")}</p>}
+                  {c.id === "build" && <p className="tracknote">{t("track.3.note")}</p>}
                   <div className="cfoot">
                     {soon ? (
                       <span className="pill neutral">{t("cat.soonBadge")}</span>
                     ) : progress.kind === "external" ? (
                       <span className="cgo" style={{ color: c.hue }}>
-                        {cta(progress)} <span className="arrow">↗</span>
+                        {cta(progress)} <span className="arrow">{c.external ? "↗" : "→"}</span>
                       </span>
                     ) : progress.kind === "tracked" ? (
                       <>
