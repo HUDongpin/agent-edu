@@ -40,10 +40,12 @@ const PROVIDER = "https://platform.deepseek.com/api_keys";
  * collapses — it has done its job and should stop taking up the page.
  */
 export default function KeyBar({
-  model, onModel,
+  model, onModel, disabled = false,
 }: {
   model: Model;
   onModel: (m: Model) => void;
+  /** Freeze credential/model mutation while a paid action is in flight. */
+  disabled?: boolean;
 }) {
   const { t } = useI18n();
   const has = useSyncExternalStore(subscribeKey, hasKey, hasKeyOnServer);
@@ -126,7 +128,8 @@ export default function KeyBar({
           </span>
         )}
         {verified && !editing && (
-          <button className="iconbtn" type="button" onClick={() => { setEditing(true); setDraft(""); }}>
+          <button className="iconbtn" type="button" disabled={disabled}
+            onClick={() => { setEditing(true); setDraft(""); }}>
             {t("lab.keyChange")}
           </button>
         )}
@@ -166,19 +169,22 @@ export default function KeyBar({
               autoComplete="off" placeholder={t("lab.keyPlaceholder")}
               value={draft} onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") void save(); }}
-              disabled={verifying}
+              disabled={disabled || verifying}
               style={{ flex: "1 1 240px" }}
             />
-            <button className="btn primary" type="button" disabled={verifying || !draft.trim()} onClick={() => void save()}>
+            <button className="btn primary" type="button"
+              disabled={disabled || verifying || !draft.trim()} onClick={() => void save()}>
               {verifying ? t("lab.keyVerifying") : t("lab.keySaveTest")}
             </button>
             {has && !draft.trim() && !editing && !verifying && (
-              <button className="btn" type="button" onClick={() => void testAgain()}>
+              <button className="btn" type="button" disabled={disabled}
+                onClick={() => void testAgain()}>
                 {t("lab.keyTestAgain")}
               </button>
             )}
             {verified && editing && (
-              <button className="btn" type="button" onClick={() => { setEditing(false); setDraft(""); }}>
+              <button className="btn" type="button" disabled={disabled}
+                onClick={() => { setEditing(false); setDraft(""); }}>
                 {t("ui.close")}
               </button>
             )}
@@ -209,13 +215,13 @@ export default function KeyBar({
             markKeyUnverified();
             onModel(nextModel);
           }}
-          disabled={verifying}
+          disabled={disabled || verifying}
         >
           <option value="deepseek-v4-flash">{t("lab.modelFast")}</option>
           <option value="deepseek-v4-pro">{t("lab.modelSmart")}</option>
         </select>
         {has && (
-          <button className="linky" type="button" onClick={() => {
+          <button className="linky" type="button" disabled={disabled} onClick={() => {
             forgetKey();
             setDraft("");
             setEditing(false);

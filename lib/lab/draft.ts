@@ -22,8 +22,11 @@ export interface DraftStorage {
   removeItem(key: string): void;
 }
 
-const MAX_RULES_LENGTH = 10_000;
-const MAX_PROMPT_LENGTH = 20_000;
+// 32 UI rules × 160 characters can expand when JSON escapes quotes or
+// backslashes. Keep this above the proven encoded worst case while retaining
+// a small, explicit localStorage bound.
+export const LAB_DRAFT_MAX_RULES_LENGTH = 16_000;
+export const LAB_DRAFT_MAX_PROMPT_LENGTH = 20_000;
 const MAX_PREVIEW_IDS = 32;
 const PREVIEW_ID = /^[a-z0-9][a-z0-9._:-]{0,63}$/i;
 
@@ -60,9 +63,9 @@ export function decodeLabDraft(value: unknown): LabDraftV1 | null {
     Number(draft.stage) < 0 ||
     Number(draft.stage) > 3 ||
     typeof draft.rules !== "string" ||
-    draft.rules.length > MAX_RULES_LENGTH ||
+    draft.rules.length > LAB_DRAFT_MAX_RULES_LENGTH ||
     typeof draft.prompt !== "string" ||
-    draft.prompt.length > MAX_PROMPT_LENGTH ||
+    draft.prompt.length > LAB_DRAFT_MAX_PROMPT_LENGTH ||
     ids === null ||
     !validDate(draft.savedAt)
   ) {

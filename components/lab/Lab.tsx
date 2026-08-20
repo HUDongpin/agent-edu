@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import KeyBar from "./KeyBar";
 import Fail from "./Fail";
 import Stages, { type Stage } from "./Stages";
@@ -19,9 +19,23 @@ import {
   subscribeBilling,
   type Model,
 } from "@/lib/deepseek";
-import { mark, progressOnServer, progressSnapshot, readProgress, subscribeProgress } from "@/lib/progress";
+import {
+  LAB_STEPS,
+  readLearningState,
+  readLearningStateOnServer,
+  recordLabStep,
+  selectLabProgress,
+  subscribeLearningState,
+} from "@/lib/progress";
 import { MENU, menuText, priceOf, type Order } from "@/lib/cafe/menu";
 import { CASES } from "@/lib/cafe/evalset";
+import {
+  LAB_DRAFT_MAX_PROMPT_LENGTH,
+  clearLabDraft,
+  readLabDraft,
+  writeLabDraft,
+  type LabDraftInput,
+} from "@/lib/lab/draft";
 import {
   EVAL_PLAN,
   LAB_CONCURRENCY,
@@ -30,6 +44,14 @@ import {
   assertEvalShape,
 } from "@/lib/lab/plans";
 import { LabRunner, type LabRunTask } from "@/lib/lab/runner";
+import {
+  MAX_LAB_RULES,
+  MAX_LAB_RULE_CONDITION_LENGTH,
+  decodeLabRules,
+  encodeLabRules,
+  freshLabRules,
+  type LabRule as Rule,
+} from "@/lib/lab/rules";
 
 const SEED = `You are the till at a small café. Turn what the customer said into an order.
 
@@ -38,14 +60,21 @@ Reply as JSON: {"items":[{"name":..., "size":"S" or "L", "price":number}], "tota
 Sizes are S or L; if nobody says a size, use S.
 If the order is vague or you had to guess, set needs_confirmation to true.`;
 
+const PARTIAL_SEED = `You are the till at a small café. Turn what the customer said into an order.
+
+Reply as JSON: {"items":[{"name":..., "size":"S" or "L", "price":number}], "total":number, "needs_confirmation":boolean}
+
+Sizes are S or L; if nobody says a size, use S.
+If the order is vague or you had to guess, [finish this condition].`;
+
 const TESTS = ["tea", "large tea", "large flat white", "two teas", "americano, small",
   "LARGE FLAT WHITE!!!", "could I grab a large flat white when you get a sec",
   "flat white, make it large", "something warm for my kid, no coffee", "the usual"];
 
-const PREVIEW_ORDERS = [
-  "could I grab a large flat white when you get a sec",
-  "two teas",
-  "something warm for my kid, no coffee",
+const PREVIEW_CASES = [
+  { id: "preview-flat-white", said: "could I grab a large flat white when you get a sec" },
+  { id: "preview-two-teas", said: "two teas" },
+  { id: "preview-vague-kid", said: "something warm for my kid, no coffee" },
 ] as const;
 
 const JUDGE_SYSTEM = "You grade one output against one written standard. Not style — only whether the standard is met. Reply as JSON.";
@@ -53,10 +82,14 @@ const MENU_GUARD = "Only ever order items on this menu, at exactly these prices.
 
 const PANEL = "labpanel";
 
-type Rule = { c: string; n: string; s: "S" | "L" };
 type Row = { id: string; said: string; kind: string; ok: boolean; why: string };
 type Err = { key: string; detail?: string } | null;
 type ActiveBatch = { runId: string; kind: "preview" | "eval" } | null;
+type ReflectionNote = { round: number; complete: boolean } | null;
+type DraftProblem = "unavailable" | "clear-failed" | null;
+type PendingDraft = { fingerprint: string; input: LabDraftInput };
+
+const PREVIEW_IDS: ReadonlySet<string> = new Set(PREVIEW_CASES.map(({ id }) => id));
 
 const REQUEST_TIMEOUT_MS = 45_000;
 
@@ -76,6 +109,19 @@ function addMenu(system: string): string {
   return (system.trim() || SEED) + "\n\n" + menuText() + "\n\n" + MENU_GUARD;
 }
 
+function draftFingerprint(
+  stage: number,
+  rules: readonly Rule[],
+  prompt: string,
+  completedPreviewIds: readonly string[],
+): string {
+  return JSON.stringify([stage, rules, prompt, completedPreviewIds]);
+}
+
+function promptIncludesMenu(prompt: string): boolean {
+  return prompt.includes(MENU_GUARD);
+}
+
 export default function Lab() {
   const { t, locale } = useI18n();
   const [stage, setStage] = useState(0);
@@ -92,11 +138,15 @@ export default function Lab() {
   /* Which steps are already finished, from the same store the home page and
      the catalogue read. Subscribed rather than loaded in an effect, so the
      ticks are right on the first paint. */
-  const raw = useSyncExternalStore(subscribeProgress, progressSnapshot, progressOnServer);
+  const learning = useSyncExternalStore(
+    subscribeLearningState,
+    readLearningState,
+    readLearningStateOnServer,
+  );
   const done = useMemo(() => {
-    const p = readProgress(raw);
-    return [!!p.play0, !!p.play1, !!p.play2, !!p.play3];
-  }, [raw]);
+    const completed = selectLabProgress(learning).completedSteps;
+    return LAB_STEPS.map((step) => completed.includes(step));
+  }, [learning]);
 
   // step 1 — the first call
   const [q, setQ] = useState(() => t("lab.s1.q"));
@@ -105,7 +155,7 @@ export default function Lab() {
   const [busy0, setBusy0] = useState(false);
 
   // step 2 — the rule-based till (no model, no key)
-  const [rules, setRules] = useState<Rule[]>([{ c: "large tea", n: "tea", s: "L" }, { c: "tea", n: "tea", s: "S" }]);
+  const [rules, setRules] = useState<Rule[]>(freshLabRules);
   const [rp, setRp] = useState(""); const [ri, setRi] = useState("flat white"); const [rs, setRs] = useState<"S" | "L">("L");
   const kiosk = (said: string) => {
     const x = said.toLowerCase().trim();
@@ -116,7 +166,7 @@ export default function Lab() {
   /* Recorded in an effect, not while rendering: writing to storage during a
      render is a side effect React is free to run twice. */
   useEffect(() => {
-    if (passing >= 8) mark("play1");
+    if (passing >= 8) recordLabStep("rules", { score: passing });
   }, [passing]);
 
   // steps 3 and 4 — the prompt, then the score
@@ -128,25 +178,146 @@ export default function Lab() {
   const [rows, setRows] = useState<Row[]>([]);
   const [prog, setProg] = useState("");
   const [err3, setErr3] = useState<Err>(null);
+  const [evalAnnouncement, setEvalAnnouncement] = useState("");
   const [menuAdded, setMenuAdded] = useState(false);
+  const [completedPreviewIds, setCompletedPreviewIds] = useState<string[]>([]);
+  const [draftReady, setDraftReady] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+  const [draftProblem, setDraftProblem] = useState<DraftProblem>(null);
+  const lastPersistedDraftFingerprint = useRef<string | null>(null);
+  const draftWritesSuppressed = useRef(false);
+  const latestDraft = useRef<PendingDraft | null>(null);
+
+  // Two pre-Eval reflections are deliberately ephemeral. They are not part
+  // of ae.lab.draft.v1 and are never interpolated into a Provider message.
+  const [evalAttempts, setEvalAttempts] = useState(0);
+  const evalAttemptsRef = useRef(0);
+  const [prediction, setPrediction] = useState("");
+  const [predictionReason, setPredictionReason] = useState("");
+  const [reflectionNote, setReflectionNote] = useState<ReflectionNote>(null);
+
+  useEffect(() => {
+    // Restore after hydration so a browser-local draft cannot make the first
+    // client render disagree with the static HTML. The callback also keeps
+    // the effect focused on synchronization with external storage.
+    const timer = window.setTimeout(() => {
+      const draft = readLabDraft();
+      if (draft) {
+        const restoredRules = decodeLabRules(draft.rules) ?? freshLabRules();
+        const restoredPreviewIds = draft.completedPreviewIds
+          .filter((id) => PREVIEW_IDS.has(id));
+        lastPersistedDraftFingerprint.current = draftFingerprint(
+          draft.stage,
+          restoredRules,
+          draft.prompt,
+          restoredPreviewIds,
+        );
+        setStage(draft.stage);
+        setRules(restoredRules);
+        setSys(draft.prompt);
+        setMenuAdded(promptIncludesMenu(draft.prompt));
+        setCompletedPreviewIds(restoredPreviewIds);
+        setDraftSavedAt(draft.savedAt);
+      } else {
+        lastPersistedDraftFingerprint.current = draftFingerprint(
+          0,
+          freshLabRules(),
+          "",
+          [],
+        );
+      }
+      setDraftReady(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    const fingerprint = draftFingerprint(stage, rules, sys, completedPreviewIds);
+    const input: LabDraftInput = {
+      stage,
+      rules: encodeLabRules(rules),
+      prompt: sys,
+      completedPreviewIds,
+    };
+    latestDraft.current = { fingerprint, input };
+    if (lastPersistedDraftFingerprint.current === fingerprint) {
+      draftWritesSuppressed.current = false;
+      return;
+    }
+    draftWritesSuppressed.current = false;
+
+    const persist = (updateStatus: boolean) => {
+      if (draftWritesSuppressed.current) return;
+      if (lastPersistedDraftFingerprint.current === fingerprint) return;
+      const saved = writeLabDraft(input);
+      if (!saved) {
+        if (updateStatus) setDraftProblem("unavailable");
+        return;
+      }
+      lastPersistedDraftFingerprint.current = fingerprint;
+      if (updateStatus) {
+        setDraftProblem(null);
+        setDraftSavedAt(saved.savedAt);
+      }
+    };
+    const timer = window.setTimeout(() => persist(true), 400);
+    const onPageHide = () => persist(false);
+    window.addEventListener("pagehide", onPageHide);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("pagehide", onPageHide);
+    };
+  }, [completedPreviewIds, draftReady, rules, stage, sys]);
+
+  useEffect(() => () => {
+    // Next's client-side navigation can unmount the Lab without pagehide.
+    // Flush only a genuinely dirty snapshot; clear/default/restored baselines
+    // remain untouched and therefore cannot be resurrected here.
+    const pending = latestDraft.current;
+    if (
+      !pending
+      || draftWritesSuppressed.current
+      || lastPersistedDraftFingerprint.current === pending.fingerprint
+    ) {
+      return;
+    }
+    const saved = writeLabDraft(pending.input);
+    if (saved) lastPersistedDraftFingerprint.current = pending.fingerprint;
+  }, []);
+
+  const draftTime = useMemo(() => {
+    if (!draftSavedAt) return null;
+    try {
+      return new Intl.DateTimeFormat(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(draftSavedAt));
+    } catch {
+      return null;
+    }
+  }, [draftSavedAt, locale]);
 
   const busy2 = activeBatch?.kind === "preview";
   const busy3 = activeBatch?.kind === "eval";
   const anyBatchBusy = activeBatch !== null;
-  const billingCost = `${t("lab.knownSubtotal")} $${billing.knownUsd.toFixed(5)}`
-    + (billing.providerRejectedCalls > 0
-      ? ` + ${billing.providerRejectedCalls} ${t("lab.billingRejected")}`
+  const formatBillingCost = (snapshot: ReturnType<typeof billingSnapshot>) => (
+    `${t("lab.knownSubtotal")} $${snapshot.knownUsd.toFixed(5)}`
+    + (snapshot.providerRejectedCalls > 0
+      ? ` + ${snapshot.providerRejectedCalls} ${t("lab.billingRejected")}`
       : "")
-    + (billing.hasUnknown
-      ? ` + ${billing.unknownAfterSendCalls} ${t("lab.billingUnknown")}`
-      : "");
+    + (snapshot.hasUnknown
+      ? ` + ${snapshot.unknownAfterSendCalls} ${t("lab.billingUnknown")}`
+      : "")
+  );
+  const billingCost = formatBillingCost(billing);
   const stage1Estimate = conservativePrice(
     model,
     conservativePromptTokenUpperBound([{ content: q }]),
     STAGE_1_PLAN.maxOutputTokens,
   ).usd;
-  const previewPromptTokens = PREVIEW_ORDERS.reduce((total, said) => (
-    total + conservativePromptTokenUpperBound(orderMessages(said, sys))
+  const previewPromptTokens = PREVIEW_CASES.reduce((total, preview) => (
+    total + conservativePromptTokenUpperBound(orderMessages(preview.said, sys))
   ), 0);
   const stage3Estimate = conservativePrice(
     model,
@@ -211,19 +382,19 @@ export default function Lab() {
 
     const selectedModel = model;
     type PreviewTask = LabRunTask<string> & { said: string };
-    const tasks: PreviewTask[] = PREVIEW_ORDERS.map((said) => ({
-      id: said,
-      said,
+    const tasks: PreviewTask[] = PREVIEW_CASES.map((preview) => ({
+      id: preview.id,
+      said: preview.said,
       async run(context) {
         context.checkpoint();
         const order = await takeOrder(
-          said,
+          preview.said,
           sys,
           STAGE_3_PLAN.maxOutputTokensPerCall,
           selectedModel,
           context.signal,
         );
-        return `${said}\n  → ${JSON.stringify(order)}`;
+        return `${preview.said}\n  → ${JSON.stringify(order)}`;
       },
     }));
     const handle = runner.start(tasks, {
@@ -234,14 +405,15 @@ export default function Lab() {
       ),
     });
     setActiveBatch({ runId: handle.runId, kind: "preview" });
-    setProg(`0 / ${PREVIEW_ORDERS.length}`);
+    setProg(`0 / ${PREVIEW_CASES.length}`);
 
     const outcome = await handle.promise;
     if (!runner.isCurrent(outcome.runId)) return;
     setActiveBatch(null);
     if (outcome.status === "completed") {
       setSamples(outcome.results ?? []);
-      mark("play2");
+      setCompletedPreviewIds(tasks.map(({ id }) => id));
+      recordLabStep("prompt-trial");
     } else if (outcome.status === "cancelled") {
       setErr2({ key: "lab.err.cancelled" });
     } else if (outcome.error) {
@@ -254,6 +426,25 @@ export default function Lab() {
     if (busy0) return;
     const keyProblem = paidKeyProblem();
     if (keyProblem) { setErr3({ key: keyProblem }); return; }
+    // Clear the previous completed-run announcement before this run starts.
+    // A cancelled or fatal run therefore cannot replay an old score while
+    // the global billing ledger continues to update.
+    setEvalAnnouncement("");
+
+    if (evalAttemptsRef.current < 2) {
+      const round = evalAttemptsRef.current + 1;
+      const numericPrediction = Number(prediction);
+      const complete = prediction.trim() !== ""
+        && Number.isInteger(numericPrediction)
+        && numericPrediction >= 0
+        && numericPrediction <= 20
+        && predictionReason.trim() !== "";
+      evalAttemptsRef.current = round;
+      setEvalAttempts(round);
+      setReflectionNote({ round, complete });
+      setPrediction("");
+      setPredictionReason("");
+    }
 
     const selectedModel = model;
     type EvalTask = LabRunTask<Row> & { testCase: (typeof CASES)[number] };
@@ -333,13 +524,46 @@ export default function Lab() {
 
     const res = outcome.results;
     const n = res.filter((r) => r.ok).length;
+    const completedBillingCost = formatBillingCost(billingSnapshot());
     setRows(res);
     setPrev(score); setScore(n);
-    mark("evalBest", Math.max(n, Number(readProgress(progressSnapshot()).evalBest ?? 0)));
-    // TODO(progress-v2): replace this compatibility write with
-    // recordLabStep("full-eval", { score: n }); a complete low score is still
-    // completion, while cancellation/system failure never reaches this line.
-    mark("play3");
+    setEvalAnnouncement(
+      (n >= 16 ? t("lab.s4.resultMet") : t("lab.s4.resultBelow"))
+        .replace("{score}", String(n))
+        .replace("{billing}", completedBillingCost),
+    );
+    // A complete low score is still completion. Cancellation and fatal
+    // Provider failures return above and therefore never write a false 0/20.
+    recordLabStep("full-eval", { score: n });
+  }
+
+  function clearDraft() {
+    draftWritesSuppressed.current = true;
+    if (!clearLabDraft()) {
+      draftWritesSuppressed.current = false;
+      setDraftProblem("clear-failed");
+      return;
+    }
+    const defaultRules = freshLabRules();
+    const fingerprint = draftFingerprint(0, defaultRules, "", []);
+    lastPersistedDraftFingerprint.current = fingerprint;
+    latestDraft.current = {
+      fingerprint,
+      input: {
+        stage: 0,
+        rules: encodeLabRules(defaultRules),
+        prompt: "",
+        completedPreviewIds: [],
+      },
+    };
+    setStage(0);
+    setRules(defaultRules);
+    setSys("");
+    setMenuAdded(false);
+    setCompletedPreviewIds([]);
+    setSamples([]);
+    setDraftSavedAt(null);
+    setDraftProblem(null);
   }
 
   function stopBatch() {
@@ -368,9 +592,40 @@ export default function Lab() {
           is cheaper than letting a reader wonder whether it is a bug. */}
       {locale !== "en" && <p className="langnote">{t("lab.enData")}</p>}
 
-      <KeyBar model={model} onModel={setModel} />
+      <KeyBar model={model} onModel={setModel} disabled={busy0 || anyBatchBusy} />
 
-      <Stages stages={stages} current={stage} onPick={setStage} panelId={PANEL} />
+      <Stages
+        stages={stages}
+        current={stage}
+        onPick={setStage}
+        panelId={PANEL}
+        disabled={busy0 || anyBatchBusy}
+      />
+
+      <aside className="labdraftbar" aria-label={t("lab.draft.title")}>
+        <div className="labdraftcopy">
+          <div className="labdrafthead">
+            <strong>{t("lab.draft.title")}</strong>
+            <span className={"mono-note" + (draftProblem ? " draftproblem" : "")}
+              role="status" aria-live="polite">
+              {draftProblem
+                ? t(`lab.draft.${draftProblem}`)
+                : draftTime
+                ? t("lab.draft.saved").replace("{time}", draftTime)
+                : t("lab.draft.waiting")}
+            </span>
+          </div>
+          <p>{t("lab.draft.note")}</p>
+        </div>
+        <button
+          className="btn"
+          type="button"
+          disabled={busy0 || anyBatchBusy}
+          onClick={clearDraft}
+        >
+          {t("lab.draft.clear")}
+        </button>
+      </aside>
 
       <div
         id={PANEL} role="tabpanel" tabIndex={-1}
@@ -383,7 +638,8 @@ export default function Lab() {
             <p className="steplede"><Rich k="lab.s1.lede" /></p>
             <div className="card"><div className="card-b">
               <label className="fieldlabel" htmlFor="q0">{t("lab.s1.ask")}</label>
-              <textarea id="q0" rows={3} dir="auto" value={q} onChange={(e) => setQ(e.target.value)} />
+              <textarea id="q0" rows={3} dir="auto" value={q} disabled={busy0}
+                onChange={(e) => setQ(e.target.value)} />
               <p className="keysafe">
                 {t("lab.s1.callDisclosure")
                   .replace("{model}", model)
@@ -402,7 +658,7 @@ export default function Lab() {
                       timeoutMs: REQUEST_TIMEOUT_MS,
                     });
                     setA0(result.text);
-                    mark("play0");
+                    recordLabStep("first-call");
                   }
                   catch (e) { setErr0({ key: errorKey(e), detail: (e as Error).message }); }
                   finally { setBusy0(false); }
@@ -431,6 +687,7 @@ export default function Lab() {
               <div className="row" style={{ gap: 7 }}>
                 <input type="text" dir="auto" aria-label={t("lab.s2.find")}
                   placeholder={t("lab.s2.findHint")} value={rp}
+                  maxLength={MAX_LAB_RULE_CONDITION_LENGTH}
                   onChange={(e) => setRp(e.target.value)} style={{ flex: "2 1 180px" }} />
                 {/* The menu names are the exercise data, and stay English. */}
                 <select aria-label={t("lab.s2.item")} value={ri}
@@ -442,10 +699,19 @@ export default function Lab() {
                   <option value="S">{t("lab.s2.small")}</option>
                   <option value="L">{t("lab.s2.large")}</option>
                 </select>
-                <button className="btn primary" type="button" disabled={!rp.trim()} onClick={() => {
-                  if (rp.trim()) { setRules([{ c: rp.trim(), n: ri, s: rs }, ...rules]); setRp(""); }
+                <button className="btn primary" type="button"
+                  disabled={!rp.trim() || rules.length >= MAX_LAB_RULES} onClick={() => {
+                  if (rp.trim() && rules.length < MAX_LAB_RULES) {
+                    setRules([{ c: rp.trim(), n: ri, s: rs }, ...rules]);
+                    setRp("");
+                  }
                 }}>{t("lab.s2.add")}</button>
               </div>
+              {rules.length >= MAX_LAB_RULES && (
+                <p className="small" role="status">
+                  {t("lab.s2.ruleLimit").replace("{limit}", String(MAX_LAB_RULES))}
+                </p>
+              )}
               <div className="scroll"><table style={{ marginTop: 12 }}>
                 <thead><tr><th>{t("lab.s2.thSaid")}</th><th>{t("lab.s2.thGot")}</th><th /></tr></thead>
                 <tbody>{TESTS.map((x) => {
@@ -479,17 +745,89 @@ export default function Lab() {
               <Rich k={stage === 2 ? "lab.s3.lede" : "lab.s4.lede"} />
             </p>
             <div className="card"><div className="card-b">
+              <div className="labscaffold">
+                <div>
+                  <strong>{t("lab.scaffold.title")}</strong>
+                  <p>{t("lab.scaffold.lede")}</p>
+                </div>
+                <div className="labscaffoldactions" role="group" aria-label={t("lab.scaffold.title")}>
+                  <button className="btn" type="button" disabled={anyBatchBusy}
+                    onClick={() => { setSys(SEED); setMenuAdded(false); }}>
+                    {t("lab.scaffold.full")}
+                  </button>
+                  <button className="btn" type="button" disabled={anyBatchBusy}
+                    onClick={() => { setSys(PARTIAL_SEED); setMenuAdded(false); }}>
+                    {t("lab.scaffold.partial")}
+                  </button>
+                  <button className="btn" type="button" disabled={anyBatchBusy}
+                    onClick={() => { setSys(""); setMenuAdded(false); }}>
+                    {t("lab.scaffold.independent")}
+                  </button>
+                </div>
+              </div>
               <label className="fieldlabel" htmlFor="sys">{t("lab.s3.yours")}</label>
               <textarea id="sys" rows={7} dir="auto" value={sys} placeholder={t("lab.s3.hint")}
-                onChange={(e) => setSys(e.target.value)} />
+                disabled={anyBatchBusy}
+                maxLength={LAB_DRAFT_MAX_PROMPT_LENGTH}
+                onChange={(e) => {
+                  setSys(e.target.value);
+                  setMenuAdded(promptIncludesMenu(e.target.value));
+                }} />
+              {stage === 3 && (
+                <fieldset className="labreflection">
+                  <legend>{t("lab.reflection.title")}</legend>
+                  {evalAttempts < 2 ? (
+                    <>
+                      <p className="labreflectionlede">
+                        {t("lab.reflection.lede").replace("{round}", String(evalAttempts + 1))}
+                      </p>
+                      <div className="labreflectionfields">
+                        <label>
+                          <span>{t("lab.reflection.prediction")}</span>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            max={20}
+                            step={1}
+                            value={prediction}
+                            disabled={anyBatchBusy}
+                            onChange={(event) => setPrediction(event.target.value)}
+                          />
+                        </label>
+                        <label>
+                          <span>{t("lab.reflection.reason")}</span>
+                          <textarea
+                            rows={2}
+                            dir="auto"
+                            maxLength={400}
+                            value={predictionReason}
+                            disabled={anyBatchBusy}
+                            onChange={(event) => setPredictionReason(event.target.value)}
+                          />
+                        </label>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="labreflectionlede">{t("lab.reflection.twoDone")}</p>
+                  )}
+                  <p className="keysafe">{t("lab.reflection.private")}</p>
+                  {reflectionNote && (
+                    <p className="mono-note" role="status" aria-live="polite">
+                      {(reflectionNote.complete
+                        ? t("lab.reflection.captured")
+                        : t("lab.reflection.optional"))
+                        .replace("{round}", String(reflectionNote.round))}
+                    </p>
+                  )}
+                </fieldset>
+              )}
               <p className="keysafe">
                 {(stage === 2 ? t("lab.s3.callDisclosure") : t("lab.s4.callDisclosure"))
                   .replace("{model}", model)
                   .replace("{cost}", `$${(stage === 2 ? stage3Estimate : evalEstimate).toFixed(5)}`)}
               </p>
               <div className="row" style={{ marginTop: 10 }}>
-                <button className="btn" type="button" disabled={anyBatchBusy}
-                  onClick={() => setSys(SEED)}>{t("lab.s3.seed")}</button>
                 <span className="spacer" />
                 {stage === 2 ? (
                   <>
@@ -525,6 +863,13 @@ export default function Lab() {
               </div>
               {stage === 2 && err2 && <Fail msgKey={err2.key} detail={err2.detail} />}
               {stage === 3 && err3 && <Fail msgKey={err3.key} detail={err3.detail} />}
+              {stage === 2 && completedPreviewIds.length > 0 && (
+                <p className="mono-note labpreviewdraft" role="status">
+                  {t("lab.draft.preview")
+                    .replace("{done}", String(completedPreviewIds.length))
+                    .replace("{total}", String(PREVIEW_CASES.length))}
+                </p>
+              )}
             </div></div>
 
             {stage === 2 && samples.length > 0 && (
@@ -535,9 +880,25 @@ export default function Lab() {
               </div></div>
             )}
 
+            {stage === 3 && (
+              <p
+                id="lab-eval-result"
+                className="labresultannounce"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {evalAnnouncement}
+              </p>
+            )}
+
             {stage === 3 && score !== null && (
               <>
-                <div className="meter" style={{ marginTop: 14 }}>
+                <div
+                  className="meter"
+                  style={{ marginTop: 14 }}
+                  aria-describedby="lab-eval-result"
+                >
                   <div><span className="big">{score}</span><span className="mono-note"> / 20</span></div>
                   <div style={{ flex: 1, minWidth: 150 }}>
                     <div className="progbar"><span style={{
@@ -575,12 +936,14 @@ export default function Lab() {
       </div>
 
       <nav className="labnav" aria-label={t("lab.stepsLabel")}>
-        <button className="btn" type="button" disabled={stage === 0}
+        <button className="btn" type="button"
+          disabled={busy0 || anyBatchBusy || stage === 0}
           onClick={() => setStage((s) => s - 1)}>
           <span className="arrow">←</span> {t("ui.back")}
         </button>
         <span className="labcount">{stage + 1} {t("ui.of")} {stages.length}</span>
-        <button className="btn primary" type="button" disabled={stage === stages.length - 1}
+        <button className="btn primary" type="button"
+          disabled={busy0 || anyBatchBusy || stage === stages.length - 1}
           onClick={() => setStage((s) => s + 1)}>
           {t("ui.next")} <span className="arrow">→</span>
         </button>

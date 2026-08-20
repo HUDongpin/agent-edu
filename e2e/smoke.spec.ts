@@ -124,6 +124,158 @@ test("Arabic horizontal tabs mirror arrows in both Handbook and Lab", async ({ p
   await expect(stages.nth(0)).toBeFocused();
 });
 
+test("Lab drafts write only after edits, survive navigation, and stay cleared", async ({ page }) => {
+  const key = "ae.lab.draft.v1";
+  await page.goto("/en/lab/");
+  await page.evaluate((storageKey) => localStorage.removeItem(storageKey), key);
+  await page.reload();
+
+  // Mounting an untouched Lab must not manufacture a default draft.
+  await page.waitForTimeout(550);
+  await expect.poll(() => page.evaluate((storageKey) => localStorage.getItem(storageKey), key))
+    .toBeNull();
+
+  await page.locator('.steps [role="tab"]').nth(2).click();
+  const prompt = page.locator("#sys");
+  await prompt.fill("A private local draft, with no Provider call.");
+
+  // Reload immediately, before the 400ms debounce; pagehide must flush it.
+  await page.reload();
+  await expect(page.locator("#sys")).toHaveValue("A private local draft, with no Provider call.");
+  const savedAt = await page.evaluate((storageKey) => {
+    const raw = localStorage.getItem(storageKey);
+    return raw ? JSON.parse(raw).savedAt as string : null;
+  }, key);
+  expect(savedAt).not.toBeNull();
+
+  // Pure restoration is not a new edit and must not rewrite the timestamp.
+  await page.waitForTimeout(550);
+  await expect.poll(() => page.evaluate((storageKey) => {
+    const raw = localStorage.getItem(storageKey);
+    return raw ? JSON.parse(raw).savedAt as string : null;
+  }, key)).toBe(savedAt);
+
+  // A Next client-side navigation does not fire pagehide. Unmount must flush
+  // the latest edit even when it happens before the debounce expires.
+  await prompt.fill("A second draft saved by the Lab unmount cleanup.");
+  await page.locator('a[href="/en/"]').first().click();
+  await expect(page).toHaveURL(/\/en\/$/);
+  await page.locator('a[href="/en/lab/"]').first().click();
+  await expect(page).toHaveURL(/\/en\/lab\/$/);
+  await expect(page.locator("#sys")).toHaveValue(
+    "A second draft saved by the Lab unmount cleanup.",
+  );
+
+  await page.getByRole("button", { name: "Clear draft" }).click();
+  await expect.poll(() => page.evaluate((storageKey) => localStorage.getItem(storageKey), key))
+    .toBeNull();
+  await page.locator('a[href="/en/"]').first().click();
+  await expect(page).toHaveURL(/\/en\/$/);
+  await page.locator('a[href="/en/lab/"]').first().click();
+  await expect(page).toHaveURL(/\/en\/lab\/$/);
+  await page.waitForTimeout(550);
+  await expect.poll(() => page.evaluate((storageKey) => localStorage.getItem(storageKey), key))
+    .toBeNull();
+});
+
+test("Lab cancellation, zero-score completion, privacy, and repeat announcements compose safely", async ({ page }) => {
+  const learningKey = "ae.learning.v2";
+  const reflectionPrediction = "17";
+  const reflectionReason = "REFLECTION_TEXT_MUST_NOT_ENTER_A_PROVIDER_BODY";
+  const requestBodies: unknown[] = [];
+  let holdChatResponses = false;
+
+  await page.route("https://api.deepseek.com/models", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({ data: [{ id: "deepseek-v4-flash" }] }),
+  }));
+  await page.route("https://api.deepseek.com/chat/completions", async (route) => {
+    requestBodies.push(route.request().postDataJSON());
+    if (holdChatResponses) {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    }
+    // Invalid model JSON is a per-case content failure, not a system failure:
+    // twenty such replies must produce a truthful, completed 0/20 Eval.
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: "mock-completion",
+        model: "deepseek-v4-flash",
+        choices: [{
+          index: 0,
+          finish_reason: "stop",
+          message: { role: "assistant", content: "not valid order JSON" },
+        }],
+        usage: {
+          prompt_tokens: 10,
+          prompt_cache_hit_tokens: 0,
+          prompt_cache_miss_tokens: 10,
+          completion_tokens: 2,
+          total_tokens: 12,
+        },
+      }),
+    }).catch(() => undefined);
+  });
+
+  await page.goto("/en/lab/");
+  await page.evaluate((storageKey) => localStorage.removeItem(storageKey), learningKey);
+  await page.reload();
+  await page.getByLabel("Your API key").fill("test-key");
+  await page.getByRole("button", { name: "Save & test" }).click();
+  await expect(page.getByText("Credential and selected model verified")).toBeVisible();
+
+  await page.locator('.steps [role="tab"]').nth(3).click();
+  await page.locator("#sys").fill("Return one café order as JSON.");
+
+  // A stopped first run must neither invent 0/20 nor write full-eval progress.
+  holdChatResponses = true;
+  await page.getByRole("button", { name: "Run eval — up to 28 requests" }).click();
+  await page.getByRole("button", { name: "Stop" }).click();
+  await expect(page.getByRole("alert")).toContainText("This run was stopped");
+  await expect(page.locator("#lab-eval-result")).toHaveText("");
+  await expect.poll(() => page.evaluate((storageKey) => {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return 0;
+    return JSON.parse(raw).lab.evalRunsCompleted as number;
+  }, learningKey)).toBe(0);
+
+  // A fully settled content-failure run is still completion, including 0/20.
+  holdChatResponses = false;
+  await page.locator('.labreflection input[type="number"]').fill(reflectionPrediction);
+  await page.locator(".labreflection textarea").fill(reflectionReason);
+  await page.getByRole("button", { name: "Run eval — up to 28 requests" }).click();
+  await expect(page.locator("#lab-eval-result")).toContainText("0/20");
+
+  const completed = await page.evaluate((storageKey) => {
+    const raw = localStorage.getItem(storageKey);
+    return raw ? JSON.parse(raw).lab : null;
+  }, learningKey);
+  expect(completed).toMatchObject({
+    completedSteps: expect.arrayContaining(["full-eval"]),
+    evalRunsCompleted: 1,
+    evalBest: 0,
+  });
+  const serializedBodies = JSON.stringify(requestBodies);
+  expect(serializedBodies).not.toContain(reflectionPrediction);
+  expect(serializedBodies).not.toContain(reflectionReason);
+  expect(serializedBodies).not.toContain("test-key");
+
+  // Starting another Eval clears the completed-run announcement. Cancelling
+  // it must not replay the old 0/20 as billing updates arrive.
+  holdChatResponses = true;
+  await page.getByRole("button", { name: "Run eval — up to 28 requests" }).click();
+  await expect(page.locator("#lab-eval-result")).toHaveText("");
+  await page.getByRole("button", { name: "Stop" }).click();
+  await expect(page.getByRole("alert")).toContainText("This run was stopped");
+  await expect(page.locator("#lab-eval-result")).toHaveText("");
+  await expect.poll(() => page.evaluate((storageKey) => {
+    const raw = localStorage.getItem(storageKey);
+    return raw ? JSON.parse(raw).lab.evalRunsCompleted as number : 0;
+  }, learningKey)).toBe(1);
+});
+
 test("Handbook deep links, history, restoration, and the page-level H1 stay consistent", async ({ page }) => {
   await page.goto("/en/handbook/#security");
   await expectActiveHandbookTab(page, "#tab-security");

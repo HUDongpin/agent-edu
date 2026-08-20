@@ -373,7 +373,7 @@ select{width:auto;max-width:100%;flex:0 1 auto;
 .mono-note{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
 :root[lang="ar"] .mono-note{font-family:var(--sans)}
 
-input[type=text],input[type=password],textarea,select{
+input[type=text],input[type=password],input[type=number],textarea,select{
   font:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;
   border:1px solid var(--line);background:var(--bg);color:var(--ink);
   width:100%;min-width:0;font-family:var(--mono)}
@@ -1264,6 +1264,36 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .steplede{font-size:15px;color:var(--ink-2);max-width:68ch;margin:0 0 16px}
 .fieldlabel{display:block;font-size:13px;font-weight:650;color:var(--ink-2);margin-bottom:6px}
 
+.labdraftbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  margin:12px 0 20px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;
+  background:color-mix(in srgb,var(--card) 82%,var(--blue-soft))}
+.labdraftcopy{min-width:0;max-width:76ch}
+.labdrafthead{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.labdrafthead strong{font-size:13.5px}
+.labdrafthead .draftproblem{color:var(--red)}
+.labdraftcopy p{font-size:12.5px;line-height:1.55;color:var(--ink-3);margin:4px 0 0}
+.labdraftbar>.btn{flex:0 0 auto;font-size:12.5px;padding:7px 11px}
+.labpreviewdraft{display:block;margin:10px 0 0;white-space:normal}
+
+.labscaffold{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  padding:0 0 13px;margin:0 0 14px;border-bottom:1px solid var(--line)}
+.labscaffold strong{display:block;font-size:13.5px}
+.labscaffold p{font-size:12.5px;color:var(--ink-3);line-height:1.5;margin:3px 0 0;max-width:48ch}
+.labscaffoldactions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.labscaffoldactions .btn{font-size:12.5px;padding:7px 10px;white-space:nowrap}
+
+.labreflection{min-width:0;margin:14px 0 0;padding:12px 13px;border:1px solid var(--gold-line);
+  border-radius:10px;background:var(--gold-soft)}
+.labreflection legend{padding:0 5px;font-size:13.5px;font-weight:700;color:var(--ink)}
+.labreflectionlede{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin:0 0 9px}
+.labreflectionfields{display:grid;grid-template-columns:minmax(130px,.35fr) minmax(220px,1fr);gap:10px}
+.labreflectionfields label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;
+  font-weight:650;color:var(--ink-2)}
+.labreflectionfields input,.labreflectionfields textarea{font-weight:400;background:var(--card)}
+.labreflection .mono-note{display:block;margin-top:8px;white-space:normal}
+.labresultannounce{position:absolute;width:1px;height:1px;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap}
+
 .labnav{display:flex;align-items:center;gap:12px;margin:26px 0 0;
   padding-block-start:16px;border-block-start:1px solid var(--line)}
 .labcount{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
@@ -1284,4 +1314,8 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   .keysteps li{grid-template-columns:22px minmax(0,1fr);gap:3px 9px}
   .keysteps li::before{width:22px;height:22px;font-size:12px}
   .labnav{flex-wrap:wrap}
+  .labdraftbar,.labscaffold{flex-direction:column}
+  .labdraftbar>.btn{align-self:flex-start}
+  .labscaffoldactions{justify-content:flex-start}
+  .labreflectionfields{grid-template-columns:1fr}
 }

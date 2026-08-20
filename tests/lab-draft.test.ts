@@ -27,7 +27,7 @@ class MemoryStorage implements DraftStorage {
 
 const input = {
   stage: 2,
-  rules: '[{"contains":"tea","item":"tea","size":"S"}]',
+  rules: '[{"c":"tea","n":"tea","s":"S"}]',
   prompt: "You are the till at a small café.",
   completedPreviewIds: ["preview-1", "preview-2"],
 };

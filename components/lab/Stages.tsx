@@ -25,17 +25,19 @@ export interface Stage {
  * people this course is written for count from one.
  */
 export default function Stages({
-  stages, current, onPick, panelId,
+  stages, current, onPick, panelId, disabled = false,
 }: {
   stages: Stage[];
   current: number;
   onPick: (i: number) => void;
   panelId: string;
+  disabled?: boolean;
 }) {
   const { t } = useI18n();
   const box = useRef<HTMLDivElement>(null);
 
   function keys(e: React.KeyboardEvent) {
+    if (disabled) return;
     const rtl = (box.current
       ? getComputedStyle(box.current).direction
       : document.documentElement.dir) === "rtl";
@@ -58,6 +60,7 @@ export default function Stages({
           aria-selected={current === i}
           aria-controls={panelId}
           tabIndex={current === i ? 0 : -1}
+          disabled={disabled}
           /* Spelled out, because the visible text concatenates to
              "Step 1Your first call🔑needs your key" when read aloud. */
           aria-label={[
