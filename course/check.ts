@@ -14,7 +14,7 @@ const STAGES: Record<number, string> = {
   4: "stage4-context", 5: "stage5-loop", 6: "stage6-harness",
   7: "stage7-graph", 8: "stage8-security",
 };
-const COSTS_MONEY = new Set([3, 4, 5, 6, 7, 8]);
+const COSTS_MONEY = new Set([2, 3, 4, 5, 6, 7, 8]);
 
 const ok = (m: string) => console.log(`  PASS  ${m}`);
 function bad(m: string): never { console.log(`  FAIL  ${m}\n`); process.exit(1); }
