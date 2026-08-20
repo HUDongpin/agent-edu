@@ -12,6 +12,10 @@ import {
 const behaviour = readFileSync("lib/handbook/behaviour.ts", "utf8");
 const css = readFileSync("app/globals.css", "utf8");
 
+function openingTag(id: string): string {
+  return handbookMarkup.match(new RegExp(`<[^>]+id="${id}"[^>]*>`))?.[0] ?? "";
+}
+
 test("the Handbook breakpoint is exact at 979/980", () => {
   assert.equal(HANDBOOK_WIDE_BREAKPOINT, 980);
   assert.equal(HANDBOOK_WIDE_QUERY, "(min-width: 980px)");
@@ -51,6 +55,35 @@ test("static Handbook markup has one stable H1 and one roving tab stop", () => {
   assert.equal(handbookMarkup.slice(firstPanel).includes("<h1"), false);
   assert.equal((handbookMarkup.match(/<section class="panel/g) ?? []).length, 11);
   assert.equal((handbookMarkup.match(/<h2(?:\s|>)/g) ?? []).length, 11);
+});
+
+test("interactive diagrams and dynamic decisions expose equivalent non-visual structure", () => {
+  assert.match(openingTag("dialSvg"), /role="group"/);
+  assert.doesNotMatch(openingTag("dialSvg"), /role="img"/);
+  assert.match(openingTag("depMap"), /role="group"/);
+  assert.doesNotMatch(openingTag("depMap"), /role="img"/);
+
+  const dialAt = handbookMarkup.indexOf('id="dialSvg"');
+  const figureStart = handbookMarkup.lastIndexOf("<figure>", dialAt);
+  const figureEnd = handbookMarkup.indexOf("</figure>", dialAt);
+  const dialFigure = handbookMarkup.slice(figureStart, figureEnd);
+  assert.equal((dialFigure.match(/<figcaption/g) ?? []).length, 1);
+
+  assert.match(openingTag("recBox"), /role="status"/);
+  assert.match(openingTag("recBox"), /aria-live="polite"/);
+  assert.match(openingTag("recBox"), /aria-atomic="true"/);
+  assert.match(openingTag("lStepAnnounce"), /role="status"/);
+
+  assert.match(behaviour, /createElement\('fieldset'\)/);
+  assert.match(behaviour, /createElement\('legend'\)/);
+  assert.match(behaviour, /setAttribute\('aria-pressed','false'\)/);
+  assert.match(behaviour, /b\.setAttribute\('aria-pressed','true'\)/);
+  assert.doesNotMatch(behaviour, /'#recTitle'\]/);
+  assert.match(behaviour, /graphLog\.setAttribute\('aria-atomic','false'\)/);
+  assert.match(behaviour, /graphLog\.setAttribute\('aria-relevant','additions'\)/);
+  assert.match(behaviour, /if \(ans\.q1==='yes'\)/);
+  assert.match(behaviour, /else if \(!ans\.q2\|\|!ans\.q3\)/);
+  assert.match(behaviour, /announce\.textContent=/);
 });
 
 test("Handbook Part 1 is scripted-only and has no live-provider request path", () => {

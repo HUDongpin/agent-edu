@@ -29,25 +29,27 @@ const OUT = path.join(ROOT, "messages/handbook/en.json");
 /**
  * Read MARKUP without parsing TypeScript.
  *
- * markup.ts is a comment, one string literal and a default export — valid
- * JavaScript as it stands, so the safest way to get the exact string the site
- * ships is to run it rather than to write a second parser for it.
+ * markup.ts is plain JavaScript plus a default export, so the safest way to get
+ * the exact string the site ships — including structural repair transforms —
+ * is to run the exported expression rather than to write a second parser.
  */
 async function loadMarkup() {
   const src = await readFile(MARKUP_TS, "utf8");
-  const js = src.replace(/^\s*export default MARKUP;\s*$/m, "");
+  const exported = /^\s*export default ([A-Z][A-Z0-9_]*);\s*$/m.exec(src);
+  if (!exported) throw new Error(`${path.relative(ROOT, MARKUP_TS)} has no simple default export`);
+  const js = src.replace(exported[0], "");
   let html;
   try {
-    html = vm.runInNewContext(`${js}\nMARKUP`, Object.create(null), { filename: MARKUP_TS });
+    html = vm.runInNewContext(`${js}\n${exported[1]}`, Object.create(null), { filename: MARKUP_TS });
   } catch (err) {
     throw new Error(
       `could not evaluate ${path.relative(ROOT, MARKUP_TS)} as JavaScript (${err.message}).\n` +
-      `It is meant to stay a plain string literal — if it now carries TypeScript syntax, ` +
+      `It is meant to stay plain JavaScript — if it now carries TypeScript syntax, ` +
       `this loader needs updating rather than the markup.`,
     );
   }
   if (typeof html !== "string" || !html.length) {
-    throw new Error(`${path.relative(ROOT, MARKUP_TS)} did not yield a MARKUP string`);
+    throw new Error(`${path.relative(ROOT, MARKUP_TS)} did not yield a default string`);
   }
   return html;
 }

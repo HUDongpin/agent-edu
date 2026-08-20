@@ -24,6 +24,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BEHAVIOUR = join(ROOT, "lib/handbook/behaviour.ts");
@@ -297,8 +298,23 @@ for (const stem of pluralStems) {
 /* ------------------------------------------------------------------ *
  * 4 — the DOM queries still resolve
  * ------------------------------------------------------------------ */
-const markup = readFileSync(MARKUP, "utf8");
-const markupIds = new Set([...markup.matchAll(/id=\\"([^\\"]+)\\"/g)].map((m) => m[1]));
+const markupSource = readFileSync(MARKUP, "utf8");
+const exported = /^\s*export default ([A-Z][A-Z0-9_]*);\s*$/m.exec(markupSource);
+let markup = "";
+if (!exported) {
+  fail("markup.ts has no simple default export — the id check did not run");
+} else {
+  try {
+    markup = vm.runInNewContext(
+      `${markupSource.replace(exported[0], "")}\n${exported[1]}`,
+      Object.create(null),
+      { filename: MARKUP },
+    );
+  } catch (error) {
+    fail(`could not evaluate markup.ts default export: ${error.message}`);
+  }
+}
+const markupIds = new Set([...String(markup).matchAll(/id="([^"]+)"/g)].map((m) => m[1]));
 
 /* Only what is actually handed to a query. Scanning every `#word` in every
    string also catches `url(#ga)` — an SVG marker the widget creates in its

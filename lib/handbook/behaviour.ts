@@ -156,8 +156,14 @@ function txt(s){ return document.createTextNode(s); }
 
   // results that change without a click should be announced, not silently swapped
   ['#codeOut','#modelOut','#packOut','#packVerdict','#lBanner','#lStatus','#gResultBox',
-   '#hVerdict','#hIncidents','#evVerdict','#secVerdict','#secActions','#gFeedback','#recTitle']
+   '#hVerdict','#hIncidents','#evVerdict','#secVerdict','#secActions','#gFeedback']
     .forEach(sel=>{ const n=$(sel); if(n){ n.setAttribute('aria-live','polite'); n.setAttribute('aria-atomic','true'); } });
+  const graphLog=$('#gLog');
+  if (graphLog){
+    graphLog.setAttribute('aria-live','polite');
+    graphLog.setAttribute('aria-atomic','false');
+    graphLog.setAttribute('aria-relevant','additions');
+  }
 
   window.__show=show;
 })();
@@ -376,7 +382,7 @@ const RECALL={
   ];
   pts.forEach(p=>{
     const cx=px(p.x), cy=py(p.y), w=62, hh=17;
-    const g=el('g',{class:'scatter-pt',tabindex:'0',role:'button','aria-label':p.t});
+    const g=el('g',{class:'scatter-pt',tabindex:'0',role:'button','aria-label':p.t+'. '+p.s});
     g.appendChild(el('rect',{x:cx-w/2-9,y:cy-hh/2-9,width:w+18,height:hh+18,fill:'transparent'}));
     g.appendChild(el('rect',{x:cx-w/2-4,y:cy-hh/2-4,width:w+8,height:hh+8,rx:6,fill:'none',stroke:'var(--'+p.c+')','stroke-width':1.5,opacity:.4}));
     g.appendChild(el('rect',{x:cx-w/2,y:cy-hh/2,width:w*p.h,height:hh,fill:'var(--blue)',rx:'2'}));
@@ -797,7 +803,7 @@ const RECALL={
   }
   fcDim();
 
-  const log=$('#stepLog'), ctx=$('#ctxList');
+  const log=$('#stepLog'), ctx=$('#ctxList'), announce=$('#lStepAnnounce');
   function reset(){
     runToken++; running=null;
     idx=0; inFlight=false; finished=false;
@@ -806,6 +812,7 @@ const RECALL={
     $('#mSteps').textContent='0'; $('#mCalls').textContent='0'; $('#mCost').textContent='0';
     $('#mCostBox').classList.remove('alert');
     $('#lBanner').innerHTML=''; $('#lStatus').textContent=C.t('w.loop.status.idle');
+    if (announce) announce.textContent='';
     $('#lStep').disabled=false; $('#lRun').disabled=false;
     fcDim();
   }
@@ -831,6 +838,15 @@ const RECALL={
     if (!s.done) h+='<div class="sl-row"><span class="sl-k">'+C.h('w.loop.row.done')+'</span><span class="sl-v" style="color:var(--ink-3)">'+C.h('w.loop.again')+'</span></div>';
     if (s.note) h+='<div class="sl-row"><span class="sl-k">'+C.h('w.loop.row.note')+'</span><span class="sl-v" style="font-family:var(--serif);font-size:14.5px;color:var(--amber)">'+esc(s.note)+'</span></div>';
     card.innerHTML=h; log.appendChild(card); log.scrollTop=log.scrollHeight;
+    if (announce){
+      announce.textContent=[
+        C.t('w.loop.step',{n:n}),
+        C.t('w.loop.row.think')+': '+s.think,
+        s.tool ? C.t('w.loop.row.act')+': '+s.tool : '',
+        (s.done?C.t('w.loop.row.result'):C.t('w.loop.row.observe'))+': '+s.obs,
+        s.note ? C.t('w.loop.row.note')+': '+s.note : ''
+      ].filter(Boolean).join('. ');
+    }
 
     if (ctx.querySelector('.mono-note')) ctx.innerHTML='';
     const c1=document.createElement('div'); c1.className='ci m';
@@ -1542,27 +1558,34 @@ const RECALL={
   ];
   const ans={}, box=$('#decider');
   QS.forEach(q=>{
-    const w=document.createElement('div'); w.className='q';
-    w.innerHTML='<div class="qt">'+esc(q.q)+'</div>';
+    const w=document.createElement('fieldset'); w.className='q';
+    const legend=document.createElement('legend'); legend.className='qt'; legend.textContent=q.q;
+    w.appendChild(legend);
     const row=document.createElement('div'); row.className='row';
     q.a.forEach(([v,lbl])=>{
       const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=lbl;
+      b.setAttribute('aria-pressed','false');
       b.addEventListener('click',()=>{
         ans[q.id]=v;
-        $$('button',row).forEach(x=>x.classList.remove('sel'));
-        b.classList.add('sel'); decide();
+        $$('button',row).forEach(x=>{x.classList.remove('sel');x.setAttribute('aria-pressed','false');});
+        b.classList.add('sel'); b.setAttribute('aria-pressed','true'); decide();
       });
       row.appendChild(b);
     });
     w.appendChild(row); box.appendChild(w);
   });
+  const idleTitle=$('#recTitle').textContent, idleBody=$('#recBody').textContent;
   function decide(){
-    if (!ans.q1||!ans.q2||!ans.q3) return;
+    if (!ans.q1) return;
     let t,b;
     if (ans.q1==='yes'){
       t=C.t('w.decide.rec.code.title');
       b=C.t('w.decide.rec.code.body');
       litePath(['q1','r1'],['q1>r1']);
+    } else if (!ans.q2||!ans.q3){
+      dim();
+      $('#recTitle').textContent=idleTitle; $('#recBody').textContent=idleBody;
+      return;
     } else if (ans.q2==='one'&&ans.q3==='no'){
       t=C.t('w.decide.rec.prompt.title');
       b=C.t('w.decide.rec.prompt.body');

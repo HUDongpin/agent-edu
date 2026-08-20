@@ -146,3 +146,59 @@ test("Handbook deep links, history, restoration, and the page-level H1 stay cons
   await expectActiveHandbookTab(page, "#tab-graph");
   await expect(page.locator("h1")).toHaveCount(1);
 });
+
+test("Handbook core judgements stay task-complete when diagrams are hidden", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/en/handbook/#start");
+  await page.addStyleTag({ content: "svg { display: none !important; }" });
+
+  await expect(page.locator("#dialSvg")).toHaveAttribute("role", "group");
+  await page.locator('#p-start .c4[data-goto="loop"]').click();
+  await expectActiveHandbookTab(page, "#tab-loop");
+
+  const limit = page.locator("#lMax");
+  await limit.evaluate((node) => {
+    const input = node as HTMLInputElement;
+    input.value = "4";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  await expect(page.locator("#lMaxV")).toHaveText("4");
+  await page.locator("#lRun").click();
+  await expect(page.locator("#lStatus")).toHaveText(/stopped at limit/i);
+  await expect(page.locator("#stepLog .sl")).toHaveCount(4);
+  await expect(page.locator("#lStepAnnounce")).toContainText(/Step 4/i);
+
+  await page.locator("#tab-graph").click();
+  const reviewer = page.locator("#gRev");
+  await reviewer.click();
+  await expect(reviewer).toHaveAttribute("aria-pressed", "false");
+  await page.locator("#gButtons button").filter({ hasText: "Complaint" }).click();
+  await expect(page.locator("#gLog")).toContainText(/Reviewer.*skipped/i);
+  await expect(page.locator("#gResultBox")).toContainText(/outside refund policy/i);
+
+  await page.locator("#tab-security").click();
+  await page.locator("#secNone").click();
+  await page.locator("#secRun").click();
+  await expect(page.locator("#secVerdict")).toContainText(/taken over by an email/i);
+  await expect(page.locator("#secActions")).toContainText(/Refunded \$4,210/i);
+  await expect(page.locator("#secActions")).toContainText(/1,284 customer addresses/i);
+
+  await page.locator("#tab-compare").click();
+  const questions = page.locator("#decider fieldset.q");
+  await expect(questions).toHaveCount(3);
+  const exactRules = questions.nth(0).getByRole("button", { name: /fixed rules/i });
+  await exactRules.click();
+  await expect(exactRules).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#recTitle")).toContainText(/plain code/i);
+  await expect(page.locator("#recBody")).toContainText(/rules are complete and exact/i);
+
+  const needsJudgement = questions.nth(0).getByRole("button", { name: /needs judgement/i });
+  await needsJudgement.click();
+  await questions.nth(1).getByRole("button", { name: "One step", exact: true }).click();
+  await questions.nth(2).getByRole("button", { name: /non-negotiable/i }).click();
+  await expect(needsJudgement).toHaveAttribute("aria-pressed", "true");
+  await expect(exactRules).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("#recBox")).toHaveAttribute("role", "status");
+  await expect(page.locator("#recTitle")).toContainText(/small graph/i);
+  await expect(page.locator("#recBody")).toContainText(/mandatory check/i);
+});
