@@ -3,10 +3,20 @@
   "releaseId": "2026-08-agent-edu",
   "status": "pending",
   "updatedAt": "2026-08-21",
+  "releaseTarget": {
+    "candidateCommitSha": "60f7edc6df76d8cb334899dd4a29d77f56374027",
+    "checkpointSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+    "integrationBranch": "codex/agent-edu-release-candidate",
+    "vercelDeploymentId": null,
+    "workflowDefinitionSha": "97e6086e5fc1d81b6b7468f8eaf0d5c48befe5ec"
+  },
   "sensitiveEvidencePolicy": {
     "credentialsStored": false,
     "signedUrlsStored": false,
-    "providerRawBodiesStored": false
+    "providerRawBodiesStored": false,
+    "promptsStored": false,
+    "repliesStored": false,
+    "authorizationOrCookiesStored": false
   },
   "localization": {
     "sourceLocale": "en",
@@ -348,12 +358,68 @@
     "githubReadiness": {
       "status": "pending",
       "requiredCheckNames": ["quality", "smoke-chromium"],
-      "requiredChecks": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting branch-protection proof that both CI jobs are required." },
+      "requiredChecks": {
+        "status": "pending",
+        "checkedAt": null,
+        "evidenceRefs": [],
+        "note": "Awaiting independent branch-protection proof that both CI jobs are required.",
+        "protectedBranch": null,
+        "rulesetId": null,
+        "qualityRequired": null,
+        "smokeChromiumRequired": null
+      },
       "stableRuns": [
-        { "sequence": 1, "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting first consecutive green main-branch run." } },
-        { "sequence": 2, "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting second consecutive green main-branch run." } },
-        { "sequence": 3, "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting third consecutive green main-branch run." } }
+        {
+          "sequence": 1,
+          "runId": null,
+          "runAttempt": null,
+          "commitSha": null,
+          "branch": null,
+          "workflowSha": null,
+          "qualityConclusion": null,
+          "smokeChromiumConclusion": null,
+          "completedAt": null,
+          "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting first consecutive green run of the frozen candidate." }
+        },
+        {
+          "sequence": 2,
+          "runId": null,
+          "runAttempt": null,
+          "commitSha": null,
+          "branch": null,
+          "workflowSha": null,
+          "qualityConclusion": null,
+          "smokeChromiumConclusion": null,
+          "completedAt": null,
+          "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting second consecutive green run of the frozen candidate." }
+        },
+        {
+          "sequence": 3,
+          "runId": null,
+          "runAttempt": null,
+          "commitSha": null,
+          "branch": null,
+          "workflowSha": null,
+          "qualityConclusion": null,
+          "smokeChromiumConclusion": null,
+          "completedAt": null,
+          "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting third consecutive green run of the frozen candidate." }
+        }
       ]
+    },
+    "rollbackReadiness": {
+      "status": "pending",
+      "previousProductionCommitSha": null,
+      "previousProductionDeploymentId": null,
+      "releaseTag": null,
+      "rollbackPullRequestRef": null,
+      "validatedCandidateCommitSha": null,
+      "result": {
+        "status": "pending",
+        "checkedAt": null,
+        "evidenceRefs": [],
+        "note": "Awaiting a reviewed revert target, rollback PR plan, and post-rollback validation record."
+      }
     }
   }
 }

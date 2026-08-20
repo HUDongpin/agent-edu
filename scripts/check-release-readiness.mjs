@@ -6,8 +6,8 @@
  * run `npm run release:check` explicitly and may pass only when both the
  * deterministic message checks and every signed external gate pass.
  */
-import { readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { lstatSync, readFileSync, realpathSync } from "node:fs";
+import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const LOCALES = ["en", "zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"];
@@ -25,7 +25,17 @@ const PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"];
 const PLURAL_SUFFIX = new RegExp(`\\.(${PLURAL_CATEGORIES.join("|")})$`);
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
-const SAFE_EVIDENCE_REF = /^(?:docs\/release\/evidence\/[A-Za-z0-9._/-]+|(?:review-record|matrix-record|canary-record|billing-record|csp-record|github-run|vercel-deployment):[A-Za-z0-9._/-]+)$/;
+const SAFE_EVIDENCE_REF = /^(?:docs\/release\/evidence\/[A-Za-z0-9._/-]+|(?:review-record|matrix-record|canary-record|billing-record|csp-record|github-run|github-ruleset|github-pr|vercel-deployment|candidate-commit|checkpoint|integration-branch|workflow-definition|rollback-record):[A-Za-z0-9._/-]+)$/;
+const EVIDENCE_DIRECTORY = "docs/release/evidence";
+const MAX_EVIDENCE_BYTES = 256 * 1024;
+const GIT_SHA = /^[0-9a-f]{40}$/;
+const INTEGRATION_BRANCH = /^(?:main|codex\/[a-z0-9][a-z0-9._/-]{0,127})$/;
+const DEPLOYMENT_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{5,127}$/;
+const GITHUB_RUN_ID = /^[1-9][0-9]{0,24}$/;
+const GITHUB_CONCLUSIONS = new Set([
+  "success", "failure", "cancelled", "timed_out", "action_required",
+  "neutral", "skipped", "stale", "startup_failure",
+]);
 
 const MATRIX_WIDTHS = [390, 979, 980, 1440];
 const MATRIX_THEMES = ["light", "dark"];
@@ -43,8 +53,9 @@ const PROVIDER_RECONCILIATIONS = ["pricing", "modelId", "usage", "billing", "cor
 const REQUIRED_CHECK_NAMES = ["quality", "smoke-chromium"];
 const SAFE_SCHEMA_SEGMENTS = new Set([
   ...LOCALES,
-  "schemaVersion", "releaseId", "status", "updatedAt", "sensitiveEvidencePolicy", "localization", "gates",
-  "credentialsStored", "signedUrlsStored", "providerRawBodiesStored",
+  "schemaVersion", "releaseId", "status", "updatedAt", "releaseTarget", "sensitiveEvidencePolicy", "localization", "gates",
+  "candidateCommitSha", "checkpointSha", "integrationBranch", "vercelDeploymentId", "workflowDefinitionSha",
+  "credentialsStored", "signedUrlsStored", "providerRawBodiesStored", "promptsStored", "repliesStored", "authorizationOrCookiesStored",
   "sourceLocale", "requiredLocales", "nativeReviewLocales", "sameAsEnglishAllowlist",
   "catalog", "key", "locales", "reason",
   "nativeReviews", "reviews", "arabicRtlMatrix", "keyboardChecks", "cases",
@@ -54,6 +65,9 @@ const SAFE_SCHEMA_SEGMENTS = new Set([
   ...PROVIDER_RECONCILIATIONS,
   "vercelPreviewCsp", "requiredHeaders", "reportOnly", "enforced", "stages",
   "githubReadiness", "requiredCheckNames", "requiredChecks", "stableRuns", "sequence",
+  "protectedBranch", "rulesetId", "qualityRequired", "smokeChromiumRequired",
+  "runId", "runAttempt", "commitSha", "branch", "workflowSha", "qualityConclusion", "smokeChromiumConclusion", "completedAt",
+  "rollbackReadiness", "previousProductionCommitSha", "previousProductionDeploymentId", "releaseTag", "rollbackPullRequestRef", "validatedCandidateCommitSha",
   "checkedAt", "evidenceRefs", "note",
 ]);
 
@@ -124,7 +138,116 @@ function validateStatus(value, path, issues) {
   if (!STATUS.has(value)) addIssue(issues, "schema-status", path, "must be pending, pass, or fail");
 }
 
-function validateEvidenceRefs(value, path, issues) {
+function isCompleteReleaseTarget(target) {
+  return isObject(target)
+    && GIT_SHA.test(target.candidateCommitSha)
+    && GIT_SHA.test(target.checkpointSha)
+    && target.candidateCommitSha !== target.checkpointSha
+    && INTEGRATION_BRANCH.test(target.integrationBranch)
+    && DEPLOYMENT_ID.test(target.vercelDeploymentId)
+    && GIT_SHA.test(target.workflowDefinitionSha);
+}
+
+function targetBindingRefs(target) {
+  if (!isCompleteReleaseTarget(target)) return [];
+  return [
+    `candidate-commit:${target.candidateCommitSha}`,
+    `checkpoint:${target.checkpointSha}`,
+    `integration-branch:${target.integrationBranch}`,
+    `vercel-deployment:${target.vercelDeploymentId}`,
+    `workflow-definition:${target.workflowDefinitionSha}`,
+  ];
+}
+
+export function findSensitiveEvidenceText(value) {
+  const text = String(value);
+  const findings = [];
+  for (const [id, pattern] of SECRET_PATTERNS) {
+    pattern.lastIndex = 0;
+    if (pattern.test(text)) findings.push(id);
+  }
+  if (/https?:\/\/[^\s?#]+\?[^\s#]*/i.test(text)) findings.push("url-with-query");
+  if (/\b(?:authorization|cookie)[ \t]*[:=][ \t]*\S+/i.test(text)) findings.push("sensitive-header");
+  if (/\b(?:api[-_ ]?key|credential|prompt|reply|provider(?:raw)?(?:body|response)|raw(?:body|response))[ \t]*[:=][ \t]*\S+/i.test(text)) {
+    findings.push("sensitive-labeled-value");
+  }
+  return [...new Set(findings)];
+}
+
+function inspectRelativeEvidence(ref, path, issues, projectRoot) {
+  if (!projectRoot) {
+    addIssue(issues, "schema-evidence-file", path, "relative evidence needs a project root for existence and privacy checks");
+    return;
+  }
+  const root = resolve(projectRoot);
+  const evidenceRoot = resolve(root, EVIDENCE_DIRECTORY);
+  const file = resolve(root, ref);
+  if (file === evidenceRoot || !file.startsWith(evidenceRoot + sep)) {
+    addIssue(issues, "schema-evidence-path", path, "must remain below docs/release/evidence");
+    return;
+  }
+
+  let stat;
+  try {
+    stat = lstatSync(file);
+  } catch {
+    addIssue(issues, "schema-evidence-file", path, "referenced evidence file does not exist");
+    return;
+  }
+  if (!stat.isFile()) {
+    addIssue(issues, "schema-evidence-file", path, "referenced evidence must be a regular file, not a directory or symlink");
+    return;
+  }
+  try {
+    const canonicalProject = realpathSync(root);
+    const canonicalRoot = realpathSync(evidenceRoot);
+    const canonicalFile = realpathSync(file);
+    if (
+      canonicalRoot !== resolve(canonicalProject, EVIDENCE_DIRECTORY)
+      || !canonicalFile.startsWith(canonicalRoot + sep)
+    ) {
+      addIssue(issues, "schema-evidence-path", path, "canonical evidence path escapes docs/release/evidence");
+      return;
+    }
+  } catch {
+    addIssue(issues, "schema-evidence-file", path, "evidence path could not be resolved safely");
+    return;
+  }
+  if (stat.size > MAX_EVIDENCE_BYTES) {
+    addIssue(issues, "schema-evidence-file", path, "evidence files must be 256 KiB or smaller sanitized summaries");
+    return;
+  }
+
+  let bytes;
+  try {
+    bytes = readFileSync(file);
+  } catch {
+    addIssue(issues, "schema-evidence-file", path, "evidence file could not be read");
+    return;
+  }
+  if (bytes.includes(0)) {
+    addIssue(issues, "schema-evidence-privacy", path, "binary evidence is forbidden; store a sanitized text summary");
+    return;
+  }
+  const text = bytes.toString("utf8");
+  const privacyFindings = findSensitiveEvidenceText(text);
+  try {
+    const parsed = JSON.parse(text);
+    privacyFindings.push(...findSensitiveEvidence(parsed).map((finding) => finding.code));
+  } catch {
+    // Plain Markdown/text evidence is allowed and was scanned above.
+  }
+  if (privacyFindings.length) {
+    addIssue(
+      issues,
+      "schema-evidence-privacy",
+      path,
+      `evidence contains forbidden sensitive category or value (${[...new Set(privacyFindings)].sort().join(", ")}); matched text is not displayed`,
+    );
+  }
+}
+
+function validateEvidenceRefs(value, path, issues, options = {}) {
   if (!Array.isArray(value)) {
     addIssue(issues, "schema-evidence", path, "must be an array of non-sensitive evidence references");
     return;
@@ -134,30 +257,35 @@ function validateEvidenceRefs(value, path, issues) {
   }
   for (let index = 0; index < value.length; index += 1) {
     const ref = value[index];
-    if (
+    const valid = !(
       typeof ref !== "string"
       || ref.length > 180
       || ref.includes("..")
       || !SAFE_EVIDENCE_REF.test(ref)
-    ) {
+    );
+    if (!valid) {
       addIssue(
         issues,
         "schema-evidence",
         `${path}[${index}]`,
         "must be a relative evidence path or an approved opaque record id; URLs are not accepted",
       );
+      continue;
+    }
+    if (ref.startsWith(`${EVIDENCE_DIRECTORY}/`)) {
+      inspectRelativeEvidence(ref, `${path}[${index}]`, issues, options.projectRoot);
     }
   }
 }
 
-function validateEvidenceRecord(value, path, issues) {
+function validateEvidenceRecord(value, path, issues, options = {}) {
   if (!isObject(value)) {
     addIssue(issues, "schema-evidence", path, "must be an evidence record");
     return;
   }
   validateExactKeys(value, ["status", "checkedAt", "evidenceRefs", "note"], path, issues);
   validateStatus(value.status, `${path}.status`, issues);
-  validateEvidenceRefs(value.evidenceRefs, `${path}.evidenceRefs`, issues);
+  validateEvidenceRefs(value.evidenceRefs, `${path}.evidenceRefs`, issues, options);
   if (typeof value.note !== "string" || value.note.trim().length < 3 || value.note.length > 300) {
     addIssue(issues, "schema-note", `${path}.note`, "must be a concise non-sensitive explanation");
   }
@@ -178,9 +306,41 @@ function validateEvidenceRecord(value, path, issues) {
   if (Array.isArray(value.evidenceRefs) && value.evidenceRefs.length === 0) {
     addIssue(issues, "schema-evidence", `${path}.evidenceRefs`, "must contain evidence for pass or fail");
   }
+  const bindingRefs = targetBindingRefs(options.releaseTarget);
+  if (!bindingRefs.length) {
+    addIssue(issues, "schema-target-binding", path, "pass or fail evidence requires a completely frozen release target");
+  } else if (Array.isArray(value.evidenceRefs)) {
+    for (const ref of bindingRefs) {
+      if (!value.evidenceRefs.includes(ref)) {
+        addIssue(issues, "schema-target-binding", `${path}.evidenceRefs`, `must bind evidence to ${ref}`);
+      }
+    }
+    if (!value.evidenceRefs.some((ref) => !bindingRefs.includes(ref))) {
+      addIssue(issues, "schema-evidence", `${path}.evidenceRefs`, "must include a substantive evidence record in addition to target bindings");
+    }
+  }
 }
 
-function validateRecordMap(value, keys, path, issues) {
+function validateExtendedEvidenceRecord(value, extraKeys, path, issues, options = {}) {
+  if (!isObject(value)) {
+    addIssue(issues, "schema-evidence", path, "must be an evidence record");
+    return;
+  }
+  validateExactKeys(value, ["status", "checkedAt", "evidenceRefs", "note", ...extraKeys], path, issues);
+  validateEvidenceRecord(
+    {
+      status: value.status,
+      checkedAt: value.checkedAt,
+      evidenceRefs: value.evidenceRefs,
+      note: value.note,
+    },
+    path,
+    issues,
+    options,
+  );
+}
+
+function validateRecordMap(value, keys, path, issues, options = {}) {
   if (!isObject(value)) {
     addIssue(issues, "schema-object", path, "must be an object");
     return [];
@@ -190,7 +350,7 @@ function validateRecordMap(value, keys, path, issues) {
   }
   const records = [];
   for (const key of keys) {
-    validateEvidenceRecord(value[key], childPath(path, key), issues);
+    validateEvidenceRecord(value[key], childPath(path, key), issues, options);
     if (isObject(value[key])) records.push(value[key]);
   }
   return records;
@@ -296,7 +456,7 @@ export function redactSensitiveText(value) {
 }
 
 /** Validate the release-evidence schema without reading the filesystem. */
-export function validateReleaseReadiness(config) {
+export function validateReleaseReadiness(config, options = {}) {
   const issues = [];
   if (!isObject(config)) {
     addIssue(issues, "schema-root", "$", "must be a JSON object");
@@ -304,7 +464,7 @@ export function validateReleaseReadiness(config) {
   }
   validateExactKeys(
     config,
-    ["schemaVersion", "releaseId", "status", "updatedAt", "sensitiveEvidencePolicy", "localization", "gates"],
+    ["schemaVersion", "releaseId", "status", "updatedAt", "releaseTarget", "sensitiveEvidencePolicy", "localization", "gates"],
     "$",
     issues,
   );
@@ -316,12 +476,48 @@ export function validateReleaseReadiness(config) {
   validateStatus(config.status, "$.status", issues);
   if (!isIsoDate(config.updatedAt)) addIssue(issues, "schema-date", "$.updatedAt", "must be YYYY-MM-DD");
 
+  const target = config.releaseTarget;
+  if (!isObject(target)) {
+    addIssue(issues, "schema-target", "$.releaseTarget", "must describe the frozen candidate, checkpoint, branch, deployment, and workflow");
+  } else {
+    validateExactKeys(
+      target,
+      ["candidateCommitSha", "checkpointSha", "integrationBranch", "vercelDeploymentId", "workflowDefinitionSha"],
+      "$.releaseTarget",
+      issues,
+    );
+    for (const key of ["candidateCommitSha", "checkpointSha", "workflowDefinitionSha"]) {
+      if (target[key] !== null && !GIT_SHA.test(target[key])) {
+        addIssue(issues, "schema-target", `$.releaseTarget.${key}`, "must be null while unfrozen or one lowercase 40-character Git SHA");
+      }
+    }
+    if (target.integrationBranch !== null && !INTEGRATION_BRANCH.test(target.integrationBranch)) {
+      addIssue(issues, "schema-target", "$.releaseTarget.integrationBranch", "must be null while unfrozen, main, or one scoped codex branch");
+    }
+    if (target.vercelDeploymentId !== null && !DEPLOYMENT_ID.test(target.vercelDeploymentId)) {
+      addIssue(issues, "schema-target", "$.releaseTarget.vercelDeploymentId", "must be null while unfrozen or one opaque Vercel deployment id");
+    }
+    if (
+      GIT_SHA.test(target.candidateCommitSha)
+      && GIT_SHA.test(target.checkpointSha)
+      && target.candidateCommitSha === target.checkpointSha
+    ) {
+      addIssue(issues, "schema-target", "$.releaseTarget.checkpointSha", "must identify the distinct pre-implementation checkpoint");
+    }
+    if (config.status === "pass" && !isCompleteReleaseTarget(target)) {
+      addIssue(issues, "schema-target-binding", "$.releaseTarget", "a passing release must bind all five frozen target fields");
+    }
+  }
+
   const policy = config.sensitiveEvidencePolicy;
   if (
     !isObject(policy)
     || policy.credentialsStored !== false
     || policy.signedUrlsStored !== false
     || policy.providerRawBodiesStored !== false
+    || policy.promptsStored !== false
+    || policy.repliesStored !== false
+    || policy.authorizationOrCookiesStored !== false
   ) {
     addIssue(
       issues,
@@ -332,7 +528,7 @@ export function validateReleaseReadiness(config) {
   } else {
     validateExactKeys(
       policy,
-      ["credentialsStored", "signedUrlsStored", "providerRawBodiesStored"],
+      ["credentialsStored", "signedUrlsStored", "providerRawBodiesStored", "promptsStored", "repliesStored", "authorizationOrCookiesStored"],
       "$.sensitiveEvidencePolicy",
       issues,
     );
@@ -375,12 +571,13 @@ export function validateReleaseReadiness(config) {
   }
   validateExactKeys(
     gates,
-    ["nativeReviews", "arabicRtlMatrix", "providerCanary", "vercelPreviewCsp", "githubReadiness"],
+    ["nativeReviews", "arabicRtlMatrix", "providerCanary", "vercelPreviewCsp", "githubReadiness", "rollbackReadiness"],
     "$.gates",
     issues,
   );
 
   const groupStatuses = [];
+  const evidenceOptions = { ...options, releaseTarget: target };
 
   const native = gates.nativeReviews;
   if (!isObject(native)) {
@@ -392,6 +589,7 @@ export function validateReleaseReadiness(config) {
       NATIVE_REVIEW_LOCALES,
       "$.gates.nativeReviews.reviews",
       issues,
+      evidenceOptions,
     );
     validateGroupStatus(native, records, "$.gates.nativeReviews", issues);
     groupStatuses.push(native);
@@ -445,7 +643,7 @@ export function validateReleaseReadiness(config) {
       if (item.expectedOrientation !== expectedOrientation(item.width)) {
         addIssue(issues, "schema-arabic", `${path}.expectedOrientation`, "does not match the 980px breakpoint");
       }
-      validateEvidenceRecord(item.result, `${path}.result`, issues);
+      validateEvidenceRecord(item.result, `${path}.result`, issues, evidenceOptions);
       if (isObject(item.result)) records.push(item.result);
     }
     validateGroupStatus(arabic, records, "$.gates.arabicRtlMatrix", issues);
@@ -474,12 +672,13 @@ export function validateReleaseReadiness(config) {
       addIssue(issues, "schema-provider", "$.gates.providerCanary.officialPricingUrl", "must be the canonical public pricing page without a query");
     }
     const records = [
-      ...validateRecordMap(provider.steps, PROVIDER_STEPS, "$.gates.providerCanary.steps", issues),
+      ...validateRecordMap(provider.steps, PROVIDER_STEPS, "$.gates.providerCanary.steps", issues, evidenceOptions),
       ...validateRecordMap(
         provider.reconciliations,
         PROVIDER_RECONCILIATIONS,
         "$.gates.providerCanary.reconciliations",
         issues,
+        evidenceOptions,
       ),
     ];
     validateGroupStatus(provider, records, "$.gates.providerCanary", issues);
@@ -515,6 +714,7 @@ export function validateReleaseReadiness(config) {
       ["reportOnly", "enforced"],
       "$.gates.vercelPreviewCsp.stages",
       issues,
+      evidenceOptions,
     );
     validateGroupStatus(csp, records, "$.gates.vercelPreviewCsp", issues);
     groupStatuses.push(csp);
@@ -534,26 +734,172 @@ export function validateReleaseReadiness(config) {
       addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredCheckNames", "must name the two CI jobs");
     }
     const records = [];
-    validateEvidenceRecord(github.requiredChecks, "$.gates.githubReadiness.requiredChecks", issues);
-    if (isObject(github.requiredChecks)) records.push(github.requiredChecks);
+    const required = github.requiredChecks;
+    validateExtendedEvidenceRecord(
+      required,
+      ["protectedBranch", "rulesetId", "qualityRequired", "smokeChromiumRequired"],
+      "$.gates.githubReadiness.requiredChecks",
+      issues,
+      evidenceOptions,
+    );
+    if (isObject(required)) {
+      records.push(required);
+      if (required.status === "pending") {
+        for (const key of ["protectedBranch", "rulesetId", "qualityRequired", "smokeChromiumRequired"]) {
+          if (required[key] !== null) {
+            addIssue(issues, "schema-github", `$.gates.githubReadiness.requiredChecks.${key}`, "must remain null while branch-protection evidence is pending");
+          }
+        }
+      } else {
+        if (required.protectedBranch !== "main") {
+          addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredChecks.protectedBranch", "must prove required checks on main");
+        }
+        if (typeof required.rulesetId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._/-]{2,127}$/.test(required.rulesetId)) {
+          addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredChecks.rulesetId", "must be one stable non-sensitive ruleset or branch-protection id");
+        }
+        if (required.status === "pass" && (required.qualityRequired !== true || required.smokeChromiumRequired !== true)) {
+          addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredChecks", "a passing record must require both quality and smoke-chromium");
+        }
+        if (
+          required.status === "fail"
+          && (typeof required.qualityRequired !== "boolean"
+            || typeof required.smokeChromiumRequired !== "boolean")
+        ) {
+          addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredChecks", "a failed record must retain the observed required-check booleans");
+        }
+        if (
+          typeof required.rulesetId === "string"
+          && Array.isArray(required.evidenceRefs)
+          && !required.evidenceRefs.includes(`github-ruleset:${required.rulesetId}`)
+        ) {
+          addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredChecks.evidenceRefs", "must reference the independent branch-protection record id");
+        }
+      }
+    }
     const runs = Array.isArray(github.stableRuns) ? github.stableRuns : [];
-    if (!Array.isArray(github.stableRuns) || !sameMembers(runs.map((run) => run?.sequence), [1, 2, 3])) {
+    if (!Array.isArray(github.stableRuns) || runs.length !== 3) {
       addIssue(issues, "schema-github", "$.gates.githubReadiness.stableRuns", "must contain exactly three ordered green-run records");
     }
+    const runIds = new Set();
+    let previousCompletedAt = null;
     for (let index = 0; index < runs.length; index += 1) {
-      if (isObject(runs[index])) {
+      const run = runs[index];
+      const path = `$.gates.githubReadiness.stableRuns[${index}]`;
+      if (isObject(run)) {
         validateExactKeys(
-          runs[index],
-          ["sequence", "result"],
-          `$.gates.githubReadiness.stableRuns[${index}]`,
+          run,
+          ["sequence", "runId", "runAttempt", "commitSha", "branch", "workflowSha", "qualityConclusion", "smokeChromiumConclusion", "completedAt", "result"],
+          path,
           issues,
         );
       }
-      validateEvidenceRecord(runs[index]?.result, `$.gates.githubReadiness.stableRuns[${index}].result`, issues);
-      if (isObject(runs[index]?.result)) records.push(runs[index].result);
+      if (run?.sequence !== index + 1) {
+        addIssue(issues, "schema-github-order", `${path}.sequence`, `must equal ${index + 1} at this array position`);
+      }
+      validateEvidenceRecord(run?.result, `${path}.result`, issues, evidenceOptions);
+      if (isObject(run?.result)) records.push(run.result);
+
+      const metadataKeys = ["runId", "runAttempt", "commitSha", "branch", "workflowSha", "qualityConclusion", "smokeChromiumConclusion", "completedAt"];
+      if (run?.result?.status === "pending") {
+        for (const key of metadataKeys) {
+          if (run?.[key] !== null) addIssue(issues, "schema-github", `${path}.${key}`, "must remain null while the run is pending");
+        }
+        continue;
+      }
+      if (!GITHUB_RUN_ID.test(run?.runId)) {
+        addIssue(issues, "schema-github", `${path}.runId`, "must be one decimal GitHub Actions run id");
+      } else if (runIds.has(run.runId)) {
+        addIssue(issues, "schema-github-duplicate-run", `${path}.runId`, "must be unique across the three stable runs");
+      } else {
+        runIds.add(run.runId);
+      }
+      if (run?.runAttempt !== 1) addIssue(issues, "schema-github", `${path}.runAttempt`, "must equal 1; reruns restart the stability sequence");
+      if (run?.commitSha !== target?.candidateCommitSha) {
+        addIssue(issues, "schema-github-target", `${path}.commitSha`, "must equal the frozen candidate commit");
+      }
+      if (run?.branch !== target?.integrationBranch) {
+        addIssue(issues, "schema-github-target", `${path}.branch`, "must equal the frozen integration branch");
+      }
+      if (run?.workflowSha !== target?.workflowDefinitionSha) {
+        addIssue(issues, "schema-github-target", `${path}.workflowSha`, "must equal the frozen workflow definition SHA");
+      }
+      if (!isIsoInstant(run?.completedAt)) {
+        addIssue(issues, "schema-date", `${path}.completedAt`, "must be a canonical UTC ISO instant");
+      } else {
+        if (previousCompletedAt !== null && run.completedAt <= previousCompletedAt) {
+          addIssue(issues, "schema-github-order", `${path}.completedAt`, "must be later than the preceding stable run");
+        }
+        previousCompletedAt = run.completedAt;
+      }
+      if (run?.result?.checkedAt !== run?.completedAt) {
+        addIssue(issues, "schema-github", `${path}.result.checkedAt`, "must equal the Actions completion time");
+      }
+      for (const key of ["qualityConclusion", "smokeChromiumConclusion"]) {
+        if (!GITHUB_CONCLUSIONS.has(run?.[key])) {
+          addIssue(issues, "schema-github", `${path}.${key}`, "must be one GitHub Actions job conclusion");
+        }
+      }
+      if (
+        run?.result?.status === "pass"
+        && (run.qualityConclusion !== "success" || run.smokeChromiumConclusion !== "success")
+      ) {
+        addIssue(issues, "schema-github", path, "a stable run passes only when both required jobs conclude success");
+      }
+      if (
+        typeof run?.runId === "string"
+        && Array.isArray(run?.result?.evidenceRefs)
+        && !run.result.evidenceRefs.includes(`github-run:${run.runId}`)
+      ) {
+        addIssue(issues, "schema-github", `${path}.result.evidenceRefs`, "must reference this exact GitHub Actions run id");
+      }
     }
     validateGroupStatus(github, records, "$.gates.githubReadiness", issues);
     groupStatuses.push(github);
+  }
+
+  const rollback = gates.rollbackReadiness;
+  if (!isObject(rollback)) {
+    addIssue(issues, "schema-rollback", "$.gates.rollbackReadiness", "must be an object");
+  } else {
+    validateExactKeys(
+      rollback,
+      ["status", "previousProductionCommitSha", "previousProductionDeploymentId", "releaseTag", "rollbackPullRequestRef", "validatedCandidateCommitSha", "result"],
+      "$.gates.rollbackReadiness",
+      issues,
+    );
+    validateStatus(rollback.status, "$.gates.rollbackReadiness.status", issues);
+    validateEvidenceRecord(rollback.result, "$.gates.rollbackReadiness.result", issues, evidenceOptions);
+    validateGroupStatus(rollback, isObject(rollback.result) ? [rollback.result] : [], "$.gates.rollbackReadiness", issues);
+    groupStatuses.push(rollback);
+
+    const rollbackFields = ["previousProductionCommitSha", "previousProductionDeploymentId", "releaseTag", "rollbackPullRequestRef", "validatedCandidateCommitSha"];
+    if (rollback.result?.status === "pending") {
+      for (const key of rollbackFields) {
+        if (rollback[key] !== null) addIssue(issues, "schema-rollback", `$.gates.rollbackReadiness.${key}`, "must remain null while rollback evidence is pending");
+      }
+    } else {
+      if (!GIT_SHA.test(rollback.previousProductionCommitSha) || rollback.previousProductionCommitSha === target?.candidateCommitSha) {
+        addIssue(issues, "schema-rollback", "$.gates.rollbackReadiness.previousProductionCommitSha", "must identify a distinct previous production commit");
+      }
+      if (!DEPLOYMENT_ID.test(rollback.previousProductionDeploymentId) || rollback.previousProductionDeploymentId === target?.vercelDeploymentId) {
+        addIssue(issues, "schema-rollback", "$.gates.rollbackReadiness.previousProductionDeploymentId", "must identify a distinct previous production deployment");
+      }
+      if (typeof rollback.releaseTag !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$/.test(rollback.releaseTag)) {
+        addIssue(issues, "schema-rollback", "$.gates.rollbackReadiness.releaseTag", "must be a stable release tag without spaces or URL syntax");
+      }
+      if (typeof rollback.rollbackPullRequestRef !== "string" || !/^github-pr:[1-9][0-9]{0,9}$/.test(rollback.rollbackPullRequestRef)) {
+        addIssue(issues, "schema-rollback", "$.gates.rollbackReadiness.rollbackPullRequestRef", "must be an approved ordinary revert PR reference");
+      }
+      if (rollback.validatedCandidateCommitSha !== target?.candidateCommitSha) {
+        addIssue(issues, "schema-rollback", "$.gates.rollbackReadiness.validatedCandidateCommitSha", "must equal the frozen candidate commit");
+      }
+      if (
+        Array.isArray(rollback.result?.evidenceRefs)
+        && !rollback.result.evidenceRefs.some((ref) => typeof ref === "string" && ref.startsWith("rollback-record:"))
+      ) {
+        addIssue(issues, "schema-rollback", "$.gates.rollbackReadiness.result.evidenceRefs", "must include a sanitized rollback validation record");
+      }
+    }
   }
 
   if (STATUS.has(config.status)) {
@@ -777,6 +1123,7 @@ function evidenceSummary(config) {
   const provider = gates.providerCanary;
   const csp = gates.vercelPreviewCsp?.stages;
   const github = gates.githubReadiness;
+  const rollback = gates.rollbackReadiness;
   return [
     {
       label: "Native reviews (8 non-English locales)",
@@ -805,6 +1152,10 @@ function evidenceSummary(config) {
         ? [github.requiredChecks, ...(Array.isArray(github.stableRuns) ? github.stableRuns.map((run) => run?.result) : [])]
         : [],
     },
+    {
+      label: "Rollback target, ordinary revert PR, and recovery validation",
+      records: isObject(rollback) ? [rollback.result] : [],
+    },
   ].map((group) => ({
     label: group.label,
     status: statusOf(group.records),
@@ -815,14 +1166,14 @@ function evidenceSummary(config) {
 }
 
 /** Evaluate already-parsed fixtures without treating the production file as a test fixture. */
-export function evaluateReleaseReadiness({ config, catalogs }) {
-  const configIssues = validateReleaseReadiness(config);
+export function evaluateReleaseReadiness({ config, catalogs, projectRoot }) {
+  const configIssues = validateReleaseReadiness(config, { projectRoot });
   const messages = validateMessageCatalogs(
     catalogs,
     isObject(config?.localization) ? config.localization.sameAsEnglishAllowlist : [],
   );
   const evidence = evidenceSummary(config);
-  const externalReady = evidence.length === 5 && evidence.every((group) => group.status === "pass");
+  const externalReady = evidence.length === 6 && evidence.every((group) => group.status === "pass");
   return {
     ready: configIssues.length === 0
       && messages.issues.length === 0
@@ -853,7 +1204,7 @@ export function checkReleaseReadiness(projectRoot = ROOT) {
     };
   }
   const loaded = loadMessageCatalogs(projectRoot);
-  const result = evaluateReleaseReadiness({ config, catalogs: loaded.catalogs });
+  const result = evaluateReleaseReadiness({ config, catalogs: loaded.catalogs, projectRoot });
   result.messageIssues.unshift(...loaded.issues);
   if (loaded.issues.length) result.ready = false;
   return result;
@@ -873,6 +1224,7 @@ export function formatReadinessReport(result) {
       "- [x] Provider canary and reconciliation",
       "- [x] Vercel CSP response headers",
       "- [x] GitHub required checks and three stable green runs",
+      "- [x] rollback target and ordinary revert validation",
     ].join("\n");
   }
 

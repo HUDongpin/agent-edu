@@ -23,6 +23,41 @@ Prompts, model replies, Provider raw response bodies, screenshots containing
 sensitive values, or copied billing-account details. Public canonical
 documentation URLs may be recorded only without query parameters.
 
+Relative evidence paths are not labels. The checker resolves each path below
+`docs/release/evidence/`, rejects missing files, directories, symlinks, path
+escapes, binary/oversized files, and scans the text without echoing a matched
+value. An opaque record ID remains an external attestation: its format is
+checked here, while the reviewer verifies that the referenced system really
+contains the sanitized record.
+
+## Frozen release target and non-self-reference
+
+`releaseTarget` binds every non-pending evidence record to five values:
+
+- `candidateCommitSha` — the frozen product commit being tested;
+- `checkpointSha` — the distinct pre-implementation recovery point;
+- `integrationBranch` — the branch on which the candidate is exercised;
+- `vercelDeploymentId` — the exact preview inspected by people and canaries;
+- `workflowDefinitionSha` — the Git blob SHA of `.github/workflows/ci.yml`
+  used for all three stable runs.
+
+The candidate commit is deliberately frozen **before** evidence metadata is
+filled in. Commits that only add sanitized review IDs, timestamps, release
+status, or this documentation are not a new product candidate and must not
+replace `candidateCommitSha`; doing so would create an impossible self-reference
+where the evidence commit claims to have tested itself before it existed. A
+post-candidate commit may only harden the evidence schema/checker or add
+sanitized evidence metadata and release documentation. Any change to product or
+course code, runtime configuration, messages, dependencies, build inputs, or
+the workflow definition creates a new candidate and restarts affected evidence.
+
+While the release is pending, target fields that do not exist yet may be null.
+The first `pass` or `fail` evidence requires all five fields to be frozen. Every
+non-pending record repeats five safe binding refs (`candidate-commit:`,
+`checkpoint:`, `integration-branch:`, `vercel-deployment:`, and
+`workflow-definition:`) plus its substantive evidence ID/path; a mismatched
+deployment or commit fails the schema.
+
 An evidence record has one of three states:
 
 - `pending`: no conclusion, no timestamp, and no evidence reference;
@@ -43,10 +78,14 @@ rejects optimistic aggregate statuses.
    is present.
 5. Add stable evidence references and UTC timestamps to
    `config/release-readiness.json`; update child, group, and overall statuses.
-6. Run `npm run release:check` again. Preserve its passing output with the
+6. Complete `rollback.md`, record the previous production target, ordinary
+   revert PR plan, and recovery validation; rollback readiness is a P0 release
+   gate, not a post-release promise.
+7. Run `npm run release:check` again. Preserve its passing output with the
    release record.
-7. If any native review, Arabic case, canary reconciliation, CSP stage, or CI
-   observation fails, stop the release and retain the failure as `fail`.
+8. If any native review, Arabic case, canary reconciliation, CSP stage, CI
+   observation, or rollback validation fails, stop the release and retain the
+   failure as `fail`.
 
 Automatic key, placeholder, plural, and fallback checks cannot sign for a
 native speaker. Mock Provider tests cannot replace the low-limit real canary.
@@ -60,4 +99,5 @@ headers. A green run cannot prove that GitHub made the jobs required.
 - `provider-canary.md` — low-limit real Provider run and reconciliation.
 - `csp-verification.md` — report-only observation followed by enforced CSP.
 - `github-readiness.md` — required checks and three consecutive green runs.
+- `rollback.md` — previous production target, ordinary revert PR, and recovery validation.
 - `pilot-protocol.md` — later six-learner/three-teacher pilot and its exit metrics.
