@@ -23,6 +23,7 @@
     "routes:check": "node scripts/check-routes.mjs",
     "secrets:check": "node scripts/check-secrets.mjs",
     "course": "tsx course/check.ts",
+    "course:offline": "node --import tsx course/offline-preflight.ts --offline",
     "report": "tsx course/report.ts",
     "handbook:extract": "node scripts/extract-handbook.mjs",
     "handbook:check": "node scripts/extract-handbook.mjs --check",

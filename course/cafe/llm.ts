@@ -21,12 +21,7 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
-import { createHash } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const HERE = dirname(fileURLToPath(import.meta.url));
+import { createOfflineClient, offlineText } from "./offline";
 
 /* ---------------------------------------------------------------------------
  * Providers
@@ -106,9 +101,7 @@ export const PRICE_OUT = CFG.prices.out;
  */
 export const EFFORT = process.env.CAFE_EFFORT || "low";
 
-const CASSETTES = join(HERE, `fixtures.${PROVIDER}.json`);
-
-/** --offline anywhere on the command line replays recorded answers. */
+/** --offline anywhere on the command line uses the deterministic local stand-in. */
 export const OFFLINE = process.argv.includes("--offline");
 
 const spent = { in: 0, out: 0, cached: 0, calls: 0 };
@@ -116,9 +109,11 @@ let client: Anthropic | null = null;
 
 export function getClient(): Anthropic {
   if (!client) {
-    client = new Anthropic({
-      ...(CFG.baseURL ? { baseURL: CFG.baseURL, apiKey: process.env[CFG.env] ?? "" } : {}),
-    });
+    client = OFFLINE
+      ? createOfflineClient() as unknown as Anthropic
+      : new Anthropic({
+          ...(CFG.baseURL ? { baseURL: CFG.baseURL, apiKey: process.env[CFG.env] ?? "" } : {}),
+        });
   }
   return client;
 }
@@ -136,18 +131,6 @@ export function tuning(effort: string = EFFORT): Record<string, unknown> {
     return effort === "low" ? { thinking: { type: "disabled" } } : {};
   }
   return { output_config: { effort } };
-}
-
-/* ------------------------------ record / replay ------------------------- */
-
-function cassetteKey(payload: unknown): string {
-  return createHash("sha256").update(JSON.stringify(payload)).digest("hex").slice(0, 16);
-}
-function loadCassettes(): Record<string, string> {
-  return existsSync(CASSETTES) ? JSON.parse(readFileSync(CASSETTES, "utf8")) : {};
-}
-function saveCassettes(store: Record<string, string>): void {
-  writeFileSync(CASSETTES, JSON.stringify(store, null, 1));
 }
 
 /* ---------------- making a schema stick on a vendor that ignores it ------ */
@@ -221,18 +204,10 @@ export async function ask<T>(prompt: string, opts: AskOptions = {}): Promise<str
     };
   }
 
-  const key = cassetteKey({ ...request, _variant: variant, _p: PROVIDER });
-  const store = loadCassettes();
   let text: string;
 
   if (OFFLINE) {
-    if (!(key in store)) {
-      throw new Error(
-        "\n  No recording for this exact request, so --offline cannot answer it.\n" +
-        "  Recordings are keyed on the whole request, so any change to your\n" +
-        `  prompt needs a fresh recording. Set ${CFG.env} and drop --offline.\n`);
-    }
-    text = store[key];
+    text = offlineText(prompt, { system, schema, variant });
   } else {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     const response: any = await getClient().messages.create(request as any);
@@ -254,8 +229,6 @@ export async function ask<T>(prompt: string, opts: AskOptions = {}): Promise<str
         `${CFG.label} used all ${maxTokens} tokens on hidden reasoning and left ` +
         `no answer. Raise maxTokens, or pass effort:"low" to turn thinking off.`);
     }
-    store[key] = text;
-    saveCassettes(store);
   }
 
   if (!schema) return text;
@@ -319,7 +292,7 @@ export function spend(): string {
 /** Fail early and clearly, instead of deep inside a stack trace. */
 export function preflight(): void {
   if (OFFLINE) {
-    console.log("  [offline] replaying recorded answers — you are not seeing real model variation.\n");
+    console.log("  [offline] scripted local stand-in — no Provider request or real model variation.\n");
     return;
   }
   if (!process.env[CFG.env]) {
@@ -331,7 +304,7 @@ export function preflight(): void {
     throw new Error(
       `\n  ${CFG.env} is not set, so the ${CFG.label} provider cannot run.\n\n` +
       `    export ${CFG.env}=...\n\n  Get a key: ${CFG.help}\n${hint}` +
-      "  Or run any stage with --offline to replay recorded answers.\n");
+      "  Or run any stage with --offline to use the scripted local stand-in.\n");
   }
   console.log(`  [${CFG.label}] ${MODEL} · effort=${EFFORT}\n`);
 }

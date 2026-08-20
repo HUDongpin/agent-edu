@@ -22,11 +22,19 @@ Each stage is a folder with a `README.md` and a `run.ts` containing one or two `
 npx tsx course/check.ts 0      # or: npm run course 0
 ```
 
-**No API key?** Add `--offline` to any command to replay recorded answers. Every stage runs. Stage 2's lesson includes watching the same question come back differently, which a recording cannot reproduce; if you later want that comparison, use a low-credit, revocable key of your own. Never borrow or share another person's credential.
+On a clean clone, prove the no-key path before editing anything:
+
+```bash
+npm run course:offline
+```
+
+That command uses a deterministic scripted stand-in bundled with the course. It makes no Provider request and writes no private recording. It proves the local control flow, not real model quality or variation.
+
+**No API key?** Add `--offline` to any command to use the scripted local stand-in after you fill that stage's `TODO`s. Every completed stage supports this path. Stage 2's lesson includes watching a real model answer the same question differently, which a deterministic stand-in cannot reproduce; if you later want that comparison, use a low-credit, revocable key of your own. Never borrow or share another person's credential.
 
 **Stuck?** [`SOLUTIONS.md`](SOLUTIONS.md) has every `TODO` filled in, one section per stage.
 
-**Cost:** offline replay makes no Provider request. Live stages print measured usage and an estimate based on the model and the dated price table in the code. The total varies with Provider, model, cache, peak window and how often you re-run; an old sample total is not a promise. Check the estimate before a run and treat the Provider dashboard as the billing record. Claude can cost materially more than DeepSeek for the same exercise.
+**Cost:** the offline stand-in makes no Provider request. Live stages print measured usage and an estimate based on the model and the dated price table in the code. The total varies with Provider, model, cache, peak window and how often you re-run; an old sample total is not a promise. Check the estimate before a run and treat the Provider dashboard as the billing record. Claude can cost materially more than DeepSeek for the same exercise.
 
 ## Two providers, one seam
 

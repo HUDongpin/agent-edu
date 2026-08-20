@@ -1,5 +1,5 @@
 /**
- * Grade one stage:  npx tsx course/check.ts 3   (add --offline to replay)
+ * Grade one stage:  npx tsx course/check.ts 3   (add --offline for the scripted stand-in)
  *
  * These checks are deliberately thin. They confirm you built the thing; they
  * do not confirm you built it well. The eval set in stage 3 is the tool for

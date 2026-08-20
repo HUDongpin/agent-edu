@@ -15,7 +15,7 @@
 *credential*
 *API*Key*
 
-# Recorded model replies (may contain your prompts; regenerate locally)
+# Legacy recorded model replies may contain prompts; never commit them.
 course/cafe/fixtures.*.json
 course/progress.json
 legacy/course-python/cafe/fixtures.*.json

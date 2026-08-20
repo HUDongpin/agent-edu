@@ -94,7 +94,7 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
           <li>
             <h3>{t("build.offlineTitle")}</h3>
             <p>{t("build.offlineBody")}</p>
-            <pre dir="ltr"><code>{`npx tsx course/stage0-hello/run.ts --offline\nnpx tsx course/check.ts 0 --offline`}</code></pre>
+            <pre dir="ltr"><code>{`npm run course:offline\nnpx tsx course/stage0-hello/run.ts --offline\nnpx tsx course/check.ts 0 --offline`}</code></pre>
           </li>
         </ol>
         <div className="card">
