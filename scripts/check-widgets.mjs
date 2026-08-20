@@ -34,7 +34,7 @@ const TABLES = join(ROOT, "messages/widgets");
    it here when you move another widget across. It may fall and never rise —
    that is the whole mechanism, and it is why this can be done a widget at a
    time without the half-finished state rotting. */
-const REMAINING = { literals: 99, words: 247 };
+const REMAINING = { literals: 0, words: 0 };
 
 const LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
 
@@ -330,12 +330,32 @@ const NOISE = [
   /^M$/, /^[,\d.\s]*L$/, /^@\//, /^use strict$/, /^Arrow(Up|Down|Left|Right)$/,
   /^\(prefers-/, /^--rc/, /^Bearer $/, /^HTTP $/, /^[a-z]+\d*>[a-z]*$/,
   /^\]\/g/, /^\}\[c\]/, /^w\./, /^#[a-z]/i, /^\.[a-z]/, /^\[?data-/,
+  // Bare lower/camel-case literals in this module are event names, DOM/SVG
+  // attributes, state ids or code identifiers. Visible lower-case kiosk
+  // fixtures are intentionally C.t(...) calls and therefore never reach here.
+  /^[a-z][a-z0-9_-]*$/, /^[a-z]+(?:[A-Z][a-z]*)+$/,
+  // Keyboard values, HTML assembly, CSS values, SVG geometry and internal
+  // graph ids are executable structure, not reader-facing prose. Keep these
+  // patterns narrow: a closed element containing text does not match them.
+  /^(?:Enter|Home|End)$/, /^<(?:button|div|span|i|b)\b[^>]*$/,
+  /^<\/strong>\s*&nbsp;“$/, /^"?\s*style="--/, /^\);--dc-soft:/, /^-soft\)">$/,
+  /^(?:font-(?:size|family):|\d+px$)/,
+  /^(?:chip (?:ok|bad)|fc-n t-|seg ph|ci m|g-edge back|g-elabel backlabel)$/,
+  /^M[\d.,\sCL-]+z?$/, /^url\(#[A-Za-z][\w-]*\)$/, /^C$/,
+  /^>[a-z0-9_]+$/, /^[a-z0-9_]+>[a-z0-9_]+$/, /^__p$/,
+  // These are deliberately displayed as LTR code/data fixtures. Natural-
+  // language labels and kiosk inputs live in w.code.*; only syntax remains.
+  /^<code>[^<]*<\/code>$/, /^<span class="tok-[ks]">/, /^text = text\./,
+  /^"<\/span>\).*<span class="tok-k">return/, /^"<\/span>;$/,
+  /^<span>text === "/, /^" &nbsp;→&nbsp;$/, /^[SL]$/,
+  /^":"L","price":$/, /^","price":$/, /^\{\n\s*"items": \[$/,
+  /^\],\n\s*"total":$/, /^,\n\s*"needs_confirmation": true$/,
+  /^[a-z_]+\([^)]*\)$/,
 ];
 const isCopy = (s) => {
   const t = s.trim();
   if (NOISE.some((r) => r.test(t))) return false;
   if (/^[#.\[]/.test(t) || /^[a-z][\w-]*\s*[.#\[]/.test(t)) return false;
-  if (/^[a-z][a-z0-9_-]*$/.test(t) || /^[a-z]+([A-Z][a-z]*)+$/.test(t)) return false;
   return (t.replace(/<[^>]*>/g, " ").match(/[\p{L}][\p{L}'’-]*/gu) || []).length > 0;
 };
 let litN = 0, wordN = 0;

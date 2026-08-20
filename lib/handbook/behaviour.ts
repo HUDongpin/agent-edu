@@ -4,6 +4,7 @@
    engine is injected rather than redefined, so both halves share one copy. */
 import FC from "@/lib/flowchart";
 import type { Copy } from "@/lib/handbook/copy";
+import { HANDBOOK_WIDE_QUERY, tabTargetIndex } from "@/lib/tab-navigation";
 
 /* `C` carries the widgets' own strings — see copy.ts. It is a parameter
    rather than an import because the table is chosen per locale on the
@@ -42,6 +43,8 @@ function txt(s){ return document.createTextNode(s); }
 })();
 (function(){
   const tabs=$$('.rail-btn');
+  const rail=$('#rail');
+  const wide=window.matchMedia(HANDBOOK_WIDE_QUERY);
   const NAMES=new Set(tabs.map(t=>t.dataset.p));
   const KEY='tch.section', SEEN='tch.seen';
   const store={
@@ -71,15 +74,28 @@ function txt(s){ return document.createTextNode(s); }
     });
   }
 
+  function revealTab(tab){
+    if (tab && tab.scrollIntoView) tab.scrollIntoView({block:'nearest',inline:'nearest'});
+  }
+
+  function syncOrientation(){
+    rail.setAttribute('aria-orientation',wide.matches?'vertical':'horizontal');
+    revealTab(tabs.find(t=>t.getAttribute('aria-selected')==='true'));
+  }
+
   function show(name, opts){
     opts=opts||{};
     if (!NAMES.has(name)) name='start';
+    let activeTab=null;
     tabs.forEach(t=>{
       const on=t.dataset.p===name;
       t.setAttribute('aria-selected',on?'true':'false');
+      t.tabIndex=on?0:-1;
+      if (on) activeTab=t;
       const p=document.getElementById('p-'+t.dataset.p);
       if (p) p.classList.toggle('on',on);
     });
+    revealTab(activeTab);
     seen.add(name); store.set(SEEN,[...seen].join(',')); store.set(KEY,name); paintSeen();
 
     // a real URL per section, so it can be linked, bookmarked and reached with Back
@@ -96,14 +112,14 @@ function txt(s){ return document.createTextNode(s); }
   }
 
   tabs.forEach((t,idx)=>{
-    t.addEventListener('click',()=>show(t.dataset.p));
+    t.addEventListener('click',()=>{ t.focus(); show(t.dataset.p,{focus:false}); });
     t.addEventListener('keydown',e=>{
-      let d=0;
-      if (e.key==='ArrowDown'||e.key==='ArrowRight') d=1;
-      if (e.key==='ArrowUp'||e.key==='ArrowLeft') d=-1;
-      if (!d) return;
+      const vertical=rail.getAttribute('aria-orientation')==='vertical';
+      const rtl=getComputedStyle(rail).direction==='rtl';
+      const next=tabTargetIndex(e.key,idx,tabs.length,vertical?'vertical':'horizontal',rtl);
+      if (next===null) return;
       e.preventDefault();
-      const n=tabs[(idx+d+tabs.length)%tabs.length];
+      const n=tabs[next];
       n.focus(); show(n.dataset.p,{focus:false});
     });
   });
@@ -111,11 +127,16 @@ function txt(s){ return document.createTextNode(s); }
     const b=e.target.closest('[data-goto]');
     if (b) show(b.dataset.goto);
   });
-  window.addEventListener('popstate',()=>{
+  const restoreLocation=()=>{
     const h=decodeURIComponent(location.hash.slice(1));
-    show(NAMES.has(h)?h:'start',{replace:true,focus:false});
-  });
-  let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(scrollHints,180);});
+    show(NAMES.has(h)?h:'start',{replace:true,focus:false,silent:true});
+  };
+  window.addEventListener('popstate',restoreLocation);
+  window.addEventListener('hashchange',restoreLocation);
+  let rt; window.addEventListener('resize',()=>{syncOrientation();clearTimeout(rt);rt=setTimeout(scrollHints,180);});
+  if (wide.addEventListener) wide.addEventListener('change',syncOrientation);
+  else if (wide.addListener) wide.addListener(syncOrientation);
+  syncOrientation();
 
   // a link to #loop wins; otherwise pick up where they left off
   const fromHash=decodeURIComponent(location.hash.slice(1));
@@ -373,7 +394,11 @@ const RECALL={
 })();
 /* ===================== 01 — THE KIOSK ===================== */
 (function(){
-  const BASE=[{k:'coffee',label:'Coffee',price:'3.00'},{k:'tea',label:'Tea',price:'2.00'},{k:'juice',label:'Juice',price:'4.00'}];
+  const BASE=[
+    {k:C.t('w.code.rule.coffee'),label:C.t('w.code.label.coffee'),price:'3.00'},
+    {k:C.t('w.code.rule.tea'),label:C.t('w.code.label.tea'),price:'2.00'},
+    {k:C.t('w.code.rule.juice'),label:C.t('w.code.label.juice'),price:'4.00'}
+  ];
   let rules=BASE.slice(), outputs=new Set(), runs=0, lastInput=null, timer=null, fc=null;
   const codebox=$('#codebox'), trace=$('#codeTrace'), out=$('#codeOut');
 
@@ -381,7 +406,7 @@ const RECALL={
     const lines=[{h:'<span class="tok-k">function</span> order(text) {'},{h:'  text = text.toLowerCase().trim();'}];
     rules.forEach((r,i)=>lines.push({rule:i,
       h:'  <span class="tok-k">if</span> (text === <span class="tok-s">"'+esc(r.k)+'"</span>) <span class="tok-k">return</span> <span class="tok-s">"'+esc(r.label)+' — $'+r.price+'"</span>;'}));
-    lines.push({fallback:true,h:'  <span class="tok-k">return</span> <span class="tok-s">"Sorry, I don\'t understand."</span>;'});
+    lines.push({fallback:true,h:'  <span class="tok-k">return</span> <span class="tok-s">"'+esc(C.t('w.code.out.fail'))+'"</span>;'});
     lines.push({h:'}'});
     codebox.innerHTML='';
     lines.forEach(l=>{
@@ -434,7 +459,10 @@ const RECALL={
     const t=fc.labels[k]; if(t){t.classList.remove('dim');t.classList.add('live');}
   }
 
-  const PRESETS=['coffee','Coffee',' tea ','a latte please','something warm','cofee'];
+  const PRESETS=[
+    C.t('w.code.rule.coffee'),C.t('w.code.preset.coffeeCase'),' '+C.t('w.code.rule.tea')+' ',
+    C.t('w.code.preset.latte'),C.t('w.code.preset.warm'),C.t('w.code.preset.typo')
+  ];
   (function(){
     const box=$('#inputBtns');
     PRESETS.forEach(p=>{
@@ -491,7 +519,7 @@ const RECALL={
   $('#addRule').addEventListener('click',()=>{
     const v=$('#newWord').value.toLowerCase().trim();
     if (!v || rules.some(r=>r.k===v)) return;
-    rules.push({k:v,label:'Coffee',price:'3.00'});
+    rules.push({k:v,label:C.t('w.code.label.coffee'),price:'3.00'});
     $('#newWord').value=''; renderCode();
     const warn=$('#ruleWarn'); warn.hidden=false;
     warn.innerHTML = (rules.length-3<3)
@@ -621,130 +649,7 @@ const RECALL={
     window.__paintProgress=paint;
   })();
 
-  /* ---- live mode: the one place this page talks to a real model ------
-     Everything else here is scripted on purpose. This is opt-in, uses the
-     reader's OWN key, holds it in sessionStorage (gone when the tab closes)
-     and posts it to api.deepseek.com and nowhere else. */
-  const DS = {
-    KEY:'ae.ds.key', ep:'https://api.deepseek.com/chat/completions',
-    get key(){ try{return sessionStorage.getItem(DS.KEY)||'';}catch(e){return '';} },
-    set key(v){ try{ v?sessionStorage.setItem(DS.KEY,v):sessionStorage.removeItem(DS.KEY); }catch(e){} },
-    spent:{in:0,out:0,calls:0},
-    async ask(prompt, model){
-      const r = await fetch(DS.ep,{method:'POST',headers:{
-          'Content-Type':'application/json','Authorization':'Bearer '+DS.key},
-        body:JSON.stringify({model:model,max_tokens:900,
-          messages:[{role:'user',content:prompt}],
-          thinking:{type:'disabled'}})});
-      const j = await r.json().catch(()=>null);
-      if (!r.ok || !j) throw new Error((j&&j.error&&j.error.message)||('HTTP '+r.status));
-      const u=j.usage||{};
-      DS.spent.in+=u.prompt_tokens||0; DS.spent.out+=u.completion_tokens||0; DS.spent.calls++;
-      const txt=((j.choices||[{}])[0].message||{}).content||'';
-      if (!txt.trim()) throw new Error(C.t('w.ds.empty'));
-      return txt;
-    },
-    cost(){ // deepseek-v4-flash off-peak, USD/1M: in .22 out .66
-      const d=(DS.spent.in*0.22+DS.spent.out*0.66)/1e6;
-      return C.t('w.ds.cost',{calls:DS.spent.calls,sent:DS.spent.in,back:DS.spent.out,
-                              usd:d.toFixed(5)});
-    }
-  };
-
-  let live=false;
-  const liveBar=$('#pLiveBar'), keyIn=$('#pKey');
-  function paintKey(){
-    const has=!!DS.key;
-    keyIn.value = has ? '••••••••••••••••' : '';
-    $('#pKeySave').textContent = has ? C.t('w.ds.keyReplace') : C.t('w.ds.keySave');
-    $('#pKeyClear').disabled = !has;
-  }
-  $('#pLiveBtn').addEventListener('click',()=>{
-    live=!live;
-    liveBar.hidden=!live;
-    $('#pLiveBtn').textContent = live ? C.t('w.prompt.live.on') : C.t('w.prompt.live.off');
-    $('#pLiveBtn').classList.toggle('primary',live);
-    if(live){ paintKey(); seen=new Set(); runs=0; }
-    render(!live);
-  });
-  $('#pKeySave').addEventListener('click',()=>{
-    const v=keyIn.value.trim();
-    if(v && !v.startsWith('••')) DS.key=v;
-    paintKey();
-  });
-  $('#pKeyClear').addEventListener('click',()=>{ DS.key=''; paintKey(); });
-
-  /* The prompt exactly as assembled above — the same text the reader sees. */
-  function livePrompt(){
-    let out='';
-    PARTS.forEach(p=>{ if(on[p.id]) out+='— '+p.name.toUpperCase()+' —\n'+p.text+'\n\n'; });
-    return out+C.t('w.prompt.customerMessage')+'\n'+CUSTOMER;
-  }
-
-  /* Real checks against a real answer, instead of the scripted ones.
-     This is section 07 in miniature: you cannot eyeball a model's output,
-     you have to assert something about it. */
-  function liveIssues(txt){
-    const t=txt.trim();
-    let obj=null; try{ obj=JSON.parse(t.replace(/^```(?:json)?|```$/g,'').trim()); }catch(e){}
-    const flat=t.toLowerCase();
-    return [
-      {bad:!obj, t:obj?C.t('w.prompt.live.json.good')
-                     :C.t('w.prompt.live.json.bad'),
-       fix:C.t('w.prompt.toggle.format')},
-      {bad:!/5\.10/.test(t), t:/5\.10/.test(t)
-        ?C.t('w.prompt.live.price.good')
-        :C.t('w.prompt.live.price.bad'), fix:C.t('w.prompt.toggle.menu')},
-      {bad:/^(sure|of course|absolutely|certainly|happy to)/i.test(t),
-       t:/^(sure|of course|absolutely|certainly|happy to)/i.test(t)
-        ?C.t('w.prompt.live.preamble.bad')
-        :C.t('w.prompt.live.preamble.good'), fix:C.t('w.prompt.toggle.role')},
-      {bad:!/needs_confirmation|confirm/i.test(flat),
-       t:/needs_confirmation|confirm/i.test(flat)
-        ?C.t('w.prompt.live.confirm.good')
-        :C.t('w.prompt.live.confirm.bad'),
-       fix:C.t('w.prompt.toggle.rules')}
-    ];
-  }
-
-  function paintIssues(issues){
-    const ib=$('#pIssues'); ib.innerHTML='';
-    issues.forEach(i=>{
-      const d=document.createElement('div'); d.className='iss '+(i.bad?'bad':'good');
-      d.innerHTML='<span>'+(i.bad?'✗':'✓')+'</span><span>'+esc(i.t)+
-        (i.bad?' <span class="fix">'+C.h('w.prompt.fix',{fix:esc(i.fix)})+'</span>':'')+'</span>';
-      ib.appendChild(d);
-    });
-  }
-
-  async function runLive(){
-    if(!DS.key){ paintKey(); keyIn.focus();
-      $('#modelOut').textContent=C.t('w.ds.noKey'); return; }
-    const out=$('#modelOut');
-    out.classList.add('live-wait'); out.textContent=C.t('w.ds.asking');
-    $('#pRun').disabled=true;
-    try{
-      const txt=await DS.ask(livePrompt(), $('#pModel').value);
-      out.textContent=txt;
-      runs++; seen.add(txt.trim());
-      $('#pRuns').textContent=runs; $('#pDistinct').textContent=seen.size;
-      const v=$('#pVerdict');
-      if(runs<3){ v.className='chip'; v.textContent=C.t('w.prompt.verdict.more'); }
-      else if(seen.size===1){ v.className='chip ok'; v.textContent=C.t('w.prompt.verdict.stable'); }
-      else { v.className='chip bad'; v.textContent=C.t('w.prompt.distinct',{n:seen.size}); }
-      paintIssues(liveIssues(txt));
-      $('#pLiveCost').textContent=DS.cost();
-    }catch(err){
-      out.textContent=C.t('w.ds.error',{message:err.message});
-    }finally{
-      out.classList.remove('live-wait'); $('#pRun').disabled=false;
-    }
-  }
-
-  $('#pRun').addEventListener('click',()=>{
-    if(live){ runLive(); return; }
-    variant++; render(true);
-  });
+  $('#pRun').addEventListener('click',()=>{ variant++; render(true); });
 
   const FAKE_PRICES=['5.75','4.50','6.25'];
   const FAKE_KID=[[C.t('w.prompt.fake.kid1'),'2.95'],[C.t('w.prompt.fake.kid2'),'2.50'],[C.t('w.prompt.fake.kid3'),'3.25']];

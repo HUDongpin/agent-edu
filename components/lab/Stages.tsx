@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { tabTargetIndex } from "@/lib/tab-navigation";
 import { useI18n } from "../I18nProvider";
 
 export interface Stage {
@@ -35,13 +36,11 @@ export default function Stages({
   const box = useRef<HTMLDivElement>(null);
 
   function keys(e: React.KeyboardEvent) {
-    const last = stages.length - 1;
-    let next = -1;
-    if (e.key === "ArrowRight") next = current === last ? 0 : current + 1;
-    else if (e.key === "ArrowLeft") next = current === 0 ? last : current - 1;
-    else if (e.key === "Home") next = 0;
-    else if (e.key === "End") next = last;
-    if (next < 0) return;
+    const rtl = (box.current
+      ? getComputedStyle(box.current).direction
+      : document.documentElement.dir) === "rtl";
+    const next = tabTargetIndex(e.key, current, stages.length, "horizontal", rtl);
+    if (next === null) return;
     e.preventDefault();
     onPick(next);
     box.current?.querySelectorAll<HTMLButtonElement>("button")[next]?.focus();

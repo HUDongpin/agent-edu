@@ -567,7 +567,7 @@ td.mono{font-family:var(--mono);font-size:12px}
 .hb .rainbow{display:flex;height:4px}
 .hb .rainbow span{flex:1}
 .hb .masthead-in{max-width:var(--maxw);margin:0 auto;padding:11px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.hb .wordmark{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15.5px;letter-spacing:-.01em}
+.hb .wordmark{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-weight:700;font-size:15.5px;letter-spacing:-.01em}
 .hb .mast-sub{font-size:12.5px;color:var(--ink-3)}
 .hb .mast-spacer{flex:1 1 auto}
 .hb .legend{display:flex;gap:13px;align-items:center;flex-wrap:wrap}
@@ -972,7 +972,7 @@ td.mono{font-family:var(--mono);font-size:12px}
 .hb figure{margin:0}
 .hb figcaption{font-family:var(--serif);font-size:15.6px;color:var(--ink-3);line-height:1.5;margin-top:10px;max-width:64ch}
 
-@media (max-width:980px){
+@media (max-width:979px){
   .hb .shell{grid-template-columns:1fr;gap:0}
   .hb .masthead{position:static}
   .hb .rail{position:sticky;top:var(--topbar-h);z-index:30;padding:0;margin:0 -20px;
@@ -1028,14 +1028,6 @@ td.mono{font-family:var(--mono);font-size:12px}
 }
 /* reduced motion is handled globally, at the top of this file */
 
-  /* ---- live mode (section 02 only) ---------------------------------- */
-  .hb .livebar{border:1px solid var(--amber-line);background:var(--amber-soft);
-    border-radius:10px;padding:11px 12px;margin-bottom:12px}
-  .hb .keyin{flex:1 1 200px;min-width:0;font:inherit;font-size:12px;
-    font-family:var(--mono);padding:6px 9px;border-radius:7px;
-    border:1px solid var(--line);background:var(--bg);color:var(--ink)}
-  .hb .keyin:focus{outline:2px solid var(--sec);outline-offset:1px}
-  .hb .modelout.live-wait{opacity:.5}
   .hb .prog{border:1px solid var(--line);border-radius:11px;padding:12px 13px;
     background:var(--card);margin-top:15px}
   .hb .prog ul{list-style:none;margin:9px 0 0;padding:0;display:grid;
@@ -1044,14 +1036,7 @@ td.mono{font-family:var(--mono);font-size:12px}
   .hb .prog li.done{color:var(--ink)}
   .hb .prog .tick{font-family:var(--mono);font-size:12px;width:1.1em;flex:0 0 auto}
   .hb .prog li.done .tick{color:var(--green)}
-  .hb .livebar a{color:var(--ink);text-decoration:underline;text-underline-offset:2px;
-    text-decoration-thickness:1px}
-  .hb .livebar a:hover{text-decoration-thickness:2px}
-  .hb .livebar a:focus-visible{outline:2px solid var(--sec);outline-offset:2px;border-radius:2px}
   .hb .note a{color:inherit;text-decoration:underline;text-underline-offset:2px}
-  .hb .liveflag{display:inline-block;font-size:10.5px;font-weight:700;
-    letter-spacing:.04em;padding:2px 7px;border-radius:999px;
-    background:var(--amber);color:#fff;margin-inline-start:7px}
 
 /* The handbook's own masthead keeps its glossary and legend, but its theme
    button is a duplicate now that the platform header owns the theme. It stays
