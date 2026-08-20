@@ -118,6 +118,11 @@ function hasRequired(options: OfflineTextOptions, ...keys: string[]): boolean {
   return keys.every((key) => required.has(key));
 }
 
+function proposedReplyFrom(prompt: string): string {
+  const match = /Proposed reply to a customer:\s*\n([\s\S]*?)\n\nDoes this reply/i.exec(prompt);
+  return match?.[1] ?? prompt;
+}
+
 /** Return text in the same shape a live Provider would return. */
 export function offlineText(prompt: string, options: OfflineTextOptions = {}): string {
   const system = options.system ?? "";
@@ -135,7 +140,9 @@ export function offlineText(prompt: string, options: OfflineTextOptions = {}): s
     return JSON.stringify({ lane });
   }
   if (hasRequired(options, "approved", "problem")) {
-    const violation = /entire order|store credit|free delivery/i.test(prompt);
+    // The policy itself names forbidden promises. Judge only the proposed
+    // reply, otherwise the scripted reviewer rejects every compliant draft.
+    const violation = /entire order|store credit|free delivery/i.test(proposedReplyFrom(prompt));
     return JSON.stringify({
       approved: !violation,
       problem: violation ? "The draft exceeds the written damaged-item policy." : "",

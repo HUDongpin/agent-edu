@@ -197,7 +197,9 @@ if (parts.gate && name === "place_order") {
       `Approve ${qty} x ${item} ($${estimate.toFixed(2)}; ` +
       `$${committed.toFixed(2)} already committed)?`;
     if (!approve(question)) {
-      RUN_LOG.push(`BLOCKED ${name}${JSON.stringify(args)} — $${estimate.toFixed(2)}`);
+      if (parts.log) {
+        RUN_LOG.push(`BLOCKED ${name}${JSON.stringify(args)} — $${estimate.toFixed(2)}`);
+      }
       return [
         `Blocked: this would take the run to $${(committed + estimate).toFixed(2)}, ` +
         `over the $${APPROVAL_THRESHOLD.toFixed(2)} limit, and approval was refused. ` +
