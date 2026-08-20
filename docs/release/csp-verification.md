@@ -24,6 +24,15 @@ policy, create evidence, deploy a preview, or mark either release gate as
 passed. Promotion to `enforced` must be an explicit reviewed commit after Stage
 A passes. Run `npm run csp:check` in CI and immediately before every preview.
 
+The release-evidence schema preserves both immutable observations. Stage A's
+five binding fields live in `vercelPreviewCsp.reportOnlyTarget`; Stage B's five
+binding fields are the final top-level `releaseTarget`. Every non-pending stage
+must repeat its own target as safe opaque refs plus a substantive CSP record.
+For a concluded Stage B, the checker requires distinct commit and deployment
+IDs, identical checkpoint/branch/workflow bindings, and a Stage A timestamp
+strictly earlier than Stage B. A pending stage has no timestamp or evidence
+refs, and target fields that are not known yet may remain null.
+
 ## Expected baseline policy
 
 ```text
@@ -54,7 +63,12 @@ upgrade-insecure-requests;
 - [ ] A sanitized violation summary and deployment ID are retained.
 
 - Report-only result: pass / fail
+- Checked at (UTC):
 - Observation window:
+- Candidate commit SHA:
+- Checkpoint SHA:
+- Integration branch:
+- Workflow definition blob SHA:
 - Vercel deployment ID:
 - CSP record ID:
 
@@ -75,6 +89,10 @@ baseline.
 
 - Enforced result: pass / fail
 - Checked at (UTC):
+- Final candidate commit SHA:
+- Checkpoint SHA:
+- Integration branch:
+- Workflow definition blob SHA:
 - Vercel deployment ID:
 - CSP record ID:
 

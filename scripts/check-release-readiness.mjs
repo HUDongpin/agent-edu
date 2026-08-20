@@ -36,6 +36,13 @@ const GITHUB_CONCLUSIONS = new Set([
   "success", "failure", "cancelled", "timed_out", "action_required",
   "neutral", "skipped", "stale", "startup_failure",
 ]);
+const RELEASE_TARGET_KEYS = [
+  "candidateCommitSha",
+  "checkpointSha",
+  "integrationBranch",
+  "vercelDeploymentId",
+  "workflowDefinitionSha",
+];
 
 const MATRIX_WIDTHS = [390, 979, 980, 1440];
 const MATRIX_THEMES = ["light", "dark"];
@@ -63,7 +70,7 @@ const SAFE_SCHEMA_SEGMENTS = new Set([
   "providerCanary", "credentialPolicy", "officialPricingUrl", "steps", "reconciliations",
   ...PROVIDER_STEPS,
   ...PROVIDER_RECONCILIATIONS,
-  "vercelPreviewCsp", "requiredHeaders", "reportOnly", "enforced", "stages",
+  "vercelPreviewCsp", "requiredHeaders", "reportOnlyTarget", "reportOnly", "enforced", "stages",
   "githubReadiness", "requiredCheckNames", "requiredChecks", "stableRuns", "sequence",
   "protectedBranch", "rulesetId", "qualityRequired", "smokeChromiumRequired",
   "runId", "runAttempt", "commitSha", "branch", "workflowSha", "qualityConclusion", "smokeChromiumConclusion", "completedAt",
@@ -157,6 +164,32 @@ function targetBindingRefs(target) {
     `vercel-deployment:${target.vercelDeploymentId}`,
     `workflow-definition:${target.workflowDefinitionSha}`,
   ];
+}
+
+function validateNullableReleaseTarget(target, path, issues) {
+  if (!isObject(target)) {
+    addIssue(issues, "schema-target", path, "must describe a candidate, checkpoint, branch, deployment, and workflow");
+    return;
+  }
+  validateExactKeys(target, RELEASE_TARGET_KEYS, path, issues);
+  for (const key of ["candidateCommitSha", "checkpointSha", "workflowDefinitionSha"]) {
+    if (target[key] !== null && !GIT_SHA.test(target[key])) {
+      addIssue(issues, "schema-target", `${path}.${key}`, "must be null while unfrozen or one lowercase 40-character Git SHA");
+    }
+  }
+  if (target.integrationBranch !== null && !INTEGRATION_BRANCH.test(target.integrationBranch)) {
+    addIssue(issues, "schema-target", `${path}.integrationBranch`, "must be null while unfrozen, main, or one scoped codex branch");
+  }
+  if (target.vercelDeploymentId !== null && !DEPLOYMENT_ID.test(target.vercelDeploymentId)) {
+    addIssue(issues, "schema-target", `${path}.vercelDeploymentId`, "must be null while unfrozen or one opaque Vercel deployment id");
+  }
+  if (
+    GIT_SHA.test(target.candidateCommitSha)
+    && GIT_SHA.test(target.checkpointSha)
+    && target.candidateCommitSha === target.checkpointSha
+  ) {
+    addIssue(issues, "schema-target", `${path}.checkpointSha`, "must identify the distinct pre-implementation checkpoint");
+  }
 }
 
 export function findSensitiveEvidenceText(value) {
@@ -312,7 +345,13 @@ function validateEvidenceRecord(value, path, issues, options = {}) {
   } else if (Array.isArray(value.evidenceRefs)) {
     for (const ref of bindingRefs) {
       if (!value.evidenceRefs.includes(ref)) {
-        addIssue(issues, "schema-target-binding", `${path}.evidenceRefs`, `must bind evidence to ${ref}`);
+        const bindingKind = ref.slice(0, ref.indexOf(":"));
+        addIssue(
+          issues,
+          "schema-target-binding",
+          `${path}.evidenceRefs`,
+          `must include the exact frozen ${bindingKind} target binding`,
+        );
       }
     }
     if (!value.evidenceRefs.some((ref) => !bindingRefs.includes(ref))) {
@@ -469,7 +508,7 @@ export function validateReleaseReadiness(config, options = {}) {
     issues,
   );
 
-  if (config.schemaVersion !== 1) addIssue(issues, "schema-version", "$.schemaVersion", "must equal 1");
+  if (config.schemaVersion !== 2) addIssue(issues, "schema-version", "$.schemaVersion", "must equal 2");
   if (typeof config.releaseId !== "string" || !/^[a-z0-9][a-z0-9-]{2,63}$/.test(config.releaseId)) {
     addIssue(issues, "schema-release", "$.releaseId", "must be a stable lowercase release id");
   }
@@ -480,30 +519,7 @@ export function validateReleaseReadiness(config, options = {}) {
   if (!isObject(target)) {
     addIssue(issues, "schema-target", "$.releaseTarget", "must describe the frozen candidate, checkpoint, branch, deployment, and workflow");
   } else {
-    validateExactKeys(
-      target,
-      ["candidateCommitSha", "checkpointSha", "integrationBranch", "vercelDeploymentId", "workflowDefinitionSha"],
-      "$.releaseTarget",
-      issues,
-    );
-    for (const key of ["candidateCommitSha", "checkpointSha", "workflowDefinitionSha"]) {
-      if (target[key] !== null && !GIT_SHA.test(target[key])) {
-        addIssue(issues, "schema-target", `$.releaseTarget.${key}`, "must be null while unfrozen or one lowercase 40-character Git SHA");
-      }
-    }
-    if (target.integrationBranch !== null && !INTEGRATION_BRANCH.test(target.integrationBranch)) {
-      addIssue(issues, "schema-target", "$.releaseTarget.integrationBranch", "must be null while unfrozen, main, or one scoped codex branch");
-    }
-    if (target.vercelDeploymentId !== null && !DEPLOYMENT_ID.test(target.vercelDeploymentId)) {
-      addIssue(issues, "schema-target", "$.releaseTarget.vercelDeploymentId", "must be null while unfrozen or one opaque Vercel deployment id");
-    }
-    if (
-      GIT_SHA.test(target.candidateCommitSha)
-      && GIT_SHA.test(target.checkpointSha)
-      && target.candidateCommitSha === target.checkpointSha
-    ) {
-      addIssue(issues, "schema-target", "$.releaseTarget.checkpointSha", "must identify the distinct pre-implementation checkpoint");
-    }
+    validateNullableReleaseTarget(target, "$.releaseTarget", issues);
     if (config.status === "pass" && !isCompleteReleaseTarget(target)) {
       addIssue(issues, "schema-target-binding", "$.releaseTarget", "a passing release must bind all five frozen target fields");
     }
@@ -691,7 +707,7 @@ export function validateReleaseReadiness(config, options = {}) {
   } else {
     validateExactKeys(
       csp,
-      ["status", "requiredHeaders", "stages"],
+      ["status", "requiredHeaders", "reportOnlyTarget", "stages"],
       "$.gates.vercelPreviewCsp",
       issues,
     );
@@ -709,13 +725,92 @@ export function validateReleaseReadiness(config, options = {}) {
         issues,
       );
     }
-    const records = validateRecordMap(
-      csp.stages,
-      ["reportOnly", "enforced"],
-      "$.gates.vercelPreviewCsp.stages",
+    const reportOnlyTarget = csp.reportOnlyTarget;
+    validateNullableReleaseTarget(
+      reportOnlyTarget,
+      "$.gates.vercelPreviewCsp.reportOnlyTarget",
       issues,
-      evidenceOptions,
     );
+
+    const stages = csp.stages;
+    const records = [];
+    if (!isObject(stages)) {
+      addIssue(issues, "schema-object", "$.gates.vercelPreviewCsp.stages", "must be an object");
+    } else {
+      validateExactKeys(
+        stages,
+        ["reportOnly", "enforced"],
+        "$.gates.vercelPreviewCsp.stages",
+        issues,
+      );
+      const reportOnly = stages.reportOnly;
+      const enforced = stages.enforced;
+      validateEvidenceRecord(
+        reportOnly,
+        "$.gates.vercelPreviewCsp.stages.reportOnly",
+        issues,
+        { ...options, releaseTarget: reportOnlyTarget },
+      );
+      validateEvidenceRecord(
+        enforced,
+        "$.gates.vercelPreviewCsp.stages.enforced",
+        issues,
+        evidenceOptions,
+      );
+      if (isObject(reportOnly)) records.push(reportOnly);
+      if (isObject(enforced)) records.push(enforced);
+
+      if (isObject(enforced) && enforced.status !== "pending") {
+        if (reportOnly?.status !== "pass") {
+          addIssue(
+            issues,
+            "schema-csp-order",
+            "$.gates.vercelPreviewCsp.stages.enforced.status",
+            "cannot be concluded until the report-only stage has passed",
+          );
+        }
+        if (isCompleteReleaseTarget(reportOnlyTarget) && isCompleteReleaseTarget(target)) {
+          if (reportOnlyTarget.candidateCommitSha === target.candidateCommitSha) {
+            addIssue(
+              issues,
+              "schema-csp-target",
+              "$.gates.vercelPreviewCsp.reportOnlyTarget.candidateCommitSha",
+              "must identify the distinct predecessor report-only commit",
+            );
+          }
+          if (reportOnlyTarget.vercelDeploymentId === target.vercelDeploymentId) {
+            addIssue(
+              issues,
+              "schema-csp-target",
+              "$.gates.vercelPreviewCsp.reportOnlyTarget.vercelDeploymentId",
+              "must identify a distinct predecessor report-only deployment",
+            );
+          }
+          for (const key of ["checkpointSha", "integrationBranch", "workflowDefinitionSha"]) {
+            if (reportOnlyTarget[key] !== target[key]) {
+              addIssue(
+                issues,
+                "schema-csp-target",
+                `$.gates.vercelPreviewCsp.reportOnlyTarget.${key}`,
+                "must match the final release target across both CSP stages",
+              );
+            }
+          }
+        }
+        if (
+          isIsoInstant(reportOnly?.checkedAt)
+          && isIsoInstant(enforced.checkedAt)
+          && new Date(reportOnly.checkedAt).valueOf() >= new Date(enforced.checkedAt).valueOf()
+        ) {
+          addIssue(
+            issues,
+            "schema-csp-order",
+            "$.gates.vercelPreviewCsp.stages.enforced.checkedAt",
+            "must be later than the report-only observation",
+          );
+        }
+      }
+    }
     validateGroupStatus(csp, records, "$.gates.vercelPreviewCsp", issues);
     groupStatuses.push(csp);
   }

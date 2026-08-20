@@ -29,11 +29,14 @@ type LooseConfig = Record<string, any>;
 type CatalogFixture = Record<string, Record<string, Record<string, string>>>;
 
 const PASS_AT = "2026-08-21T10:00:00.000Z";
+const REPORT_ONLY_PASS_AT = "2026-08-21T09:00:00.000Z";
 const CANDIDATE_SHA = "75b6d79d52b3e92928474768069894ec99975865";
+const REPORT_ONLY_SHA = "1111111111111111111111111111111111111111";
 const CHECKPOINT_SHA = "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd";
 const WORKFLOW_SHA = "e5f4be91fb2f9e5950bd49b9c6ef03a2ed940ba4";
 const INTEGRATION_BRANCH = "codex/agent-edu-release-candidate";
 const DEPLOYMENT_ID = "dpl_releaseFixture20260821";
+const REPORT_ONLY_DEPLOYMENT_ID = "dpl_reportOnlyFixture20260821";
 const productionConfig = JSON.parse(
   readFileSync("config/release-readiness.json", "utf8"),
 ) as LooseConfig;
@@ -52,10 +55,35 @@ function targetRefs(): string[] {
   ];
 }
 
-function passEvidence(record: Evidence, ref = "review-record:fixture", checkedAt = PASS_AT): void {
+function reportOnlyTarget(): LooseConfig {
+  return {
+    candidateCommitSha: REPORT_ONLY_SHA,
+    checkpointSha: CHECKPOINT_SHA,
+    integrationBranch: INTEGRATION_BRANCH,
+    vercelDeploymentId: REPORT_ONLY_DEPLOYMENT_ID,
+    workflowDefinitionSha: WORKFLOW_SHA,
+  };
+}
+
+function reportOnlyTargetRefs(): string[] {
+  return [
+    `candidate-commit:${REPORT_ONLY_SHA}`,
+    `checkpoint:${CHECKPOINT_SHA}`,
+    `integration-branch:${INTEGRATION_BRANCH}`,
+    `vercel-deployment:${REPORT_ONLY_DEPLOYMENT_ID}`,
+    `workflow-definition:${WORKFLOW_SHA}`,
+  ];
+}
+
+function passEvidence(
+  record: Evidence,
+  ref = "review-record:fixture",
+  checkedAt = PASS_AT,
+  bindingRefs = targetRefs(),
+): void {
   record.status = "pass";
   record.checkedAt = checkedAt;
-  record.evidenceRefs = [...targetRefs(), ref];
+  record.evidenceRefs = [...bindingRefs, ref];
 }
 
 function passingConfig(): LooseConfig {
@@ -93,9 +121,17 @@ function passingConfig(): LooseConfig {
   }
   config.gates.providerCanary.status = "pass";
 
-  for (const record of Object.values(config.gates.vercelPreviewCsp.stages) as Evidence[]) {
-    passEvidence(record, "csp-record:fixture");
-  }
+  config.gates.vercelPreviewCsp.reportOnlyTarget = reportOnlyTarget();
+  passEvidence(
+    config.gates.vercelPreviewCsp.stages.reportOnly,
+    "csp-record:report-only-fixture",
+    REPORT_ONLY_PASS_AT,
+    reportOnlyTargetRefs(),
+  );
+  passEvidence(
+    config.gates.vercelPreviewCsp.stages.enforced,
+    "csp-record:enforced-fixture",
+  );
   config.gates.vercelPreviewCsp.status = "pass";
 
   const required = config.gates.githubReadiness.requiredChecks;
@@ -163,10 +199,14 @@ function passingCatalogs(): CatalogFixture {
 
 test("the committed release config is schema-valid and honestly pending", () => {
   assert.equal(productionConfig.status, "pending");
+  assert.equal(productionConfig.schemaVersion, 2);
   assert.equal(productionConfig.releaseTarget.candidateCommitSha, CANDIDATE_SHA);
   assert.equal(productionConfig.releaseTarget.checkpointSha, CHECKPOINT_SHA);
   assert.equal(productionConfig.releaseTarget.workflowDefinitionSha, WORKFLOW_SHA);
   assert.equal(productionConfig.releaseTarget.vercelDeploymentId, null);
+  assert.deepEqual(Object.values(productionConfig.gates.vercelPreviewCsp.reportOnlyTarget), [null, null, null, null, null]);
+  assert.deepEqual(productionConfig.gates.vercelPreviewCsp.stages.reportOnly.evidenceRefs, []);
+  assert.deepEqual(productionConfig.gates.vercelPreviewCsp.stages.enforced.evidenceRefs, []);
   assert.deepEqual(validateReleaseReadiness(productionConfig), []);
 
   const result = checkReleaseReadiness();
@@ -280,6 +320,125 @@ test("passing evidence must bind the exact frozen deployment and all target fiel
   unfrozen.releaseTarget.vercelDeploymentId = null;
   const targetIssues = validateReleaseReadiness(unfrozen);
   assert.ok(targetIssues.some((issue) => issue.code === "schema-target-binding"));
+});
+
+test("CSP stages require distinct commits and deployments", () => {
+  const sameCommit = passingConfig();
+  sameCommit.gates.vercelPreviewCsp.reportOnlyTarget.candidateCommitSha = CANDIDATE_SHA;
+  sameCommit.gates.vercelPreviewCsp.stages.reportOnly.evidenceRefs = [
+    ...reportOnlyTargetRefs().map((ref) =>
+      ref === `candidate-commit:${REPORT_ONLY_SHA}`
+        ? `candidate-commit:${CANDIDATE_SHA}`
+        : ref),
+    "csp-record:report-only-fixture",
+  ];
+  let issues = validateReleaseReadiness(sameCommit);
+  assert.ok(issues.some((issue) =>
+    issue.code === "schema-csp-target"
+    && issue.path.endsWith("reportOnlyTarget.candidateCommitSha")));
+
+  const sameDeployment = passingConfig();
+  sameDeployment.gates.vercelPreviewCsp.reportOnlyTarget.vercelDeploymentId = DEPLOYMENT_ID;
+  sameDeployment.gates.vercelPreviewCsp.stages.reportOnly.evidenceRefs = [
+    ...reportOnlyTargetRefs().map((ref) =>
+      ref === `vercel-deployment:${REPORT_ONLY_DEPLOYMENT_ID}`
+        ? `vercel-deployment:${DEPLOYMENT_ID}`
+        : ref),
+    "csp-record:report-only-fixture",
+  ];
+  issues = validateReleaseReadiness(sameDeployment);
+  assert.ok(issues.some((issue) =>
+    issue.code === "schema-csp-target"
+    && issue.path.endsWith("reportOnlyTarget.vercelDeploymentId")));
+});
+
+test("CSP stages retain the same checkpoint, branch, and workflow", () => {
+  const cases = [
+    ["checkpointSha", CHECKPOINT_SHA, "2222222222222222222222222222222222222222", "checkpoint"],
+    ["integrationBranch", INTEGRATION_BRANCH, "codex/report-only-other-branch", "integration-branch"],
+    ["workflowDefinitionSha", WORKFLOW_SHA, "3333333333333333333333333333333333333333", "workflow-definition"],
+  ];
+
+  for (const [key, original, replacement, prefix] of cases) {
+    const config = passingConfig();
+    config.gates.vercelPreviewCsp.reportOnlyTarget[key] = replacement;
+    config.gates.vercelPreviewCsp.stages.reportOnly.evidenceRefs = [
+      ...reportOnlyTargetRefs().map((ref) =>
+        ref === `${prefix}:${original}` ? `${prefix}:${replacement}` : ref),
+      "csp-record:report-only-fixture",
+    ];
+    const issues = validateReleaseReadiness(config);
+    assert.ok(issues.some((issue) =>
+      issue.code === "schema-csp-target"
+      && issue.path.endsWith(`reportOnlyTarget.${key}`)));
+  }
+});
+
+test("CSP report-only evidence binds its predecessor target, not the final target", () => {
+  const config = passingConfig();
+  config.gates.vercelPreviewCsp.stages.reportOnly.evidenceRefs = [
+    ...targetRefs(),
+    "csp-record:report-only-fixture",
+  ];
+
+  const issues = validateReleaseReadiness(config);
+  assert.ok(issues.some((issue) =>
+    issue.code === "schema-target-binding"
+    && issue.path.endsWith("stages.reportOnly.evidenceRefs")));
+
+  const credentialShapedDeployment = ["sk", "-", "R".repeat(24)].join("");
+  config.gates.vercelPreviewCsp.reportOnlyTarget.vercelDeploymentId = credentialShapedDeployment;
+  const privateTargetIssues = validateReleaseReadiness(config);
+  assert.ok(privateTargetIssues.some((issue) => issue.code === "sensitive-provider-key"));
+  assert.equal(JSON.stringify(privateTargetIssues).includes(credentialShapedDeployment), false);
+});
+
+test("CSP enforced evidence binds the final release target", () => {
+  const config = passingConfig();
+  config.gates.vercelPreviewCsp.stages.enforced.evidenceRefs = [
+    ...reportOnlyTargetRefs(),
+    "csp-record:enforced-fixture",
+  ];
+
+  const issues = validateReleaseReadiness(config);
+  assert.ok(issues.some((issue) =>
+    issue.code === "schema-target-binding"
+    && issue.path.endsWith("stages.enforced.evidenceRefs")));
+});
+
+test("CSP report-only observation must precede an enforced conclusion", () => {
+  const outOfOrder = passingConfig();
+  outOfOrder.gates.vercelPreviewCsp.stages.reportOnly.checkedAt = PASS_AT;
+  let issues = validateReleaseReadiness(outOfOrder);
+  assert.ok(issues.some((issue) =>
+    issue.code === "schema-csp-order"
+    && issue.path.endsWith("stages.enforced.checkedAt")));
+
+  const skippedReportOnly = passingConfig();
+  skippedReportOnly.gates.vercelPreviewCsp.stages.reportOnly.status = "pending";
+  skippedReportOnly.gates.vercelPreviewCsp.stages.reportOnly.checkedAt = null;
+  skippedReportOnly.gates.vercelPreviewCsp.stages.reportOnly.evidenceRefs = [];
+  issues = validateReleaseReadiness(skippedReportOnly);
+  assert.ok(issues.some((issue) =>
+    issue.code === "schema-csp-order"
+    && issue.path.endsWith("stages.enforced.status")));
+});
+
+test("a completed report-only stage remains honest while enforcement is pending", () => {
+  const config = clone(productionConfig);
+  config.gates.vercelPreviewCsp.reportOnlyTarget = reportOnlyTarget();
+  passEvidence(
+    config.gates.vercelPreviewCsp.stages.reportOnly,
+    "csp-record:report-only-fixture",
+    REPORT_ONLY_PASS_AT,
+    reportOnlyTargetRefs(),
+  );
+
+  assert.equal(config.gates.vercelPreviewCsp.status, "pending");
+  assert.equal(config.gates.vercelPreviewCsp.stages.enforced.status, "pending");
+  assert.equal(config.gates.vercelPreviewCsp.stages.enforced.checkedAt, null);
+  assert.deepEqual(config.gates.vercelPreviewCsp.stages.enforced.evidenceRefs, []);
+  assert.deepEqual(validateReleaseReadiness(config), []);
 });
 
 test("relative evidence must exist as a regular in-tree file", () => {

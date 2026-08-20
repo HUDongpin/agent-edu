@@ -32,7 +32,8 @@ contains the sanitized record.
 
 ## Frozen release target and non-self-reference
 
-`releaseTarget` binds every non-pending evidence record to five values:
+`releaseTarget` binds every non-pending evidence record to five values, except
+the predecessor report-only CSP observation described below:
 
 - `candidateCommitSha` — the frozen product commit being tested;
 - `checkpointSha` — the distinct pre-implementation recovery point;
@@ -52,11 +53,20 @@ course code, runtime configuration, messages, dependencies, build inputs, or
 the workflow definition creates a new candidate and restarts affected evidence.
 
 While the release is pending, target fields that do not exist yet may be null.
-The first `pass` or `fail` evidence requires all five fields to be frozen. Every
-non-pending record repeats five safe binding refs (`candidate-commit:`,
-`checkpoint:`, `integration-branch:`, `vercel-deployment:`, and
-`workflow-definition:`) plus its substantive evidence ID/path; a mismatched
-deployment or commit fails the schema.
+The first `pass` or `fail` evidence requires its target's five fields to be
+frozen. Every non-pending record repeats five safe binding refs
+(`candidate-commit:`, `checkpoint:`, `integration-branch:`,
+`vercel-deployment:`, and `workflow-definition:`) plus its substantive evidence
+ID/path; a mismatched deployment or commit fails the schema.
+
+CSP is the only two-target exception. `vercelPreviewCsp.reportOnlyTarget` binds
+Stage A to the predecessor report-only commit and deployment. Stage B binds to
+the final `releaseTarget`. Once Stage B has a conclusion, the checker requires
+the two commits and deployments to be different, the checkpoint, integration
+branch, and workflow blob to be identical, and the Stage A UTC timestamp to be
+strictly earlier than Stage B. Stage B cannot be concluded unless Stage A
+passed. While a CSP stage is pending, its not-yet-known target fields may remain
+null and its timestamp and evidence list must remain empty.
 
 An evidence record has one of three states:
 
@@ -70,24 +80,28 @@ rejects optimistic aggregate statuses.
 
 ## Release-candidate workflow
 
-1. Freeze the release commit and Vercel preview deployment ID.
+1. Freeze the report-only predecessor commit and Vercel preview deployment ID
+   in `vercelPreviewCsp.reportOnlyTarget`.
 2. Run `npm test`, `npm run lint`, the normal build/smoke pipeline, and then
    `npm run release:check`.
    Browser failure evidence may be uploaded only after `npm run artifacts:check`
    passes; a rejected or unparseable artifact remains local and blocks upload.
-3. Complete the forms in this directory against that exact commit/deployment.
-   For CSP, keep the candidate in `report-only` until Stage A passes; promote
-   with `npm run csp:set -- enforced` only in a separately reviewed commit.
-4. Sanitize the evidence. A second reviewer confirms that no prohibited value
+3. Complete CSP Stage A against that exact predecessor commit/deployment. Keep
+   the candidate in `report-only` until Stage A passes; a failed Stage A stops
+   promotion.
+4. Promote with `npm run csp:set -- enforced` in a separately reviewed commit,
+   deploy a fresh preview, and freeze that commit/deployment in `releaseTarget`.
+5. Complete Stage B and the remaining forms against the final release target.
+6. Sanitize the evidence. A second reviewer confirms that no prohibited value
    is present.
-5. Add stable evidence references and UTC timestamps to
+7. Add stable evidence references and UTC timestamps to
    `config/release-readiness.json`; update child, group, and overall statuses.
-6. Complete `rollback.md`, record the previous production target, ordinary
+8. Complete `rollback.md`, record the previous production target, ordinary
    revert PR plan, and recovery validation; rollback readiness is a P0 release
    gate, not a post-release promise.
-7. Run `npm run release:check` again. Preserve its passing output with the
+9. Run `npm run release:check` again. Preserve its passing output with the
    release record.
-8. If any native review, Arabic case, canary reconciliation, CSP stage, CI
+10. If any native review, Arabic case, canary reconciliation, CSP stage, CI
    observation, or rollback validation fails, stop the release and retain the
    failure as `fail`.
 

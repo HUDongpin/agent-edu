@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "releaseId": "2026-08-agent-edu",
   "status": "pending",
   "updatedAt": "2026-08-21",
@@ -349,6 +349,13 @@
       "requiredHeaders": {
         "reportOnly": "content-security-policy-report-only",
         "enforced": "content-security-policy"
+      },
+      "reportOnlyTarget": {
+        "candidateCommitSha": null,
+        "checkpointSha": null,
+        "integrationBranch": null,
+        "vercelDeploymentId": null,
+        "workflowDefinitionSha": null
       },
       "stages": {
         "reportOnly": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting sanitized Vercel preview report-only response headers and observation window." },
