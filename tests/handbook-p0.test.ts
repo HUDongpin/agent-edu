@@ -96,8 +96,16 @@ test("the Handbook hands Part 2 to Lab and Part 3 to the local TypeScript course
 test("deep links, history, and saved-section restoration share the same show path", () => {
   assert.match(behaviour, /window\.addEventListener\('popstate',restoreLocation\)/);
   assert.match(behaviour, /window\.addEventListener\('hashchange',restoreLocation\)/);
-  assert.match(behaviour, /const initial = NAMES\.has\(fromHash\) \? fromHash : \(store\.get\(KEY,'start'\)\|\|'start'\)/);
+  assert.match(behaviour, /const initial = NAMES\.has\(fromHash\) \? fromHash : readLearningState\(\)\.handbook\.lastSection/);
   assert.match(behaviour, /show\(initial,\{replace:true,focus:false,silent:true\}\)/);
+});
+
+test("Handbook visits and Control Room finishes write only through progress v2", () => {
+  assert.match(behaviour, /recordHandbookVisit\(name\)/);
+  assert.match(behaviour, /recordHandbookControlRoomFinish\(score\)/);
+  assert.match(behaviour, /selectHandbookProgress\(learning\)/);
+  assert.match(behaviour, /selectLabProgress\(learning\)/);
+  assert.doesNotMatch(behaviour, /const PROG='ae\.progress'|localStorage\.getItem\('tch\.seen'\)/);
 });
 
 test("removed live-mode message keys stay removed in all nine locales", () => {

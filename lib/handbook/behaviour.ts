@@ -5,6 +5,13 @@
 import FC from "@/lib/flowchart";
 import type { Copy } from "@/lib/handbook/copy";
 import { HANDBOOK_WIDE_QUERY, tabTargetIndex } from "@/lib/tab-navigation";
+import {
+  readLearningState,
+  recordHandbookControlRoomFinish,
+  recordHandbookVisit,
+  selectHandbookProgress,
+  selectLabProgress,
+} from "@/lib/progress";
 
 /* `C` carries the widgets' own strings — see copy.ts. It is a parameter
    rather than an import because the table is chosen per locale on the
@@ -46,12 +53,7 @@ function txt(s){ return document.createTextNode(s); }
   const rail=$('#rail');
   const wide=window.matchMedia(HANDBOOK_WIDE_QUERY);
   const NAMES=new Set(tabs.map(t=>t.dataset.p));
-  const KEY='tch.section', SEEN='tch.seen';
-  const store={
-    get(k,d){ try{ return localStorage.getItem(k) ?? d; }catch(e){ return d; } },
-    set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
-  };
-  let seen=new Set((store.get(SEEN,'')||'').split(',').filter(Boolean));
+  let seen=new Set(readLearningState().handbook.visitedSections);
 
   function paintSeen(){
     tabs.forEach(t=>{ if(seen.has(t.dataset.p)) t.dataset.seen='1'; });
@@ -96,7 +98,10 @@ function txt(s){ return document.createTextNode(s); }
       if (p) p.classList.toggle('on',on);
     });
     revealTab(activeTab);
-    seen.add(name); store.set(SEEN,[...seen].join(',')); store.set(KEY,name); paintSeen();
+    const learning=recordHandbookVisit(name);
+    seen=new Set(learning.handbook.visitedSections);
+    paintSeen();
+    if (window.__paintProgress) window.__paintProgress();
 
     // a real URL per section, so it can be linked, bookmarked and reached with Back
     const target='#'+name;
@@ -140,7 +145,7 @@ function txt(s){ return document.createTextNode(s); }
 
   // a link to #loop wins; otherwise pick up where they left off
   const fromHash=decodeURIComponent(location.hash.slice(1));
-  const initial = NAMES.has(fromHash) ? fromHash : (store.get(KEY,'start')||'start');
+  const initial = NAMES.has(fromHash) ? fromHash : readLearningState().handbook.lastSection;
   show(initial,{replace:true,focus:false,silent:true});
 
   $('#glossBtn').addEventListener('click',()=>{
@@ -597,34 +602,26 @@ const RECALL={
   function syncToggles(){ $$('.tg',tgBox).forEach(b=>b.setAttribute('aria-pressed',on[b.dataset.id]?'true':'false')); }
   $('#pAll').addEventListener('click',()=>{PARTS.forEach(p=>on[p.id]=true);syncToggles();seen=new Set();runs=0;render(true);});
   $('#pNone').addEventListener('click',()=>{PARTS.forEach(p=>on[p.id]=false);syncToggles();seen=new Set();runs=0;render(true);});
-  /* ---- shared progress: this page, Part 1.5 and the Python course ----
-     One localStorage object, written by play.html too, so the learner sees
-     one journey rather than three disconnected things. No account, no
-     server, no tracking — it never leaves the browser. */
+  /* ---- shared progress: Handbook + browser Lab -------------------------
+     The v2 store is the only learning truth. Part 3 is deliberately absent:
+     its progress lives in course/progress.json and this page cannot read it. */
   (function(){
-    const PROG='ae.progress';
-    const read=()=>{try{return JSON.parse(localStorage.getItem(PROG)||'{}')}catch(e){return{}}};
-    /* Read sections straight from storage, NOT from the enclosing `seen` —
-       that one counts distinct model answers in this section and is a
-       different thing entirely. */
-    const sectionsRead=()=>{try{
-      return (localStorage.getItem('tch.seen')||'').split(',').filter(Boolean).length;
-    }catch(e){return 0;}};
-    const ITEMS=[
-      ['read',  C.t('w.progress.item.read'),  ()=>sectionsRead()>=6, ()=>C.t('w.progress.sections',{n:sectionsRead()})],
-      ['play0', C.t('w.progress.item.play0'), p=>!!p.play0],
-      ['play1', C.t('w.progress.item.play1'), p=>!!p.play1],
-      ['play2', C.t('w.progress.item.play2'), p=>!!p.play2],
-      ['play3', C.t('w.progress.item.play3'), p=>p.evalBest?C.t('w.progress.evalBest',{n:p.evalBest}):false],
-      ['part2', C.t('w.progress.item.part2'), p=>!!p.part2]
-    ];
     function paint(){
-      const p=read();
+      const learning=readLearningState();
+      const handbook=selectHandbookProgress(learning);
+      const lab=selectLabProgress(learning);
+      const steps=new Set(lab.completedSteps);
+      const ITEMS=[
+        {label:C.t('w.progress.item.read'),done:handbook.exploredSections>=6,
+         note:C.t('w.progress.sections',{n:handbook.exploredSections})},
+        {label:C.t('w.progress.item.play0'),done:steps.has('first-call'),note:''},
+        {label:C.t('w.progress.item.play1'),done:steps.has('rules'),note:''},
+        {label:C.t('w.progress.item.play2'),done:steps.has('prompt-trial'),note:''},
+        {label:C.t('w.progress.item.play3'),done:steps.has('full-eval'),
+         note:lab.evalBest===undefined?'':C.t('w.progress.evalBest',{n:lab.evalBest})}
+      ];
       const card=$('#progCard'), ul=$('#progList');
-      const states=ITEMS.map(([k,label,test,extra])=>{
-        const v=test(p); return {label,done:!!v,
-          note:typeof v==='string'?v:(extra?extra():'')};
-      });
+      const states=ITEMS;
       const n=states.filter(s=>s.done).length;
       if(!n){ card.hidden=true; return; }      // nothing to brag about yet
       card.hidden=false;
@@ -639,7 +636,7 @@ const RECALL={
       $('#progPct').textContent=C.t('w.progress.count',{done:n,total:ITEMS.length});
       const nextUp=states.findIndex(s=>!s.done);
       $('#progNext').innerHTML = nextUp<0
-        ? C.h('w.progress.done',{link:'<a href="https://github.com/HUDongpin/agent-edu/blob/main/course/README.md" rel="noopener">'+C.h('w.progress.done.link')+'</a>'})
+        ? C.h('w.progress.done',{link:'<a href="../build/">'+C.h('w.progress.done.link')+'</a>'})
         : C.h('w.progress.next',{label:esc(states[nextUp].label)})+
           (nextUp>0&&nextUp<5?C.h('w.progress.next.lab',{link:'<a href="../lab/">'+C.h('w.progress.next.lab.link')+'</a>'}):'');
     }
@@ -1742,6 +1739,8 @@ const RECALL={
   $('#gRestart').addEventListener('click',start);
 
   function finish(){
+    recordHandbookControlRoomFinish(score);
+    if (window.__paintProgress) window.__paintProgress();
     $('#gStage').hidden=true;
     const e=$('#gEnd'); e.hidden=false;
     const pct=Math.round(score/deck.length*100);
