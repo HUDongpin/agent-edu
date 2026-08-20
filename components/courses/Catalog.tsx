@@ -116,6 +116,16 @@ export default function Catalog({ locale }: { locale: string }) {
                   <h2>{t(`c.${c.id}.title`)}</h2>
                   <p>{t(`c.${c.id}.blurb`)}</p>
                   {c.id === "build" && <p className="tracknote">{t("track.3.note")}</p>}
+                  {!soon && (
+                    <dl className="course-facts">
+                      {(["prerequisite", "outcome", "artifact", "evidence"] as const).map((fact) => (
+                        <div key={fact}>
+                          <dt>{t(`cat.fact.${fact}`)}</dt>
+                          <dd>{t(`c.${c.id}.${fact}`)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
                   <div className="cfoot">
                     {soon ? (
                       <span className="pill neutral">{t("cat.soonBadge")}</span>

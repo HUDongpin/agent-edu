@@ -1082,6 +1082,13 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .ctag{border:1px solid;border-radius:999px;padding:1px 8px;font-weight:700}
 .cbody h2{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
 .cbody p{font-size:14px;margin:0 0 14px;color:var(--ink-2);flex:1 1 auto;line-height:1.55}
+.course-facts{margin:0 0 14px;padding-block:11px;border-block:1px solid var(--line);
+  display:grid;gap:9px}
+.course-facts div{display:grid;grid-template-columns:minmax(78px,.42fr) minmax(0,1fr);gap:10px}
+.course-facts dt{font-family:var(--mono);font-size:10px;line-height:1.45;font-weight:750;
+  letter-spacing:.055em;text-transform:uppercase;color:var(--ink-3)}
+.course-facts dd{margin:0;font-size:12.5px;line-height:1.45;color:var(--ink-2)}
+:root[lang="ar"] .course-facts dt{font-family:var(--sans);letter-spacing:0}
 .cfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cprog{display:flex;align-items:center;gap:8px;flex:1 1 110px;min-width:0}
 .cbar{flex:1 1 auto;height:6px;background:var(--line-2);border-radius:999px;overflow:hidden}
@@ -1095,6 +1102,7 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   .filters{gap:11px;padding:12px}
   .filt{flex:1 1 100%}
   .filt-meta{margin-inline-start:0}
+  .course-facts div{grid-template-columns:1fr;gap:2px}
 }
 
 
