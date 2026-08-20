@@ -57,3 +57,8 @@ test("paid runs freeze every input that determines or labels the request", () =>
   assert.match(stagesSource, /disabled=\{disabled\}/);
   assert.match(keyBarSource, /disabled=\{disabled \|\| verifying\}/);
 });
+
+test("Stage 1 shares the Provider client character limit while the client guards every path", () => {
+  assert.match(source, /import \{ MAX_PROVIDER_MESSAGE_CHARACTERS \} from "@\/lib\/byok\/client"/);
+  assert.match(source, /id="q0"[\s\S]*?maxLength=\{MAX_PROVIDER_MESSAGE_CHARACTERS\}/);
+});

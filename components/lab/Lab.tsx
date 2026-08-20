@@ -53,6 +53,7 @@ import {
   freshLabRules,
   type LabRule as Rule,
 } from "@/lib/lab/rules";
+import { MAX_PROVIDER_MESSAGE_CHARACTERS } from "@/lib/byok/client";
 
 const SEED = `You are the till at a small café. Turn what the customer said into an order.
 
@@ -640,6 +641,7 @@ export default function Lab() {
             <div className="card"><div className="card-b">
               <label className="fieldlabel" htmlFor="q0">{t("lab.s1.ask")}</label>
               <textarea id="q0" rows={3} dir="auto" value={q} disabled={busy0}
+                maxLength={MAX_PROVIDER_MESSAGE_CHARACTERS}
                 onChange={(e) => setQ(e.target.value)} />
               <p className="keysafe">
                 {t("lab.s1.callDisclosure")

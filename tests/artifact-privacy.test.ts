@@ -405,18 +405,22 @@ test("error messages contain category and path but never the matched value", asy
 const sensitivePathCases = [
   {
     value: ["sk", "-", "P".repeat(28)].join(""),
+    expected: "sensitive-path-provider-api-key",
     filename(value: string) { return `failure-${value}.bin`; },
   },
   {
     value: "path-private-bearer-value-12345",
+    expected: "sensitive-path-bearer-token",
     filename(value: string) { return `failure-Bearer ${value}.bin`; },
   },
   {
     value: "path-private-signature-value",
+    expected: "sensitive-path-signed-url",
     filename(value: string) { return `failure?sig=${value}`; },
   },
   {
     value: ["PW", "FAKE", "KEY", "DO", "NOT", "LEAK", "7f3d9c2a"].join("_"),
+    expected: "sensitive-path-known-private-test-value",
     filename(value: string) { return `failure-${value}.bin`; },
   },
 ];
@@ -426,13 +430,13 @@ for (const [index, fixture] of sensitivePathCases.entries()) {
     await inWorkspace(async ({ workspace, artifacts, root }) => {
       writeFileSync(
         join(artifacts, fixture.filename(fixture.value)),
-        Buffer.from([0xff, 0x00, 0xfe]),
+        "safe UTF-8 artifact content\n",
       );
       await assert.rejects(
         () => scanArtifactRoots([root], { cwd: workspace }),
         (error: unknown) => {
           assert.ok(error instanceof ArtifactPrivacyError);
-          assert.equal(error.category, "binary-or-invalid-utf8");
+          assert.equal(error.category, fixture.expected);
           assert.equal(error.path.includes(fixture.value), false);
           assert.equal(error.message.includes(fixture.value), false);
           assert.match(error.path, /\[redacted/);
@@ -447,16 +451,36 @@ test("ZIP entry error paths redact a sensitive entry name", async () => {
   await inWorkspace(async ({ workspace, artifacts, root }) => {
     const secret = ["PW", "FAKE", "KEY", "DO", "NOT", "LEAK", "7f3d9c2a"].join("_");
     writeFileSync(join(artifacts, "trace.zip"), zip([
-      { name: `nested/${secret}.bin`, content: Buffer.from([0xff, 0x00, 0xfe]) },
+      { name: `nested/${secret}.txt`, content: "safe UTF-8 ZIP entry content\n" },
     ]));
     await assert.rejects(
       () => scanArtifactRoots([root], { cwd: workspace }),
       (error: unknown) => {
         assert.ok(error instanceof ArtifactPrivacyError);
-        assert.equal(error.category, "binary-or-invalid-utf8");
+        assert.equal(error.category, "sensitive-path-known-private-test-value");
         assert.equal(error.path.includes(secret), false);
         assert.equal(error.message.includes(secret), false);
-        assert.match(error.path, /nested\/\[redacted-test-value\]\.bin$/);
+        assert.match(error.path, /nested\/\[redacted-test-value\]\.txt$/);
+        return true;
+      },
+    );
+  });
+});
+
+test("a sensitive directory segment fails before its safe child is scanned", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const secret = ["sk", "-", "D".repeat(28)].join("");
+    const directory = join(artifacts, `nested-${secret}`);
+    mkdirSync(directory);
+    writeFileSync(join(directory, "safe.txt"), "safe UTF-8 child content\n");
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace }),
+      (error: unknown) => {
+        assert.ok(error instanceof ArtifactPrivacyError);
+        assert.equal(error.category, "sensitive-path-provider-api-key");
+        assert.equal(error.path.includes(secret), false);
+        assert.equal(error.message.includes(secret), false);
+        assert.match(error.path, /artifacts\/nested-\[redacted-credential\]$/);
         return true;
       },
     );

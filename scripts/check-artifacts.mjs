@@ -136,6 +136,12 @@ function displayPath(path) {
       /(\b(?:api[_-]?key|x-api-key)\s*[=:]\s*)[^&#\s]{4,}/gi,
       "$1[redacted]",
     );
+  redacted = redacted
+    .split("/")
+    .map((segment) => (
+      sensitiveTextCategory(segment) ? "[redacted-sensitive-path]" : segment
+    ))
+    .join("/");
   return redacted
     .replace(/[\u0000-\u001f\u007f]/g, "?")
     .slice(0, 500);
@@ -183,6 +189,17 @@ export function sensitiveTextCategory(text) {
     if (rule.pattern.test(text)) return rule.category;
   }
   return null;
+}
+
+function rejectSensitivePathValue(value, display) {
+  const category = sensitiveTextCategory(value);
+  if (category) fail(`sensitive-path-${category}`, display);
+}
+
+function rejectSensitivePathSegments(relativePath, display) {
+  for (const segment of relativePath.split("/")) {
+    if (segment) rejectSensitivePathValue(segment, display);
+  }
 }
 
 function occurrenceOffsets(text, needle) {
@@ -434,6 +451,9 @@ function scanZip(bytes, outerPath, stats) {
     const name = decodeZipName(nameBytes, outerPath);
     const directory = validateZipName(name, outerPath);
     const entryPath = `${outerPath}!/${name}`;
+    const normalizedName = directory ? name.slice(0, -1) : name;
+    rejectSensitivePathValue(normalizedName, entryPath);
+    rejectSensitivePathSegments(normalizedName, entryPath);
     if (names.has(name)) fail("zip-duplicate-entry", entryPath);
     names.add(name);
     const centralExtraStart = offset + 46 + nameLength;
@@ -606,6 +626,7 @@ async function walk(root, rootLabel, rootReal, directory, stats) {
     const path = resolve(directory, entry.name);
     const label = artifactPath(rootLabel, rootReal, path);
     if (!isInside(rootReal, path)) fail("path-outside-root", label);
+    rejectSensitivePathValue(entry.name, label);
     let info;
     try {
       info = await lstat(path);
@@ -664,6 +685,7 @@ export async function scanArtifactRoots(roots = DEFAULT_ARTIFACT_ROOTS, options 
     const root = resolve(cwd, requested);
     const rootLabel = relative(cwd, root).split(sep).join("/") || ".";
     if (root === cwd || !isInside(cwd, root)) fail("root-outside-workspace", rootLabel);
+    rejectSensitivePathSegments(rootLabel, rootLabel);
     let info;
     try {
       info = await lstat(root);

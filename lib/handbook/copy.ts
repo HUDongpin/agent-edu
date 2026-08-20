@@ -31,9 +31,11 @@
  * HTML, so a translator cannot break the page and never has to think about
  * markup. The elements around it stay in `behaviour.ts` where they were.
  *
- * Values are substituted verbatim, exactly as `+` did — call sites keep the
- * `esc()` calls they already had, and `scripts/check-widgets.mjs` fails the
- * build if an unescaped expression reaches an HTML sink.
+ * Values passed to `h()` are escaped here, at the last boundary before an
+ * HTML sink. Callers cannot accidentally turn translated or state-derived
+ * text into markup. The four places that deliberately insert an element use
+ * the explicit `trustedMarkup` template tag; even there, every interpolation
+ * is escaped and may only appear in element content.
  */
 import { isLocale } from "@/lib/i18n";
 
@@ -43,11 +45,29 @@ export type WidgetTable = Record<string, string>;
 /** Values dropped into a message's {placeholders}. */
 export type Vars = Record<string, string | number>;
 
+const TRUSTED_MARKUP: unique symbol = Symbol("handbook.trusted-markup");
+
+/**
+ * HTML deliberately authored in this module's call sites.
+ *
+ * The private symbol makes the type opaque: a string, translation value or
+ * object literal cannot be passed to `h()` as markup by accident. Construct
+ * it with the `trustedMarkup` template tag so the markup is visible in source
+ * review. Dynamic values in that template remain plain text and are escaped.
+ */
+export interface TrustedMarkup {
+  readonly [TRUSTED_MARKUP]: true;
+  readonly html: string;
+}
+
+/** Values dropped into a message that will be assigned to innerHTML. */
+export type HtmlVars = Record<string, string | number | TrustedMarkup>;
+
 export interface Copy {
   /** A message as plain text, for a textContent sink. */
   t(key: string, vars?: Vars): string;
   /** A message as HTML, for an innerHTML sink. Markers become elements. */
-  h(key: string, vars?: Vars): string;
+  h(key: string, vars?: HtmlVars): string;
   /**
    * The key for a count, to hand to `t` or `h`: `C.t(C.p(k, n), {n})`.
    *
@@ -60,11 +80,57 @@ export interface Copy {
   p(key: string, n: number): string;
 }
 
-/* Only `&<>` — a message is element content, never an attribute value, and
-   escaping quotes as well would show &quot; to a reader in the one place
-   these strings actually land. */
-function esc(s: string): string {
-  return s.replace(/[&<>]/g, (c) => (c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;"));
+/** Escape plain data at an HTML boundary. Entities decode back to the same
+ * visible characters when the result is assigned to innerHTML. */
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => {
+    if (c === "&") return "&amp;";
+    if (c === "<") return "&lt;";
+    if (c === ">") return "&gt;";
+    if (c === '"') return "&quot;";
+    return "&#39;";
+  });
+}
+
+/**
+ * Explicitly author a small piece of trusted markup.
+ *
+ * This is a tag rather than a function on purpose: the HTML skeleton must be
+ * a source literal. Its allowlist is intentionally limited to constant code
+ * and the two internal course links used by the Handbook. Link labels are
+ * always escaped as plain text.
+ */
+export function trustedMarkup(
+  strings: TemplateStringsArray,
+  ...values: Array<string | number>
+): TrustedMarkup {
+  if (
+    !Array.isArray(strings) ||
+    !Object.prototype.hasOwnProperty.call(strings, "raw") ||
+    strings.length !== values.length + 1
+  ) {
+    throw new TypeError("trustedMarkup must be used as a template tag");
+  }
+
+  const shape = strings.join("\u0000");
+  const constantCode = values.length === 0 && /^<code>[^<>]*<\/code>$/.test(shape);
+  const internalLink =
+    values.length === 1 && /^<a href="\.\.\/(?:build|lab)\/">\u0000<\/a>$/.test(shape);
+  if (!constantCode && !internalLink) {
+    throw new TypeError("unsupported trusted markup template");
+  }
+
+  let html = strings[0];
+  let sourcePrefix = strings[0];
+  for (let i = 0; i < values.length; i += 1) {
+    if (sourcePrefix.lastIndexOf("<") > sourcePrefix.lastIndexOf(">")) {
+      throw new TypeError("trustedMarkup interpolation must be element text");
+    }
+    html += escapeHtml(String(values[i])) + strings[i + 1];
+    sourcePrefix += strings[i + 1];
+  }
+
+  return Object.freeze({ [TRUSTED_MARKUP]: true as const, html });
 }
 
 const MARK = /\*\*([^*]+)\*\*|\*([^*]+)\*/g;
@@ -82,6 +148,19 @@ function fill(s: string, vars?: Vars): string {
   if (!vars) return s;
   return s.replace(/\{(\w+)\}/g, (whole, name: string) =>
     name in vars ? String(vars[name]) : whole);
+}
+
+/** The innerHTML variant: plain values are inert; only the opaque wrapper may
+ * contribute markup. Unknown placeholders remain visible just like `fill`. */
+function fillHtml(s: string, vars?: HtmlVars): string {
+  if (!vars) return s;
+  return s.replace(/\{(\w+)\}/g, (whole, name: string) => {
+    if (!(name in vars)) return whole;
+    const value = vars[name];
+    return typeof value === "object" && value !== null && value[TRUSTED_MARKUP] === true
+      ? value.html
+      : escapeHtml(String(value));
+  });
 }
 
 /**
@@ -104,7 +183,7 @@ export function makeCopy(locale: string, table: WidgetTable): Copy {
   const raw = (key: string) => table[key] ?? key;
 
   const t = (key: string, vars?: Vars) => fill(raw(key), vars);
-  const h = (key: string, vars?: Vars) => fill(marks(esc(raw(key))), vars);
+  const h = (key: string, vars?: HtmlVars) => fillHtml(marks(escapeHtml(raw(key))), vars);
 
   /* CLDR categories, so Arabic gets its six and Japanese its one. A table
      that only supplies `.other` is complete for Chinese, Japanese and Korean

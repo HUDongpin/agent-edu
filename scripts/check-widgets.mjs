@@ -129,6 +129,38 @@ for (const m of behaviour.matchAll(/\bC\.([thp])\s*\(/g)) {
   calls.push({ fn: m[1], keyExpr: a[0] ?? "", varsExpr: a[m[1] === "p" ? 2 : 1] ?? "", line });
 }
 
+/* `C.h()` escapes normal values. These are the complete, deliberately small
+   set of source-authored markup fragments allowed to cross that boundary.
+   The dynamic link labels are interpolations of `C.t()` and are escaped by
+   the tag; the tags and internal hrefs themselves stay reviewable constants. */
+const TRUSTED_MARKUP_SITES = [
+  "trustedMarkup`<code>if</code>`",
+  "trustedMarkup`<code>expect(x).toBe(y)</code>`",
+  "trustedMarkup`<a href=\"../build/\">${C.t('w.progress.done.link')}</a>`",
+  "trustedMarkup`<a href=\"../lab/\">${C.t('w.progress.next.lab.link')}</a>`",
+];
+const COPY_IMPORT = 'import { trustedMarkup, type Copy } from "@/lib/handbook/copy";';
+const copyImports = [...behaviour.matchAll(/from\s+["']@\/lib\/handbook\/copy["']/g)].length;
+if (copyImports !== 1 || behaviour.split(COPY_IMPORT).length - 1 !== 1) {
+  fail("behaviour.ts must use the single reviewed Copy/trustedMarkup import");
+}
+const trustedMarkupTags = [...behaviour.matchAll(/\btrustedMarkup\s*`/g)].length;
+if (trustedMarkupTags !== TRUSTED_MARKUP_SITES.length) {
+  fail(
+    `behaviour.ts has ${trustedMarkupTags} trustedMarkup tag(s); the reviewed contract allows ` +
+      `${TRUSTED_MARKUP_SITES.length}`,
+  );
+}
+for (const site of TRUSTED_MARKUP_SITES) {
+  const occurrences = behaviour.split(site).length - 1;
+  if (occurrences !== 1) {
+    fail(`behaviour.ts must contain exactly one reviewed trusted markup site: ${site}`);
+  }
+}
+if (/\btrustedMarkup\s*\(/.test(behaviour)) {
+  fail("behaviour.ts must use trustedMarkup as a template tag, never as a function");
+}
+
 /** Keys a call can name: a literal, a ternary of literals, or a prefix. */
 function keysOf(expr) {
   const lits = [...expr.matchAll(/'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"/g)]
@@ -362,6 +394,9 @@ const NOISE = [
   // These are deliberately displayed as LTR code/data fixtures. Natural-
   // language labels and kiosk inputs live in w.code.*; only syntax remains.
   /^<code>[^<]*<\/code>$/, /^<span class="tok-[ks]">/, /^text = text\./,
+  // The only dynamic text in these reviewed internal-link skeletons is still
+  // a widget key; `trustedMarkup` escapes its result before composing the tag.
+  /^<a href="\.\.\/(?:build|lab)\/">\$\{C\.t\('w\.progress\.(?:done|next\.lab)\.link'\)\}<\/a>$/,
   /^"<\/span>\).*<span class="tok-k">return/, /^"<\/span>;$/,
   /^<span>text === "/, /^" &nbsp;→&nbsp;$/, /^[SL]$/,
   /^":"L","price":$/, /^","price":$/, /^\{\n\s*"items": \[$/,

@@ -3,7 +3,7 @@
    Exported as one init() the React component calls after mount. The flowchart
    engine is injected rather than redefined, so both halves share one copy. */
 import FC from "@/lib/flowchart";
-import type { Copy } from "@/lib/handbook/copy";
+import { trustedMarkup, type Copy } from "@/lib/handbook/copy";
 import { HANDBOOK_WIDE_QUERY, tabTargetIndex } from "@/lib/tab-navigation";
 import {
   readLearningState,
@@ -226,7 +226,7 @@ const DEPS={
 const RECALL={
   prompt:{from:'code',
     q:C.h('w.method.recall.prompt.q'),
-    a:C.h('w.method.recall.prompt.a',{code:'<code>if</code>'})},
+    a:C.h('w.method.recall.prompt.a',{code:trustedMarkup`<code>if</code>`})},
   context:{from:'prompt',
     q:C.h('w.method.recall.context.q'),
     a:C.h('w.method.recall.context.a')},
@@ -241,7 +241,7 @@ const RECALL={
     a:C.h('w.method.recall.harness.a')},
   evals:{from:'prompt',
     q:C.h('w.method.recall.evals.q'),
-    a:C.h('w.method.recall.evals.a',{code:'<code>expect(x).toBe(y)</code>'})},
+    a:C.h('w.method.recall.evals.a',{code:trustedMarkup`<code>expect(x).toBe(y)</code>`})},
   security:{from:'harness',
     q:C.h('w.method.recall.security.q'),
     a:C.h('w.method.recall.security.a')}
@@ -262,7 +262,7 @@ const RECALL={
       card.innerHTML='<span class="rtag">'+C.h('w.recall.back',{n:src.n.slice(0,2)})+'</span>'+
         '<div class="rq">'+r.q+'</div>'+
         '<div class="rbtns"><button class="btn" type="button">'+C.h('w.method.recall.show')+'</button>'+
-        '<button class="btn ghost" type="button" data-goto="'+r.from+'">'+C.h('w.recall.reopen',{section:esc(src.n)})+'</button></div>'+
+        '<button class="btn ghost" type="button" data-goto="'+r.from+'">'+C.h('w.recall.reopen',{section:src.n})+'</button></div>'+
         '<div class="ra" hidden><p>'+r.a+'</p></div>';
       const [show]=card.querySelectorAll('button');
       show.addEventListener('click',()=>{
@@ -642,9 +642,9 @@ const RECALL={
       $('#progPct').textContent=C.t('w.progress.count',{done:n,total:ITEMS.length});
       const nextUp=states.findIndex(s=>!s.done);
       $('#progNext').innerHTML = nextUp<0
-        ? C.h('w.progress.done',{link:'<a href="../build/">'+C.h('w.progress.done.link')+'</a>'})
-        : C.h('w.progress.next',{label:esc(states[nextUp].label)})+
-          (nextUp>0&&nextUp<5?C.h('w.progress.next.lab',{link:'<a href="../lab/">'+C.h('w.progress.next.lab.link')+'</a>'}):'');
+        ? C.h('w.progress.done',{link:trustedMarkup`<a href="../build/">${C.t('w.progress.done.link')}</a>`})
+        : C.h('w.progress.next',{label:states[nextUp].label})+
+          (nextUp>0&&nextUp<5?C.h('w.progress.next.lab',{link:trustedMarkup`<a href="../lab/">${C.t('w.progress.next.lab.link')}</a>`}):'');
     }
     paint();
     window.addEventListener('storage',paint);
@@ -729,7 +729,7 @@ const RECALL={
     issues.forEach(i=>{
       const d=document.createElement('div'); d.className='iss '+(i.bad?'bad':'good');
       d.innerHTML='<span>'+(i.bad?'✗':'✓')+'</span><span>'+esc(i.t)+
-        (i.bad?' <span class="fix">'+C.h('w.prompt.fix',{fix:esc(i.fix)})+'</span>':'')+'</span>';
+        (i.bad?' <span class="fix">'+C.h('w.prompt.fix',{fix:i.fix})+'</span>':'')+'</span>';
       ib.appendChild(d);
     });
 
@@ -945,7 +945,7 @@ const RECALL={
     b.className='pk'; b.type='button'; b.setAttribute('aria-pressed','false'); b.dataset.id=it.id;
     b.innerHTML='<span class="bx" aria-hidden="true">✓</span>'+
       '<span class="nm">'+esc(it.n)+'<span class="sub '+it.w+'">'+
-      C.h('w.context.badge.'+it.w,{note:esc(it.note)})+'</span></span>'+
+      C.h('w.context.badge.'+it.w,{note:it.note})+'</span></span>'+
       '<span class="tk">'+it.tk.toLocaleString()+'</span>';
     b.addEventListener('click',()=>{ on[it.id]=!on[it.id]; paint(); });
     list.appendChild(b);
@@ -1295,7 +1295,7 @@ const RECALL={
     else                 v='<div class="banner bad">'+C.h('w.harness.demo')+'</div>';
     $('#hVerdict').innerHTML=v;
     $('#hIncidents').innerHTML = missing.map(p=>
-      '<div class="incident"><span class="ic">'+p.e+'</span><span>'+C.h('w.harness.incident',{name:esc(p.n),fix:esc(p.f)})+'</span></div>').join('');
+      '<div class="incident"><span class="ic">'+p.e+'</span><span>'+C.h('w.harness.incident',{name:p.n,fix:p.f})+'</span></div>').join('');
   });
   $('#hVerdict').innerHTML='<div class="banner">'+C.h('w.harness.idle')+'</div>';
 })();
@@ -1399,7 +1399,7 @@ const RECALL={
     $('#evVerdict').innerHTML=v;
     const failed=CASES.filter((_,i)=>!res[i]);
     $('#evFails').innerHTML = failed.length
-      ? C.h('w.evals.stillFailing',{list:failed.map(esc).join(' · ')})
+      ? C.h('w.evals.stillFailing',{list:failed.join(' · ')})
       : C.h('w.evals.allPass');
   });
   $('#evReset').addEventListener('click',()=>{
@@ -1719,7 +1719,7 @@ const RECALL={
     const b=deck[at];
     $('#gRound').textContent=at+1;
     progress();
-    $('#gBrief').innerHTML='<span class="who">'+C.h('w.quiz.says',{who:esc(b.who)})+'</span>'+esc(b.brief);
+    $('#gBrief').innerHTML='<span class="who">'+C.h('w.quiz.says',{who:b.who})+'</span>'+esc(b.brief);
     $('#gFeedback').innerHTML='';
     $('#gNext').hidden=true;
     const o=$('#gOpts'); o.innerHTML='';
@@ -1751,7 +1751,7 @@ const RECALL={
     $('#gFeedback').innerHTML=
       '<div class="gfb '+(ok?'right':'wrong')+'">'+
       '<div class="hd">'+C.h(ok?'w.quiz.right':'w.quiz.wrong',{name:A[b.ans].name})+'</div>'+
-      '<p>'+esc(b.why)+'</p><p>'+C.h('w.quiz.tempts',{trap:esc(b.trap)})+'</p></div>';
+      '<p>'+esc(b.why)+'</p><p>'+C.h('w.quiz.tempts',{trap:b.trap})+'</p></div>';
     $('#gNext').hidden=false;
     $('#gNext').textContent = (at===deck.length-1) ? C.t('w.quiz.seeScore') : C.t('w.quiz.nextBrief');
   }

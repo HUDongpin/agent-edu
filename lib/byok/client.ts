@@ -14,6 +14,21 @@ export const DEEPSEEK_BASE_URL = "https://api.deepseek.com";
 export const DEEPSEEK_CHAT_ENDPOINT = `${DEEPSEEK_BASE_URL}/chat/completions`;
 export const DEEPSEEK_MODELS_ENDPOINT = `${DEEPSEEK_BASE_URL}/models`;
 
+/**
+ * Browser-side resource limits for every Provider call path.
+ *
+ * `String.length` deliberately matches the UTF-16 units enforced by an HTML
+ * `maxLength`; UTF-8 limits are checked separately so non-ASCII input cannot
+ * consume an unbounded request body. The aggregate limits also bound JSON
+ * serialization overhead by capping the number of message records.
+ */
+export const MAX_PROVIDER_MESSAGES = 64;
+export const MAX_PROVIDER_MESSAGE_CHARACTERS = 32_000;
+export const MAX_PROVIDER_MESSAGE_UTF8_BYTES = 80 * 1024;
+export const MAX_PROVIDER_MESSAGES_CHARACTERS = 64_000;
+export const MAX_PROVIDER_MESSAGES_UTF8_BYTES = 160 * 1024;
+export const MAX_PROVIDER_RESPONSE_BYTES = 256 * 1024;
+
 export interface ModelListOptions {
   signal?: AbortSignal;
   timeoutMs?: number;
@@ -111,6 +126,7 @@ function safeProviderMessage(body: unknown, status: number, secret?: string): st
 interface AbortScope {
   signal: AbortSignal;
   didTimeout: () => boolean;
+  abort: (reason?: unknown) => void;
   cleanup: () => void;
 }
 
@@ -133,6 +149,7 @@ function abortScope(external: AbortSignal | undefined, timeoutMs: number | undef
   return {
     signal: controller.signal,
     didTimeout: () => timedOut,
+    abort: (reason?: unknown) => controller.abort(reason),
     cleanup: () => {
       if (timer !== undefined) clearTimeout(timer);
       external?.removeEventListener("abort", forwardAbort);
@@ -148,7 +165,7 @@ function validateTimeout(timeoutMs: number | undefined): void {
   }
 }
 
-function validateCall(messages: Msg[], options: CallOptions): void {
+function validateCall(messages: Msg[], options: CallOptions): Msg[] {
   validateTimeout(options.timeoutMs);
   if (!Array.isArray(messages) || messages.length === 0) {
     throw new ProviderError("provider", "At least one message is required.", {
@@ -156,6 +173,81 @@ function validateCall(messages: Msg[], options: CallOptions): void {
       requestedModel: options.model,
     });
   }
+  const messageCount = messages.length;
+  if (messageCount > MAX_PROVIDER_MESSAGES) {
+    throw new ProviderError("provider", `At most ${MAX_PROVIDER_MESSAGES} messages may be sent at once.`, {
+      billing: "not-sent",
+      requestedModel: options.model,
+    });
+  }
+
+  let totalCharacters = 0;
+  let totalUtf8Bytes = 0;
+  const encoder = new TextEncoder();
+  const validatedMessages: Msg[] = [];
+  // Iterate only the already bounded length and copy the approved fields.
+  // That keeps custom iterators, extra object fields, and later mutations out
+  // of the serialized request body.
+  for (let index = 0; index < messageCount; index++) {
+    const message: unknown = messages[index];
+    if (
+      message === null
+      || typeof message !== "object"
+    ) {
+      throw new ProviderError("provider", "Every message must have a supported role and text content.", {
+        billing: "not-sent",
+        requestedModel: options.model,
+      });
+    }
+    const candidate = message as Record<string, unknown>;
+    const role = candidate.role;
+    const content = candidate.content;
+    if (
+      (role !== "system" && role !== "user" && role !== "assistant")
+      || typeof content !== "string"
+    ) {
+      throw new ProviderError("provider", "Every message must have a supported role and text content.", {
+        billing: "not-sent",
+        requestedModel: options.model,
+      });
+    }
+
+    const characters = content.length;
+    if (characters > MAX_PROVIDER_MESSAGE_CHARACTERS) {
+      throw new ProviderError(
+        "provider",
+        `A message exceeded the ${MAX_PROVIDER_MESSAGE_CHARACTERS}-character safety limit.`,
+        { billing: "not-sent", requestedModel: options.model },
+      );
+    }
+    totalCharacters += characters;
+    if (totalCharacters > MAX_PROVIDER_MESSAGES_CHARACTERS) {
+      throw new ProviderError(
+        "provider",
+        `The messages exceeded the ${MAX_PROVIDER_MESSAGES_CHARACTERS}-character safety limit.`,
+        { billing: "not-sent", requestedModel: options.model },
+      );
+    }
+
+    const utf8Bytes = encoder.encode(content).byteLength;
+    if (utf8Bytes > MAX_PROVIDER_MESSAGE_UTF8_BYTES) {
+      throw new ProviderError(
+        "provider",
+        `A message exceeded the ${MAX_PROVIDER_MESSAGE_UTF8_BYTES}-byte UTF-8 safety limit.`,
+        { billing: "not-sent", requestedModel: options.model },
+      );
+    }
+    totalUtf8Bytes += utf8Bytes;
+    if (totalUtf8Bytes > MAX_PROVIDER_MESSAGES_UTF8_BYTES) {
+      throw new ProviderError(
+        "provider",
+        `The messages exceeded the ${MAX_PROVIDER_MESSAGES_UTF8_BYTES}-byte UTF-8 safety limit.`,
+        { billing: "not-sent", requestedModel: options.model },
+      );
+    }
+    validatedMessages.push({ role, content });
+  }
+
   if (!Number.isSafeInteger(options.maxTokens) || options.maxTokens <= 0) {
     throw new ProviderError("provider", "maxTokens must be a positive integer.", {
       billing: "not-sent",
@@ -169,6 +261,7 @@ function validateCall(messages: Msg[], options: CallOptions): void {
       requestedModel: options.model,
     });
   }
+  return validatedMessages;
 }
 
 type ResponseBody =
@@ -176,8 +269,63 @@ type ResponseBody =
   | { kind: "empty"; value: undefined }
   | { kind: "invalid-json"; value: undefined };
 
-async function responseBody(response: Response): Promise<ResponseBody> {
-  const raw = await response.text();
+function responseSizeError(response: Response, requestedModel?: Model): ProviderError {
+  return new ProviderError("invalid-response", "The provider response exceeded the safe size limit.", {
+    billing: "unknown-after-send",
+    requestedModel,
+    httpStatus: response.status,
+  });
+}
+
+function declaredContentLength(response: Response): number | undefined {
+  const value = response.headers.get("content-length")?.trim();
+  if (!value || !/^\d+$/.test(value)) return undefined;
+  const length = Number(value);
+  return Number.isSafeInteger(length) ? length : Number.POSITIVE_INFINITY;
+}
+
+function cancelWithoutWaiting(stream: ReadableStream<Uint8Array> | null): void {
+  if (!stream) return;
+  // Cancellation is best-effort and must not turn a bounded failure into a
+  // hang if a custom fetch implementation returns a broken stream.
+  void stream.cancel().catch(() => undefined);
+}
+
+async function responseBody(
+  response: Response,
+  requestedModel: Model | undefined,
+  abort: (reason?: unknown) => void,
+): Promise<ResponseBody> {
+  const declaredBytes = declaredContentLength(response);
+  if (declaredBytes !== undefined && declaredBytes > MAX_PROVIDER_RESPONSE_BYTES) {
+    cancelWithoutWaiting(response.body);
+    abort(new DOMException("Provider response exceeded the safe size limit", "AbortError"));
+    throw responseSizeError(response, requestedModel);
+  }
+
+  let raw = "";
+  if (response.body) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let receivedBytes = 0;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        receivedBytes += value.byteLength;
+        if (receivedBytes > MAX_PROVIDER_RESPONSE_BYTES) {
+          void reader.cancel().catch(() => undefined);
+          abort(new DOMException("Provider response exceeded the safe size limit", "AbortError"));
+          throw responseSizeError(response, requestedModel);
+        }
+        raw += decoder.decode(value, { stream: true });
+      }
+      raw += decoder.decode();
+    } finally {
+      reader.releaseLock();
+    }
+  }
+
   if (!raw.trim()) return { kind: "empty", value: undefined };
   try {
     return { kind: "json", value: JSON.parse(raw) as unknown };
@@ -226,7 +374,7 @@ export function createDeepSeekClient({
       // loop here: one user action creates at most one network request.
       dispatched = true;
       const response = await fetcher()(url, { ...init, signal: scope.signal });
-      const parsed = await responseBody(response);
+      const parsed = await responseBody(response, requestedModel, scope.abort);
       return { response, body: parsed.value, bodyKind: parsed.kind };
     } catch (error) {
       if (error instanceof ProviderError) throw error;
@@ -268,12 +416,12 @@ export function createDeepSeekClient({
 
   return {
     async call(messages, options) {
+      const validatedMessages = validateCall(messages, options);
       const key = requireKey(options.model);
-      validateCall(messages, options);
       const payload: Record<string, unknown> = {
         model: options.model,
         max_tokens: options.maxTokens,
-        messages,
+        messages: validatedMessages,
         thinking: { type: "disabled" },
       };
       if (options.json) payload.response_format = { type: "json_object" };
