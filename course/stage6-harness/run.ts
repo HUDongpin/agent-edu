@@ -55,7 +55,7 @@ export async function callTool(
     } catch (exc) {
       if ((exc as Error).message === "TODO 2") throw exc;
       if (attempt < attempts) {
-        RUN_LOG.push(`${name} failed (${(exc as Error).message}); retrying`);
+        if (parts.log) RUN_LOG.push(`${name} failed (${(exc as Error).message}); retrying`);
         continue;
       }
       // -- useful errors --------------------------------------------------

@@ -10,10 +10,15 @@ export const QUESTION = "";
 
 export let answer = "";
 
-if (import.meta.filename === process.argv[1]) {
-  preflight();
+export async function runQuestion(): Promise<string> {
   if (!QUESTION.trim()) throw new Error("Fill in QUESTION above, then run this again.");
   answer = await ask(QUESTION, { maxTokens: 300 });
+  return answer;
+}
+
+if (import.meta.filename === process.argv[1]) {
+  preflight();
+  await runQuestion();
   console.log(`\n${answer}\n`);
   console.log(`cost  : ${spend()}`);
 }

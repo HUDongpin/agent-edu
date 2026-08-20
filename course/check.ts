@@ -23,7 +23,8 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
   async 0(m) {
     if (!m.QUESTION?.trim()) bad("QUESTION is still empty");
     ok("you asked the model something");
-    if (typeof m.answer !== "string" || !m.answer.trim()) bad("no answer came back");
+    const answer = await m.runQuestion();
+    if (typeof answer !== "string" || !answer.trim()) bad("no answer came back");
     ok("an answer came back");
     record(0, { ok: true });
   },
