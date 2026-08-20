@@ -8,10 +8,16 @@ import { expect, test as base } from "@playwright/test";
  */
 export const test = base.extend({
   page: async ({ page }, use) => {
-    await page.route("https://api.deepseek.com/**", (route) =>
-      route.abort("blockedbyclient"),
-    );
+    let unmockedProviderRequests = 0;
+    await page.route("https://api.deepseek.com/**", (route) => {
+      unmockedProviderRequests += 1;
+      return route.abort("blockedbyclient");
+    });
     await use(page);
+    expect(
+      unmockedProviderRequests,
+      "every Provider request must be handled by an explicit test mock",
+    ).toBe(0);
   },
 });
 
