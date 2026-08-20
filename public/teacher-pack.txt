@@ -17,6 +17,19 @@ Before the room
 6. Never share the teacher key. Forget clears the tab; revocation happens at
    the Provider.
 
+Offline Stage 0
+---------------
+Open /en/build/ for the complete setup and recovery path. In a local clone:
+
+  npm ci
+  npm run course:offline
+  npx tsx course/stage0-hello/run.ts --offline
+  npx tsx course/check.ts 0 --offline
+
+The checker succeeds with "stage 0 complete." This path uses the bundled
+deterministic stand-in: no Provider key, request, private recording or charge.
+It proves the local control flow, not live-model variation.
+
 Call disclosure
 ---------------
 Step 1: 1 paid request, max 250 output tokens.
@@ -33,6 +46,26 @@ to abort up to four in-flight calls; an in-flight call may still be billed.
 90: add Handbook prompt/context/eval, loop/graph, security and decision tree.
 180: learners run the Lab with their own keys or the no-key route, play the
 Control Room, then begin the local TypeScript course.
+
+Projection cues
+---------------
+1. On the Handbook dial ask, "Who chooses the next step, and when?"
+2. At the rules wall ask for one phrasing nobody anticipated; do not explain
+   the wall before learners feel it.
+3. Before the first Eval, stop and collect predictions. Let the baseline score
+   land before discussing it.
+4. Add only the menu, re-run, and ask which failure changed and which did not.
+5. At loop/graph ask which decisions the model may make and which code or a
+   person must retain.
+6. At security ask where an untrusted email stops being data and starts trying
+   to issue instructions.
+
+Reference-answer boundary
+-------------------------
+There is no single approved Agent design. A defensible answer identifies an
+observable failure, a proportionate control and the trade-off it creates.
+`course/SOLUTIONS.md` is one complete implementation, not the only acceptable
+one. Use the rubric below to assess evidence rather than framework choice.
 
 Learner worksheet
 -----------------
@@ -64,5 +97,7 @@ Privacy
 Keep observation sheets local. Never put learner keys, prompts, raw Provider
 bodies, replies, or identifiable work into the site, screenshots, or CI logs.
 
-Full plan: https://github.com/HUDongpin/agent-edu/blob/main/TEACHING.md
+Full facilitation plan: https://github.com/HUDongpin/agent-edu/blob/main/TEACHING.md
+Offline setup: https://aicourse.top/en/build/
+Reference implementation: https://github.com/HUDongpin/agent-edu/blob/main/course/SOLUTIONS.md
 Licence: MIT.

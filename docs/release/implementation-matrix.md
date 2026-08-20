@@ -1,0 +1,87 @@
+# Approved roadmap implementation matrix
+
+This matrix maps the approved **20260821 Codex Priority Implementation Plan on
+Agent Edu v1.0** to repository evidence. It deliberately separates four states:
+
+- **implemented** — the required repository behavior or protocol exists;
+- **automatic pass** — the named deterministic command has passed on the local
+  integration candidate;
+- **external pending** — a real deployment, Provider, device, native reviewer,
+  GitHub setting or participant is required;
+- **excluded** — the roadmap explicitly says not to build it.
+
+An implemented row is not permission to publish. The machine release decision
+is `config/release-readiness.json`; `npm run release:check` must remain non-zero
+until every external P0 record is signed against one frozen candidate and
+deployment.
+
+## Wave 0 and P0
+
+| Roadmap requirement | Repository evidence | Deterministic gate | Current state |
+|---|---|---|---|
+| Recoverable checkpoint; no destructive cleanup | Checkpoint `0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd`; subsequent work isolated on `codex/agent-edu-release-candidate` | `git status`, staged-file review, `npm run secrets:check` | Implemented; checkpoint retained |
+| Node 20 quality and Chromium smoke CI | `.github/workflows/ci.yml`, `package.json`, `playwright.config.ts`, `e2e/smoke.spec.ts` | `npm test`, `npm run lint`, `npm run build`, `npm run routes:check`, `npm run test:smoke` | Implemented; GitHub required-check proof and three frozen-candidate runs external pending |
+| Active source lint is zero-error/zero-warning | ESLint scopes active site and scripts; generated/build/legacy paths stay outside that gate | `npm run lint` | Automatic pass |
+| Part 1/2/3 and Python-legacy truth is consistent | Handbook content, localized site catalogs, `README.md`, `TEACHING.md`, `/[locale]/build/`, `public/teacher-pack.txt` | `npm run handbook:check`, `npm run widgets:check`, route/browser journeys | Implemented; eight native reviews external pending |
+| Learning state v2 separates visit, task completion and score | `lib/progress.ts`; Home, Catalog, Handbook and Lab consumers; migration/reset tests | Progress and integration tests under `tests/` and `e2e/smoke.spec.ts` | Implemented and automatically covered |
+| Part 3 has no website percentage or Resume claim | Catalog selector and localized Build handoff; local course owns `course/progress.json` | Progress tests; nine-locale journey | Implemented and automatically covered |
+| Typed BYOK result/error/usage/billing contracts | `lib/byok/`, `lib/deepseek.ts`, `lib/lab/` | BYOK, pricing, key-verifier and runner unit tests | Implemented and automatically covered |
+| No silent network retry; Stop/fail-fast/run isolation | Single-dispatch client and abort-aware batch runner | Runner tests; Lab cancellation browser test | Implemented and automatically covered |
+| Call disclosure and conservative cap | Lab plans lock 1, 3, 28, 56 and recommended 60 calls / 16,350 output-token cap | `tests/byok-pricing.test.ts`, `tests/lab-runner.test.ts` | Implemented and automatically covered |
+| Flash/Pro, peak/off-peak, cache hit/miss and unknown billing | Dated/sourced snapshot in `lib/byok/pricing.ts`; shared course pricing | Pricing and course-usage tests | Implemented; release-date official price/model/CORS/bill reconciliation external pending |
+| Save & test uses one `GET /models`; six key states | `lib/byok/key-verifier.ts`, session-only key store, KeyBar UI | Key verifier tests; Provider contract browser suite | Implemented; low-limit real-key canary external pending |
+| Fake key, Prompt, reply and raw Provider data stay out of persistent/exported surfaces | Session-only key, restricted draft codec, redaction, fail-closed test routing and artifact scanner | Secrets/privacy unit tests; Provider contract browser tests; `npm run artifacts:check` | Implemented; CI failure-artifact behavior still requires frozen GitHub run evidence |
+| Handbook 979/980 orientation, roving focus, Home/End, RTL arrows and visible active tab | `lib/handbook/behaviour.ts`, scoped styles and smoke matrix | Handbook unit tests; Arabic width/theme keyboard matrix | Implemented and automatically covered; human RTL/device matrix external pending |
+| Stable page H1 and task-equivalent non-visual judgements | Handbook markup/behavior and screen-reader-only structures | Handbook P0/content-equivalence tests and browser task | Implemented; human screen-reader review external pending |
+| Nine complete machine catalogs with no unexplained fallback | `messages/`, `messages/widgets/`, `messages/handbook/`, narrow allowlist | `npm run handbook:check`, `npm run widgets:check`, `npm run release:check` localization phase | Automatic structural pass; eight native-language sign-offs external pending |
+
+## P1
+
+| Roadmap requirement | Repository evidence | Deterministic gate | Current state |
+|---|---|---|---|
+| Local Lab draft restores and clears without storing key/reply/error/billing | `lib/lab/draft.ts`, `lib/lab/rules.ts`, `components/lab/Lab.tsx` | Draft/rule tests; reload, pagehide and client-navigation browser test | Implemented and automatically covered |
+| Scaffolding fades without hard locks; two guided pre-Eval pauses | Lab Stage 2/3 UI and reflection lifecycle | Lab integration/source contract plus browser composition test | Implemented; learner-comprehension evidence belongs to the pilot |
+| Localized Part 3 transition and offline Stage 0 | `app/[locale]/build/`, `course/`, teacher pack | Offline preflight/check tests; route manifest; nine-locale handoff | Implemented and automatically covered |
+| Diagram-independent task completion | Handbook structured alternatives and CSS utility | Content-equivalence tests; diagrams-hidden browser task | Implemented; human assistive-technology review external pending |
+| Transfer artifact and evidence rubric | Stage 9 project template/rubric, `TEACHING.md`, Teach page/pack | Course checks and route artifact markers | Implemented |
+
+## P2 and post-release evidence
+
+| Roadmap requirement | Repository evidence | Deterministic gate | Current state |
+|---|---|---|---|
+| Teacher pack reachable in two interactions, printable/downloadable, no-key/offline path, worksheet/cues/rubric | `/[locale]/teach/`, `public/teacher-pack.txt`, `TEACHING.md` | Compat browser test and route artifact markers | Implemented; downloadable TXT is explicitly English while the page is localized |
+| Six-learner / three-teacher evidence protocol without product telemetry | `docs/release/pilot-protocol.md` includes fixed stimuli, help/blocker definitions, codebook, double review, retention and metric calculation | Document review only | Protocol implemented; recruitment and observed exit metrics external pending |
+| Language-neutral recovery 404 | `app/global-not-found.tsx` uses `lang="und"` and nine equal recovery cards | Route manifest and three-engine compat test | Implemented and automatically covered |
+| Firefox and WebKit baseline | `e2e/compat.spec.ts`, three Playwright projects, compatibility CI job | `npm run test:compat` | Implemented; local three-engine pass, physical Safari/device evidence external pending |
+| Declared weak-network/low-end regression | `e2e/resilience.spec.ts` records CPU/network profile and keeps no-key path local | `npm run test:resilience` | Implemented as emulated lab evidence, not a physical-device claim |
+| Static resource regression budget | `scripts/check-static-assets.mjs`, `docs/release/performance-verification.md` | fresh `npm run build && npm run assets:check` | Implemented; field CWV and real-network evidence external pending |
+| Measure before any large Handbook rewrite or strict CSP spike | Performance protocol and present static architecture | Asset budget plus profiling record if future change is proposed | Implemented as a decision gate; no large rewrite performed |
+
+## Release-only external gates
+
+The following cannot be completed truthfully in a local mock-only task. Their
+forms and fail-closed schema exist under `docs/release/`, but they remain
+blocking:
+
+1. eight independent native-language reviews;
+2. the full human Arabic RTL/device/keyboard matrix and assistive-technology
+   review;
+3. a low-limit, revocable real DeepSeek canary with model, usage, pricing,
+   billing and CORS reconciliation;
+4. Vercel report-only CSP observation followed by a separate enforced preview;
+5. GitHub proof that required checks are protected plus three unique first-run
+   successes on one frozen candidate/workflow;
+6. an ordinary-PR rollback target and recovery validation;
+7. physical low-end/real-network and field Core Web Vitals evidence;
+8. the six-learner/three-teacher pilot.
+
+No deployment, push, required-check mutation, real Provider call, participant
+recruitment or native-review signature is implied by this repository work.
+
+## Explicit non-goals preserved
+
+The implementation does not add customer-service features, accounts, a teacher
+dashboard, full learning telemetry, reminders, personalized paths, a browser
+multi-Provider/BFF key store, hard Lab gating, forced long reflection, social
+portfolio or an in-browser IDE. Analytics remains the disclosed aggregate
+pageview integration only; repository source checks reject custom Lab events.

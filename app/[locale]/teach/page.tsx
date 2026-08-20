@@ -28,6 +28,7 @@ export default async function TeachPage({ params }: { params: Promise<{ locale: 
   const t = translator(await getMessages(locale));
   const handbook = `/${locale}/handbook/`;
   const lab = `/${locale}/lab/`;
+  const build = `/${locale}/build/`;
 
   const resource = {
     "@context": "https://schema.org",
@@ -50,7 +51,9 @@ export default async function TeachPage({ params }: { params: Promise<{ locale: 
         <p className="lede">{t("teach.lede")}</p>
         <div className="acts">
           <PrintButton label={t("teach.print")} />
-          <a className="btn" href="/teacher-pack.txt" download>{t("teach.download")}</a>
+          <a className="btn" href="/teacher-pack.txt" hrefLang="en" lang="en" download>
+            {t("teach.download")}
+          </a>
         </div>
       </section>
 
@@ -79,6 +82,9 @@ export default async function TeachPage({ params }: { params: Promise<{ locale: 
         <div className="acts">
           <Link className="btn" href={handbook}>{t("track.1.cta")}</Link>
           <Link className="btn" href={lab}>{t("track.2.cta")}</Link>
+          <Link className="btn" href={build} data-teach-offline="part-3">
+            {t("build.openRepo")}
+          </Link>
         </div>
       </section>
 

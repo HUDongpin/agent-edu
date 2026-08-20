@@ -93,9 +93,9 @@ English · Español · Français · Deutsch · 简体中文 · 繁體中文 · �
 
 Pick one from the 🌐 menu, or link straight to it — each language is its own URL, so `/ar/handbook/` *is* the Arabic handbook. Your choice is remembered in the browser.
 
-The Handbook article dictionaries contain all 560 source keys in every locale. Code, URLs and model identifiers stay left-to-right inside Arabic. Structure checks can prove key, placeholder and markup parity; they do **not** replace the release gate for native-speaker review of meaning, terminology and beginner readability.
+The Handbook article dictionaries contain all 540 current source keys in every locale. Code, URLs and model identifiers stay left-to-right inside Arabic. Structure checks can prove key, placeholder and markup parity; they do **not** replace the release gate for native-speaker review of meaning, terminology and beginner readability. The authoritative count is printed by `npm run handbook:check`; update this sentence whenever that source contract changes.
 
-`messages/handbook/en.json` holds the 560 strings of article prose, pulled out of the markup by `npm run handbook:extract`; each sibling locale file supplies the translated values. Substitution happens at build time, so the exported page is localized for a reader, crawler and anyone with JavaScript off. A part-finished contribution may use the English fallback during development, but the nine-language release gate rejects unexplained user-visible fallbacks.
+`messages/handbook/en.json` holds the 540 current strings of article prose, pulled out of the markup by `npm run handbook:extract`; each sibling locale file supplies the translated values. Substitution happens at build time, so the exported page is localized for a reader, crawler and anyone with JavaScript off. A part-finished contribution may use the English fallback during development, but the nine-language release gate rejects unexplained user-visible fallbacks.
 
 Keys are `hb.body.<nearest ancestor id>.<nth text node>`, and text broken by an `<em>` or a link arrives in pieces: only text is replaced, never the tags around it, which is what keeps the verified markup and its DOM queries intact. Dynamic readouts use the separate `messages/widgets/*.json` dictionaries and are subject to the same zero-unexplained-fallback release gate.
 

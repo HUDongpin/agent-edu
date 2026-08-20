@@ -40,11 +40,19 @@ test("the committed route manifest expands to the build-page route set", () => {
   assert.equal(expanded.prerenderRoutes.length, 68);
   assert.equal(new Set(expanded.prerenderRoutes).size, 68);
   assert.deepEqual(expanded.requiredArtifactText["out/404.html"], [
-    "Choose a language",
+    'lang="und"',
+    "Página no encontrada",
     "/ar/courses/",
   ]);
   assert.ok(expanded.requiredArtifactText["out/en/build/index.html"].includes("course/progress.json"));
-  assert.ok(expanded.requiredArtifactText["out/teacher-pack.txt"].includes("Project rubric"));
+  assert.deepEqual(expanded.requiredArtifactText["out/teacher-pack.txt"], [
+    "20 generator + up to 8 judge = 28 calls",
+    "Never share the teacher key",
+    "npm run course:offline",
+    "Projection cues",
+    "Reference-answer boundary",
+    "Project rubric",
+  ]);
 });
 
 test("tracked-file secret rules fail closed without echoing matched values", () => {

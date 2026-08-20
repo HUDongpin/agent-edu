@@ -37,7 +37,8 @@
   ],
   "requiredArtifactText": {
     "out/404.html": [
-      "Choose a language",
+      "lang=\"und\"",
+      "Página no encontrada",
       "/ar/courses/"
     ],
     "out/en/build/index.html": [
@@ -48,6 +49,9 @@
     "out/teacher-pack.txt": [
       "20 generator + up to 8 judge = 28 calls",
       "Never share the teacher key",
+      "npm run course:offline",
+      "Projection cues",
+      "Reference-answer boundary",
       "Project rubric"
     ]
   }
