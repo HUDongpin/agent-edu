@@ -16,7 +16,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint app components lib scripts --max-warnings 0",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:smoke": "playwright test e2e/smoke.spec.ts --project=chromium",
+    "preview:test": "node scripts/serve-out.mjs",
+    "routes:check": "node scripts/check-routes.mjs",
+    "secrets:check": "node scripts/check-secrets.mjs",
     "course": "tsx course/check.ts",
     "report": "tsx course/report.ts",
     "handbook:extract": "node scripts/extract-handbook.mjs",
@@ -31,6 +36,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/node": "^20.19.43",
     "@types/react": "^19",
     "@types/react-dom": "^19",

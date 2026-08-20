@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "locales": [
+    "en",
+    "es",
+    "fr",
+    "de",
+    "zh-Hans",
+    "zh-Hant",
+    "ja",
+    "ko",
+    "ar"
+  ],
+  "localizedPaths": [
+    "",
+    "about",
+    "courses",
+    "handbook",
+    "lab"
+  ],
+  "staticRoutes": [
+    "/",
+    "/robots.txt",
+    "/sitemap.xml"
+  ],
+  "internalRoutes": [
+    "/_global-error",
+    "/_not-found"
+  ],
+  "requiredArtifacts": [
+    "out/404.html",
+    "out/404/index.html",
+    "out/_not-found/index.html"
+  ]
+}

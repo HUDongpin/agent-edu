@@ -11,6 +11,7 @@
 *.pem
 *.key
 *secret*
+!scripts/check-secrets.mjs
 *credential*
 *API*Key*
 
@@ -27,6 +28,9 @@ legacy/course-python/cafe/fixtures.*.json
 /out/
 /build
 /coverage
+/playwright-report/
+/test-results/
+/blob-report/
 next-env.d.ts
 *.tsbuildinfo
 .vercel
