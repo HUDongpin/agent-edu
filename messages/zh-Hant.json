@@ -323,7 +323,7 @@
   "lab.s4.thWhy": "為什麼沒過",
   "lab.kind.rule": "規則",
   "lab.kind.judge": "評判",
-  "lab.s1.q": "Explain what an API is, to someone who has never written code. Two sentences.",
+  "lab.s1.q": "請用兩句話，向一位從未寫過程式的人解釋什麼是 API。",
   "build.title": "在你自己的電腦上打造代理程式",
   "build.lede": "第三部分是一門包含九個階段的 TypeScript 課程。本頁會協助你準備好本機工具，驗證離線的第 0 階段，然後把你帶到程式碼儲存庫；網站不會假裝自己看得到你的本機進度。",
   "build.openRepo": "打開 TypeScript 課程",

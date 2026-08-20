@@ -323,7 +323,7 @@
   "lab.s4.thWhy": "为什么没过",
   "lab.kind.rule": "规则",
   "lab.kind.judge": "评判",
-  "lab.s1.q": "Explain what an API is, to someone who has never written code. Two sentences.",
+  "lab.s1.q": "请用两句话，向一个从未写过代码的人解释什么是 API。",
   "build.title": "在你自己的电脑上构建智能体",
   "build.lede": "第三部分是一门包含九个关卡的 TypeScript 课程。本页会帮你准备好本地工具，验证离线的第 0 关，然后把你带到代码仓库；网站不会假装自己能看到你的本地进度。",
   "build.openRepo": "打开 TypeScript 课程",
