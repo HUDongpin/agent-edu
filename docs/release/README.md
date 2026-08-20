@@ -74,6 +74,8 @@ rejects optimistic aggregate statuses.
 2. Run `npm test`, `npm run lint`, the normal build/smoke pipeline, and then
    `npm run release:check`.
 3. Complete the forms in this directory against that exact commit/deployment.
+   For CSP, keep the candidate in `report-only` until Stage A passes; promote
+   with `npm run csp:set -- enforced` only in a separately reviewed commit.
 4. Sanitize the evidence. A second reviewer confirms that no prohibited value
    is present.
 5. Add stable evidence references and UTC timestamps to
@@ -97,7 +99,8 @@ headers. A green run cannot prove that GitHub made the jobs required.
 - `native-review-form.md` — one signed copy for each of eight non-English locales.
 - `arabic-rtl-matrix.md` — the 979/980 breakpoint plus 390/1440 representative paths.
 - `provider-canary.md` — low-limit real Provider run and reconciliation.
-- `csp-verification.md` — report-only observation followed by enforced CSP.
+- `csp-verification.md` — executable report-only → enforced transition plus
+  external response-header observation.
 - `github-readiness.md` — required checks and three consecutive green runs.
 - `rollback.md` — previous production target, ordinary revert PR, and recovery validation.
 - `pilot-protocol.md` — later six-learner/three-teacher pilot and its exit metrics.

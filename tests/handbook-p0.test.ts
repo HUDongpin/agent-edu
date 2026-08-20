@@ -8,6 +8,7 @@ import {
   handbookOrientation,
   tabTargetIndex,
 } from "../lib/tab-navigation";
+import { assertCspConfiguration } from "../scripts/check-csp.mjs";
 
 const behaviour = readFileSync("lib/handbook/behaviour.ts", "utf8");
 const css = readFileSync("app/globals.css", "utf8");
@@ -178,14 +179,12 @@ test("visible kiosk fixtures resolve through all nine widget tables", () => {
   assert.match(readFileSync("scripts/check-widgets.mjs", "utf8"), /REMAINING = \{ literals: 0, words: 0 \}/);
 });
 
-test("Vercel static headers carry the planned baseline CSP and deny framing", () => {
-  const config = JSON.parse(readFileSync("vercel.json", "utf8")) as {
+test("Vercel static headers carry the staged baseline CSP and deny framing", () => {
+  const vercelConfig = JSON.parse(readFileSync("vercel.json", "utf8")) as {
     headers: Array<{ headers: Array<{ key: string; value: string }> }>;
   };
-  const headers = Object.fromEntries(config.headers[0].headers.map(({ key, value }) => [key, value]));
+  const stageConfig = JSON.parse(readFileSync("config/csp-stage.json", "utf8"));
+  assert.doesNotThrow(() => assertCspConfiguration(stageConfig, vercelConfig));
+  const headers = Object.fromEntries(vercelConfig.headers[0].headers.map(({ key, value }) => [key, value]));
   assert.equal(headers["X-Frame-Options"], "DENY");
-  assert.equal(
-    headers["Content-Security-Policy"],
-    "default-src 'self'; script-src 'self' 'unsafe-inline'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.deepseek.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;",
-  );
 });
