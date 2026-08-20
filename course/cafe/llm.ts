@@ -23,7 +23,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { DEEPSEEK_PRICING, priceBandAt } from "../../lib/byok/pricing";
 import { createOfflineClient, offlineText } from "./offline";
-import { priceDeepSeekCourseUsage } from "./pricing";
+import {
+  EMPTY_COURSE_USAGE_LEDGER,
+  priceAnthropicCourseUsage,
+  priceDeepSeekCourseUsage,
+  recordCourseUsage,
+} from "./pricing";
 
 /* ---------------------------------------------------------------------------
  * Providers
@@ -104,7 +109,7 @@ export const EFFORT = process.env.CAFE_EFFORT || "low";
 /** --offline anywhere on the command line uses the deterministic local stand-in. */
 export const OFFLINE = process.argv.includes("--offline");
 
-const spent = { in: 0, out: 0, cached: 0, calls: 0 };
+let spent = { ...EMPTY_COURSE_USAGE_LEDGER };
 let client: Anthropic | null = null;
 
 export function getClient(): Anthropic {
@@ -211,13 +216,15 @@ export async function ask<T>(prompt: string, opts: AskOptions = {}): Promise<str
   } else {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     const response: any = await getClient().messages.create(request as any);
+    // Meter every HTTP-success response before interpreting its content. A
+    // refusal can still consume billable input/output tokens.
+    meter(response);
 
     // Claude runs safety classifiers. A declined request is a normal 200 with
     // empty or partial content, so check BEFORE indexing into content.
     if (response.stop_reason === "refusal") {
       throw new Error(`The model declined this request (category: ${response.stop_details?.category}).`);
     }
-    meter(response);
     text = (response.content ?? [])
       .filter((b: any) => b.type === "text").map((b: any) => b.text).join("");
 
@@ -241,13 +248,11 @@ export async function ask<T>(prompt: string, opts: AskOptions = {}): Promise<str
  * this their spend is invisible — and a cost you cannot see is one you will
  * not manage.
  */
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-export function meter(response: any): void {
-  const u = response.usage ?? {};
-  spent.in += u.input_tokens ?? 0;
-  spent.out += u.output_tokens ?? 0;
-  spent.cached += u.cache_read_input_tokens ?? 0;
-  spent.calls++;
+export function meter(response: unknown): void {
+  const usage = response !== null && typeof response === "object" && !Array.isArray(response)
+    ? (response as Record<string, unknown>).usage
+    : undefined;
+  spent = recordCourseUsage(spent, usage);
 }
 
 let baseline: number | null = null;
@@ -273,16 +278,27 @@ export async function tokens(text: string): Promise<number> {
 export function spend(): string {
   if (OFFLINE) return "offline — no tokens spent";
   let note = "";
-  if (spent.cached) note += ` (${spent.cached.toLocaleString()} cached)`;
-  const usage = `${spent.calls} call(s) · ${spent.in.toLocaleString()} in / ` +
-    `${spent.out.toLocaleString()} out${note}`;
+  if (spent.cachedInputTokens) {
+    note += ` (${spent.cachedInputTokens.toLocaleString()} cache-read)`;
+  }
+  if (spent.cacheCreationInputTokens) {
+    note += ` (${spent.cacheCreationInputTokens.toLocaleString()} cache-created)`;
+  }
+  const usage = `${spent.calls} call(s) · ${spent.inputTokens.toLocaleString()} confirmed in / ` +
+    `${spent.outputTokens.toLocaleString()} confirmed out${note}`;
+
+  if (spent.unknownCalls > 0) {
+    return `${usage} · cost unknown on ${MODEL} ` +
+      `(${spent.unknownCalls} call(s) had missing, invalid, or unrecognised usage)`;
+  }
 
   if (PROVIDER === "deepseek") {
     const band = priceBandAt();
     const priced = priceDeepSeekCourseUsage(MODEL, {
-      inputTokens: spent.in,
-      cachedInputTokens: spent.cached,
-      outputTokens: spent.out,
+      inputTokens: spent.inputTokens,
+      cachedInputTokens: spent.cachedInputTokens,
+      cacheCreationInputTokens: spent.cacheCreationInputTokens,
+      outputTokens: spent.outputTokens,
     }, band);
     if (!priced.known) {
       return `${usage} · cost unknown on ${MODEL} ` +
@@ -294,11 +310,26 @@ export function spend(): string {
 
   const prices = CFG.prices;
   if (!prices) return `${usage} · cost unknown on ${MODEL}`;
-  const fresh = Math.max(0, spent.in - spent.cached);
-  const dollars = (
-    fresh * prices.in + spent.cached * prices.cachedIn + spent.out * prices.out
-  ) / 1e6;
-  return `${usage} · $${dollars.toFixed(4)} on ${MODEL}`;
+  const priced = priceAnthropicCourseUsage(
+    MODEL,
+    CFG.model,
+    {
+      inputTokens: spent.inputTokens,
+      cachedInputTokens: spent.cachedInputTokens,
+      cacheCreationInputTokens: spent.cacheCreationInputTokens,
+      outputTokens: spent.outputTokens,
+    },
+    { input: prices.in, output: prices.out, cachedInput: prices.cachedIn },
+  );
+  if (!priced.known) {
+    const detail = priced.reason === "cache-creation-price-unknown"
+      ? "cache-creation usage needs a separate rate"
+      : priced.reason === "unknown-model"
+        ? `the configured rates belong to ${CFG.model}`
+        : "usage is not safely priceable";
+    return `${usage} · cost unknown on ${MODEL} (${detail})`;
+  }
+  return `${usage} · $${priced.usd.toFixed(4)} on ${MODEL}`;
 }
 
 /** Fail early and clearly, instead of deep inside a stack trace. */
