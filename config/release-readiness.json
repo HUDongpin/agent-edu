@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "2026-08-agent-edu",
+  "status": "pending",
+  "updatedAt": "2026-08-21",
+  "sensitiveEvidencePolicy": {
+    "credentialsStored": false,
+    "signedUrlsStored": false,
+    "providerRawBodiesStored": false
+  },
+  "localization": {
+    "sourceLocale": "en",
+    "requiredLocales": ["en", "zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+    "nativeReviewLocales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+    "sameAsEnglishAllowlist": [
+      {
+        "catalog": "site",
+        "key": "ui.optional",
+        "locales": ["de"],
+        "reason": "Optional is the same correctly spelled German UI adjective."
+      },
+      {
+        "catalog": "site",
+        "key": "cat.filterFormat",
+        "locales": ["de", "fr"],
+        "reason": "Format is the same correctly spelled noun in German and French."
+      },
+      {
+        "catalog": "site",
+        "key": "topic.evaluation",
+        "locales": ["de"],
+        "reason": "Evaluation is the same correctly spelled German technical noun."
+      },
+      {
+        "catalog": "site",
+        "key": "ab.p.hwang.aff",
+        "locales": ["de"],
+        "reason": "The official English institution name is retained as a proper name."
+      },
+      {
+        "catalog": "site",
+        "key": "ab.p.tu.aff",
+        "locales": ["de"],
+        "reason": "The official English institution name is retained as a proper name."
+      },
+      {
+        "catalog": "site",
+        "key": "lab.s2.ok",
+        "locales": ["de", "fr"],
+        "reason": "The short machine status literal ok is intentionally unchanged."
+      },
+      {
+        "catalog": "site",
+        "key": "ui.minutes",
+        "locales": ["es", "fr"],
+        "reason": "The international minute abbreviation min is unchanged."
+      },
+      {
+        "catalog": "site",
+        "key": "cat.minutes",
+        "locales": ["es", "fr"],
+        "reason": "The international minute abbreviation min is unchanged."
+      },
+      {
+        "catalog": "site",
+        "key": "nav.menu",
+        "locales": ["fr"],
+        "reason": "Menu is the same correctly spelled French navigation noun."
+      },
+      {
+        "catalog": "site",
+        "key": "topic.agents",
+        "locales": ["fr"],
+        "reason": "Agents is the same correctly spelled French plural noun."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-code.10",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "kiosk.js is a literal source filename and must remain LTR."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.pLiveBar.03",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "DeepSeek is the Provider product name."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.pLiveBar.07",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "sessionStorage is a browser API identifier and must remain LTR."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.pLiveBar.09",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "api.deepseek.com is a literal hostname and must remain LTR."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.pLiveBar.11",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "platform.deepseek.com is a literal hostname and must remain LTR."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-loop.12",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "read_inventory() is a code identifier and must remain LTR."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-loop.13",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "read_sales(days) is a code signature and must remain LTR."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-loop.14",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "place_order(item, qty) is a code signature and must remain LTR."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-loop.15",
+        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
+        "reason": "send_email(to, body) is a code signature and must remain LTR."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-graph.23",
+        "locales": ["de", "es", "fr"],
+        "reason": "2.8s is a locale-neutral measured timing label."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-graph.25",
+        "locales": ["de", "es", "fr"],
+        "reason": "1.1s is a locale-neutral measured timing label."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.glossary.13",
+        "locales": ["de"],
+        "reason": "LLM-as-judge is the retained technical term."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-context.21",
+        "locales": ["es"],
+        "reason": "The numeric token-budget label intentionally retains token."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.winUsed.01",
+        "locales": ["es"],
+        "reason": "The numeric token-meter label intentionally retains token."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-compare.17",
+        "locales": ["es"],
+        "reason": "No is the same correctly spelled Spanish answer."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-compare.25",
+        "locales": ["es"],
+        "reason": "No is the same correctly spelled Spanish answer."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-compare.37",
+        "locales": ["es"],
+        "reason": "No is the same correctly spelled Spanish answer."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-compare.32",
+        "locales": ["es"],
+        "reason": "n/a is an intentionally retained table abbreviation."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-compare.45",
+        "locales": ["es"],
+        "reason": "n/a is an intentionally retained table abbreviation."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-compare.46",
+        "locales": ["es"],
+        "reason": "n/a is an intentionally retained table abbreviation."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-compare.52",
+        "locales": ["es"],
+        "reason": "n/a is an intentionally retained table abbreviation."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-compare.59",
+        "locales": ["es"],
+        "reason": "n/a is an intentionally retained table abbreviation."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.glossary.01",
+        "locales": ["es", "fr"],
+        "reason": "token is the retained glossary term in these locales."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.glossary.23",
+        "locales": ["es", "fr"],
+        "reason": "few-shot is the retained glossary term in these locales."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-harness.20",
+        "locales": ["fr"],
+        "reason": "Incidents is the same correctly spelled French plural noun."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-security.07",
+        "locales": ["fr"],
+        "reason": "Information is the same correctly spelled French noun."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.p-security.26",
+        "locales": ["fr"],
+        "reason": "Source is the same correctly spelled French noun."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.glossary.21",
+        "locales": ["fr"],
+        "reason": "Agent is the same correctly spelled French technical noun."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.gameCard.03",
+        "locales": ["fr"],
+        "reason": "Score is the same correctly spelled French noun."
+      },
+      {
+        "catalog": "widgets",
+        "key": "w.theme.mode.auto",
+        "locales": ["de", "es", "fr"],
+        "reason": "auto is the retained technical mode label in these locales."
+      },
+      {
+        "catalog": "widgets",
+        "key": "w.graph.lookups.parallel",
+        "locales": ["de"],
+        "reason": "parallel is the same German technical execution term."
+      },
+      {
+        "catalog": "widgets",
+        "key": "w.context.used",
+        "locales": ["es", "fr"],
+        "reason": "The token-meter format and placeholders are intentionally unchanged."
+      },
+      {
+        "catalog": "widgets",
+        "key": "w.progress.sections",
+        "locales": ["fr"],
+        "reason": "sections is the same correctly spelled French plural noun."
+      }
+    ]
+  },
+  "gates": {
+    "nativeReviews": {
+      "status": "pending",
+      "reviews": {
+        "zh-Hans": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Simplified Chinese native-speaker sign-off." },
+        "zh-Hant": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Traditional Chinese native-speaker sign-off." },
+        "ar": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Arabic native-speaker sign-off." },
+        "de": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting German native-speaker sign-off." },
+        "es": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Spanish native-speaker sign-off." },
+        "fr": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting French native-speaker sign-off." },
+        "ja": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Japanese native-speaker sign-off." },
+        "ko": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Korean native-speaker sign-off." }
+      }
+    },
+    "arabicRtlMatrix": {
+      "status": "pending",
+      "keyboardChecks": [
+        "aria-orientation-matches-layout",
+        "arrow-left-next-visual-item",
+        "arrow-right-previous-visual-item",
+        "home-end-first-last",
+        "active-tab-scrolls-into-view",
+        "no-page-horizontal-overflow",
+        "code-url-model-identifiers-remain-ltr"
+      ],
+      "cases": [
+        { "id": "390-light", "width": 390, "theme": "light", "expectedOrientation": "horizontal", "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Arabic 390px light keyboard run." } },
+        { "id": "390-dark", "width": 390, "theme": "dark", "expectedOrientation": "horizontal", "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Arabic 390px dark keyboard run." } },
+        { "id": "979-light", "width": 979, "theme": "light", "expectedOrientation": "horizontal", "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Arabic 979px light breakpoint run." } },
+        { "id": "979-dark", "width": 979, "theme": "dark", "expectedOrientation": "horizontal", "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Arabic 979px dark breakpoint run." } },
+        { "id": "980-light", "width": 980, "theme": "light", "expectedOrientation": "vertical", "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Arabic 980px light breakpoint run." } },
+        { "id": "980-dark", "width": 980, "theme": "dark", "expectedOrientation": "vertical", "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Arabic 980px dark breakpoint run." } },
+        { "id": "1440-light", "width": 1440, "theme": "light", "expectedOrientation": "vertical", "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Arabic 1440px light keyboard run." } },
+        { "id": "1440-dark", "width": 1440, "theme": "dark", "expectedOrientation": "vertical", "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting Arabic 1440px dark keyboard run." } }
+      ]
+    },
+    "providerCanary": {
+      "status": "pending",
+      "credentialPolicy": "independent-low-limit-revocable-never-recorded",
+      "officialPricingUrl": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "steps": {
+        "models": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting sanitized GET /models canary summary." },
+        "stage1": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting one-call Stage 1 canary summary." },
+        "preview3": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting three-case preview canary summary." },
+        "flashEval28": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting one complete 20 plus up-to-8-judge Flash Eval." }
+      },
+      "reconciliations": {
+        "pricing": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting dated official pricing reconciliation." },
+        "modelId": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting sanitized requested-versus-returned model ID check." },
+        "usage": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting aggregate usage-field reconciliation." },
+        "billing": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting sanitized Provider-console billing reconciliation." },
+        "cors": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting real-browser CORS result on the preview origin." },
+        "credentialLifecycle": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting proof that the isolated low-limit credential was revoked and never recorded." }
+      }
+    },
+    "vercelPreviewCsp": {
+      "status": "pending",
+      "requiredHeaders": {
+        "reportOnly": "content-security-policy-report-only",
+        "enforced": "content-security-policy"
+      },
+      "stages": {
+        "reportOnly": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting sanitized Vercel preview report-only response headers and observation window." },
+        "enforced": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting sanitized Vercel preview enforced response headers after report-only review." }
+      }
+    },
+    "githubReadiness": {
+      "status": "pending",
+      "requiredCheckNames": ["quality", "smoke-chromium"],
+      "requiredChecks": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting branch-protection proof that both CI jobs are required." },
+      "stableRuns": [
+        { "sequence": 1, "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting first consecutive green main-branch run." } },
+        { "sequence": 2, "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting second consecutive green main-branch run." } },
+        { "sequence": 3, "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting third consecutive green main-branch run." } }
+      ]
+    }
+  }
+}

@@ -21,6 +21,7 @@
     "test:smoke": "playwright test e2e/smoke.spec.ts --project=chromium",
     "preview:test": "node scripts/serve-out.mjs",
     "routes:check": "node scripts/check-routes.mjs",
+    "release:check": "node scripts/check-release-readiness.mjs",
     "secrets:check": "node scripts/check-secrets.mjs",
     "course": "tsx course/check.ts",
     "course:offline": "node --import tsx course/offline-preflight.ts --offline",
