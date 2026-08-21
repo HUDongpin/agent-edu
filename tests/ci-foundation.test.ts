@@ -67,6 +67,12 @@ test("tracked-file secret rules fail closed without echoing matched values", () 
 });
 
 test("the deploy build type-checks only files present in the Vercel upload", () => {
+  const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+  assert.equal(
+    packageJson.scripts.typecheck,
+    "tsc -p tsconfig.json --noEmit --incremental false",
+  );
+
   const buildConfig = JSON.parse(readFileSync("tsconfig.build.json", "utf8"));
   assert.equal(buildConfig.extends, "./tsconfig.json");
   assert.deepEqual(buildConfig.exclude, ["node_modules"]);
@@ -78,4 +84,8 @@ test("the deploy build type-checks only files present in the Vercel upload", () 
 
   const nextConfig = readFileSync("next.config.ts", "utf8");
   assert.match(nextConfig, /tsconfigPath:\s*isBuild\s*\?\s*"tsconfig\.build\.json"\s*:\s*"tsconfig\.json"/);
+
+  const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
+  assert.match(workflow, /quality:[\s\S]*?- run: npm run typecheck[\s\S]*?- run: npm run build/);
+  assert.match(workflow, /hashFiles\([^\n]*'tsconfig\.json', 'tsconfig\.build\.json'\)/);
 });

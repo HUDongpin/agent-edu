@@ -15,6 +15,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "typecheck": "tsc -p tsconfig.json --noEmit --incremental false",
     "start": "next start",
     "lint": "eslint app components lib scripts --max-warnings 0",
     "test": "node --import tsx --test tests/*.test.ts",

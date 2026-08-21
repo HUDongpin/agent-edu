@@ -29,7 +29,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: .next/cache
-          key: ${{ runner.os }}-next-${{ hashFiles('package-lock.json', 'app/**', 'components/**', 'lib/**', 'messages/**', 'public/**', 'next.config.ts', 'tsconfig.json') }}
+          key: ${{ runner.os }}-next-${{ hashFiles('package-lock.json', 'app/**', 'components/**', 'lib/**', 'messages/**', 'public/**', 'next.config.ts', 'tsconfig.json', 'tsconfig.build.json') }}
           restore-keys: |
             ${{ runner.os }}-next-
       - run: npm ci
@@ -37,6 +37,7 @@ jobs:
       - run: npm run widgets:check
       - run: npm run analytics:check
       - run: npm test
+      - run: npm run typecheck
       - run: npm run lint
       - run: npm run secrets:check
       - run: npm run csp:check
