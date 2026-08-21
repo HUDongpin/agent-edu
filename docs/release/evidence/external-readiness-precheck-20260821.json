@@ -1,0 +1,97 @@
+{
+  "schema": "agent-edu.external-readiness-precheck.v1",
+  "status": "blockers-observed-no-mutations-performed",
+  "generatedAtUtc": "2026-08-21T14:58:04Z",
+  "repository": {
+    "nameWithOwner": "HUDongpin/agent-edu",
+    "visibility": "public",
+    "defaultBranch": "main",
+    "mainCommitSha": "67e1beba98fee926925b254a152a1a1de1176376"
+  },
+  "githubRequiredChecksPrecheck": {
+    "observedAtUtc": "2026-08-21T14:58:04Z",
+    "protectedBranch": "main",
+    "branchProtected": false,
+    "applicableRulesCount": 0,
+    "branchProtectionLookup": {
+      "result": "not-protected",
+      "httpStatus": 404
+    },
+    "requiredCheckNames": [
+      "quality",
+      "smoke-chromium"
+    ],
+    "qualityRequired": false,
+    "smokeChromiumRequired": false,
+    "rulesetOrProtectionId": null,
+    "gateStatusChanged": false,
+    "mutationPerformed": false,
+    "decision": "The current main branch has no applicable rules and is not protected, so neither required check is enforced. This observation does not change GitHub settings and cannot pass the required-check gate."
+  },
+  "productionRollbackAnchorPrecheck": {
+    "observedAtUtc": "2026-08-21T14:58:04Z",
+    "productionDomains": [
+      "aicourse.top",
+      "www.aicourse.top"
+    ],
+    "commitSha": "67e1beba98fee926925b254a152a1a1de1176376",
+    "gitRef": "main",
+    "deploymentId": "dpl_ESbehP8bB8n45aWks7EDBRUPXqVu",
+    "target": "production",
+    "readyState": "READY",
+    "createdAtUtc": "2026-08-19T13:16:17.829Z",
+    "readyAtUtc": "2026-08-19T13:16:40.412Z",
+    "commitMatchesObservedMain": true,
+    "distinctFromProductCandidateCommit": true,
+    "distinctFromReportOnlyPredecessorCommit": true,
+    "rollbackValidated": false,
+    "rollbackPullRequestPrepared": false,
+    "releaseTagCreated": false,
+    "productionMutationPerformed": false,
+    "decision": "The current production deployment and main commit agree and are retained as a safe preflight anchor. A final candidate, release tag, ordinary revert PR, fresh revert preview, response-header comparison, and recovery validation are still required before rollback readiness can pass."
+  },
+  "vercelProtectionPrecheck": {
+    "projectId": "prj_BrdXWD7dV2seq0QoFBsamMEpqnaV",
+    "ssoDeploymentType": "all_except_custom_domains",
+    "protectionBypassKeyCount": 0,
+    "exactPreviewPublicResponseHeaderObserved": false,
+    "protectionChanged": false,
+    "bypassCreated": false,
+    "decision": "Non-custom-domain previews are SSO-protected. Project/deployment configuration metadata is available, but no public direct response-header observation is claimed."
+  },
+  "latestEvidenceCommitDeployment": {
+    "commitSha": "5e8b459c7bc04f3a9d1d802240f4cd20367e7264",
+    "deploymentId": "dpl_5CaWfEJiJseaDfWbNK9VBZphsNze",
+    "readyState": "READY",
+    "createdAtUtc": "2026-08-21T14:49:52.748Z",
+    "countsAsReportOnlyStageATarget": false,
+    "countsAsFinalCandidateStableRun": false
+  },
+  "gateEffect": {
+    "githubRequiredChecksStatus": "pending",
+    "rollbackReadinessStatus": "pending",
+    "vercelReportOnlyStageAStatus": "pending",
+    "releaseAuthorized": false
+  },
+  "actionsNotPerformed": {
+    "githubRulesetOrProtectionMutation": true,
+    "pullRequestMarkedReady": true,
+    "pullRequestMerged": true,
+    "vercelProtectionDisabled": true,
+    "vercelBypassCreated": true,
+    "productionDeployment": true,
+    "productionRollback": true,
+    "releaseTagCreation": true,
+    "rollbackPullRequestCreation": true
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsModelReplies": false,
+    "containsProviderBodies": false,
+    "containsBillingAccountDetails": false,
+    "containsScreenshotsOrTraces": false
+  }
+}

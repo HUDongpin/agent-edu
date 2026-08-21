@@ -6,6 +6,14 @@ history that contains the release candidate.
 
 ## Branch protection
 
+Read-only precheck `docs/release/evidence/external-readiness-precheck-20260821.json`
+observed `main` at `67e1beba98fee926925b254a152a1a1de1176376` with
+`protected: false`, zero applicable rules, and the branch-protection endpoint
+returning `not protected`. Therefore neither required job is currently
+enforced. The precheck changed no repository setting and leaves the formal gate
+pending; a later independently reviewed ruleset/protection record is still
+required.
+
 - Protected branch:
 - Ruleset/branch-protection record ID:
 - `quality` required: yes / no

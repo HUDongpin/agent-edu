@@ -167,3 +167,64 @@ test("the Stage A automated precheck is target-bound, privacy-safe, and cannot p
   assert.match(evidence.decision, /automated precheck only/i);
   assert.match(evidence.decision, /Stage A remains pending/);
 });
+
+test("the external readiness precheck records blockers without mutating GitHub, Vercel, or production", () => {
+  const evidenceText = readFileSync(
+    "docs/release/evidence/external-readiness-precheck-20260821.json",
+    "utf8",
+  );
+  const evidence = JSON.parse(evidenceText);
+  const readiness = JSON.parse(readFileSync("config/release-readiness.json", "utf8"));
+
+  assert.equal(evidence.schema, "agent-edu.external-readiness-precheck.v1");
+  assert.equal(evidence.status, "blockers-observed-no-mutations-performed");
+  assert.equal(evidence.repository.defaultBranch, "main");
+  assert.equal(evidence.repository.mainCommitSha, "67e1beba98fee926925b254a152a1a1de1176376");
+
+  const github = evidence.githubRequiredChecksPrecheck;
+  assert.equal(github.protectedBranch, "main");
+  assert.equal(github.branchProtected, false);
+  assert.equal(github.applicableRulesCount, 0);
+  assert.deepEqual(github.branchProtectionLookup, {
+    result: "not-protected",
+    httpStatus: 404,
+  });
+  assert.deepEqual(github.requiredCheckNames, ["quality", "smoke-chromium"]);
+  assert.equal(github.qualityRequired, false);
+  assert.equal(github.smokeChromiumRequired, false);
+  assert.equal(github.rulesetOrProtectionId, null);
+  assert.equal(github.gateStatusChanged, false);
+  assert.equal(github.mutationPerformed, false);
+
+  const production = evidence.productionRollbackAnchorPrecheck;
+  assert.equal(production.commitSha, evidence.repository.mainCommitSha);
+  assert.equal(production.deploymentId, "dpl_ESbehP8bB8n45aWks7EDBRUPXqVu");
+  assert.equal(production.target, "production");
+  assert.equal(production.readyState, "READY");
+  assert.equal(production.commitMatchesObservedMain, true);
+  assert.notEqual(production.commitSha, readiness.releaseTarget.candidateCommitSha);
+  assert.notEqual(
+    production.commitSha,
+    readiness.gates.vercelPreviewCsp.reportOnlyTarget.candidateCommitSha,
+  );
+  assert.equal(production.rollbackValidated, false);
+  assert.equal(production.rollbackPullRequestPrepared, false);
+  assert.equal(production.releaseTagCreated, false);
+  assert.equal(production.productionMutationPerformed, false);
+
+  assert.equal(evidence.vercelProtectionPrecheck.ssoDeploymentType, "all_except_custom_domains");
+  assert.equal(evidence.vercelProtectionPrecheck.protectionBypassKeyCount, 0);
+  assert.equal(evidence.vercelProtectionPrecheck.exactPreviewPublicResponseHeaderObserved, false);
+  assert.equal(evidence.vercelProtectionPrecheck.protectionChanged, false);
+  assert.equal(evidence.vercelProtectionPrecheck.bypassCreated, false);
+  assert.equal(Object.values(evidence.actionsNotPerformed).every((value) => value === true), true);
+  assert.deepEqual(evidence.gateEffect, {
+    githubRequiredChecksStatus: "pending",
+    rollbackReadinessStatus: "pending",
+    vercelReportOnlyStageAStatus: "pending",
+    releaseAuthorized: false,
+  });
+  assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
+});

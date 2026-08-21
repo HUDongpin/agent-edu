@@ -8,6 +8,14 @@ cleanup as a release rollback.
 
 ## Frozen targets
 
+Read-only precheck `docs/release/evidence/external-readiness-precheck-20260821.json`
+confirmed that current production deployment
+`dpl_ESbehP8bB8n45aWks7EDBRUPXqVu` is `READY` and identifies commit
+`67e1beba98fee926925b254a152a1a1de1176376`, which matches the observed `main`
+head. This safely identifies the prospective previous-production anchor only.
+It does not create a release tag or revert PR, exercise a revert preview,
+compare recovered response headers, or pass rollback readiness.
+
 - Candidate commit SHA (must equal `releaseTarget.candidateCommitSha`):
 - Candidate Vercel deployment ID (must equal `releaseTarget.vercelDeploymentId`):
 - Previous production commit SHA (must be distinct):
