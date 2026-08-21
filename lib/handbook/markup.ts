@@ -27,6 +27,10 @@ const ACCESSIBLE_MARKUP = MARKUP
   .replace(
     '        <div id="lBanner"></div>',
     '        <div id="lBanner"></div>\n        <div class="sr-only" id="lStepAnnounce" role="status" aria-live="polite" aria-atomic="true"></div>',
+  )
+  .replace(
+    'No install, no repo, about a penny. Start there.',
+    'No install or repo; Provider charges vary with model, time, cache and usage. Start there.',
   );
 
 export default ACCESSIBLE_MARKUP;
