@@ -4,7 +4,7 @@ This later pilot evaluates independent use without adding accounts, reminders,
 product telemetry, or behavioral analytics. Evidence comes only from consented
 observation sheets, local learner artifacts, and interviews.
 
-Protocol version: `1.1`. Freeze the tested commit, static deployment and this
+Protocol version: `1.3`. Freeze the tested commit, static deployment and this
 protocol version before recruitment. Product changes after the first participant
 require a new pilot run; do not mix results from materially different builds.
 
@@ -44,16 +44,55 @@ Retention fields to complete before recruitment:
 
 Each learner works independently before any interview prompting:
 
-1. Navigate from the home page through the course and explain cost/privacy boundaries.
-2. Choose an appropriate method in a new scenario and explain who controls each decision.
-3. Complete the rules → prompt → Eval journey, including interpreting a low score.
-4. Refresh, recover a saved draft, and explain what was and was not stored.
-5. Recover from one staged, non-sensitive error using the product guidance.
-6. Run offline TypeScript Stage 0 without a Provider credential.
-7. Transfer the method to two unfamiliar scenarios and explain the control boundary.
+1. **C1 — navigation and boundaries.** Navigate from the home page through the
+   course and explain cost/privacy boundaries.
+2. **C2 — method and control.** Complete the fixed campus-facilities triage
+   card below and explain the chosen method and control boundary.
+3. **C3 — rules to Eval.** Complete the rules → prompt → Eval journey, including
+   interpreting a low score.
+4. **C4 — draft recovery.** Refresh, recover a saved draft, and explain what was
+   and was not stored.
+5. **C5 — guided recovery.** Recover from one staged, non-sensitive error using
+   the product guidance.
+6. **C6 — offline transfer.** Run offline TypeScript Stage 0 without a Provider
+   credential.
+7. **X-A / X-B — unfamiliar transfer.** Complete both fixed scenario cards and
+   explain each control boundary. These are scored separately from the six-task
+   core journey.
 
 For every task, record independent completion, time band, observable blocker,
 help requested, and artifact reference. Do not record sensitive model content.
+
+### Fixed C2 core-scenario card — campus-facilities triage
+
+Use this exact card for every learner. A campus facilities desk receives
+free-text reports about broken classroom equipment, water leaks and blocked
+exits. The current facilities service catalogue and emergency-escalation rule
+are authoritative. The system may classify a report, identify missing fields
+and draft a work-order ticket. It may not decide that a site is safe, close an
+incident, or authorize contractor dispatch or payment. A staff member must
+handle urgent or safety-ambiguous cases before any consequential action.
+
+Ask the learner to choose a concrete method, explain why it fits the variability
+or iteration in this situation, state what the model may do, and place a code or
+human gate before one prohibited consequential action. A single prompt plus
+rules, a staged workflow, a tool-using agent, or another method may pass; no
+particular method or framework name is required.
+
+Record `C2 Pass = yes` only when, without task-specific Help or a Blocker, the
+learner does all of the following in their own words:
+
+1. names one concrete method and connects it to at least one stated scenario
+   need: variable free text, missing information, or iterative clarification;
+2. names at least one allowed model action from the card;
+3. retains at least one prohibited consequential action with code or a person
+   **before** it occurs; and
+4. explains why that boundary matters for safety, authorization or cost.
+
+If any condition is absent, record `C2 Pass = no`; do not infer it from the
+interview or from a transfer-card answer. C2 remains one of the core tasks
+C1–C6. It is not X-A or X-B and is not scored with the transfer-card rubric.
+Likewise, a C2 pass cannot substitute for either transfer scenario.
 
 ### Fixed unfamiliar-scenario cards
 
@@ -110,6 +149,30 @@ the TODO, runs `npx tsx course/check.ts 0 --offline`, and recognizes
   iteration and control needs; naming a fashionable framework without that
   reasoning does not pass.
 
+### Participant-level derived measures
+
+Calculate these fields from the task rows before looking at the exit threshold:
+
+- `core_journey_independent = yes` only when **all six task IDs C1–C6** satisfy
+  their task-specific pass or observable completion rule and are marked
+  Independent, with no Help and no Blocker on any of those rows. In particular,
+  C2 must have `C2 Pass = yes` under the fixed rule above. A verbatim
+  clarification or recorded accessibility accommodation does not negate
+  independence. A helped, blocked, missing, abandoned or incomplete row makes
+  the composite `no`; never impute it from an interview, from X-A/X-B, or from
+  the other five core tasks.
+- A withdrawal is reported and remains outside the numerator, but it does not
+  silently shrink the planned denominator of six. If recruitment continues,
+  use a new anonymous ID and report both records.
+- `both_transfer_scenarios_pass = yes` only when X-A and X-B each satisfy the
+  scenario pass rule below without task-specific Help. This has its own
+  numerator and is not one of C1–C6.
+
+The release metric “Learners independently complete the core journey” is the
+count of learners with `core_journey_independent = yes`, divided by the planned
+six learners. It is therefore reproducible as `sum(yes) / 6`, not an observer's
+holistic judgement.
+
 ## Teacher protocol
 
 Each first-time teacher must independently locate and explain:
@@ -162,7 +225,7 @@ resolution; do not average away a release-relevant disagreement.
 |---|---:|
 | Navigation, cost, or privacy blockers | 0 |
 | Learners independently complete the core journey | at least 5/6 |
-| Learners correctly explain control boundaries in both new scenarios | at least 4/6 |
+| Learners correctly explain control boundaries in both transfer scenarios X-A/X-B | at least 4/6 |
 | Teachers find the no-credential path, checklist, and scoring materials | 3/3 |
 
 All four thresholds must pass. Report denominators and withdrawals explicitly;
@@ -172,14 +235,21 @@ the pilot remains failed until remediated and rerun under a new protocol version
 
 ## Observation and interview record
 
-| Participant | Task | Independent? | Blocker/help | Local artifact ID | Observer note |
-|---|---|---|---|---|---|
-|  |  |  |  |  |  |
+| Participant | Task ID | Pass/completed? | Independent? | Help? | Blocker? | Time band | Local artifact ID | Observer note |
+|---|---|---|---|---|---|---|---|---|
+|  |  |  |  |  |  |  |  |  |
 
-Use one row per task. Add `time band`, `scenario dimension scores`,
-`accommodation`, and `second-review outcome` as separate columns in the local
-working copy. Artifact IDs must be opaque local references; never paste the
-artifact content into this repository.
+Use one row per task. Add `scenario dimension scores`, `accommodation`, and
+`second-review outcome` as separate columns in the local working copy. Artifact
+IDs must be opaque local references; never paste the artifact content into this
+repository.
+
+Before calculating the aggregate table, complete this participant-level table
+directly from the task rows:
+
+| Learner | C1–C6 all pass/complete and independent, no Help/Blocker? | `core_journey_independent` | X-A passes? | X-B passes? | `both_transfer_scenarios_pass` | Withdrawal/deviation |
+|---|---|---|---|---|---|---|
+|  |  | yes / no |  |  | yes / no |  |
 
 After tasks, use a short interview to distinguish comprehension from lucky
 completion. Aggregate results only. Store no account identifier, credential,
@@ -203,8 +273,8 @@ Complete this table from the participant rows; never fill it from memory.
 | Metric | Numerator | Denominator | Withdrawals | Result |
 |---|---:|---:|---:|---|
 | Navigation/cost/privacy blockers |  | all completed learner and teacher tasks |  | must equal 0 |
-| Learners independently complete core journey |  | 6 |  | must be at least 5/6 |
-| Learners pass both unfamiliar scenarios |  | 6 |  | must be at least 4/6 |
+| Learners with `core_journey_independent = yes` |  | planned 6 |  | must be at least 5/6 |
+| Learners with `both_transfer_scenarios_pass = yes` |  | planned 6 |  | must be at least 4/6 |
 | Teachers independently find all three material groups |  | 3 |  | must equal 3/3 |
 
 Do not replace a withdrawn participant silently. If recruitment must continue,

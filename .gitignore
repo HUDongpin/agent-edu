@@ -31,6 +31,11 @@ legacy/course-python/cafe/fixtures.*.json
 /playwright-report/
 /test-results/
 /blob-report/
+/browser-evidence/
+/.playwright-raw/
+/.playwright-private/
+/.playwright-evidence-contract-safe/
+/.playwright-evidence-contract-private/
 next-env.d.ts
 *.tsbuildinfo
 .vercel

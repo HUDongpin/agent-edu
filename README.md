@@ -12,7 +12,7 @@ Every program is a list of steps. The only question is *who picks them*. Three p
 |---|---|---|
 | **1 · [The Handbook](https://aicourse.top/en/handbook/)** | eleven illustrated sections and scripted interactive simulations | nothing · works offline · no key |
 | **2 · [The Lab](https://aicourse.top/en/lab/)** | four browser steps — a real DeepSeek call, the rules wall, your own prompt, **and twenty cases that score it** | your DeepSeek key · real Provider charges |
-| **3 · [The Course](https://aicourse.top/en/build/)** | nine local TypeScript stages — the agent loop, a permission gate, a mandatory reviewer, prompt injection | TypeScript · DeepSeek / Claude / offline |
+| **3 · [The Course](https://aicourse.top/en/build/)** | nine guided TypeScript stages (0–8), then a Stage 9 transfer project — the agent loop, a permission gate, a mandatory reviewer, prompt injection | TypeScript · DeepSeek / Claude / offline |
 
 All three, and what is still to come, are listed on the [catalogue](https://aicourse.top/en/courses/). Teaching it? There's a **[90-minute lesson plan](TEACHING.md)**.
 
@@ -78,7 +78,7 @@ So it is now **Next.js 16 / React 19 / TypeScript, exported as static files** (`
 | `lib/flowchart.ts` | the diagram engine, byte-identical to the verified original |
 | `lib/handbook/` | `markup.ts`, the verified handbook markup, and `behaviour.ts`, its 22 widget modules |
 | `scripts/` | `extract-handbook.mjs`, which turns the markup's text nodes into `messages/handbook/en.json` |
-| `course/` | the nine-stage TypeScript course |
+| `course/` | nine guided TypeScript stages (0–8) plus the Stage 9 transfer project |
 | `legacy/` | the original single-file HTML, and the Python course |
 
 Bare `/` is a real page rather than a redirect — a static export has no server to redirect with — so it reads your saved choice or your browser's languages and sends you on to `/en/`, `/ar/` and so on. Inside the handbook every section has its own hash: [`/en/handbook/#security`](https://aicourse.top/en/handbook/#security).

@@ -5,6 +5,16 @@ import { extname, join, resolve, sep } from "node:path";
 const ROOT = resolve(process.cwd(), "out");
 const HOST = "127.0.0.1";
 const PORT = Number(process.env.AGENT_EDU_TEST_PORT || 4173);
+const CACHE_MODE = process.env.AGENT_EDU_TEST_CACHE || "no-store";
+
+if (CACHE_MODE !== "no-store" && CACHE_MODE !== "warmable") {
+  console.error("static server: AGENT_EDU_TEST_CACHE must be no-store or warmable");
+  process.exit(1);
+}
+
+const CACHE_CONTROL = CACHE_MODE === "warmable"
+  ? "public, max-age=3600"
+  : "no-store";
 
 const TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -50,7 +60,7 @@ const server = createServer((request, response) => {
   const body = file ?? join(ROOT, "404.html");
   const status = file ? 200 : 404;
   response.writeHead(status, {
-    "Cache-Control": "no-store",
+    "Cache-Control": CACHE_CONTROL,
     "Content-Type": TYPES[extname(body)] ?? "application/octet-stream",
     "X-Content-Type-Options": "nosniff",
   });

@@ -6,11 +6,16 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   workers: 1,
-  reporter: [["list"], ["html", { open: "never" }]],
+  // Browser evidence is produced by e2e/fixtures.ts as a deliberately small,
+  // sanitized bundle. Playwright's raw HTML/file reporters and automatic
+  // media can contain page text, form values, headers, and request bodies.
+  reporter: [["list"]],
+  outputDir: ".playwright-raw",
+  preserveOutput: "never",
   use: {
     baseURL: "http://127.0.0.1:4173",
-    screenshot: "only-on-failure",
-    trace: "retain-on-failure",
+    screenshot: "off",
+    trace: "off",
     video: "off",
   },
   projects: [

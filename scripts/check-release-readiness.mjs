@@ -1355,8 +1355,19 @@ export function formatReadinessReport(result) {
       }
       lines.push(`- [ ] ${summary.catalog}/${summary.locale}: ${parts.join("; ")}`);
     }
-    const uncovered = result.messageIssues.filter((issue) => issue.code === "catalog-read" || issue.code === "catalog-source");
-    for (const issue of uncovered.slice(0, 10)) lines.push(`- [ ] ${issue.path}: ${issue.message}`);
+    const summarizedCodes = new Set([
+      "catalog-missing",
+      "catalog-extra",
+      "catalog-placeholder",
+      "catalog-unexplained-english",
+    ]);
+    const uncovered = result.messageIssues.filter((issue) => !summarizedCodes.has(issue.code));
+    for (const issue of uncovered.slice(0, 20)) {
+      lines.push(`- [ ] ${issue.path} (${issue.code}): ${issue.message}`);
+    }
+    if (uncovered.length > 20) {
+      lines.push(`- [ ] ${uncovered.length - 20} additional localization blocker(s); inspect with imported validators`);
+    }
   }
 
   lines.push("", "External/manual evidence blockers:");

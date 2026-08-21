@@ -97,30 +97,6 @@
       },
       {
         "catalog": "handbook",
-        "key": "hb.body.pLiveBar.03",
-        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
-        "reason": "DeepSeek is the Provider product name."
-      },
-      {
-        "catalog": "handbook",
-        "key": "hb.body.pLiveBar.07",
-        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
-        "reason": "sessionStorage is a browser API identifier and must remain LTR."
-      },
-      {
-        "catalog": "handbook",
-        "key": "hb.body.pLiveBar.09",
-        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
-        "reason": "api.deepseek.com is a literal hostname and must remain LTR."
-      },
-      {
-        "catalog": "handbook",
-        "key": "hb.body.pLiveBar.11",
-        "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
-        "reason": "platform.deepseek.com is a literal hostname and must remain LTR."
-      },
-      {
-        "catalog": "handbook",
         "key": "hb.body.p-loop.12",
         "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
         "reason": "read_inventory() is a code identifier and must remain LTR."

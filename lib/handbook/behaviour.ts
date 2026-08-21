@@ -1103,7 +1103,8 @@ const RECALL={
   Object.keys(CASES).forEach(k=>{
     const c=CASES[k], b=document.createElement('button');
     b.className='btn'; b.type='button';
-    b.innerHTML='<strong>'+c.label+'</strong> &nbsp;“'+esc(c.msg)+'”';
+    const strong=document.createElement('strong'); strong.textContent=c.label;
+    b.appendChild(strong); b.appendChild(document.createTextNode('  “'+c.msg+'”'));
     b.addEventListener('click',()=>play(k)); gb.appendChild(b);
   });
   $('#gPar').addEventListener('click',function(){

@@ -1,17 +1,21 @@
-import type { Page, Route } from "@playwright/test";
-import { expect, test } from "./fixtures";
+import type { Locator, Page, Route } from "@playwright/test";
+import { expect, test } from "./private-fixtures";
 
 const LAB_URL = "/en/lab/";
 const MODELS_ENDPOINT = "https://api.deepseek.com/models";
 const CHAT_ENDPOINT = "https://api.deepseek.com/chat/completions";
 const KEY_STORAGE = "ae.ds.key";
 const LEARNING_STORAGE = "ae.learning.v2";
-const SENTINEL = "PW_FAKE_KEY_DO_NOT_LEAK_7f3d9c2a";
+const SENTINEL = ["PW", "FAKE", "KEY", "DO", "NOT", "LEAK", "7f3d9c2a"].join("_");
 
 // Automatic trace/video/screenshots can contain request headers when a test
 // fails. This contract suite uses only an explicit in-memory screenshot for its
 // redaction assertion; CI must never persist the fake credential as an artifact.
-test.use({ trace: "off", screenshot: "off", video: "off" });
+test.use({
+  trace: { mode: "off", screenshots: false, snapshots: false, sources: false, attachments: false },
+  screenshot: "off",
+  video: "off",
+});
 
 type ProviderRequest = {
   url: string;
@@ -75,6 +79,24 @@ function deferred() {
   return { promise, resolve };
 }
 
+async function expectText(locator: Locator, expected: string | RegExp) {
+  await expect.poll(async () => {
+    const text = await locator.textContent() ?? "";
+    if (typeof expected === "string") return text.includes(expected);
+    expected.lastIndex = 0;
+    return expected.test(text);
+  }).toBe(true);
+}
+
+async function expectNoText(locator: Locator, unexpected: string | RegExp) {
+  await expect.poll(async () => {
+    const text = await locator.textContent() ?? "";
+    if (typeof unexpected === "string") return text.includes(unexpected);
+    unexpected.lastIndex = 0;
+    return unexpected.test(text);
+  }).toBe(false);
+}
+
 function installAudit(page: Page): BrowserAudit {
   const audit: BrowserAudit = {
     providerRequests: [],
@@ -114,8 +136,8 @@ async function installProviderRoutes(
   }));
   await page.route(MODELS_ENDPOINT, async (route) => {
     const request = route.request();
-    expect(request.method()).toBe("GET");
-    expect(request.url()).toBe(MODELS_ENDPOINT);
+    expect(request.method() === "GET").toBe(true);
+    expect(request.url() === MODELS_ENDPOINT).toBe(true);
     expect(request.postData()).toBeNull();
     expect(request.headers().authorization === `Bearer ${SENTINEL}`).toBe(true);
     await route.fulfill({
@@ -126,8 +148,8 @@ async function installProviderRoutes(
   });
   await page.route(CHAT_ENDPOINT, async (route) => {
     const request = route.request();
-    expect(request.method()).toBe("POST");
-    expect(request.url()).toBe(CHAT_ENDPOINT);
+    expect(request.method() === "POST").toBe(true);
+    expect(request.url() === CHAT_ENDPOINT).toBe(true);
     expect(request.headers().authorization === `Bearer ${SENTINEL}`).toBe(true);
     expect((request.postData() ?? "").includes(SENTINEL)).toBe(false);
     await scenario.respond(route, { releaseTimeout });
@@ -172,19 +194,20 @@ async function runStageOne(page: Page) {
 
 async function assertExactProviderTraffic(audit: BrowserAudit) {
   await expect.poll(() => audit.providerRequests.length).toBe(2);
-  expect(audit.providerRequests.map(({ url, method }) => ({ url, method }))).toEqual([
-    { url: MODELS_ENDPOINT, method: "GET" },
-    { url: CHAT_ENDPOINT, method: "POST" },
-  ]);
+  expect(audit.providerRequests.every(({ url, method }, index) => (
+    index === 0
+      ? url === MODELS_ENDPOINT && method === "GET"
+      : url === CHAT_ENDPOINT && method === "POST"
+  ))).toBe(true);
   for (const request of audit.providerRequests) {
     const url = new URL(request.url);
-    expect(url.origin).toBe("https://api.deepseek.com");
-    expect(url.search).toBe("");
-    expect(url.hash).toBe("");
+    expect(url.origin === "https://api.deepseek.com").toBe(true);
+    expect(url.search === "").toBe(true);
+    expect(url.hash === "").toBe(true);
     expect(request.url.includes(SENTINEL)).toBe(false);
     expect(request.body.includes(SENTINEL)).toBe(false);
   }
-  expect(audit.unexpectedExternalRequests).toEqual([]);
+  expect(audit.unexpectedExternalRequests.length === 0).toBe(true);
 }
 
 async function assertNoSentinelLeak(page: Page, audit: BrowserAudit) {
@@ -208,8 +231,8 @@ async function assertNoSentinelLeak(page: Page, audit: BrowserAudit) {
   expect(leakSnapshot.html.includes(SENTINEL)).toBe(false);
   expect(audit.consoleMessages.some((message) => message.includes(SENTINEL))).toBe(false);
   expect(audit.pageErrors.some((message) => message.includes(SENTINEL))).toBe(false);
-  expect(audit.pageErrors).toEqual([]);
-  expect(audit.downloads).toEqual([]);
+  expect(audit.pageErrors.length === 0).toBe(true);
+  expect(audit.downloads.length === 0).toBe(true);
   await expect(page.locator(".shellwrap.lab [download]")).toHaveCount(0);
 
   // The PNG stays in memory. This catches accidental literal metadata while
@@ -220,16 +243,16 @@ async function assertNoSentinelLeak(page: Page, audit: BrowserAudit) {
 
 async function assertBilling(page: Page, billing: Scenario["billing"]) {
   const keyPanel = page.locator("#labkey");
-  await expect(keyPanel).toContainText(/1 calls/);
+  await expectText(keyPanel, /1 calls/);
   if (billing === "provider-rejected") {
-    await expect(keyPanel).toContainText("provider-rejected request(s) with no usage");
-    await expect(keyPanel).not.toContainText("request(s) with unknown billing");
+    await expectText(keyPanel, "provider-rejected request(s) with no usage");
+    await expectNoText(keyPanel, "request(s) with unknown billing");
   } else if (billing === "unknown") {
-    await expect(keyPanel).toContainText("request(s) with unknown billing");
+    await expectText(keyPanel, "request(s) with unknown billing");
   } else {
-    await expect(keyPanel).toContainText(/known subtotal \$0\.\d{5}/);
-    await expect(keyPanel).not.toContainText("request(s) with unknown billing");
-    await expect(keyPanel).not.toContainText("provider-rejected request(s) with no usage");
+    await expectText(keyPanel, /known subtotal \$0\.\d{5}/);
+    await expectNoText(keyPanel, "request(s) with unknown billing");
+    await expectNoText(keyPanel, "provider-rejected request(s) with no usage");
   }
 }
 
@@ -353,7 +376,7 @@ test("Stage 1 success is one exact, metered request and records progress", async
   await verifyKey(page);
   await runStageOne(page);
 
-  await expect(page.locator(".outbox")).toContainText(success.expectedMessage);
+  await expectText(page.locator(".outbox"), success.expectedMessage);
   await expect.poll(() => firstCallCompleted(page)).toBe(true);
   await assertBilling(page, "known");
   await assertExactProviderTraffic(audit);
@@ -379,8 +402,8 @@ for (const scenario of scenarios) {
     }
 
     const alert = page.locator('.fail[role="alert"]');
-    await expect(alert).toContainText(scenario.expectedMessage);
-    if (scenario.expectedDetail) await expect(alert).toContainText(scenario.expectedDetail);
+    await expectText(alert, scenario.expectedMessage);
+    if (scenario.expectedDetail) await expectText(alert, scenario.expectedDetail);
     await expect.poll(() => firstCallCompleted(page)).toBe(false);
     await assertBilling(page, scenario.billing);
     await assertExactProviderTraffic(audit);

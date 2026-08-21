@@ -84,8 +84,17 @@ rejects optimistic aggregate statuses.
    in `vercelPreviewCsp.reportOnlyTarget`.
 2. Run `npm test`, `npm run lint`, the normal build/smoke pipeline, and then
    `npm run release:check`.
-   Browser failure evidence may be uploaded only after `npm run artifacts:check`
-   passes; a rejected or unparseable artifact remains local and blocks upload.
+   First run `npm run test:evidence-contract`: its deliberate public-fixture
+   failure must produce a manifest-bound, sanitized `browser-evidence/` bundle,
+   while its deliberate private assertion failure and full-test input timeout
+   must remain non-zero without persisting a bundle or a private value in
+   process output. The private suite uses a closed-vocabulary reporter behind a
+   process wrapper; raw Playwright stdout/stderr is never forwarded. Evidence
+   from the public-fixture failure may be uploaded only after `npm run artifacts:check`
+   validates that curated bundle. Private Lab/Provider failures deliberately
+   produce no uploadable bundle, so the required-root scan fails and CI skips
+   upload. A rejected, missing, or unparseable artifact remains local and
+   blocks upload.
 3. Complete CSP Stage A against that exact predecessor commit/deployment. Keep
    the candidate in `report-only` until Stage A passes; a failed Stage A stops
    promotion.
@@ -124,3 +133,7 @@ headers. A green run cannot prove that GitHub made the jobs required.
   repository evidence, deterministic gates, external work, and explicit non-goals.
 - `performance-verification.md` — static budgets, three-engine compatibility,
   emulated resilience, physical-device, and field-CWV evidence boundaries.
+- `handbook-profiling-gate.md` — before/after evidence and rollback required
+  before any broad Handbook rewrite can be proposed.
+- `csp-hash-sri-spike.md` — pending static hash/SRI feasibility experiment;
+  it does not authorize a dynamic nonce service.

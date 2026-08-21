@@ -58,6 +58,8 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
+      - name: Prove safe/private failure evidence contracts
+        run: npm run test:evidence-contract
       - run: npm run test:smoke
       - name: Scan browser failure evidence for private data
         id: artifact_privacy
@@ -68,10 +70,8 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: smoke-chromium-failure
-          path: |
-            test-results/
-            playwright-report/
-          if-no-files-found: ignore
+          path: browser-evidence/
+          if-no-files-found: error
           retention-days: 3
 
   compatibility:
@@ -90,6 +90,8 @@ jobs:
       - run: npm run build
       - run: npm run test:compat
       - run: npm run test:resilience
+      - name: Verify synthetic lab-vitals harness and schema
+        run: npm run --silent vitals:lab -- --samples=1
       - name: Scan compatibility failure evidence for private data
         id: artifact_privacy
         if: ${{ failure() }}
@@ -99,8 +101,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: compatibility-failure
-          path: |
-            test-results/
-            playwright-report/
-          if-no-files-found: ignore
+          path: browser-evidence/
+          if-no-files-found: error
           retention-days: 3

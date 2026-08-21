@@ -50,6 +50,7 @@
       "20 generator + up to 8 judge = 28 calls",
       "Never share the teacher key",
       "npm run course:offline",
+      "replace the empty QUESTION string",
       "Projection cues",
       "Reference-answer boundary",
       "Project rubric"

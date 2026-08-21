@@ -1,15 +1,16 @@
 import { constants } from "node:fs";
+import { createHash } from "node:crypto";
 import {
   lstat,
   open,
   readdir,
   realpath,
 } from "node:fs/promises";
-import { basename, relative, resolve, sep } from "node:path";
+import { basename, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
-import { inflateRawSync } from "node:zlib";
+import { inflateRawSync, inflateSync } from "node:zlib";
 
-export const DEFAULT_ARTIFACT_ROOTS = ["test-results", "playwright-report"];
+export const DEFAULT_ARTIFACT_ROOTS = ["browser-evidence"];
 export const MAX_FILE_BYTES = 32 * 1024 * 1024;
 export const MAX_ZIP_ENTRY_BYTES = 16 * 1024 * 1024;
 export const MAX_ZIP_TOTAL_BYTES = 64 * 1024 * 1024;
@@ -30,6 +31,12 @@ const UNIX_REGULAR = 0o100000;
 const UNIX_DIRECTORY = 0o040000;
 const UNIX_SYMLINK = 0o120000;
 const CRC_TABLE = makeCrcTable();
+const CURATED_SCHEMA = "agent-edu.curated-browser-evidence.v1";
+const CURATED_FILES = ["console.json", "manifest.json", "screenshot.png", "trace.json"];
+const CURATED_SANITIZER = "uniform-redaction-surface-v2";
+const CURATED_REDACTION_RGB = [0xe5, 0xe7, 0xeb];
+const CURATED_BROWSERS = new Set(["chromium", "firefox", "webkit"]);
+const CURATED_PROJECTS = new Set(["chromium", "firefox", "webkit", "safe-contract-chromium"]);
 
 const KNOWN_PRIVATE_TEST_VALUES = [
   ["PW", "FAKE", "KEY", "DO", "NOT", "LEAK", "7f3d9c2a"].join("_"),
@@ -115,6 +122,119 @@ export function crc32(bytes) {
   let value = 0xffffffff;
   for (const byte of bytes) value = CRC_TABLE[(value ^ byte) & 0xff] ^ (value >>> 8);
   return (value ^ 0xffffffff) >>> 0;
+}
+
+function sha256(bytes) {
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+function hasExactKeys(value, expected) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const actual = Object.keys(value).sort();
+  const required = [...expected].sort();
+  return actual.length === required.length
+    && actual.every((key, index) => key === required[index]);
+}
+
+function paethPredictor(left, up, upperLeft) {
+  const estimate = left + up - upperLeft;
+  const distanceLeft = Math.abs(estimate - left);
+  const distanceUp = Math.abs(estimate - up);
+  const distanceUpperLeft = Math.abs(estimate - upperLeft);
+  if (distanceLeft <= distanceUp && distanceLeft <= distanceUpperLeft) return left;
+  if (distanceUp <= distanceUpperLeft) return up;
+  return upperLeft;
+}
+
+function validateStrictPng(bytes, path) {
+  const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  if (bytes.length < 57 || !bytes.subarray(0, 8).equals(signature)) fail("png-invalid", path);
+  let offset = 8;
+  let width = 0;
+  let height = 0;
+  let sawHeader = false;
+  let sawData = false;
+  let sawEnd = false;
+  let colorType = 0;
+  const compressed = [];
+  while (offset < bytes.length) {
+    if (offset + 12 > bytes.length) fail("png-invalid", path);
+    const length = bytes.readUInt32BE(offset);
+    const typeBytes = bytes.subarray(offset + 4, offset + 8);
+    const type = typeBytes.toString("ascii");
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + length;
+    if (dataEnd + 4 > bytes.length) fail("png-invalid", path);
+    const data = bytes.subarray(dataStart, dataEnd);
+    const expectedCrc = bytes.readUInt32BE(dataEnd);
+    if (crc32(Buffer.concat([typeBytes, data])) !== expectedCrc) fail("png-crc", path);
+    if (type === "IHDR") {
+      if (sawHeader || offset !== 8 || length !== 13) fail("png-invalid", path);
+      width = data.readUInt32BE(0);
+      height = data.readUInt32BE(4);
+      colorType = data[9];
+      if (
+        width < 1 || height < 1 || width > 2_048 || height > 2_048 ||
+        data[8] !== 8 || ![2, 6].includes(colorType) || data[10] !== 0 || data[11] !== 0 || data[12] !== 0
+      ) fail("png-shape-unsupported", path);
+      sawHeader = true;
+    } else if (type === "IDAT") {
+      if (!sawHeader || sawEnd) fail("png-invalid", path);
+      sawData = true;
+      compressed.push(data);
+    } else if (type === "IEND") {
+      if (!sawHeader || !sawData || sawEnd || length !== 0) fail("png-invalid", path);
+      sawEnd = true;
+    } else {
+      // No ancillary chunks are accepted: in particular tEXt/zTXt/iTXt/eXIf
+      // cannot smuggle DOM text, credentials, or provenance outside manifest.
+      fail("png-chunk-unsupported", path);
+    }
+    offset = dataEnd + 4;
+    if (sawEnd && offset !== bytes.length) fail("png-trailing-data", path);
+  }
+  if (!sawEnd) fail("png-invalid", path);
+  const bytesPerPixel = colorType === 2 ? 3 : 4;
+  const rowBytes = width * bytesPerPixel;
+  const expectedPixels = height * (1 + rowBytes);
+  let filtered;
+  try {
+    filtered = inflateSync(Buffer.concat(compressed), {
+      maxOutputLength: expectedPixels,
+    });
+  } catch {
+    fail("png-compression-invalid", path);
+  }
+  if (filtered.length !== expectedPixels) fail("png-pixels-invalid", path);
+  const pixels = Buffer.alloc(height * rowBytes);
+  for (let row = 0; row < height; row += 1) {
+    const filteredOffset = row * (1 + rowBytes);
+    const outputOffset = row * rowBytes;
+    const filter = filtered[filteredOffset];
+    if (filter > 4) fail("png-filter-invalid", path);
+    for (let column = 0; column < rowBytes; column += 1) {
+      const raw = filtered[filteredOffset + 1 + column];
+      const left = column >= bytesPerPixel ? pixels[outputOffset + column - bytesPerPixel] : 0;
+      const up = row > 0 ? pixels[outputOffset - rowBytes + column] : 0;
+      const upperLeft = row > 0 && column >= bytesPerPixel
+        ? pixels[outputOffset - rowBytes + column - bytesPerPixel]
+        : 0;
+      let predictor = 0;
+      if (filter === 1) predictor = left;
+      else if (filter === 2) predictor = up;
+      else if (filter === 3) predictor = Math.floor((left + up) / 2);
+      else if (filter === 4) predictor = paethPredictor(left, up, upperLeft);
+      pixels[outputOffset + column] = (raw + predictor) & 0xff;
+    }
+  }
+  for (let offset = 0; offset < pixels.length; offset += bytesPerPixel) {
+    if (
+      pixels[offset] !== CURATED_REDACTION_RGB[0]
+      || pixels[offset + 1] !== CURATED_REDACTION_RGB[1]
+      || pixels[offset + 2] !== CURATED_REDACTION_RGB[2]
+      || (bytesPerPixel === 4 && pixels[offset + 3] !== 0xff)
+    ) fail("png-redaction-pixels-invalid", path);
+  }
 }
 
 function displayPath(path) {
@@ -614,7 +734,149 @@ async function readRegularFile(path, label) {
   }
 }
 
-async function walk(root, rootLabel, rootReal, directory, stats) {
+async function validateCuratedRoot(rootLabel, rootReal) {
+  const pngPaths = new Set();
+  let bundles;
+  try {
+    bundles = await readdir(rootReal, { withFileTypes: true });
+  } catch {
+    fail("directory-read-failed", rootLabel);
+  }
+  bundles.sort((left, right) => left.name.localeCompare(right.name));
+  if (bundles.length === 0) fail("curated-manifest-missing", rootLabel);
+  for (const bundle of bundles) {
+    const bundlePath = join(rootReal, bundle.name);
+    const bundleLabel = `${rootLabel}/${bundle.name}`;
+    if (bundle.isSymbolicLink()) fail("symlink", bundleLabel);
+    if (!bundle.isDirectory() || !/^safe-failure-[0-9a-f]{20}$/.test(bundle.name)) {
+      fail("curated-bundle-invalid", bundleLabel);
+    }
+    const entries = await readdir(bundlePath, { withFileTypes: true });
+    const names = entries.map((entry) => entry.name).sort();
+    if (
+      names.length !== CURATED_FILES.length ||
+      names.some((name, index) => name !== CURATED_FILES[index]) ||
+      entries.some((entry) => !entry.isFile() || entry.isSymbolicLink())
+    ) fail("curated-files-invalid", bundleLabel);
+
+    const manifestPath = join(bundlePath, "manifest.json");
+    const manifestLabel = `${bundleLabel}/manifest.json`;
+    const manifestBytes = await readRegularFile(manifestPath, manifestLabel);
+    let manifest;
+    try {
+      manifest = JSON.parse(decodeText(manifestBytes, manifestLabel));
+    } catch {
+      fail("curated-manifest-invalid", manifestLabel);
+    }
+    if (
+      !manifest || typeof manifest !== "object" ||
+      !hasExactKeys(manifest, ["files", "kind", "provenance", "schemaVersion"]) ||
+      manifest.schemaVersion !== CURATED_SCHEMA ||
+      manifest.kind !== "curated-safe-browser-failure" ||
+      !manifest.provenance || typeof manifest.provenance !== "object" ||
+      !hasExactKeys(manifest.provenance, [
+        "browserName", "commitSha", "fixturePolicy", "projectName",
+        "sanitizerPolicy", "testIdSha256",
+      ]) ||
+      manifest.provenance.sanitizerPolicy !== CURATED_SANITIZER ||
+      manifest.provenance.fixturePolicy !== "public-fixed-safe-smoke-only" ||
+      !/^[0-9a-f]{64}$/.test(manifest.provenance.testIdSha256 ?? "") ||
+      !CURATED_BROWSERS.has(manifest.provenance.browserName) ||
+      !CURATED_PROJECTS.has(manifest.provenance.projectName) ||
+      !(
+        manifest.provenance.commitSha === "local-uncommitted"
+        || /^[0-9a-f]{40}$/.test(manifest.provenance.commitSha ?? "")
+      ) ||
+      !manifest.files || typeof manifest.files !== "object"
+    ) fail("curated-manifest-invalid", manifestLabel);
+    const boundNames = Object.keys(manifest.files).sort();
+    const expectedBound = CURATED_FILES.filter((name) => name !== "manifest.json");
+    if (
+      boundNames.length !== expectedBound.length ||
+      boundNames.some((name, index) => name !== expectedBound[index])
+    ) fail("curated-manifest-binding", manifestLabel);
+
+    for (const name of expectedBound) {
+      const filePath = join(bundlePath, name);
+      const fileLabel = `${bundleLabel}/${name}`;
+      const bytes = await readRegularFile(filePath, fileLabel);
+      const record = manifest.files[name];
+      const expectedType = name.endsWith(".png") ? "image/png" : "application/json";
+      if (
+        !record || typeof record !== "object" ||
+        !hasExactKeys(record, name === "screenshot.png"
+          ? ["bytes", "contentType", "sanitization", "sha256"]
+          : ["bytes", "contentType", "sha256"]) ||
+        record.contentType !== expectedType ||
+        record.bytes !== bytes.length ||
+        !/^[0-9a-f]{64}$/.test(record.sha256 ?? "") ||
+        record.sha256 !== sha256(bytes)
+      ) fail("curated-hash-mismatch", fileLabel);
+      if (name === "screenshot.png") {
+        if (record.sanitization !== manifest.provenance.sanitizerPolicy) {
+          fail("curated-sanitization-unbound", fileLabel);
+        }
+        validateStrictPng(bytes, fileLabel);
+        pngPaths.add(filePath);
+      } else {
+        let parsed;
+        try {
+          parsed = JSON.parse(decodeText(bytes, fileLabel));
+        } catch {
+          fail("curated-json-invalid", fileLabel);
+        }
+        if (!parsed || parsed.schemaVersion !== CURATED_SCHEMA) {
+          fail("curated-json-invalid", fileLabel);
+        }
+        if (name === "trace.json" && (
+          !hasExactKeys(parsed, [
+            "attachments", "events", "schemaVersion", "screenshots", "sources", "tracePolicy",
+          ]) ||
+          parsed.tracePolicy !== "structural-metadata-only-no-url-query-header-body-text" ||
+          parsed.screenshots !== false || parsed.sources !== false || parsed.attachments !== false ||
+          !Array.isArray(parsed.events) ||
+          parsed.events.length > 500 ||
+          parsed.events.some((event, index) => {
+            if (!event || typeof event !== "object" || Array.isArray(event)) return true;
+            if (!Number.isInteger(event.sequence) || event.sequence !== index + 1) return true;
+            if (event.event === "request") {
+              return !hasExactKeys(event, ["event", "method", "originClass", "resourceType", "sequence"])
+                || !["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"].includes(event.method)
+                || !["local", "provider", "external"].includes(event.originClass)
+                || ![
+                  "document", "stylesheet", "image", "media", "font", "script", "texttrack",
+                  "xhr", "fetch", "eventsource", "websocket", "manifest", "other",
+                ].includes(event.resourceType);
+            }
+            if (event.event === "response") {
+              return !hasExactKeys(event, ["event", "sequence", "status"])
+                || !Number.isInteger(event.status) || event.status < 100 || event.status > 599;
+            }
+            return event.event !== "main-frame-navigation"
+              || !hasExactKeys(event, ["event", "sequence"]);
+          })
+        )) fail("curated-trace-invalid", fileLabel);
+        if (name === "console.json" && (
+          !hasExactKeys(parsed, ["consolePolicy", "counts", "pageErrorCount", "schemaVersion"]) ||
+          parsed.consolePolicy !== "counts-only-no-console-or-error-text" ||
+          !parsed.counts || typeof parsed.counts !== "object" || Array.isArray(parsed.counts) ||
+          !Number.isInteger(parsed.pageErrorCount) || parsed.pageErrorCount < 0 || parsed.pageErrorCount > 1_000_000 ||
+          Object.keys(parsed.counts).some((key) => ![
+            "assert", "clear", "count", "debug", "dir", "dirxml", "endGroup", "error",
+            "info", "log", "profile", "profileEnd", "startGroup", "startGroupCollapsed",
+            "table", "timeEnd", "trace", "warning",
+          ].includes(key)) ||
+          Object.values(parsed.counts).some((value) => (
+            !Number.isInteger(value) || value < 0 || value > 1_000_000
+          ))
+        )) fail("curated-console-invalid", fileLabel);
+      }
+    }
+  }
+  return pngPaths;
+}
+
+async function walk(root, rootLabel, rootReal, directory, stats, curatedPngPaths = new Set()) {
   let entries;
   try {
     entries = await readdir(directory, { withFileTypes: true });
@@ -644,13 +906,16 @@ async function walk(root, rootLabel, rootReal, directory, stats) {
       if (directoryReal !== path || !isInside(rootReal, directoryReal)) {
         fail("path-outside-root", label);
       }
-      await walk(root, rootLabel, rootReal, path, stats);
+      await walk(root, rootLabel, rootReal, path, stats, curatedPngPaths);
       continue;
     }
     if (!info.isFile()) fail("non-regular-file", label);
     const bytes = await readRegularFile(path, label);
     if (basename(path).toLowerCase().endsWith(".zip")) scanZip(bytes, label, stats);
-    else scanText(bytes, label, stats);
+    else if (basename(path).toLowerCase().endsWith(".png")) {
+      if (!curatedPngPaths.has(path)) fail("binary-or-invalid-utf8", label);
+      validateStrictPng(bytes, label);
+    } else scanText(bytes, label, stats);
     stats.files += 1;
     stats.bytesScanned += bytes.length;
   }
@@ -691,6 +956,7 @@ export async function scanArtifactRoots(roots = DEFAULT_ARTIFACT_ROOTS, options 
       info = await lstat(root);
     } catch (error) {
       if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+        if (options.requireRoots) fail("root-missing", rootLabel);
         stats.missingRoots += 1;
         continue;
       }
@@ -711,7 +977,10 @@ export async function scanArtifactRoots(roots = DEFAULT_ARTIFACT_ROOTS, options 
     if (seen.has(rootReal)) fail("root-duplicate", rootLabel);
     seen.add(rootReal);
     stats.roots += 1;
-    await walk(root, rootLabel, rootReal, rootReal, stats);
+    const curatedPngPaths = options.curated
+      ? await validateCuratedRoot(rootLabel, rootReal)
+      : new Set();
+    await walk(root, rootLabel, rootReal, rootReal, stats, curatedPngPaths);
   }
   return stats;
 }
@@ -721,8 +990,14 @@ const invoked = process.argv[1]
 
 if (invoked) {
   try {
-    const roots = process.argv.length > 2 ? process.argv.slice(2) : DEFAULT_ARTIFACT_ROOTS;
-    const stats = await scanArtifactRoots(roots);
+    const args = process.argv.slice(2);
+    const curated = args.includes("--curated");
+    const requireRoots = args.includes("--require-root");
+    const roots = args.filter((arg) => !arg.startsWith("--"));
+    const stats = await scanArtifactRoots(roots.length ? roots : DEFAULT_ARTIFACT_ROOTS, {
+      curated,
+      requireRoots,
+    });
     console.log(
       `artifact privacy: PASS — ${stats.files} regular file(s), ${stats.zipEntries} ZIP entry file(s), and ${stats.embeddedReports} embedded report(s) scanned; ${stats.missingRoots} root(s) absent`,
     );

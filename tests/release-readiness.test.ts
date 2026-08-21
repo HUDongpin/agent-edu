@@ -212,6 +212,11 @@ test("the committed release config is schema-valid and honestly pending", () => 
   const result = checkReleaseReadiness();
   assert.equal(result.ready, false);
   assert.equal(result.configIssues.length, 0);
+  assert.deepEqual(result.messageIssues, []);
+  assert.match(
+    formatReadinessReport(result),
+    /all locale catalogs have complete keys, placeholders, plurals, and explained identical terms/,
+  );
   assert.equal(result.evidence.every((group) => group.status === "pending"), true);
 });
 
@@ -524,11 +529,15 @@ test("English-identical technical terms require a narrow explicit allowlist", ()
 test("stale or overbroad identical-text exceptions are rejected", () => {
   const catalogs = passingCatalogs();
   catalogs.widgets.de["tech.name"] = "Anbietername";
-  const result = validateMessageCatalogs(
+  const evaluation = evaluateReleaseReadiness({
+    config: passingConfig(),
     catalogs,
-    passingConfig().localization.sameAsEnglishAllowlist,
-  );
-  assert.ok(result.issues.some((issue) => issue.code === "catalog-allowlist-stale"));
+    projectRoot: process.cwd(),
+  });
+  assert.ok(evaluation.messageIssues.some((issue) => issue.code === "catalog-allowlist-stale"));
+  const report = formatReadinessReport(evaluation);
+  assert.match(report, /messages\.widgets\.de\.tech\.name \(catalog-allowlist-stale\)/);
+  assert.match(report, /allowlist entry must point to currently identical source and locale text/);
 });
 
 test("sensitive evidence detection and reports never echo matched values", () => {

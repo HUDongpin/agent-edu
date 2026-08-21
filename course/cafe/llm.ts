@@ -5,7 +5,7 @@
  *
  * 1.  When the SDK or a model id changes, exactly one file needs editing.
  * 2.  It gives us a seam for --offline, so someone without an API key can
- *     still run all nine stages.
+ *     still run all nine guided stages (0–8); Stage 9 is the transfer project.
  * 3.  It gives us a seam for *which vendor*. This course runs on DeepSeek or
  *     on Anthropic's Claude, and not one line of any stage changes between
  *     them. Swapping the model underneath your system without rewriting the

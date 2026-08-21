@@ -1,6 +1,6 @@
 # Part 3 — build the thing
 
-The [handbook](https://aicourse.top/en/handbook/) gives you the mental model and the [Lab](https://aicourse.top/en/lab/) gets your hands on it. This is the other half: **one café, nine stages, real API calls, on your own machine.** At the end you have an agent you built, an eval suite that scores it, and a harness you would leave running overnight.
+The [handbook](https://aicourse.top/en/handbook/) gives you the mental model and the [Lab](https://aicourse.top/en/lab/) gets your hands on it. This is the other half: **one café, nine guided stages (0–8), then a Stage 9 transfer project, with real API calls on your own machine.** At the end you have an agent you built, an eval suite that scores it, a harness you would leave running overnight, and a scaffold for transferring those controls to a domain you know.
 
 > **This part assumes you can read and write basic TypeScript** — functions, objects, a `for` loop, `await`. Not much more. If that made you uneasy, do the **[Lab](https://aicourse.top/en/lab/)** first: the same ground as stages 0 to 4, in your browser, nothing to install.
 
@@ -59,7 +59,7 @@ The differences that *don't* vanish are the interesting part, and all of them li
 
 This is what a provider abstraction is actually for. Not "swap the URL" — anyone can do that. It is knowing which of your assumptions were really vendor behaviour, and the only way to find out is to run the same suite against two of them.
 
-## The nine stages
+## The nine guided stages (0–8)
 
 | | Stage | You write | What it teaches |
 |---|---|---|---|

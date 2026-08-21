@@ -160,6 +160,13 @@ for (const site of TRUSTED_MARKUP_SITES) {
 if (/\btrustedMarkup\s*\(/.test(behaviour)) {
   fail("behaviour.ts must use trustedMarkup as a template tag, never as a function");
 }
+if (
+  behaviour.includes("b.innerHTML='<strong>'+c.label") ||
+  !behaviour.includes("strong.textContent=c.label") ||
+  !behaviour.includes("document.createTextNode('  “'+c.msg+'”')")
+) {
+  fail("graph case labels and messages must enter the button as text, never innerHTML");
+}
 
 /** Keys a call can name: a literal, a ternary of literals, or a prefix. */
 function keysOf(expr) {

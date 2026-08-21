@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import {
   mkdirSync,
   mkdtempSync,
@@ -11,7 +12,7 @@ import {
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import test from "node:test";
-import { deflateRawSync } from "node:zlib";
+import { deflateRawSync, deflateSync } from "node:zlib";
 import {
   ArtifactPrivacyError,
   MAX_EMBEDDED_REPORT_BASE64_CHARS,
@@ -19,6 +20,7 @@ import {
   crc32,
   scanArtifactRoots,
 } from "../scripts/check-artifacts.mjs";
+import { validatePrivateReporterOutput } from "../scripts/run-private-playwright.mjs";
 
 type ZipEntry = {
   name: string;
@@ -119,6 +121,115 @@ async function inWorkspace(
 
 function category(error: unknown): string | undefined {
   return error instanceof ArtifactPrivacyError ? error.category : undefined;
+}
+
+function pngChunk(type: string, data: Buffer): Buffer {
+  const typeBytes = Buffer.from(type, "ascii");
+  const chunk = Buffer.alloc(12 + data.length);
+  chunk.writeUInt32BE(data.length, 0);
+  typeBytes.copy(chunk, 4);
+  data.copy(chunk, 8);
+  chunk.writeUInt32BE(crc32(Buffer.concat([typeBytes, data])), 8 + data.length);
+  return chunk;
+}
+
+function strictPng(metadata = false, rgba = [0xe5, 0xe7, 0xeb, 0xff]): Buffer {
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(1, 0);
+  header.writeUInt32BE(1, 4);
+  header[8] = 8;
+  header[9] = 6;
+  const chunks = [pngChunk("IHDR", header)];
+  if (metadata) chunks.push(pngChunk("tEXt", Buffer.from("Comment\0private metadata", "utf8")));
+  chunks.push(pngChunk("IDAT", deflateSync(Buffer.from([0, ...rgba]))));
+  chunks.push(pngChunk("IEND", Buffer.alloc(0)));
+  return Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    ...chunks,
+  ]);
+}
+
+function digest(bytes: Buffer): string {
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+function writeCuratedBundle(
+  artifacts: string,
+  options: { metadataPng?: boolean; screenshot?: Buffer; trace?: string } = {},
+) {
+  const bundle = join(artifacts, "safe-failure-0123456789abcdefabcd");
+  mkdirSync(bundle);
+  const screenshot = options.screenshot ?? strictPng(options.metadataPng);
+  const trace = Buffer.from(options.trace ?? `${JSON.stringify({
+    schemaVersion: "agent-edu.curated-browser-evidence.v1",
+    tracePolicy: "structural-metadata-only-no-url-query-header-body-text",
+    screenshots: false,
+    sources: false,
+    attachments: false,
+    events: [{ sequence: 1, event: "response", status: 200 }],
+  })}\n`);
+  const consoleFile = Buffer.from(`${JSON.stringify({
+    schemaVersion: "agent-edu.curated-browser-evidence.v1",
+    consolePolicy: "counts-only-no-console-or-error-text",
+    counts: { warning: 1 },
+    pageErrorCount: 0,
+  })}\n`);
+  writeFileSync(join(bundle, "screenshot.png"), screenshot);
+  writeFileSync(join(bundle, "trace.json"), trace);
+  writeFileSync(join(bundle, "console.json"), consoleFile);
+  const manifest = {
+    schemaVersion: "agent-edu.curated-browser-evidence.v1",
+    kind: "curated-safe-browser-failure",
+    provenance: {
+      sanitizerPolicy: "uniform-redaction-surface-v2",
+      fixturePolicy: "public-fixed-safe-smoke-only",
+      testIdSha256: "a".repeat(64),
+      browserName: "chromium",
+      projectName: "chromium",
+      commitSha: "local-uncommitted",
+    },
+    files: {
+      "console.json": { contentType: "application/json", bytes: consoleFile.length, sha256: digest(consoleFile) },
+      "screenshot.png": {
+        contentType: "image/png",
+        sanitization: "uniform-redaction-surface-v2",
+        bytes: screenshot.length,
+        sha256: digest(screenshot),
+      },
+      "trace.json": { contentType: "application/json", bytes: trace.length, sha256: digest(trace) },
+    },
+  };
+  writeFileSync(join(bundle, "manifest.json"), `${JSON.stringify(manifest)}\n`);
+  return bundle;
+}
+
+function rewriteBoundJson(
+  bundle: string,
+  name: "console.json" | "trace.json",
+  mutate: (value: Record<string, unknown>) => void,
+) {
+  const path = join(bundle, name);
+  const value = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
+  mutate(value);
+  const bytes = Buffer.from(`${JSON.stringify(value)}\n`);
+  writeFileSync(path, bytes);
+  const manifestPath = join(bundle, "manifest.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+    files: Record<string, { bytes: number; sha256: string }>;
+  };
+  manifest.files[name].bytes = bytes.length;
+  manifest.files[name].sha256 = digest(bytes);
+  writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+}
+
+function rewriteManifest(
+  bundle: string,
+  mutate: (value: Record<string, unknown>) => void,
+) {
+  const path = join(bundle, "manifest.json");
+  const value = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
+  mutate(value);
+  writeFileSync(path, `${JSON.stringify(value)}\n`);
 }
 
 test("missing and empty artifact roots pass safely", async () => {
@@ -363,6 +474,156 @@ test("oversized and binary files fail closed", async () => {
   });
 });
 
+test("a complete manifest-bound curated browser bundle passes", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts);
+    const stats = await scanArtifactRoots([root], {
+      cwd: workspace,
+      curated: true,
+      requireRoots: true,
+    });
+    assert.equal(stats.files, 4);
+  });
+});
+
+test("curated JSON schemas reject ordinary confidential fields at every boundary", async () => {
+  const confidential = "ordinary learner confidential phrase 42b7";
+  const cases: Array<{
+    expected: string;
+    mutate(bundle: string): void;
+  }> = [
+    {
+      expected: "curated-trace-invalid",
+      mutate: (bundle) => rewriteBoundJson(bundle, "trace.json", (value) => {
+        value.privateLearnerPrompt = confidential;
+      }),
+    },
+    {
+      expected: "curated-console-invalid",
+      mutate: (bundle) => rewriteBoundJson(bundle, "console.json", (value) => {
+        value.privateModelReply = confidential;
+      }),
+    },
+    {
+      expected: "curated-trace-invalid",
+      mutate: (bundle) => rewriteBoundJson(bundle, "trace.json", (value) => {
+        const events = value.events as Array<Record<string, unknown>>;
+        events[0].privateRequestBody = confidential;
+      }),
+    },
+    {
+      expected: "curated-manifest-invalid",
+      mutate: (bundle) => rewriteManifest(bundle, (value) => {
+        value.privateLearnerPrompt = confidential;
+      }),
+    },
+    {
+      expected: "curated-manifest-invalid",
+      mutate: (bundle) => rewriteManifest(bundle, (value) => {
+        const provenance = value.provenance as Record<string, unknown>;
+        provenance.privateLearnerPrompt = confidential;
+      }),
+    },
+    {
+      expected: "curated-hash-mismatch",
+      mutate: (bundle) => rewriteManifest(bundle, (value) => {
+        const files = value.files as Record<string, Record<string, unknown>>;
+        files["trace.json"].privateLearnerPrompt = confidential;
+      }),
+    },
+  ];
+  for (const fixture of cases) {
+    await inWorkspace(async ({ workspace, artifacts, root }) => {
+      const bundle = writeCuratedBundle(artifacts);
+      fixture.mutate(bundle);
+      await assert.rejects(
+        () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+        (error: unknown) => category(error) === fixture.expected,
+      );
+    });
+  }
+});
+
+test("a manifest-bound screenshot must be the uniform redaction surface", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, {
+      screenshot: strictPng(false, [0x00, 0x00, 0x00, 0xff]),
+    });
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "png-redaction-pixels-invalid",
+    );
+  });
+});
+
+test("required curated roots and manifests fail closed when missing", async () => {
+  await inWorkspace(async ({ workspace, root }) => {
+    await assert.rejects(
+      () => scanArtifactRoots(["missing"], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "root-missing",
+    );
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "curated-manifest-missing",
+    );
+  });
+});
+
+test("curated evidence rejects hash tampering and unbound extra files", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const bundle = writeCuratedBundle(artifacts);
+    writeFileSync(join(bundle, "trace.json"), "{}\n");
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "curated-hash-mismatch",
+    );
+  });
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const bundle = writeCuratedBundle(artifacts);
+    writeFileSync(join(bundle, "extra.txt"), "safe but unbound\n");
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "curated-files-invalid",
+    );
+  });
+});
+
+test("manifest-bound malformed curated JSON fails with a safe category", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, { trace: "{\n" });
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "curated-json-invalid",
+    );
+  });
+});
+
+test("manifest-bound PNG metadata and secret text are still blocked", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, { metadataPng: true });
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "png-chunk-unsupported",
+    );
+  });
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    const secret = ["Bearer ", "curated-private-value-987654321"].join("");
+    writeCuratedBundle(artifacts, { trace: `${JSON.stringify({
+      schemaVersion: "agent-edu.curated-browser-evidence.v1",
+      tracePolicy: "structural-metadata-only-no-url-query-header-body-text",
+      screenshots: false,
+      sources: false,
+      attachments: false,
+      events: [],
+      secret,
+    })}\n` });
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "curated-trace-invalid" || category(error) === "bearer-token",
+    );
+  });
+});
+
 test("root and ZIP path traversal attempts fail closed", async () => {
   await inWorkspace(async ({ workspace, artifacts, root }) => {
     const outside = join(workspace, "..", `${basename(workspace)}-outside`);
@@ -498,7 +759,7 @@ test("CI uploads browser evidence only after the privacy scanner succeeds", () =
 
   assert.equal(
     packageJson.scripts?.["artifacts:check"],
-    "node scripts/check-artifacts.mjs test-results playwright-report",
+    "node scripts/check-artifacts.mjs --curated --require-root browser-evidence",
   );
   assert.equal((workflow.match(/id: artifact_privacy/g) ?? []).length, 2);
   assert.equal((workflow.match(/run: npm run artifacts:check/g) ?? []).length, 2);
@@ -511,4 +772,165 @@ test("CI uploads browser evidence only after the privacy scanner succeeds", () =
     ).length,
     2,
   );
+  assert.equal((workflow.match(/path: browser-evidence\//g) ?? []).length, 2);
+  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 2);
+  assert.doesNotMatch(workflow, /path:[\s\S]{0,100}(?:test-results|playwright-report)/);
+  const contractOffset = workflow.indexOf("run: npm run test:evidence-contract");
+  const smokeOffset = workflow.indexOf("run: npm run test:smoke");
+  const scannerOffset = workflow.indexOf("run: npm run artifacts:check", smokeOffset);
+  assert.ok(contractOffset >= 0 && contractOffset < smokeOffset && smokeOffset < scannerOffset);
+});
+
+test("private reporter output accepts only its closed status vocabulary", () => {
+  const ordinary = [
+    "private-suite: 2 test(s)",
+    "private evidence contract: reached intentional assertion",
+    "private-suite: test 1/2 failed",
+    "private evidence contract: reached full-test input timeout",
+    "private-suite: test 2/2 timedOut",
+    "private-suite: run failed",
+    "",
+  ].join("\n");
+  const parsed = validatePrivateReporterOutput(ordinary, "", true);
+  assert.deepEqual(parsed, {
+    total: 2,
+    testStatuses: ["failed", "timedOut"],
+    runStatus: "failed",
+    assertionMarkerCount: 1,
+    timeoutMarkerCount: 1,
+  });
+  assert.equal(
+    validatePrivateReporterOutput(
+      ordinary.replace(
+        "private-suite: run failed",
+        "ordinary confidential prompt from a worker\nprivate-suite: run failed",
+      ),
+      "",
+      true,
+    ),
+    null,
+  );
+  assert.equal(
+    validatePrivateReporterOutput(ordinary, "worker stderr with a private reply", true),
+    null,
+  );
+});
+
+test("browser suites that handle private Lab state disable automatic artifacts", () => {
+  const smoke = readFileSync(new URL("../e2e/smoke.spec.ts", import.meta.url), "utf8");
+  const privateState = readFileSync(
+    new URL("../e2e/lab-private-state.spec.ts", import.meta.url),
+    "utf8",
+  );
+  const provider = readFileSync(
+    new URL("../e2e/lab-provider-contract.spec.ts", import.meta.url),
+    "utf8",
+  );
+  const privateConfig = readFileSync(
+    new URL("../playwright.private.config.ts", import.meta.url),
+    "utf8",
+  );
+  const privateReporter = readFileSync(
+    new URL("../e2e/private-reporter.ts", import.meta.url),
+    "utf8",
+  );
+  const privateWrapper = readFileSync(
+    new URL("../scripts/run-private-playwright.mjs", import.meta.url),
+    "utf8",
+  );
+  const packageJson = JSON.parse(
+    readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+  ) as { scripts?: Record<string, string> };
+
+  assert.doesNotMatch(smoke, /Lab drafts write only after edits|Lab cancellation, zero-score/);
+  assert.match(privateState, /Lab drafts write only after edits/);
+  assert.match(privateState, /Lab cancellation, zero-score completion, privacy/);
+  assert.match(privateState, /privatePrompt = \[.*\]\.join/);
+  assert.match(provider, /SENTINEL = \[.*\]\.join/);
+  for (const source of [privateState, provider, privateConfig]) {
+    assert.match(source, /screenshots: false/);
+    assert.match(source, /sources: false/);
+    assert.match(source, /attachments: false/);
+    assert.match(source, /screenshot: "off"/);
+    assert.match(source, /video: "off"/);
+  }
+  assert.match(privateConfig, /reporter: \[\["\.\/e2e\/private-reporter\.ts"\]\]/);
+  assert.doesNotMatch(privateConfig, /reporter: \[\["list"\]\]/);
+  assert.match(privateConfig, /preserveOutput: "never"/);
+  assert.match(privateReporter, /printsToStdio\(\): boolean \{\s+return true/);
+  assert.doesNotMatch(privateReporter, /onStdOut|onStdErr|result\.errors|test\.title/);
+  assert.match(privateWrapper, /stderr\.trim\(\) !== ""/);
+  assert.match(privateWrapper, /raw browser output was suppressed/);
+  assert.doesNotMatch(privateWrapper, /process\.(?:stdout|stderr)\.write\([^\n]*(?:child\.stdout|child\.stderr)/);
+  assert.equal(
+    packageJson.scripts?.["test:smoke:private"],
+    "node scripts/run-private-playwright.mjs",
+  );
+});
+
+test("safe failure evidence is curated without raw Playwright outputs", () => {
+  const fixture = readFileSync(new URL("../e2e/fixtures.ts", import.meta.url), "utf8");
+  const config = readFileSync(new URL("../playwright.config.ts", import.meta.url), "utf8");
+  const privateContract = readFileSync(
+    new URL("../e2e-contract/intentional-private-failure.spec.ts", import.meta.url),
+    "utf8",
+  );
+  const privateTimeoutContract = readFileSync(
+    new URL("../e2e-contract/intentional-private-timeout.spec.ts", import.meta.url),
+    "utf8",
+  );
+  const safeContract = readFileSync(
+    new URL("../e2e-contract/intentional-safe-failure.spec.ts", import.meta.url),
+    "utf8",
+  );
+  const privateReporter = readFileSync(
+    new URL("../e2e/private-reporter.ts", import.meta.url),
+    "utf8",
+  );
+  const privateEvidenceConfig = readFileSync(
+    new URL("../playwright.evidence-private.config.ts", import.meta.url),
+    "utf8",
+  );
+  const verifier = readFileSync(
+    new URL("../scripts/verify-browser-evidence.mjs", import.meta.url),
+    "utf8",
+  );
+  assert.match(config, /reporter: \[\["list"\]\]/);
+  assert.match(config, /preserveOutput: "never"/);
+  assert.match(config, /screenshot: "off"/);
+  assert.match(config, /trace: "off"/);
+  assert.match(fixture, /uniform-redaction-surface-v2/);
+  assert.match(fixture, /new URL\(request\.url\(\)\)\.origin/);
+  assert.match(fixture, /page\.locator\(`#\$\{REDACTION_SURFACE_ID\}`\)\.screenshot/);
+  assert.match(fixture, /structural-metadata-only-no-url-query-header-body-text/);
+  assert.match(fixture, /counts-only-no-console-or-error-text/);
+  assert.match(fixture, /screenshots: false/);
+  assert.match(fixture, /sources: false/);
+  assert.match(fixture, /attachments: false/);
+  assert.match(privateContract, /\.steps \[role="tab"\].*\.last\(\)\.click/);
+  assert.match(privateContract, /PRIVATE_CONTRACT_ANNOTATION/);
+  assert.doesNotMatch(
+    privateContract,
+    /private evidence contract: reached intentional assertion/,
+  );
+  assert.doesNotMatch(
+    safeContract,
+    /safe evidence contract: reached intentional assertion/,
+  );
+  assert.match(privateTimeoutContract, /test\.setTimeout\(5_000\)/);
+  assert.match(privateTimeoutContract, /PRIVATE_TIMEOUT_CONTRACT_ANNOTATION/);
+  assert.match(privateTimeoutContract, /await keyField\.fill\(timeoutKey\);/);
+  assert.doesNotMatch(privateTimeoutContract, /fill\(timeoutKey,\s*\{/);
+  assert.match(
+    privateEvidenceConfig,
+    /reporter: \[\["\.\/e2e\/private-reporter\.ts"\]\]/,
+  );
+  assert.match(privateReporter, /private evidence contract: reached intentional assertion/);
+  assert.match(privateReporter, /private evidence contract: reached full-test input timeout/);
+  assert.match(verifier, /safeMarker/);
+  assert.match(verifier, /runPrivatePlaywright/);
+  assert.match(verifier, /timeoutMarkerCount !== 1/);
+  assert.match(verifier, /\.last-run\.json/);
+  assert.match(verifier, /lastRun\.failedTests\.length !== 2/);
+  assert.match(verifier, /persisted an output other than the fixed last-run status file/);
 });

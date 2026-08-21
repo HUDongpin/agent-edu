@@ -23,6 +23,10 @@ Open /en/build/ for the complete setup and recovery path. In a local clone:
 
   npm ci
   npm run course:offline
+
+Then open course/stage0-hello/run.ts and replace the empty QUESTION string
+with any non-empty question before running Stage 0:
+
   npx tsx course/stage0-hello/run.ts --offline
   npx tsx course/check.ts 0 --offline
 
