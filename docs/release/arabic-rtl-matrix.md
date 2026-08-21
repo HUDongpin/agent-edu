@@ -5,6 +5,14 @@ and 980px rows prove the orientation boundary; 390px and 1440px prove the
 representative mobile and desktop journeys. Keyboard checks are mandatory in
 every row, not a ninth optional case.
 
+Computer Use completed a mechanical precheck of all eight rows against the
+frozen Stage A deployment. The sanitized record is
+`evidence/arabic-rtl-computer-use-precheck-20260821.json`: exact CSS widths,
+orientation, roving focus, Home/End, mirrored horizontal or vertical arrow
+behavior, active-tab visibility, and whole-page overflow passed 8/8. The table
+below deliberately remains `pending` because native Arabic, bidi typography,
+assistive-technology, and sanitization signatures are human judgments.
+
 | Width | Theme | Expected visual orientation | `aria-orientation` | Keyboard suite | Active tab visible | Whole-page overflow | Bidi/code | Result |
 |---:|---|---|---|---|---|---|---|---|
 | 390 | light | horizontal | horizontal | pending | pending | pending | pending | pending |

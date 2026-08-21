@@ -1,6 +1,6 @@
 {
   "schema": "agent-edu.stage-a-browser-header-observation.v1",
-  "status": "actual-header-and-nine-locale-desktop-journey-pass-matrix-and-classification-pending",
+  "status": "actual-header-nine-locale-and-arabic-mechanical-matrix-passed-provider-and-analytics-pending",
   "observedAt": "2026-08-21T15:37:24Z",
   "target": {
     "candidateCommitSha": "29e1f8b8405068875b1ba94a92b516930bc0d6b0",
@@ -139,15 +139,25 @@
         "summary": "Chrome reports that this directive is ignored in a report-only policy."
       },
       {
-        "classification": "csp-report-only-violation-needs-clean-session-classification",
+        "classification": "extension-induced-clean-session-not-reproduced",
         "directive": "font-src",
         "blockedScheme": "data:",
-        "summary": "One data-font load was reported against font-src self. Repository source contains no data-font reference, while browser extensions were active, so provenance is not declared resolved."
+        "summary": "One data-font load was reported while browser extensions were active. After all ten previously enabled extensions were temporarily disabled, both a fresh Handbook navigation and an explicit reload produced zero console messages; every extension was then restored to its original enabled state."
       }
     ],
     "extensionAttributedMessages": 4,
-    "cleanExtensionFreeWindowObserved": false,
-    "unclassifiedViolationCount": 1
+    "cleanExtensionFreeWindowObserved": true,
+    "cleanSession": {
+      "observedAt": "2026-08-21T16:50:52Z",
+      "temporarilyDisabledExtensionCount": 10,
+      "extensionStatesRestored": true,
+      "freshNavigationConsoleMessages": 0,
+      "explicitReloadConsoleMessages": 0,
+      "fontViolationReproduced": false,
+      "authenticatedByExistingVercelSession": true,
+      "bypassCredentialCreated": false
+    },
+    "unclassifiedViolationCount": 0
   },
   "stageAChecklistEffect": {
     "actualResponseHeaderObserved": true,
@@ -157,10 +167,14 @@
     "nineLocaleCriticalJourneyObserved": true,
     "arabicHomeEndObserved": true,
     "arabicThemeToggleObserved": true,
-    "widthThemeArabicMatrixObserved": false,
+    "widthThemeArabicMatrixObserved": true,
+    "arabicMechanicalCasesObserved": 8,
+    "arabicMechanicalCasesPassed": 8,
+    "arabicHumanReviewSigned": false,
+    "arabicMatrixEvidenceRef": "docs/release/evidence/arabic-rtl-computer-use-precheck-20260821.json",
     "providerPathObserved": false,
     "analyticsBoundaryObserved": false,
-    "allViolationsClassified": false,
+    "allViolationsClassified": true,
     "stageAStatusChanged": false,
     "releaseAuthorized": false
   },
@@ -173,5 +187,5 @@
     "containsProviderBodies": false,
     "containsFullDataFontPayload": false
   },
-  "decision": "The exact frozen Preview returned the expected report-only CSP on a fresh 200 response, and all nine locales loaded the deployed Home, Handbook, Control Room, Lab, and Part 3 Build path with the required role markers. Stage A remains pending because fixed-width/theme coverage, the Provider and Analytics paths, and complete violation classification are not yet observed; one data-font report still requires clean-session provenance classification."
+  "decision": "The exact frozen Preview returned the expected report-only CSP on a fresh 200 response; all nine locales loaded the critical route path; and all eight Arabic width and theme cases passed the mechanical browser precheck. The prior data-font report did not reproduce with extensions disabled and is classified as extension-induced. Stage A remains pending because the Provider and Analytics paths are not yet observed, while the separate Arabic release gate still requires signed human review."
 }

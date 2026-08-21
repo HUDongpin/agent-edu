@@ -1,0 +1,120 @@
+{
+  "schema": "agent-edu.arabic-rtl-computer-use-precheck.v1",
+  "status": "mechanical-browser-precheck-passed-human-arabic-review-pending",
+  "observedAt": "2026-08-21T16:50:52Z",
+  "target": {
+    "candidateCommitSha": "29e1f8b8405068875b1ba94a92b516930bc0d6b0",
+    "checkpointSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+    "integrationBranch": "codex/release-202608-agent-edu",
+    "vercelDeploymentId": "dpl_7BA4NvQEMZV4x5HajDqdhCGn3o9y",
+    "workflowDefinitionSha": "141c3f366ba118ed69fbaf4777a2bcd33376f12f"
+  },
+  "environment": {
+    "tool": "Chrome DevTools responsive mode through Computer Use",
+    "browser": "Google Chrome 151",
+    "platform": "macOS",
+    "locale": "ar",
+    "route": "/ar/handbook/#play",
+    "paidRunTriggered": false
+  },
+  "sharedAssertions": {
+    "documentDirection": "rtl",
+    "rovingTabCount": 1,
+    "homeSelected": "tab-start",
+    "endSelected": "tab-play",
+    "noWholePageHorizontalOverflow": true,
+    "activeTabWithinRail": true,
+    "activeTabWithinViewportAfterNavigation": true,
+    "exactCssViewportObserved": true
+  },
+  "cases": [
+    {
+      "id": "390-light",
+      "width": 390,
+      "theme": "light",
+      "orientation": "horizontal",
+      "directionalTrace": "ArrowLeft from tab-start selected tab-code; ArrowRight returned to tab-start; ArrowRight from tab-start wrapped to tab-play.",
+      "result": "pass-mechanical-precheck"
+    },
+    {
+      "id": "390-dark",
+      "width": 390,
+      "theme": "dark",
+      "orientation": "horizontal",
+      "directionalTrace": "ArrowLeft from tab-start selected tab-code; ArrowRight returned to tab-start; horizontal RTL behavior matched the light case.",
+      "result": "pass-mechanical-precheck"
+    },
+    {
+      "id": "979-light",
+      "width": 979,
+      "theme": "light",
+      "orientation": "horizontal",
+      "directionalTrace": "ArrowLeft from tab-start selected tab-code; ArrowRight returned to tab-start; ArrowRight from tab-start wrapped to tab-play.",
+      "result": "pass-mechanical-precheck"
+    },
+    {
+      "id": "979-dark",
+      "width": 979,
+      "theme": "dark",
+      "orientation": "horizontal",
+      "directionalTrace": "ArrowLeft from tab-start selected tab-code; ArrowRight returned to tab-start; explicit refocus confirmed Home and End.",
+      "result": "pass-mechanical-precheck"
+    },
+    {
+      "id": "980-light",
+      "width": 980,
+      "theme": "light",
+      "orientation": "vertical",
+      "directionalTrace": "ArrowDown from tab-start selected tab-code; ArrowUp returned to tab-start and wrapped to tab-play; Left and Right left tab-play unchanged.",
+      "result": "pass-mechanical-precheck"
+    },
+    {
+      "id": "980-dark",
+      "width": 980,
+      "theme": "dark",
+      "orientation": "vertical",
+      "directionalTrace": "ArrowDown from tab-start selected tab-code; ArrowUp returned to tab-start and wrapped to tab-play; Left and Right left tab-play unchanged.",
+      "result": "pass-mechanical-precheck"
+    },
+    {
+      "id": "1440-light",
+      "width": 1440,
+      "theme": "light",
+      "orientation": "vertical",
+      "directionalTrace": "ArrowDown from tab-start selected tab-code; ArrowUp returned to tab-start and wrapped to tab-play; Left and Right left tab-play unchanged.",
+      "result": "pass-mechanical-precheck"
+    },
+    {
+      "id": "1440-dark",
+      "width": 1440,
+      "theme": "dark",
+      "orientation": "vertical",
+      "directionalTrace": "ArrowDown from tab-start selected tab-code; ArrowUp returned to tab-start and wrapped to tab-play; Left and Right left tab-play unchanged.",
+      "result": "pass-mechanical-precheck"
+    }
+  ],
+  "summary": {
+    "requiredCases": 8,
+    "observedCases": 8,
+    "mechanicalPasses": 8,
+    "humanPasses": 0,
+    "releaseReadinessMutated": false
+  },
+  "humanBoundary": {
+    "nativeArabicLanguageJudgmentRecorded": false,
+    "bidiTypographyJudgmentRecorded": false,
+    "assistiveTechnologyHumanJudgmentRecorded": false,
+    "reviewerAttestationRecorded": false,
+    "reason": "Computer Use and read-only DevTools assertions cannot replace the Arabic reviewer and sanitization signatures required by the release form."
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsReplies": false,
+    "containsProviderBodies": false,
+    "containsParticipantData": false
+  },
+  "decision": "All eight width and theme cases passed the mechanical browser precheck on the frozen deployment. The Arabic release gate remains pending because native-language, bidi typography, assistive-technology, and reviewer-sanitization judgments require signed human review."
+}

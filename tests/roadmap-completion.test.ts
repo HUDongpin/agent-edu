@@ -132,7 +132,7 @@ test("the Computer Use header observation proves the deployed report-only header
   assert.equal(evidence.schema, "agent-edu.stage-a-browser-header-observation.v1");
   assert.equal(
     evidence.status,
-    "actual-header-and-nine-locale-desktop-journey-pass-matrix-and-classification-pending",
+    "actual-header-nine-locale-and-arabic-mechanical-matrix-passed-provider-and-analytics-pending",
   );
   assert.deepEqual(evidence.target, readiness.gates.vercelPreviewCsp.reportOnlyTarget);
   assert.equal(evidence.observation.tool, "Chrome DevTools through Computer Use");
@@ -184,12 +184,25 @@ test("the Computer Use header observation proves the deployed report-only header
   assert.equal(evidence.deployedJourney.routeMatrixPassed, 45);
   assert.equal(evidence.deployedJourney.otherSevenLocalesObserved, true);
   assert.equal(evidence.deployedJourney.viewportWidthAsserted, false);
-  assert.equal(evidence.consoleObservation.unclassifiedViolationCount, 1);
-  assert.equal(evidence.consoleObservation.cleanExtensionFreeWindowObserved, false);
+  assert.equal(evidence.consoleObservation.unclassifiedViolationCount, 0);
+  assert.equal(evidence.consoleObservation.cleanExtensionFreeWindowObserved, true);
+  assert.deepEqual(evidence.consoleObservation.cleanSession, {
+    observedAt: "2026-08-21T16:50:52Z",
+    temporarilyDisabledExtensionCount: 10,
+    extensionStatesRestored: true,
+    freshNavigationConsoleMessages: 0,
+    explicitReloadConsoleMessages: 0,
+    fontViolationReproduced: false,
+    authenticatedByExistingVercelSession: true,
+    bypassCredentialCreated: false,
+  });
   assert.equal(evidence.stageAChecklistEffect.actualResponseHeaderObserved, true);
   assert.equal(evidence.stageAChecklistEffect.partialJourneyLocalesObserved, 9);
   assert.equal(evidence.stageAChecklistEffect.nineLocaleCriticalJourneyObserved, true);
-  assert.equal(evidence.stageAChecklistEffect.allViolationsClassified, false);
+  assert.equal(evidence.stageAChecklistEffect.widthThemeArabicMatrixObserved, true);
+  assert.equal(evidence.stageAChecklistEffect.arabicMechanicalCasesPassed, 8);
+  assert.equal(evidence.stageAChecklistEffect.arabicHumanReviewSigned, false);
+  assert.equal(evidence.stageAChecklistEffect.allViolationsClassified, true);
   assert.equal(evidence.stageAChecklistEffect.stageAStatusChanged, false);
   assert.equal(evidence.stageAChecklistEffect.releaseAuthorized, false);
   assert.equal(readiness.gates.vercelPreviewCsp.status, "pending");
@@ -198,4 +211,43 @@ test("the Computer Use header observation proves the deployed report-only header
   assert.deepEqual(findSensitiveEvidence(evidence), []);
   assert.match(evidence.decision, /all nine locales loaded/i);
   assert.match(evidence.decision, /Stage A remains pending/i);
+});
+
+test("the Arabic Computer Use matrix is an eight-case mechanical precheck, never a human signature", () => {
+  const evidencePath = "docs/release/evidence/arabic-rtl-computer-use-precheck-20260821.json";
+  const evidenceText = readFileSync(evidencePath, "utf8");
+  const evidence = JSON.parse(evidenceText);
+  const readiness = readJson("config/release-readiness.json") as Readiness;
+
+  assert.equal(evidence.schema, "agent-edu.arabic-rtl-computer-use-precheck.v1");
+  assert.equal(
+    evidence.status,
+    "mechanical-browser-precheck-passed-human-arabic-review-pending",
+  );
+  assert.deepEqual(evidence.target, readiness.gates.vercelPreviewCsp.reportOnlyTarget);
+  assert.deepEqual(
+    evidence.cases.map((item: { id: string }) => item.id),
+    (readiness.gates.arabicRtlMatrix.cases as Array<{ id: string }>).map((item) => item.id),
+  );
+  assert.equal(evidence.cases.length, 8);
+  assert.equal(evidence.cases.every(
+    (item: { width: number; orientation: string; result: string }) =>
+      item.orientation === (item.width >= 980 ? "vertical" : "horizontal")
+      && item.result === "pass-mechanical-precheck",
+  ), true);
+  assert.equal(evidence.summary.requiredCases, 8);
+  assert.equal(evidence.summary.mechanicalPasses, 8);
+  assert.equal(evidence.summary.humanPasses, 0);
+  assert.equal(evidence.summary.releaseReadinessMutated, false);
+  assert.equal(Object.values(evidence.sharedAssertions).every(
+    (value) => value === true || value === 1 || value === "rtl" || value === "tab-start" || value === "tab-play",
+  ), true);
+  assert.equal(Object.values(evidence.humanBoundary).filter(
+    (value) => typeof value === "boolean",
+  ).every((value) => value === false), true);
+  assert.equal(readiness.gates.arabicRtlMatrix.status, "pending");
+  assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
+  assert.match(evidence.decision, /signed human review/i);
 });

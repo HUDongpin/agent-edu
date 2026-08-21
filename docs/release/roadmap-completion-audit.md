@@ -69,11 +69,13 @@ The frozen Stage A Preview now has an actual Chrome 200-response observation in
 `Content-Security-Policy-Report-Only` value and the reviewed supporting headers
 were present. That closes only the response-header observation. Stage A stays
 pending. Computer Use also observed all nine locales on the deployed Home →
-Handbook → Control Room → Lab → Build path (45/45 route/role cases), Arabic
-Home/End tab movement, and an Arabic dark-theme toggle that was restored. The
-fixed-width/theme matrix, Provider path, and Analytics boundary remain
-unobserved, and a reported data-font violation still needs clean-session
-provenance classification.
+Handbook → Control Room → Lab → Build path (45/45 route/role cases), then all
+eight Arabic 390/979/980/1440 × light/dark mechanical cases. The prior
+data-font report did not reproduce after all enabled extensions were
+temporarily disabled, and every extension state was restored. Provider and
+Analytics paths remain unobserved. The mechanical Arabic precheck does not
+replace the eight pending Arabic matrix records or the Arabic native-review
+signature in the release schema.
 
 ## Later field evidence is not hidden inside the P0 count
 

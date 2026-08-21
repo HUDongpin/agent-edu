@@ -139,6 +139,9 @@ headers. A green run cannot prove that GitHub made the jobs required.
 - `evidence/stage-a-browser-header-observation-20260821.json` — privacy-safe
   Computer Use observation of the frozen Preview's actual 200 response headers;
   deliberately not a Stage A pass.
+- `evidence/arabic-rtl-computer-use-precheck-20260821.json` — 8/8 mechanical
+  width, theme, orientation, keyboard, visibility, and overflow prechecks;
+  deliberately not a native-Arabic review signature.
 - `performance-verification.md` — static budgets, three-engine compatibility,
   emulated resilience, physical-device, and field-CWV evidence boundaries.
 - `handbook-profiling-gate.md` — before/after evidence and rollback required
