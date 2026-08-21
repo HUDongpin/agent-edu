@@ -6,6 +6,15 @@ signature.
 
 ## Review identity and frozen target
 
+The automatic catalog precheck at
+`docs/release/evidence/native-review-catalog-precheck-2cdf1d6.json` freezes the
+three review-file SHA-256 digests and key counts for every locale. Before a
+reviewer starts, compare all three locale digests with the final candidate. The
+manifest may save repeated inventory work when the final change is CSP-only,
+but any digest change requires regeneration and review of that changed locale.
+The manifest contains no reviewer identity and never substitutes for the signed
+language-quality judgment below.
+
 - Locale and regional variant:
 - Reviewer reference (do not add private contact details):
 - Reviewer confirms native or professional-level competence: yes / no

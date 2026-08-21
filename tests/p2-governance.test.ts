@@ -263,3 +263,58 @@ test("the official Provider pricing precheck matches the dated snapshot without 
   assert.deepEqual(findSensitiveEvidence(evidence), []);
   assert.match(evidence.decision, /does not pass the release reconciliation/i);
 });
+
+test("the native-review catalog manifest freezes all review inputs without substituting for signatures", () => {
+  const evidenceText = readFileSync(
+    "docs/release/evidence/native-review-catalog-precheck-2cdf1d6.json",
+    "utf8",
+  );
+  const evidence = JSON.parse(evidenceText);
+  const expectedLocales = ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"];
+
+  assert.equal(evidence.schema, "agent-edu.native-review-catalog-precheck.v1");
+  assert.equal(
+    evidence.status,
+    "catalogs-frozen-automatic-checks-pass-human-review-pending",
+  );
+  assert.equal(
+    evidence.source.productCandidateCommitSha,
+    "2cdf1d6894b2f8293631742229fdd52cfa744d4d",
+  );
+  assert.equal(evidence.source.catalogsChangedSinceProductCandidate, false);
+  assert.deepEqual(evidence.source.catalogTypes, ["site", "handbook", "widgets"]);
+  assert.deepEqual(Object.keys(evidence.locales), expectedLocales);
+  for (const locale of expectedLocales) {
+    const entries = Object.entries(evidence.locales[locale].files) as [
+      string,
+      { keyCount: number; sha256: string },
+    ][];
+    assert.equal(entries.length, 3);
+    assert.deepEqual(entries.map(([path]) => path), [
+      `messages/${locale}.json`,
+      `messages/handbook/${locale}.json`,
+      `messages/widgets/${locale}.json`,
+    ]);
+    for (const [, file] of entries) {
+      assert.equal(Number.isSafeInteger(file.keyCount) && file.keyCount > 0, true);
+      assert.match(file.sha256, /^[a-f0-9]{64}$/);
+    }
+  }
+  assert.deepEqual(evidence.automaticValidation, {
+    keyCompleteness: "pass",
+    placeholderParity: "pass",
+    pluralCoverage: "pass",
+    reasonedIdenticalTextAllowlist: "pass",
+    nativeLanguageJudgment: "not-performed",
+  });
+  assert.deepEqual(evidence.gateEffect, {
+    nativeReviewStatusesChanged: false,
+    humanSignaturesPresent: false,
+    finalCandidateBound: false,
+    releaseAuthorized: false,
+  });
+  assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
+  assert.match(evidence.reviewReuseRule, /all 24 file digests still match the final candidate/);
+});
