@@ -101,7 +101,7 @@ Use the frozen release commit and built static server. Record:
 - individual and median LCP/CLS/INP results and the named scripted interaction;
 - the raw sanitized report reference, not only a screenshot of a score.
 
-### Frozen-candidate synthetic lab record (2026-08-21)
+### Archived synthetic lab record (2026-08-21)
 
 The default harness was run from clean product commit
 `a586b44a6b58bf209864d2cd9529bb9adff12012`. The complete sanitized JSON is
@@ -124,6 +124,10 @@ plus three warm samples per route.
 This is a reproducible synthetic-lab record and a schema/measurement pass; the
 harness deliberately defines no product threshold. It is not physical-device,
 classroom-network or field-CWV evidence and does not close those external gates.
+It is retained as source-bound historical evidence after a later Vercel build-input
+fix; it does not claim to measure that later report-only predecessor or the final
+enforced candidate. Run the default three-sample matrix again after the final
+candidate is frozen before using synthetic results in a release decision.
 
 The harness labels its output `synthetic-lab`; its 4× browser CPU throttle is
 an emulation profile, not a claim about a specific device. A delayed route or
@@ -171,11 +175,11 @@ service or deploy hash/SRI enforcement.
 
 ## Evidence record
 
-- Release commit: `a586b44a6b58bf209864d2cd9529bb9adff12012`
+- Evidence source commit: `a586b44a6b58bf209864d2cd9529bb9adff12012`
 - Deployment ID/origin (if applicable): none; local static server only
 - Static inventory reference and result: fresh 448-file export, 24,247,762
   bytes; all nine repository budgets passed
-- Compatibility run IDs and three-engine result: local frozen-candidate run;
+- Compatibility run IDs and three-engine result: archived local source-candidate run;
   Chromium 3/3, Firefox 3/3 and WebKit 3/3 passed
 - Lab CWV reports and conditions:
   `docs/release/evidence/lab-vitals-a586b44.json`; 3 cold + 3 warm per six
@@ -187,5 +191,5 @@ service or deploy hash/SRI enforcement.
 - Reviewer and checked-at UTC: Codex local evidence run,
   `2026-08-21T02:41:51.640Z`; independent release binding review follows the
   metadata-only commit
-- Overall conclusion: local synthetic-lab pass / physical pending / field
-  insufficient evidence
+- Overall conclusion: archived local synthetic-lab pass / final-candidate rerun
+  pending / physical pending / field insufficient evidence

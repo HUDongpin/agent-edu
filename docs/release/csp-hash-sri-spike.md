@@ -11,13 +11,14 @@ change from static hosting.
 
 ## Executed local result
 
-The isolated experiment ran against clean product commit
+The isolated experiment ran against clean source product commit
 `a586b44a6b58bf209864d2cd9529bb9adff12012`. The sanitized decision record is
 `docs/release/evidence/csp-hash-sri-spike-a586b44.json`; the route-level,
 privacy-safe violation counts are in
 `docs/release/evidence/csp-report-only-observation-a586b44.json`. Neither file
 contains the generated policy, credentials, Prompts, replies or Provider
-bodies.
+bodies. It is retained as an architecture-feasibility record, not as evidence
+that a later build-input or enforced release candidate was exercised.
 
 Two clean static builds with `next.experimental.sri` and SHA-256 produced
 different random build IDs and export hashes but the same normalized inventory
@@ -46,7 +47,7 @@ conditions were already met, no enforced preview was attempted.
 The experimental SRI setting was removed. The ordinary static configuration
 then passed `csp:check`, a fresh 68-page build, 70 route-artifact checks, all
 nine asset budgets and the three-engine compatibility suite (9/9). The release
-candidate therefore retains the existing staged report-only CSP; a future
+source candidate therefore retained the existing staged report-only CSP; a future
 strict hash/SRI design requires architectural remediation and a separately
 reviewed spike.
 

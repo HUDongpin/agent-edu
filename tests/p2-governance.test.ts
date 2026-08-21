@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { assertLabVitalsReport } from "../scripts/measure-lab-vitals.mjs";
 
-const CANDIDATE_SHA = "a586b44a6b58bf209864d2cd9529bb9adff12012";
+const ARCHIVED_EVIDENCE_SHA = "a586b44a6b58bf209864d2cd9529bb9adff12012";
 
 test("large Handbook rewrites require comparable profiling and rollback evidence", () => {
   const gate = readFileSync("docs/release/handbook-profiling-gate.md", "utf8");
@@ -43,7 +43,7 @@ test("the strict CSP spike preserves static hosting and records its failed-close
 
   assert.equal(evidence.schema, "agent-edu.csp-hash-sri-spike.v1");
   assert.equal(evidence.status, "failed-closed");
-  assert.equal(evidence.sourceCommitSha, CANDIDATE_SHA);
+  assert.equal(evidence.sourceCommitSha, ARCHIVED_EVIDENCE_SHA);
   assert.equal(evidence.experimentalBuilds.length, 2);
   assert.equal(evidence.inventory.normalizedEquivalentAcrossBuilds, true);
   assert.equal(evidence.inventory.externalScriptsWithSha256Integrity, 6);
@@ -59,7 +59,7 @@ test("the strict CSP spike preserves static hosting and records its failed-close
   assert.equal(evidence.privacy.containsFullGeneratedPolicy, false);
 
   assert.equal(observation.schema, "agent-edu.csp-report-only-observation.v1");
-  assert.equal(observation.sourceCommitSha, CANDIDATE_SHA);
+  assert.equal(observation.sourceCommitSha, ARCHIVED_EVIDENCE_SHA);
   assert.equal(evidence.reportOnlyObservation.generatedAtUtc, observation.generatedAt);
   assert.equal(observation.browsers.length, 3);
   for (const browser of observation.browsers) {
@@ -70,13 +70,13 @@ test("the strict CSP spike preserves static hosting and records its failed-close
   }
 });
 
-test("the committed synthetic lab report binds the frozen candidate and full sample matrix", () => {
+test("the archived synthetic lab report binds its source candidate and full sample matrix", () => {
   const report = JSON.parse(readFileSync(
     "docs/release/evidence/lab-vitals-a586b44.json",
     "utf8",
   ));
   assert.equal(assertLabVitalsReport(report, 3), report);
-  assert.equal(report.source.commitSha, CANDIDATE_SHA);
+  assert.equal(report.source.commitSha, ARCHIVED_EVIDENCE_SHA);
   assert.equal(report.source.dirty, false);
   assert.equal(report.conditions.samplesPerMode, 3);
   assert.equal(report.artifact.export.fileCount, 448);
