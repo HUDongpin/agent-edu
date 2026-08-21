@@ -65,3 +65,17 @@ test("tracked-file secret rules fail closed without echoing matched values", () 
   assert.equal(contentFindings(providerKey).at(0)?.id, "deepseek-key");
   assert.deepEqual(contentFindings("Authorization: " + "Bearer $" + "{key}"), []);
 });
+
+test("the deploy build type-checks only files present in the Vercel upload", () => {
+  const buildConfig = JSON.parse(readFileSync("tsconfig.build.json", "utf8"));
+  assert.equal(buildConfig.extends, "./tsconfig.json");
+  assert.deepEqual(buildConfig.exclude, ["node_modules"]);
+  assert.ok(buildConfig.include.includes("app/**/*.tsx"));
+  assert.ok(buildConfig.include.includes("components/**/*.tsx"));
+  assert.ok(buildConfig.include.includes("lib/**/*.ts"));
+  assert.equal(buildConfig.include.some((entry: string) => entry.startsWith("tests/")), false);
+  assert.equal(buildConfig.include.some((entry: string) => entry.startsWith("course/")), false);
+
+  const nextConfig = readFileSync("next.config.ts", "utf8");
+  assert.match(nextConfig, /tsconfigPath:\s*isBuild\s*\?\s*"tsconfig\.build\.json"\s*:\s*"tsconfig\.json"/);
+});

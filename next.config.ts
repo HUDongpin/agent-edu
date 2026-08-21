@@ -19,6 +19,13 @@ const isBuild = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
   ...(isBuild ? { output: "export" as const } : {}),
+  typescript: {
+    // Vercel deliberately omits course/, browser tests and secret scanners
+    // from the website upload. Keep the production type-check scoped to the
+    // code that is actually deployed; the full repository remains covered by
+    // `npx tsc --noEmit` in CI.
+    tsconfigPath: isBuild ? "tsconfig.build.json" : "tsconfig.json",
+  },
   experimental: { globalNotFound: true },
   trailingSlash: true,           // so /es/handbook/ resolves on plain file hosts
   images: { unoptimized: true }, // no image server in a static export
