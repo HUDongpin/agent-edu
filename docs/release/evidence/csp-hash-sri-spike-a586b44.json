@@ -71,7 +71,7 @@
   },
   "reportOnlyObservation": {
     "reference": "docs/release/evidence/csp-report-only-observation-a586b44.json",
-    "generatedAtUtc": "2026-08-21T02:58:32.173Z",
+    "generatedAtUtc": "2026-08-21T03:02:25.072Z",
     "routesPerBrowser": 15,
     "localesCovered": 9,
     "browsers": [

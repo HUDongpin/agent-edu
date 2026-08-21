@@ -60,6 +60,7 @@ test("the strict CSP spike preserves static hosting and records its failed-close
 
   assert.equal(observation.schema, "agent-edu.csp-report-only-observation.v1");
   assert.equal(observation.sourceCommitSha, CANDIDATE_SHA);
+  assert.equal(evidence.reportOnlyObservation.generatedAtUtc, observation.generatedAt);
   assert.equal(observation.browsers.length, 3);
   for (const browser of observation.browsers) {
     assert.equal(browser.summary.routes, 15);
