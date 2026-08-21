@@ -131,6 +131,14 @@ headers. A green run cannot prove that GitHub made the jobs required.
 - `pilot-protocol.md` — later six-learner/three-teacher pilot and its exit metrics.
 - `implementation-matrix.md` — approved roadmap requirements mapped to
   repository evidence, deterministic gates, external work, and explicit non-goals.
+- `roadmap-completion-audit.md` — authoritative DOCX closeout, immutable target
+  bindings, PR-topology deviation, the 33 P0 blockers, and separate P1/P2 field
+  evidence.
+- `evidence/roadmap-completion-audit-20260821.json` — machine-readable companion
+  for the authoritative closeout.
+- `evidence/stage-a-browser-header-observation-20260821.json` — privacy-safe
+  Computer Use observation of the frozen Preview's actual 200 response headers;
+  deliberately not a Stage A pass.
 - `performance-verification.md` — static budgets, three-engine compatibility,
   emulated resilience, physical-device, and field-CWV evidence boundaries.
 - `handbook-profiling-gate.md` — before/after evidence and rollback required

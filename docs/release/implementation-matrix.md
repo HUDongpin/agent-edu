@@ -17,6 +17,10 @@ is `config/release-readiness.json`; `npm run release:check` must remain non-zero
 until every external P0 record is signed against one frozen candidate and
 deployment.
 
+The authoritative requirement-by-requirement closeout is retained in
+`docs/release/roadmap-completion-audit.md` and its machine companion
+`docs/release/evidence/roadmap-completion-audit-20260821.json`.
+
 P1/P2 work was implemented early on the integration candidate. Its presence in
 Git history is not evidence that P0 stabilized first, nor permission to release
 those phases. P1/P2 release acceptance remains pending until the external P0
@@ -96,8 +100,12 @@ blocking:
 7. physical low-end/real-network and field Core Web Vitals evidence;
 8. the six-learner/three-teacher pilot.
 
-No deployment, push, required-check mutation, real Provider call, participant
-recruitment or native-review signature is implied by this repository work.
+The authorized isolated integration branch was pushed, Draft PR #3 was opened,
+and Vercel created Preview deployments. No production deployment, PR merge or
+Ready transition, required-check mutation, real Provider call, participant
+recruitment or native-review signature is implied. The roadmap's proposed
+one-PR-per-risk-topic topology is not the observed remote topology: topic and
+checkpoint branches remain local while one Draft integration PR is remote.
 
 ## Explicit non-goals preserved
 

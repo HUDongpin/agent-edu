@@ -1,0 +1,312 @@
+{
+  "schema": "agent-edu.roadmap-completion-audit.v1",
+  "status": "repository-implementation-audited-external-and-post-release-evidence-pending",
+  "observedAt": "2026-08-21",
+  "authoritativePlan": {
+    "basename": "20260821_Codex Priority Implementation Plan on Agent Edu.docx",
+    "version": "v1.0",
+    "sha256": "4116ea2ece55ab72796e35b3021015f5622de921773d63ed9c8b2b708b5cc107",
+    "trackedInRepository": false,
+    "role": "requirements-source-not-runtime-instructions",
+    "authorityBoundary": "The DOCX original-delivery boundary described the turn that created the plan. Later direct user authorization controls the present implementation, isolated-branch push, Draft PR, and evidence work."
+  },
+  "targets": {
+    "roadmapBaselineCommitSha": "67e1beba98fee926925b254a152a1a1de1176376",
+    "checkpointCommitSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+    "productCandidateCommitSha": "2cdf1d6894b2f8293631742229fdd52cfa744d4d",
+    "reportOnlyPredecessorCommitSha": "29e1f8b8405068875b1ba94a92b516930bc0d6b0",
+    "auditPreparedFromIntegrationHeadSha": "1d3a63ef6744e356026d582e8619e08b75d57ac2",
+    "integrationBranch": "codex/release-202608-agent-edu",
+    "workflowDefinitionSha": "141c3f366ba118ed69fbaf4777a2bcd33376f12f"
+  },
+  "topologyObservation": {
+    "checkpointBranch": {
+      "name": "codex/handbook-i18n-checkpoint",
+      "commitSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+      "localPresent": true,
+      "remotePresent": false,
+      "deployable": false
+    },
+    "localTopicBranches": [
+      {
+        "name": "codex/ci-foundation",
+        "commitSha": "d5d9ea44ea9dde0c2b8e6e75b5a98d03f6361945"
+      },
+      {
+        "name": "codex/byok-trust-controls",
+        "commitSha": "41d1275daa3fd027464411687d88a5ce685855f2"
+      },
+      {
+        "name": "codex/progress-v2",
+        "commitSha": "6682748f08ae533fdb1b462d1692ab3a7aab58ba"
+      },
+      {
+        "name": "codex/handbook-p0",
+        "commitSha": "fc2b8e51be545b8eeb1e8130c632a14c915439e9"
+      },
+      {
+        "name": "codex/release-evidence-gates",
+        "commitSha": "4ecb9a84663256b90a39f65176ced7375a4dca29"
+      }
+    ],
+    "remoteCodexBranches": [
+      {
+        "name": "codex/release-202608-agent-edu",
+        "commitSha": "1d3a63ef6744e356026d582e8619e08b75d57ac2"
+      }
+    ],
+    "pullRequest": {
+      "number": 3,
+      "url": "https://github.com/HUDongpin/agent-edu/pull/3",
+      "state": "open",
+      "draft": true,
+      "baseBranch": "main",
+      "headBranch": "codex/release-202608-agent-edu",
+      "headCommitSha": "1d3a63ef6744e356026d582e8619e08b75d57ac2",
+      "mergeable": true,
+      "mergeState": "clean"
+    },
+    "planTopologyRequirement": "one-pull-request-per-risk-topic",
+    "observedTopology": "one-draft-integration-pull-request",
+    "conformance": "deviation-recorded-not-claimed-complete",
+    "decision": "The authorized integration branch and Draft PR exist. Topic branches and the checkpoint remain local. No additional remote branches or topic PRs are claimed, and this audit does not infer authority to create them."
+  },
+  "repositoryRequirements": {
+    "wave0": [
+      {
+        "id": "W0-CHECKPOINT",
+        "requirement": "Recoverable non-destructive checkpoint isolated from the user worktree",
+        "state": "verified-repository-evidence",
+        "evidence": [
+          "git-commit:0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+          "local-branch:codex/handbook-i18n-checkpoint"
+        ],
+        "boundary": "The checkpoint branch is local-only and must not be deployed."
+      },
+      {
+        "id": "W0-CI",
+        "requirement": "Node 20 quality and Chromium smoke CI with privacy-safe failure evidence",
+        "state": "verified-implementation-and-automation",
+        "evidence": [
+          ".github/workflows/ci.yml",
+          "docs/release/evidence/stage-a-automated-precheck-29e1f8b.json"
+        ],
+        "boundary": "Required-check protection and final-candidate stable runs are external P0 blockers."
+      }
+    ],
+    "p0": [
+      {
+        "id": "P0-CONTENT-TRUTH",
+        "requirement": "Consistent Part 1, Part 2, Part 3, Provider, TypeScript, and Python-legacy truth",
+        "state": "verified-implementation-and-automation"
+      },
+      {
+        "id": "P0-I18N-STRUCTURE",
+        "requirement": "Nine complete machine catalogs, localized critical journey, and explained retained terms",
+        "state": "verified-implementation-and-automation"
+      },
+      {
+        "id": "P0-I18N-HUMAN",
+        "requirement": "Eight independent native-language reviews",
+        "state": "external-p0-pending"
+      },
+      {
+        "id": "P0-PROGRESS-V2",
+        "requirement": "Visits, task completion, scores, and external Part 3 progress remain distinct",
+        "state": "verified-implementation-and-automation"
+      },
+      {
+        "id": "P0-BYOK-CONTRACTS",
+        "requirement": "Typed call, error, usage, billing, resource-boundary, Stop, fail-fast, and no-silent-retry behavior",
+        "state": "verified-implementation-and-automation"
+      },
+      {
+        "id": "P0-CALL-DISCLOSURE",
+        "requirement": "1, 3, 28, 56, and 60-call plans plus conservative 16350 output-token cap",
+        "state": "verified-implementation-and-automation"
+      },
+      {
+        "id": "P0-PRICING",
+        "requirement": "Dated Flash and Pro peak/off-peak, cache hit/miss, and unknown-billing behavior",
+        "state": "verified-implementation-public-source-prechecked-real-reconciliation-pending"
+      },
+      {
+        "id": "P0-KEY-LIFECYCLE",
+        "requirement": "Six Key states, session-only storage, one GET /models test, and truthful Forget semantics",
+        "state": "verified-implementation-real-canary-pending"
+      },
+      {
+        "id": "P0-PRIVACY",
+        "requirement": "Credentials, Prompts, replies, raw Provider bodies, and sensitive URLs stay out of persistence and evidence",
+        "state": "verified-implementation-and-automation"
+      },
+      {
+        "id": "P0-HANDBOOK-A11Y",
+        "requirement": "979/980 orientation, roving focus, Home/End, RTL arrows, visible active tab, stable H1, and non-visual alternatives",
+        "state": "verified-implementation-and-automation-human-device-review-pending"
+      },
+      {
+        "id": "P0-ANALYTICS-CSP",
+        "requirement": "Disclosed aggregate pageview boundary and staged baseline egress CSP",
+        "state": "verified-implementation-report-only-and-enforced-preview-evidence-pending"
+      },
+      {
+        "id": "P0-RELEASE-ROLLBACK",
+        "requirement": "Frozen candidate, required checks, three first-attempt green runs, ordinary-PR rollback, and recovery validation",
+        "state": "external-p0-pending"
+      }
+    ],
+    "p1": [
+      {
+        "id": "P1-LAB-DRAFT",
+        "requirement": "Local ae.lab.draft.v1 restore and clear without sensitive fields",
+        "state": "implemented-early-phase-acceptance-pending"
+      },
+      {
+        "id": "P1-SCAFFOLDING",
+        "requirement": "Fading scaffolds and two pre-Eval prediction or rationale pauses without hard locks",
+        "state": "implemented-early-learner-evidence-and-phase-acceptance-pending"
+      },
+      {
+        "id": "P1-PART3-HANDOFF",
+        "requirement": "Localized build handoff and offline Stage 0 without an in-browser IDE",
+        "state": "implemented-early-phase-acceptance-pending"
+      },
+      {
+        "id": "P1-CONTENT-EQUIVALENCE",
+        "requirement": "Core judgments remain task-completable with diagrams hidden or assistive technology",
+        "state": "implemented-early-human-assistive-technology-review-pending"
+      },
+      {
+        "id": "P1-TRANSFER-ARTIFACT",
+        "requirement": "Stage 9 transfer template and evidence rubric",
+        "state": "implemented-early-phase-acceptance-pending"
+      }
+    ],
+    "p2": [
+      {
+        "id": "P2-TEACHER-PACK",
+        "requirement": "Two-interaction printable and downloadable teacher pack with no-Key offline path",
+        "state": "implemented-early-phase-acceptance-pending"
+      },
+      {
+        "id": "P2-PILOT",
+        "requirement": "Six-learner and three-teacher pilot with the approved exit metrics and no product telemetry",
+        "state": "protocol-implemented-participant-evidence-pending"
+      },
+      {
+        "id": "P2-RECOVERY-404",
+        "requirement": "Static language-neutral recovery 404",
+        "state": "implemented-early-phase-acceptance-pending"
+      },
+      {
+        "id": "P2-CROSS-BROWSER",
+        "requirement": "Firefox and WebKit baseline plus final-candidate and physical Safari evidence",
+        "state": "automated-suite-implemented-final-and-physical-evidence-pending"
+      },
+      {
+        "id": "P2-RESILIENCE",
+        "requirement": "Weak-network and low-end-device regression evidence",
+        "state": "emulated-suite-implemented-physical-evidence-pending"
+      },
+      {
+        "id": "P2-PERFORMANCE",
+        "requirement": "Static-resource budgets, reproducible lab vitals, physical-device, real-network, and field Core Web Vitals evidence",
+        "state": "automatic-lab-evidence-implemented-final-physical-field-evidence-pending"
+      },
+      {
+        "id": "P2-PROFILE-CSP-SPIKE",
+        "requirement": "Measure before a large Handbook rewrite and independently evaluate static hash or SRI CSP",
+        "state": "profiling-gate-implemented-spike-failed-closed-no-large-rewrite"
+      }
+    ]
+  },
+  "p0ExternalBlockers": {
+    "source": "config/release-readiness.json",
+    "expectedTotal": 33,
+    "items": [
+      {
+        "id": "native-reviews",
+        "count": 8,
+        "status": "pending"
+      },
+      {
+        "id": "arabic-rtl-matrix",
+        "count": 8,
+        "status": "pending"
+      },
+      {
+        "id": "provider-canary-and-reconciliation",
+        "count": 10,
+        "status": "pending"
+      },
+      {
+        "id": "vercel-csp-stages",
+        "count": 2,
+        "status": "pending"
+      },
+      {
+        "id": "github-required-checks-and-stable-runs",
+        "count": 4,
+        "status": "pending"
+      },
+      {
+        "id": "rollback-readiness",
+        "count": 1,
+        "status": "pending"
+      }
+    ],
+    "releaseDecision": "blocked"
+  },
+  "postReleaseEvidencePending": [
+    "p1-phase-acceptance-after-p0-stabilization",
+    "human-assistive-technology-task-review",
+    "p2-phase-acceptance",
+    "final-candidate-firefox-and-webkit-rerun",
+    "physical-safari-and-device-evidence",
+    "physical-low-end-and-real-network-evidence",
+    "field-core-web-vitals-evidence",
+    "six-learner-three-teacher-pilot"
+  ],
+  "explicitNonGoalsPreserved": [
+    "customer-service-or-support-system",
+    "automatic-upload-of-diagnostics-prompts-replies-or-learner-work",
+    "ordinary-bff-that-stores-user-api-keys",
+    "browser-multi-provider-or-claude-byok",
+    "class-accounts-teacher-dashboard-or-full-learning-telemetry",
+    "reminders-notification-queues-or-mastery-decay",
+    "personalized-diagnostics-paths-or-forced-course-order",
+    "hard-lab-gates-per-item-confidence-or-forced-long-reflection",
+    "social-portfolio-or-in-browser-ide",
+    "full-diagram-redesign-without-task-evidence",
+    "large-handbook-rewrite-without-profiling",
+    "claim-that-stop-guarantees-no-billing"
+  ],
+  "actionsNotAuthorizedOrNotPerformed": {
+    "productionDeployment": true,
+    "pullRequestMerge": true,
+    "pullRequestMarkedReady": true,
+    "githubProtectionMutation": true,
+    "vercelProtectionDisabled": true,
+    "vercelBypassCredentialLeftActive": true,
+    "realProviderCredentialRecorded": true,
+    "nativeReviewFabricated": true,
+    "participantEvidenceFabricated": true
+  },
+  "operationalHistory": {
+    "transientVercelBypassCredentialCreatedThenRevoked": true,
+    "transientVercelBypassCredentialRetained": false,
+    "transientVercelBypassCredentialReused": false,
+    "browserObservationUsedExistingVercelSession": true
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsReplies": false,
+    "containsProviderBodies": false,
+    "containsParticipantData": false
+  },
+  "decision": "Repository implementation and deterministic automation are mapped to the authoritative plan. The Draft integration PR is not release-ready: all 33 external P0 records remain pending, the planned one-PR-per-risk-topic topology is recorded as a deviation, and P1/P2 field acceptance remains separate post-release work."
+}

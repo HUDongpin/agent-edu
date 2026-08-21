@@ -63,6 +63,19 @@ automation cannot sign the human or real-Provider gates below. Stage A remains
 pending with no timestamp or evidence reference until those observations are
 completed and sanitized.
 
+A later partial browser observation is retained at
+`docs/release/evidence/stage-a-browser-header-observation-20260821.json`. Chrome
+received a fresh 200 response from the exact immutable deployment with the
+reviewed `Content-Security-Policy-Report-Only` value and supporting security
+headers. It does not pass Stage A: the complete fixed-width/theme, Provider,
+Analytics, and console-classification matrix is not yet recorded. English and
+Arabic completed the visible Home → Handbook → Control Room → Lab → Build
+path, then the same deployed route/role matrix passed for all nine locales
+(45/45 cases). Arabic Home/End plus theme switching were observed. The
+fixed-width/theme matrix, Provider and Analytics paths remain outstanding; one
+report-only data-font violation also requires clean-session provenance
+classification.
+
 - [ ] `config/csp-stage.json` says `report-only` and `npm run csp:check` passes.
 - [ ] Vercel response contains `content-security-policy-report-only`.
 - [ ] The value matches the reviewed baseline; no unexpected egress origin appears.
