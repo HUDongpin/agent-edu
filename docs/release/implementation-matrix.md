@@ -26,7 +26,7 @@ gates below pass against a frozen candidate; no history rewrite is implied.
 
 | Roadmap requirement | Repository evidence | Deterministic gate | Current state |
 |---|---|---|---|
-| Recoverable checkpoint; no destructive cleanup | Checkpoint `0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd`; subsequent work isolated on `codex/agent-edu-release-candidate` | `git status`, staged-file review, `npm run secrets:check` | Implemented; checkpoint retained |
+| Recoverable checkpoint; no destructive cleanup | Checkpoint `0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd`; subsequent work isolated on the planned integration branch `codex/release-202608-agent-edu` | `git status`, staged-file review, `npm run secrets:check` | Implemented; checkpoint retained |
 | Node 20 quality and Chromium smoke CI | `.github/workflows/ci.yml`, `package.json`, `playwright.config.ts`, `e2e/smoke.spec.ts` | `npm test`, `npm run lint`, `npm run build`, `npm run routes:check`, `npm run test:smoke` | Implemented; GitHub required-check proof and three frozen-candidate runs external pending |
 | Active source lint is zero-error/zero-warning | ESLint scopes active site and scripts; generated/build/legacy paths stay outside that gate | `npm run lint` | Automatic pass |
 | Part 1/2/3 and Python-legacy truth is consistent | Handbook content, localized site catalogs, `README.md`, `TEACHING.md`, `/[locale]/build/`, `public/teacher-pack.txt` | `npm run handbook:check`, `npm run widgets:check`, route/browser journeys | Implemented; eight native reviews external pending |
@@ -34,7 +34,7 @@ gates below pass against a frozen candidate; no history rewrite is implied.
 | Part 3 has no website percentage or Resume claim | Catalog selector and localized Build handoff; local course owns `course/progress.json` | Progress tests; nine-locale journey | Implemented and automatically covered |
 | Typed BYOK result/error/usage/billing contracts plus bounded request/response resources | `lib/byok/`, `lib/deepseek.ts`, `lib/lab/`; shared message count/character/UTF-8 caps and a streamed 256 KiB response ceiling | BYOK boundary, pricing, key-verifier and runner unit tests | Implemented and automatically covered |
 | No silent network retry; Stop/fail-fast/run isolation | Single-dispatch client and abort-aware batch runner | Runner tests; Lab cancellation browser test | Implemented and automatically covered |
-| Call disclosure and conservative cap | Lab plans lock 1, 3, 28, 56 and recommended 60 calls / 16,350 output-token cap | `tests/byok-pricing.test.ts`, `tests/lab-runner.test.ts` | Implemented and automatically covered |
+| Call disclosure and conservative cap | Lab plans lock 1, 3, 28, 56 and recommended 60 calls / 16,350 output-token cap | `tests/byok-pricing-plans.test.ts`, `tests/lab-runner.test.ts` | Implemented and automatically covered |
 | Flash/Pro, peak/off-peak, cache hit/miss and unknown billing | Dated/sourced snapshot in `lib/byok/pricing.ts`; shared course pricing | Pricing and course-usage tests | Implemented; release-date official price/model/CORS/bill reconciliation external pending |
 | Save & test uses one `GET /models`; six key states | `lib/byok/key-verifier.ts`, session-only key store, KeyBar UI | Key verifier tests; Provider contract browser suite | Implemented; low-limit real-key canary external pending |
 | Fake key, Prompt, reply and raw Provider data stay out of persistent/exported surfaces | Session-only key, restricted draft codec, redaction, fail-closed test routing and curated browser-evidence pipeline | Secrets/privacy unit tests; Provider contract browser tests; artifact intentional-failure gate | Implemented; CI failure-evidence behavior still requires frozen GitHub run evidence |
@@ -42,6 +42,17 @@ gates below pass against a frozen candidate; no history rewrite is implied.
 | Handbook 979/980 orientation, roving focus, Home/End, RTL arrows and visible active tab | `lib/handbook/behaviour.ts`, scoped styles and smoke matrix | Handbook unit tests; Arabic width/theme keyboard matrix | Implemented and automatically covered; human RTL/device matrix external pending |
 | Stable page H1 and task-equivalent non-visual judgements | Handbook markup/behavior and screen-reader-only structures | Handbook P0/content-equivalence tests and browser task | Implemented; human screen-reader review external pending |
 | Nine complete machine catalogs with no unexplained fallback | `messages/`, `messages/widgets/`, `messages/handbook/`, narrow allowlist | `npm run handbook:check`, `npm run widgets:check`, `npm run release:check` localization phase | Automatic structural pass; eight native-language sign-offs external pending |
+
+Catalog-count reconciliation: the roadmap recorded the pre-closeout baselines as
+560 Handbook strings and 685 Widget keys. Enforcing the approved offline Part 1
+and truthful-progress scope removed 20 Handbook live-Provider strings and 19
+Widget live/legacy-progress keys; localizing ten previously hard-coded kiosk
+fixtures then brought the source-derived contracts to 540 Handbook strings and
+676 Widget keys. The gates derive their expected sets from current markup and
+call sites, so dead keys are not retained merely to preserve obsolete totals.
+Removing the live block also changed the queried-DOM-ID baseline from 138 to
+133 (seven obsolete live-mode DOM nodes were removed); the current checker
+derives and verifies all 133 IDs from the surviving call sites.
 
 ## P1
 
@@ -62,8 +73,8 @@ gates below pass against a frozen candidate; no history rewrite is implied.
 | Language-neutral recovery 404 | `app/global-not-found.tsx` uses `lang="und"` and nine equal recovery cards | Route manifest and three-engine compat test | Implemented early and automatically covered; P2 release acceptance pending |
 | Firefox and WebKit baseline | `e2e/compat.spec.ts`, three Playwright projects, compatibility CI job | `npm run test:compat` | Suite implemented early; frozen-candidate three-engine run, physical Safari/device evidence and P2 release acceptance pending |
 | Declared weak-network/low-end regression | `e2e/resilience.spec.ts` records CPU/network profile and keeps no-key path local | `npm run test:resilience` | Implemented early as emulated lab evidence; physical evidence and P2 release acceptance pending |
-| Complete static-export regression budget and reproducible local CWV measurement | `scripts/check-static-assets.mjs` inventories Next chunks, emitted public assets and route payloads; `scripts/measure-lab-vitals.mjs` binds `.next/BUILD_ID` and a complete sorted `out/` SHA-256/file-count/byte-count fingerprint | fresh `npm run build && npm run assets:check`; `npm run --silent vitals:lab` (three cold/warm samples per route) | Implemented early; frozen-candidate lab report, field CWV, real-network evidence and P2 release acceptance pending |
-| Measure before any large Handbook rewrite; independently study strict hash/SRI CSP | `docs/release/handbook-profiling-gate.md`, `docs/release/csp-hash-sri-spike.md`, current static architecture | Profiling/CSP governance contract tests; any future experiment needs before/after and rollback evidence | Templates implemented early; no large rewrite performed; CSP spike execution and P2 release acceptance pending |
+| Complete static-export regression budget and reproducible local CWV measurement | `scripts/check-static-assets.mjs` inventories Next chunks, emitted public assets and route payloads; `scripts/measure-lab-vitals.mjs` binds `.next/BUILD_ID` and a complete sorted `out/` SHA-256/file-count/byte-count fingerprint; `docs/release/evidence/lab-vitals-a586b44.json` preserves the frozen-candidate run | fresh `npm run build && npm run assets:check`; `npm run --silent vitals:lab` (three cold/warm samples per route) | Implemented early; frozen-candidate six-route synthetic lab evidence passed its schema with 3 cold/3 warm samples; physical-device, field CWV, real-network evidence and P2 release acceptance remain external pending |
+| Measure before any large Handbook rewrite; independently study strict hash/SRI CSP | `docs/release/handbook-profiling-gate.md`, `docs/release/csp-hash-sri-spike.md`, `docs/release/evidence/csp-hash-sri-spike-a586b44.json`, current static architecture | Profiling/CSP governance contract tests; two clean spike builds, privacy-safe three-browser report-only observation and ordinary rollback | No large rewrite performed. The local strict hash/SRI spike executed and failed closed: incomplete SRI plus runtime style-attribute violations make it unsuitable for enforcement on the current static candidate. The committed P0 staged CSP is unchanged; external CSP stages and P2 acceptance remain pending |
 
 ## Release-only external gates
 

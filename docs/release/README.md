@@ -135,5 +135,6 @@ headers. A green run cannot prove that GitHub made the jobs required.
   emulated resilience, physical-device, and field-CWV evidence boundaries.
 - `handbook-profiling-gate.md` — before/after evidence and rollback required
   before any broad Handbook rewrite can be proposed.
-- `csp-hash-sri-spike.md` — pending static hash/SRI feasibility experiment;
-  it does not authorize a dynamic nonce service.
+- `csp-hash-sri-spike.md` — completed local static hash/SRI feasibility spike;
+  it failed closed, does not authorize a dynamic nonce service, and did not
+  change the staged release CSP.

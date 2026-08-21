@@ -101,6 +101,30 @@ Use the frozen release commit and built static server. Record:
 - individual and median LCP/CLS/INP results and the named scripted interaction;
 - the raw sanitized report reference, not only a screenshot of a score.
 
+### Frozen-candidate synthetic lab record (2026-08-21)
+
+The default harness was run from clean product commit
+`a586b44a6b58bf209864d2cd9529bb9adff12012`. The complete sanitized JSON is
+`docs/release/evidence/lab-vitals-a586b44.json`. It binds build ID
+`0GwnNBsh0p0oK6n5oI0Kt` to export SHA-256
+`75e74e7c138cf5da9f6a5cbb342f8e9c0a75a4bea7b456a82b52a467cf9987cb`
+(448 files; 24,247,762 bytes). Conditions were Chromium 151.0.7922.34 on
+darwin-arm64, 390×844, 4× CPU slowdown, no network throttling and three cold
+plus three warm samples per route.
+
+| Route | Cold median LCP / CLS / INP | Warm median LCP / CLS / INP |
+|---|---:|---:|
+| Home | 164 ms / 0 / 40 ms | 36 ms / 0 / 40 ms |
+| Handbook | 460 ms / 0 / 80 ms | 292 ms / 0 / 80 ms |
+| Lab | 172 ms / 0 / 56 ms | 36 ms / 0 / 56 ms |
+| Build | 148 ms / 0 / 40 ms | 32 ms / 0 / 40 ms |
+| Teach | 144 ms / 0 / 48 ms | 32 ms / 0 / 40 ms |
+| Real 404 | 128 ms / 0 / 8 ms | 24 ms / 0 / 8 ms |
+
+This is a reproducible synthetic-lab record and a schema/measurement pass; the
+harness deliberately defines no product threshold. It is not physical-device,
+classroom-network or field-CWV evidence and does not close those external gates.
+
 The harness labels its output `synthetic-lab`; its 4× browser CPU throttle is
 an emulation profile, not a claim about a specific device. A delayed route or
 different browser CPU/network emulation may be useful for a separate regression
@@ -141,19 +165,27 @@ comparable before/after profiles, accessibility/task evidence, risk and
 rollback before proposing one.
 
 The optional strict CSP investigation is separately specified in
-`docs/release/csp-hash-sri-spike.md`. That spike is pending and preserves the
-static-export boundary; it does not authorize a dynamic nonce service or imply
-that hash/SRI enforcement has been deployed.
+`docs/release/csp-hash-sri-spike.md`. Its local feasibility run failed closed
+and preserved the static-export boundary; it did not authorize a dynamic nonce
+service or deploy hash/SRI enforcement.
 
 ## Evidence record
 
-- Release commit:
-- Deployment ID/origin (if applicable):
-- Static inventory reference and result:
-- Compatibility run IDs and three-engine result:
+- Release commit: `a586b44a6b58bf209864d2cd9529bb9adff12012`
+- Deployment ID/origin (if applicable): none; local static server only
+- Static inventory reference and result: fresh 448-file export, 24,247,762
+  bytes; all nine repository budgets passed
+- Compatibility run IDs and three-engine result: local frozen-candidate run;
+  Chromium 3/3, Firefox 3/3 and WebKit 3/3 passed
 - Lab CWV reports and conditions:
-- Physical-device/network matrix reference:
-- Field source, window, eligibility and p75 values:
-- Regressions or blockers:
-- Reviewer and checked-at UTC:
-- Overall conclusion: local pass / physical pass / field pass / insufficient evidence
+  `docs/release/evidence/lab-vitals-a586b44.json`; 3 cold + 3 warm per six
+  routes, 390×844, 4× CPU, no network throttle
+- Physical-device/network matrix reference: pending external execution
+- Field source, window, eligibility and p75 values: pending; no field conclusion
+- Regressions or blockers: no local harness/schema regression; physical,
+  classroom-network and field evidence remain unavailable
+- Reviewer and checked-at UTC: Codex local evidence run,
+  `2026-08-21T02:41:51.640Z`; independent release binding review follows the
+  metadata-only commit
+- Overall conclusion: local synthetic-lab pass / physical pending / field
+  insufficient evidence

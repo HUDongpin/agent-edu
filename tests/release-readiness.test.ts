@@ -30,11 +30,11 @@ type CatalogFixture = Record<string, Record<string, Record<string, string>>>;
 
 const PASS_AT = "2026-08-21T10:00:00.000Z";
 const REPORT_ONLY_PASS_AT = "2026-08-21T09:00:00.000Z";
-const CANDIDATE_SHA = "6a21d81723371a9e1db093a831f8cb0ea3729341";
+const CANDIDATE_SHA = "a586b44a6b58bf209864d2cd9529bb9adff12012";
 const REPORT_ONLY_SHA = "1111111111111111111111111111111111111111";
 const CHECKPOINT_SHA = "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd";
 const WORKFLOW_SHA = "5a172bb9c11fecef0c3c655bb278624a20dc8523";
-const INTEGRATION_BRANCH = "codex/agent-edu-release-candidate";
+const INTEGRATION_BRANCH = "codex/release-202608-agent-edu";
 const DEPLOYMENT_ID = "dpl_releaseFixture20260821";
 const REPORT_ONLY_DEPLOYMENT_ID = "dpl_reportOnlyFixture20260821";
 const productionConfig = JSON.parse(

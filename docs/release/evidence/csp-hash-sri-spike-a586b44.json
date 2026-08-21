@@ -1,0 +1,160 @@
+{
+  "schema": "agent-edu.csp-hash-sri-spike.v1",
+  "status": "failed-closed",
+  "sourceCommitSha": "a586b44a6b58bf209864d2cd9529bb9adff12012",
+  "generatedAtUtc": "2026-08-21T03:14:21Z",
+  "scope": {
+    "architecture": "Next.js static export",
+    "nextVersion": "16.3.1",
+    "nodeVersion": "v24.15.0",
+    "platform": "darwin-arm64",
+    "experimentalChange": "next.experimental.sri with sha256",
+    "dynamicNonceService": false,
+    "deploymentPerformed": false,
+    "realProviderCallPerformed": false
+  },
+  "baseline": {
+    "cspStage": "report-only",
+    "cspCheck": "pass",
+    "staticRoutes": 68,
+    "routeArtifacts": 70,
+    "export": {
+      "fileCount": 448,
+      "totalBytes": 24247762
+    }
+  },
+  "experimentalBuilds": [
+    {
+      "nextBuildId": "E5RqreBt8av9mxbaxQdtU",
+      "exportSha256": "3684f7c364c784bb3bc95180f180e415f99a4eed63b6340b12962035e3774a3c",
+      "exportFileCount": 448,
+      "exportTotalBytes": 24277778,
+      "normalizedInventorySha256": "4517b7e613dd8dff8947b1b032762636eaffa7f57046cb85d02824f81417998d",
+      "candidatePolicySha256": "c67c0d17b9d0d4a0e25bb06f34b36efc3b357676d77b49e682388f1d8444c543"
+    },
+    {
+      "nextBuildId": "HDOCCAi87vIcrlK2Ilihs",
+      "exportSha256": "2e2ea40cb107b9ef05455c184069f5a7890c9f8c992f7fc7b3f7682bf4558ebc",
+      "exportFileCount": 448,
+      "exportTotalBytes": 24277778,
+      "normalizedInventorySha256": "4517b7e613dd8dff8947b1b032762636eaffa7f57046cb85d02824f81417998d",
+      "candidatePolicySha256": "ffa5a7e48bb0c879ad1133c9fffe2b82e8af9a019dd69cdc626834b8dbda698b"
+    }
+  ],
+  "inventory": {
+    "normalizedEquivalentAcrossBuilds": true,
+    "htmlFiles": 67,
+    "externalScripts": 14,
+    "externalScriptsWithSha256Integrity": 6,
+    "stylesheets": 1,
+    "stylesheetsWithSha256Integrity": 0,
+    "inlineScriptHashes": 122,
+    "inlineStyleBlockHashes": 0,
+    "staticStyleAttributeHashes": 135,
+    "eventHandlerAttributes": 0,
+    "distinctRouteAuthorizationSets": 65
+  },
+  "candidatePolicy": {
+    "algorithm": "sha256",
+    "headerBytes": 14204,
+    "allowedNetworkOrigins": [
+      "self",
+      "https://api.deepseek.com"
+    ],
+    "unsafeInline": false,
+    "unsafeEval": false,
+    "wildcardOrigin": false,
+    "objectSrcNone": true,
+    "baseUriSelf": true,
+    "frameAncestorsNone": true,
+    "note": "Actual policy hashes change with the Next build identifier even though the identifier-normalized inventory is stable. The full generated policy is deliberately not committed."
+  },
+  "reportOnlyObservation": {
+    "reference": "docs/release/evidence/csp-report-only-observation-a586b44.json",
+    "generatedAtUtc": "2026-08-21T02:58:32.173Z",
+    "routesPerBrowser": 15,
+    "localesCovered": 9,
+    "browsers": [
+      {
+        "name": "chromium",
+        "version": "151.0.7922.34",
+        "statusMismatches": 0,
+        "invisibleMain": 0,
+        "pageErrors": 0,
+        "violations": 145
+      },
+      {
+        "name": "firefox",
+        "version": "153.0",
+        "statusMismatches": 0,
+        "invisibleMain": 0,
+        "pageErrors": 0,
+        "violations": 145
+      },
+      {
+        "name": "webkit",
+        "version": "26.5",
+        "statusMismatches": 0,
+        "invisibleMain": 0,
+        "pageErrors": 0,
+        "violations": 145
+      }
+    ],
+    "violationDirective": "style-src-attr",
+    "violationDisposition": "report",
+    "blockedCategory": "inline",
+    "totalViolations": 435,
+    "externalRequestsObserved": 0
+  },
+  "supportingChecks": {
+    "providerMock": {
+      "browser": "chromium",
+      "testsPassed": 14,
+      "testsTotal": 14,
+      "realProviderCalls": 0
+    },
+    "analyticsSourceGate": {
+      "sourceFilesChecked": 61,
+      "result": "pass"
+    },
+    "compatibilityUnderReportOnly": {
+      "chromium": "3/3 pass",
+      "firefox": "3/3 pass",
+      "webkit": "3/3 pass"
+    }
+  },
+  "rollback": {
+    "experimentalConfigRemoved": true,
+    "trackedWorktreeClean": true,
+    "cspCheck": "pass-report-only-baseline",
+    "freshBuildRoutes": 68,
+    "routeArtifacts": 70,
+    "assetBudgetsPassed": 9,
+    "compatibilityAfterRollback": {
+      "chromium": "3/3 pass",
+      "firefox": "3/3 pass",
+      "webkit": "3/3 pass"
+    },
+    "nextBuildId": "Q_KR3jfLsRp9f0YF8OYVu",
+    "exportSha256": "4fe27de8858f0d6135b93d0ff684628663bcbe7476d82f73391a03fdf0146cec",
+    "exportFileCount": 448,
+    "exportTotalBytes": 24247762
+  },
+  "decision": {
+    "outcome": "not-feasible-on-current-static-candidate",
+    "enforcementAttempted": false,
+    "reasons": [
+      "Next experimental SRI covered only 6 of 14 emitted external scripts and 0 of 1 stylesheet.",
+      "The exact static-hash policy produced 145 runtime style-src-attr report-only violations in each of Chromium, Firefox and WebKit.",
+      "The global policy required 122 inline-script hashes, 135 static style-attribute hashes, 65 route authorization sets and 14204 header bytes, so platform header support would still require external verification."
+    ],
+    "releaseEffect": "Keep the committed staged report-only CSP unchanged. Do not promote this hash/SRI experiment to enforcement without architectural remediation and a new separately reviewed spike."
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsPrompts": false,
+    "containsModelReplies": false,
+    "containsProviderBodies": false,
+    "containsFullGeneratedPolicy": false
+  }
+}
