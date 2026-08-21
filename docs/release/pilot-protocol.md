@@ -4,7 +4,7 @@ This later pilot evaluates independent use without adding accounts, reminders,
 product telemetry, or behavioral analytics. Evidence comes only from consented
 observation sheets, local learner artifacts, and interviews.
 
-Protocol version: `1.3`. Freeze the tested commit, static deployment and this
+Protocol version: `1.4`. Freeze the tested commit, static deployment and this
 protocol version before recruitment. Product changes after the first participant
 require a new pilot run; do not mix results from materially different builds.
 
@@ -14,7 +14,9 @@ require a new pilot run; do not mix results from materially different builds.
   `L1`–`L6`, relevant background band, and accessibility needs.
 - Three teachers using the materials for the first time; record anonymous IDs
   `T1`–`T3` and teaching context.
-- One facilitator and one observer. Neither may complete steps for participants.
+- One facilitator and two observers. None may complete steps for participants;
+  the second observer owns the independent calibration and re-scoring duties
+  defined below.
 - Obtain consent and provide a withdrawal path. Do not collect Provider
   credentials, Prompts/replies, or unnecessary personal data.
 

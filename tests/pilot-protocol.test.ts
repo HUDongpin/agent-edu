@@ -5,7 +5,9 @@ import test from "node:test";
 test("pilot core-journey and transfer metrics have reproducible participant-level rules", () => {
   const protocol = readFileSync("docs/release/pilot-protocol.md", "utf8");
 
-  assert.match(protocol, /Protocol version: `1\.3`/);
+  assert.match(protocol, /Protocol version: `1\.4`/);
+  assert.match(protocol, /One facilitator and two observers/);
+  assert.match(protocol, /second observer owns the independent calibration and re-scoring duties/);
   for (const task of ["C1", "C2", "C3", "C4", "C5", "C6"]) {
     assert.match(protocol, new RegExp(`\\*\\*${task}\\b`), `missing fixed task ID ${task}`);
   }
