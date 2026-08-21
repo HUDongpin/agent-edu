@@ -143,6 +143,10 @@ headers. A green run cannot prove that GitHub made the jobs required.
   privacy-safe Computer Use observation of same-origin Analytics script/view
   traffic and pageview-only behavior on Home and Lab; the Provider path remains
   pending and no payload was inspected.
+- `evidence/stage-a-no-key-provider-connectivity-precheck-20260821.json` — one
+  credential-free browser request to the real DeepSeek `/models` origin with a
+  CORS-readable 401; no response body was read, and the authenticated canary
+  remains pending.
 - `evidence/arabic-rtl-computer-use-precheck-20260821.json` — 8/8 mechanical
   width, theme, orientation, keyboard, visibility, and overflow prechecks;
   deliberately not a native-Arabic review signature.

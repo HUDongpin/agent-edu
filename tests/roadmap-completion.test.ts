@@ -277,6 +277,69 @@ test("the Computer Use Analytics observation proves a same-origin pageview-only 
   assert.match(evidence.decision, /Stage A remains pending/i);
 });
 
+test("the no-key Provider observation proves browser connectivity without passing the authenticated canary", () => {
+  const evidencePath = "docs/release/evidence/stage-a-no-key-provider-connectivity-precheck-20260821.json";
+  const evidenceText = readFileSync(evidencePath, "utf8");
+  const evidence = JSON.parse(evidenceText);
+  const readiness = readJson("config/release-readiness.json") as Readiness;
+
+  assert.equal(evidence.schema, "agent-edu.stage-a-no-key-provider-connectivity-precheck.v1");
+  assert.equal(
+    evidence.status,
+    "real-provider-origin-cors-readable-unauthenticated-401-authenticated-canary-pending",
+  );
+  assert.deepEqual(evidence.target, readiness.gates.vercelPreviewCsp.reportOnlyTarget);
+  assert.deepEqual(evidence.request, {
+    endpointOrigin: "https://api.deepseek.com",
+    endpointPath: "/models",
+    method: "GET",
+    credentialsMode: "omit",
+    authorizationAttached: false,
+    providerKeyPresent: false,
+    requestBodySent: false,
+  });
+  assert.deepEqual(evidence.response, {
+    status: 401,
+    ok: false,
+    fetchResponseType: "cors",
+    statusReadableByPage: true,
+    corsRequestBlocked: false,
+    accessControlAllowOriginExposedValue: null,
+    contentTypeExposedValue: null,
+    responseBodyRead: false,
+    modelCatalogRead: false,
+  });
+  assert.deepEqual(evidence.callCounts, {
+    unauthenticatedModelsRequests: 1,
+    authenticatedModelsRequests: 0,
+    billableGenerationRequests: 0,
+    judgeRequests: 0,
+  });
+  assert.deepEqual(evidence.boundary, {
+    realProviderOriginContacted: true,
+    browserConnectionCompleted: true,
+    corsResponseExposedToPage: true,
+    authenticatedProviderPathObserved: false,
+    credentialVerified: false,
+    availableModelIdsObserved: false,
+    usageObserved: false,
+    billingObserved: false,
+    stageAStatusChanged: false,
+    stageBAuthorized: false,
+    releaseAuthorized: false,
+  });
+  assert.equal(evidence.observation.devtoolsClosedAfterObservation, true);
+  assert.equal(evidence.observation.browserReturnedToEnglishPreview, true);
+  assert.equal(readiness.gates.providerCanary.status, "pending");
+  assert.equal(readiness.gates.vercelPreviewCsp.status, "pending");
+  assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
+  assert.match(evidence.decision, /connectivity precheck only/i);
+  assert.match(evidence.decision, /authenticated GET \/models.*remain pending/i);
+  assert.match(evidence.decision, /Stage A is unchanged/i);
+});
+
 test("three report-only CI runs are repeatability evidence, not formal final-candidate stability", () => {
   const evidencePath = "docs/release/evidence/report-only-ci-repeatability-precheck-20260821.json";
   const evidenceText = readFileSync(evidencePath, "utf8");

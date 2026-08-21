@@ -25,6 +25,14 @@ but cannot make this form pass.
 
 ## Required live sequence
 
+A credential-free connectivity precheck is retained at
+`docs/release/evidence/stage-a-no-key-provider-connectivity-precheck-20260821.json`.
+From the frozen Preview, Chrome reached the real DeepSeek `/models` endpoint
+without an Authorization value or request body and received a CORS-readable
+401 status. The response body and model catalog were not read. This proves only
+that the browser connection was not blocked; it does **not** pass the first row
+below, establish model availability, or substitute for the low-limit Key run.
+
 | Step | Expected bound | Sanitized observation | Result | Evidence ID |
 |---|---:|---|---|---|
 | GET `/models` | one request | Reachability and available model IDs only | pending |  |

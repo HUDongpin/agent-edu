@@ -76,9 +76,13 @@ temporarily disabled, and every extension state was restored. A separate
 Computer Use observation found only same-origin Vercel Analytics script/view
 traffic and an SDK queue containing `pageview` on Home and Lab; safe no-key Lab
 interactions emitted no custom event, and no Analytics payload was inspected.
-The real Provider path remains unobserved. The mechanical Arabic precheck does
-not replace the eight pending Arabic matrix records or the Arabic native-review
-signature in the release schema.
+A subsequent credential-free browser precheck reached the real DeepSeek
+`/models` endpoint and received a CORS-readable 401 without an Authorization
+value, request body, response-body read, or billable call. That closes only the
+browser-connectivity uncertainty; authenticated model discovery and the full
+low-limit Provider sequence remain unobserved. The mechanical Arabic precheck
+does not replace the eight pending Arabic matrix records or the Arabic
+native-review signature in the release schema.
 
 Three unique attempt-1 GitHub workflows also completed green on the same
 report-only integration head and workflow definition. They are retained as a

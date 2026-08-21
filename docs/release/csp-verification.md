@@ -75,6 +75,14 @@ interactions produced no custom event or Provider request, and the request
 payload was not inspected. It does not pass Stage A: the low-limit real
 Provider path has not yet been observed.
 
+The credential-free Provider connectivity record at
+`docs/release/evidence/stage-a-no-key-provider-connectivity-precheck-20260821.json`
+adds one narrower fact: the frozen Preview reached the real DeepSeek `/models`
+origin and received a CORS-readable 401 response. No Authorization value or
+request body was sent, and no response body or model catalog was read. This
+proves that the browser connection was not blocked, but it does not satisfy the
+authenticated canary or change Stage A.
+
 English and Arabic completed the visible Home → Handbook → Control Room → Lab
 → Build path, then the same deployed route/role matrix passed for all nine
 locales (45/45 cases). Computer Use subsequently covered the Arabic
@@ -92,13 +100,16 @@ signed native-language, bidi, and assistive-technology review.
 - [x] Home → Handbook → Control Room → Lab → TypeScript handoff works in nine locales.
 - [x] Static assets, fonts, data images, and disclosed Analytics are observed;
       every observed violation is classified rather than silently ignored.
-- [ ] Low-limit real DeepSeek access is observed without retaining secrets or bodies.
+- [x] The credential-free browser reaches the real DeepSeek `/models` origin
+      and receives a CORS-readable 401 without reading the response body.
+- [ ] Authenticated low-limit DeepSeek access is observed without retaining
+      secrets or bodies.
 - [x] No Lab custom Analytics event exists.
 - [x] Observation covers 390px/1440px, light/dark, and the Arabic RTL journey.
 - [x] Sanitized observations and the immutable deployment ID are retained.
 
 - Report-only result: pending — real Provider path not yet observed
-- Latest partial observation at (UTC): 2026-08-21T17:42:28Z
+- Latest partial observation at (UTC): 2026-08-21T18:06:09Z
 - Checked at (UTC): pending until the Provider observation completes Stage A
 - Observation window:
 - Candidate commit SHA:

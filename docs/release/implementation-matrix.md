@@ -39,8 +39,8 @@ gates below pass against a frozen candidate; no history rewrite is implied.
 | Typed BYOK result/error/usage/billing contracts plus bounded request/response resources | `lib/byok/`, `lib/deepseek.ts`, `lib/lab/`; shared message count/character/UTF-8 caps and a streamed 256 KiB response ceiling | BYOK boundary, pricing, key-verifier and runner unit tests | Implemented and automatically covered |
 | No silent network retry; Stop/fail-fast/run isolation | Single-dispatch client and abort-aware batch runner | Runner tests; Lab cancellation browser test | Implemented and automatically covered |
 | Call disclosure and conservative cap | Lab plans lock 1, 3, 28, 56 and recommended 60 calls / 16,350 output-token cap | `tests/byok-pricing-plans.test.ts`, `tests/lab-runner.test.ts` | Implemented and automatically covered |
-| Flash/Pro, peak/off-peak, cache hit/miss and unknown billing | Dated/sourced snapshot in `lib/byok/pricing.ts`; shared course pricing; official public-source comparison in `docs/release/evidence/provider-pricing-precheck-20260821.json` | Pricing and course-usage tests; privacy-safe precheck contract | Implemented; the 2026-08-21 official public rates match every stored Flash/Pro rate and peak window, while real-call model/usage/CORS/billing reconciliation remains external pending |
-| Save & test uses one `GET /models`; six key states | `lib/byok/key-verifier.ts`, session-only key store, KeyBar UI | Key verifier tests; Provider contract browser suite | Implemented; low-limit real-key canary external pending |
+| Flash/Pro, peak/off-peak, cache hit/miss and unknown billing | Dated/sourced snapshot in `lib/byok/pricing.ts`; shared course pricing; official public-source comparison in `docs/release/evidence/provider-pricing-precheck-20260821.json`; no-key browser connectivity record in `docs/release/evidence/stage-a-no-key-provider-connectivity-precheck-20260821.json` | Pricing and course-usage tests; privacy-safe precheck contracts | Implemented; the 2026-08-21 public rates match every stored Flash/Pro rate and peak window, and the frozen browser received a CORS-readable 401 from the real Provider origin without credentials. Authenticated model/usage/CORS/billing reconciliation remains external pending |
+| Save & test uses one `GET /models`; six key states | `lib/byok/key-verifier.ts`, session-only key store, KeyBar UI | Key verifier tests; Provider contract browser suite | Implemented; one credential-free real-endpoint request returned the expected 401 without reading a body, while the authenticated low-limit real-key canary remains external pending |
 | Fake key, Prompt, reply and raw Provider data stay out of persistent/exported surfaces | Session-only key, restricted draft codec, redaction, fail-closed test routing and curated browser-evidence pipeline | Secrets/privacy unit tests; Provider contract browser tests; artifact intentional-failure gate | Implemented; CI failure-evidence behavior still requires frozen GitHub run evidence |
 | Runtime widget HTML cannot be created by ordinary translation/state interpolation | `lib/handbook/copy.ts` escapes all ordinary `C.h()` variables; only two fixed code fragments and two internal links use opaque reviewed markup | Handbook copy security tests plus the exact four-site `widgets:check` ratchet | Implemented and automatically covered |
 | Handbook 979/980 orientation, roving focus, Home/End, RTL arrows and visible active tab | `lib/handbook/behaviour.ts`, scoped styles and smoke matrix | Handbook unit tests; Arabic width/theme keyboard matrix | Implemented and automatically covered; human RTL/device matrix external pending |
@@ -93,8 +93,9 @@ blocking:
    billing and CORS reconciliation;
 4. completion of the Vercel report-only stage: the actual response header,
    nine-locale journey, Arabic mechanical matrix, and same-origin
-   pageview-only Analytics boundary are observed, but the real Provider path
-   remains pending before Stage A can pass; a separate enforced preview follows;
+   pageview-only Analytics boundary and credential-free DeepSeek connectivity
+   are observed, but the authenticated Provider path remains pending before
+   Stage A can pass; a separate enforced preview follows;
 5. GitHub proof that required checks are protected plus three unique first-run
    successes on the enforced final candidate/workflow; three report-only-head
    successes are retained only as a repeatability precheck;
@@ -104,10 +105,11 @@ blocking:
 
 The authorized isolated integration branch was pushed, Draft PR #3 was opened,
 and Vercel created Preview deployments. No production deployment, PR merge or
-Ready transition, required-check mutation, real Provider call, participant
-recruitment or native-review signature is implied. The roadmap's proposed
-one-PR-per-risk-topic topology is not the observed remote topology: topic and
-checkpoint branches remain local while one Draft integration PR is remote.
+Ready transition, required-check mutation, authenticated or billable Provider
+call, participant recruitment or native-review signature is implied. The
+roadmap's proposed one-PR-per-risk-topic topology is not the observed remote
+topology: topic and checkpoint branches remain local while one Draft
+integration PR is remote.
 
 ## Explicit non-goals preserved
 
