@@ -30,10 +30,10 @@ type CatalogFixture = Record<string, Record<string, Record<string, string>>>;
 
 const PASS_AT = "2026-08-21T10:00:00.000Z";
 const REPORT_ONLY_PASS_AT = "2026-08-21T09:00:00.000Z";
-const CANDIDATE_SHA = "1a337e63345a4fa3e30ab2870e13c762c290a7d4";
+const CANDIDATE_SHA = "2cdf1d6894b2f8293631742229fdd52cfa744d4d";
 const REPORT_ONLY_SHA = "1111111111111111111111111111111111111111";
 const CHECKPOINT_SHA = "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd";
-const WORKFLOW_SHA = "5a172bb9c11fecef0c3c655bb278624a20dc8523";
+const WORKFLOW_SHA = "141c3f366ba118ed69fbaf4777a2bcd33376f12f";
 const INTEGRATION_BRANCH = "codex/release-202608-agent-edu";
 const DEPLOYMENT_ID = "dpl_releaseFixture20260821";
 const REPORT_ONLY_DEPLOYMENT_ID = "dpl_reportOnlyFixture20260821";

@@ -4,11 +4,11 @@
   "status": "pending",
   "updatedAt": "2026-08-21",
   "releaseTarget": {
-    "candidateCommitSha": "1a337e63345a4fa3e30ab2870e13c762c290a7d4",
+    "candidateCommitSha": "2cdf1d6894b2f8293631742229fdd52cfa744d4d",
     "checkpointSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
     "integrationBranch": "codex/release-202608-agent-edu",
     "vercelDeploymentId": null,
-    "workflowDefinitionSha": "5a172bb9c11fecef0c3c655bb278624a20dc8523"
+    "workflowDefinitionSha": "141c3f366ba118ed69fbaf4777a2bcd33376f12f"
   },
   "sensitiveEvidencePolicy": {
     "credentialsStored": false,
