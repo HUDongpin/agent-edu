@@ -52,6 +52,17 @@ upgrade-insecure-requests;
 
 ## Stage A — report-only
 
+An automated precheck for the frozen report-only predecessor is retained at
+`docs/release/evidence/stage-a-automated-precheck-29e1f8b.json`. It binds the
+exact commit, workflow blob, GitHub attempt-1 run and immutable Vercel
+deployment; it also records the CI browser matrices and the CSP found in
+Vercel's deployment build configuration. It is deliberately **not** Stage A
+evidence: deployment configuration metadata is not an observed response
+header, localhost CI is not a deployed-browser observation window, and
+automation cannot sign the human or real-Provider gates below. Stage A remains
+pending with no timestamp or evidence reference until those observations are
+completed and sanitized.
+
 - [ ] `config/csp-stage.json` says `report-only` and `npm run csp:check` passes.
 - [ ] Vercel response contains `content-security-policy-report-only`.
 - [ ] The value matches the reviewed baseline; no unexpected egress origin appears.

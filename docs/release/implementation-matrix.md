@@ -27,7 +27,7 @@ gates below pass against a frozen candidate; no history rewrite is implied.
 | Roadmap requirement | Repository evidence | Deterministic gate | Current state |
 |---|---|---|---|
 | Recoverable checkpoint; no destructive cleanup | Checkpoint `0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd`; subsequent work isolated on the planned integration branch `codex/release-202608-agent-edu` | `git status`, staged-file review, `npm run secrets:check` | Implemented; checkpoint retained |
-| Node 20 quality and Chromium smoke CI | `.github/workflows/ci.yml`, `package.json`, `playwright.config.ts`, `e2e/smoke.spec.ts` | `npm test`, `npm run lint`, `npm run build`, `npm run routes:check`, `npm run test:smoke` | Implemented; GitHub required-check proof and three frozen-candidate runs external pending |
+| Node 20 quality and Chromium smoke CI | `.github/workflows/ci.yml`, `package.json`, `playwright.config.ts`, `e2e/smoke.spec.ts`; exact report-only predecessor metadata in `docs/release/evidence/stage-a-automated-precheck-29e1f8b.json` | `npm test`, `npm run lint`, `npm run build`, `npm run routes:check`, `npm run test:smoke` | Implemented; report-only predecessor run `32448414858` passed attempt 1, while GitHub required-check proof and three final-candidate runs remain external pending |
 | Active source lint is zero-error/zero-warning | ESLint scopes active site and scripts; generated/build/legacy paths stay outside that gate | `npm run lint` | Automatic pass |
 | Part 1/2/3 and Python-legacy truth is consistent | Handbook content, localized site catalogs, `README.md`, `TEACHING.md`, `/[locale]/build/`, `public/teacher-pack.txt` | `npm run handbook:check`, `npm run widgets:check`, route/browser journeys | Implemented; eight native reviews external pending |
 | Learning state v2 separates visit, task completion and score | `lib/progress.ts`; Home, Catalog, Handbook and Lab consumers; migration/reset tests | Progress and integration tests under `tests/` and `e2e/smoke.spec.ts` | Implemented and automatically covered |
@@ -87,7 +87,9 @@ blocking:
    review;
 3. a low-limit, revocable real DeepSeek canary with model, usage, pricing,
    billing and CORS reconciliation;
-4. Vercel report-only CSP observation followed by a separate enforced preview;
+4. actual Vercel report-only response-header and deployed-browser observation
+   (the target-bound automated CI/deployment-config precheck is retained but
+   does not pass Stage A), followed by a separate enforced preview;
 5. GitHub proof that required checks are protected plus three unique first-run
    successes on one frozen candidate/workflow;
 6. an ordinary-PR rollback target and recovery validation;
