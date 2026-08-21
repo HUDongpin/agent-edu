@@ -31,7 +31,7 @@ gates below pass against a frozen candidate; no history rewrite is implied.
 | Roadmap requirement | Repository evidence | Deterministic gate | Current state |
 |---|---|---|---|
 | Recoverable checkpoint; no destructive cleanup | Checkpoint `0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd`; subsequent work isolated on the planned integration branch `codex/release-202608-agent-edu` | `git status`, staged-file review, `npm run secrets:check` | Implemented; checkpoint retained |
-| Node 20 quality and Chromium smoke CI | `.github/workflows/ci.yml`, `package.json`, `playwright.config.ts`, `e2e/smoke.spec.ts`; exact report-only predecessor metadata in `docs/release/evidence/stage-a-automated-precheck-29e1f8b.json`; read-only branch-protection observation in `docs/release/evidence/external-readiness-precheck-20260821.json` | `npm test`, `npm run lint`, `npm run build`, `npm run routes:check`, `npm run test:smoke` | Implemented; report-only predecessor run `32448414858` passed attempt 1. The read-only precheck observed that `main` is unprotected with zero applicable rules, so required-check configuration and three final-candidate runs remain external blockers |
+| Node 20 quality and Chromium smoke CI | `.github/workflows/ci.yml`, `package.json`, `playwright.config.ts`, `e2e/smoke.spec.ts`; exact report-only predecessor metadata in `docs/release/evidence/stage-a-automated-precheck-29e1f8b.json`; read-only branch-protection observation in `docs/release/evidence/external-readiness-precheck-20260821.json`; report-only integration-head repeatability in `docs/release/evidence/report-only-ci-repeatability-precheck-20260821.json` | `npm test`, `npm run lint`, `npm run build`, `npm run routes:check`, `npm run test:smoke` | Implemented; three unique attempt-1 report-only integration-head runs passed all jobs. This is a precheck only: `main` is unprotected with zero applicable rules, and the three formal enforced-final-candidate runs plus required-check configuration remain external blockers |
 | Active source lint is zero-error/zero-warning | ESLint scopes active site and scripts; generated/build/legacy paths stay outside that gate | `npm run lint` | Automatic pass |
 | Part 1/2/3 and Python-legacy truth is consistent | Handbook content, localized site catalogs, `README.md`, `TEACHING.md`, `/[locale]/build/`, `public/teacher-pack.txt` | `npm run handbook:check`, `npm run widgets:check`, route/browser journeys | Implemented; eight native reviews external pending |
 | Learning state v2 separates visit, task completion and score | `lib/progress.ts`; Home, Catalog, Handbook and Lab consumers; migration/reset tests | Progress and integration tests under `tests/` and `e2e/smoke.spec.ts` | Implemented and automatically covered |
@@ -91,11 +91,13 @@ blocking:
    review;
 3. a low-limit, revocable real DeepSeek canary with model, usage, pricing,
    billing and CORS reconciliation;
-4. actual Vercel report-only response-header and deployed-browser observation
-   (the target-bound automated CI/deployment-config precheck is retained but
-   does not pass Stage A), followed by a separate enforced preview;
+4. completion of the Vercel report-only stage: the actual response header,
+   nine-locale journey, Arabic mechanical matrix, and same-origin
+   pageview-only Analytics boundary are observed, but the real Provider path
+   remains pending before Stage A can pass; a separate enforced preview follows;
 5. GitHub proof that required checks are protected plus three unique first-run
-   successes on one frozen candidate/workflow;
+   successes on the enforced final candidate/workflow; three report-only-head
+   successes are retained only as a repeatability precheck;
 6. an ordinary-PR rollback target and recovery validation;
 7. physical low-end/real-network and field Core Web Vitals evidence;
 8. the six-learner/three-teacher pilot.

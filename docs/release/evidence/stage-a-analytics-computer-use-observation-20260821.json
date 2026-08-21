@@ -1,0 +1,101 @@
+{
+  "schema": "agent-edu.stage-a-analytics-computer-use-observation.v1",
+  "status": "same-origin-pageview-only-observed-provider-path-pending",
+  "observedAtUtc": "2026-08-21T17:42:28Z",
+  "target": {
+    "candidateCommitSha": "29e1f8b8405068875b1ba94a92b516930bc0d6b0",
+    "checkpointSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+    "integrationBranch": "codex/release-202608-agent-edu",
+    "vercelDeploymentId": "dpl_7BA4NvQEMZV4x5HajDqdhCGn3o9y",
+    "workflowDefinitionSha": "141c3f366ba118ed69fbaf4777a2bcd33376f12f"
+  },
+  "observation": {
+    "tool": "Chrome DevTools through Computer Use",
+    "browser": "Google Chrome",
+    "authenticatedByExistingVercelSession": true,
+    "cacheDisabledDuringFreshObservation": true,
+    "cacheSettingRestored": true,
+    "temporarilyDisabledExtensionCount": 10,
+    "extensionStatesRestored": true,
+    "adblockPerSiteStateRestored": true,
+    "devtoolsClosedAfterObservation": true,
+    "browserReturnedToEnglishPreview": true
+  },
+  "home": {
+    "route": "/en/",
+    "resourceCount": 2,
+    "resources": [
+      {
+        "originRelation": "same-origin",
+        "path": "/7b56ad18206234de/script.js",
+        "initiatorType": "script",
+        "transferSize": 1600,
+        "decodedBodySize": 2495
+      },
+      {
+        "originRelation": "same-origin",
+        "path": "/7b56ad18206234de/view",
+        "initiatorType": "fetch",
+        "transferSize": 302,
+        "decodedBodySize": 2
+      }
+    ],
+    "queuedEventTypes": [
+      "pageview"
+    ]
+  },
+  "lab": {
+    "route": "/en/lab/",
+    "emptyKeyStateObserved": true,
+    "saveAndTestDisabled": true,
+    "paidProviderRequestTriggered": false,
+    "safeInteractions": [
+      "api-key-disclosure-toggle",
+      "step-2-select",
+      "step-4-restore"
+    ],
+    "resourceCount": 2,
+    "resources": [
+      {
+        "originRelation": "same-origin",
+        "path": "/7b56ad18206234de/script.js",
+        "initiatorType": "script",
+        "transferSize": 1600,
+        "decodedBodySize": 2495
+      },
+      {
+        "originRelation": "same-origin",
+        "path": "/7b56ad18206234de/view",
+        "initiatorType": "fetch",
+        "transferSize": 302,
+        "decodedBodySize": 2
+      }
+    ],
+    "queuedEventTypes": [
+      "pageview"
+    ],
+    "customAnalyticsRequestCount": 0,
+    "providerRequestCount": 0
+  },
+  "boundary": {
+    "analyticsScriptAndViewSameOrigin": true,
+    "pageviewOnly": true,
+    "labCustomEventObserved": false,
+    "requestPayloadInspected": false,
+    "providerPathObserved": false,
+    "stageAStatusChanged": false,
+    "stageBAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsReplies": false,
+    "containsProviderBodies": false,
+    "containsAnalyticsPayloads": false,
+    "containsScreenshotsOrTraces": false
+  },
+  "decision": "The frozen report-only Preview loaded the Vercel Analytics SDK and one view request from the same origin on Home and Lab. The SDK queue contained only pageview, and safe no-key Lab interactions produced no custom event request. This closes the deployed Analytics-path observation only; Stage A remains pending because the low-limit real Provider path has not been observed."
+}

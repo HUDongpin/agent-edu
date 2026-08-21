@@ -1,6 +1,6 @@
 {
   "schema": "agent-edu.stage-a-browser-header-observation.v1",
-  "status": "actual-header-nine-locale-and-arabic-mechanical-matrix-passed-provider-and-analytics-pending",
+  "status": "actual-header-nine-locale-arabic-and-analytics-observed-provider-pending",
   "observedAt": "2026-08-21T15:37:24Z",
   "target": {
     "candidateCommitSha": "29e1f8b8405068875b1ba94a92b516930bc0d6b0",
@@ -173,7 +173,8 @@
     "arabicHumanReviewSigned": false,
     "arabicMatrixEvidenceRef": "docs/release/evidence/arabic-rtl-computer-use-precheck-20260821.json",
     "providerPathObserved": false,
-    "analyticsBoundaryObserved": false,
+    "analyticsBoundaryObserved": true,
+    "analyticsEvidenceRef": "docs/release/evidence/stage-a-analytics-computer-use-observation-20260821.json",
     "allViolationsClassified": true,
     "stageAStatusChanged": false,
     "releaseAuthorized": false
@@ -187,5 +188,5 @@
     "containsProviderBodies": false,
     "containsFullDataFontPayload": false
   },
-  "decision": "The exact frozen Preview returned the expected report-only CSP on a fresh 200 response; all nine locales loaded the critical route path; and all eight Arabic width and theme cases passed the mechanical browser precheck. The prior data-font report did not reproduce with extensions disabled and is classified as extension-induced. Stage A remains pending because the Provider and Analytics paths are not yet observed, while the separate Arabic release gate still requires signed human review."
+  "decision": "The exact frozen Preview returned the expected report-only CSP on a fresh 200 response; all nine locales loaded the critical route path; all eight Arabic width and theme cases passed the mechanical browser precheck; and the deployed Analytics boundary produced only same-origin pageview traffic with no Lab custom event. The prior data-font report did not reproduce with extensions disabled and is classified as extension-induced. Stage A remains pending because the low-limit real Provider path is not yet observed, while the separate Arabic release gate still requires signed human review."
 }

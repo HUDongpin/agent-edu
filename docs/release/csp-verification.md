@@ -67,10 +67,17 @@ A later partial browser observation is retained at
 `docs/release/evidence/stage-a-browser-header-observation-20260821.json`. Chrome
 received a fresh 200 response from the exact immutable deployment with the
 reviewed `Content-Security-Policy-Report-Only` value and supporting security
-headers. It does not pass Stage A: the Provider and Analytics paths are not yet
-recorded. English and Arabic completed the visible Home → Handbook → Control
-Room → Lab → Build path, then the same deployed route/role matrix passed for
-all nine locales (45/45 cases). Computer Use subsequently covered the Arabic
+headers. A separate privacy-safe Computer Use record at
+`docs/release/evidence/stage-a-analytics-computer-use-observation-20260821.json`
+observed the deployed Analytics script and view request as same-origin traffic
+on Home and Lab. Its SDK queue contained only `pageview`; safe no-key Lab
+interactions produced no custom event or Provider request, and the request
+payload was not inspected. It does not pass Stage A: the low-limit real
+Provider path has not yet been observed.
+
+English and Arabic completed the visible Home → Handbook → Control Room → Lab
+→ Build path, then the same deployed route/role matrix passed for all nine
+locales (45/45 cases). Computer Use subsequently covered the Arabic
 390/979/980/1440 × light/dark mechanical matrix (8/8), including exact
 orientation, roving focus, keyboard movement, active-tab visibility, and page
 overflow assertions. The earlier data-font report did not reproduce on either
@@ -79,18 +86,20 @@ were temporarily disabled; all extension states were restored. The Arabic
 release gate remains pending because this mechanical evidence cannot replace a
 signed native-language, bidi, and assistive-technology review.
 
-- [ ] `config/csp-stage.json` says `report-only` and `npm run csp:check` passes.
-- [ ] Vercel response contains `content-security-policy-report-only`.
-- [ ] The value matches the reviewed baseline; no unexpected egress origin appears.
-- [ ] Home → Handbook → Control Room → Lab → TypeScript handoff works in nine locales.
-- [ ] DeepSeek access, static assets, fonts, data images, and disclosed Analytics are
-      observed; every violation is classified rather than silently ignored.
-- [ ] No Lab custom Analytics event exists.
-- [ ] Observation covers 390px/1440px, light/dark, and the Arabic RTL journey.
-- [ ] A sanitized violation summary and deployment ID are retained.
+- [x] `config/csp-stage.json` says `report-only` and `npm run csp:check` passes.
+- [x] Vercel response contains `content-security-policy-report-only`.
+- [x] The value matches the reviewed baseline; no unexpected egress origin appears.
+- [x] Home → Handbook → Control Room → Lab → TypeScript handoff works in nine locales.
+- [x] Static assets, fonts, data images, and disclosed Analytics are observed;
+      every observed violation is classified rather than silently ignored.
+- [ ] Low-limit real DeepSeek access is observed without retaining secrets or bodies.
+- [x] No Lab custom Analytics event exists.
+- [x] Observation covers 390px/1440px, light/dark, and the Arabic RTL journey.
+- [x] Sanitized observations and the immutable deployment ID are retained.
 
-- Report-only result: pass / fail
-- Checked at (UTC):
+- Report-only result: pending — real Provider path not yet observed
+- Latest partial observation at (UTC): 2026-08-21T17:42:28Z
+- Checked at (UTC): pending until the Provider observation completes Stage A
 - Observation window:
 - Candidate commit SHA:
 - Checkpoint SHA:

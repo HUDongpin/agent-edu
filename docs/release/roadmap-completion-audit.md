@@ -72,10 +72,20 @@ pending. Computer Use also observed all nine locales on the deployed Home →
 Handbook → Control Room → Lab → Build path (45/45 route/role cases), then all
 eight Arabic 390/979/980/1440 × light/dark mechanical cases. The prior
 data-font report did not reproduce after all enabled extensions were
-temporarily disabled, and every extension state was restored. Provider and
-Analytics paths remain unobserved. The mechanical Arabic precheck does not
-replace the eight pending Arabic matrix records or the Arabic native-review
+temporarily disabled, and every extension state was restored. A separate
+Computer Use observation found only same-origin Vercel Analytics script/view
+traffic and an SDK queue containing `pageview` on Home and Lab; safe no-key Lab
+interactions emitted no custom event, and no Analytics payload was inspected.
+The real Provider path remains unobserved. The mechanical Arabic precheck does
+not replace the eight pending Arabic matrix records or the Arabic native-review
 signature in the release schema.
+
+Three unique attempt-1 GitHub workflows also completed green on the same
+report-only integration head and workflow definition. They are retained as a
+repeatability precheck, not inserted into the formal stable-run records:
+`main` remains unprotected, Stage A has not passed, and an enforced-CSP final
+candidate does not exist. Consequently all 33 formal external P0 records above
+remain pending.
 
 ## Later field evidence is not hidden inside the P0 count
 

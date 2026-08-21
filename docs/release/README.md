@@ -139,9 +139,16 @@ headers. A green run cannot prove that GitHub made the jobs required.
 - `evidence/stage-a-browser-header-observation-20260821.json` — privacy-safe
   Computer Use observation of the frozen Preview's actual 200 response headers;
   deliberately not a Stage A pass.
+- `evidence/stage-a-analytics-computer-use-observation-20260821.json` —
+  privacy-safe Computer Use observation of same-origin Analytics script/view
+  traffic and pageview-only behavior on Home and Lab; the Provider path remains
+  pending and no payload was inspected.
 - `evidence/arabic-rtl-computer-use-precheck-20260821.json` — 8/8 mechanical
   width, theme, orientation, keyboard, visibility, and overflow prechecks;
   deliberately not a native-Arabic review signature.
+- `evidence/report-only-ci-repeatability-precheck-20260821.json` — three unique
+  green attempt-1 runs on one report-only integration head; retained as a
+  precheck, not the formal enforced-final-candidate stability gate.
 - `performance-verification.md` — static budgets, three-engine compatibility,
   emulated resilience, physical-device, and field-CWV evidence boundaries.
 - `handbook-profiling-gate.md` — before/after evidence and rollback required

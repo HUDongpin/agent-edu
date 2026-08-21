@@ -132,7 +132,7 @@ test("the Computer Use header observation proves the deployed report-only header
   assert.equal(evidence.schema, "agent-edu.stage-a-browser-header-observation.v1");
   assert.equal(
     evidence.status,
-    "actual-header-nine-locale-and-arabic-mechanical-matrix-passed-provider-and-analytics-pending",
+    "actual-header-nine-locale-arabic-and-analytics-observed-provider-pending",
   );
   assert.deepEqual(evidence.target, readiness.gates.vercelPreviewCsp.reportOnlyTarget);
   assert.equal(evidence.observation.tool, "Chrome DevTools through Computer Use");
@@ -202,6 +202,12 @@ test("the Computer Use header observation proves the deployed report-only header
   assert.equal(evidence.stageAChecklistEffect.widthThemeArabicMatrixObserved, true);
   assert.equal(evidence.stageAChecklistEffect.arabicMechanicalCasesPassed, 8);
   assert.equal(evidence.stageAChecklistEffect.arabicHumanReviewSigned, false);
+  assert.equal(evidence.stageAChecklistEffect.providerPathObserved, false);
+  assert.equal(evidence.stageAChecklistEffect.analyticsBoundaryObserved, true);
+  assert.equal(
+    evidence.stageAChecklistEffect.analyticsEvidenceRef,
+    "docs/release/evidence/stage-a-analytics-computer-use-observation-20260821.json",
+  );
   assert.equal(evidence.stageAChecklistEffect.allViolationsClassified, true);
   assert.equal(evidence.stageAChecklistEffect.stageAStatusChanged, false);
   assert.equal(evidence.stageAChecklistEffect.releaseAuthorized, false);
@@ -211,6 +217,132 @@ test("the Computer Use header observation proves the deployed report-only header
   assert.deepEqual(findSensitiveEvidence(evidence), []);
   assert.match(evidence.decision, /all nine locales loaded/i);
   assert.match(evidence.decision, /Stage A remains pending/i);
+});
+
+test("the Computer Use Analytics observation proves a same-origin pageview-only boundary without passing Stage A", () => {
+  const evidencePath = "docs/release/evidence/stage-a-analytics-computer-use-observation-20260821.json";
+  const evidenceText = readFileSync(evidencePath, "utf8");
+  const evidence = JSON.parse(evidenceText);
+  const readiness = readJson("config/release-readiness.json") as Readiness;
+
+  assert.equal(evidence.schema, "agent-edu.stage-a-analytics-computer-use-observation.v1");
+  assert.equal(evidence.status, "same-origin-pageview-only-observed-provider-path-pending");
+  assert.deepEqual(evidence.target, readiness.gates.vercelPreviewCsp.reportOnlyTarget);
+  assert.equal(evidence.observation.tool, "Chrome DevTools through Computer Use");
+  assert.equal(evidence.observation.cacheDisabledDuringFreshObservation, true);
+  assert.equal(evidence.observation.cacheSettingRestored, true);
+  assert.equal(evidence.observation.temporarilyDisabledExtensionCount, 10);
+  assert.equal(evidence.observation.extensionStatesRestored, true);
+  assert.equal(evidence.observation.adblockPerSiteStateRestored, true);
+  assert.equal(evidence.observation.devtoolsClosedAfterObservation, true);
+  assert.equal(evidence.observation.browserReturnedToEnglishPreview, true);
+  assert.equal(evidence.home.resourceCount, 2);
+  assert.equal(evidence.lab.resourceCount, 2);
+  assert.deepEqual(evidence.home.resources.map((item: { path: string }) => item.path), [
+    "/7b56ad18206234de/script.js",
+    "/7b56ad18206234de/view",
+  ]);
+  assert.deepEqual(evidence.lab.resources.map((item: { path: string }) => item.path), [
+    "/7b56ad18206234de/script.js",
+    "/7b56ad18206234de/view",
+  ]);
+  assert.equal(
+    [...evidence.home.resources, ...evidence.lab.resources].every(
+      (item: { originRelation: string }) => item.originRelation === "same-origin",
+    ),
+    true,
+  );
+  assert.deepEqual(evidence.home.queuedEventTypes, ["pageview"]);
+  assert.deepEqual(evidence.lab.queuedEventTypes, ["pageview"]);
+  assert.equal(evidence.lab.emptyKeyStateObserved, true);
+  assert.equal(evidence.lab.saveAndTestDisabled, true);
+  assert.equal(evidence.lab.customAnalyticsRequestCount, 0);
+  assert.equal(evidence.lab.providerRequestCount, 0);
+  assert.equal(evidence.lab.paidProviderRequestTriggered, false);
+  assert.deepEqual(evidence.boundary, {
+    analyticsScriptAndViewSameOrigin: true,
+    pageviewOnly: true,
+    labCustomEventObserved: false,
+    requestPayloadInspected: false,
+    providerPathObserved: false,
+    stageAStatusChanged: false,
+    stageBAuthorized: false,
+    releaseAuthorized: false,
+  });
+  assert.equal(readiness.gates.vercelPreviewCsp.status, "pending");
+  assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
+  assert.match(evidence.decision, /closes the deployed Analytics-path observation only/i);
+  assert.match(evidence.decision, /Stage A remains pending/i);
+});
+
+test("three report-only CI runs are repeatability evidence, not formal final-candidate stability", () => {
+  const evidencePath = "docs/release/evidence/report-only-ci-repeatability-precheck-20260821.json";
+  const evidenceText = readFileSync(evidencePath, "utf8");
+  const evidence = JSON.parse(evidenceText);
+  const readiness = readJson("config/release-readiness.json") as Readiness;
+
+  assert.equal(evidence.schema, "agent-edu.report-only-ci-repeatability-precheck.v1");
+  assert.equal(
+    evidence.status,
+    "three-unique-first-attempt-green-runs-on-report-only-head-final-candidate-stability-pending",
+  );
+  assert.deepEqual(evidence.target, {
+    reportOnlyIntegrationHeadSha: "0b143664784cf8c48dabdabacf86ed722c21b84c",
+    integrationBranch: "codex/release-202608-agent-edu",
+    workflowDefinitionSha: "141c3f366ba118ed69fbaf4777a2bcd33376f12f",
+    vercelDeploymentId: "dpl_FTxZpDRgZQJZX5t89CcJdE7CAUf9",
+    vercelReadyState: "READY",
+    vercelTarget: "preview",
+    cspStage: "report-only",
+  });
+  assert.deepEqual(evidence.runs.map((run: { runId: string }) => run.runId), [
+    "32505449571",
+    "32506361214",
+    "32506674465",
+  ]);
+  assert.deepEqual(evidence.runs.map((run: { sequence: number }) => run.sequence), [1, 2, 3]);
+  assert.equal(new Set(evidence.runs.map((run: { runId: string }) => run.runId)).size, 3);
+  assert.equal(evidence.runs.every(
+    (run: { runAttempt: number; headSha: string; headBranch: string; conclusion: string; jobs: Record<string, string> }) =>
+      run.runAttempt === 1
+      && run.headSha === evidence.target.reportOnlyIntegrationHeadSha
+      && run.headBranch === evidence.target.integrationBranch
+      && run.conclusion === "success"
+      && Object.values(run.jobs).every((conclusion) => conclusion === "success"),
+  ), true);
+  assert.equal(evidence.runs.every(
+    (run: { createdAtUtc: string; completedAtUtc: string }) =>
+      Date.parse(run.createdAtUtc) < Date.parse(run.completedAtUtc),
+  ), true);
+  assert.equal(evidence.runs.slice(1).every(
+    (run: { completedAtUtc: string }, index: number) =>
+      Date.parse(evidence.runs[index].completedAtUtc) < Date.parse(run.completedAtUtc),
+  ), true);
+  assert.equal(Object.values(evidence.summary).every(
+    (value) => value === true || value === false,
+  ), true);
+  assert.equal(evidence.summary.failureRerunUsed, false);
+  assert.equal(evidence.summary.releaseReadinessMutated, false);
+  assert.deepEqual(evidence.formalGateBoundary, {
+    mainRequiredChecksConfigured: false,
+    enforcedCspFinalCandidateExists: false,
+    countsAsFinalCandidateStableRuns: false,
+    countsAsRequiredCheckProtection: false,
+    stageBStarted: false,
+    releaseAuthorized: false,
+  });
+  assert.equal(readiness.gates.githubReadiness.status, "pending");
+  assert.equal(readiness.gates.githubReadiness.stableRuns.every(
+    (run) => (run as { runId: null; result: { status: string } }).runId === null
+      && (run as { result: { status: string } }).result.status === "pending",
+  ), true);
+  assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
+  assert.match(evidence.decision, /do not populate the formal stableRuns gate/i);
+  assert.match(evidence.decision, /enforced-CSP final candidate does not yet exist/i);
 });
 
 test("the Arabic Computer Use matrix is an eight-case mechanical precheck, never a human signature", () => {
