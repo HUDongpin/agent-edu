@@ -1,0 +1,85 @@
+{
+  "schema": "agent-edu.provider-pricing-precheck.v1",
+  "status": "official-public-pricing-match-live-reconciliation-pending",
+  "retrievedAtUtc": "2026-08-21T15:02:35Z",
+  "source": {
+    "publisher": "DeepSeek",
+    "title": "Models & Pricing",
+    "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+    "currency": "USD",
+    "unitTokens": 1000000,
+    "peakUtc": [
+      {
+        "startHour": 1,
+        "endHour": 4
+      },
+      {
+        "startHour": 6,
+        "endHour": 10
+      }
+    ]
+  },
+  "models": {
+    "deepseek-v4-flash": {
+      "modelVersion": "DeepSeek-V4-Flash-0731",
+      "offPeak": {
+        "cacheHitInput": 0.007,
+        "cacheMissInput": 0.22,
+        "output": 0.66
+      },
+      "peak": {
+        "cacheHitInput": 0.014,
+        "cacheMissInput": 0.44,
+        "output": 1.32
+      }
+    },
+    "deepseek-v4-pro": {
+      "modelVersion": "DeepSeek-V4-Pro-0813",
+      "offPeak": {
+        "cacheHitInput": 0.022,
+        "cacheMissInput": 0.66,
+        "output": 1.98
+      },
+      "peak": {
+        "cacheHitInput": 0.044,
+        "cacheMissInput": 1.32,
+        "output": 3.96
+      }
+    }
+  },
+  "repositoryComparison": {
+    "snapshotFile": "lib/byok/pricing.ts",
+    "snapshotCheckedAt": "2026-08-21",
+    "sourceUrlMatches": true,
+    "currencyAndUnitMatch": true,
+    "peakWindowsMatch": true,
+    "flashRatesMatch": true,
+    "proRatesMatch": true,
+    "allComparedFieldsMatch": true
+  },
+  "gateEffect": {
+    "providerPricingReconciliationStatus": "pending",
+    "statusChanged": false,
+    "releaseAuthorized": false
+  },
+  "externalBoundaries": {
+    "realProviderCallPerformed": false,
+    "requestedModelIdObserved": false,
+    "returnedModelIdObserved": false,
+    "usageObserved": false,
+    "billingConsoleObserved": false,
+    "previewCorsObserved": false,
+    "credentialLifecycleObserved": false
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsModelReplies": false,
+    "containsProviderBodies": false,
+    "containsBillingAccountDetails": false,
+    "containsScreenshotsOrTraces": false
+  },
+  "decision": "The official public page matched every Flash/Pro rate, peak window, currency and unit in the dated repository snapshot. This precheck does not pass the release reconciliation because requested/returned model IDs, aggregate usage, Provider billing, preview-origin CORS and credential revocation still require the bounded real canary."
+}

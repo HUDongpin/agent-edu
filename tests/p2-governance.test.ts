@@ -6,6 +6,7 @@ import {
   findSensitiveEvidenceText,
 } from "../scripts/check-release-readiness.mjs";
 import { assertLabVitalsReport } from "../scripts/measure-lab-vitals.mjs";
+import { DEEPSEEK_PRICING } from "../lib/byok/pricing";
 
 const ARCHIVED_EVIDENCE_SHA = "a586b44a6b58bf209864d2cd9529bb9adff12012";
 const REPORT_ONLY_PREDECESSOR_SHA = "29e1f8b8405068875b1ba94a92b516930bc0d6b0";
@@ -227,4 +228,38 @@ test("the external readiness precheck records blockers without mutating GitHub, 
   assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
   assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
   assert.deepEqual(findSensitiveEvidence(evidence), []);
+});
+
+test("the official Provider pricing precheck matches the dated snapshot without claiming a real canary", () => {
+  const evidenceText = readFileSync(
+    "docs/release/evidence/provider-pricing-precheck-20260821.json",
+    "utf8",
+  );
+  const evidence = JSON.parse(evidenceText);
+
+  assert.equal(evidence.schema, "agent-edu.provider-pricing-precheck.v1");
+  assert.equal(
+    evidence.status,
+    "official-public-pricing-match-live-reconciliation-pending",
+  );
+  assert.equal(evidence.source.url, DEEPSEEK_PRICING.sourceUrl);
+  assert.equal(evidence.source.currency, DEEPSEEK_PRICING.currency);
+  assert.equal(evidence.source.unitTokens, DEEPSEEK_PRICING.unitTokens);
+  assert.deepEqual(evidence.source.peakUtc, DEEPSEEK_PRICING.peakUtc);
+  assert.deepEqual(evidence.models["deepseek-v4-flash"].offPeak, DEEPSEEK_PRICING.models["deepseek-v4-flash"].offPeak);
+  assert.deepEqual(evidence.models["deepseek-v4-flash"].peak, DEEPSEEK_PRICING.models["deepseek-v4-flash"].peak);
+  assert.deepEqual(evidence.models["deepseek-v4-pro"].offPeak, DEEPSEEK_PRICING.models["deepseek-v4-pro"].offPeak);
+  assert.deepEqual(evidence.models["deepseek-v4-pro"].peak, DEEPSEEK_PRICING.models["deepseek-v4-pro"].peak);
+  assert.equal(evidence.repositoryComparison.snapshotCheckedAt, DEEPSEEK_PRICING.checkedAt);
+  assert.equal(Object.values(evidence.repositoryComparison).filter((value) => typeof value === "boolean").every((value) => value === true), true);
+  assert.deepEqual(evidence.gateEffect, {
+    providerPricingReconciliationStatus: "pending",
+    statusChanged: false,
+    releaseAuthorized: false,
+  });
+  assert.equal(Object.values(evidence.externalBoundaries).every((value) => value === false), true);
+  assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
+  assert.match(evidence.decision, /does not pass the release reconciliation/i);
 });
