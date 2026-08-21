@@ -32,11 +32,13 @@ const PASS_AT = "2026-08-21T10:00:00.000Z";
 const REPORT_ONLY_PASS_AT = "2026-08-21T09:00:00.000Z";
 const CANDIDATE_SHA = "2cdf1d6894b2f8293631742229fdd52cfa744d4d";
 const REPORT_ONLY_SHA = "1111111111111111111111111111111111111111";
+const PRODUCTION_REPORT_ONLY_SHA = "29e1f8b8405068875b1ba94a92b516930bc0d6b0";
 const CHECKPOINT_SHA = "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd";
 const WORKFLOW_SHA = "141c3f366ba118ed69fbaf4777a2bcd33376f12f";
 const INTEGRATION_BRANCH = "codex/release-202608-agent-edu";
 const DEPLOYMENT_ID = "dpl_releaseFixture20260821";
 const REPORT_ONLY_DEPLOYMENT_ID = "dpl_reportOnlyFixture20260821";
+const PRODUCTION_REPORT_ONLY_DEPLOYMENT_ID = "dpl_7BA4NvQEMZV4x5HajDqdhCGn3o9y";
 const productionConfig = JSON.parse(
   readFileSync("config/release-readiness.json", "utf8"),
 ) as LooseConfig;
@@ -204,7 +206,13 @@ test("the committed release config is schema-valid and honestly pending", () => 
   assert.equal(productionConfig.releaseTarget.checkpointSha, CHECKPOINT_SHA);
   assert.equal(productionConfig.releaseTarget.workflowDefinitionSha, WORKFLOW_SHA);
   assert.equal(productionConfig.releaseTarget.vercelDeploymentId, null);
-  assert.deepEqual(Object.values(productionConfig.gates.vercelPreviewCsp.reportOnlyTarget), [null, null, null, null, null]);
+  assert.deepEqual(productionConfig.gates.vercelPreviewCsp.reportOnlyTarget, {
+    candidateCommitSha: PRODUCTION_REPORT_ONLY_SHA,
+    checkpointSha: CHECKPOINT_SHA,
+    integrationBranch: INTEGRATION_BRANCH,
+    vercelDeploymentId: PRODUCTION_REPORT_ONLY_DEPLOYMENT_ID,
+    workflowDefinitionSha: WORKFLOW_SHA,
+  });
   assert.deepEqual(productionConfig.gates.vercelPreviewCsp.stages.reportOnly.evidenceRefs, []);
   assert.deepEqual(productionConfig.gates.vercelPreviewCsp.stages.enforced.evidenceRefs, []);
   assert.deepEqual(validateReleaseReadiness(productionConfig), []);
