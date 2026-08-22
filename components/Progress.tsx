@@ -1,9 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+import {
+  readLearningState,
+  readLearningStateOnServer,
+  resetLearningState,
+  selectHandbookProgress,
+  selectLabProgress,
+  subscribeLearningState,
+} from "@/lib/progress";
 import { useI18n } from "./I18nProvider";
-
-const PROG = "ae.progress";
 
 type Item = { label: string; done: boolean; note: string };
 
@@ -14,51 +20,39 @@ type Item = { label: string; done: boolean; note: string };
  */
 export default function Progress({ locale }: { locale: string }) {
   const { t } = useI18n();
-  const [items, setItems] = useState<Item[] | null>(null);
+  const state = useSyncExternalStore(
+    subscribeLearningState,
+    readLearningState,
+    readLearningStateOnServer,
+  );
+  const handbook = selectHandbookProgress(state);
+  const lab = selectLabProgress(state);
+  const items: Item[] = [
+    {
+      label: t("track.1.title"),
+      done: handbook.completed,
+      note: `${handbook.exploredSections} ${t("ui.of")} ${handbook.totalSections}`,
+    },
+    {
+      label: t("track.2.title"),
+      done: lab.completed,
+      note: `${lab.completedCount} ${t("ui.of")} ${lab.totalSteps}`,
+    },
+  ];
+  const started = handbook.status !== "not-started" || lab.status !== "not-started";
 
-  const read = useCallback((): Item[] => {
-    let p: Record<string, unknown> = {};
-    let seen = 0;
-    try {
-      p = JSON.parse(localStorage.getItem(PROG) || "{}");
-      seen = (localStorage.getItem("tch.seen") || "").split(",").filter(Boolean).length;
-    } catch {
-      /* private browsing: show the empty state */
-    }
-    return [
-      { label: t("track.1.title"), done: seen >= 6, note: seen ? `${seen}/11` : "" },
-      { label: t("home.learn1"),   done: !!p.play0, note: "" },
-      { label: t("home.learn2"),   done: !!p.evalBest, note: p.evalBest ? `${p.evalBest}/20` : "" },
-      { label: t("track.3.title"), done: !!p.part2, note: "" },
-    ];
-  }, [t]);
-
-  useEffect(() => {
-    const paint = () => setItems(read());
-    paint();
-    window.addEventListener("focus", paint);
-    return () => window.removeEventListener("focus", paint);
-  }, [read, locale]);
-
-  if (!items) return <div className="progwrap"><div className="muted">{t("home.progNone")}</div></div>;
+  if (!started) return <div className="progwrap"><div className="muted">{t("home.progNone")}</div></div>;
 
   const done = items.filter((i) => i.done).length;
-  if (!done) return <div className="progwrap"><div className="muted">{t("home.progNone")}</div></div>;
 
   return (
-    <div className="progwrap">
+    <div className="progwrap" data-locale={locale}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
         <strong>{done} {t("ui.of")} {items.length}</strong>
         <button
           className="iconbtn"
           type="button"
-          onClick={() => {
-            try {
-              localStorage.removeItem(PROG);
-              localStorage.removeItem("tch.seen");
-            } catch { /* private browsing */ }
-            setItems(read());
-          }}
+          onClick={() => resetLearningState("all")}
         >
           {t("home.progReset")}
         </button>

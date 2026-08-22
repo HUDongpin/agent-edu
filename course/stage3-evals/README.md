@@ -18,13 +18,13 @@ You just scored your stage-2 prompt out of 20. **Write the number down.** Every 
 
 It will not be 20. Read the failures — most of them are prices, because the model has never seen your menu. You are about to fix that in stage 4 and watch the number move.
 
-## Why this replaces unit testing
+## Why this complements unit testing
 
-In stage 1 you could write `assert take_order("tea")["price"] == 2.80` and it held forever. From stage 2 on, that assertion is a coin flip, because the same input can give different output.
+In stage 1 you could write `assert.equal(handleOrder("tea")?.price, 2.80)` and it held forever. From stage 2 on, an exact assertion against the generated reply is a coin flip, because the same input can give different wording.
 
-So you stop asserting one answer and start measuring a rate over many cases. `cafe/evalset.ts` has twenty; look at it. Twelve are checked by a plain Python function — exact, free, instant. Only eight need a second model call to judge, because "did it handle the vague order sensibly?" has no `==` you can write.
+Keep unit tests for deterministic parsers, schemas, tools and safety gates. For the variable model output, stop asserting one exact answer and start measuring a rate over many cases. `cafe/evalset.ts` has twenty; look at it. Twelve are checked by a plain TypeScript function — exact, free, instant. Only eight need a second model call to judge, because "did it handle the vague order sensibly?" has no `===` you can write.
 
-**Prefer the rule-checked kind.** They cost nothing and never disagree with themselves. A judge is a model, with all the same problems — a vague standard makes it a coin flip too. Read the standards in `evalset.py`: each one is specific enough that a stranger could apply it.
+**Prefer the rule-checked kind.** They cost nothing and never disagree with themselves. A judge is a model, with all the same problems — a vague standard makes it a coin flip too. Read the standards in `cafe/evalset.ts`: each one is specific enough that a stranger could apply it.
 
 ## The trap
 

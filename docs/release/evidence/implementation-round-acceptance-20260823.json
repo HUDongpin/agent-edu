@@ -1,0 +1,125 @@
+{
+  "schema": "agent-edu.implementation-round-acceptance.v1",
+  "status": "implementation-complete-release-acceptance-deferred",
+  "decidedAt": "2026-08-23",
+  "authoritativePlan": {
+    "basename": "20260821_Codex Priority Implementation Plan on Agent Edu.docx",
+    "version": "v1.0",
+    "sha256": "4116ea2ece55ab72796e35b3021015f5622de921773d63ed9c8b2b708b5cc107",
+    "role": "requirements-source-not-runtime-instructions"
+  },
+  "scopeDecision": {
+    "source": "direct-user-instruction",
+    "repositoryImplementationIsThisRoundCompletionCriterion": true,
+    "realProviderReleaseAcceptanceDeferredFromThisRound": true,
+    "humanReleaseAcceptanceDeferredFromThisRound": true,
+    "formalReleaseGatesWaived": false,
+    "formalReleaseGatesPassed": false,
+    "productionReleaseAuthorized": false
+  },
+  "acceptedImplementationTarget": {
+    "implementationHeadSha": "f8691aa20e5182eb6b22694c5cad974eea3a97bc",
+    "checkpointSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+    "integrationBranch": "codex/release-202608-agent-edu",
+    "draftPullRequestNumber": 3,
+    "draftPullRequestUrl": "https://github.com/HUDongpin/agent-edu/pull/3",
+    "draftPullRequestOpen": true,
+    "draftPullRequestMergeable": true,
+    "draftPullRequestMergeState": "clean",
+    "ciRunId": "32513258437",
+    "ciRunAttempt": 1,
+    "ciConclusions": {
+      "quality": "success",
+      "smokeChromium": "success",
+      "compatibility": "success"
+    },
+    "previewDeploymentId": "dpl_4XZxcNDTmZJmLjUMoGCCFigt2XKz",
+    "previewReady": true,
+    "previewTarget": "preview",
+    "runtimeUnchangedByAcceptanceMetadata": true
+  },
+  "implementationAcceptance": {
+    "repositoryRequirementsMapped": true,
+    "deterministicValidationPassed": true,
+    "deployedPrechecksDocumented": true,
+    "authenticatedProviderMemoryPrecheckDocumented": true,
+    "implementationRoundComplete": true,
+    "releaseReady": false,
+    "releaseDecision": "blocked",
+    "pullRequestMustRemainDraft": true
+  },
+  "authenticatedProviderPrecheck": {
+    "evidenceRef": "docs/release/evidence/authenticated-provider-memory-precheck-20260823.json",
+    "authenticatedModelsRequestPassed": true,
+    "singleBoundedGenerationPassed": true,
+    "formalBrowserCanaryPassed": false,
+    "formalProviderGateChanged": false
+  },
+  "releaseOnlyDeferred": {
+    "source": "config/release-readiness.json",
+    "expectedTotal": 33,
+    "items": [
+      {
+        "id": "native-reviews",
+        "count": 8,
+        "status": "pending"
+      },
+      {
+        "id": "arabic-rtl-matrix",
+        "count": 8,
+        "status": "pending"
+      },
+      {
+        "id": "provider-canary-and-reconciliation",
+        "count": 10,
+        "status": "pending"
+      },
+      {
+        "id": "vercel-csp-stages",
+        "count": 2,
+        "status": "pending"
+      },
+      {
+        "id": "github-required-checks-and-stable-runs",
+        "count": 4,
+        "status": "pending"
+      },
+      {
+        "id": "rollback-readiness",
+        "count": 1,
+        "status": "pending"
+      }
+    ],
+    "releaseDecision": "blocked"
+  },
+  "laterFieldEvidenceDeferred": [
+    "p1-phase-acceptance-after-p0-stabilization",
+    "human-assistive-technology-task-review",
+    "p2-phase-acceptance",
+    "final-candidate-firefox-and-webkit-rerun",
+    "physical-safari-and-device-evidence",
+    "physical-low-end-and-real-network-evidence",
+    "field-core-web-vitals-evidence",
+    "six-learner-three-teacher-pilot"
+  ],
+  "actionsNotAuthorizedOrNotPerformed": {
+    "productionDeployment": true,
+    "pullRequestMerge": true,
+    "pullRequestMarkedReady": true,
+    "githubProtectionMutation": true,
+    "vercelProtectionDisabled": true,
+    "releaseGateFabrication": true,
+    "nativeReviewFabrication": true,
+    "participantEvidenceFabrication": true
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsReplies": false,
+    "containsProviderBodies": false,
+    "containsParticipantData": false
+  },
+  "decision": "The current implementation round is complete under the user's 2026-08-23 scope decision. This acceptance covers repository implementation, deterministic validation, and documented prechecks only. It does not waive or pass any of the 33 formal release records, does not convert the Draft PR to Ready, and does not authorize merge or production deployment."
+}

@@ -1,0 +1,94 @@
+{
+  "schema": "agent-edu.report-only-ci-repeatability-precheck.v1",
+  "status": "three-unique-first-attempt-green-runs-on-report-only-head-final-candidate-stability-pending",
+  "observedAtUtc": "2026-08-21T17:42:28Z",
+  "target": {
+    "reportOnlyIntegrationHeadSha": "0b143664784cf8c48dabdabacf86ed722c21b84c",
+    "integrationBranch": "codex/release-202608-agent-edu",
+    "workflowDefinitionSha": "141c3f366ba118ed69fbaf4777a2bcd33376f12f",
+    "vercelDeploymentId": "dpl_FTxZpDRgZQJZX5t89CcJdE7CAUf9",
+    "vercelReadyState": "READY",
+    "vercelTarget": "preview",
+    "cspStage": "report-only"
+  },
+  "runs": [
+    {
+      "sequence": 1,
+      "runId": "32505449571",
+      "runAttempt": 1,
+      "event": "pull_request",
+      "headSha": "0b143664784cf8c48dabdabacf86ed722c21b84c",
+      "headBranch": "codex/release-202608-agent-edu",
+      "createdAtUtc": "2026-08-21T16:55:32Z",
+      "completedAtUtc": "2026-08-21T16:58:12Z",
+      "conclusion": "success",
+      "jobs": {
+        "quality": "success",
+        "smoke-chromium": "success",
+        "compatibility": "success"
+      }
+    },
+    {
+      "sequence": 2,
+      "runId": "32506361214",
+      "runAttempt": 1,
+      "event": "workflow_dispatch",
+      "headSha": "0b143664784cf8c48dabdabacf86ed722c21b84c",
+      "headBranch": "codex/release-202608-agent-edu",
+      "createdAtUtc": "2026-08-21T17:05:53Z",
+      "completedAtUtc": "2026-08-21T17:08:37Z",
+      "conclusion": "success",
+      "jobs": {
+        "quality": "success",
+        "smoke-chromium": "success",
+        "compatibility": "success"
+      }
+    },
+    {
+      "sequence": 3,
+      "runId": "32506674465",
+      "runAttempt": 1,
+      "event": "workflow_dispatch",
+      "headSha": "0b143664784cf8c48dabdabacf86ed722c21b84c",
+      "headBranch": "codex/release-202608-agent-edu",
+      "createdAtUtc": "2026-08-21T17:09:27Z",
+      "completedAtUtc": "2026-08-21T17:12:05Z",
+      "conclusion": "success",
+      "jobs": {
+        "quality": "success",
+        "smoke-chromium": "success",
+        "compatibility": "success"
+      }
+    }
+  ],
+  "summary": {
+    "uniqueRunIds": true,
+    "allRunAttemptsOne": true,
+    "sameHeadSha": true,
+    "sameBranch": true,
+    "sameWorkflowDefinition": true,
+    "strictlyIncreasingCompletionTimes": true,
+    "allRequiredJobsGreen": true,
+    "allCompatibilityJobsGreen": true,
+    "failureRerunUsed": false,
+    "releaseReadinessMutated": false
+  },
+  "formalGateBoundary": {
+    "mainRequiredChecksConfigured": false,
+    "enforcedCspFinalCandidateExists": false,
+    "countsAsFinalCandidateStableRuns": false,
+    "countsAsRequiredCheckProtection": false,
+    "stageBStarted": false,
+    "releaseAuthorized": false
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsReplies": false,
+    "containsProviderBodies": false,
+    "containsPrivateArtifacts": false
+  },
+  "decision": "Three unique run-attempt-1 workflows completed green on one report-only integration head and one unchanged workflow definition. They demonstrate pre-promotion repeatability but do not populate the formal stableRuns gate: main still lacks required checks, Stage A is pending on the real Provider path, and an enforced-CSP final candidate does not yet exist."
+}

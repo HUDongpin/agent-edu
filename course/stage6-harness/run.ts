@@ -31,13 +31,15 @@ export interface Parts { retry: boolean; errors: boolean; gate: boolean; log: bo
  * enforced.
  */
 export async function callTool(
-  name: string, args: any, parts: Parts, approve: (q: string) => boolean = () => true,
+  name: string, args: any, parts: Parts, approve: (q: string) => boolean = nobodyIsAwake,
 ): Promise<[string, boolean]> {
   // -- gate ---------------------------------------------------------------
   // TODO 1: if parts.gate and this is a place_order that would take the run's
   // TOTAL committed spend past APPROVAL_THRESHOLD, do not run it. Call
   // approve(question); if it returns false, return a plain-language refusal
   // as an error result so the model can adapt.
+  // Reject unknown item prices and non-positive/non-finite quantities before
+  // estimating. Missing cost data must fail closed, never become $0.
   //
   // Total, not just this one order. A per-order cap gets stepped around
   // without anyone intending it: refuse a single $180 order and the model
@@ -55,7 +57,7 @@ export async function callTool(
     } catch (exc) {
       if ((exc as Error).message === "TODO 2") throw exc;
       if (attempt < attempts) {
-        RUN_LOG.push(`${name} failed (${(exc as Error).message}); retrying`);
+        if (parts.log) RUN_LOG.push(`${name} failed (${(exc as Error).message}); retrying`);
         continue;
       }
       // -- useful errors --------------------------------------------------

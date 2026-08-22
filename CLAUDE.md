@@ -38,6 +38,24 @@ English prose, and dropping one in turns that language on at the next build.
 Keys carry an ordinal, so inserting a paragraph mid-section renumbers the text
 nodes after it — re-extract and re-check every table when you do.
 
+The text the widgets write at run time — verdicts, banners, counters, the step
+log — is the second exception, and lives in `messages/widgets/`. Same queue
+semantics as above, but hand-authored rather than generated, and merged per key
+so an untranslated verdict beside a translated counter reads as a gap. Widgets
+reach it through the `C` handed to `initHandbook`: `C.t` for a textContent
+sink, `C.h` for innerHTML, `C.p(key, n)` to pick a plural form. A message is
+plain text carrying `{placeholders}`, `**bold**` and `*italic*` and nothing
+else — never HTML, so a translator cannot break the page. Never reassemble a
+sentence with `+`: the pieces only go back in the English order.
+
+`npm run widgets:check` is what replaces reading the diff on `behaviour.ts`. It
+proves every key resolves, that the placeholders a message declares are the
+values the call site passes in every language, that a plural carries the forms
+its language needs, and that every id the file queries still exists in
+`markup.ts`. It also carries a ratchet on how much copy is still hard-coded:
+that number may fall and never rise, which is what lets the remaining widgets
+move across one at a time without the half-finished state rotting.
+
 ## Static export
 `output: "export"`. No server, no middleware, no route handlers, no server
 actions, no `next/image` optimiser. The lab calls the model provider straight

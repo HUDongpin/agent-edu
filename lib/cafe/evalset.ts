@@ -1,7 +1,8 @@
 /**
  * Twenty real orders, and the machinery to score a system against them.
  *
- * Ported from the Python course so both halves grade identically. Two kinds
+ * Ported from the legacy Python edition so the browser Lab and current
+ * TypeScript course grade identically. Two kinds
  * of case: `rule` is decided by plain code (cheap, exact, no model), `judge`
  * needs a second model call because "correct" is a judgement. Only 8 of 20
  * are judged — use a rule wherever you possibly can.

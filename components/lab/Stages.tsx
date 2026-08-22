@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { tabTargetIndex } from "@/lib/tab-navigation";
 import { useI18n } from "../I18nProvider";
 
 export interface Stage {
@@ -24,31 +25,38 @@ export interface Stage {
  * people this course is written for count from one.
  */
 export default function Stages({
-  stages, current, onPick, panelId,
+  stages, current, onPick, panelId, disabled = false,
 }: {
   stages: Stage[];
   current: number;
   onPick: (i: number) => void;
   panelId: string;
+  disabled?: boolean;
 }) {
   const { t } = useI18n();
   const box = useRef<HTMLDivElement>(null);
 
   function keys(e: React.KeyboardEvent) {
-    const last = stages.length - 1;
-    let next = -1;
-    if (e.key === "ArrowRight") next = current === last ? 0 : current + 1;
-    else if (e.key === "ArrowLeft") next = current === 0 ? last : current - 1;
-    else if (e.key === "Home") next = 0;
-    else if (e.key === "End") next = last;
-    if (next < 0) return;
+    if (disabled) return;
+    const rtl = (box.current
+      ? getComputedStyle(box.current).direction
+      : document.documentElement.dir) === "rtl";
+    const next = tabTargetIndex(e.key, current, stages.length, "horizontal", rtl);
+    if (next === null) return;
     e.preventDefault();
     onPick(next);
     box.current?.querySelectorAll<HTMLButtonElement>("button")[next]?.focus();
   }
 
   return (
-    <div className="steps" role="tablist" aria-label={t("lab.stepsLabel")} ref={box} onKeyDown={keys}>
+    <div
+      className="steps"
+      role="tablist"
+      aria-label={t("lab.stepsLabel")}
+      aria-orientation="horizontal"
+      ref={box}
+      onKeyDown={keys}
+    >
       {stages.map((s, i) => (
         <button
           key={s.name}
@@ -59,6 +67,7 @@ export default function Stages({
           aria-selected={current === i}
           aria-controls={panelId}
           tabIndex={current === i ? 0 : -1}
+          disabled={disabled}
           /* Spelled out, because the visible text concatenates to
              "Step 1Your first call🔑needs your key" when read aloud. */
           aria-label={[

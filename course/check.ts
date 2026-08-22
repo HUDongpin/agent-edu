@@ -1,5 +1,5 @@
 /**
- * Grade one stage:  npx tsx course/check.ts 3   (add --offline to replay)
+ * Grade one stage:  npx tsx course/check.ts 3   (add --offline for the scripted stand-in)
  *
  * These checks are deliberately thin. They confirm you built the thing; they
  * do not confirm you built it well. The eval set in stage 3 is the tool for
@@ -14,7 +14,7 @@ const STAGES: Record<number, string> = {
   4: "stage4-context", 5: "stage5-loop", 6: "stage6-harness",
   7: "stage7-graph", 8: "stage8-security",
 };
-const COSTS_MONEY = new Set([3, 4, 5, 6, 7, 8]);
+const COSTS_MONEY = new Set([2, 3, 4, 5, 6, 7, 8]);
 
 const ok = (m: string) => console.log(`  PASS  ${m}`);
 function bad(m: string): never { console.log(`  FAIL  ${m}\n`); process.exit(1); }
@@ -23,7 +23,8 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
   async 0(m) {
     if (!m.QUESTION?.trim()) bad("QUESTION is still empty");
     ok("you asked the model something");
-    if (typeof m.answer !== "string" || !m.answer.trim()) bad("no answer came back");
+    const answer = await m.runQuestion();
+    if (typeof answer !== "string" || !answer.trim()) bad("no answer came back");
     ok("an answer came back");
     record(0, { ok: true });
   },

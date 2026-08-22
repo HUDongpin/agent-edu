@@ -25,7 +25,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     { n: 1, colour: "var(--brand)",  k: "1", href: p("/handbook/"), primary: true,  first: true },
     { n: 2, colour: "var(--green)",  k: "2", href: p("/lab/"),      primary: false, first: false },
     { n: 3, colour: "var(--violet)", k: "3", first: false, primary: false,
-      href: "https://github.com/HUDongpin/agent-edu/tree/main/course", note: "track.3.note" },
+      href: p("/build/"), note: "track.3.note" },
   ];
 
   const outcomes = ["1", "2", "3", "4"].map((i) => ({
@@ -99,15 +99,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               <p>{t(`track.${tr.k}.desc`)}</p>
               <div className="meta">{t(`track.${tr.k}.meta`)}</div>
               {tr.note && <p className="tracknote">↗ {t(tr.note)}</p>}
-              {tr.href.startsWith("http") ? (
-                <a className="btn" href={tr.href} target="_blank" rel="noopener noreferrer">
-                  {t(`track.${tr.k}.cta`)}<span className="arrow">↗</span>
-                </a>
-              ) : (
-                <Link className={"btn" + (tr.primary ? " primary" : "")} href={tr.href}>
-                  {t(`track.${tr.k}.cta`)}<span className="arrow">→</span>
-                </Link>
-              )}
+              <Link className={"btn" + (tr.primary ? " primary" : "")} href={tr.href}>
+                {t(`track.${tr.k}.cta`)}<span className="arrow">→</span>
+              </Link>
             </article>
           ))}
         </div>

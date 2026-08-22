@@ -15,12 +15,33 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "typecheck": "tsc -p tsconfig.json --noEmit --incremental false",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint app components lib scripts --max-warnings 0",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "evidence:prepare": "node scripts/prepare-browser-evidence.mjs",
+    "test:smoke:safe": "PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/smoke.spec.ts --project=chromium",
+    "test:smoke:private": "node scripts/run-private-playwright.mjs",
+    "test:smoke": "npm run evidence:prepare && npm run test:smoke:safe && npm run test:smoke:private",
+    "test:compat": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/compat.spec.ts",
+    "test:resilience": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/resilience.spec.ts --project=chromium",
+    "test:evidence-contract": "node scripts/verify-browser-evidence.mjs",
+    "vitals:lab": "node scripts/measure-lab-vitals.mjs",
+    "preview:test": "node scripts/serve-out.mjs",
+    "routes:check": "node scripts/check-routes.mjs",
+    "assets:check": "node scripts/check-static-assets.mjs",
+    "artifacts:check": "node scripts/check-artifacts.mjs --curated --require-root browser-evidence",
+    "release:check": "node scripts/check-release-readiness.mjs",
+    "csp:check": "node scripts/check-csp.mjs",
+    "csp:set": "node scripts/set-csp-stage.mjs",
+    "analytics:check": "node scripts/check-analytics.mjs",
+    "secrets:check": "node scripts/check-secrets.mjs",
     "course": "tsx course/check.ts",
+    "course:offline": "node --import tsx course/offline-preflight.ts --offline",
     "report": "tsx course/report.ts",
     "handbook:extract": "node scripts/extract-handbook.mjs",
-    "handbook:check": "node scripts/extract-handbook.mjs --check"
+    "handbook:check": "node scripts/extract-handbook.mjs --check",
+    "widgets:check": "node scripts/check-widgets.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
@@ -30,6 +51,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/node": "^20.19.43",
     "@types/react": "^19",
     "@types/react-dom": "^19",
