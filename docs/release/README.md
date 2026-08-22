@@ -9,6 +9,13 @@ job. Product development must continue while native review, real Provider
 access, Vercel preview inspection, and GitHub branch protection are pending. A
 release candidate, however, remains blocked until this command exits zero.
 
+The user accepted the current repository implementation round on 2026-08-23
+while explicitly deferring real-Provider and human release acceptance. That
+decision is recorded in
+`evidence/implementation-round-acceptance-20260823.json`. It does not waive the
+release checks described here: the Draft PR remains a Draft and the formal
+release still requires `npm run release:check` to exit zero.
+
 ## Evidence boundary
 
 The repository may contain only a sanitized conclusion and a stable reference:
@@ -136,6 +143,13 @@ headers. A green run cannot prove that GitHub made the jobs required.
   evidence.
 - `evidence/roadmap-completion-audit-20260821.json` — machine-readable companion
   for the authoritative closeout.
+- `evidence/implementation-round-acceptance-20260823.json` — direct-user scope
+  decision separating a complete implementation round from deferred formal
+  release acceptance; all 33 release records remain pending.
+- `evidence/authenticated-provider-memory-precheck-20260823.json` — one
+  authenticated model-list request and one eight-output-token Flash generation
+  in ephemeral memory; no secret or content retained, and no formal browser
+  canary row passed.
 - `evidence/stage-a-browser-header-observation-20260821.json` — privacy-safe
   Computer Use observation of the frozen Preview's actual 200 response headers;
   deliberately not a Stage A pass.

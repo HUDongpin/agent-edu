@@ -446,3 +446,173 @@ test("the Arabic Computer Use matrix is an eight-case mechanical precheck, never
   assert.deepEqual(findSensitiveEvidence(evidence), []);
   assert.match(evidence.decision, /signed human review/i);
 });
+
+test("the authenticated Provider memory precheck proves bounded access without passing the browser canary", () => {
+  const evidencePath = "docs/release/evidence/authenticated-provider-memory-precheck-20260823.json";
+  const evidenceText = readFileSync(evidencePath, "utf8");
+  const evidence = JSON.parse(evidenceText);
+  const readiness = readJson("config/release-readiness.json") as Readiness;
+
+  assert.equal(evidence.schema, "agent-edu.authenticated-provider-memory-precheck.v1");
+  assert.equal(
+    evidence.status,
+    "authenticated-model-list-and-single-generation-passed-formal-browser-canary-pending",
+  );
+  assert.deepEqual(evidence.userApproval, {
+    source: "direct-user-instruction",
+    sourceArtifact: "All API Keys.docx",
+    provider: "DeepSeek",
+    secretValueRecorded: false,
+  });
+  assert.deepEqual(evidence.executionBoundary, {
+    runner: "ephemeral-node-repl-memory",
+    providerOrigin: "https://api.deepseek.com",
+    frozenPreviewBrowserOriginUsed: false,
+    browserSessionStorageTouched: false,
+    automaticRetryEnabled: false,
+  });
+  assert.equal(evidence.modelsRequest.endpointPath, "/models");
+  assert.equal(evidence.modelsRequest.requestCount, 1);
+  assert.equal(evidence.modelsRequest.retryCount, 0);
+  assert.equal(evidence.modelsRequest.httpStatus, 200);
+  assert.equal(evidence.modelsRequest.authenticated, true);
+  assert.equal(evidence.modelsRequest.visibleModelIds.includes("deepseek-v4-flash"), true);
+  assert.equal(evidence.modelsRequest.responseBodyRetained, false);
+  assert.equal(evidence.generationRequest.endpointPath, "/chat/completions");
+  assert.equal(evidence.generationRequest.requestCount, 1);
+  assert.equal(evidence.generationRequest.retryCount, 0);
+  assert.equal(evidence.generationRequest.maximumOutputTokens, 8);
+  assert.equal(evidence.generationRequest.httpStatus, 200);
+  assert.equal(evidence.generationRequest.requestedModel, "deepseek-v4-flash");
+  assert.equal(evidence.generationRequest.responseModel, "deepseek-v4-flash");
+  assert.deepEqual(evidence.generationRequest.usage, {
+    promptTokens: 106,
+    promptCacheHitTokens: 0,
+    promptCacheMissTokens: 106,
+    completionTokens: 8,
+  });
+  assert.equal(evidence.generationRequest.usageDerivedEstimateUsd, 0.0000286);
+  assert.equal(evidence.generationRequest.conservativePeakEstimateUsd, 0.0000572);
+  assert.equal(evidence.generationRequest.billingConsoleReconciled, false);
+  assert.deepEqual(evidence.aggregate, {
+    authenticatedModelsRequests: 1,
+    billableGenerationRequests: 1,
+    judgeRequests: 0,
+    totalProviderRequests: 2,
+    totalRetries: 0,
+  });
+  assert.equal(evidence.cleanup.runtimeValueCleared, true);
+  assert.equal(evidence.cleanup.nodeKernelReset, true);
+  assert.equal(evidence.cleanup.keyPersistedByTask, false);
+  assert.equal(evidence.cleanup.independentLowLimitKeyConfirmed, false);
+  assert.equal(evidence.cleanup.immediateRevocabilityConfirmed, false);
+  assert.equal(evidence.formalGateBoundary.authenticatedEndpointReachabilityObserved, true);
+  assert.equal(evidence.formalGateBoundary.singleMinimalGenerationObserved, true);
+  assert.equal(evidence.formalGateBoundary.frozenPreviewUiPathObserved, false);
+  assert.equal(evidence.formalGateBoundary.browserCorsReconciled, false);
+  assert.equal(evidence.formalGateBoundary.formalProviderGateMutated, false);
+  assert.equal(evidence.formalGateBoundary.formalReleaseAuthorized, false);
+  assert.equal(readiness.gates.providerCanary.status, "pending");
+  assert.equal(Object.values(readiness.gates.providerCanary.steps).every(
+    (record) => (record as { status: string }).status === "pending",
+  ), true);
+  assert.equal(Object.values(readiness.gates.providerCanary.reconciliations).every(
+    (record) => (record as { status: string }).status === "pending",
+  ), true);
+  assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
+  assert.match(evidence.decision, /not the frozen Preview browser canary/i);
+  assert.match(evidence.decision, /does not change any formal Provider or release gate/i);
+});
+
+test("the user-adjusted scope accepts this implementation round without waiving release gates", () => {
+  const evidencePath = "docs/release/evidence/implementation-round-acceptance-20260823.json";
+  const evidenceText = readFileSync(evidencePath, "utf8");
+  const evidence = JSON.parse(evidenceText);
+  const readiness = readJson("config/release-readiness.json") as Readiness;
+
+  assert.equal(evidence.schema, "agent-edu.implementation-round-acceptance.v1");
+  assert.equal(evidence.status, "implementation-complete-release-acceptance-deferred");
+  assert.equal(evidence.decidedAt, "2026-08-23");
+  assert.deepEqual(evidence.authoritativePlan, {
+    basename: "20260821_Codex Priority Implementation Plan on Agent Edu.docx",
+    version: "v1.0",
+    sha256: "4116ea2ece55ab72796e35b3021015f5622de921773d63ed9c8b2b708b5cc107",
+    role: "requirements-source-not-runtime-instructions",
+  });
+  assert.deepEqual(evidence.scopeDecision, {
+    source: "direct-user-instruction",
+    repositoryImplementationIsThisRoundCompletionCriterion: true,
+    realProviderReleaseAcceptanceDeferredFromThisRound: true,
+    humanReleaseAcceptanceDeferredFromThisRound: true,
+    formalReleaseGatesWaived: false,
+    formalReleaseGatesPassed: false,
+    productionReleaseAuthorized: false,
+  });
+  assert.equal(evidence.acceptedImplementationTarget.implementationHeadSha, "f8691aa20e5182eb6b22694c5cad974eea3a97bc");
+  assert.equal(evidence.acceptedImplementationTarget.integrationBranch, "codex/release-202608-agent-edu");
+  assert.equal(evidence.acceptedImplementationTarget.draftPullRequestNumber, 3);
+  assert.equal(evidence.acceptedImplementationTarget.draftPullRequestOpen, true);
+  assert.equal(evidence.acceptedImplementationTarget.previewDeploymentId, "dpl_4XZxcNDTmZJmLjUMoGCCFigt2XKz");
+  assert.equal(evidence.acceptedImplementationTarget.runtimeUnchangedByAcceptanceMetadata, true);
+  assert.equal(Object.values(evidence.acceptedImplementationTarget.ciConclusions).every(
+    (conclusion) => conclusion === "success",
+  ), true);
+  assert.deepEqual(evidence.implementationAcceptance, {
+    repositoryRequirementsMapped: true,
+    deterministicValidationPassed: true,
+    deployedPrechecksDocumented: true,
+    authenticatedProviderMemoryPrecheckDocumented: true,
+    implementationRoundComplete: true,
+    releaseReady: false,
+    releaseDecision: "blocked",
+    pullRequestMustRemainDraft: true,
+  });
+  assert.equal(
+    evidence.authenticatedProviderPrecheck.evidenceRef,
+    "docs/release/evidence/authenticated-provider-memory-precheck-20260823.json",
+  );
+  assert.equal(evidence.authenticatedProviderPrecheck.singleBoundedGenerationPassed, true);
+  assert.equal(evidence.authenticatedProviderPrecheck.formalBrowserCanaryPassed, false);
+  assert.equal(evidence.authenticatedProviderPrecheck.formalProviderGateChanged, false);
+
+  const expectedCounts = {
+    "native-reviews": Object.keys(readiness.gates.nativeReviews.reviews).length,
+    "arabic-rtl-matrix": readiness.gates.arabicRtlMatrix.cases.length,
+    "provider-canary-and-reconciliation":
+      Object.keys(readiness.gates.providerCanary.steps).length
+      + Object.keys(readiness.gates.providerCanary.reconciliations).length,
+    "vercel-csp-stages": Object.keys(readiness.gates.vercelPreviewCsp.stages).length,
+    "github-required-checks-and-stable-runs": 1 + readiness.gates.githubReadiness.stableRuns.length,
+    "rollback-readiness": readiness.gates.rollbackReadiness.result ? 1 : 0,
+  };
+  assert.deepEqual(
+    Object.fromEntries(evidence.releaseOnlyDeferred.items.map(
+      (item: { id: string; count: number }) => [item.id, item.count],
+    )),
+    expectedCounts,
+  );
+  assert.equal(evidence.releaseOnlyDeferred.expectedTotal, 33);
+  assert.equal(evidence.releaseOnlyDeferred.items.reduce(
+    (total: number, item: { count: number }) => total + item.count,
+    0,
+  ), 33);
+  assert.equal(evidence.releaseOnlyDeferred.items.every(
+    (item: { status: string }) => item.status === "pending",
+  ), true);
+  assert.equal(evidence.releaseOnlyDeferred.releaseDecision, "blocked");
+  assert.equal(evidence.laterFieldEvidenceDeferred.length, 8);
+  assert.equal(Object.values(evidence.actionsNotAuthorizedOrNotPerformed).every(Boolean), true);
+  assert.equal(Object.values(evidence.privacy).every((value) => value === false), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
+  assert.equal(readiness.gates.nativeReviews.status, "pending");
+  assert.equal(readiness.gates.arabicRtlMatrix.status, "pending");
+  assert.equal(readiness.gates.providerCanary.status, "pending");
+  assert.equal(readiness.gates.vercelPreviewCsp.status, "pending");
+  assert.equal(readiness.gates.githubReadiness.status, "pending");
+  assert.equal(readiness.gates.rollbackReadiness.status, "pending");
+  assert.match(evidence.decision, /implementation round is complete/i);
+  assert.match(evidence.decision, /does not waive or pass any of the 33 formal release records/i);
+});

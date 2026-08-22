@@ -33,6 +33,15 @@ without an Authorization value or request body and received a CORS-readable
 that the browser connection was not blocked; it does **not** pass the first row
 below, establish model availability, or substitute for the low-limit Key run.
 
+A later direct-user-authorized, memory-only precheck is retained at
+`docs/release/evidence/authenticated-provider-memory-precheck-20260823.json`.
+It authenticated one `GET /models` request and completed one bounded Flash
+generation with no retry, while retaining only safe aggregate facts. Because it
+did not run through the frozen Preview browser origin, did not use a confirmed
+independent low-limit credential, and did not reconcile browser CORS, the full
+sequence, billing, or teardown with an independent reviewer, it also does
+**not** pass any row below.
+
 | Step | Expected bound | Sanitized observation | Result | Evidence ID |
 |---|---:|---|---|---|
 | GET `/models` | one request | Reachability and available model IDs only | pending |  |

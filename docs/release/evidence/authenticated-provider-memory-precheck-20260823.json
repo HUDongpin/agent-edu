@@ -1,0 +1,101 @@
+{
+  "schema": "agent-edu.authenticated-provider-memory-precheck.v1",
+  "status": "authenticated-model-list-and-single-generation-passed-formal-browser-canary-pending",
+  "recordedAt": "2026-08-22T17:12:10Z",
+  "userApproval": {
+    "source": "direct-user-instruction",
+    "sourceArtifact": "All API Keys.docx",
+    "provider": "DeepSeek",
+    "secretValueRecorded": false
+  },
+  "executionBoundary": {
+    "runner": "ephemeral-node-repl-memory",
+    "providerOrigin": "https://api.deepseek.com",
+    "frozenPreviewBrowserOriginUsed": false,
+    "browserSessionStorageTouched": false,
+    "automaticRetryEnabled": false
+  },
+  "modelsRequest": {
+    "endpointPath": "/models",
+    "method": "GET",
+    "requestCount": 1,
+    "retryCount": 0,
+    "credentialsMode": "omit",
+    "authorizationAttached": true,
+    "requestBodySent": false,
+    "httpStatus": 200,
+    "authenticated": true,
+    "visibleModelIds": [
+      "deepseek-v4-flash",
+      "deepseek-v4-pro",
+      "deepseek-v4-flash-vision-exp"
+    ],
+    "responseBodyRetained": false
+  },
+  "generationRequest": {
+    "endpointPath": "/chat/completions",
+    "method": "POST",
+    "requestCount": 1,
+    "retryCount": 0,
+    "credentialsMode": "omit",
+    "authorizationAttached": true,
+    "requestedModel": "deepseek-v4-flash",
+    "responseModel": "deepseek-v4-flash",
+    "maximumOutputTokens": 8,
+    "httpStatus": 200,
+    "success": true,
+    "finishReason": "length",
+    "usage": {
+      "promptTokens": 106,
+      "promptCacheHitTokens": 0,
+      "promptCacheMissTokens": 106,
+      "completionTokens": 8
+    },
+    "pricingSnapshotCheckedAt": "2026-08-21",
+    "pricingBandAtObservation": "off-peak",
+    "usageDerivedEstimateUsd": 0.0000286,
+    "conservativePeakEstimateUsd": 0.0000572,
+    "billingConsoleReconciled": false,
+    "requestTextGeneratedAtRuntimeAndDiscarded": true,
+    "replyTextRead": false,
+    "responseBodyRetained": false
+  },
+  "aggregate": {
+    "authenticatedModelsRequests": 1,
+    "billableGenerationRequests": 1,
+    "judgeRequests": 0,
+    "totalProviderRequests": 2,
+    "totalRetries": 0
+  },
+  "cleanup": {
+    "runtimeValueCleared": true,
+    "nodeKernelReset": true,
+    "keyPersistedByTask": false,
+    "existingKeyRevokedByTask": false,
+    "independentLowLimitKeyConfirmed": false,
+    "immediateRevocabilityConfirmed": false
+  },
+  "formalGateBoundary": {
+    "authenticatedEndpointReachabilityObserved": true,
+    "authenticatedModelVisibilityObserved": true,
+    "singleMinimalGenerationObserved": true,
+    "frozenPreviewUiPathObserved": false,
+    "browserCorsReconciled": false,
+    "threeCasePreviewCompleted": false,
+    "flashEvalCompleted": false,
+    "providerConsoleBillingReconciled": false,
+    "credentialLifecycleGatePassed": false,
+    "formalProviderGateMutated": false,
+    "formalReleaseAuthorized": false
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsReplies": false,
+    "containsProviderBodies": false,
+    "containsAccountData": false
+  },
+  "decision": "This direct-user-authorized memory-only precheck proves that the supplied DeepSeek access material authenticated one GET /models request and one bounded Flash generation. It is not the frozen Preview browser canary, does not reconcile CORS or Provider-console billing, does not establish the independent low-limit revocable lifecycle, and does not change any formal Provider or release gate."
+}

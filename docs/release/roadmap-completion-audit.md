@@ -1,12 +1,38 @@
 # Authoritative roadmap completion audit
 
-Status: **repository implementation audited; external P0 and later field
-evidence pending**.
+Status: **current implementation round complete under the user-adjusted scope;
+formal release acceptance and later field evidence remain pending**.
 
 This is the human-readable companion to
 `evidence/roadmap-completion-audit-20260821.json`. The machine record binds the
 audit to the authoritative plan, immutable commits, the current Draft PR, the
 33-item P0 release schema, later P1/P2 evidence, and the explicit non-goals.
+
+## Current-round implementation acceptance (2026-08-23)
+
+The user explicitly changed the completion criterion for this round: repository
+implementation, deterministic validation, and privacy-safe prechecks are the
+required outcome; real-Provider release acceptance and human release acceptance
+are deferred. The machine decision is recorded in
+`evidence/implementation-round-acceptance-20260823.json`.
+
+This is a scope change for the current implementation round, not a waiver or a
+fabricated pass. `config/release-readiness.json` remains the formal release
+decision, all 33 release records below remain pending, and Draft PR #3 must not
+be marked Ready, merged, or deployed to production on the strength of this
+implementation acceptance.
+
+After that scope decision, a separate direct-user-authorized precheck used the
+specified DeepSeek access material in ephemeral process memory. One
+authenticated `GET /models` and one bounded eight-output-token Flash generation
+both returned HTTP 200 with no retry. Only model IDs, aggregate usage, response
+status, and a conservative cost estimate were retained in
+`evidence/authenticated-provider-memory-precheck-20260823.json`; the secret,
+runtime-generated request text, reply text, and raw responses were discarded.
+Because this did not exercise the frozen Preview UI, did not reconcile browser
+CORS or Provider-console billing, and did not establish an independent
+low-limit/revocable credential lifecycle, the formal Provider gate remains
+pending.
 
 ## Authority and source boundary
 
@@ -78,10 +104,14 @@ traffic and an SDK queue containing `pageview` on Home and Lab; safe no-key Lab
 interactions emitted no custom event, and no Analytics payload was inspected.
 A subsequent credential-free browser precheck reached the real DeepSeek
 `/models` endpoint and received a CORS-readable 401 without an Authorization
-value, request body, response-body read, or billable call. That closes only the
-browser-connectivity uncertainty; authenticated model discovery and the full
-low-limit Provider sequence remain unobserved. The mechanical Arabic precheck
-does not replace the eight pending Arabic matrix records or the Arabic
+value, request body, response-body read, or billable call. A later
+ephemeral-memory precheck separately authenticated, observed the three visible
+model IDs, and completed one minimal Flash generation. Together they close
+basic connectivity, credential validity, model visibility, and minimal
+generation uncertainties. They still do not prove the frozen Preview UI/CORS
+path, the three-case or Flash Eval sequences, billing reconciliation, or the
+independent low-limit/revocable credential lifecycle. The mechanical Arabic
+precheck does not replace the eight pending Arabic matrix records or the Arabic
 native-review signature in the release schema.
 
 Three unique attempt-1 GitHub workflows also completed green on the same
@@ -107,7 +137,9 @@ later requirements below:
 
 No production deployment, PR merge, Ready transition, GitHub protection
 mutation, Vercel protection reduction, fabricated human signature, fabricated
-participant result, or recorded real Provider credential is claimed. A
+participant result, or recorded real Provider credential is claimed. The one
+direct-user-authorized authenticated precheck is recorded only as sanitized
+aggregate evidence and is not promoted into the formal release gate. A
 transient CLI-created Vercel bypass credential was revoked and was neither
 retained nor reused; the Computer Use observation relied on the existing
 Vercel-authenticated browser session instead. The customer-service system,
