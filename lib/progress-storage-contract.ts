@@ -35,6 +35,30 @@ export const PROGRESS_LOCAL_EPHEMERAL_KEYS = [
   GROK_PROGRESS_PROBE_KEY,
 ] as const;
 
+/**
+ * Durable, inactive recovery slots used only by an explicitly confirmed global
+ * reset. Progress readers must never treat these exact-byte copies as learning
+ * state. A different existing copy is a conflict and must never be overwritten.
+ */
+export const LEARNING_RESET_QUARANTINE_KEY =
+  "ae.learning.v2.reset-quarantine.v1";
+export const SHARED_PROGRESS_RESET_QUARANTINE_KEY =
+  "ae.progress.reset-quarantine.v1";
+export const CURSOR_PROGRESS_RESET_QUARANTINE_KEY =
+  "aicourse.cursor.progress.v1.reset-quarantine.v1";
+export const GROK_PROGRESS_RESET_QUARANTINE_KEY =
+  "aicourse.grok.progress.v1.reset-quarantine.v1";
+export const RECENCY_RESET_QUARANTINE_KEY =
+  "ae.progress.recent.v1.reset-quarantine.v1";
+
+export const PROGRESS_LOCAL_QUARANTINE_KEYS = [
+  LEARNING_RESET_QUARANTINE_KEY,
+  SHARED_PROGRESS_RESET_QUARANTINE_KEY,
+  CURSOR_PROGRESS_RESET_QUARANTINE_KEY,
+  GROK_PROGRESS_RESET_QUARANTINE_KEY,
+  RECENCY_RESET_QUARANTINE_KEY,
+] as const;
+
 export const CORRUPT_LEARNING_BACKUP_KEY = "ae.learning.v2.corrupt-backup";
 export const RAG_CORRUPT_PROGRESS_BACKUP_KEY = "ae.progress.corrupt-backup";
 export const AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY =
@@ -56,6 +80,7 @@ export const PROGRESS_OWNED_STORAGE_KEYS = Object.freeze({
   localStorage: Object.freeze({
     durable: PROGRESS_LOCAL_DURABLE_KEYS,
     ephemeral: PROGRESS_LOCAL_EPHEMERAL_KEYS,
+    quarantine: PROGRESS_LOCAL_QUARANTINE_KEYS,
   }),
   sessionStorage: Object.freeze({
     ephemeral: PROGRESS_SESSION_EPHEMERAL_KEYS,

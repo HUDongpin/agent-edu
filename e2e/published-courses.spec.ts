@@ -29,9 +29,27 @@ import {
   productManagementModuleProgressKey,
 } from "../lib/product-management";
 import { CLAUDE_INCOME_COURSE } from "../lib/claude-income";
-import { HANDBOOK_SECTION_IDS, LAB_STEPS } from "../lib/progress";
+import { DEEPSEEK_KEY_STORAGE } from "../lib/byok/key-store";
+import { GROK_PROGRESS_STORAGE_KEY } from "../lib/grok/progress";
+import { LAB_DRAFT_KEY } from "../lib/lab/draft";
+import {
+  HANDBOOK_SECTION_IDS,
+  LAB_STEPS,
+  LEARNING_KEY,
+  LEGACY_PROGRESS_KEY as SHARED_PROGRESS_STORAGE_KEY,
+} from "../lib/progress";
+import {
+  CURSOR_PROGRESS_RESET_QUARANTINE_KEY,
+  GROK_PROGRESS_RESET_QUARANTINE_KEY,
+  LEARNING_RESET_QUARANTINE_KEY,
+  PROGRESS_LOCAL_DURABLE_KEYS,
+  PROGRESS_LOCAL_QUARANTINE_KEYS,
+  RECENCY_RESET_QUARANTINE_KEY,
+  SHARED_PROGRESS_RESET_QUARANTINE_KEY,
+} from "../lib/progress-storage-contract";
 import {
   AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS,
+  CURSOR_PROGRESS_STORAGE_KEY,
   MAKE_MONEY_PROGRESS_LESSON_SLUGS,
   MAKE_MONEY_PROGRESS_SCHEMA,
 } from "../lib/progress-topology";
@@ -40,6 +58,24 @@ import { expect, test } from "./fixtures";
 
 const SITE = "https://aicourse.top";
 const MAX_SITEMAP_BYTES = 500 * 1024;
+const RESET_QUARANTINE_SUFFIX = ".reset-quarantine.v1";
+const PROGRESS_RECENCY_STORAGE_KEY = RECENCY_RESET_QUARANTINE_KEY.slice(
+  0,
+  -RESET_QUARANTINE_SUFFIX.length,
+);
+if (!PROGRESS_LOCAL_DURABLE_KEYS.some((key) => key === PROGRESS_RECENCY_STORAGE_KEY)) {
+  throw new Error("Recency quarantine must resolve to a declared durable progress key");
+}
+const THEME_STORAGE_KEY = "ae.theme";
+const LANGUAGE_STORAGE_KEY = "ae.lang";
+const RESET_QUARANTINE_SEED_KEY = "__aicourse_e2e_reset_quarantine_seeded__";
+const RESET_CONFLICT_SEED_KEY = "__aicourse_e2e_reset_conflict_seeded__";
+const PROTECTED_RESET_KEYS = {
+  theme: THEME_STORAGE_KEY,
+  language: LANGUAGE_STORAGE_KEY,
+  labDraft: LAB_DRAFT_KEY,
+  providerKey: DEEPSEEK_KEY_STORAGE,
+} as const;
 
 const EXPECTED_PUBLISHED_IDS = [
   "agent-orchestration",
@@ -96,6 +132,34 @@ const AGENTIC_EMPTY_PROGRESS = {
     evalRunsCompleted: 0,
   },
 } as const;
+
+const CORRUPT_RESET_OWNERS = [
+  {
+    activeKey: LEARNING_KEY,
+    quarantineKey: LEARNING_RESET_QUARANTINE_KEY,
+    raw: '{"owner":"agentic","bytes":',
+  },
+  {
+    activeKey: SHARED_PROGRESS_STORAGE_KEY,
+    quarantineKey: SHARED_PROGRESS_RESET_QUARANTINE_KEY,
+    raw: '{"owner":"shared","bytes":',
+  },
+  {
+    activeKey: CURSOR_PROGRESS_STORAGE_KEY,
+    quarantineKey: CURSOR_PROGRESS_RESET_QUARANTINE_KEY,
+    raw: '{"owner":"cursor","bytes":',
+  },
+  {
+    activeKey: GROK_PROGRESS_STORAGE_KEY,
+    quarantineKey: GROK_PROGRESS_RESET_QUARANTINE_KEY,
+    raw: '{"owner":"grok","bytes":',
+  },
+  {
+    activeKey: PROGRESS_RECENCY_STORAGE_KEY,
+    quarantineKey: RECENCY_RESET_QUARANTINE_KEY,
+    raw: '{"owner":"recency","bytes":',
+  },
+] as const;
 
 const LAB_ENUM_CANDIDATES: Partial<
   Record<AgentOrchestrationLabStateKey, readonly unknown[]>
@@ -1334,6 +1398,153 @@ test("global reset cancels cleanly, then clears progress but preserves device pr
   for (const key of Object.keys(JSON.parse(sharedProgress) as Record<string, unknown>)) {
     expect(Object.hasOwn(remainingShared, key), `reset must remove ${key}`).toBe(false);
   }
+});
+
+test("confirmed reset quarantines all corrupt owners byte-exactly and reloads fresh", async ({ page }) => {
+  const labDraft = '{"version":1,"prompt":"keep this Lab draft byte-exact"}';
+  const protectedValues = {
+    theme: "dark",
+    language: "ar",
+    labDraft,
+    providerKey: "provider-key-stays-in-this-tab",
+  } as const;
+
+  await page.addInitScript(({ owners, protectedKeys, protectedState, seedKey }) => {
+    if (sessionStorage.getItem(seedKey) === "1") return;
+    for (const owner of owners) localStorage.setItem(owner.activeKey, owner.raw);
+    localStorage.setItem(protectedKeys.theme, protectedState.theme);
+    localStorage.setItem(protectedKeys.language, protectedState.language);
+    localStorage.setItem(protectedKeys.labDraft, protectedState.labDraft);
+    sessionStorage.setItem(protectedKeys.providerKey, protectedState.providerKey);
+    sessionStorage.setItem(seedKey, "1");
+  }, {
+    owners: CORRUPT_RESET_OWNERS,
+    protectedKeys: PROTECTED_RESET_KEYS,
+    protectedState: protectedValues,
+    seedKey: RESET_QUARANTINE_SEED_KEY,
+  });
+
+  const response = await page.goto("/en/learning/");
+  expect(response?.status()).toBe(200);
+  await waitForLearningDashboard(page);
+  await expect(page.locator(".learning-storage-warning")).toBeVisible();
+
+  const snapshot = () => page.evaluate(({ owners, protectedKeys, quarantineKeys }) => ({
+    active: Object.fromEntries(owners.map(({ activeKey }) => [
+      activeKey,
+      localStorage.getItem(activeKey),
+    ])),
+    quarantine: Object.fromEntries(quarantineKeys.map((key) => [
+      key,
+      localStorage.getItem(key),
+    ])),
+    quarantineKeys: Array.from({ length: localStorage.length }, (_, index) =>
+      localStorage.key(index))
+      .filter((key): key is string => key?.endsWith(".reset-quarantine.v1") === true)
+      .sort(),
+    protected: {
+      theme: localStorage.getItem(protectedKeys.theme),
+      language: localStorage.getItem(protectedKeys.language),
+      labDraft: localStorage.getItem(protectedKeys.labDraft),
+      providerKey: sessionStorage.getItem(protectedKeys.providerKey),
+    },
+  }), {
+    owners: CORRUPT_RESET_OWNERS,
+    protectedKeys: PROTECTED_RESET_KEYS,
+    quarantineKeys: PROGRESS_LOCAL_QUARANTINE_KEYS,
+  });
+
+  const beforeCancel = await snapshot();
+  expect(beforeCancel.active).toEqual(Object.fromEntries(
+    CORRUPT_RESET_OWNERS.map(({ activeKey, raw }) => [activeKey, raw]),
+  ));
+  expect(beforeCancel.quarantineKeys).toEqual([]);
+  expect(beforeCancel.protected).toEqual(protectedValues);
+
+  const reset = page.getByRole("button", { name: "Clear all progress" });
+  page.once("dialog", async (dialog) => {
+    expect(dialog.type()).toBe("confirm");
+    await dialog.dismiss();
+  });
+  await reset.click();
+  await expect.poll(snapshot, { message: "cancel must preserve every tracked byte" })
+    .toEqual(beforeCancel);
+  await expect(page.locator(".learning-reset-feedback")).toHaveCount(0);
+
+  page.once("dialog", async (dialog) => {
+    expect(dialog.type()).toBe("confirm");
+    await dialog.accept();
+  });
+  await reset.click();
+
+  const feedback = page.locator('.learning-reset-feedback[role="status"][aria-live="polite"]');
+  await expect(feedback).toHaveText(
+    "Active learning progress was cleared. One or more unreadable records were moved to inactive recovery storage on this device and will not be used as progress.",
+  );
+  await expect(page.getByRole("heading", { name: "No learning progress yet" })).toBeVisible();
+
+  const afterReset = await snapshot();
+  expect(afterReset.active).toEqual({
+    [LEARNING_KEY]: JSON.stringify(AGENTIC_EMPTY_PROGRESS),
+    [SHARED_PROGRESS_STORAGE_KEY]: null,
+    [CURSOR_PROGRESS_STORAGE_KEY]: null,
+    [GROK_PROGRESS_STORAGE_KEY]: null,
+    [PROGRESS_RECENCY_STORAGE_KEY]: null,
+  });
+  expect(afterReset.quarantine).toEqual(Object.fromEntries(
+    CORRUPT_RESET_OWNERS.map(({ quarantineKey, raw }) => [quarantineKey, raw]),
+  ));
+  expect(afterReset.quarantineKeys).toEqual([...PROGRESS_LOCAL_QUARANTINE_KEYS].sort());
+  expect(afterReset.protected).toEqual(protectedValues);
+
+  await page.reload();
+  await waitForLearningDashboard(page);
+  await expect(page.getByRole("heading", { name: "No learning progress yet" })).toBeVisible();
+  await expect(page.locator(".learning-storage-warning")).toHaveCount(0);
+  await expect(page.locator(".learning-course-card")).toHaveCount(0);
+  await expect(page.getByRole("progressbar")).toHaveCount(0);
+  expect((await snapshot()).protected).toEqual(protectedValues);
+});
+
+test("a conflicting quarantine slot keeps corrupt active progress and reports an incomplete reset", async ({ page }) => {
+  const corruptRaw = '{"owner":"agentic","active":';
+  const conflictingRecovery = '{"owner":"agentic","older-recovery":';
+  await page.addInitScript(({ active, quarantine, corrupt, conflict, seedKey }) => {
+    if (sessionStorage.getItem(seedKey) === "1") return;
+    localStorage.setItem(active, corrupt);
+    localStorage.setItem(quarantine, conflict);
+    sessionStorage.setItem(seedKey, "1");
+  }, {
+    active: LEARNING_KEY,
+    quarantine: LEARNING_RESET_QUARANTINE_KEY,
+    corrupt: corruptRaw,
+    conflict: conflictingRecovery,
+    seedKey: RESET_CONFLICT_SEED_KEY,
+  });
+
+  const response = await page.goto("/en/learning/");
+  expect(response?.status()).toBe(200);
+  await waitForLearningDashboard(page);
+  await expect(page.locator(".learning-storage-warning")).toBeVisible();
+
+  page.once("dialog", async (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Clear all progress" }).click();
+
+  const feedback = page.locator('.learning-reset-feedback[role="status"][aria-live="polite"]');
+  await expect(feedback).toHaveText(
+    "The current tab was reset, but one or more records on this device could not be cleared safely. They may reappear after refresh.",
+  );
+  await expect(feedback).not.toContainText("Active learning progress was cleared");
+  expect(await page.evaluate((key) => localStorage.getItem(key), LEARNING_KEY)).toBe(corruptRaw);
+  expect(await page.evaluate((key) => localStorage.getItem(key), LEARNING_RESET_QUARANTINE_KEY))
+    .toBe(conflictingRecovery);
+
+  await page.reload();
+  await waitForLearningDashboard(page);
+  await expect(page.locator(".learning-storage-warning")).toBeVisible();
+  expect(await page.evaluate((key) => localStorage.getItem(key), LEARNING_KEY)).toBe(corruptRaw);
+  expect(await page.evaluate((key) => localStorage.getItem(key), LEARNING_RESET_QUARANTINE_KEY))
+    .toBe(conflictingRecovery);
 });
 
 test("an Arabic catalogue declares English-only content before crossing locales", async ({ page }) => {

@@ -5,6 +5,8 @@ import {
   type PersistenceResult,
   type PublishedProgressCourseId,
 } from "@/lib/public-progress-contract";
+import { clearCorruptProgressAfterVerifiedQuarantine } from "@/lib/progress-persistence";
+import { RECENCY_RESET_QUARANTINE_KEY } from "@/lib/progress-storage-contract";
 
 export const PROGRESS_RECENCY_STORAGE_KEY = "ae.progress.recent.v1";
 export const PROGRESS_RECENCY_EVENT = "aicourse:progress-recency-change";
@@ -153,10 +155,16 @@ export function resetProgressRecencyAfterGlobalReset(): PersistenceResult {
   try {
     const raw = window.localStorage.getItem(PROGRESS_RECENCY_STORAGE_KEY);
     if (raw !== null && !parseLedger(raw)) {
-      persistenceAvailable = false;
-      failureReason = "corrupt";
+      const reset = clearCorruptProgressAfterVerifiedQuarantine({
+        storage: window.localStorage,
+        sourceKey: PROGRESS_RECENCY_STORAGE_KEY,
+        quarantineKey: RECENCY_RESET_QUARANTINE_KEY,
+        corruptRaw: raw,
+      });
+      persistenceAvailable = reset.persisted;
+      failureReason = reset.persisted ? undefined : reset.reason ?? "unavailable";
       window.dispatchEvent(new Event(PROGRESS_RECENCY_EVENT));
-      return { persisted: false, reason: failureReason };
+      return reset;
     }
     window.localStorage.removeItem(PROGRESS_RECENCY_STORAGE_KEY);
     persistenceAvailable = true;

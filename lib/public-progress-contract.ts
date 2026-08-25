@@ -53,6 +53,8 @@ export interface ProgressStoreSummary {
 export interface PersistenceResult {
   readonly persisted: boolean;
   readonly reason?: "unavailable" | "quota" | "corrupt";
+  /** An unreadable active record was preserved under an inactive recovery key. */
+  readonly quarantined?: boolean;
 }
 
 const progressAdapterIdSet = new Set<string>(PROGRESS_ADAPTER_COURSE_IDS);

@@ -7,9 +7,15 @@
  * Nothing in this module leaves the browser.
  */
 
-import { persistenceFailureReason as reasonForStorageError } from "./progress-persistence";
+import {
+  clearCorruptProgressAfterVerifiedQuarantine,
+  persistenceFailureReason as reasonForStorageError,
+} from "./progress-persistence";
 import type { PersistenceFailureReason } from "./progress-persistence";
-import { CORRUPT_LEARNING_BACKUP_KEY } from "./progress-storage-contract";
+import {
+  CORRUPT_LEARNING_BACKUP_KEY,
+  LEARNING_RESET_QUARANTINE_KEY,
+} from "./progress-storage-contract";
 
 export const LEARNING_KEY = "ae.learning.v2";
 export const LEGACY_PROGRESS_KEY = "ae.progress";
@@ -136,6 +142,8 @@ export interface LearningMutationResult extends LearningSnapshot {
   /** False means the mutation remains usable in memory for this page session. */
   readonly persisted: boolean;
   readonly reason?: PersistenceFailureReason;
+  /** A corrupt active record was copied exactly to inactive recovery storage. */
+  readonly quarantined?: boolean;
 }
 
 export interface LearningStore {
@@ -513,6 +521,7 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
   let persistenceAvailable: boolean | null = null;
   let sessionAuthoritative = false;
   let lastMutationPersisted = true;
+  let lastMutationQuarantined = false;
   let lastPersistenceFailureReason: PersistenceFailureReason | undefined;
 
   const notify = () => {
@@ -784,6 +793,7 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
   }
 
   function resetLearningState(scope: ResetScope): LearningStateV2 {
+    lastMutationQuarantined = false;
     if (scope !== "handbook" && scope !== "lab" && scope !== "all") {
       const state = readLearningState();
       lastMutationPersisted = persistenceAvailable !== false;
@@ -804,8 +814,32 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
           lastPersistenceFailureReason = current.reason;
           if (permitsSessionMemory) keepInSession(EMPTY_LEARNING_STATE);
         } else if (current.value !== null && !decodeLearningRecord(current.value).readable) {
-          // Reset the safe session view but retain the only recovery copy.
-          holdUnreadableRecord(current.value);
+          const reset = clearCorruptProgressAfterVerifiedQuarantine({
+            storage,
+            sourceKey: LEARNING_KEY,
+            quarantineKey: LEARNING_RESET_QUARANTINE_KEY,
+            corruptRaw: current.value,
+            replacement: canonical,
+          });
+          if (!reset.persisted) {
+            lastPersistenceFailureReason = reset.reason ?? "unavailable";
+            if (permitsSessionMemory) keepInSession(EMPTY_LEARNING_STATE);
+          } else {
+            const sectionRemoval = removeResult(storage, LEGACY_SECTION_KEY);
+            const seenRemoval = removeResult(storage, LEGACY_SEEN_KEY);
+            const removalFailure = !sectionRemoval.ok
+              ? sectionRemoval.reason
+              : !seenRemoval.ok
+                ? seenRemoval.reason
+                : undefined;
+            cachedState = EMPTY_LEARNING_STATE;
+            cachedToken = `v2\u0000${canonical}`;
+            persistenceAvailable = true;
+            sessionAuthoritative = false;
+            persisted = !removalFailure;
+            lastMutationQuarantined = reset.quarantined === true;
+            lastPersistenceFailureReason = removalFailure;
+          }
         } else {
           const write = writeResult(storage, LEARNING_KEY, canonical);
           if (!write.ok) {
@@ -876,6 +910,7 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
       ...(lastMutationPersisted || !lastPersistenceFailureReason
         ? {}
         : { reason: lastPersistenceFailureReason }),
+      ...(lastMutationQuarantined ? { quarantined: true } : {}),
     };
   }
 

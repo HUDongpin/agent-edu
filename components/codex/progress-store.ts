@@ -1,8 +1,12 @@
 import type { PersistenceResult } from "@/lib/public-progress-contract";
 import {
+  clearCorruptProgressAfterVerifiedQuarantine,
   isJsonObjectRecord,
   persistenceFailureReason as reasonForError,
 } from "@/lib/progress-persistence";
+import {
+  SHARED_PROGRESS_RESET_QUARANTINE_KEY,
+} from "@/lib/progress-storage-contract";
 
 export const COURSE_PROGRESS_STORAGE_KEY = "ae.progress";
 export const CODEX_PROGRESS_EVENT = "codex:progress-change";
@@ -12,6 +16,7 @@ export type CourseProgressUpdateResult = {
   readonly progress: CourseProgressRecord;
   readonly persisted: boolean;
   readonly reason?: PersistenceResult["reason"];
+  readonly quarantined?: boolean;
 };
 
 let memorySnapshot = "{}";
@@ -133,10 +138,21 @@ export function resetAllCourseProgress(): CourseProgressUpdateResult {
   try {
     const raw = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY);
     if (raw !== null && !isJsonObjectRecord(raw)) {
-      persistenceAvailable = false;
-      failureReason = "corrupt";
+      const reset = clearCorruptProgressAfterVerifiedQuarantine({
+        storage: window.localStorage,
+        sourceKey: COURSE_PROGRESS_STORAGE_KEY,
+        quarantineKey: SHARED_PROGRESS_RESET_QUARANTINE_KEY,
+        corruptRaw: raw,
+      });
+      persistenceAvailable = reset.persisted;
+      failureReason = reset.persisted ? undefined : reset.reason ?? "unavailable";
       window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
-      return { progress, persisted: false, reason: failureReason };
+      return {
+        progress,
+        persisted: reset.persisted,
+        ...(reset.persisted ? {} : { reason: failureReason }),
+        ...(reset.quarantined ? { quarantined: true } : {}),
+      };
     }
     window.localStorage.removeItem(COURSE_PROGRESS_STORAGE_KEY);
     persistenceAvailable = true;

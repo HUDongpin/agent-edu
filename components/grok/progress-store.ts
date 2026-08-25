@@ -2,9 +2,13 @@
 
 import type { PersistenceResult } from "@/lib/public-progress-contract";
 import {
+  clearCorruptProgressAfterVerifiedQuarantine,
   persistenceFailureReason as reasonForError,
 } from "@/lib/progress-persistence";
-import { GROK_PROGRESS_PROBE_KEY } from "@/lib/progress-storage-contract";
+import {
+  GROK_PROGRESS_PROBE_KEY,
+  GROK_PROGRESS_RESET_QUARANTINE_KEY,
+} from "@/lib/progress-storage-contract";
 import type { GROK_PROGRESS_LESSON_SLUGS } from "@/lib/progress-topology";
 import {
   GROK_CAPSTONE_ITEM_COUNT,
@@ -201,16 +205,30 @@ export function resetGrokProgressAfterGlobalReset(): PersistenceResult {
       try {
         const parsed: unknown = JSON.parse(raw);
         if (!isProgressObject(parsed)) {
-          persistenceAvailable = false;
-          failureReason = "corrupt";
+          const reset = clearCorruptProgressAfterVerifiedQuarantine({
+            storage: window.localStorage,
+            sourceKey: GROK_PROGRESS_KEY,
+            quarantineKey: GROK_PROGRESS_RESET_QUARANTINE_KEY,
+            corruptRaw: raw,
+          });
+          persistenceAvailable = reset.persisted;
+          failureReason = reset.persisted ? undefined : reset.reason ?? "unavailable";
+          cachedRaw = reset.persisted ? null : raw;
           window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
-          return { persisted: false, reason: failureReason };
+          return reset;
         }
       } catch {
-        persistenceAvailable = false;
-        failureReason = "corrupt";
+        const reset = clearCorruptProgressAfterVerifiedQuarantine({
+          storage: window.localStorage,
+          sourceKey: GROK_PROGRESS_KEY,
+          quarantineKey: GROK_PROGRESS_RESET_QUARANTINE_KEY,
+          corruptRaw: raw,
+        });
+        persistenceAvailable = reset.persisted;
+        failureReason = reset.persisted ? undefined : reset.reason ?? "unavailable";
+        cachedRaw = reset.persisted ? null : raw;
         window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
-        return { persisted: false, reason: failureReason };
+        return reset;
       }
     }
     window.localStorage.removeItem(GROK_PROGRESS_KEY);

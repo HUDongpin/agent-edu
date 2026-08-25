@@ -474,8 +474,11 @@ function isCursorProgressCapstoneComplete(record: ProgressRecord): boolean {
 function persistenceResult(
   persisted: boolean,
   reason: PersistenceResult["reason"] = "unavailable",
+  quarantined = false,
 ): PersistenceResult {
-  return persisted ? { persisted: true } : { persisted: false, reason };
+  return persisted
+    ? { persisted: true, ...(quarantined ? { quarantined: true } : {}) }
+    : { persisted: false, reason, ...(quarantined ? { quarantined: true } : {}) };
 }
 
 async function resetAndVerify(
@@ -576,7 +579,7 @@ function agenticAdapter(locale: string): ProgressStoreAdapter {
     },
     resetAfterGlobalReset: () => {
       const result = resetLearningStateWithResult("all");
-      return persistenceResult(result.persisted, result.reason);
+      return persistenceResult(result.persisted, result.reason, result.quarantined === true);
     },
     isPersistent: () => readLearningSnapshot().persistence === "persistent",
   };

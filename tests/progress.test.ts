@@ -18,6 +18,7 @@ import {
   type LearningStateV2,
   type StorageLike,
 } from "../lib/progress";
+import { LEARNING_RESET_QUARANTINE_KEY } from "../lib/progress-storage-contract";
 
 class MemoryStorage implements StorageLike {
   readonly values = new Map<string, string>();
@@ -547,21 +548,31 @@ test("a failed injected write stays fail-closed while reporting unavailable pers
   assert.equal(domEvents, 0);
 });
 
-test("an explicit all reset preserves a quarantined v2 record and reports corrupt", () => {
+test("an explicit all reset durably quarantines corrupt v2 and refreshes to empty", () => {
   const storage = new MemoryStorage({
     [LEARNING_KEY]: "{broken",
+    [LEGACY_SECTION_KEY]: "security",
+    [LEGACY_SEEN_KEY]: "security",
     [LEGACY_PROGRESS_KEY]: json({ play0: true, note: "old" }),
   });
   const store = createLearningStore({ storage, events: new StorageEvents() });
   store.readLearningState();
 
   const result = store.resetLearningStateWithResult("all");
-  assert.equal(result.persisted, false);
-  assert.equal(result.persistence, "session-only");
-  assert.equal(result.reason, "corrupt");
-  assert.equal(storage.getItem(LEARNING_KEY), "{broken");
+  assert.equal(result.persisted, true);
+  assert.equal(result.persistence, "persistent");
+  assert.equal(result.reason, undefined);
+  assert.equal(result.quarantined, true);
+  assert.equal(storage.getItem(LEARNING_RESET_QUARANTINE_KEY), "{broken");
+  assert.deepEqual(JSON.parse(storage.getItem(LEARNING_KEY)!), EMPTY_LEARNING_STATE);
+  assert.equal(storage.getItem(LEGACY_SECTION_KEY), null);
+  assert.equal(storage.getItem(LEGACY_SEEN_KEY), null);
   assert.deepEqual(JSON.parse(storage.getItem(LEGACY_PROGRESS_KEY)!), {
     play0: true,
     note: "old",
   });
+  assert.deepEqual(
+    createLearningStore({ storage, events: new StorageEvents() }).readLearningState(),
+    EMPTY_LEARNING_STATE,
+  );
 });

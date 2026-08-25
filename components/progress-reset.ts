@@ -33,6 +33,8 @@ export interface ProgressResetResult extends ProgressPersistenceReport {
   readonly failedStores: readonly string[];
   /** Machine-readable, non-sensitive cause for each failed store. */
   readonly failureReasons: Readonly<Record<string, NonNullable<PersistenceResult["reason"]>>>;
+  /** Stores whose unreadable active record was moved to inactive recovery storage. */
+  readonly quarantinedStores: readonly string[];
 }
 
 export interface ProgressResetEntry {
@@ -109,6 +111,7 @@ export function inspectProgressPersistence(): ProgressPersistenceReport {
 
 export async function resetEveryCourseProgress(): Promise<ProgressResetResult> {
   const failedStores: string[] = [];
+  const quarantinedStores: string[] = [];
   const failureReasons: Record<string, NonNullable<PersistenceResult["reason"]>> = {};
   let sharedOwnerFailure: NonNullable<PersistenceResult["reason"]> | undefined;
   for (const entry of PROGRESS_RESET_REGISTRY) {
@@ -121,6 +124,7 @@ export async function resetEveryCourseProgress(): Promise<ProgressResetResult> {
       const result = inheritedSharedFailure
         ? { persisted: false, reason: inheritedSharedFailure } as const
         : ownResult;
+      if (ownResult.quarantined) quarantinedStores.push(entry.id);
       if (!result.persisted) {
         const reason = result.reason ?? "unavailable";
         failedStores.push(entry.id);
@@ -141,6 +145,7 @@ export async function resetEveryCourseProgress(): Promise<ProgressResetResult> {
     persistent: failedStores.length === 0 && persistence.persistent,
     failedStores,
     failureReasons,
+    quarantinedStores,
     sessionOnlyStores: persistence.sessionOnlyStores,
   };
 }

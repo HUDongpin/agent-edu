@@ -18,6 +18,12 @@ import { CURSOR_PROGRESS_STORAGE_KEY } from "../lib/progress-topology";
 import { DEEPSEEK_KEY_STORAGE } from "../lib/byok/key-store";
 import { LAB_DRAFT_KEY } from "../lib/lab/draft";
 import {
+  CURSOR_PROGRESS_RESET_QUARANTINE_KEY,
+  GROK_PROGRESS_RESET_QUARANTINE_KEY,
+  RECENCY_RESET_QUARANTINE_KEY,
+  SHARED_PROGRESS_RESET_QUARANTINE_KEY,
+} from "../lib/progress-storage-contract";
+import {
   createAllProgressAdapters,
   createProgressAdaptersForProjection,
   createPublishedProgressAdapters,
@@ -264,22 +270,22 @@ test("blocked progress adapters stay dormant until the generated registry publis
     assert.equal(storage.getItem("aicourse.cursor.progress.v1"), "[]");
 
     const corruptReset = await resetEveryCourseProgress();
-    assert.equal(corruptReset.persistent, false);
-    assert.equal(corruptReset.failureReasons["codex/shared-record"], "corrupt");
-    assert.equal(corruptReset.failureReasons.claude, "corrupt");
-    assert.equal(corruptReset.failureReasons.cursor, "corrupt");
-    assert.equal(storage.getItem("ae.progress"), "{unknown-shared-progress");
-    assert.equal(storage.getItem(CURSOR_PROGRESS_STORAGE_KEY), "[]");
+    assert.equal(corruptReset.persistent, true);
+    assert.deepEqual(corruptReset.failureReasons, {});
+    assert.deepEqual(corruptReset.quarantinedStores, ["codex/shared-record", "cursor"]);
+    assert.equal(storage.getItem("ae.progress"), null);
+    assert.equal(storage.getItem(CURSOR_PROGRESS_STORAGE_KEY), null);
+    assert.equal(
+      storage.getItem(SHARED_PROGRESS_RESET_QUARANTINE_KEY),
+      "{unknown-shared-progress",
+    );
+    assert.equal(storage.getItem(CURSOR_PROGRESS_RESET_QUARANTINE_KEY), "[]");
     assert.deepEqual(
       [...repaintEvents].sort(),
       ["claude:progress-change", "codex:progress-change", "cursor:progress-change"],
     );
 
-    // The reset quarantines, rather than destroys, unknown bytes. Simulate an
-    // explicit recovery outside the product contract, then clear module caches
-    // so this test cannot leak session-only state into the next test.
-    storage.removeItem("ae.progress");
-    storage.removeItem(CURSOR_PROGRESS_STORAGE_KEY);
+    // A second reset is idempotent and does not consume inactive recovery data.
     assert.equal((await resetEveryCourseProgress()).persistent, true);
   } finally {
     if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
@@ -525,6 +531,10 @@ test("corrupt public progress stays unavailable and ordinary updates never repla
 
   try {
     storage.setItem("ae.progress", malformed);
+    storage.setItem("ae.theme", "dark");
+    storage.setItem("ae.lang", "zh-Hans");
+    storage.setItem(LAB_DRAFT_KEY, JSON.stringify({ prompt: "keep corrupt-reset draft" }));
+    session.setItem(DEEPSEEK_KEY_STORAGE, "keep-corrupt-reset-provider-key");
     const adapters = createPublishedProgressAdapters("en");
     for (const courseId of sharedCourseIds) {
       const adapter = adapters.find((candidate) => candidate.courseId === courseId);
@@ -569,15 +579,21 @@ test("corrupt public progress stays unavailable and ordinary updates never repla
     assert.equal(storage.getItem(GROK_PROGRESS_KEY), invalidObject);
 
     const reset = await resetEveryCourseProgress();
-    assert.equal(reset.persistent, false);
-    assert.equal(reset.failureReasons["codex/shared-record"], "corrupt");
-    assert.equal(reset.failureReasons.github, "corrupt");
-    assert.equal(reset.failureReasons.grok, "corrupt");
-    assert.equal(storage.getItem("ae.progress"), malformed);
-    assert.equal(storage.getItem(GROK_PROGRESS_KEY), invalidObject);
+    assert.equal(reset.persistent, true);
+    assert.deepEqual(reset.failureReasons, {});
+    assert.deepEqual(reset.quarantinedStores, ["codex/shared-record", "grok"]);
+    assert.equal(storage.getItem("ae.progress"), null);
+    assert.equal(storage.getItem(GROK_PROGRESS_KEY), null);
+    assert.equal(storage.getItem(SHARED_PROGRESS_RESET_QUARANTINE_KEY), malformed);
+    assert.equal(storage.getItem(GROK_PROGRESS_RESET_QUARANTINE_KEY), invalidObject);
+    assert.equal(storage.getItem("ae.theme"), "dark");
+    assert.equal(storage.getItem("ae.lang"), "zh-Hans");
+    assert.equal(
+      storage.getItem(LAB_DRAFT_KEY),
+      JSON.stringify({ prompt: "keep corrupt-reset draft" }),
+    );
+    assert.equal(session.getItem(DEEPSEEK_KEY_STORAGE), "keep-corrupt-reset-provider-key");
 
-    storage.removeItem("ae.progress");
-    storage.removeItem(GROK_PROGRESS_KEY);
     assert.equal((await resetEveryCourseProgress()).persistent, true);
     for (const adapter of createPublishedProgressAdapters("en")) {
       assert.equal(adapter.isPersistent(), true, adapter.courseId);
@@ -598,8 +614,10 @@ test("corrupt public progress stays unavailable and ordinary updates never repla
     }
     const invalidReset = await resetEveryCourseProgress();
     assert.equal(invalidReset.persistent, false);
-    assert.equal(invalidReset.failureReasons["codex/shared-record"], "corrupt");
+    assert.equal(invalidReset.failureReasons["codex/shared-record"], "unavailable");
     assert.equal(storage.getItem("ae.progress"), invalidObject);
+    assert.equal(storage.getItem(SHARED_PROGRESS_RESET_QUARANTINE_KEY), malformed);
+    storage.removeItem(SHARED_PROGRESS_RESET_QUARANTINE_KEY);
     storage.removeItem("ae.progress");
     assert.equal((await resetEveryCourseProgress()).persistent, true);
   } finally {
@@ -675,11 +693,11 @@ test("the minimal recency ledger survives refresh ordering and fails closed when
     assert.equal(storage.getItem(PROGRESS_RECENCY_STORAGE_KEY), malformed);
     assert.deepEqual(readProgressRecency().activity, { mcp: 1_000 });
     assert.deepEqual(resetProgressRecencyAfterGlobalReset(), {
-      persisted: false,
-      reason: "corrupt",
+      persisted: true,
+      quarantined: true,
     });
-    assert.equal(storage.getItem(PROGRESS_RECENCY_STORAGE_KEY), malformed);
-    storage.removeItem(PROGRESS_RECENCY_STORAGE_KEY);
+    assert.equal(storage.getItem(PROGRESS_RECENCY_STORAGE_KEY), null);
+    assert.equal(storage.getItem(RECENCY_RESET_QUARANTINE_KEY), malformed);
     assert.deepEqual(resetProgressRecencyAfterGlobalReset(), { persisted: true });
   } finally {
     if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });

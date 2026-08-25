@@ -40,6 +40,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const sections = [
     ["privacy.accountTitle", "privacy.accountBody"],
     ["privacy.browserTitle", "privacy.browserBody"],
+    ["privacy.recoveryTitle", "privacy.recoveryBody"],
     ["privacy.draftTitle", "privacy.draftBody"],
     ["privacy.keyTitle", "privacy.keyBody"],
     ["privacy.providerTitle", "privacy.providerBody"],

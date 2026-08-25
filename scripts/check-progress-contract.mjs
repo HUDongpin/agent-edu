@@ -233,7 +233,11 @@ notes.push(`${storeDirectories.length} course stores plus ae.learning.v2 are in 
 const expectedLocalStorageKeys = new Set([
   ...PROGRESS_OWNED_STORAGE_KEYS.localStorage.durable,
   ...PROGRESS_OWNED_STORAGE_KEYS.localStorage.ephemeral,
+  ...PROGRESS_OWNED_STORAGE_KEYS.localStorage.quarantine,
 ]);
+const expectedLocalQuarantineKeys = new Set(
+  PROGRESS_OWNED_STORAGE_KEYS.localStorage.quarantine,
+);
 const expectedSessionStorageKeys = new Set(
   PROGRESS_OWNED_STORAGE_KEYS.sessionStorage.ephemeral,
 );
@@ -291,6 +295,14 @@ for (const { path, text } of progressStorageFiles) {
       else observedLocalStorageKeys.add(key);
     }
   }
+  for (const match of text.matchAll(/quarantineKey:\s*(\w+)/g)) {
+    const key = resolveStorageKeyToken(match[1], text);
+    if (!key) {
+      fail(`${path.slice(ROOT.length + 1)} has an unresolved quarantine key: ${match[1]}.`);
+    } else {
+      observedLocalStorageKeys.add(key);
+    }
+  }
 }
 
 function compareClosedKeySet(label, observed, expected) {
@@ -304,11 +316,17 @@ compareClosedKeySet("progress sessionStorage", observedSessionStorageKeys, expec
 
 const resetStorageKeys = new Set(PROGRESS_RESET_REGISTRY.flatMap((entry) => entry.storageKeys));
 const expectedResetStorageKeys = new Set([
-  ...expectedLocalStorageKeys,
+  ...PROGRESS_OWNED_STORAGE_KEYS.localStorage.durable,
+  ...PROGRESS_OWNED_STORAGE_KEYS.localStorage.ephemeral,
   ...expectedSessionStorageKeys,
 ]);
 compareClosedKeySet("progress reset registry", resetStorageKeys, expectedResetStorageKeys);
-notes.push(`${resetStorageKeys.size} progress-owned durable/ephemeral keys form a closed reset registry`);
+const activeQuarantineKeys = [...expectedLocalQuarantineKeys]
+  .filter((key) => resetStorageKeys.has(key));
+if (activeQuarantineKeys.length) {
+  fail(`inactive quarantine keys must not be consumed as reset-active records: ${activeQuarantineKeys.join(", ")}.`);
+}
+notes.push(`${resetStorageKeys.size} active progress-owned keys and ${expectedLocalQuarantineKeys.size} inactive quarantine keys form a closed storage contract`);
 
 /* ------------------------------------------------------------------ *
  * 4 — the public adapter registry matches the editorial release set

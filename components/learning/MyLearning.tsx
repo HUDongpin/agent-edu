@@ -203,7 +203,9 @@ export default function MyLearning({ locale }: { locale: string }) {
             const result = await resetEveryCourseProgress();
             read();
             setFeedback(result.persistent
-              ? t("progress.resetComplete")
+              ? result.quarantinedStores.length
+                ? t("progress.resetQuarantined")
+                : t("progress.resetComplete")
               : t("progress.resetSessionOnly"));
           }}
         >
