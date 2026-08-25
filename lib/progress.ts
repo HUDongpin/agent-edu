@@ -629,7 +629,11 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
       safeRemove(storage, LEGACY_SEEN_KEY);
     }
     if (scope === "all" && handbookWasReset && labWasReset) {
-      safeRemove(storage, LEGACY_PROGRESS_KEY);
+      /* Not safeRemove: `ae.progress` is shared with fourteen course stores,
+         and removing the key takes their milestones with it. writeLegacy
+         deletes only the five fields this module owns and writes the rest
+         back, or removes the key when nothing else is left in it. */
+      writeLegacy(result, storage);
     } else if (scope === "lab" && labWasReset) {
       // `commit` already rewrote only the expressible Lab fields and preserved
       // unrelated legacy data such as part2 for the retirement window.
@@ -739,4 +743,70 @@ export function mark(key: string, value: unknown = true): void {
     const state = readLearningState();
     if (!state.lab.completedSteps.includes("full-eval")) recordLabStep("full-eval");
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * The shared course record.
+ *
+ * `ae.progress` is not this module's alone. Fourteen courses write it through
+ * their own `components/*\/progress-store.ts`, and the handbook counts sections
+ * under `tch.seen`. What lives here is the part the Lab and the handbook own,
+ * plus the two things a caller outside this module needs to know: whether a
+ * tick will survive the tab, and how to clear this module's share of the
+ * record when the reader asks for a site-wide reset.
+ *
+ * The record itself stays in v2. These are the seam, not a second store.
+ * ------------------------------------------------------------------------ */
+
+/** Handbook sections read, counted by the handbook, the home page and the catalogue. */
+export const SECTIONS = "tch.seen";
+
+/** Same-tab invalidation: `storage` never fires in the tab that wrote. */
+export const AGENTIC_PROGRESS_EVENT = "agentic:progress-change";
+
+/** The fields this module owns inside the shared record. */
+export const AGENTIC_PROGRESS_KEYS = [
+  "play0", "play1", "play2", "play3", "evalBest", "part2",
+] as const;
+
+/** Latched: once storage has refused us, it is refusing for the session. */
+let coursePersistenceFailed = false;
+
+/**
+ * Whether a tick made here will still be here tomorrow.
+ *
+ * Private browsing throws on write rather than on read, so a probe that only
+ * reads would report yes and then lose the reader's work. Every course store
+ * says so when the answer is no; the Lab used to tick anyway.
+ */
+export function isProgressPersistenceAvailable(): boolean {
+  if (coursePersistenceFailed) return false;
+  const storage = browserStorage();
+  if (!storage) return false;
+  const probe = safeRead(storage, LEGACY_PROGRESS_KEY);
+  if (!probe.ok) {
+    coursePersistenceFailed = true;
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Clear this module's share of the record, and say whether it persisted.
+ *
+ * `components/progress-reset.ts` calls this alongside every course store's
+ * own reset. It resets the v2 record, which is where the Lab and handbook
+ * actually keep their state; the shared key is left holding whatever the
+ * courses still own.
+ */
+export function resetAgenticProgress(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    resetLearningState("all");
+  } catch {
+    coursePersistenceFailed = true;
+    return false;
+  }
+  browserEvents()?.dispatchEvent(new Event(AGENTIC_PROGRESS_EVENT));
+  return !coursePersistenceFailed;
 }
