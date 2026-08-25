@@ -98,7 +98,7 @@ function txt(s){ return document.createTextNode(s); }
       if (p) p.classList.toggle('on',on);
     });
     revealTab(activeTab);
-    const learning=recordHandbookVisit(name);
+    const learning=opts.record===false?readLearningState():recordHandbookVisit(name);
     seen=new Set(learning.handbook.visitedSections);
     paintSeen();
     if (window.__paintProgress) window.__paintProgress();
@@ -134,7 +134,7 @@ function txt(s){ return document.createTextNode(s); }
   });
   const restoreLocation=()=>{
     const h=decodeURIComponent(location.hash.slice(1));
-    show(NAMES.has(h)?h:'start',{replace:true,focus:false,silent:true});
+    show(NAMES.has(h)?h:'start',{replace:true,focus:false,silent:true,record:false});
   };
   window.addEventListener('popstate',restoreLocation);
   window.addEventListener('hashchange',restoreLocation);
@@ -146,7 +146,7 @@ function txt(s){ return document.createTextNode(s); }
   // a link to #loop wins; otherwise pick up where they left off
   const fromHash=decodeURIComponent(location.hash.slice(1));
   const initial = NAMES.has(fromHash) ? fromHash : readLearningState().handbook.lastSection;
-  show(initial,{replace:true,focus:false,silent:true});
+  show(initial,{replace:true,focus:false,silent:true,record:false});
 
   $('#glossBtn').addEventListener('click',()=>{
     show('compare');
