@@ -1482,6 +1482,42 @@ test("the home hero is a bounded grid and all release widths avoid horizontal ov
   }
 });
 
+test("Chromium 200% page zoom keeps the primary learning journey operable", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(
+    browserName !== "chromium",
+    "Firefox and WebKit expose no Playwright-equivalent browser page-scale API.",
+  );
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const response = await page.goto("/en/grok/");
+  expect(response?.status()).toBe(200);
+
+  const devtools = await page.context().newCDPSession(page);
+  await devtools.send("Emulation.setPageScaleFactor", { pageScaleFactor: 2 });
+  await expect.poll(() => page.evaluate(() => window.visualViewport?.scale ?? 1), {
+    message: "Chromium must report a real 200% page scale",
+  }).toBeCloseTo(2, 1);
+
+  const start = primaryJourneyLinks(page);
+  await expect(start).toHaveCount(1);
+  await start.scrollIntoViewIfNeeded();
+  await expect(start).toBeVisible();
+  await start.click();
+  await expect(page).toHaveURL(/\/en\/grok\/map-grok\/$/);
+  await expectPrimaryHeadingFocused(page);
+
+  const next = page.locator('[data-course-lesson-nav] a[rel="next"]');
+  await expect(next).toHaveAttribute("href", "/en/grok/read-interface/");
+  await next.scrollIntoViewIfNeeded();
+  await expect(next).toBeVisible();
+  await next.click();
+  await expect(page).toHaveURL(/\/en\/grok\/read-interface\/$/);
+  await expectPrimaryHeadingFocused(page);
+});
+
 test("the teacher workflow defaults to 90 minutes, is keyboard-selectable, and prints all plans", async ({ page }) => {
   const response = await page.goto("/en/teach/");
   expect(response?.status()).toBe(200);

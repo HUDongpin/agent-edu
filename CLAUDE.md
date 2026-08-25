@@ -30,8 +30,9 @@ menu: `npm run i18n:check:release -- --json` dynamically discovers namespaces,
 routes and course contracts, and any missing target value is a release failure.
 A translator must be able to fix a line without knowing React.
 
-That audit needs a frozen build, browser evidence and a named human reviewer,
-so it cannot gate a commit. `npm run i18n:check:keys` is the half that can:
+The complete audit needs a frozen build, browser evidence and a named human
+reviewer, so its human and production findings cannot be promoted to a compile
+PASS. `npm run i18n:check:keys` is the source-level half that can gate a commit:
 the same discovery, restricted to what a missing key can decide on its own —
 missing, extra, empty, wrong leaf type, wrong `{placeholder}` set, wrong
 `**bold**` markers. It runs inside `npm run build`. It deliberately does not
@@ -78,10 +79,14 @@ British spelling. Sentence case in headings. Prefer deleting a widget over addin
 one. Do not rewrite existing copy to satisfy a linter.
 
 ## Before you say you're done
-`npm run build` must pass; never assert a fixed page count. Reconcile the
-App Router patterns, course manifests, sitemap and actual `out/**/*.html`
-inventory dynamically. It runs `handbook:check`, `widgets:check`,
-`i18n:check:keys` and every course release checker, so a missing translation
-key fails the build rather than the release. `npm run i18n:check:release
--- --json` must additionally pass before release. Never commit `All API Keys.docx`
-or anything matching the secrets block in `.gitignore`.
+`npm run build` must pass; never assert a fixed page count. Reconcile the App
+Router patterns, release registry, sitemap and actual `out/**/*.html` inventory
+dynamically. The ordinary build runs deterministic structure checks and each
+course's non-release development gate. `npm run verify:source` and `npm run
+build:release` additionally require exactly one passing release gate for every
+course whose registry state is `published`. A `blocked` course keeps its real
+failing release evidence in the backlog and must not be made public merely to
+make the build green. `build:release` also runs the post-build i18n automated
+gate; human, browser and production findings remain explicitly pending until
+their evidence exists. Never commit `All API Keys.docx` or anything matching
+the secrets block in `.gitignore`.
