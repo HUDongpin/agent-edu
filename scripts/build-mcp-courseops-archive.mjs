@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const FIXTURE_ROOT = resolve(ROOT, "examples/mcp-courseops");
+const FIXTURE_ROOT = resolve(ROOT, "tests/fixtures/mcp-courseops");
 const OUTPUT = resolve(ROOT, "public/courses/mcp/courseops-reference.zip");
 const CHECKSUM = resolve(ROOT, "public/courses/mcp/courseops-reference.sha256");
 const FILES = [

@@ -340,7 +340,7 @@
         "commands": [
           "codex --version",
           "codex -c features.mcp_2026_07_28=true features list | grep '^mcp_2026_07_28'",
-          "codex -c features.mcp_2026_07_28=true -c mcp_servers.courseops_modern.command=\"node\" -c mcp_servers.courseops_modern.args=[\"examples/mcp-courseops/src/server.mjs\"] -c mcp_servers.courseops_modern.env={CODEX_MCP_PROTOCOL_VERSION=\"2026-07-28\"} -c mcp_servers.courseops_modern.enabled_tools=[\"course.get_lesson\",\"course.record_evidence\"] -c mcp_servers.courseops_modern.disabled_tools=[\"course.record_evidence\"] mcp get courseops_modern"
+          "codex -c features.mcp_2026_07_28=true -c mcp_servers.courseops_modern.command=\"node\" -c mcp_servers.courseops_modern.args=[\"tests/fixtures/mcp-courseops/src/server.mjs\"] -c mcp_servers.courseops_modern.env={CODEX_MCP_PROTOCOL_VERSION=\"2026-07-28\"} -c mcp_servers.courseops_modern.enabled_tools=[\"course.get_lesson\",\"course.record_evidence\"] -c mcp_servers.courseops_modern.disabled_tools=[\"course.record_evidence\"] mcp get courseops_modern"
         ],
         "configurationBoundary": "Command-line overrides create a synthetic one-command view and do not read, merge, write, or display the user's persistent MCP server configuration.",
         "executableEvidence": {

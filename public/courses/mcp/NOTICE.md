@@ -45,7 +45,7 @@ This is a real course-authored terminal capture of `@google/gemini-cli@0.56.0`, 
 - Local readable Apache-2.0 license copy: `public/courses/mcp/licenses/APACHE-2.0.txt`
 - NOTICE finding: the complete repository tree at pinned revision `b6e23a7dc29eb15fede4bbe646d91869e948b45a` contains no `NOTICE` or `NOTICE.*` file; reviewed 2026-08-24.
 - Google educational screenshot and brand guidance: https://about.google/brand-resource-center/guidance/
-- Full capture recipe, integrity values, and version boundary: `outputs/mcp-host-ui-capture-provenance.md`
+- Full capture recipe, integrity values, and version boundary: `evidence/course-audits/mcp-host-ui-capture-provenance.md`
 
 The published master is a disclosed privacy crop that removes only black desktop margin and Terminal window chrome containing the local user name; Gemini CLI output pixels are otherwise unchanged. The raw full-window master is retained outside `public/` and protected from accidental staging. The figure's `reviewed-course-capture` status means it passed this project's internal rights and privacy review; it does not mean that Google approved it. Google and Gemini marks belong to Google. No endorsement is implied.
 
@@ -61,7 +61,7 @@ This is a real course-authored terminal capture of `@openai/codex@0.149.1`, not 
 - Local readable Apache-2.0 license copy: `public/courses/mcp/licenses/APACHE-2.0.txt`
 - Upstream NOTICE: https://github.com/openai/codex/blob/ff29a44391deccde0aba0f8390337d7f3c319ea4/NOTICE
 - Local NOTICE copy: `public/courses/mcp/licenses/CODEX-NOTICE.txt`
-- Full capture recipe, integrity values, and feature boundary: `outputs/mcp-host-ui-capture-provenance.md`
+- Full capture recipe, integrity values, and feature boundary: `evidence/course-audits/mcp-host-ui-capture-provenance.md`
 
 Applicable attribution from the pinned upstream NOTICE is preserved locally:
 

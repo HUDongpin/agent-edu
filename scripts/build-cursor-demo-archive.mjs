@@ -19,7 +19,7 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const fixture = join(root, "examples", "cursor-course-demo");
+const fixture = join(root, "tests", "fixtures", "cursor-course-demo");
 const outputDir = join(root, "public", "courses", "cursor");
 const output = join(outputDir, "aicourse-cursor-demo-v1.zip");
 const checksumFile = join(outputDir, "aicourse-cursor-demo-v1.sha256");

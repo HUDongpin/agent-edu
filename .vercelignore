@@ -10,18 +10,39 @@
 *.p12
 *.pfx
 *secret*
+!scripts/check-secrets.mjs
 *credential*
 *API*Key*
 
-# Not part of the website
-course/
+# Ignored local runtime records can contain prompts or model replies. Keep the
+# exact paths out of the Vercel source upload before any remote scanner runs.
+/course/cafe/fixtures.*.json
+/course/progress.json
+/legacy/course-python/cafe/fixtures.*.json
+
+# Not part of the website. `course/` stays in the upload because source tests
+# and the offline course truth contracts run inside build:release.
 legacy/
 .next/
 out/
+/output/
 .claude/
 playwright-report/
 test-results/
 blob-report/
+tmp/
+/browser-evidence/
+/.playwright-raw/
+/.playwright-private/
+/.playwright-evidence-contract-safe/
+/.playwright-evidence-contract-private/
+/course_review_2026-08-23/
+video-pilot/
+outputs/assets/
+outputs/grok-audit/
+outputs/mcp-browser-qa-screenshots/
+/outputs/
+/examples/
 TEACHING.md
 .git/
 .venv/

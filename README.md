@@ -76,9 +76,9 @@ npm run agent-orchestration:check:release # strict Course 15 release gate
 ```
 
 The evidence synthesis and publication boundaries live in
-[`outputs/agent-orchestration-course-research-brief.md`](outputs/agent-orchestration-course-research-brief.md)
+[`evidence/course-audits/agent-orchestration-course-research-brief.md`](evidence/course-audits/agent-orchestration-course-research-brief.md)
 and
-[`outputs/agent-orchestration-course-research-brief.provenance.md`](outputs/agent-orchestration-course-research-brief.provenance.md).
+[`evidence/course-audits/agent-orchestration-course-research-brief.provenance.md`](evidence/course-audits/agent-orchestration-course-research-brief.provenance.md).
 
 ---
 
@@ -88,7 +88,7 @@ The Codex course uses one repeatable operating loop: bound the task, orient to t
 
 The course is deliberately fail-closed about product media. Every figure record begins as `capture-required`; `npm run codex:check:release` will not pass until a genuine Codex or GitHub surface has local responsive assets, dimensions, a matching SHA-256, version and operating-system metadata, a current source, and recorded privacy review. Generated or reconstructed Codex UI is not accepted.
 
-The capstone starter lives in [`examples/codex-course-demo/`](examples/codex-course-demo/). It intentionally begins with two failing assertions for the missing keyboard-accessible **Incomplete** filter. After the learner implements the bounded fix, `npm run course:verify` inside the fixture runs tests, lint, build, route preservation, keyboard checks, and a no-new-dependencies check. It writes a receipt only when all six pass. The course browser validates that exact schema, fixture version, fixture hash, and check set, then stores only a completion boolean.
+The capstone starter source lives in [`tests/fixtures/codex-course-demo/`](tests/fixtures/codex-course-demo/). It intentionally begins with two failing assertions for the missing keyboard-accessible **Incomplete** filter. After the learner implements the bounded fix, `npm run course:verify` inside the fixture runs tests, lint, build, route preservation, keyboard checks, and a no-new-dependencies check. It writes a receipt only when all six pass. The course browser validates that exact schema, fixture version, fixture hash, and check set, then stores only a completion boolean.
 
 Useful maintenance commands:
 
@@ -119,7 +119,7 @@ npm run software-engineering:check:release # strict shared-integration and relea
 npm run test:software-engineering           # 35 Playwright route, state, locale, media, SEO, no-JS and responsive checks
 ```
 
-The instructional body is English in this edition. All nine locale routes provide translated titles, shell and interactive-control labels plus a visible language notice; structured data honestly declares English instructional content. The research brief, source boundary, public capstone dossier, and media-rights record live under `outputs/` and `public/courses/software-engineering/`.
+The instructional body is English in this edition. All nine locale routes provide translated titles, shell and interactive-control labels plus a visible language notice; structured data honestly declares English instructional content. The research brief, source boundary, public capstone dossier, and media-rights record live under `evidence/course-audits/` and `public/courses/software-engineering/`.
 
 ---
 
@@ -156,7 +156,7 @@ npm run rag:check:release # strict Course 9 release gate
 npm run test:rag          # Playwright route, interaction, mobile, locale and SEO suite
 ```
 
-The complete long-form course, laboratory, assessment, capstone and figure transcripts are localized across English, Spanish, French, German, Simplified Chinese, Traditional Chinese, Japanese, Korean and Arabic. Metadata and structured data self-canonicalize to each content locale, while Arabic course views render right to left. The research audit and complete provenance ledger live in [`outputs/rag-course-research-brief.md`](outputs/rag-course-research-brief.md) and [`outputs/rag-course-research-brief.provenance.md`](outputs/rag-course-research-brief.provenance.md).
+The complete long-form course, laboratory, assessment, capstone and figure transcripts are localized across English, Spanish, French, German, Simplified Chinese, Traditional Chinese, Japanese, Korean and Arabic. Metadata and structured data self-canonicalize to each content locale, while Arabic course views render right to left. The research audit and complete provenance ledger live in [`evidence/course-audits/rag-course-research-brief.md`](evidence/course-audits/rag-course-research-brief.md) and [`evidence/course-audits/rag-course-research-brief.provenance.md`](evidence/course-audits/rag-course-research-brief.provenance.md).
 
 ---
 

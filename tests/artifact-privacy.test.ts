@@ -761,19 +761,21 @@ test("CI uploads browser evidence only after the privacy scanner succeeds", () =
     packageJson.scripts?.["artifacts:check"],
     "node scripts/check-artifacts.mjs --curated --require-root browser-evidence",
   );
-  assert.equal((workflow.match(/id: artifact_privacy/g) ?? []).length, 2);
-  assert.equal((workflow.match(/run: npm run artifacts:check/g) ?? []).length, 2);
-  assert.equal((workflow.match(/uses: actions\/upload-artifact@v7/g) ?? []).length, 2);
+  assert.equal((workflow.match(/id: artifact_privacy/g) ?? []).length, 3);
+  assert.equal((workflow.match(/run: npm run artifacts:check/g) ?? []).length, 3);
+  const pinnedUploadArtifact =
+    "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a";
+  assert.equal(workflow.split(pinnedUploadArtifact).length - 1, 4);
   assert.equal(
     (
       workflow.match(
-        /if: \$\{\{ failure\(\) && steps\.artifact_privacy\.outcome == 'success' \}\}\n\s+uses: actions\/upload-artifact@v7/g,
+        /if: \$\{\{ failure\(\) && steps\.artifact_privacy\.outcome == 'success' \}\}\n\s+uses: actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/g,
       ) ?? []
     ).length,
-    2,
+    3,
   );
-  assert.equal((workflow.match(/path: browser-evidence\//g) ?? []).length, 2);
-  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 2);
+  assert.equal((workflow.match(/path: browser-evidence\//g) ?? []).length, 3);
+  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 4);
   assert.doesNotMatch(workflow, /path:[\s\S]{0,100}(?:test-results|playwright-report)/);
   const contractOffset = workflow.indexOf("run: npm run test:evidence-contract");
   const smokeOffset = workflow.indexOf("run: npm run test:smoke");

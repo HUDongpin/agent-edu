@@ -60,4 +60,4 @@ The two MP4-derived masters are reproducible exact frames:
 Exact original-media URLs, local SHA-256 values, dimensions, capture dates,
 privacy review, and teaching intent are recorded in `lib/cursor/figures.ts`.
 Source and reuse decisions are also documented in
-`outputs/cursor-course-research-brief.provenance.md`.
+`evidence/course-audits/cursor-course-research-brief.provenance.md`.

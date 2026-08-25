@@ -1,7 +1,7 @@
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { lstatSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { sourceInventory } from "./lib/source-inventory.mjs";
 
 const PRIVATE_KEY = new RegExp(
   ["-----BEGIN ", "(?:RSA |EC |OPENSSH )?", "PRIVATE KEY-----"].join(""),
@@ -66,21 +66,20 @@ export function contentFindings(text) {
   return findings;
 }
 
-function trackedFiles() {
-  const raw = execFileSync("git", ["ls-files", "-z"], {
-    cwd: process.cwd(),
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  return raw.split("\0").filter(Boolean);
-}
-
-export function checkSecrets() {
+export function checkSecrets(options = {}) {
+  const root = resolve(options.root ?? process.cwd());
   const findings = [];
-  const files = trackedFiles();
+  const inventory = sourceInventory({ root });
+  const files = inventory.files;
   for (const file of files) {
     for (const id of pathFindings(file)) findings.push({ file, id });
-    const bytes = readFileSync(resolve(file));
+    const absolute = resolve(root, file);
+    const info = lstatSync(absolute);
+    if (!info.isFile() || info.isSymbolicLink()) {
+      findings.push({ file, id: "non-regular-file" });
+      continue;
+    }
+    const bytes = readFileSync(absolute);
     if (bytes.includes(0)) continue;
     for (const finding of contentFindings(bytes.toString("utf8"))) {
       findings.push({ file, ...finding });
@@ -95,7 +94,9 @@ export function checkSecrets() {
     }
     throw new Error(findings.length + " tracked-file finding(s)");
   }
-  console.log("secrets: " + files.length + " tracked files checked; no high-confidence findings");
+  console.log(
+    `secrets: ${files.length} ${inventory.mode} candidate files checked; no high-confidence findings`,
+  );
 }
 
 const invoked = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;

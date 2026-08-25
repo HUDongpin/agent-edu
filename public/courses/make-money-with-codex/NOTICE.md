@@ -18,13 +18,13 @@ Four figures therefore carry authentic Codex interface or transcript evidence: t
 
 The X links attached to eight figures remain valuable practitioner context, and the OpenAI Developers community page remains a provenance locator. Those contextual links are not the pixel source for the first-party figures. The record confirms that no creator-post image pixels were copied or redistributed in `fig-01`, `fig-02`, or `fig-04` to `fig-09`. OpenAI curation is not treated as independent verification, a reuse licence, or an endorsement.
 
-Exact source links, classifications, dimensions, SHA-256 digests, contextual authors, evidence boundaries, visible identifiers, and privacy notes are recorded in `lib/make-money-with-codex/figures.ts` and `outputs/make-money-with-codex/figure-provenance.md`.
+Exact source links, classifications, dimensions, SHA-256 digests, contextual authors, evidence boundaries, visible identifiers, and privacy notes are recorded in `lib/make-money-with-codex/figures.ts` and `evidence/course-audits/make-money-with-codex/figure-provenance.md`.
 
 ## Rights basis
 
 The repository records two rights bases:
 
-- `fig-01`, `fig-02`, and `fig-04` to `fig-09` use `first-party-original` with capture method `first-party-synthetic-capture`. Their capture details and publication permission are recorded in `outputs/make-money-with-codex/first-party-captures/rights-record.md`. The synthetic qualifier refers to the disposable workspace and invented teaching data. The desktop pixels in `fig-01` and `fig-02` are live Codex app captures, and the substantive CLI response in `fig-04` came from an actual run.
+- `fig-01`, `fig-02`, and `fig-04` to `fig-09` use `first-party-original` with capture method `first-party-synthetic-capture`. Their capture details and publication permission are recorded in `evidence/course-audits/make-money-with-codex/first-party-captures/rights-record.md`. The synthetic qualifier refers to the disposable workspace and invented teaching data. The desktop pixels in `fig-01` and `fig-02` are live Codex app captures, and the substantive CLI response in `fig-04` came from an actual run.
 - `fig-03` uses `apache-2.0-pinned-source`. Its source is the official `openai/codex` repository at commit `343074d4207d572809bd8cea15f4be1d09d98e0b`. The applicable files are retained as `licenses/openai-codex-343074d-LICENSE.txt` and `licenses/openai-codex-343074d-NOTICE.txt`. Reuse must retain and comply with that licence and notice.
 
 OpenAI, Codex, GitHub, X, and other names or interface elements may be protected by trademark or other rights. This course does not claim those rights and does not imply endorsement by OpenAI, GitHub, X, any practitioner, or any contextual source. This notice documents provenance and permissions; it is not legal advice.

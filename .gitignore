@@ -58,11 +58,10 @@ __pycache__/
 # Local dev tooling
 .claude/
 
-# Course 10 MCP rights-review and raw-capture workspaces. These contain
-# non-public source candidates or privacy-bearing window chrome and must never
-# be swept into the public repository by `git add -A`.
-/tmp/mcp-rights-hold/
-/tmp/mcp-ui-evidence/
+# All temporary staging, render, cache and QA capture output is local-only.
+# Release inputs belong under evidence/ or tests/fixtures with an explicit
+# provenance/checker contract; a file's presence under tmp/ is never evidence.
+/tmp/
 
 # Private working notes. Untracked is not enough: `git add -A` would stage
 # these into a public repo.
@@ -92,7 +91,5 @@ node_modules/
 # it. It belongs in its own repository, not in every clone of this one.
 /video-pilot/
 
-# Third-party PDFs pulled in for research. Redistributing them from a public
-# repo is a rights question nobody has answered; tmp/ itself stays because the
-# course release checkers read from it.
-/tmp/pdfs/
+# Generated visual QA output is not release evidence and is reproducible.
+/outputs/

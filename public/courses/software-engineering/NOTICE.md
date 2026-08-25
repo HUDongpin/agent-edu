@@ -14,7 +14,8 @@ The canonical machine-readable ledger is `lib/software-engineering/figures.ts`. 
 - Immutable commit: `343074d4207d572809bd8cea15f4be1d09d98e0b`
 - Source: https://github.com/openai/codex/blob/343074d4207d572809bd8cea15f4be1d09d98e0b/.github/codex-cli-splash.png
 - Licence: Apache License 2.0 — https://github.com/openai/codex/blob/343074d4207d572809bd8cea15f4be1d09d98e0b/LICENSE
-- Master dimensions and SHA-256: 1898 × 1190; `15b86fa9c0790a779ecdd84f1e7dee029ab79bfb093bd3c4876998696925b013`
+- Public fallback dimensions and SHA-256: 1898 × 1190; `e001d6a7f61d43fc8f460315fadb10a8afb047a5774563e68f3eedb01ed87f94`
+- Original master: `evidence/media-masters/courses/software-engineering/figures/codex-cli-plan.png`; SHA-256 `15b86fa9c0790a779ecdd84f1e7dee029ab79bfb093bd3c4876998696925b013`
 - 1600-pixel derivative: 1600 × 1004; `3abc328ec5ecd76814fe44bd371f7d4f68d89f87e9508d73dcb7af7a5601df88`
 - Modification: a responsive WebP derivative was created from the upstream PNG; the master is byte-identical to the pinned source.
 - Qualification: Apache-2.0 does not grant trademark rights. Historical model/version labels visible in the image are not current product-entitlement claims.
