@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "aicourse.synthetic-news.v1",
+  "assetId": "SYN-A",
+  "notice": "Fictional teaching fixture. No item describes a real issuer, asset, person, or event.",
+  "items": [
+    {
+      "id": "syn-news-001",
+      "publishedAt": "2026-01-06T08:00:00Z",
+      "knownAt": "2026-01-06T08:03:00Z",
+      "text": "Synthetic Alpha reports a routine maintenance window with no change to its fictional outlook.",
+      "sentimentLabel": "neutral",
+      "confidence": 0.61
+    },
+    {
+      "id": "syn-news-002",
+      "publishedAt": "2026-01-09T13:30:00Z",
+      "knownAt": "2026-01-09T13:34:00Z",
+      "text": "The fictional issuer announces that a sandbox pilot met its predeclared reliability threshold.",
+      "sentimentLabel": "positive",
+      "confidence": 0.72
+    },
+    {
+      "id": "syn-news-003",
+      "publishedAt": "2026-01-14T15:10:00Z",
+      "knownAt": "2026-01-14T15:18:00Z",
+      "text": "A simulated supplier delay may affect one hypothetical product line for two weeks.",
+      "sentimentLabel": "negative",
+      "confidence": 0.68
+    },
+    {
+      "id": "syn-news-004",
+      "publishedAt": "2026-01-19T09:45:00Z",
+      "knownAt": "2026-01-19T09:52:00Z",
+      "text": "Synthetic Alpha opens an internal review after a fictional service interruption.",
+      "sentimentLabel": "negative",
+      "confidence": 0.76
+    },
+    {
+      "id": "syn-news-005",
+      "publishedAt": "2026-01-22T11:20:00Z",
+      "knownAt": "2026-01-22T11:25:00Z",
+      "text": "The fictional service is restored; the root-cause report remains pending.",
+      "sentimentLabel": "neutral",
+      "confidence": 0.64
+    },
+    {
+      "id": "syn-news-006",
+      "publishedAt": "2026-01-27T14:00:00Z",
+      "knownAt": "2026-01-27T14:07:00Z",
+      "text": "A synthetic audit confirms the hypothetical remediation items were completed.",
+      "sentimentLabel": "positive",
+      "confidence": 0.71
+    }
+  ]
+}
