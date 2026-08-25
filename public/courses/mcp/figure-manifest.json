@@ -1,0 +1,398 @@
+{
+  "schemaVersion": 2,
+  "courseId": "mcp",
+  "evidenceSnapshot": "2026-08-24",
+  "releaseStatus": "approved",
+  "upstreamRepository": "https://github.com/modelcontextprotocol/modelcontextprotocol",
+  "upstreamCommit": "e24f0099b60f7c00e165a0faa02a72029d2fa654",
+  "sourcePage": "https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/web",
+  "license": {
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "repositoryEvidence": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/e24f0099b60f7c00e165a0faa02a72029d2fa654/LICENSE",
+    "scopeEvidence": "The repository license states that documentation contributions, excluding specifications, are licensed under CC-BY-4.0. These images are documentation assets under docs/images/inspector/.",
+    "attribution": "Model Context Protocol documentation contributors"
+  },
+  "rightsCollections": {
+    "mcp-inspector-documentation": {
+      "rightsStatus": "approved-cc-by-4.0",
+      "workType": "first-party documentation screenshot",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "repository": "https://github.com/modelcontextprotocol/modelcontextprotocol",
+      "revision": "e24f0099b60f7c00e165a0faa02a72029d2fa654",
+      "attribution": "Model Context Protocol documentation contributors"
+    },
+    "google-gemini-cli-course-capture": {
+      "rightsStatus": "reviewed-course-capture",
+      "internalReviewStatus": "approved-for-course-release",
+      "providerAuthorization": "not claimed; internal rights and privacy review is not Google approval",
+      "workType": "course-authored terminal capture of first-party open-source client output",
+      "captureAuthor": "aicourse.top course team",
+      "captureLicense": "MIT for the separately copyrightable course-authored selection, privacy crop, and surrounding course material",
+      "embeddedWorkLicense": "Apache-2.0",
+      "localLicensePath": "licenses/APACHE-2.0.txt",
+      "licenseUrl": "https://github.com/google-gemini/gemini-cli/blob/b6e23a7dc29eb15fede4bbe646d91869e948b45a/LICENSE",
+      "noticeUrl": null,
+      "noticeFinding": "No NOTICE or NOTICE.* file exists at pinned source revision b6e23a7dc29eb15fede4bbe646d91869e948b45a; the complete repository tree was reviewed on 2026-08-24.",
+      "captureGuidance": "https://about.google/brand-resource-center/guidance/",
+      "repository": "https://github.com/google-gemini/gemini-cli",
+      "revision": "b6e23a7dc29eb15fede4bbe646d91869e948b45a",
+      "pixelBoundary": "Gemini CLI output pixels are unaltered; the disclosed crop removes only non-product desktop margin and Terminal title chrome.",
+      "trademarkBoundary": "Google and Gemini marks belong to Google. The capture is educational and does not imply endorsement."
+    },
+    "openai-codex-cli-course-capture": {
+      "rightsStatus": "reviewed-course-capture",
+      "internalReviewStatus": "approved-for-course-release",
+      "providerAuthorization": "not claimed; internal rights and privacy review is not OpenAI approval",
+      "workType": "course-authored terminal capture of first-party open-source client output",
+      "captureAuthor": "aicourse.top course team",
+      "captureLicense": "MIT for the separately copyrightable course-authored selection, privacy crop, and surrounding course material",
+      "embeddedWorkLicense": "Apache-2.0",
+      "localLicensePath": "licenses/APACHE-2.0.txt",
+      "licenseUrl": "https://github.com/openai/codex/blob/ff29a44391deccde0aba0f8390337d7f3c319ea4/LICENSE",
+      "noticeUrl": "https://github.com/openai/codex/blob/ff29a44391deccde0aba0f8390337d7f3c319ea4/NOTICE",
+      "localNoticePath": "licenses/CODEX-NOTICE.txt",
+      "repository": "https://github.com/openai/codex",
+      "revision": "ff29a44391deccde0aba0f8390337d7f3c319ea4",
+      "pixelBoundary": "Codex CLI output pixels are unaltered; the disclosed crop removes only non-product desktop margin and Terminal title chrome.",
+      "trademarkBoundary": "OpenAI and Codex marks belong to OpenAI. The capture is educational and does not imply endorsement."
+    }
+  },
+  "derivativeRecipe": {
+    "script": "scripts/build-mcp-figure-derivatives.mjs",
+    "runtime": "sharp 0.35.3",
+    "resize": {
+      "widths": [1600, 960],
+      "withoutEnlargement": true
+    },
+    "webp": {
+      "quality": 82,
+      "effort": 6,
+      "smartSubsample": true,
+      "lossless": false
+    }
+  },
+  "privacyReview": {
+    "status": "passed",
+    "reviewedOn": "2026-08-24",
+    "finding": "Synthetic demonstration data and loopback or local-process configuration only; no people, personal accounts, credentials, secrets, private records, home paths, or user identifiers are visible in published pixels.",
+    "metadataFinding": "Responsive WebP outputs contain image payload chunks only; no EXIF or XMP profile is retained."
+  },
+  "figures": [
+    {
+      "id": "inspector-settings",
+      "evidenceClass": "direct-mcp-ui",
+      "releaseEligibility": "publish",
+      "rightsStatus": "approved-cc-by-4.0",
+      "rightsCollection": "mcp-inspector-documentation",
+      "upstream": {
+        "path": "docs/images/inspector/web-server-settings.png",
+        "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/e24f0099b60f7c00e165a0faa02a72029d2fa654/docs/images/inspector/web-server-settings.png",
+        "sha256": "74662c86b620e80d89e090ef54c1c208e9eca2d7c1aa8f2da10ef8bbdc2b717e",
+        "width": 3840,
+        "height": 2160
+      },
+      "courseMaster": {
+        "path": "figures/inspector-settings.png",
+        "sha256": "74662c86b620e80d89e090ef54c1c208e9eca2d7c1aa8f2da10ef8bbdc2b717e",
+        "width": 3840,
+        "height": 2160,
+        "transformation": "Byte-for-byte upstream copy; no modification"
+      },
+      "derivatives": [
+        { "path": "figures/inspector-settings-1600.webp", "sha256": "b13dffd581fc714d5feb93d90772b450ef61883378dbe3a11418676e14c314bd", "width": 1600, "height": 900 },
+        { "path": "figures/inspector-settings-960.webp", "sha256": "22491e1c3d63080a0199d90e03a5f446371f940d0fb1f83298b120b79077af69", "width": 960, "height": 540 }
+      ],
+      "changeNotice": "Responsive derivatives are resized and lossy WebP encoded; course captions add current-protocol context outside the image."
+    },
+    {
+      "id": "inspector-tools",
+      "evidenceClass": "direct-mcp-ui",
+      "releaseEligibility": "publish",
+      "rightsStatus": "approved-cc-by-4.0",
+      "rightsCollection": "mcp-inspector-documentation",
+      "upstream": {
+        "path": "docs/images/inspector/web-tools.png",
+        "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/e24f0099b60f7c00e165a0faa02a72029d2fa654/docs/images/inspector/web-tools.png",
+        "sha256": "8426d6390853b5663bb445df8e0d5dc48435fc02d6885d5b2d294853b4bedae6",
+        "width": 3840,
+        "height": 2160
+      },
+      "courseMaster": {
+        "path": "figures/inspector-tools.png",
+        "sha256": "8426d6390853b5663bb445df8e0d5dc48435fc02d6885d5b2d294853b4bedae6",
+        "width": 3840,
+        "height": 2160,
+        "transformation": "Byte-for-byte upstream copy; no modification"
+      },
+      "derivatives": [
+        { "path": "figures/inspector-tools-1600.webp", "sha256": "3d72393645c3b36390a4839a0ff275e2216a04d442e8130738b72311f2d1d613", "width": 1600, "height": 900 },
+        { "path": "figures/inspector-tools-960.webp", "sha256": "3332da87db78f1c4be433d7e1e9be41d7a0ac11ef0d70a50fdecd6e674467fb8", "width": 960, "height": 540 }
+      ],
+      "changeNotice": "Responsive derivatives are resized and lossy WebP encoded; course captions add current-protocol context outside the image."
+    },
+    {
+      "id": "inspector-resources",
+      "evidenceClass": "direct-mcp-ui",
+      "releaseEligibility": "publish",
+      "rightsStatus": "approved-cc-by-4.0",
+      "rightsCollection": "mcp-inspector-documentation",
+      "upstream": {
+        "path": "docs/images/inspector/web-resources.png",
+        "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/e24f0099b60f7c00e165a0faa02a72029d2fa654/docs/images/inspector/web-resources.png",
+        "sha256": "868247257b143b800ee446b41fc7ce45fca31ae0673b4ed4f29ca1712c745078",
+        "width": 3840,
+        "height": 2160
+      },
+      "courseMaster": {
+        "path": "figures/inspector-resources.png",
+        "sha256": "868247257b143b800ee446b41fc7ce45fca31ae0673b4ed4f29ca1712c745078",
+        "width": 3840,
+        "height": 2160,
+        "transformation": "Byte-for-byte upstream copy; no modification"
+      },
+      "derivatives": [
+        { "path": "figures/inspector-resources-1600.webp", "sha256": "ffef4c07ee17b6fc12973d595ecb6541a7e87f311f9623b682d649ba033452a0", "width": 1600, "height": 900 },
+        { "path": "figures/inspector-resources-960.webp", "sha256": "5ba5742559ecbad6d3212271aefbfb1e9369558a3d72ba3b20417f722c698cac", "width": 960, "height": 540 }
+      ],
+      "changeNotice": "Responsive derivatives are resized and lossy WebP encoded; a course caption flags the legacy subscription UI."
+    },
+    {
+      "id": "inspector-prompts",
+      "evidenceClass": "direct-mcp-ui",
+      "releaseEligibility": "publish",
+      "rightsStatus": "approved-cc-by-4.0",
+      "rightsCollection": "mcp-inspector-documentation",
+      "upstream": {
+        "path": "docs/images/inspector/web-prompts.png",
+        "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/e24f0099b60f7c00e165a0faa02a72029d2fa654/docs/images/inspector/web-prompts.png",
+        "sha256": "f1395e4719c303365269e135e59a03c673753270a8587560e4145955de258cb6",
+        "width": 3840,
+        "height": 2160
+      },
+      "courseMaster": {
+        "path": "figures/inspector-prompts.png",
+        "sha256": "f1395e4719c303365269e135e59a03c673753270a8587560e4145955de258cb6",
+        "width": 3840,
+        "height": 2160,
+        "transformation": "Byte-for-byte upstream copy; no modification"
+      },
+      "derivatives": [
+        { "path": "figures/inspector-prompts-1600.webp", "sha256": "7b0b910882fbe6402af2f74577cf30653cdb58b7f1ceec5faabba31c321115c3", "width": 1600, "height": 900 },
+        { "path": "figures/inspector-prompts-960.webp", "sha256": "edc7d1f60a4c65c04931869e35ab54854770646ab116603d11197777d8dcab64", "width": 960, "height": 540 }
+      ],
+      "changeNotice": "Responsive derivatives are resized and lossy WebP encoded; course captions add current-protocol context outside the image."
+    },
+    {
+      "id": "inspector-protocol",
+      "evidenceClass": "direct-mcp-ui",
+      "releaseEligibility": "publish",
+      "rightsStatus": "approved-cc-by-4.0",
+      "rightsCollection": "mcp-inspector-documentation",
+      "upstream": {
+        "path": "docs/images/inspector/web-protocol.png",
+        "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/e24f0099b60f7c00e165a0faa02a72029d2fa654/docs/images/inspector/web-protocol.png",
+        "sha256": "7abdc6df52d3dc9e28d6d91183507c2adab06971e8ce6d9e72dfd031146973b3",
+        "width": 3840,
+        "height": 2160
+      },
+      "courseMaster": {
+        "path": "figures/inspector-protocol.png",
+        "sha256": "7abdc6df52d3dc9e28d6d91183507c2adab06971e8ce6d9e72dfd031146973b3",
+        "width": 3840,
+        "height": 2160,
+        "transformation": "Byte-for-byte upstream copy; no modification"
+      },
+      "derivatives": [
+        { "path": "figures/inspector-protocol-1600.webp", "sha256": "3ad614b114bc098b8b7fbf4584533513e07142f82460affe7ba901ae1fbd55b9", "width": 1600, "height": 900 },
+        { "path": "figures/inspector-protocol-960.webp", "sha256": "b3076d1c944a0e6cefa52464bc94c39e478fa03d392cc0456acb0ceb0a1db6ae", "width": 960, "height": 540 }
+      ],
+      "changeNotice": "Responsive derivatives are resized and lossy WebP encoded; the course visibly labels this legacy trace and does not use it as a 2026 envelope template."
+    },
+    {
+      "id": "inspector-apps",
+      "evidenceClass": "direct-mcp-ui",
+      "releaseEligibility": "publish",
+      "rightsStatus": "approved-cc-by-4.0",
+      "rightsCollection": "mcp-inspector-documentation",
+      "upstream": {
+        "path": "docs/images/inspector/web-apps.png",
+        "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/e24f0099b60f7c00e165a0faa02a72029d2fa654/docs/images/inspector/web-apps.png",
+        "sha256": "2a436610093a2c11e229fd8fa3bc8126dbed715b1b02e694f940a911ba91a04a",
+        "width": 3840,
+        "height": 2160
+      },
+      "courseMaster": {
+        "path": "figures/inspector-apps.png",
+        "sha256": "2a436610093a2c11e229fd8fa3bc8126dbed715b1b02e694f940a911ba91a04a",
+        "width": 3840,
+        "height": 2160,
+        "transformation": "Byte-for-byte upstream copy; no modification"
+      },
+      "derivatives": [
+        { "path": "figures/inspector-apps-1600.webp", "sha256": "9d092d57703bd7aaa235897a993751fcb8c89383796591f1b21ce3023c04c366", "width": 1600, "height": 900 },
+        { "path": "figures/inspector-apps-960.webp", "sha256": "c81ab2245d0d8484a58ee747a12dc6e6228a2f3e8414a3869b38e8b6217fd5ea", "width": 960, "height": 540 }
+      ],
+      "changeNotice": "Responsive derivatives are resized and lossy WebP encoded; course captions add capability-negotiation and authorization context outside the image."
+    },
+    {
+      "id": "gemini-cli-mcp-inventory",
+      "evidenceClass": "host-inventory",
+      "protocolEvidenceClass": "live-connection-status",
+      "releaseEligibility": "publish",
+      "rightsStatus": "reviewed-course-capture",
+      "rightsCollection": "google-gemini-cli-course-capture",
+      "captureAuthor": "aicourse.top course team",
+      "captureLicense": "MIT for the separately copyrightable capture selection and privacy crop",
+      "embeddedWorkLicense": "Apache-2.0",
+      "localLicensePath": "licenses/APACHE-2.0.txt",
+      "product": {
+        "name": "Gemini CLI",
+        "package": "@google/gemini-cli",
+        "version": "0.56.0",
+        "npmTarball": "https://registry.npmjs.org/@google/gemini-cli/-/gemini-cli-0.56.0.tgz",
+        "npmIntegrity": "sha512-q4oBfb/Oh/HNLMYBOJMp88/QQ8hLffnB0ykoVThi6A5isbGHJ/ylWLMosMGqukKY0Q1Jv/XRDpb46Q1BV+zQqw==",
+        "npmSha1": "b5cd36013cb4b263e50da0337ac3a2a00571bd0c",
+        "gitTag": "v0.56.0",
+        "gitCommit": "b6e23a7dc29eb15fede4bbe646d91869e948b45a"
+      },
+      "syntheticServer": {
+        "package": "@modelcontextprotocol/server-everything",
+        "version": "2026.8.18",
+        "npmTarball": "https://registry.npmjs.org/@modelcontextprotocol/server-everything/-/server-everything-2026.8.18.tgz",
+        "npmIntegrity": "sha512-sBW2l6uMa9ii78QixTKjXgNSv/Ad6LB8cTGBApJMytHe+VCufLQyME55JbLl/0+fcLmcx93wsZ6ce+0aOF8YXA==",
+        "npmSha1": "e06a80de7783be298f27b69f5a03a05e7d3b586f",
+        "declaredSdkRange": "@modelcontextprotocol/sdk ^1.30.0",
+        "lockfileFinding": "The published package contains no lockfile, so a later run of the same pinned server command can resolve a different transitive SDK; the course does not redistribute this server.",
+        "transport": "stdio",
+        "role": "legacy-compatible local reference server shown as Connected"
+      },
+      "capture": {
+        "capturedAt": "2026-08-24T12:10:58+08:00",
+        "timezone": "Asia/Taipei",
+        "commands": [
+          "npx -y @google/gemini-cli@0.56.0 --version",
+          "GEMINI_CLI_SYSTEM_SETTINGS_PATH=<synthetic-system-settings> GEMINI_API_KEY=<non-secret-synthetic-placeholder> npx -y @google/gemini-cli@0.56.0 mcp --help",
+          "GEMINI_CLI_SYSTEM_SETTINGS_PATH=<synthetic-system-settings> GEMINI_API_KEY=<non-secret-synthetic-placeholder> npx -y @google/gemini-cli@0.56.0 mcp list"
+        ],
+        "configurationSha256": "e987376881a34d73eafdf51c705c73fd8bf5e06a4d44dd953e0e5d5f8f97443c",
+        "systemSettingsSha256": "7b0daa3b06899872a701f9cb0d03bda3da16b64ad769e662e5c36bf342af807d",
+        "recipeSha256": "9275f89520c5196355b460fe1b0d5dffd116ab8d56fe3df04f41d901f39fbc6d",
+        "runner": "macOS 26.5.2 arm64; Node.js 24.15.0; Terminal 2.15 build 470.2; Basic light profile; 118x34 PTY",
+        "rawMaster": {
+          "archivalRef": "tmp/mcp-ui-evidence/gemini-cli-mcp-ui.png",
+          "retainedOutsidePublic": true,
+          "sha256": "496cc4e2d00321c4bb60de9e8a57c7730c36097beeb13fdd5098de083ff8dbc1",
+          "width": 1916,
+          "height": 1274
+        },
+        "privacyTransformation": "Sharp extract left=112, top=140, width=1692, height=952 removes black desktop margin and Terminal title bar containing the local user name; terminal output pixels are otherwise unchanged. EXIF and XMP are removed."
+      },
+      "courseMaster": {
+        "path": "figures/gemini-cli-mcp-inventory.png",
+        "sha256": "b0e6bc2c964f005691e1dea2d1a5200b085edc5440c66e07da1749efeda29489",
+        "width": 1692,
+        "height": 952,
+        "transformation": "Privacy crop generated by scripts/build-mcp-host-captures.mjs; no compositing, reconstruction, annotation, or output-content alteration"
+      },
+      "derivatives": [
+        { "path": "figures/gemini-cli-mcp-inventory-1600.webp", "sha256": "ba56cdaa0e29938b11ecca0f6716165ff98c912e6046fcd079dd2c2d83a3f84f", "width": 1600, "height": 900 },
+        { "path": "figures/gemini-cli-mcp-inventory-960.webp", "sha256": "0b06fdbbb5e3618bed6c0a2a243103c12a520deee796f3fcbe1d204d545564bd", "width": 960, "height": 540 }
+      ],
+      "privacyReview": "passed: synthetic configuration only; local user name, window title, home path, credentials, accounts, and unrelated servers are absent from published pixels",
+      "changeNotice": "The PNG is a disclosed privacy crop; responsive derivatives are resized and lossy WebP encoded. Caption limits the evidence to host status and explicitly rejects a current-wire inference."
+    },
+    {
+      "id": "codex-cli-mcp-configuration",
+      "evidenceClass": "host-inventory",
+      "protocolEvidenceClass": "configuration-ui",
+      "releaseEligibility": "publish",
+      "rightsStatus": "reviewed-course-capture",
+      "rightsCollection": "openai-codex-cli-course-capture",
+      "captureAuthor": "aicourse.top course team",
+      "captureLicense": "MIT for the separately copyrightable capture selection and privacy crop",
+      "embeddedWorkLicense": "Apache-2.0",
+      "localLicensePath": "licenses/APACHE-2.0.txt",
+      "localNoticePath": "licenses/CODEX-NOTICE.txt",
+      "product": {
+        "name": "OpenAI Codex CLI",
+        "package": "@openai/codex",
+        "version": "0.149.1",
+        "npmTarball": "https://registry.npmjs.org/@openai/codex/-/codex-0.149.1.tgz",
+        "npmIntegrity": "sha512-6q5pbcpFbJbqOpkubSDBwXmktQ55aD8eUzGzBF1zASob2DjwhBKDSNGtdZKalfrNJUdTDTPDMmzCXEXs5tMBYA==",
+        "npmSha1": "37bc183ebd129e01e404e932bcec4ea861c70933",
+        "gitTag": "rust-v0.149.1",
+        "annotatedTag": "980a6d12110b110d29ec13bdcbe14011100b3566",
+        "gitCommit": "ff29a44391deccde0aba0f8390337d7f3c319ea4",
+        "platformArtifact": {
+          "package": "@openai/codex",
+          "version": "0.149.1-darwin-arm64",
+          "npmTarball": "https://registry.npmjs.org/@openai/codex/-/codex-0.149.1-darwin-arm64.tgz",
+          "npmIntegrity": "sha512-6X84kTCbnTgPIJ2EdcPsrvwS0Wxsqpa+bCswGmRf4BjhcQ5nPMnBC6yCAaCMj+vrbXQHj+L6sa9FaR4QkmA1qw==",
+          "npmSha1": "824db75c200eb9aa0225d1dbb61e4fc2f2c8a123"
+        }
+      },
+      "capture": {
+        "capturedAt": "2026-08-24T12:14:41+08:00",
+        "timezone": "Asia/Taipei",
+        "commands": [
+          "codex --version",
+          "codex -c features.mcp_2026_07_28=true features list | grep '^mcp_2026_07_28'",
+          "codex -c features.mcp_2026_07_28=true -c mcp_servers.courseops_modern.command=\"node\" -c mcp_servers.courseops_modern.args=[\"examples/mcp-courseops/src/server.mjs\"] -c mcp_servers.courseops_modern.env={CODEX_MCP_PROTOCOL_VERSION=\"2026-07-28\"} -c mcp_servers.courseops_modern.enabled_tools=[\"course.get_lesson\",\"course.record_evidence\"] -c mcp_servers.courseops_modern.disabled_tools=[\"course.record_evidence\"] mcp get courseops_modern"
+        ],
+        "configurationBoundary": "Command-line overrides create a synthetic one-command view and do not read, merge, write, or display the user's persistent MCP server configuration.",
+        "executableEvidence": {
+          "verifiedOn": "2026-08-24",
+          "commandPath": "<npm-global-bin>/codex",
+          "symlinkTarget": "../lib/node_modules/@openai/codex/bin/codex.js",
+          "wrapperSha256": "134063e133f0b4244fa3b251acf973d4fe4b4aeeacbdc135211bf480f59f1477",
+          "nativeExecutableRelativePath": "node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/bin/codex",
+          "nativeExecutableSha256": "f0d8762236594359b60cfbe17f4c7e945a3ce8d1c91e74778838c968d250fb6c",
+          "nativeExecutableBytes": 220552944,
+          "reportedVersion": "codex-cli 0.149.1",
+          "evidenceBoundary": "This same-day installation-origin check corroborates the recorded version and package path; because it was not separately timestamped at capture time, it is not presented as cryptographic proof of the capture-time executable."
+        },
+        "recipeSha256": "535e5bc6046a4599d18c83c6cb4675223dd0d2f316eb6f777c812d0c6b226ce7",
+        "runner": "macOS 26.5.2 arm64; Node.js 24.15.0; Terminal 2.15 build 470.2; Basic light profile; 118x34 PTY",
+        "rawMaster": {
+          "archivalRef": "tmp/mcp-ui-evidence/codex-cli-mcp-ui.png",
+          "retainedOutsidePublic": true,
+          "sha256": "5ef73ea8658e98792a85e12946e37acafedab8431777bd93249f71b74a97f64a",
+          "width": 1828,
+          "height": 1186
+        },
+        "privacyTransformation": "Sharp extract left=68, top=114, width=1692, height=952 removes black desktop margin and Terminal title bar containing the local user name; terminal output pixels are otherwise unchanged. EXIF and XMP are removed."
+      },
+      "courseMaster": {
+        "path": "figures/codex-cli-mcp-configuration.png",
+        "sha256": "d2be69914c0dccfc39761554f4635f2a42fd360991cede0273fa6141644fe95c",
+        "width": 1692,
+        "height": 952,
+        "transformation": "Privacy crop generated by scripts/build-mcp-host-captures.mjs; no compositing, reconstruction, annotation, or output-content alteration"
+      },
+      "derivatives": [
+        { "path": "figures/codex-cli-mcp-configuration-1600.webp", "sha256": "232dc1d5416253feb06075a4853a54195ebca1d9320d66b81ca2bcd15e276f2f", "width": 1600, "height": 900 },
+        { "path": "figures/codex-cli-mcp-configuration-960.webp", "sha256": "7a9f30690bb80f294ed8fde7b4bb5cd2244990abc700cab88beafd470aebc2a2", "width": 960, "height": 540 }
+      ],
+      "privacyReview": "passed: synthetic command-line overrides only; environment value is masked by Codex and no persistent user configuration, account, credential, home path, or unrelated server is visible",
+      "changeNotice": "The PNG is a disclosed privacy crop; responsive derivatives are resized and lossy WebP encoded. Caption limits the evidence to configuration and explicitly rejects a handshake inference."
+    }
+  ],
+  "withheld": [
+    {
+      "ids": ["gemini-mcp-list", "gemini-mcp-result"],
+      "publisher": "Google",
+      "status": "not-distributed",
+      "reason": "Google's site policy excludes image, audio, and video material from the general CC BY grant unless specifically noted; no figure-specific reuse license was found."
+    },
+    {
+      "ids": ["openai-inline-cards", "openai-fullscreen"],
+      "publisher": "OpenAI",
+      "status": "not-distributed",
+      "reason": "The source page does not publish an open image-reuse license, and the captures include third-party likeness, map, product, or biographical content of unclear downstream provenance."
+    }
+  ],
+  "trademarkNotice": "Model Context Protocol and provider marks remain the property of their respective owners. Attribution does not imply affiliation or endorsement, and no standalone trademark rights are claimed."
+}

@@ -1,0 +1,36 @@
+{
+  "name": "aicourse-codex-capstone",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Starter repository for the aicourse.top Codex capstone.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "test": "node --import tsx --import ./tests/setup.ts --test tests/*.test.tsx tests/*.test.mjs",
+    "lint": "eslint .",
+    "build": "next build",
+    "course:verify": "node scripts/course-verify.mjs"
+  },
+  "dependencies": {
+    "next": "16.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.1",
+    "global-jsdom": "^26.0.0",
+    "jsdom": "^26.1.0",
+    "tsx": "^4.23.12",
+    "typescript": "^5"
+  },
+  "type": "module"
+}

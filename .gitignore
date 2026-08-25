@@ -27,6 +27,10 @@ legacy/course-python/cafe/fixtures.*.json
 /out/
 /build
 /coverage
+/output/
+/playwright-report/
+/test-results/
+/.playwright-cli/
 next-env.d.ts
 *.tsbuildinfo
 .vercel
@@ -47,6 +51,12 @@ __pycache__/
 # Local dev tooling
 .claude/
 
+# Course 10 MCP rights-review and raw-capture workspaces. These contain
+# non-public source candidates or privacy-bearing window chrome and must never
+# be swept into the public repository by `git add -A`.
+/tmp/mcp-rights-hold/
+/tmp/mcp-ui-evidence/
+
 # Private working notes. Untracked is not enough: `git add -A` would stage
 # these into a public repo.
 2026*_claude suggestions*.md
@@ -57,3 +67,19 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# ---------------------------------------------------------------------------
+# Nested dependency trees. `/node_modules` above is root-anchored and does not
+# reach video-pilot/agent-loop-120s/node_modules — 8,002 files that `git add -A`
+# would sweep into this public repo. Reinstallable from their own lockfiles.
+# ---------------------------------------------------------------------------
+node_modules/
+
+# Course review workspace: 621 MB, 3,803 PNGs of review evidence. Kept on disk,
+# never committed — git does not forget a blob once it is in history.
+/course_review_2026-08-23/
+
+# Video pilot workspace: 880 MB across 734 files — narration WAVs, render zips
+# and a 201 MB voice backup that GitHub refuses outright. Kept on disk, never
+# committed, for the same reason as the review workspace above.
+/video-pilot/

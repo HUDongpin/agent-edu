@@ -74,18 +74,19 @@ async function volatileIds() {
 const check = process.argv.includes("--check");
 const html = await loadMarkup();
 const segments = walkHandbook(html);
-const body = segments.filter((s) => s.kind === "body");
+const handbook = segments.filter((s) => s.kind !== "i18n");
+const body = handbook.filter((s) => s.kind === "body");
 
 /** @type {Record<string, string>} */
 const table = {};
-for (const seg of body) table[seg.key] = seg.text;
+for (const seg of handbook) table[seg.key] = seg.text;
 
 const json = `${JSON.stringify(table, null, 2)}\n`;
 const existing = await readFile(OUT, "utf8").catch(() => null);
 
 if (check) {
   if (existing === json) {
-    console.log(`✓ ${path.relative(ROOT, OUT)} is up to date — ${body.length} strings`);
+    console.log(`✓ ${path.relative(ROOT, OUT)} is up to date — ${handbook.length} strings`);
     process.exit(0);
   }
   console.error(
@@ -111,7 +112,10 @@ const volatile = await volatileIds();
 const inWidgets = body.filter((s) => volatile.has(s.key.split(".")[2]));
 
 console.log(`wrote ${path.relative(ROOT, OUT)}`);
-console.log(`  ${body.length} strings, ~${words.toLocaleString("en-GB")} words, ${perContainer.size} containers`);
+console.log(
+  `  ${handbook.length} strings (${body.length} body, ${handbook.length - body.length} attributes), ` +
+  `~${words.toLocaleString("en-GB")} body words, ${perContainer.size} containers`,
+);
 console.log(`  ${segments.length - body.length} data-i18n elements stay in messages/*.json`);
 if (existing) console.log(`  ${existing === json ? "unchanged" : "CHANGED — the other eight files need re-checking"}`);
 if (fragments) {

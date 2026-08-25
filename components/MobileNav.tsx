@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import Icon from "./Icon";
 
 /**
  * The narrow-screen menu.
@@ -11,6 +12,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
  */
 export default function MobileNav({ label, children }: { label: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const menuId = useId();
   const wrap = useRef<HTMLDivElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
 
@@ -34,23 +36,25 @@ export default function MobileNav({ label, children }: { label: string; children
 
   return (
     <div className="navwrap" ref={wrap}>
+      <button
+        ref={toggle}
+        className="iconbtn navtoggle"
+        type="button"
+        aria-controls={menuId}
+        aria-expanded={open}
+        aria-label={label}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <Icon name={open ? "close" : "menu"} />
+      </button>
       <nav
+        id={menuId}
         className={"mainnav" + (open ? " open" : "")}
         aria-label={label}
         onClick={() => setOpen(false)}
       >
         {children}
       </nav>
-      <button
-        ref={toggle}
-        className="iconbtn navtoggle"
-        type="button"
-        aria-expanded={open}
-        aria-label={label}
-        onClick={() => setOpen((o) => !o)}
-      >
-        <span aria-hidden="true">{open ? "✕" : "☰"}</span>
-      </button>
     </div>
   );
 }

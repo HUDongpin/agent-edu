@@ -14,19 +14,19 @@ export interface LocaleMeta {
   name: string;    // English name, for the menu's secondary label
   native: string;  // what speakers call it
   dir: Dir;
-  flag: string;
+  mark: string;    // compact language mark; avoids tying a language to a country flag
 }
 
 export const LOCALES: LocaleMeta[] = [
-  { code: "en",      name: "English",               native: "English",  dir: "ltr", flag: "🇬🇧" },
-  { code: "es",      name: "Spanish",               native: "Español",  dir: "ltr", flag: "🇪🇸" },
-  { code: "fr",      name: "French",                native: "Français", dir: "ltr", flag: "🇫🇷" },
-  { code: "de",      name: "German",                native: "Deutsch",  dir: "ltr", flag: "🇩🇪" },
-  { code: "zh-Hans", name: "Chinese (Simplified)",  native: "简体中文",  dir: "ltr", flag: "🇨🇳" },
-  { code: "zh-Hant", name: "Chinese (Traditional)", native: "繁體中文",  dir: "ltr", flag: "🇭🇰" },
-  { code: "ja",      name: "Japanese",              native: "日本語",    dir: "ltr", flag: "🇯🇵" },
-  { code: "ko",      name: "Korean",                native: "한국어",    dir: "ltr", flag: "🇰🇷" },
-  { code: "ar",      name: "Arabic",                native: "العربية",   dir: "rtl", flag: "🇸🇦" },
+  { code: "en",      name: "English",               native: "English",  dir: "ltr", mark: "EN" },
+  { code: "es",      name: "Spanish",               native: "Español",  dir: "ltr", mark: "ES" },
+  { code: "fr",      name: "French",                native: "Français", dir: "ltr", mark: "FR" },
+  { code: "de",      name: "German",                native: "Deutsch",  dir: "ltr", mark: "DE" },
+  { code: "zh-Hans", name: "Chinese (Simplified)",  native: "简体中文",  dir: "ltr", mark: "简" },
+  { code: "zh-Hant", name: "Chinese (Traditional)", native: "繁體中文",  dir: "ltr", mark: "繁" },
+  { code: "ja",      name: "Japanese",              native: "日本語",    dir: "ltr", mark: "日" },
+  { code: "ko",      name: "Korean",                native: "한국어",    dir: "ltr", mark: "한" },
+  { code: "ar",      name: "Arabic",                native: "العربية",   dir: "rtl", mark: "ع" },
 ];
 
 export const LOCALE_CODES = LOCALES.map((l) => l.code);

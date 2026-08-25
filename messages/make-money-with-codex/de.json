@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "title": "Mit Codex Geld verdienen",
+    "shortTitle": "Mit Codex Geld verdienen",
+    "languageNotice": "Nur die Navigation sowie die Titel des Kurses, der Einheiten und der Lektionen sind lokalisiert. Der geprüfte Lektionstext, die Übungen, die Bewertung, die Abbildungen, das Quellenverzeichnis und die interaktiven Werkzeuge bleiben auf Englisch. Eine unabhängige Prüfung durch eine Person mit Deutsch als Muttersprache steht noch aus."
+  },
+  "availability": {
+    "contentLanguage": "en",
+    "localizedScope": "navigation-and-titles",
+    "reviewStatus": "pending-independent-native-review"
+  },
+  "ui": {
+    "course": "Kurs",
+    "courses": "Kurse",
+    "courseOutline": "Kursübersicht",
+    "lesson": "Lektion",
+    "lessons": "Lektionen",
+    "minutes": "Min.",
+    "guidedWork": "angeleitete Arbeit",
+    "authenticUi": "Abbildungen mit authentischer Codex-Oberfläche oder Transkripten",
+    "evidenceVerified": "Nachweise geprüft",
+    "startCourse": "Mit der Evidenzabgrenzung beginnen",
+    "inspectLessons": "Alle Lektionen ansehen",
+    "curriculum": "Lehrplan",
+    "time": "Zeit",
+    "output": "Ergebnis",
+    "evidence": "Nachweise",
+    "boundedSources": "Quellen mit klaren Grenzen",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "courseDashboard": "Kursübersicht",
+    "reviewEvidencePath": "Eigenen Nachweispfad prüfen",
+    "backToCatalog": "Kurse"
+  },
+  "units": {
+    "value": { "title": "Wertschöpfung vor Code" },
+    "pilot": { "title": "Ein bezahltes Pilotprojekt entwickeln" },
+    "sell": { "title": "Preis festlegen, verkaufen und liefern" },
+    "scale": { "title": "Produktisieren, ohne die Kontrolle zu verlieren" }
+  },
+  "lessons": {
+    "money-not-magic": { "title": "Codex ist ein Hebel, keine Geldmaschine" },
+    "choose-market-wedge": { "title": "Eine klar abgegrenzte Marktnische wählen" },
+    "validate-before-building": { "title": "Vor dem Bauen validieren" },
+    "write-commercial-spec": { "title": "Den kommerziellen Arbeitsauftrag formulieren" },
+    "protect-client-work": { "title": "Kundenarbeit schützen" },
+    "build-verified-pilot": { "title": "Ein verifiziertes Pilotprojekt entwickeln" },
+    "price-for-margin": { "title": "Den Preis nach Marge und Risiko festlegen" },
+    "sell-with-proof": { "title": "Mit Belegen verkaufen, nicht mit Versprechen" },
+    "deliver-with-control": { "title": "Kontrolliert ausliefern" },
+    "productize-reuse": { "title": "Produktisieren, was sich bei der Lieferung bewährt hat" },
+    "retain-and-automate": { "title": "Verantwortungsvoll wiederkehrenden Wert schaffen" },
+    "launch-capstone": { "title": "Ein evidenzbasiertes Umsatz-Pilotprojekt starten" }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "aicourse.codex.capstone.fixture.v1",
+  "fixtureVersion": "1",
+  "routes": [
+    "/",
+    "/courses/"
+  ],
+  "courseListTestSha256": "54a6f815ca8525e89f6eec805e6e00b6882d0bd84f90d00a624d66455dadcd1e",
+  "packageJsonSha256": "e5c91d69c4a46f876896d486769d740f0375af735a3ab029bc17e2f30e034d28",
+  "packageLockSha256": "822e129f9d764d0171175ff32f43b5a83b4e4a6b2aa5f68beda318714b06c769",
+  "dependencies": {
+    "next": "16.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.1",
+    "global-jsdom": "^26.0.0",
+    "jsdom": "^26.1.0",
+    "tsx": "^4.23.12",
+    "typescript": "^5"
+  }
+}

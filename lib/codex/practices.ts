@@ -1,0 +1,20 @@
+import type { CodexLessonSlug, CodexPracticeManifest } from "./types";
+
+export const CODEX_PRACTICES = [
+  { id: "practice-meet-codex", lessonSlug: "meet-codex", estimatedMinutes: 8, workspace: "disposable", requiresWriteAccess: false, evidenceItems: 2, promptKey: "lessons.meet-codex.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.meet-codex" },
+  { id: "practice-task-contracts", lessonSlug: "task-contracts", estimatedMinutes: 10, workspace: "either", requiresWriteAccess: false, evidenceItems: 2, promptKey: "lessons.task-contracts.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.task-contracts" },
+  { id: "practice-environments-permissions", lessonSlug: "environments-permissions", estimatedMinutes: 10, workspace: "disposable", requiresWriteAccess: false, evidenceItems: 2, promptKey: "lessons.environments-permissions.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.environments-permissions" },
+  { id: "practice-ground-plan", lessonSlug: "ground-plan", estimatedMinutes: 12, workspace: "personal-repository", requiresWriteAccess: false, evidenceItems: 2, promptKey: "lessons.ground-plan.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.ground-plan" },
+  { id: "practice-implement-steer", lessonSlug: "implement-steer", estimatedMinutes: 14, workspace: "disposable", requiresWriteAccess: true, evidenceItems: 2, promptKey: "lessons.implement-steer.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.implement-steer" },
+  { id: "practice-debug-test", lessonSlug: "debug-test", estimatedMinutes: 18, workspace: "disposable", requiresWriteAccess: true, evidenceItems: 2, promptKey: "lessons.debug-test.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.debug-test" },
+  { id: "practice-review-diff", lessonSlug: "review-diff", estimatedMinutes: 12, workspace: "disposable", requiresWriteAccess: true, evidenceItems: 2, promptKey: "lessons.review-diff.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.review-diff" },
+  { id: "practice-agents-skills", lessonSlug: "agents-skills", estimatedMinutes: 15, workspace: "disposable", requiresWriteAccess: true, evidenceItems: 2, promptKey: "lessons.agents-skills.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.agents-skills" },
+  { id: "practice-cli", lessonSlug: "cli", estimatedMinutes: 14, workspace: "disposable", requiresWriteAccess: true, evidenceItems: 2, promptKey: "lessons.cli.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.cli" },
+  { id: "practice-ide", lessonSlug: "ide", estimatedMinutes: 12, workspace: "disposable", requiresWriteAccess: true, evidenceItems: 2, promptKey: "lessons.ide.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.ide" },
+  { id: "practice-cloud-parallel", lessonSlug: "cloud-parallel", estimatedMinutes: 16, workspace: "personal-repository", requiresWriteAccess: false, evidenceItems: 2, promptKey: "lessons.cloud-parallel.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.cloud-parallel" },
+  { id: "practice-automation-capstone", lessonSlug: "automation-capstone", estimatedMinutes: 45, workspace: "disposable", requiresWriteAccess: true, evidenceItems: 2, promptKey: "lessons.automation-capstone.practice.brief", observableActionCount: 3, selfCheckCriteriaCount: 2, completionKey: "codex.lesson.automation-capstone" },
+] as const satisfies readonly CodexPracticeManifest[];
+
+export const CODEX_PRACTICE_BY_LESSON = Object.fromEntries(
+  CODEX_PRACTICES.map((practice) => [practice.lessonSlug, practice]),
+) as Readonly<Record<CodexLessonSlug, CodexPracticeManifest>>;

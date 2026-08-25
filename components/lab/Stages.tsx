@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { useI18n } from "../I18nProvider";
+import LabIcon from "./LabIcon";
 
 export interface Stage {
   /** Message key for the short name shown on the tab. */
@@ -74,7 +75,7 @@ export default function Stages({
           </span>
           <span className="t">{t(s.name)}</span>
           <span className={"needs " + (s.needsKey ? "key" : "free")}>
-            {s.needsKey && <span aria-hidden="true">🔑</span>}
+            {s.needsKey && <LabIcon name="key" />}
             {s.needsKey ? t("lab.needKey") : t("lab.noKeyNeeded")}
           </span>
         </button>

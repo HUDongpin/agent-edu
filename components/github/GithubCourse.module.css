@@ -1,0 +1,291 @@
+.githubCourse {
+  --github-grid: color-mix(in srgb, var(--line) 58%, transparent);
+  position: relative;
+}
+
+.githubCourse::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block-start: 0;
+  inset-inline: 50% auto;
+  inline-size: min(46vw, 680px);
+  block-size: 360px;
+  opacity: 0.62;
+  background-image:
+    linear-gradient(var(--github-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--github-grid) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+}
+
+.disclaimer {
+  max-inline-size: 72ch;
+  margin-block: 16px 0;
+  border-inline-start: 3px solid var(--line);
+  padding-inline-start: 12px;
+  color: var(--ink-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.contextOverview {
+  padding-block: 58px 10px;
+}
+
+.contextOverview > header {
+  max-inline-size: 68ch;
+  margin-block-end: 20px;
+}
+
+.contextOverview h2 {
+  font-size: clamp(23px, 3vw, 31px);
+}
+
+.contextCardGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-block: 1px solid var(--line);
+}
+
+.contextCardGrid a {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 170px;
+  flex-direction: column;
+  gap: 9px;
+  border-inline-end: 1px solid var(--line);
+  padding: 18px 16px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.contextCardGrid a:last-child {
+  border-inline-end: 0;
+}
+
+.contextCardGrid a:hover,
+.contextCardGrid a:focus-visible {
+  background: var(--brand-soft);
+}
+
+.contextCardGrid a:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+.contextCardGrid span {
+  color: var(--brand);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.contextCardGrid strong {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.contextCardGrid small {
+  color: var(--ink-3);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.sectionBody {
+  display: grid;
+  gap: 13px;
+  margin-block-start: 15px;
+}
+
+.sectionBody p {
+  margin: 0;
+  color: var(--ink-2);
+  line-height: 1.8;
+}
+
+.sectionBullets {
+  display: grid;
+  gap: 9px;
+  margin-block: 20px 0;
+  padding-inline-start: 22px;
+  color: var(--ink-2);
+}
+
+.sectionBullets li {
+  padding-inline-start: 5px;
+  line-height: 1.65;
+}
+
+.sectionBullets li::marker {
+  color: var(--brand);
+}
+
+.codePanel {
+  margin-block-start: 24px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+}
+
+.codePanel figcaption {
+  border-block-end: 1px solid var(--line);
+  padding: 10px 14px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.codePanel pre {
+  direction: ltr;
+  margin: 0;
+  overflow: auto;
+  padding: 18px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: start;
+  tab-size: 2;
+}
+
+.codePanel code {
+  font: inherit;
+}
+
+.figureAttribution {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  margin-block-start: 7px;
+}
+
+.figureAttribution span {
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 9.5px;
+}
+
+.figureAttribution a {
+  color: var(--brand);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.figureAttribution a:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.classroomAlert {
+  margin-block: 0 34px;
+  border: 1px solid var(--gold-line);
+  border-inline-start: 4px solid var(--gold);
+  border-radius: var(--radius);
+  background: var(--gold-soft);
+  padding: 18px 20px;
+}
+
+.classroomAlert strong {
+  display: block;
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.classroomAlert p {
+  margin: 7px 0 0;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.sourceDetails {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sourceMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: var(--ink-3);
+  font-size: 10px;
+}
+
+.sourceMeta span {
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+
+.capstoneNotice {
+  margin-block: 20px 0;
+  color: var(--ink-3);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+@media (max-width: 960px) {
+  .contextCardGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contextCardGrid a:nth-child(2n) {
+    border-inline-end: 0;
+  }
+
+  .contextCardGrid a:nth-child(n + 3) {
+    border-block-start: 1px solid var(--line);
+  }
+
+  .contextCardGrid a:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .githubCourse::before {
+    inset-inline: 18% auto;
+    inline-size: 82%;
+    opacity: 0.42;
+  }
+
+  .contextCardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .contextCardGrid a,
+  .contextCardGrid a:nth-child(2n) {
+    min-block-size: auto;
+    border-inline-end: 0;
+  }
+
+  .contextCardGrid a + a,
+  .contextCardGrid a:nth-child(n + 3) {
+    border-block-start: 1px solid var(--line);
+  }
+
+  .contextCardGrid a:last-child {
+    grid-column: auto;
+  }
+
+  .codePanel pre {
+    font-size: 11px;
+  }
+}
+
+@media print {
+  .githubCourse::before {
+    display: none;
+  }
+
+  .contextCardGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -373,7 +373,11 @@ const RECALL={
 })();
 /* ===================== 01 — THE KIOSK ===================== */
 (function(){
-  const BASE=[{k:'coffee',label:'Coffee',price:'3.00'},{k:'tea',label:'Tea',price:'2.00'},{k:'juice',label:'Juice',price:'4.00'}];
+  const BASE=[
+    {k:C.t('w.code.input.coffee'),label:C.t('w.code.item.coffee'),price:'3.00'},
+    {k:C.t('w.code.input.teaPadded').trim().toLowerCase(),label:C.t('w.code.item.tea'),price:'2.00'},
+    {k:C.t('w.code.item.juice').toLowerCase(),label:C.t('w.code.item.juice'),price:'4.00'},
+  ];
   let rules=BASE.slice(), outputs=new Set(), runs=0, lastInput=null, timer=null, fc=null;
   const codebox=$('#codebox'), trace=$('#codeTrace'), out=$('#codeOut');
 
@@ -381,7 +385,7 @@ const RECALL={
     const lines=[{h:'<span class="tok-k">function</span> order(text) {'},{h:'  text = text.toLowerCase().trim();'}];
     rules.forEach((r,i)=>lines.push({rule:i,
       h:'  <span class="tok-k">if</span> (text === <span class="tok-s">"'+esc(r.k)+'"</span>) <span class="tok-k">return</span> <span class="tok-s">"'+esc(r.label)+' — $'+r.price+'"</span>;'}));
-    lines.push({fallback:true,h:'  <span class="tok-k">return</span> <span class="tok-s">"Sorry, I don\'t understand."</span>;'});
+    lines.push({fallback:true,h:'  <span class="tok-k">return</span> <span class="tok-s">"'+C.h('w.code.out.fail')+'"</span>;'});
     lines.push({h:'}'});
     codebox.innerHTML='';
     lines.forEach(l=>{
@@ -434,7 +438,11 @@ const RECALL={
     const t=fc.labels[k]; if(t){t.classList.remove('dim');t.classList.add('live');}
   }
 
-  const PRESETS=['coffee','Coffee',' tea ','a latte please','something warm','cofee'];
+  const PRESETS=[
+    C.t('w.code.input.coffee'), C.t('w.code.input.coffeeCase'),
+    C.t('w.code.input.teaPadded'), C.t('w.code.input.latte'),
+    C.t('w.code.input.warm'), C.t('w.code.input.coffeeTypo'),
+  ];
   (function(){
     const box=$('#inputBtns');
     PRESETS.forEach(p=>{
@@ -491,7 +499,7 @@ const RECALL={
   $('#addRule').addEventListener('click',()=>{
     const v=$('#newWord').value.toLowerCase().trim();
     if (!v || rules.some(r=>r.k===v)) return;
-    rules.push({k:v,label:'Coffee',price:'3.00'});
+    rules.push({k:v,label:C.t('w.code.item.coffee'),price:'3.00'});
     $('#newWord').value=''; renderCode();
     const warn=$('#ruleWarn'); warn.hidden=false;
     warn.innerHTML = (rules.length-3<3)

@@ -1,0 +1,306 @@
+{
+  "$schema": "./schemas/i18n-exceptions.schema.json",
+  "policy": "Exceptions are narrow, user-visible English is denied by default, and every entry needs an accountable approval.",
+  "exceptions": [
+    {
+      "id": "brand-aicourse-name-001",
+      "domain": "main",
+      "key": "brand.name",
+      "reason": "Registered site and product name; intentionally identical in every locale.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "lab-cafe-fixture-001",
+      "domain": "lab-fixture",
+      "selector": "cafe-evaluation-corpus",
+      "reason": "The English cafe test corpus is held constant across locales for experimental comparability; localized explanation and language isolation remain required.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "external-provider-diagnostic-001",
+      "domain": "external-content",
+      "selector": "provider-diagnostic",
+      "reason": "Unmodified third-party diagnostics may be English, but must be visibly separated from localized site copy.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-capstone-artifact-id-01",
+      "domain": "github",
+      "key": "capstone.artifacts[0].id",
+      "reason": "Stable machine-readable capstone artifact identifier; it is not rendered as learner-facing copy.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-capstone-artifact-id-02",
+      "domain": "github",
+      "key": "capstone.artifacts[1].id",
+      "reason": "Stable machine-readable capstone artifact identifier; it is not rendered as learner-facing copy.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-capstone-artifact-id-03",
+      "domain": "github",
+      "key": "capstone.artifacts[2].id",
+      "reason": "Stable machine-readable capstone artifact identifier; it is not rendered as learner-facing copy.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-capstone-artifact-id-04",
+      "domain": "github",
+      "key": "capstone.artifacts[3].id",
+      "reason": "Stable machine-readable capstone artifact identifier; it is not rendered as learner-facing copy.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-capstone-artifact-id-05",
+      "domain": "github",
+      "key": "capstone.artifacts[4].id",
+      "reason": "Stable machine-readable capstone artifact identifier; it is not rendered as learner-facing copy.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-capstone-artifact-id-06",
+      "domain": "github",
+      "key": "capstone.artifacts[5].id",
+      "reason": "Stable machine-readable capstone artifact identifier; it is not rendered as learner-facing copy.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-capstone-artifact-id-07",
+      "domain": "github",
+      "key": "capstone.artifacts[6].id",
+      "reason": "Stable machine-readable capstone artifact identifier; it is not rendered as learner-facing copy.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-capstone-artifact-id-08",
+      "domain": "github",
+      "key": "capstone.artifacts[7].id",
+      "reason": "Stable machine-readable capstone artifact identifier; it is not rendered as learner-facing copy.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-language-branches",
+      "domain": "github",
+      "key": "lessons.branches-commits.sections[2].code.language",
+      "reason": "Syntax-highlighting language token; it must remain the exact ASCII renderer value.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-value-branches",
+      "domain": "github",
+      "key": "lessons.branches-commits.sections[2].code.value",
+      "reason": "Canonical LTR command fixture is held constant so every locale practises the same executable Git sequence.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-language-conflicts",
+      "domain": "github",
+      "key": "lessons.forks-conflicts.sections[2].code.language",
+      "reason": "Syntax-highlighting language token; it must remain the exact ASCII renderer value.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-value-conflicts",
+      "domain": "github",
+      "key": "lessons.forks-conflicts.sections[2].code.value",
+      "reason": "Canonical LTR conflict fixture is held constant so every locale sees the exact Git marker syntax.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-language-issues",
+      "domain": "github",
+      "key": "lessons.issues-discussions.sections[2].code.language",
+      "reason": "Syntax-highlighting language token; it must remain the exact ASCII renderer value.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-value-issues",
+      "domain": "github",
+      "key": "lessons.issues-discussions.sections[2].code.value",
+      "reason": "Canonical LTR GitHub artifact fixture is held constant across locales for reproducible comparison.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-language-notifications",
+      "domain": "github",
+      "key": "lessons.notifications-governance.sections[2].code.language",
+      "reason": "Syntax-highlighting language token; it must remain the exact ASCII renderer value.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-value-notifications",
+      "domain": "github",
+      "key": "lessons.notifications-governance.sections[2].code.value",
+      "reason": "Canonical LTR incident-response fixture is held constant across locales for reproducible comparison.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-language-readme",
+      "domain": "github",
+      "key": "lessons.repository-readme.sections[1].code.language",
+      "reason": "Syntax-highlighting language token; it must remain the exact ASCII renderer value.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-value-readme",
+      "domain": "github",
+      "key": "lessons.repository-readme.sections[1].code.value",
+      "reason": "Canonical LTR GitHub artifact fixture is held constant across locales for reproducible comparison.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-language-research",
+      "domain": "github",
+      "key": "lessons.research-reproducibility.sections[1].code.language",
+      "reason": "Syntax-highlighting language token; it must remain the exact ASCII renderer value.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-value-research",
+      "domain": "github",
+      "key": "lessons.research-reproducibility.sections[1].code.value",
+      "reason": "Canonical LTR CITATION.cff fixture is held constant so schema fields remain directly reusable.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-language-actions",
+      "domain": "github",
+      "key": "lessons.software-automation.sections[1].code.language",
+      "reason": "Syntax-highlighting language token; it must remain the exact ASCII renderer value.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-value-actions",
+      "domain": "github",
+      "key": "lessons.software-automation.sections[1].code.value",
+      "reason": "Canonical LTR workflow fixture is held constant so YAML keys and commands remain executable.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-language-teaching",
+      "domain": "github",
+      "key": "lessons.teaching-capstone.sections[2].code.language",
+      "reason": "Syntax-highlighting language token; it must remain the exact ASCII renderer value.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-value-teaching",
+      "domain": "github",
+      "key": "lessons.teaching-capstone.sections[2].code.value",
+      "reason": "Canonical LTR workflow fixture is held constant across locales for reproducible comparison.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-language-writing",
+      "domain": "github",
+      "key": "lessons.writing-publishing.sections[2].code.language",
+      "reason": "Syntax-highlighting language token; it must remain the exact ASCII renderer value.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-code-value-writing",
+      "domain": "github",
+      "key": "lessons.writing-publishing.sections[2].code.value",
+      "reason": "Canonical LTR GitHub artifact fixture is held constant across locales for reproducible comparison.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    },
+    {
+      "id": "github-quiz-bad-filename",
+      "domain": "github",
+      "key": "quiz.q06.options[3]",
+      "reason": "Deliberately poor filename specimen is preserved exactly so every locale assesses the same option.",
+      "expectedLanguage": "en",
+      "expectedDirection": "ltr",
+      "approvedBy": "project-policy",
+      "approvedAt": "2026-08-23"
+    }
+  ]
+}

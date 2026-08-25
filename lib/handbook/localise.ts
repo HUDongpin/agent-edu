@@ -20,7 +20,7 @@
  * no code change anywhere.
  */
 import MARKUP from "./markup";
-import { escapeText, walkHandbook } from "./segments.mjs";
+import { escapeAttribute, escapeText, walkHandbook } from "./segments.mjs";
 import { getMessages, isLocale, type Messages } from "@/lib/i18n";
 
 /** One locale's article prose: the flat file `extract-handbook.mjs` writes. */
@@ -45,7 +45,7 @@ export interface LocalisedHandbook {
 /* Walked once per build process, not once per page: the markup is a constant
    and the walk is the same 560 answers every time. */
 const SEGMENTS = walkHandbook(MARKUP);
-const BODY_KEYS = SEGMENTS.filter((s) => s.kind === "body").map((s) => s.key);
+const HANDBOOK_KEYS = SEGMENTS.filter((s) => s.kind !== "i18n").map((s) => s.key);
 
 /** A locale's article prose, or null when nobody has translated it yet. */
 async function getTable(locale: string): Promise<HandbookTable | null> {
@@ -76,7 +76,10 @@ export function applyHandbook(
     const value = seg.kind === "i18n" ? messages[seg.key] : table?.[seg.key];
     if (value == null || value === seg.text) continue;
     if (seg.start < cursor) throw new Error(`localise: segments overlap at ${seg.key}`);
-    out.push(html.slice(cursor, seg.start), escapeText(value));
+    out.push(
+      html.slice(cursor, seg.start),
+      seg.kind === "attr" ? escapeAttribute(value) : escapeText(value),
+    );
     cursor = seg.end;
   }
   out.push(html.slice(cursor));
@@ -90,11 +93,11 @@ export async function localiseHandbook(locale: string): Promise<LocalisedHandboo
 
   /* Loud at build time, silent for readers: a half-finished table renders
      mixed language, and the person who can fix that is watching this log. */
-  const missing = table ? BODY_KEYS.filter((k) => table[k] == null).length : BODY_KEYS.length;
+  const missing = table ? HANDBOOK_KEYS.filter((k) => table[k] == null).length : HANDBOOK_KEYS.length;
   if (table && missing) {
     console.warn(
       `handbook: messages/handbook/${locale}.json is missing ${missing} of ` +
-      `${BODY_KEYS.length} strings — those paragraphs export in English, and ` +
+      `${HANDBOOK_KEYS.length} strings — those paragraphs or attributes export in English, and ` +
       `the page keeps the English text direction until the file is complete.`,
     );
   }

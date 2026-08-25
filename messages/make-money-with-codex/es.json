@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "title": "Cómo ganar dinero con Codex",
+    "shortTitle": "Ganar dinero con Codex",
+    "languageNotice": "Solo se han localizado la navegación y los títulos del curso, las unidades y las lecciones. El texto auditado de las lecciones, los ejercicios, la evaluación, las figuras, el registro de fuentes y las herramientas interactivas permanecen en inglés. Está pendiente una revisión independiente por una persona hablante nativa."
+  },
+  "availability": {
+    "contentLanguage": "en",
+    "localizedScope": "navigation-and-titles",
+    "reviewStatus": "pending-independent-native-review"
+  },
+  "ui": {
+    "course": "Curso",
+    "courses": "Cursos",
+    "courseOutline": "Programa del curso",
+    "lesson": "Lección",
+    "lessons": "lecciones",
+    "minutes": "min",
+    "guidedWork": "trabajo guiado",
+    "authenticUi": "figuras auténticas de la interfaz de Codex o de transcripciones",
+    "evidenceVerified": "evidencia verificada",
+    "startCourse": "Comenzar por los límites de la evidencia",
+    "inspectLessons": "Examinar todas las lecciones",
+    "curriculum": "Plan de estudios",
+    "time": "Tiempo",
+    "output": "Resultado",
+    "evidence": "Evidencia",
+    "boundedSources": "fuentes con alcance delimitado",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "courseDashboard": "Panel del curso",
+    "reviewEvidencePath": "Revisa tu ruta de evidencias",
+    "backToCatalog": "Cursos"
+  },
+  "units": {
+    "value": { "title": "Valor antes que código" },
+    "pilot": { "title": "Crear un piloto de pago" },
+    "sell": { "title": "Fijar precios, vender y entregar" },
+    "scale": { "title": "Productizar sin perder el control" }
+  },
+  "lessons": {
+    "money-not-magic": { "title": "Codex multiplica tu capacidad, no es un botón para ganar dinero" },
+    "choose-market-wedge": { "title": "Elegir un segmento de mercado bien delimitado" },
+    "validate-before-building": { "title": "Validar antes de construir" },
+    "write-commercial-spec": { "title": "Redactar el contrato comercial de la tarea" },
+    "protect-client-work": { "title": "Proteger el trabajo del cliente" },
+    "build-verified-pilot": { "title": "Crear un piloto verificado" },
+    "price-for-margin": { "title": "Fijar el precio según el margen y el riesgo" },
+    "sell-with-proof": { "title": "Vender con pruebas, no con promesas" },
+    "deliver-with-control": { "title": "Entregar con control" },
+    "productize-reuse": { "title": "Productizar lo que superó la entrega" },
+    "retain-and-automate": { "title": "Generar valor recurrente de forma responsable" },
+    "launch-capstone": { "title": "Lanzar un piloto de ingresos basado en pruebas" }
+  }
+}

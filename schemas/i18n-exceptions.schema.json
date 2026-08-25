@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/schemas/i18n-exceptions.schema.json",
+  "type": "object",
+  "required": ["exceptions"],
+  "properties": {
+    "policy": { "type": "string" },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "domain", "reason", "expectedLanguage", "expectedDirection", "approvedBy", "approvedAt"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "domain": { "type": "string", "minLength": 1 },
+          "key": { "type": "string", "minLength": 1 },
+          "selector": { "type": "string", "minLength": 1 },
+          "reason": { "type": "string", "minLength": 12 },
+          "expectedLanguage": { "type": "string", "minLength": 2 },
+          "expectedDirection": { "enum": ["ltr", "rtl"] },
+          "approvedBy": { "type": "string", "minLength": 1 },
+          "approvedAt": { "type": "string", "format": "date" }
+        },
+        "oneOf": [
+          { "required": ["key"] },
+          { "required": ["selector"] }
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": true
+}

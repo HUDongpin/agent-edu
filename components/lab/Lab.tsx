@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import KeyBar from "./KeyBar";
 import Fail from "./Fail";
 import Stages, { type Stage } from "./Stages";
+import LabIcon, { type LabIconName } from "./LabIcon";
 import Rich from "../Rich";
 import { useI18n } from "../I18nProvider";
 import { asJSON, call, errorKey, getKey, pool, spend, usd, type Model } from "@/lib/deepseek";
@@ -140,6 +141,17 @@ export default function Lab() {
     { name: "lab.s4.name", needsKey: true,  done: done[3] },
   ];
 
+  function moveStage(next: number) {
+    setStage(next);
+    requestAnimationFrame(() => {
+      const panel = document.getElementById(PANEL);
+      panel?.focus({ preventScroll: true });
+      panel?.scrollIntoView({ block: "start" });
+    });
+  }
+
+  const stageIcon: LabIconName = stage === 2 ? "message" : "chart";
+
   return (
     <div className="shellwrap lab">
       <section className="labhero">
@@ -153,9 +165,9 @@ export default function Lab() {
           is cheaper than letting a reader wonder whether it is a bug. */}
       {locale !== "en" && <p className="langnote">{t("lab.enData")}</p>}
 
-      <KeyBar model={model} onModel={setModel} />
-
       <Stages stages={stages} current={stage} onPick={setStage} panelId={PANEL} />
+
+      {stages[stage].needsKey && <KeyBar model={model} onModel={setModel} />}
 
       <div
         id={PANEL} role="tabpanel" tabIndex={-1}
@@ -164,7 +176,7 @@ export default function Lab() {
       >
         {stage === 0 && (
           <section>
-            <h2><span aria-hidden="true">☎️</span> {t("lab.s1.h")}</h2>
+            <h2><LabIcon name="phone" /> <span>{t("lab.s1.h")}</span></h2>
             <p className="steplede"><Rich k="lab.s1.lede" /></p>
             <div className="card"><div className="card-b">
               <label className="fieldlabel" htmlFor="q0">{t("lab.s1.ask")}</label>
@@ -192,10 +204,10 @@ export default function Lab() {
 
         {stage === 1 && (
           <section>
-            <h2><span aria-hidden="true">🧱</span> {t("lab.s2.h")}</h2>
+            <h2><LabIcon name="blocks" /> <span>{t("lab.s2.h")}</span></h2>
             <p className="steplede"><Rich k="lab.s2.lede" /></p>
             <div className="card"><div className="card-b">
-              <div className="row" style={{ gap: 7 }}>
+              <div className="row">
                 <input type="text" dir="auto" aria-label={t("lab.s2.find")}
                   placeholder={t("lab.s2.findHint")} value={rp}
                   onChange={(e) => setRp(e.target.value)} style={{ flex: "2 1 180px" }} />
@@ -213,7 +225,12 @@ export default function Lab() {
                   if (rp.trim()) { setRules([{ c: rp.trim(), n: ri, s: rs }, ...rules]); setRp(""); }
                 }}>{t("lab.s2.add")}</button>
               </div>
-              <div className="scroll"><table style={{ marginTop: 12 }}>
+              <div
+                className="scroll"
+                role="region"
+                tabIndex={0}
+                aria-label={`${t("lab.s2.thSaid")} · ${t("lab.s2.thGot")}`}
+              ><table className="labtable rules-table" style={{ marginTop: 12 }}>
                 <thead><tr><th>{t("lab.s2.thSaid")}</th><th>{t("lab.s2.thGot")}</th><th /></tr></thead>
                 <tbody>{TESTS.map((x) => {
                   const g = kiosk(x);
@@ -239,8 +256,8 @@ export default function Lab() {
         {stage >= 2 && (
           <section>
             <h2>
-              <span aria-hidden="true">{stage === 2 ? "💬" : "📊"}</span>{" "}
-              {stage === 2 ? t("lab.s3.h") : t("lab.s4.h")}
+              <LabIcon name={stageIcon} />
+              <span>{stage === 2 ? t("lab.s3.h") : t("lab.s4.h")}</span>
             </h2>
             <p className="steplede">
               <Rich k={stage === 2 ? "lab.s3.lede" : "lab.s4.lede"} />
@@ -276,7 +293,7 @@ export default function Lab() {
                       if (!menuAdded) { setSys(withMenu); setMenuAdded(true); }
                       runEval(menuAdded ? sys : withMenu);
                     }}>
-                      <span aria-hidden="true">{menuAdded ? "✓" : "＋"}</span>{" "}
+                      <LabIcon name={menuAdded ? "check" : "plus"} />
                       {menuAdded ? t("lab.s4.menuIn") : t("lab.s4.addMenu")}
                     </button>
                     <span className="mono-note" aria-live="polite">{prog}</span>
@@ -312,7 +329,12 @@ export default function Lab() {
                     <Rich k="lab.s4.jump" vars={{ prev, score }} />
                   </div>
                 )}
-                <div className="scroll"><table style={{ marginTop: 13 }}>
+                <div
+                  className="scroll"
+                  role="region"
+                  tabIndex={0}
+                  aria-label={`${t("lab.s4.thCase")} · ${t("lab.s4.thSaid")} · ${t("lab.s4.thHow")} · ${t("lab.s4.thWhy")}`}
+                ><table className="labtable eval-table" style={{ marginTop: 13 }}>
                   <thead><tr>
                     <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th>
                     <th>{t("lab.s4.thHow")}</th><th>{t("lab.s4.thWhy")}</th>
@@ -334,12 +356,12 @@ export default function Lab() {
 
       <nav className="labnav" aria-label={t("lab.stepsLabel")}>
         <button className="btn" type="button" disabled={stage === 0}
-          onClick={() => setStage((s) => s - 1)}>
+          onClick={() => moveStage(stage - 1)}>
           <span className="arrow">←</span> {t("ui.back")}
         </button>
         <span className="labcount">{stage + 1} {t("ui.of")} {stages.length}</span>
         <button className="btn primary" type="button" disabled={stage === stages.length - 1}
-          onClick={() => setStage((s) => s + 1)}>
+          onClick={() => moveStage(stage + 1)}>
           {t("ui.next")} <span className="arrow">→</span>
         </button>
       </nav>

@@ -1,0 +1,572 @@
+.ragRoot {
+  --prompt-accent: var(--sky);
+  --prompt-soft: var(--sky-soft);
+  --prompt-line: var(--sky-line);
+  --prompt-dark: #172633;
+  --prompt-paper: #f8fcff;
+}
+
+.ragRoot :is(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+.ragRoot :is(p, li) {
+  text-wrap: pretty;
+}
+
+.ragRoot :is(button, summary, select, input) {
+  touch-action: manipulation;
+}
+
+.ragRoot button,
+.ragRoot summary,
+.ragRoot input[type="range"],
+.ragRoot label:has(> input[type="radio"]),
+.ragRoot label:has(> input[type="checkbox"]) {
+  min-block-size: 44px;
+}
+
+.ragRoot :is(output, progress, table, .candidateMeta, .labOutput) {
+  font-variant-numeric: tabular-nums;
+}
+
+.courseHero h1 {
+  max-inline-size: 12ch;
+}
+
+.courseHero figure picture {
+  background: #0d0f12;
+}
+
+.courseFacts > p {
+  line-height: 1.55;
+}
+
+.capstoneIntro {
+  max-inline-size: 70ch;
+  margin-block: 74px -38px;
+}
+
+.capstoneIntro h2 {
+  font-size: clamp(27px, 3.5vw, 38px);
+}
+
+.capstoneIntro p:last-child {
+  margin-block-start: 10px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.courseFigure img {
+  background: #fff;
+}
+
+.semanticFigure {
+  min-block-size: 330px;
+}
+
+.figureProvenance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
+  margin-block-start: 12px;
+  border-block-start: 1px solid var(--line-2);
+  padding-block-start: 10px;
+  color: var(--ink-3);
+  font-size: 11px;
+}
+
+.figureProvenance a {
+  color: var(--prompt-accent);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+.figureProvenance code {
+  margin-inline-start: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.nodeFigure {
+  inline-size: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nodeFigure li {
+  min-block-size: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid var(--prompt-line);
+  border-radius: 9px;
+  background: var(--card);
+  padding: 12px;
+}
+
+.nodeFigure li:nth-child(3n) {
+  background: var(--prompt-soft);
+}
+
+.nodeFigure span,
+.stackFigure span {
+  color: var(--prompt-accent);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.nodeFigure strong,
+.stackFigure strong {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.stackFigure {
+  inline-size: min(100%, 610px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stackFigure li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-inline-start: 3px solid var(--prompt-accent);
+  border-radius: 8px;
+  background: var(--card);
+  padding: 10px 12px;
+}
+
+.budgetFigure {
+  inline-size: 100%;
+  display: flex;
+  min-block-size: 154px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.budgetFigure span {
+  min-inline-size: 64px;
+  display: flex;
+  align-items: flex-end;
+  border-inline-end: 1px solid var(--line);
+  padding: 11px;
+  background: var(--prompt-soft);
+}
+
+.budgetFigure span:nth-child(even) {
+  background: var(--card);
+}
+
+.budgetFigure span:last-child {
+  border-inline-end: 0;
+}
+
+.budgetFigure strong {
+  font-size: 10px;
+  line-height: 1.35;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.scoreboardFigure {
+  inline-size: min(100%, 620px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.scoreboardFigure table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.scoreboardFigure th,
+.scoreboardFigure td {
+  padding: 11px 13px;
+  text-align: start;
+}
+
+.scoreboardFigure th:first-child,
+.scoreboardFigure td:first-child {
+  inline-size: 52%;
+}
+
+.scoreboardFigure thead {
+  background: var(--prompt-soft);
+  color: var(--prompt-accent);
+  font-size: 10px;
+}
+
+.scoreboardFigure tbody tr {
+  border-block-start: 1px solid var(--line-2);
+}
+
+.scoreboardFigure tbody th,
+.scoreboardFigure td {
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.scoreboardFigure p {
+  margin: 0;
+  border-block-start: 1px solid var(--line);
+  padding: 12px 13px;
+  color: var(--prompt-accent);
+  font-family: var(--mono);
+  font-size: 10px;
+  text-align: center;
+}
+
+.retrievalLab {
+  scroll-margin-block-start: calc(var(--topbar-h) + 20px);
+}
+
+.retrievalLab > header > div {
+  max-inline-size: 58ch;
+}
+
+.retrievalLab > header p:last-child {
+  margin-block: 8px 0;
+  line-height: 1.6;
+}
+
+.labBadge {
+  max-inline-size: 250px;
+  border: 1px solid var(--prompt-line);
+  border-radius: 9px;
+  background: var(--card);
+  padding: 9px 11px;
+  color: var(--ink-3);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.labControls {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr repeat(3, minmax(112px, .72fr));
+  gap: 12px;
+  margin-block-start: 24px;
+  border-block: 1px solid var(--prompt-line);
+  padding-block: 18px;
+}
+
+.labControls > label,
+.labControls fieldset {
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.labControls > label > span,
+.labControls legend {
+  color: var(--ink-3);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.labControls select {
+  min-block-size: 44px;
+  inline-size: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  padding-inline: 10px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+
+.labControls fieldset {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.labControls fieldset legend {
+  grid-column: 1 / -1;
+  margin-block-end: 7px;
+}
+
+.labControls fieldset label {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 10px;
+  cursor: pointer;
+  padding-block: 6px;
+}
+
+.labControls input[type="radio"],
+.labControls input[type="checkbox"] {
+  accent-color: var(--prompt-accent);
+}
+
+.labControls input[type="range"] {
+  inline-size: 100%;
+  accent-color: var(--prompt-accent);
+}
+
+.toggleLabel {
+  justify-content: space-between;
+}
+
+.toggleLabel strong {
+  color: var(--prompt-accent);
+  font-size: 11px;
+}
+
+.labControls select:focus-visible,
+.labControls input:focus-visible {
+  outline: 2px solid var(--prompt-accent);
+  outline-offset: 3px;
+}
+
+.queryStrip {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin-block-start: 22px;
+  border: 1px solid var(--prompt-line);
+  border-radius: 9px;
+  background: var(--card);
+  padding: 11px 13px;
+}
+
+.queryStrip > span {
+  display: grid;
+  place-items: center;
+  block-size: 26px;
+  border-radius: 50%;
+  background: var(--prompt-accent);
+  color: var(--card);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.queryStrip strong {
+  font-size: 13px;
+}
+
+.candidateList {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.candidateIncluded,
+.candidateExcluded {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--card);
+  padding: 11px 13px 0;
+}
+
+.candidateExcluded {
+  border-style: dashed;
+  background: var(--bg-2);
+}
+
+.candidateMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.candidateMeta > span,
+.candidateMeta > strong {
+  color: var(--prompt-accent);
+}
+
+.candidateMeta em {
+  margin-inline-start: auto;
+  color: inherit;
+  font-style: normal;
+}
+
+.candidateIncluded .candidateMeta em {
+  color: var(--green);
+}
+
+.candidateList p {
+  margin-block: 8px 10px;
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.scoreTrack {
+  block-size: 3px;
+  margin-inline: -13px;
+  background: var(--line-2);
+}
+
+.scoreTrack span {
+  display: block;
+  block-size: 100%;
+  background: var(--prompt-accent);
+}
+
+.labOutput {
+  display: grid;
+  grid-template-columns: minmax(130px, .42fr) minmax(0, 1.58fr);
+  gap: 10px;
+  margin-block-start: 12px;
+}
+
+.labOutput > div {
+  border: 1px solid var(--prompt-line);
+  border-radius: 9px;
+  background: var(--card);
+  padding: 13px;
+}
+
+.labOutput span {
+  display: block;
+  color: var(--ink-3);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.labOutput strong {
+  display: block;
+  margin-block-start: 10px;
+  font-family: var(--mono);
+  font-size: 20px;
+}
+
+.labOutput p {
+  margin-block: 8px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.labOutput small {
+  color: var(--prompt-accent);
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.sources em {
+  inline-size: max-content;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 7px;
+  color: var(--ink-3);
+  font-size: 9px;
+  font-style: normal;
+  text-transform: capitalize;
+}
+
+.sources em[data-evidence-label="individual-user-report"] {
+  border-color: var(--gold-line);
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-weight: 750;
+}
+
+@media (max-width: 900px) {
+  .labControls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .labControls > label:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .nodeFigure,
+  .stackFigure {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .retrievalLab > header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .labBadge {
+    max-inline-size: none;
+  }
+
+  .labOutput {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .nodeFigure,
+  .stackFigure,
+  .labControls {
+    grid-template-columns: 1fr;
+  }
+
+  .labControls > label:first-child {
+    grid-column: auto;
+  }
+
+  .labControls fieldset {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .budgetFigure {
+    min-block-size: 210px;
+    overflow-x: auto;
+  }
+}
+
+.breadcrumbCourseLink {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ragRoot * {
+    scroll-behavior: auto;
+  }
+}
+
+@media print {
+  .retrievalLab {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+}

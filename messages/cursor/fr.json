@@ -1,0 +1,1069 @@
+{
+  "meta": {
+    "title": "Comment utiliser Cursor",
+    "kicker": "Cours 4",
+    "summary": "Maîtrisez Cursor grâce à 14 leçons fondées sur des preuves, qui associent une pratique authentique de l’interface à des méthodes de travail sûres pour le développement, la recherche, la rédaction, les tâches de bureau et l’enseignement.",
+    "audience": "Pour les personnes débutantes comme pour les spécialistes confirmés qui savent naviguer dans des fichiers. Une expérience du code est utile dans le studio logiciel, mais n’est pas nécessaire pour les studios de recherche, de rédaction, de bureautique ou d’enseignement.",
+    "duration": "Environ 13 heures et 20 minutes, dont un projet final de 90 minutes",
+    "sourceNote": "Le comportement du produit a été vérifié le 23 août 2026 à partir de sources officielles de Cursor ; les visuels authentiques de l’interface indiquent leur version documentée et leur degré d’actualité. Les dépôts GitHub audités illustrent des workflows de professionnels ; ils ne démontrent aucun gain de productivité et ne garantissent pas des résultats corrects.",
+    "figureNote": "Les 14 illustrations montrent des interfaces officielles de Cursor ou des supports produit conservés localement à des fins limitées d’enseignement et de commentaire. Chacune est datée et signalée comme actuelle, datée ou historique. aicourse.top est indépendant et n’est ni affilié à Cursor ni approuvé par Cursor ; les droits de publication doivent être vérifiés avant toute publication publique ou redistribution.",
+    "startCta": "Commencer le cours",
+    "resumeCta": "Continuer à apprendre"
+  },
+  "ui": {
+    "lessons": "Leçons",
+    "minutes": "min",
+    "objectives": "Objectif d’apprentissage",
+    "evidence": "Éléments de preuve à conserver",
+    "practice": "Pratique",
+    "checkpoint": "Point de contrôle",
+    "sources": "Sources",
+    "quiz": "Contrôle des connaissances",
+    "previous": "Leçon précédente",
+    "next": "Leçon suivante",
+    "capturePending": "Illustration authentique de l’interface en attente",
+    "openFullSize": "Ouvrez la figure en taille réelle",
+    "figureCurrent": "Interface utilisateur officielle actuelle",
+    "figureDated": "Interface utilisateur officielle datée",
+    "figureHistorical": "Interface historique",
+    "figureAttribution": "© Anysphere, Inc. Médias officiels Cursor utilisés pour les commentaires pédagogiques ; aucune affiliation ou approbation.",
+    "optionalAdvanced": "Matériel avancé en option",
+    "progress": "Progrès",
+    "courseProgress": "Progression du cours",
+    "completed": "Terminé",
+    "markComplete": "Marquer comme terminé",
+    "markedComplete": "Marqué comme terminé",
+    "resetProgress": "Réinitialiser la progression",
+    "question": "Question",
+    "of": "de",
+    "checkAnswer": "Vérifier la réponse",
+    "checkAnswers": "Vérifier les réponses",
+    "correct": "Correct",
+    "incorrect": "Pas encore",
+    "tryAgain": "Réessayez",
+    "score": "Score",
+    "quizPassed": "Contrôle de connaissances réussi",
+    "quizNeedsReview": "Révisez la leçon et réessayez",
+    "capstoneArtifacts": "Artefacts requis",
+    "capstoneReceipt": "Reçu d’auto-vérification du projet final",
+    "artifactReady": "Artefact prêt",
+    "rubric": "Rubrique",
+    "learnerSelfAssessment": "Autoévaluation de l’apprenant. aicourse.top n’examine pas ces preuves et n’atteste pas l’achèvement.",
+    "rubricComplete": "Rubrique terminée",
+    "passingScore": "Note minimale",
+    "weight": "Poids",
+    "status": "Statut",
+    "notStarted": "Pas commencé",
+    "printReceipt": "Imprimer le reçu",
+    "browserStorageNote": "La progression est stockée uniquement dans ce navigateur.",
+    "backToCourse": "Retour au cours",
+    "allLessons": "Toutes les leçons",
+    "recordCompletion": "Enregistrer l’achèvement",
+    "finalQuizTitle": "Contrôle final des connaissances",
+    "finalQuizIntro": "Répondez à 12 questions, trois de chaque unité. Vous avez besoin de 10 bonnes réponses pour réussir ; votre meilleur score est enregistré dans ce navigateur.",
+    "beginQuiz": "Commencer le quiz",
+    "nextQuestion": "Question suivante",
+    "retryQuiz": "Réessayer le quiz",
+    "bestScore": "Meilleure note",
+    "passRequirement": "10 bonnes réponses sur 12 requises",
+    "source": "Source",
+    "storageUnavailable": "Le stockage de Browser n’est pas disponible. Le cours reste utilisable, mais la progression et l’achèvement ne seront pas enregistrés après cette session.",
+    "receiptInstructions": "Téléchargez ensemble le fichier ZIP et son fichier de somme de contrôle. Le SHA-256 de l’archive vérifie le téléchargement ; le SHA-256 distinct du fichier de test interne lie le reçu d’auto-vérification à course-fixture.json. Le cours contrôle le schéma et les résultats déclarés du reçu, mais ne peut ni prouver que les commandes ont été exécutées ni remplacer l’examen du dossier de preuves.",
+    "receiptSchemaLabel": "Schéma du reçu",
+    "fixtureVersionLabel": "Version du projet de test",
+    "archiveHashLabel": "SHA-256 de l’archive téléchargée",
+    "fixtureHashLabel": "SHA-256 du fichier de test interne",
+    "downloadChecksum": "Télécharger la somme de contrôle",
+    "requiredChecksLabel": "Contrôles de vérification déclarés",
+    "pasteReceipt": "Coller le reçu JSON",
+    "verifyReceipt": "Vérifier le format du reçu",
+    "receiptValid": "Format du reçu vérifié",
+    "receiptInvalidJson": "Ce n’est pas un JSON valide.",
+    "receiptWrongSchema": "Le reçu utilise le mauvais schéma.",
+    "receiptWrongVersion": "La version du projet de test indiquée dans le reçu n’est pas prise en charge.",
+    "receiptWrongHash": "La valeur fixtureSha256 du reçu ne correspond pas au manifeste course-fixture.json requis.",
+    "receiptIncomplete": "Le reçu ne déclare pas comme réussis tous les contrôles requis.",
+    "savedCompletionMismatch": "L’achèvement enregistré ne correspond pas au contrat de projet final publié. Vérifiez à nouveau le projet test et le reçu actuels.",
+    "downloadStarter": "Télécharger le projet de démarrage",
+    "completionSummary": "Résumé d’achèvement",
+    "exportSummary": "Exporter le résumé",
+    "finishQuiz": "Terminer le quiz",
+    "questionProgressTemplate": "Question {current} sur {total}",
+    "scoreSummaryTemplate": "Score : {score} sur {total}",
+    "bestScoreTemplate": "Meilleur score : {score} sur {total}",
+    "resetConfirm": "Réinitialiser toute la progression enregistrée du cours ?",
+    "resetDone": "Progression du cours réinitialisée.",
+    "capstonePath": "Parcours du projet final"
+  },
+  "units": {
+    "unit-1": {
+      "title": "Maîtriser l’interface",
+      "summary": "Définissez une limite de données sécurisée, distinguez Tab, Inline Edit, Agent, Agents Window et Editor, puis rédigez un contrat de tâche qu’une autre personne peut réviser."
+    },
+    "unit-2": {
+      "title": "Mener une boucle de preuves",
+      "summary": "Planifiez les travaux à fort impact avant de les exécuter, pilotez à partir d’éléments observables, testez et examinez les modifications, adaptez les procédures répétables et isolez les exécutions parallèles."
+    },
+    "unit-3": {
+      "title": "Travailler dans plusieurs contextes",
+      "summary": "Appliquez la même discipline, de la source à l’artefact, au génie logiciel, à la recherche, à la rédaction de textes longs, au travail produit, aux réunions et aux données bureautiques en texte brut."
+    },
+    "unit-4": {
+      "title": "Enseignez, évaluez et achevez le projet final",
+      "summary": "Concevez un accompagnement fondé sur l’effort productif, protégez l’autonomie et les données de l’apprenant, puis réalisez un projet final clairement délimité avec un reçu d’auto-évaluation vérifiable automatiquement et un dossier de preuves examiné par une personne."
+    }
+  },
+  "lessons": {
+    "orient-privacy": {
+      "kicker": "Leçon 1",
+      "title": "Prenez en main Cursor et définissez la limite des données",
+      "summary": "Commencez dans un espace de travail temporaire, repérez la vue Agents Window et l’Editor, puis décidez quelles données et quelles permissions Cursor peut utiliser avant de lui demander d’agir.",
+      "objective": "Ouvrez un espace de travail sécurisé et documentez les limites liées à l’interface, à la confidentialité, aux fichiers ignorés, à l’exécution et au contrôle de version qui régissent une première tâche.",
+      "sections": [
+        {
+          "heading": "Découvrez les deux interfaces disponibles",
+          "body": "Installez Cursor et connectez-vous en suivant le Quickstart officiel, puis ouvrez un dossier contenant uniquement des données synthétiques. Cursor 3 propose une vue Agents Window centrée sur les agents et l’Editor classique. Agents Window organise les agents locaux, worktree, cloud et SSH ; l’Editor reste utile pour parcourir directement le code, utiliser Tab et Inline Edit, et examiner précisément les diffs. Sélectionnez Open Agents Window dans la palette de commandes, puis utilisez la commande actuelle Open IDE pour revenir à l’Editor. Notez la version affichée, car les emplacements de l’interface évoluent. Les exercices pratiques de ce cours ciblent Cursor Desktop 3.17. Cursor CLI constitue une interface de terminal distincte, avec sa propre installation ainsi que ses propres modes, sandbox et contrôles d’approbation ; consultez sa documentation actuelle avant d’y transposer les procédures Desktop. Identifiez d’abord l’interface visible, le dépôt sélectionné, le lieu d’exécution (local ou cloud) ainsi que le modèle ou le mode actif."
+        },
+        {
+          "heading": "Privacy Mode ne signifie pas une exécution uniquement locale",
+          "body": "Cursor indique que Privacy Mode empêche l’utilisation des données client pour entraîner les modèles selon ses contrôles publiés ; les prompts et le contexte de code nécessaire sont néanmoins traités. La politique actuelle documente également une conservation possible lorsque les détecteurs d’abus se déclenchent, ainsi que pour les modèles non-ZDR désignés séparément ou activés par un administrateur. L’indexation peut conserver des embeddings et des métadonnées du dépôt. Écartez de l’espace d’exercice les secrets, les travaux privés d’étudiants, les entretiens identifiables et les dossiers clients. Utilisez .cursorignore comme élément de défense en profondeur, mais ne le considérez pas à lui seul comme une limite complète pour le terminal ou MCP. Les recommandations de sécurisation de Cursor l’associent au sandboxing, aux approbations et aux permissions des fichiers. Un démarrage sûr combine des données synthétiques, un dossier clairement délimité, le contrôle de version, des paramètres de confidentialité à jour et une compréhension précise des fournisseurs ou intégrations externes susceptibles de recevoir du contexte."
+        },
+        {
+          "heading": "Adaptez l’autorité d’exécution à la tâche",
+          "body": "Les Run Modes locaux actuels sont Auto-review, Allowlist et Run Everything. Auto-review constitue le réglage par défaut le plus sûr pour la plupart des personnes, mais Cursor précise que son classificateur n’est pas une limite de sécurité. Les modifications ordinaires de l’espace de travail peuvent être enregistrées immédiatement, même lorsque les commandes du terminal nécessitent encore une approbation. Gardez Git actif, examinez la liste des fichiers modifiés et lisez chaque commande avant de l’autoriser. Les Cloud Agents utilisent un modèle distinct de sécurité pour la VM et le réseau ; les règles d’approbation locales ne sont donc pas transférées automatiquement. Commencez par une orientation en lecture seule et n’élargissez les permissions que lorsqu’une étape d’acceptation clairement nommée l’exige."
+        }
+      ],
+      "practice": {
+        "title": "Écrivez une carte de démarrage sécurisé",
+        "brief": "Ouvrez un nouveau dossier contenant des données synthétiques et consignez sur une page l’interface Cursor exacte, la version ainsi que les limites de données et d’exécution que vous utiliserez.",
+        "steps": [
+          "Sélectionnez Open Agents Window dans la palette de commandes, revenez une fois à l’Editor avec Open IDE, puis notez la version et le mode d’exécution de l’espace de travail : local, worktree, cloud ou SSH.",
+          "Passez en revue Privacy Mode, .cursorignore et le mode d’exécution actuel ; écrivez une phrase décrivant ce que chaque contrôle ne garantit pas.",
+          "Initialisez ou confirmez Git, demandez à Agent une carte en lecture seule du dossier et vérifiez qu’aucun fichier n’a changé."
+        ],
+        "evidence": [
+          "Une carte de démarrage sécurisé indiquant l’interface, la version, l’environnement, la confidentialité, les règles d’exclusion, le mode d’exécution et le statut Git.",
+          "Un statut avant et après indiquant que la demande d’orientation n’a entraîné aucune modification de l’espace de travail."
+        ],
+        "safety": "Utilisez uniquement des fichiers synthétiques. Ne collez pas de véritables identifiants pour tester le fonctionnement d’une règle d’exclusion."
+      },
+      "checkpoint": {
+        "prompt": "Est-ce que Privacy Mode signifie que les invites et le code ne quittent jamais votre ordinateur ?",
+        "answer": "Non. Privacy Mode régit l’utilisation pour l’entraînement des modèles selon les conditions publiées par Cursor ; les requêtes et le contexte nécessaire sont toujours traités. Traitez séparément les données sensibles et l’accès aux outils."
+      },
+      "takeaway": "Avant de demander ce que Cursor peut faire, décidez de ce qu’il peut voir, de l’endroit où il peut s’exécuter et de la manière de revenir à un état sûr."
+    },
+    "tab-inline-edit": {
+      "kicker": "Leçon 2",
+      "title": "Utilisez Tab et Inline Edit sans renoncer à votre jugement",
+      "summary": "Traitez Tab comme une prédiction de la prochaine action et Inline Edit comme un micro-changement sélectionné, puis acceptez uniquement les suggestions que vous pouvez expliquer et vérifier.",
+      "objective": "Effectuez une petite modification en distinguant la prédiction automatique d’une modification explicitement sélectionnée, puis examinez chaque changement obtenu.",
+      "sections": [
+        {
+          "heading": "Tab prédit une prochaine action",
+          "body": "Cursor décrit Tab comme une prédiction de la prochaine action plutôt que comme une complétion de mot ordinaire. Il peut suggérer plusieurs lignes, des refactors ou un saut vers un autre emplacement. Une suggestion en texte fantôme ne reste qu’une proposition. Lisez l’intégralité du texte fantôme et la fonction environnante avant d’appuyer sur Tab. Si la suggestion modifie un comportement que vous ne comprenez pas, rejetez-la ou réduisez la modification. Tab fonctionne mieux lorsque votre code actuel, vos noms, les types voisins et vos actions récentes rendent évidente la suite prévue. Il ne remplace ni un contrat de tâche, ni les règles du dépôt, ni les tests."
+        },
+        {
+          "heading": "Inline Edit restreint une demande explicite",
+          "body": "Sélectionnez la plus petite zone cohérente et ouvrez Inline Edit avec Cmd ou Ctrl plus K. Décrivez la transformation et l’invariant qui doit rester vrai. La sélection définit uniquement la zone visée par la modification demandée ; elle ne constitue ni une limite d’accès ni une limite de sécurité, et vous ne devez pas supposer que le code voisin non sélectionné est fourni comme contexte. Examinez le remplacement proposé ligne par ligne. Les User Rules ne sont pas appliquées à Inline Edit ; répétez donc toute contrainte essentielle dans la requête. Si la tâche s’étend à plusieurs fichiers, modifie l’architecture ou nécessite d’explorer le dépôt, passez à Agent au lieu de demander à une interface de micro-édition plus qu’elle ne peut faire."
+        },
+        {
+          "heading": "Exécutez la micro-boucle",
+          "body": "Utilisez une boucle en quatre étapes : prédire, inspecter, accepter ou rejeter, puis vérifier. Pour la prose, la vérification peut consister en une analyse terminologique et une comparaison des sources. Pour le code, exécutez la vérification ciblée la plus proche et examinez le diff. Apprenez le coût du rejet en refusant délibérément une suggestion plausible mais incorrecte. Cela vous entraîne à considérer Cursor comme un instrument sous surveillance continue. L’acceptation rapide compte moins que la préservation de l’intention, du style et du comportement. Si plusieurs petites modifications commencent à partager une hypothèse, faites une pause et écrivez cette hypothèse dans un contrat de tâche avant de continuer."
+        }
+      ],
+      "practice": {
+        "title": "Comparez la prédiction et l’instruction",
+        "brief": "Dans un fichier temporaire, utilisez Tab une fois et Inline Edit une fois pour apporter deux petites modifications pouvant être révisées indépendamment.",
+        "steps": [
+          "Démarrez une fonction ou un paragraphe simple, attendez une suggestion Tab et notez pourquoi vous avez accepté ou rejeté la suggestion complète.",
+          "Sélectionnez une région cohérente, invoquez Inline Edit et demandez une transformation plus un invariant qui doit rester inchangé.",
+          "Examinez le diff, effectuez une vérification ciblée ou une comparaison de sources, et annulez l’une ou l’autre modification si ses preuves sont faibles."
+        ],
+        "evidence": [
+          "Un enregistrement de décision à deux lignes pour les suggestions Tab et Inline Edit.",
+          "Le diff examiné et la vérification ciblée utilisée pour conserver ou annuler chaque modification."
+        ],
+        "safety": "Conservez l’exercice dans un fichier temporaire et excluez le réseau, l’installation de packages, les validations et les écritures externes."
+      },
+      "checkpoint": {
+        "prompt": "Quand un Inline Edit sélectionné doit-il devenir une tâche Agent ?",
+        "answer": "Lorsque la tâche exige une recherche dans le dépôt, plusieurs fichiers, des décisions architecturales, des opérations dans le terminal ou des preuves d’acceptation qui dépassent une transformation locale."
+      },
+      "takeaway": "Utilisez la plus petite surface Cursor qui correspond à la décision, puis vérifiez le résultat plutôt que la fluidité de la suggestion."
+    },
+    "agent-interface": {
+      "kicker": "Leçon 3",
+      "title": "Comprenez Agent, les outils, le contexte et les checkpoints",
+      "summary": "Comprenez ce qu’Agent peut rechercher, lire, modifier et exécuter, puis inspectez les preuves derrière sa réponse au lieu de traiter la conversation comme une preuve.",
+      "objective": "Utilisez Agent pour une enquête axée sur la lecture, inspectez le contexte fourni et découvert, puis distinguez un checkpoint d’un contrôle de version durable.",
+      "sections": [
+        {
+          "heading": "Agent associe instructions, outils et modèle",
+          "body": "Ouvrez Agent avec Cmd ou Ctrl plus I. Agent peut rechercher des fichiers et sur le Web, lire du code et des images, éditer des fichiers, exécuter des commandes shell, utiliser un navigateur et poser des questions de clarification. La disponibilité des outils n’implique pas l’autorité d’utiliser chaque outil. Les messages de progression affichent une trace du travail, tandis que les fichiers du dépôt, les diffs, les sorties du terminal et les résultats des tests fournissent les preuves que vous examinez. Dans la vue Agents Window, gardez le dépôt sélectionné et l’emplacement d’exécution visibles. Dans l’Editor, utilisez un contexte local précis, mais rappelez-vous que le fichier ouvert ne représente pas l’ensemble du système."
+        },
+        {
+          "heading": "Laissez Agent rechercher, joignez ce que vous savez",
+          "body": "Cursor découvre de plus en plus le contexte de façon dynamique. Si vous connaissez le fichier, le terminal, le chat, le diff Git ou la page Browser déterminante, joignez cet élément explicitement au moyen du contrôle de contexte approprié. Si vous ne connaissez pas les fichiers, indiquez le résultat attendu et laissez Agent effectuer la recherche. Examinez l’indicateur de contexte pour voir comment les instructions système, les règles, les descriptions de Skills et de MCP, les sous-agents, les résumés et l’historique de la conversation consomment le contexte. Un contexte trop abondant peut masquer le signal. Demandez à Agent de citer les chemins, les commandes et les comportements observés, et de signaler toute inférence qui doit encore être vérifiée."
+        },
+        {
+          "heading": "Utilisez les discussions parallèles et les points de contrôle dans le bon but",
+          "body": "Une discussion secondaire axée sur la lecture peut examiner une question annexe sans faire dérailler la tâche principale, puis être référencée dans la conversation principale. Un point de contrôle peut prévisualiser ou restaurer les modifications d’Agent à partir de la chronologie. Ni l’un ni l’autre ne remplace Git. Les points de contrôle sont des instantanés locaux pratiques et peuvent ne pas offrir les garanties durables de collaboration, d’historique ou de restauration attendues du contrôle de version. Avant une tâche à fort enjeu, créez ou confirmez une limite Git propre. Après une restauration, inspectez l’état et les tests plutôt que de supposer que tout l’environnement est revenu à un état connu."
+        }
+      ],
+      "practice": {
+        "title": "Créez une carte de l’espace de travail fondée sur des preuves",
+        "brief": "Demandez à Agent d’expliquer un projet synthétique inconnu sans le modifier, puis auditez son contexte et ses affirmations.",
+        "steps": [
+          "Demandez à Agent de localiser les points d’entrée, les instructions locales, les contrôles ciblés et deux zones à risque, en citant les chemins de stockage exacts derrière chaque observation.",
+          "Ouvrez l’anneau contextuel ou la liste contextuelle et identifiez les éléments qui ont été attachés, découverts, résumés ou simplement déduits.",
+          "Vérifiez vous-même deux affirmations de fichiers et enregistrez pourquoi un point de contrôle ne remplacerait pas Git pour la tâche suivante."
+        ],
+        "evidence": [
+          "Une carte de dépôt qui sépare les faits observés, les citations et les inférences non résolues.",
+          "Un audit contextuel nommant ce qu’Agent a utilisé et ce que vous avez vérifié de manière indépendante."
+        ],
+        "safety": "Exigez un travail en lecture seule et vérifiez l’état de Git avant et après. Ne connectez pas de terminaux ou de discussions privés non liés."
+      },
+      "checkpoint": {
+        "prompt": "Que prouve à elle seule une réponse soignée d’Agent ?",
+        "answer": "Rien au-delà de ses propres affirmations. Vous devez toujours inspecter les fichiers cités, les résultats des outils, les diffs, les vérifications et l’incertitude restante."
+      },
+      "takeaway": "Agent est puissant car il peut rassembler des preuves ; votre travail consiste à garder ces preuves visibles et contestables."
+    },
+    "task-contracts": {
+      "kicker": "Leçon 4",
+      "title": "Rédigez un contrat de tâche que Cursor peut terminer",
+      "summary": "Traduisez une intention générale en un résultat observable, un contexte faisant autorité, des contraintes, des non-objectifs, des contrôles et un transfert clair.",
+      "objective": "Rédigez une demande de tâche délimitée dont le comportement d’acceptation et les preuves de vérification peuvent être examinés indépendamment.",
+      "sections": [
+        {
+          "heading": "Commencez par le résultat observable",
+          "body": "Décrivez ce qui devrait être différent pour un utilisateur, un lecteur, un analyste, un enseignant ou un responsable une fois la tâche terminée. Ajoutez le comportement actuel et l’emplacement faisant autorité. Une demande d’amélioration d’un tableau de bord est vague ; demander que les valeurs valides soient conservées après l’échec de validation d’un champ décrit un comportement observable. Pour la recherche, précisez la question, l’instantané du jeu de données et la provenance requise. Pour la rédaction, nommez le corpus de sources, le public, les contraintes de ton et les affirmations qui doivent rester inchangées. N’ajoutez un élément de contexte que s’il modifie une décision."
+        },
+        {
+          "heading": "Rendez explicites les contraintes et les objectifs exclus",
+          "body": "Nommez les fichiers, formats, dépendances, routes, citations, limites de données et actions externes protégés qui ne doivent pas changer. Énoncez les objectifs exclus afin d’écarter les pistes séduisantes. Demandez à Cursor de s’arrêter et de faire apparaître tout conflit plutôt que de choisir silencieusement entre le résultat et une contrainte. Traduisez des expressions telles que prêt pour la production ou haute qualité en comportements vérifiables : aucune nouvelle dépendance d’exécution, une source citée pour chaque affirmation substantielle, une utilisation possible au clavier, un schéma stable ou une interface publique inchangée. Gardez les commits, les push, les déploiements, les messages et les enregistrements externes hors du périmètre, sauf autorisation expresse."
+        },
+        {
+          "heading": "Séparez l’acceptation de la vérification",
+          "body": "Les critères d’acceptation décrivent le comportement attendu. La vérification décrit la manière dont des preuves crédibles seront produites. Un test peut étayer l’acceptation, mais la réussite d’une commande ne peut à elle seule prouver l’utilisabilité, l’intégrité des sources ou le respect du périmètre. Demandez des contrôles ciblés, des contrôles plus larges proportionnels au risque, un examen complet du diff ou des artefacts et un signalement transparent de tout contrôle impossible à exécuter. Terminez par le format du transfert : fichiers ou artefacts modifiés, résultats des commandes, provenance, limites et décisions encore réservées à un humain. Posez uniquement les questions de clarification dont les réponses pourraient modifier sensiblement la mise en œuvre."
+        }
+      ],
+      "practice": {
+        "title": "Transformez une vague demande en un contrat en cinq parties",
+        "brief": "Réécrivez une demande d’ingénierie, de recherche, de rédaction, de travail bureautique ou d’enseignement avant qu’Agent ne change quoi que ce soit.",
+        "steps": [
+          "Écrivez une phrase étiquetée pour le résultat, le contexte faisant autorité, les contraintes et les non-objectifs, le comportement d’acceptation et la vérification.",
+          "Ajoutez les preuves exactes du transfert et répertoriez toutes les actions externes ou irréversibles qui restent non autorisées.",
+          "Demandez à Agent uniquement des éclaircissements importants, révisez le contrat et enregistrez-le à côté du projet."
+        ],
+        "evidence": [
+          "Le contrat de tâche final en cinq parties avec une limite d’autorité explicite.",
+          "Une courte note de décision montrant une ambiguïté levée ou expliquant pourquoi aucune n’avait de conséquence."
+        ],
+        "safety": "Rédigez le contrat en mode lecture seule. Ne laissez pas la demande de clarification devenir une autorisation de mise en œuvre."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi « tester le résultat » est-il une instruction de vérification incomplète ?",
+        "answer": "Il n’indique ni le comportement, ni la commande ou la comparaison, ni les preuves attendues, ni la couverture des risques, ni ce qui doit être signalé lorsqu’un contrôle ne peut pas être exécuté."
+      },
+      "takeaway": "La meilleure invite est le plus petit contrat complet qui rend visible le succès et l’autorité."
+    },
+    "plan-execute-steer": {
+      "kicker": "Leçon 5",
+      "title": "Planifiez, exécutez et pilotez à partir de preuves",
+      "summary": "Utilisez Plan Mode lorsque l’ambiguïté ou le risque le justifie, approuvez un plan fondé sur des preuves et dirigez-vous sans abandonner le travail validé.",
+      "objective": "Créez et approuvez un plan modifiable dont les phases, les preuves, les décisions et les conditions d’arrêt remontent aux faits du dépôt ou de la source.",
+      "sections": [
+        {
+          "heading": "Choisissez Plan Mode pour des travaux à fort enjeu",
+          "body": "Plan Mode est utile pour les modifications multifichiers, l’architecture, les exigences ambiguës, les transformations de données sensibles et les documents complexes. Il explore l’espace de travail, pose des questions de clarification, rédige un plan modifiable et attend avant l’exécution. Cette pause constitue l’un de ses principaux apports. Un plan ne garantit pas l’exactitude ; il expose les hypothèses à un moment où leur révision reste peu coûteuse. Demandez que les preuves tirées du dépôt ou des sources soient citées, que la plus petite zone affectée soit indiquée et que les dépendances entre phases ainsi que les risques soient explicites. Enregistrez le plan dans l’espace de travail lorsqu’il doit être révisé ou versionné avec les collaborateurs."
+        },
+        {
+          "heading": "Approuvez des phases vérifiables indépendamment",
+          "body": "Chaque phase doit nommer sa sortie, les fichiers ou artefacts concernés, sa vérification et les besoins de restauration. Un plan logiciel peut reproduire un défaut, ajouter un test ciblé qui échoue, apporter le correctif minimal, puis exécuter des vérifications plus larges. Un plan de recherche peut enregistrer une hypothèse, valider les données, exécuter une analyse et conserver les résultats ainsi que les limites. Un plan de rédaction peut séparer l’extraction des preuves, le plan, le brouillon, la révision du style et celle de l’intégrité. Rejetez les plans génériques qui proposent une architecture à la mode sans inspecter le projet actuel. N’approuvez le plan qu’une fois les limites protégées et les actions externes non exécutées clairement indiquées."
+        },
+        {
+          "heading": "Pilotez en préservant le travail validé",
+          "body": "Lorsque l’exécution s’écarte du plan, appuyez-vous sur le résultat observé : conservez le schéma validé, révisez uniquement l’ordre de navigation au clavier sur mobile et relancez le test du clavier. Cette consigne est plus précise qu’une simple demande de réessayer. Faites une pause lorsqu’apparaissent une nouvelle dépendance, un effet secondaire externe, un jeu de données privé ou un choix architectural. Mettez à jour le contrat et le plan plutôt que de laisser le périmètre s’étendre sans le signaler. Si Agent est bloqué, exigez le motif exact du blocage, les tentatives effectuées, l’état inchangé et l’entrée ou l’autorisation minimale encore nécessaire. Le pilotage n’est pas un échec ; il maintient l’intention humaine active pendant l’exécution."
+        }
+      ],
+      "practice": {
+        "title": "Approuvez un plan étayé",
+        "brief": "Utilisez Plan Mode sur une tâche délimitée, mais arrêtez-vous avant Build jusqu’à ce que chaque phase soit traçable et vérifiable.",
+        "steps": [
+          "Fournissez le contrat de tâche et demandez à Plan Mode d’inspecter les instructions applicables, le comportement actuel, les fichiers ou artefacts probables et les commandes de vérification.",
+          "Modifiez le plan pour que chaque phase ait un résultat, une vérification des preuves, une dépendance et une condition d’arrêt ; enregistrez-le dans l’espace de travail.",
+          "Approuvez Build pour une phase, examinez le résultat et envoyez un message de pilotage qui préserve le travail vérifié."
+        ],
+        "evidence": [
+          "Le plan enregistré avec des ancres de dépôt ou de source et une limite d’approbation explicite.",
+          "Une note d’orientation liée à un diff observé, à un artefact ou à un résultat de vérification."
+        ],
+        "safety": "Utilisez un projet temporaire et autorisez uniquement la première phase prévue. Gardez les commits, les push, les déploiements et les messages externes hors du périmètre."
+      },
+      "checkpoint": {
+        "prompt": "Quel est le résultat le plus important de Plan Mode ?",
+        "answer": "Une base de décision vérifiable : hypothèses fondées, phases, contrôles, risques et pause délibérée avant l’exécution."
+      },
+      "takeaway": "Un plan solide raccourcit les retouches car il rend les hypothèses et les preuves vérifiables avant qu’elles ne se transforment en changements."
+    },
+    "test-review-recover": {
+      "kicker": "Leçon 6",
+      "title": "Testez, examinez et restaurez sans excès de confiance",
+      "summary": "Reproduisez avant de réparer, observez l’échec et la réussite d’une vérification, inspectez chaque artefact modifié et utilisez les points de contrôle uniquement en complément de Git.",
+      "objective": "Menez à bien une boucle de preuves du rouge au vert et produisez une note d’examen qui distingue les contrôles réussis, les contrôles non exécutés et le risque restant.",
+      "sections": [
+        {
+          "heading": "Reproduisez et isolez avant de modifier",
+          "body": "Une solution plausible n’est pas un diagnostic. Consignez le symptôme avec les entrées exactes, l’environnement, le comportement attendu et le comportement réel. Réduisez-le au plus petit cas fiable. Demandez au mode Debug ou à Agent de proposer des hypothèses concurrentes et les preuves qui permettraient de les distinguer. N’ajoutez de l’instrumentation qu’en cas de besoin. Pour les travaux sans code, reproduire signifie préserver l’entrée d’origine et mettre en évidence une erreur reproductible dans un calcul, une citation, une transformation ou un document. Ne supprimez pas les preuves de l’échec lorsqu’une théorie se dessine. Elles ancrent l’éventuelle affirmation selon laquelle le problème a été résolu."
+        },
+        {
+          "heading": "Observez les contrôles rouges, puis verts, puis plus larges",
+          "body": "Un contrôle de régression est plus crédible lorsque vous le voyez échouer pour la raison attendue avant l’implémentation, puis réussir après la plus petite modification cohérente. Exécutez ensuite des contrôles plus larges, proportionnés au risque : vérification des types, lint, build, contrôle des routes, validation de schéma, comparaison des sources ou inspection du rendu. Consignez la commande réellement exécutée et son résultat. Si un contrôle ne peut pas démarrer, indiquez qu’il n’a pas été exécuté et expliquez l’incertitude restante. Ne présentez jamais un contrôle bloqué ou manquant comme réussi au seul motif qu’une autre commande a abouti."
+        },
+        {
+          "heading": "Examinez la portée et les chemins de récupération",
+          "body": "Commencez l’examen par la liste complète des fichiers ou artefacts modifiés. Rattachez chaque élément au plan approuvé et inspectez les fichiers de verrouillage inattendus, les sorties générées, les suppressions et les modifications de formatage. Les examens locaux d’Agent Review peuvent signaler des problèmes, mais vous devez toujours les évaluer à l’aune des critères d’acceptation et des preuves. Les points de contrôle peuvent restaurer les modifications d’Agent, mais Git reste la limite durable pour la collaboration et la restauration. Avant toute restauration, conservez les preuves utiles ; après celle-ci, inspectez l’état et relancez les vérifications. Le transfert final doit distinguer ce qui a réussi, ce qui a été inspecté manuellement, ce qui n’a pas été exécuté et ce qu’un humain doit encore décider."
+        }
+      ],
+      "practice": {
+        "title": "Exécutez une boucle de révision rouge-vert",
+        "brief": "Corrigez un défaut détecté dans un projet temporaire et préservez toute la chaîne de preuves.",
+        "steps": [
+          "Reproduisez le défaut et exécutez la plus petite vérification pertinente, confirmant qu’il échoue pour la raison attendue avant toute modification d’implémentation.",
+          "Demandez à Agent le plus petit correctif de cause première, exécutez à nouveau la vérification ciblée, puis exécutez une vérification plus large du dépôt.",
+          "Examinez chaque fichier modifié, utilisez Agent Review pour une deuxième passe et rédigez un transfert séparant les preuves, les lacunes et les risques restants."
+        ],
+        "evidence": [
+          "Les résultats exacts d’échec et de réussite ainsi qu’un résultat de vérification plus large.",
+          "Une note d’examen complet du diff avec toutes les vérifications non exécutées et les conclusions non résolues."
+        ],
+        "safety": "Maintenez une limite Git propre et évitez les commandes de restauration destructrices. Ne prétendez pas qu’un contrôle a été exécuté si sa sortie récente n’a pas été conservée."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi un test exécuté uniquement après la correction constitue-t-il une preuve moins solide ?",
+        "answer": "Vous n’avez pas démontré que le test permet de détecter le défaut d’origine. Un état défaillant observé lie la vérification au comportement en cours de réparation."
+      },
+      "takeaway": "La confiance vient d’un échec reproductible, d’un changement minime, de nouveaux contrôles et d’un examen honnête, et non d’une explication fluide."
+    },
+    "rules-skills-mcp": {
+      "kicker": "Leçon 7",
+      "title": "Choisissez Règles, AGENTS.md, Skills, Commandes, Hooks et MCP",
+      "summary": "Transformez les leçons répétées en conseils ciblés et versionnés tout en traitant les personnalisations exécutables et les outils externes comme des limites de confiance.",
+      "objective": "Sélectionnez la surface de personnalisation appropriée pour un flux de travail répété et vérifiez sa portée, son activation, sa provenance et ses autorisations.",
+      "sections": [
+        {
+          "heading": "Délimitez précisément les instructions durables",
+          "body": "Les Project Rules sont des fichiers .mdc placés dans .cursor/rules. Les options d’activation actuelles sont Always Apply, Apply Intelligently, Apply to Specific Files et Apply Manually. Les simples fichiers .md de ce dossier sont ignorés. Un fichier AGENTS.md à la racine fournit des instructions de projet lisibles et utilisables par plusieurs outils ; les fichiers AGENTS.md imbriqués se combinent avec ceux de leurs parents et prévalent dans leur sous-arbre. Gardez les instructions ciblées, concrètes, composables et généralement limitées à moins de 500 lignes. N’ajoutez une règle qu’après qu’un échec répété a révélé un savoir durable. Les règles orientent Agent, mais pas toutes les interfaces de Cursor : elles ne régissent pas Tab, et les User Rules ne sont pas appliquées à Inline Edit."
+        },
+        {
+          "heading": "Regroupez les procédures sous forme de Skills vérifiés",
+          "body": "Le système Skills met en œuvre le format ouvert Agent Skills et peut être placé sous .cursor/skills ou .agents/skills. Utilisez un Skill pour une procédure répétable comportant des entrées, des étapes, des contrôles et des sorties explicites. Les commandes continuent d’exister : ne prétendez donc pas qu’elles ont été supprimées. Un Plugin Cursor peut regrouper des Rules, des Skills, des agents, des Commands, MCP et des Hooks. Traitez son installation comme une modification de la chaîne d’approvisionnement : inspectez chaque composant inclus ainsi que la portée d’installation demandée avant de l’activer, puis épinglez sa version et testez-la dans un espace de travail jetable. Les Skills tiers sont des instructions exécutables : inspectez leurs fichiers, licences, scripts, hypothèses réseau et outils demandés ; épinglez une révision immuable ; testez-la dans un espace de travail temporaire ; puis décidez s’il faut l’adopter ou la réécrire. Un indicateur de popularité ne constitue pas un audit de sécurité. Gardez les instructions temporaires propres à la tâche dans la conversation au lieu de les figer en règles globales."
+        },
+        {
+          "heading": "Tenez compte des pouvoirs accordés à MCP et aux Hooks",
+          "body": "MCP relie Agent à des outils et des données externes, tandis que les Hooks observent les événements pris en charge du cycle de vie. Les Rules et les Hooks fondés sur un prompt sont évalués par un modèle et ne peuvent pas prendre de décisions de refus déterministes. Seuls les Hooks de préaction fondés sur une commande peuvent autoriser ou refuser de manière déterministe les actions prises en charge. Par défaut, l’échec d’un Hook laisse l’action se poursuivre ; pour les Hooks de commande essentiels à la sécurité, définissez failClosed sur true dans hooks.json et testez le scénario d’échec. Les Hooks ne couvrent que les événements documentés et ne constituent qu’une couche d’une limite de sécurité plus large. Limitez les identifiants, les domaines, les écritures et la portée ; commencez par une exploration en lecture seule ; soumettez les effets externes à une confirmation humaine. Testez les textes non fiables du dépôt et les cibles ambiguës, documentez les procédures d’arrêt et de restauration, et distinguez la lecture d’un système externe de sa modification."
+        }
+      ],
+      "practice": {
+        "title": "Créez une règle de projet ciblée",
+        "brief": "Encodez une erreur de vérification répétée sous la forme d’une petite règle .mdc ou d’une instruction AGENTS.md, puis comparez si un Skill serait plus approprié.",
+        "steps": [
+          "Décrivez l’échec répété, la portée affectée, la commande ou la vérification correcte et la condition d’activation en moins de 20 lignes.",
+          "Placez-le dans un dépôt temporaire, confirmez ses métadonnées d’activation et testez une tâche correspondante et une tâche non correspondante.",
+          "Auditez une configuration Skill ou MCP tierce pour la source, la révision épinglée, la licence, les scripts, les autorisations et les effets secondaires externes."
+        ],
+        "evidence": [
+          "Le diff de la règle ciblée ou du fichier AGENTS.md, avec les observations conformes et non conformes.",
+          "Une liste de contrôle de confiance expliquant si la configuration Skill ou MCP inspectée doit être adoptée, réécrite ou rejetée."
+        ],
+        "safety": "N’installez pas d’instructions tierces non épinglées et ne connectez pas de véritable compte externe pendant cet exercice."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi chaque invite temporaire ne devrait-elle pas devenir une Project Rule ?",
+        "answer": "Les règles consomment du contexte et persistent d’une tâche à l’autre. Seules les connaissances durables, précisément délimitées et régulièrement nécessaires doivent y figurer ; les procédures peuvent mieux convenir aux Skills, tandis que les besoins ponctuels relèvent du contrat de tâche."
+      },
+      "takeaway": "La personnalisation est précieuse lorsqu’elle facilite la production de preuves récurrentes sans étendre silencieusement l’autorité."
+    },
+    "cloud-parallel": {
+      "kicker": "Leçon 8",
+      "title": "Utilisez délibérément les agents locaux, les worktrees et les Cloud Agents",
+      "summary": "Ne parallélisez que les travaux indépendants, préparez des environnements complets et attribuez clairement les responsabilités d’intégration et de sécurité.",
+      "objective": "Concevez un workflow à deux agents avec des périmètres disjoints, des branches ou des worktrees isolés, des sorties explicites et une seule personne responsable de l’intégration.",
+      "sections": [
+        {
+          "heading": "Choisissez l’environnement en fonction des besoins de la tâche",
+          "body": "Un agent local utilise votre machine et votre dépôt actuels. Un worktree isole une branche tout en conservant les outils locaux. Un Cloud Agent s’exécute dans une VM isolée et peut continuer même lorsque votre ordinateur portable est hors ligne. La réussite dans le cloud dépend d’un environnement complet : dépôts clonés, dépendances, commandes de démarrage, accès réseau et secrets fournis par des mécanismes approuvés. Les Run Modes locaux ne régissent pas Cloud Agents. Avant le transfert, vérifiez où se trouve le travail local non commité, quelles données entrent dans la VM, quels domaines externes sont accessibles et comment les résultats sont renvoyés."
+        },
+        {
+          "heading": "Parallélisez les questions, pas l’incertitude",
+          "body": "Les bonnes tâches parallèles portent sur des fichiers ou des ensembles de preuves disjoints, reposent sur des interfaces stables, produisent des sorties explicites et ne laissent aucune décision commune en suspens. Les Subagents de Cursor disposent de fenêtres de contexte distinctes, mais partagent par défaut le checkout du parent : isoler le contexte n’isole pas les fichiers. Utilisez des Subagents en mode readonly pour des audits indépendants, ou demandez des copies isolées du projet avant toute modification susceptible de se chevaucher. readonly limite les modifications de fichiers locaux et les mutations par le shell, mais ne retire ni les outils MCP hérités capables d’écrire ni les autres outils externes disposant de droits d’écriture. Vérifiez les outils et les identifiants hérités, et utilisez un environnement isolé appliquant le principe du moindre privilège pour tout système externe. Deux personnes écrivant dans le même fichier, deux agents dépendant d’un schéma non stabilisé ou des modifications simultanées d’un système de production sont dangereux par défaut. Agents Window rend les exécutions visibles, mais cette visibilité ne supprime pas le coût de coordination. Désignez une seule personne responsable de l’intégration pour comparer les résultats, résoudre les conflits et décider de ce qui entre dans l’état combiné."
+        },
+        {
+          "heading": "Vérifiez l’intégration dans l’état combiné",
+          "body": "Des branches distinctes peuvent chacune réussir leurs contrôles tandis que leur combinaison échoue. Examinez chaque transfert pour repérer les hypothèses, les fichiers modifiés, les contrôles effectués et les risques non résolus. Intégrez délibérément, puis vérifiez de nouveau l’état combiné. Les Cloud Builds exposent l’état de l’environnement, les journaux, les révisions et l’historique de configuration ; utilisez-les comme preuves, non comme garantie. Préférez les identifiants OIDC ou de courte durée lorsqu’ils sont pris en charge, limitez l’accès sortant et maintenez les écritures externes soumises à approbation. Ne supposez pas que les Hooks locaux s’exécutent de la même manière dans les Cloud Agents ; vérifiez les Hooks effectivement pris en charge et configurés dans l’environnement concerné. Par défaut, les Automations peuvent créer des pull requests, utiliser une mémoire persistante et recourir à des outils de pilotage de l’ordinateur. Commencez avec un dépôt synthétique, sans identifiants de production, avec un accès réseau et des outils restreints ainsi qu’un contrôle humain obligatoire ; n’activez qu’une capacité à la fois et seulement après une simulation à blanc."
+        }
+      ],
+      "practice": {
+        "title": "Concevez un transfert parallèle sécurisé",
+        "brief": "Divisez une enquête en deux missions indépendantes en lecture seule, puis produisez un plan d’intégration sans fusion ni déploiement.",
+        "steps": [
+          "Rédigez deux fiches de tâches avec une portée disjointe, des résultats de preuves explicites, un choix d’environnement et une hypothèse partagée nommée qui est déjà établie.",
+          "Exécutez ou simulez chaque tâche dans un worktree ou Cloud Agent local distinct et conservez sa branche, ses fichiers, ses commandes et ses limitations.",
+          "En tant que propriétaire de l’intégration, comparez les deux transferts et écrivez les vérifications d’état combinées exactes requises avant toute fusion."
+        ],
+        "evidence": [
+          "Deux cartes de tâches et deux transferts indépendants, avec des périmètres qui ne se chevauchent pas.",
+          "Une liste de contrôle d’intégration couvrant les hypothèses, les conflits, les contrôles combinés et la décision humaine finale."
+        ],
+        "safety": "Limitez les deux missions à la lecture seule ou à des branches temporaires. N’exposez pas de vrais secrets et ne généralisez pas les approbations locales à l’exécution dans le cloud."
+      },
+      "checkpoint": {
+        "prompt": "Que faut-il faire après que deux branches isolées ont chacune réussi leurs propres contrôles ?",
+        "answer": "Une personne nommément responsable doit examiner leurs hypothèses et leurs diffs combinés, les intégrer délibérément, puis effectuer de nouveaux contrôles sur l’état combiné."
+      },
+      "takeaway": "L’isolation empêche les écrasements ; seules une responsabilité d’intégration clairement attribuée et la vérification de l’état combiné permettent de maîtriser le risque d’interaction."
+    },
+    "software-studio": {
+      "kicker": "Leçon 9",
+      "title": "Studio logiciel : implémentez une fonctionnalité délimitée",
+      "summary": "Combinez l’orientation de la base de code, un contrat de tâche, Plan Mode, une vérification rouge-vert, des preuves Browser et un transfert d’ingénierie vérifiable.",
+      "objective": "Implémentez une petite fonctionnalité dans un dépôt temporaire tout en préservant la portée, l’accessibilité, les contrôles déterministes et l’approbation humaine des actions externes.",
+      "sections": [
+        {
+          "heading": "Repérez le point d’extension existant",
+          "body": "Demandez à Agent de localiser les instructions applicables, la route ou le point d’entrée actuel, les modèles voisins, les tests et la plus petite limite d’extension. Décrivez le comportement d’acceptation avant de choisir une implémentation. Les pratiques de professionnels observées dans des équipes GitHub expérimentées montrent des attentes versionnées concernant les branches, les tests, la documentation, la revue et la CI, mais la politique de chaque dépôt reste locale. Ne copiez pas dans votre projet un ensemble de règles provenant d’un autre contexte. Adaptez le critère observable : les fichiers modifiés se rattachent au plan, les tests couvrent le comportement, la documentation évolue lorsque les utilisateurs en ont besoin et la création d’une PR externe reste une étape soumise à confirmation humaine."
+        },
+        {
+          "heading": "Fermez la boucle comportementale",
+          "body": "Capturez l’échec d’un test ciblé ou établissez une référence reproductible, mettez en œuvre la plus petite modification cohérente, puis exécutez des contrôles ciblés et plus larges. Utilisez Browser lorsque le comportement visuel ou interactif compte, maintenez par défaut l’approbation manuelle de ses actions et naviguez uniquement vers une origine locale que vous avez vérifiée. Si un administrateur d’entreprise a activé Browser Origin Allowlist, limitez-la à cette origine ; cette allowlist est une protection best-effort qui n’est pas disponible par défaut. Les cookies et le stockage web de Browser persistent dans chaque espace de travail. Pour les exercices du cours, utilisez un compte synthétique dans un espace de travail dédié et jetable, puis effacez l’état de Browser à la fin de l’exercice. Considérez les captures d’écran comme des preuves complémentaires. Un passage dans Browser ne remplace ni les tests unitaires et d’intégration ni les contrôles de type, de lint ou de build ; un test réussi ne prouve ni l’ordre de navigation au clavier ni l’absence de rognage visuel. Examinez le diff complet, y compris les fichiers générés et les modifications de dépendances. Rejetez toute remise en ordre sans rapport, même si elle paraît utile."
+        },
+        {
+          "heading": "Préparez un transfert prêt à être relu",
+          "body": "Résumez le résultat visible par l’utilisateur, les fichiers modifiés, les preuves d’acceptation, les commandes, les observations Browser et les limites restantes. Si une pull request figure dans le périmètre, générez d’abord un brouillon et examinez son titre, sa description, ses étapes de test, ses captures d’écran et ses actions manuelles avant d’autoriser sa création externe. Une règle communautaire autrefois activée manuellement peut se comporter différemment avec la sémantique actuelle des règles de Cursor. Migrez donc les anciens workflows vers un Skill, une Command ou une règle actuelle réellement manuelle. La décision finale de créer un commit, d’effectuer un push, de fusionner ou de déployer doit rester explicite."
+        }
+      ],
+      "practice": {
+        "title": "Implémentez un filtre accessible",
+        "brief": "Utilisez la démo fournie, conçue comme un projet final, ou un autre projet temporaire pour ajouter un filtre utilisable au clavier sans nouvelle dépendance.",
+        "steps": [
+          "Orientez le dépôt, rédigez l’acceptation du comportement de la souris et du clavier et approuvez un plan limité à la source et aux fichiers de test ciblés.",
+          "Observez l’échec du test ciblé, implémentez la plus petite modification, puis exécutez les vérifications de test, de type ou de lint, ainsi que de build, disponibles dans le projet.",
+          "Utilisez Browser avec approbation manuelle sur une origine locale vérifiée ; si votre entreprise propose Browser Origin Allowlist, n’y ajoutez que cette origine. Examinez le diff complet et préparez un brouillon de transfert sans effectuer de push, de merge ni de déploiement."
+        ],
+        "evidence": [
+          "Les résultats de test rouge-vert, accompagnés de notes Browser sur le clavier et le comportement visuel.",
+          "Une liste examinée des fichiers modifiés et un brouillon de transfert signalant chaque vérification non exécutée."
+        ],
+        "safety": "Utilisez un dépôt temporaire et une origine locale. Gardez l’installation des dépendances, la création de PR externes, les push, les merge et les déploiements hors du périmètre."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi un résultat Browser visuellement correct ne complète-t-il pas la vérification du logiciel ?",
+        "answer": "Des erreurs de logique, de type, de régression, de build, d’accessibilité ou entre les routes peuvent lui échapper. Associez les preuves visuelles à des contrôles déterministes du projet et à un examen du diff."
+      },
+      "takeaway": "Un résultat d’ingénierie solide relie le comportement de l’utilisateur aux preuves du dépôt, à un diff minimal, à de nouveaux contrôles et à un transfert vérifiable."
+    },
+    "research-studio": {
+      "kicker": "Leçon 10",
+      "title": "Studio de recherche : préserver la provenance et les résultats négatifs",
+      "summary": "Utilisez Cursor comme partenaire de recherche axé sur les artefacts tout en gardant les hypothèses, les preuves sources, le lignage des données, les contrôles, les résultats et les décisions séparables.",
+      "objective": "Exécutez une petite analyse reproductible dont le registre des affirmations et les fichiers permettent à un autre chercheur de distinguer les faits tirés des sources, les calculs, l’interprétation et l’incertitude.",
+      "sections": [
+        {
+          "heading": "Enregistrez la question et le périmètre des sources",
+          "body": "Commencez par une question de recherche, les preuves attendues, un jeu de données ou un instantané du corpus, les règles d’inclusion et les affirmations que Cursor ne doit pas déduire. Demandez à Agent d’effectuer une recherche dans l’espace de travail et de citer précisément les fichiers, lignes, pages ou URL. Créez un registre des affirmations avec des champs pour l’affirmation, la source, l’emplacement, le statut et l’incertitude. La recherche avec Browser peut localiser des documents, mais les sources primaires et l’accès légal délimitent les preuves admissibles. Ne laissez pas un récit séduisant déterminer les observations retenues. Séparez la conception de la recherche, la préparation des données, l’analyse et l’interprétation avant l’exécution."
+        },
+        {
+          "heading": "Faites du système de fichiers une mémoire durable",
+          "body": "Un workflow de recherche empirique utilisé avec Cursor et audité dans la pratique comprend des dossiers d’expériences, des scripts, des instantanés de données, des contrôles d’intégrité, des barrières contre les fuites, des métadonnées d’exécution, des résultats et des décisions explicites. Cela ne prouve pas que ses conclusions sur le domaine soient correctes ; cette organisation fournit seulement une architecture vérifiable. Stockez les entrées, les paramètres, les détails de l’environnement, les commandes, les journaux, les sorties et les notes d’échec dans des artefacts nommés plutôt que de vous fier à une longue conversation. Préservez les résultats négatifs et les hypothèses abandonnées. Demandez à Cursor d’écrire les données dérivées séparément des données sources et de s’arrêter lorsqu’une source requise ou une étape de validation manque."
+        },
+        {
+          "heading": "Vérifiez indépendamment les calculs et les affirmations",
+          "body": "Exécutez des contrôles d’intégrité avant l’analyse : schéma, valeurs manquantes, doublons, plages, fuites et petits cas calculés manuellement. Enregistrez la révision du code et les graines des générateurs aléatoires. Comparez les résultats clés avec une méthode indépendante lorsque cela est possible. Reliez ensuite chaque affirmation écrite à un résultat et à une source. Étiquetez clairement les inférences et les limites. Cursor peut aider à générer du code et de la prose, mais ni une exécution propre ni une explication fluide n’établissent la validité. Gardez visible la décision humaine concernant les méthodes, l’interprétation, l’éthique et la publication."
+        }
+      ],
+      "practice": {
+        "title": "Menez une petite étude axée sur les artefacts",
+        "brief": "Utilisez un CSV synthétique pour tester une hypothèse descriptive préenregistrée et conserver chaque entrée, vérification, sortie et décision.",
+        "steps": [
+          "Créez une question, une hypothèse, un dictionnaire de données, un instantané d’ensemble de données synthétiques et un registre des affirmations avant de demander à Cursor d’analyser quoi que ce soit.",
+          "Demandez à Agent d’écrire et d’exécuter le schéma, les éléments manquants, les doublons, la plage et un calcul vérifiable manuellement avant l’analyse principale.",
+          "Enregistrez le script, l’environnement, le journal, le tableau des résultats, les résultats négatifs, l’interprétation, les limitations et la décision finale dans des artefacts distincts."
+        ],
+        "evidence": [
+          "Un dossier d’expérience reproductible avec des entrées synthétiques immuables, des commandes, des vérifications, des sorties et des métadonnées de révision.",
+          "Un registre des affirmations distinguant les faits tirés des sources, les résultats calculés, l’interprétation, l’incertitude et les affirmations non fondées."
+        ],
+        "safety": "Utilisez uniquement des données synthétiques. Ne revendiquez aucune validité causale, médicale, financière ou éducative pour cet exercice d’analyse."
+      },
+      "checkpoint": {
+        "prompt": "Que prouve une exécution réussie d’un script ?",
+        "answer": "Que le calcul enregistré s’est exécuté dans cet environnement. Cela ne prouve pas en soi une conception solide, des données fiables, une interprétation valide ou une affirmation vraie."
+      },
+      "takeaway": "La confiance dans la recherche vient d’artefacts durables et d’affirmations contestables, et non du fait de conserver davantage de contexte dans une seule conversation."
+    },
+    "writing-studio": {
+      "kicker": "Leçon 11",
+      "title": "Studio de rédaction : séparer les preuves, la voix et l’intégrité",
+      "summary": "Construisez un texte long à l’aide d’un registre des sources, d’un plan, d’un brouillon, d’une passe de style, d’une passe d’intégrité et d’une validation avant publication, plutôt qu’avec une seule invite de génération opaque.",
+      "objective": "Produisez un document étayé par des sources, dans lequel les affirmations factuelles, les choix des auteurs, les modifications de style et les lacunes de vérification non résolues restent visibles.",
+      "sections": [
+        {
+          "heading": "Créez un registre des sources avant de rédiger",
+          "body": "Définissez l’audience, l’objectif, la longueur, la voix, la structure requise, les affirmations interdites et le style de citation. Extrayez les preuves dans un registre avec la source, l’emplacement exact, l’affirmation étayée, les limites de citation et l’incertitude. Demandez à Cursor de marquer les preuves manquantes plutôt que de combler les lacunes. Créez ensuite un plan qui cite les éléments du registre prenant en charge chaque section. Cela protège contre l’échec courant où la prose fluide dépasse les sources. Les règles du dépôt peuvent coder des exigences de style et de citation stables, mais les choix d’arguments spécifiques à la tâche appartiennent au contrat actuel."
+        },
+        {
+          "heading": "Séparez la rédaction, le style et l’intégrité",
+          "body": "Les pratiques de documentation destinée à la production offrent un exemple concret de phases distinctes : routage et plan, rédaction, contrôle du style, contrôle de l’intégrité et validation du build ou des liens. Adaptez ce modèle au lieu de copier un vaste ensemble de règles propre à une organisation. Une passe de style vérifie la clarté, la terminologie, le ton, les titres et les répétitions. Un contrôle d’intégrité confronte chaque affirmation substantielle à des preuves faisant autorité et la classe comme vérifiée, non vérifiée ou contredite. Un agent peut rédiger un artefact figé et un autre le relire, mais évitez que plusieurs rédacteurs modifient simultanément le même texte."
+        },
+        {
+          "heading": "Maintenez la responsabilité de l’auteur",
+          "body": "Cursor peut suggérer une structure et une formulation, mais l’auteur décide de l’argumentation, de l’interprétation, de la divulgation et de la publication finale. Examinez les révisions sous forme de diff afin que les changements subtils de sens restent visibles. Préservez les ancres et les limites de citation. Exécutez, selon les besoins, les contrôles des liens, du format, de la terminologie et du rendu. Si une source n’est pas accessible ou si une affirmation ne peut pas être vérifiée, gardez la lacune visible. Un transfert utile précise la couverture des sources, les affirmations non résolues, les choix de style et les sections qui nécessitent encore l’examen d’une personne experte du domaine."
+        }
+      ],
+      "practice": {
+        "title": "Rédigez une note de synthèse étayée de 500 mots",
+        "brief": "Écrivez à partir de trois sources publiques fournies en utilisant des artefacts distincts pour les preuves, le plan, le brouillon, le style et l’intégrité.",
+        "steps": [
+          "Créez un registre des affirmations à partir des emplacements sources exacts, puis créez un plan qui mappe chaque affirmation substantielle planifiée aux preuves du registre.",
+          "Demandez à Cursor de rédiger à partir du plan approuvé tout en préservant les contraintes de ton et en insérant un marqueur de vérification explicite pour toute lacune.",
+          "Exécutez des révisions de style et d’intégrité distinctes, inspectez les diffs, validez les liens ou les citations et acceptez uniquement les modifications dont vous comprenez la signification."
+        ],
+        "evidence": [
+          "Le registre des sources, le plan relié aux preuves et le brouillon, sans qu’aucune affirmation substantielle non étayée soit présentée comme un fait.",
+          "Des rapports distincts sur le style et l’intégrité, ainsi qu’une liste finale des diffs et des preuves non résolues."
+        ],
+        "safety": "Utilisez des sources publiques, respectez les limites de citation et ne demandez pas à Cursor d’imiter le style distinctif d’un auteur vivant."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi la révision de style et la révision d’intégrité devraient-elles être séparées ?",
+        "answer": "Une prose fluide peut toujours être fausse, et une prose précise peut toujours être floue. Des contrôles séparés rendent les deux jugements visibles et empêchent de sacrifier l’un à l’autre."
+      },
+      "takeaway": "Laissez Cursor accélérer la révision, tandis que le registre des sources et la révision de l’auteur gardent les preuves et la signification sous contrôle humain."
+    },
+    "office-studio": {
+      "kicker": "Leçon 12",
+      "title": "Office Studio : transformez vos fichiers en décisions vérifiables",
+      "summary": "Pour les réunions, les documents produit, les brouillons d’e-mails et les workflows bureautiques, partez du contexte du dossier et utilisez des données synthétiques en texte brut, des schémas ainsi que des étapes d’approbation.",
+      "objective": "Créez un dossier de travail bureautique qui conserve les preuves brutes, sépare la synthèse des recommandations, valide les données structurées et maintient les écritures externes soumises à une confirmation humaine.",
+      "sections": [
+        {
+          "heading": "Faites de l’espace de travail un dossier vérifiable",
+          "body": "Créez des dossiers distincts pour les entrées brutes, les notes de travail, la synthèse, les décisions et les artefacts finaux. Utilisez des notes de réunion, des entretiens, des contacts ou des dossiers de projet synthétiques en texte brut, Markdown ou CSV afin que les modifications restent faciles à comparer dans un diff. Un dépôt audité de gestion de produits utilisé avec Cursor illustre des workflows allant de l’entretien à la synthèse, puis à l’opportunité et au PRD ; un CRM en texte brut illustre les schémas, les données versionnées et la validation. Il s’agit de pratiques professionnelles, non de preuves que les décisions seront meilleures. Conservez les preuves brutes et ne laissez pas un résumé remplacer la source."
+        },
+        {
+          "heading": "Séparez source, synthèse, recommandation et action",
+          "body": "Demandez à Cursor d’extraire d’abord les faits et les citations, puis de synthétiser les thèmes avec des liens vers les preuves, et enfin de rédiger des recommandations assorties d’hypothèses et d’alternatives. Un dossier de réunion peut contenir des notes brutes, des décisions, des responsables, des échéances, des questions ouvertes et un brouillon de suivi. Un dossier produit peut contenir des preuves issues de la recherche, des opportunités, des options, un PRD et des critères de décision. Exécutez des contrôles de schéma et de cohérence sur CSV ou Markdown structuré. Signalez l’incertitude et les interprétations contestées. N’utilisez pas de données personnelles réelles dans l’exercice et ne traitez pas un score ou une priorité générés comme des faits objectifs."
+        },
+        {
+          "heading": "Maintenez les intégrations facultatives et soumises à validation",
+          "body": "Cursor a annoncé les plugins Google Workspace pour Drive, Gmail et Calendar en août 2026, mais leur disponibilité et les droits d’accès peuvent changer. Le workflow principal doit fonctionner à partir de fichiers exportés ou locaux, sans intégration. Si un outil connecté est disponible, distinguez la lecture d’un contexte approuvé de l’envoi d’un message, de la modification d’un calendrier ou de l’écriture dans un système externe. Prévisualisez chaque action externe, confirmez les destinataires et les cibles, puis conservez un artefact d’audit local. Un Skill peut regrouper cette séquence, mais inspectez-le et épinglez sa révision avant de l’utiliser. Ne laissez jamais la commodité transformer une demande d’analyse en message non autorisé ou en modification d’un enregistrement externe."
+        }
+      ],
+      "practice": {
+        "title": "Préparez un dossier synthétique allant de la réunion à la décision",
+        "brief": "Transformez les notes de réunion et les contacts fictifs fournis en un dossier validé et vérifiable sans connecter de compte externe.",
+        "steps": [
+          "Stockez séparément les notes brutes et les contacts synthétiques ; définissez des schémas pour les décisions, les responsables, les échéances, les questions ouvertes et les liens vers les preuves.",
+          "Demandez à Cursor d’extraire des faits, de synthétiser des thèmes et de rédiger des recommandations dans des fichiers séparés, en préservant les citations dans les notes brutes.",
+          "Validez le schéma, inspectez le diff et rédigez un brouillon, mais n’envoyez pas d’e-mail de suivi ni de plan de calendrier."
+        ],
+        "evidence": [
+          "Un dossier contenant des notes brutes immuables, une extraction structurée, une synthèse, des recommandations et un journal de décision.",
+          "La sortie de validation du schéma, accompagnée d’un brouillon de suivi non envoyé, relu par un humain et adressé à des destinataires synthétiques."
+        ],
+        "safety": "Utilisez des noms et du contenu synthétiques. Ne connectez pas Gmail, Drive, Calendar, CRM ou un autre système externe pour cet exercice."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi un fichier de recommandation devrait-il être séparé des faits extraits de la réunion ?",
+        "answer": "Il permet aux évaluateurs de distinguer ce que la source a réellement dit de la synthèse, des hypothèses, des priorités et des actions proposées par Cursor."
+      },
+      "takeaway": "Le travail de bureau devient plus sûr lorsque les preuves, l’interprétation, la décision et l’action externe restent séparées et vérifiables."
+    },
+    "teaching-studio": {
+      "kicker": "Leçon 13",
+      "title": "Studio pédagogique : accompagner sans prendre la main",
+      "summary": "Concevez avec Cursor un accompagnement qui préserve l’effort productif, propose un seul indice exploitable à la fois et vérifie l’apprentissage sans effectuer le travail à la place de l’apprenant.",
+      "objective": "Créez et testez un Skill d’enseignement ou un contrat de tâche comportant des indices progressifs, une vérification en lecture seule, une protection de la vie privée et un artefact final appartenant à l’apprenant.",
+      "sections": [
+        {
+          "heading": "Protégez l’autonomie de l’apprenant",
+          "body": "Un Skill d’enseignement pour Cursor, dont le code a été audité, limite le tuteur à une action de l’apprenant par tour, à des indices progressifs et à une vérification en lecture seule. L’apprenant exécute les commandes et réalise le travail final. Adaptez ce modèle à votre matière et au niveau visé. Commencez par demander à l’apprenant son objectif, sa tentative précédente et son explication. Proposez le plus petit indice permettant d’aborder l’étape suivante, plutôt qu’une solution complète. Demandez une prédiction avant l’exécution, puis une réflexion après le retour reçu. Une réponse soignée ne prouve pas que l’apprenant la comprend."
+        },
+        {
+          "heading": "Vérifiez l’apprentissage, pas seulement l’accomplissement de la tâche",
+          "body": "Définissez des preuves d’apprentissage observables : expliquer un concept avec ses propres mots, prédire un résultat, corriger une erreur, comparer des solutions ou transférer le principe à un nouvel exemple. Le tuteur peut examiner un espace de travail synthétique et exécuter des contrôles en lecture seule, mais il ne doit pas réparer discrètement l’artefact. Utilisez une grille qui distingue le processus, l’explication, le comportement final et l’incertitude. Pour l’enseignement du code, les tests peuvent vérifier le comportement, tandis qu’un raisonnement oral ou écrit vérifie la compréhension. Pour l’écriture ou la recherche, exigez la traçabilité et la justification des sources, pas seulement un produit soigné."
+        },
+        {
+          "heading": "Auditez l’environnement pédagogique",
+          "body": "Utilisez des données synthétiques ou fournies avec le consentement des apprenants ; ne placez pas dans l’espace de travail leur identité, leurs notes, des informations sur leur handicap ou leurs travaux privés. Examinez les Skills d’enseignement tiers et épinglez leur révision avant toute installation. Énoncez clairement les garde-fous relatifs à l’exécution des commandes et aux écritures. Offrez à l’apprenant un moyen visible de demander un indice plus explicite ou d’arrêter le tuteur. Consignez les retours provenant de Cursor ainsi que les décisions restées entre les mains de l’apprenant. Les produits et programmes étudiants actuels de Cursor n’établissent pas leur efficacité pédagogique ; évaluez donc le workflow localement et évitez toute affirmation causale."
+        }
+      ],
+      "practice": {
+        "title": "Organisez une leçon en trois tours fondée sur l’effort productif",
+        "brief": "Créez un contrat de tutorat pour une tâche d’apprentissage synthétique et testez-le sans laisser Cursor produire la réponse finale.",
+        "steps": [
+          "Définissez l’objectif d’apprentissage, les prérequis, trois niveaux d’indices, la règle d’une action par tour, la vérification en lecture seule et les options d’arrêt ou d’escalade contrôlées par l’apprenant.",
+          "Demandez à une personne partenaire ou à un apprenant simulé de tenter la tâche ; exigez une prédiction, fournissez un indice et demandez à l’apprenant d’effectuer l’action suivante.",
+          "Utilisez une question de transfert et une grille pour vérifier la compréhension, puis repérez dans la conversation tout moment où Cursor a pris le travail en charge."
+        ],
+        "evidence": [
+          "Le contrat de tutorat ou le Skill inspecté, avec sa provenance, sa révision, les limites des outils et une stratégie d’indices progressifs.",
+          "Une transcription en trois tours, accompagnée d’éléments de la grille montrant l’action de l’apprenant, le feedback, le transfert et les incompréhensions restantes."
+        ],
+        "safety": "Utilisez un apprenant fictif et une tâche synthétique. Ne traitez pas de notes ou de soumissions réelles, et n’installez pas de Skill tiers non épinglé."
+      },
+      "checkpoint": {
+        "prompt": "Quel est le signe le plus fort qu’un tuteur Cursor a soutenu l’apprentissage plutôt que de simplement terminer la tâche ?",
+        "answer": "L’apprenant peut expliquer, appliquer et transférer l’idée cible après un accompagnement progressif, tandis que le travail final reste le sien."
+      },
+      "takeaway": "Un bon agent pédagogique rend possible la prochaine action de l’apprenant sans agir à sa place."
+    },
+    "workflow-capstone": {
+      "kicker": "Leçon 14",
+      "title": "Projet final : démontrer un flux de travail Cursor complet",
+      "summary": "Réalisez une modification clairement délimitée dans un projet de test reproductible et remettez un dossier reliant contrat de tâche, orientation, plan, diff, contrôles, examen et transfert transparent.",
+      "objective": "Produisez un reçu d’auto-évaluation vérifiable automatiquement et un dossier de preuves lisible par un humain, de façon qu’une autre personne chargée de la maintenance puisse reproduire le raisonnement sans devoir deviner les étapes manquantes.",
+      "sections": [
+        {
+          "heading": "Figez le périmètre avant l’exécution",
+          "body": "Téléchargez le fichier ZIP de départ fourni et vérifiez-le à l’aide du SHA-256 publié pour l’archive. Le fichier interne course-fixture.json possède un SHA-256 distinct utilisé par le reçu d’auto-vérification ; ne comparez pas le ZIP à cette valeur. La tâche est volontairement petite : ajouter un filtre de cours « Incomplet » accessible au clavier, conserver les deux routes existantes, n’ajouter aucune dépendance et n’autoriser aucune action externe. Demandez à Cursor de s’orienter dans le projet de test avant toute modification. Approuvez un plan qui nomme le test ciblé, la plus petite zone d’implémentation, les contrôles plus larges, l’observation avec Browser et l’examen complet du diff. Un projet final démontre la maîtrise du processus, non la nouveauté ni le volume de code."
+        },
+        {
+          "heading": "Construisez la chaîne de preuves",
+          "body": "Exécutez le test ciblé afin de capturer l’état d’échec attendu. Implémentez la plus petite modification cohérente, puis exécutez les contrôles de test, lint, build, routes, clavier et dépendances. Examinez chaque fichier modifié et maintenez l’approbation manuelle des actions de Browser sur l’origine locale vérifiée. Si votre organisation propose la fonction d’entreprise Browser Origin Allowlist, limitez-la à cette origine comme contrôle best-effort supplémentaire. Si un contrôle ne peut pas s’exécuter, réparez l’environnement ou signalez la lacune ; ne modifiez jamais le vérificateur ni le reçu pour fabriquer une réussite. Les artefacts doivent former une chaîne traçable : du contrat de tâche à l’orientation, du plan au diff, des critères d’acceptation aux contrôles, puis des contrôles au transfert."
+        },
+        {
+          "heading": "Remettez des preuves, pas une simple déclaration d’achèvement",
+          "body": "Exécutez le vérificateur du projet de test pour produire un reçu structuré d’auto-vérification lié à la version publiée du projet de test et au hachage du fichier de test interne. Le reçu consigne les résultats de contrôle déclarés. Comme le vérificateur s’exécute localement et que le reçu n’est pas signé, celui-ci ne prouve pas que les commandes ont été exécutées, ne constitue pas un justificatif d’identité et ne remplace pas l’examen des artefacts. Collez-le dans le vérificateur du cours, puis préparez le dossier de preuves destiné à la revue humaine : contrat de tâche, note d’orientation, plan approuvé, diff examiné, relevé de vérification et transfert à la personne chargée de la maintenance. Indiquez ce que Cursor n’a pas pu vérifier, ce qui n’a pas été exécuté et quelles décisions restent humaines. N’effectuez ni push, ni merge, ni déploiement et ne modifiez aucun système externe. Le projet final est achevé lorsqu’une autre personne peut reproduire le raisonnement et décider de l’action suivante."
+        }
+      ],
+      "practice": {
+        "title": "Achever le projet de test Cursor",
+        "brief": "Ajoutez le filtre « Incomplet » à la démo téléchargée et générez un reçu d’auto-vérification structurellement valide sans modifier le vérificateur ni l’ensemble des dépendances.",
+        "steps": [
+          "Vérifiez le hachage de l’archive, installez les dépendances à partir du fichier de verrouillage, examinez le code source, le test ciblé, les scripts et les deux fichiers de route, puis enregistrez le contrat, l’orientation et le plan approuvé.",
+          "Capturez l’échec ciblé, implémentez le filtre accessible, exécutez tous les contrôles requis, utilisez Browser sur la route locale et examinez le diff complet.",
+          "Exécutez le vérificateur du projet de test, conservez course-receipt.json, collez son contenu ci-dessous et préparez un transfert indiquant les résultats, les limites et les actions suivantes toujours non autorisées."
+        ],
+        "evidence": [
+          "Un dossier examiné contenant le contrat, la note d’orientation, le plan, le diff, de nouveaux résultats de contrôle, la note Browser et les limites.",
+          "Un fichier course-receipt.json structurellement valide, correspondant au schéma publié, à la version du projet de test, au hachage du fichier de test interne et aux contrôles requis déclarés, accompagné du dossier de preuves sous-jacent."
+        ],
+        "safety": "Travaillez uniquement dans le projet de test téléchargé. N’ajoutez aucune dépendance, ne modifiez pas le vérificateur, n’utilisez aucune donnée réelle et n’effectuez ni push, ni fusion, ni déploiement, ni suppression, ni contact avec un système externe."
+      },
+      "checkpoint": {
+        "prompt": "Qu’est-ce qui rend le projet final digne de confiance ?",
+        "answer": "Une chaîne reproductible allant d’une intention clairement délimitée aux preuves observées, puis à un reçu d’auto-vérification lié au hachage et à un transfert transparent, en précisant explicitement que le reçu ne constitue pas une attestation et en laissant les décisions externes à un humain."
+      },
+      "takeaway": "La maîtrise consiste à rendre vérifiables, du début à la fin, la portée, le contexte, les actions, les preuves et les limites de Cursor."
+    }
+  },
+  "quiz": {
+    "q01": {
+      "question": "Quelle est la première requête la plus sûre dans un espace de travail Cursor inconnu ?",
+      "options": {
+        "a": "Demandez à Agent de moderniser l’ensemble du projet",
+        "b": "Demandez une cartographie en lecture seule des instructions, des points d’entrée, des contrôles et des risques",
+        "c": "Activez Run Everything pour que la configuration soit plus rapide",
+        "d": "Démarrez un Cloud Agent avec tous les secrets"
+      },
+      "explanation": "L’orientation en lecture seule crée un contexte vérifiable sans modifier un espace de travail que vous ne comprenez pas encore."
+    },
+    "q02": {
+      "question": "Quelle affirmation à propos de Privacy Mode est exacte ?",
+      "options": {
+        "a": "Il garantit qu’aucune demande ne quitte l’appareil",
+        "b": "Il fait de .cursorignore une limite complète pour le terminal",
+        "c": "Il contrôle l’utilisation pour l’entraînement selon les conditions publiées par Cursor, tandis que les requêtes doivent toujours être traitées",
+        "d": "Il rend les données synthétiques inutiles"
+      },
+      "explanation": "Privacy Mode aborde les contrôles d’utilisation des données déclarés ; il ne s’agit pas d’une garantie d’exécution uniquement locale ou d’une limite d’accès complète."
+    },
+    "q03": {
+      "question": "Comment devez-vous traiter une suggestion Cursor Tab ?",
+      "options": {
+        "a": "Comme une proposition à examiner intégralement avant de l’accepter",
+        "b": "Comme code vérifié car il est apparu automatiquement",
+        "c": "Comme Project Rule",
+        "d": "En remplacement des contrôles ciblés"
+      },
+      "explanation": "Tab prédit une prochaine action. L’apprenant reste responsable de l’acceptation, de la révision et de la vérification."
+    },
+    "q04": {
+      "question": "Quand Inline Edit est-il l’interface appropriée ?",
+      "options": {
+        "a": "Lorsqu’une tâche nécessite une recherche approfondie dans le dépôt",
+        "b": "Lorsqu’un déploiement nécessite une approbation",
+        "c": "Lorsque plusieurs agents doivent se coordonner",
+        "d": "Lorsqu’une région sélectionnée a besoin d’une petite transformation explicite"
+      },
+      "explanation": "La sélection fournit à Inline Edit une limite utile pour une petite modification ; les travaux plus vastes relèvent d’Agent."
+    },
+    "q05": {
+      "question": "Quelle est la meilleure preuve à l’appui d’une explication d’Agent ?",
+      "options": {
+        "a": "Son ton confiant",
+        "b": "La durée de la conversation",
+        "c": "Les fichiers cités, les résultats d’outils, les diffs et les contrôles que vous pouvez examiner",
+        "d": "Le nom du modèle"
+      },
+      "explanation": "Les preuves vérifiables provenant du dépôt et des outils étayent une affirmation ; la qualité apparente de la conversation ne le fait pas."
+    },
+    "q06": {
+      "question": "Comment utiliser les points de contrôle ?",
+      "options": {
+        "a": "Comme remplacement de l’historique Git",
+        "b": "Comme instantanés locaux pratiques, en complément d’une limite Git propre",
+        "c": "Comme preuve que les tests ont réussi",
+        "d": "En tant que contrôle de sécurité cloud"
+      },
+      "explanation": "Les checkpoints de Cursor aident à restaurer localement les modifications d’Agent, mais ils restent distincts d’un historique de versions durable."
+    },
+    "q07": {
+      "question": "Quel élément manque dans un contrat de tâche par ailleurs complet ?",
+      "options": {
+        "a": "Une demande d’utilisation de l’architecture la plus récente",
+        "b": "Un long catalogue de modèles",
+        "c": "L’autorisation de faire tout ce qui pourrait être utile",
+        "d": "Le comportement d’acceptation observable et sa méthode de vérification"
+      },
+      "explanation": "Un contrat doit distinguer l’acceptation de la vérification afin que la réussite puisse être examinée."
+    },
+    "q08": {
+      "question": "Que doit-il se passer lorsqu’une contrainte entre en conflit avec le résultat demandé ?",
+      "options": {
+        "a": "Cursor devrait s’arrêter et faire remonter le conflit afin qu’une décision soit prise",
+        "b": "Cursor devrait supprimer silencieusement la contrainte",
+        "c": "L’interprétation la plus large devrait l’emporter",
+        "d": "La tâche doit mettre en œuvre les deux solutions"
+      },
+      "explanation": "L’ambiguïté qui en résulte devrait devenir une décision humaine explicite plutôt qu’un choix de mise en œuvre caché."
+    },
+    "q09": {
+      "question": "Quand Plan Mode est-il le plus utile ?",
+      "options": {
+        "a": "Pour accepter une complétion Tab évidente",
+        "b": "Pour les travaux ambigus, multifichiers, architecturaux ou à fort enjeu",
+        "c": "Seulement après la mise en œuvre",
+        "d": "Pour garantir que le plan est correct"
+      },
+      "explanation": "Plan Mode fournit une recherche, des éclaircissements, un plan modifiable et une pause avant une exécution complexe."
+    },
+    "q10": {
+      "question": "Quel message de pilotage est le plus précis ?",
+      "options": {
+        "a": "Réessayez",
+        "b": "Tout réécrire",
+        "c": "Conservez la modification de schéma validée ; révisez uniquement l’ordre de focus et relancez le contrôle au clavier",
+        "d": "Faites ce qui vous semble le mieux"
+      },
+      "explanation": "Un pilotage fondé sur les preuves préserve le travail validé et indique précisément la nouvelle limite ainsi que le contrôle à exécuter."
+    },
+    "q11": {
+      "question": "Quel est le premier objectif du débogage ?",
+      "options": {
+        "a": "Reproduire le symptôme et rassembler des preuves qui distinguent les causes",
+        "b": "Refactoriser le module suspect",
+        "c": "Ajouter des journaux partout",
+        "d": "Désactiver la vérification défaillante"
+      },
+      "explanation": "Une reproduction fiable et des hypothèses concurrentes empêchent les modifications spéculatives."
+    },
+    "q12": {
+      "question": "Que devrait dire un transfert sur une vérification requise qui n’a pas pu démarrer ?",
+      "options": {
+        "a": "Réussi car des tests plus petits ont réussi",
+        "b": "L’omettre",
+        "c": "Probablement sûr",
+        "d": "Non exécuté, avec le motif exact du blocage et l’incertitude restante"
+      },
+      "explanation": "Une lacune honnête en matière de preuves est plus utile qu’une affirmation d’achèvement non étayée."
+    },
+    "q13": {
+    "question": "Quel fichier constitue une Project Rule actuelle valide ?",
+      "options": {
+        "a": ".cursor/accessibility.mdc",
+        "b": ".cursor/rules/accessibility.mdc",
+        "c": ".cursor/rules/notes.md",
+        "d": "rules.txt"
+      },
+      "explanation": "Les Project Rules actuelles sont des fichiers .mdc dans .cursor/rules ; un simple fichier .md placé dans ce répertoire est ignoré."
+    },
+    "q14": {
+      "question": "Quelle est la manière la plus sûre d’adopter un Skill tiers ?",
+      "options": {
+        "a": "Installer la branche main, qui continue d’évoluer",
+        "b": "Se fier à son nombre d’étoiles",
+        "c": "Examiner le code source et les permissions, épingler une révision, puis la tester dans un espace de travail temporaire",
+        "d": "Le coller dans une règle globale sans examen"
+      },
+      "explanation": "Les Skills sont des instructions exécutables : ils exigent une provenance, des permissions, une révision épinglée et un examen de leur comportement."
+    },
+    "q15": {
+      "question": "Quelle configuration offre aux tâches d’édition parallèles la limite d’isolation des fichiers la plus nette ?",
+      "options": {
+        "a": "Deux Subagents par défaut qui modifient le même checkout de l’agent parent",
+        "b": "Deux Subagents readonly auxquels on demande de modifier des fichiers",
+        "c": "Deux onglets de chat qui modifient le même fichier",
+        "d": "Des tâches disjointes dans des copies isolées du projet ou des VM Cloud Agent isolées"
+      },
+      "explanation": "Par défaut, les Subagents partagent le checkout de l’agent parent. Les copies isolées du projet ou les VM Cloud Agent offrent des systèmes de fichiers distincts aux tâches d’édition, tandis que des périmètres disjoints continuent de réduire le risque de coordination."
+    },
+    "q16": {
+      "question": "Que faut-il faire une fois que les branches isolées ont chacune réussi leurs contrôles ?",
+      "options": {
+        "a": "Examiner et vérifier l’état combiné après une intégration délibérée",
+        "b": "Supposer que l’ensemble réussira",
+        "c": "Déployer selon celui terminé en premier",
+        "d": "Supprimer les preuves"
+      },
+      "explanation": "L’isolation empêche les écrasements mais ne peut pas prouver la compatibilité après l’intégration."
+    },
+    "q17": {
+      "question": "Que doit identifier en premier un plan de fonctionnalités logicielles ?",
+      "options": {
+        "a": "Le framework le plus récent trouvé en ligne",
+        "b": "Une cible de déploiement",
+        "c": "Le point d’extension existant, le comportement d’acceptation, les tests et la plus petite zone affectée",
+        "d": "Une réécriture complète"
+      },
+      "explanation": "Les preuves du dépôt et le comportement observable fondent la mise en œuvre dans le projet réel."
+    },
+    "q18": {
+      "question": "Quel est le rôle des preuves issues de Browser ?",
+      "options": {
+        "a": "Remplacer chaque contrôle déterministe",
+        "b": "Compléter les contrôles ciblés et plus larges du comportement visuel ou interactif",
+        "c": "Prouver toutes les exigences d’accessibilité",
+        "d": "Autoriser automatiquement les origines externes"
+      },
+      "explanation": "L’inspection avec Browser fournit des preuves utiles, mais elle ne remplace ni les contrôles de logique, de type, de build et de régression, ni une vérification complète de l’accessibilité."
+    },
+    "q19": {
+      "question": "Quel flux de travail de recherche est le plus reproductible ?",
+      "options": {
+        "a": "Une question figée, des instantanés de sources et de données, des contrôles, des scripts, des métadonnées d’exécution, des résultats, des limites et des décisions",
+        "b": "Une longue conversation sans fichiers enregistrés",
+        "c": "Un résumé soigné sans code",
+        "d": "Uniquement des résultats positifs"
+      },
+      "explanation": "Les artefacts durables permettent à un autre chercheur d’inspecter le chemin complet depuis l’entrée et la méthode jusqu’au résultat et à l’interprétation."
+    },
+    "q20": {
+      "question": "Comment traiter les résultats négatifs ou nuls ?",
+      "options": {
+        "a": "Supprimez-les avant de rédiger",
+        "b": "Demandez à Cursor de les rendre significatifs",
+        "c": "Traitez-les comme des échecs de l’interface",
+        "d": "Préservez-les avec les métadonnées d’exécution, l’interprétation et les limitations"
+      },
+      "explanation": "Les résultats négatifs font partie du dossier des preuves et protègent contre une sélection narrative."
+    },
+    "q21": {
+      "question": "Pourquoi les évaluations de style et d’intégrité devraient-elles être distinctes ?",
+      "options": {
+        "a": "Pour allonger le flux de travail",
+        "b": "Parce qu’une prose claire peut être fausse et une prose précise peut être floue",
+        "c": "Parce que les citations n’ont jamais besoin d’être vérifiées",
+        "d": "Pour permettre à deux agents de modifier le même fichier simultanément"
+      },
+      "explanation": "Des contrôles séparés préservent à la fois la qualité de la communication et l’étayage factuel."
+    },
+    "q22": {
+      "question": "Que doit faire Cursor lorsqu’une source ne peut pas soutenir une affirmation prévue ?",
+      "options": {
+        "a": "Déduire le détail manquant",
+        "b": "Citer une autre URL qui semble convenir",
+        "c": "Marquer l’affirmation comme non vérifiée et maintenir visible la lacune dans les preuves",
+        "d": "Supprimer le registre des sources"
+      },
+      "explanation": "Une incertitude visible est préférable à une déclaration fluide et non étayée."
+    },
+    "q23": {
+      "question": "Quand un flux de travail de bureau peut-il envoyer un e-mail ou modifier un calendrier ?",
+      "options": {
+        "a": "Chaque fois qu’une intégration est installée",
+        "b": "Après qu’un modèle a affirmé que l’action était sûre",
+        "c": "Quand le brouillon semble peaufiné",
+        "d": "Uniquement lorsque l’action externe, la cible exacte et l’approbation figurent explicitement dans le périmètre"
+      },
+      "explanation": "Lire le contexte et modifier un système externe relèvent de deux niveaux d’autorisation distincts."
+    },
+    "q24": {
+      "question": "Quelle est la meilleure structure d’artefacts de travail de bureau ?",
+      "options": {
+        "a": "Séparer les preuves brutes, l’extraction, la synthèse, la recommandation, la décision et l’action externe",
+        "b": "Remplacer les notes brutes par le résumé",
+        "c": "Tout stocker dans un seul prompt",
+        "d": "Utiliser de vraies données personnelles pour plus de réalisme"
+      },
+      "explanation": "Les artefacts séparés permettent d’examiner indépendamment les faits tirés des sources, les interprétations, les décisions et les effets secondaires."
+    },
+    "q25": {
+      "question": "Qu’est-ce qui démontre le mieux un effort productif dans un tutorat avec Cursor ?",
+      "options": {
+        "a": "Cursor termine le travail final rapidement",
+        "b": "L’apprenant copie une solution complète",
+        "c": "L’apprenant agit, explique et transfère l’idée après des indices progressifs",
+        "d": "Le tuteur exécute chaque commande"
+      },
+      "explanation": "Les preuves d’apprentissage proviennent des actions, du raisonnement et du transfert réalisés par l’apprenant, et non de l’accomplissement de la tâche par Agent."
+    },
+    "q26": {
+      "question": "Que doit faire par défaut un Skill d’enseignement ?",
+      "options": {
+        "a": "Révéler immédiatement la réponse complète",
+        "b": "Proposer une prochaine action adaptée et effectuer une vérification en lecture seule pendant que l’apprenant réalise le travail",
+        "c": "Enregistrer de vraies notes",
+        "d": "Ignorer la demande d’arrêt de l’apprenant"
+      },
+      "explanation": "Les séquences limitées à une seule action et la vérification en lecture seule préservent l’autonomie de l’apprenant et rendent sa compréhension observable."
+    },
+    "q27": {
+      "question": "Qu’est-ce qui rend complète la chaîne de preuves du projet final ?",
+      "options": {
+        "a": "Contrat, orientation, plan approuvé, diff examiné, nouveaux contrôles, reçu d’auto-vérification et transfert transparent",
+        "b": "Un diff volumineux",
+        "c": "Un déploiement automatique",
+        "d": "Une affirmation d’achèvement"
+      },
+      "explanation": "Le dossier relie une intention clairement délimitée à des preuves vérifiables et réserve les décisions externes aux humains."
+    },
+    "q28": {
+      "question": "Que faire si le vérificateur du projet de test ne peut pas produire un reçu dont tous les contrôles déclarés sont réussis ?",
+      "options": {
+        "a": "Modifier le reçu manuellement",
+        "b": "Changer le hachage attendu",
+        "c": "Marquer les contrôles comme réussis sur la seule base de la confiance",
+        "d": "Réparer la tâche réelle ou signaler précisément la lacune de preuve sans prétendre avoir terminé"
+      },
+      "explanation": "Le reçu consigne les contrôles déclarés, mais ne remplace pas les preuves correspondantes. Ne le modifiez jamais pour fabriquer une déclaration de réussite."
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "Palette de commandes de Cursor affichée au-dessus de l’Editor, avec « Open Agents Window » sélectionné",
+      "caption": "Ouvrez la vue Agents Window centrée sur les agents depuis la palette de commandes de Cursor. Cette illustration figure dans la documentation actuelle d’Agents Window ; Cursor Desktop 3.17 était la version Desktop la plus récente lors de la vérification."
+    },
+    "fig-02": {
+      "alt": "Éditeur de code Cursor affichant une prédiction Tab multiligne atténuée",
+      "caption": "Lisez l’intégralité de la modification prédite avant d’appuyer sur Tab. Il s’agit d’un visuel actuel provenant directement de Cursor, et non d’une capture d’écran du système d’exploitation."
+    },
+    "fig-03": {
+      "alt": "Conversation Cursor dans Agents Window à côté d’un fichier source examiné",
+      "caption": "Gardez côte à côte le résumé d’Agent et les preuves issues du dépôt afin que chaque affirmation reste vérifiable."
+    },
+    "fig-04": {
+      "alt": "Compositeur d’invite Cursor actuel avec une commande d’objectif et un contrôle Plan New Idea",
+      "caption": "Transformez une intention ambitieuse en un contrat de tâche délimité avant d’accorder des outils. L’illustration provient du journal des modifications de Cursor du 19 août 2026."
+    },
+    "fig-05": {
+      "alt": "Cursor Plan Mode affichant un plan de mise en œuvre préparé et le bouton Build",
+      "caption": "Examinez et modifiez le plan avant de sélectionner Build. L’interaction reste d’actualité, mais cette interface d’octobre 2025 est qualifiée d’historique."
+    },
+    "fig-06": {
+      "alt": "Cursor Editor avec plusieurs onglets Agent et des diffs côte à côte",
+      "caption": "Cursor 3.0 a rendu visibles les onglets Agent parallèles et l’examen des diffs ; chaque résultat exige toujours une personne responsable de l’intégration et de nouveaux contrôles."
+    },
+    "fig-07": {
+      "alt": "Page Team Rules de Cursor présentant une règle ciblée pour React et GraphQL",
+      "caption": "Une règle ciblée regroupe des consignes durables ; Skills et MCP répondent à des besoins distincts en matière de procédures et d’outils."
+    },
+    "fig-08": {
+      "alt": "Contrôle de suivi de Cursor avec les choix d’exécution Local et Cloud",
+      "caption": "Choisissez délibérément l’environnement d’exécution. Cette figure Cursor 3.7 montre un contrôle de transfert local vers le cloud."
+    },
+    "fig-09": {
+      "alt": "Paramètres MCP d’entreprise de Cursor avec Browser Origin Allowlist et la commande Add Origin",
+      "caption": "Ce contrôle facultatif, géré par un administrateur d’entreprise, limite aux origines configurées la navigation automatique de Browser et l’exécution des outils MCP, mais Cursor le décrit comme un mécanisme best-effort. La plupart des apprenants doivent conserver l’approbation manuelle des actions de Browser et n’utiliser qu’une origine locale vérifiée."
+    },
+    "fig-10": {
+      "alt": "Panneau Cursor Agentic Search localisant les fichiers pertinents du dépôt aux côtés d’un formateur officiel",
+      "caption": "Recherchez avant d’affirmer. Cette illustration provient de Cursor Learn et est signalée comme le visuel d’une interface historique."
+    },
+    "fig-11": {
+      "alt": "Cursor a préparé un plan avec l’état actuel, l’approche, les étapes de mise en œuvre et les contrôles",
+      "caption": "Ce visuel d’une ancienne interface illustre un principe durable : la rédaction devient vérifiable lorsque l’examen des preuves, le plan, le brouillon, le style et l’intégrité constituent des phases distinctes et planifiées."
+    },
+    "fig-12": {
+      "alt": "Compositeur de prompt de Cursor avec un Custom Mode épinglé ou un Skill sélectionné",
+      "caption": "Examinez et épinglez un Skill de flux de travail avant de l’autoriser à intervenir sur des fichiers bureautiques ou des outils connectés. Cette interface provient du journal des modifications du 19 août 2026."
+    },
+    "fig-13": {
+      "alt": "Sélecteur de dépôt Cursor répertoriant les projets locaux récents, plusieurs dossiers et les options This Computer et Cloud",
+      "caption": "Ouvrez un espace de travail d’enseignement synthétique et gardez les sources locales et cloud explicites. Ce sélecteur provient de Cursor 3.11."
+    },
+    "fig-14": {
+      "alt": "Tableau de bord Cursor Cloud Builds affichant un build en échec, le commit actif, l’identifiant du snapshot, la révision de l’environnement, la liste des builds et des liens de détail et d’action",
+      "caption": "Cette capture montre les états et les révisions, pas le contenu des journaux ni des contrôles ; ouvrez les détails, puis examinez séparément les journaux et les contrôles avant d’accepter le transfert."
+    }
+  },
+  "capstone": {
+    "title": "Dossier révisable pour un flux de travail Cursor",
+    "summary": "Implémentez dans le projet de test fourni une fonctionnalité reproductible et clairement délimitée, puis montrez, au moyen de preuves vérifiables, que le résultat est accessible, testé, examiné et prêt pour une décision humaine.",
+    "scenario": "Téléchargez puis décompressez aicourse-cursor-demo. Le fichier CourseList.tsx doit recevoir un filtre de cours « Incomplet » accessible au clavier et couvert par CourseList.test.tsx. Cursor ne peut examiner, planifier, modifier et vérifier que dans ce projet de test. N’ajoutez aucune dépendance et conservez / ainsi que /courses/. Les commits, pushs, pull requests, déploiements, secrets réels, données privées et écritures externes restent hors de portée.",
+    "instructions": [
+      "Contrat : ajoutez un filtre « Incomplet » au moyen de contrôles natifs utilisables au clavier, n’ajoutez aucune dépendance, conservez / et /courses/ et laissez toutes les actions externes non autorisées.",
+      "Orientation : vérifiez le fichier ZIP téléchargé à l’aide de la somme de contrôle de l’archive, confirmez le hachage distinct du fichier de test interne au moyen du vérificateur fourni, installez les dépendances à partir du fichier de verrouillage et examinez CourseList.tsx, CourseList.test.tsx, les scripts du package, les filtres existants et les deux points d’entrée des routes sans rien modifier.",
+      "Plan : reliez le comportement manquant au test ciblé, indiquez les plus petites modifications nécessaires dans le code source et le test, puis définissez les contrôles suivants : tests, lint, build, routes, comportement au clavier et intégrité des dépendances.",
+      "Implémentation : capturez l’échec ciblé attendu, puis effectuez la plus petite modification cohérente de CourseList.tsx et CourseList.test.tsx pour le filtre « Incomplet ».",
+      "Vérification : exécutez chaque commande requise, examinez / et /courses/ avec des actions de Browser approuvées manuellement sur l’origine locale vérifiée et consignez la sortie réelle ainsi que chaque contrôle non exécuté. N’utilisez la fonction d’entreprise Browser Origin Allowlist que si votre organisation la propose.",
+      "Examen : inspectez chaque fichier modifié et confrontez au diff le libellé, le comportement du contrôle natif, son état activé, la logique des cours incomplets, la portée et les limites de sécurité.",
+      "Transfert : exécutez le vérificateur du projet de test, conservez course-receipt.json et indiquez le résultat, les fichiers modifiés, les preuves, les limites et les décisions qui restent humaines."
+    ],
+    "artifacts": {
+      "task-contract": {
+        "title": "Contrat de tâche",
+        "description": "Le résultat clairement délimité, le contexte faisant autorité, les contraintes, les objectifs exclus, le comportement d’acceptation, la vérification et la limite d’autorité."
+      },
+      "orientation-note": {
+        "title": "Note d’orientation",
+        "description": "Informations sur le dépôt en lecture seule avec ancres de fichiers, comportement actuel, vérifications, risques et incertitude étiquetée."
+      },
+      "approved-plan": {
+        "title": "Plan approuvé",
+        "description": "Phases ordonnées avec résultats, zones affectées, preuves, décisions et conditions d’arrêt."
+      },
+      "reviewed-diff": {
+        "title": "Diff examiné",
+        "description": "Ensemble complet des fichiers modifiés, accompagné d’une justification de la portée, d’un examen de l’accessibilité et des constats de révision."
+      },
+      "verification-record": {
+        "title": "Relevé de vérification",
+        "description": "Nouvelles preuves d’échec et de réussite, contrôles plus larges, sorties réelles, notes Browser et contrôles explicitement non exécutés."
+      },
+      "handoff": {
+        "title": "Transfert à la personne chargée de la maintenance",
+        "description": "Résultat concis, résumé des modifications, vérifications, limites et décisions humaines restantes."
+      }
+    },
+    "rubric": {
+      "scope": {
+        "title": "Portée et contrat, 20 points",
+        "description": "Le résultat est observable, les non-objectifs sont explicites et chaque fichier modifié renvoie à la tâche approuvée."
+      },
+      "safety": {
+        "title": "Environnement et sécurité, 20 points",
+        "description": "Les autorisations sont minimes, des données synthétiques sont utilisées et les actions externes ou destructrices restent non autorisées."
+      },
+      "implementation": {
+        "title": "Qualité de mise en œuvre, 20 points",
+        "description": "La modification s’appuie sur le dépôt, reste ciblée et accessible, respecte les instructions locales et ne contient aucun remaniement sans rapport avec la tâche."
+      },
+      "verification": {
+        "title": "Qualité de la vérification, 25 points",
+        "description": "De nouvelles preuves couvrent le risque d’acceptation et de régression, avec un traitement honnête des échecs, des lacunes et des limitations Browser."
+      },
+      "handoff": {
+        "title": "Révision et transfert, 15 points",
+        "description": "Le diff complet est examiné et une autre personne chargée de la maintenance peut reproduire les résultats, les limites et les décisions suivantes."
+      }
+    },
+    "pass": "La réussite exige au moins 80 points, sans violation critique de la sécurité ni affirmation de vérification fabriquée.",
+    "retry": "Si votre score est inférieur à 80, réparez le lien de preuve le plus faible et soumettez à nouveau la même tâche délimitée au lieu d’étendre la portée.",
+    "completion": "Vous avez terminé lorsque le format du reçu est validé, que les preuves sous-jacentes sont présentes et qu’une autre personne chargée de la revue peut reproduire le raisonnement sans supposer les étapes manquantes."
+  }
+}

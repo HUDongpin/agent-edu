@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "title": "Comment gagner de l'argent avec Codex",
+    "shortTitle": "Gagner de l'argent avec Codex",
+    "languageNotice": "Seuls la navigation et les titres du cours, des unités et des leçons sont localisés. Le texte audité des leçons, les exercices, l'évaluation, les figures, le registre des sources et les outils interactifs restent en anglais. Une révision indépendante par une personne francophone de langue maternelle est en attente."
+  },
+  "availability": {
+    "contentLanguage": "en",
+    "localizedScope": "navigation-and-titles",
+    "reviewStatus": "pending-independent-native-review"
+  },
+  "ui": {
+    "course": "Cours",
+    "courses": "Cours",
+    "courseOutline": "Plan du cours",
+    "lesson": "Leçon",
+    "lessons": "leçons",
+    "minutes": "min",
+    "guidedWork": "travail guidé",
+    "authenticUi": "figures authentiques de l'interface Codex ou de transcriptions",
+    "evidenceVerified": "preuves vérifiées",
+    "startCourse": "Commencer par le périmètre des preuves",
+    "inspectLessons": "Consulter toutes les leçons",
+    "curriculum": "Programme",
+    "time": "Durée",
+    "output": "Livrable",
+    "evidence": "Preuves",
+    "boundedSources": "sources au périmètre délimité",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "courseDashboard": "Tableau de bord du cours",
+    "reviewEvidencePath": "Vérifier votre parcours de preuves",
+    "backToCatalog": "Cours"
+  },
+  "units": {
+    "value": { "title": "La valeur avant le code" },
+    "pilot": { "title": "Construire un pilote payant" },
+    "sell": { "title": "Tarifer, vendre et livrer" },
+    "scale": { "title": "Standardiser sans perdre le contrôle" }
+  },
+  "lessons": {
+    "money-not-magic": { "title": "Codex est un levier, pas une machine à gagner de l'argent" },
+    "choose-market-wedge": { "title": "Choisir un créneau de marché précis" },
+    "validate-before-building": { "title": "Valider avant de construire" },
+    "write-commercial-spec": { "title": "Rédiger le contrat commercial de la tâche" },
+    "protect-client-work": { "title": "Protéger le travail du client" },
+    "build-verified-pilot": { "title": "Construire un pilote vérifié" },
+    "price-for-margin": { "title": "Tarifer selon la marge et le risque" },
+    "sell-with-proof": { "title": "Vendre avec des preuves, pas des promesses" },
+    "deliver-with-control": { "title": "Livrer avec maîtrise" },
+    "productize-reuse": { "title": "Standardiser ce qui a résisté à la livraison" },
+    "retain-and-automate": { "title": "Créer de la valeur récurrente de manière responsable" },
+    "launch-capstone": { "title": "Lancer un pilote de revenus fondé sur des preuves" }
+  }
+}

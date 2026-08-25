@@ -1,6 +1,7 @@
 "use client";
 
 import { useI18n } from "../I18nProvider";
+import LabIcon from "./LabIcon";
 
 /**
  * What a reader sees when a call fails.
@@ -17,7 +18,9 @@ export default function Fail({ msgKey, detail }: { msgKey: string; detail?: stri
 
   return (
     <div className="fail" role="alert">
-      <span className="failico" aria-hidden="true">{noKey ? "🔑" : "⚠️"}</span>
+      <span className="failico" aria-hidden="true">
+        <LabIcon name={noKey ? "key" : "warning"} />
+      </span>
       <div>
         <p>{t(msgKey)}</p>
         {noKey && (

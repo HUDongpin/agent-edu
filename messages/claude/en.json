@@ -1,0 +1,972 @@
+{
+  "meta": {
+    "title": "How to Use Claude",
+    "kicker": "Course 3 · Delegate. Describe. Discern. Be diligent.",
+    "summary": "Learn Claude from first conversation to trustworthy, repeatable workflows across research, writing, office work, teaching, and software engineering.",
+    "audience": "For curious beginners and experienced professionals. The core path works without paid features; paid and organisation-managed tools are clearly marked as extensions.",
+    "duration": "About 12 to 15 hours, including a 120-minute portfolio capstone",
+    "sourceNote": "Claude Academy supplies the learning sequence; the current Claude Help Centre and product documentation supply operational and plan details. When sources disagree, the newer operational source wins. GitHub examples are labelled as official or practitioner evidence, never as proof of effectiveness.",
+    "figureNote": "Every figure is a real, dated Claude interface or output image with local files, source provenance, privacy review, and an audited hash. Visible model names and controls are historical evidence, not availability promises. Independent educational guide; not affiliated with or endorsed by Anthropic.",
+    "startCta": "Start with the surface map",
+    "resumeCta": "Continue your Claude practice"
+  },
+  "ui": {
+    "lessons": "Lessons",
+    "minutes": "min",
+    "objectives": "Learning objective",
+    "evidence": "Evidence to keep",
+    "practice": "Guided practice",
+    "checkpoint": "Discernment checkpoint",
+    "sources": "Source ledger",
+    "quiz": "Knowledge check",
+    "previous": "Previous lesson",
+    "next": "Next lesson",
+    "capturePending": "Real UI capture required",
+    "optionalAdvanced": "Optional paid or advanced extension",
+    "progress": "Progress",
+    "courseProgress": "Course progress",
+    "completed": "Completed",
+    "markComplete": "Mark complete",
+    "markedComplete": "Marked complete",
+    "resetProgress": "Reset progress",
+    "question": "Question",
+    "of": "of",
+    "checkAnswer": "Check answer",
+    "checkAnswers": "Check answers",
+    "correct": "Correct",
+    "incorrect": "Not yet",
+    "tryAgain": "Try again",
+    "score": "Score",
+    "quizPassed": "Knowledge check passed",
+    "quizNeedsReview": "Review the evidence links and try again",
+    "capstoneArtifacts": "Portfolio evidence",
+    "capstoneReceipt": "Portfolio record",
+    "artifactReady": "Evidence ready",
+    "rubric": "Rubric",
+    "rubricComplete": "All evidence reviewed",
+    "passingScore": "Passing score",
+    "weight": "Weight",
+    "status": "Status",
+    "notStarted": "Not started",
+    "printReceipt": "Print record",
+    "browserStorageNote": "This course stores only Claude-course progress in this browser: 15 lesson completion flags; the quiz best score, pass flag, and bank version; six capstone artifact checks; four rubric self-scores; the critical-risk review attestation; and the final capstone completion flag. It never stores prompts, selected quiz answers, or files.",
+    "backToCourse": "Back to Claude course",
+    "allLessons": "All lessons",
+    "recordCompletion": "Record capstone completion",
+    "finalQuizTitle": "Evidence-linked final check",
+    "finalQuizIntro": "Answer 16 questions, four from each unit. You need 13 correct answers to pass. Questions are sampled from a 30-question bank and every explanation links to its source.",
+    "beginQuiz": "Begin 16-question check",
+    "nextQuestion": "Next question",
+    "retryQuiz": "Try a new balanced set",
+    "bestScore": "Best score",
+    "passRequirement": "13 of 16 correct required",
+    "source": "Evidence source",
+    "sourceVerifiedOn": "Verified",
+    "figureObservedOn": "Observed",
+    "stars": "Stars",
+    "license": "Licence",
+    "storageUnavailable": "Browser storage is unavailable. The course remains usable, but progress will last only for this session.",
+    "receiptInstructions": "Review each portfolio item against the rubric. This is a learner-controlled self-audit, not an independently verified credential.",
+    "receiptSchemaLabel": "Record schema",
+    "fixtureVersionLabel": "Course version",
+    "fixtureHashLabel": "Evidence set",
+    "requiredChecksLabel": "Required evidence",
+    "pasteReceipt": "Portfolio evidence",
+    "verifyReceipt": "Review evidence",
+    "receiptValid": "Portfolio self-audit complete",
+    "receiptInvalidJson": "This record is not valid.",
+    "receiptWrongSchema": "This record uses a different schema.",
+    "receiptWrongVersion": "This record belongs to another course version.",
+    "receiptWrongHash": "This record does not match the evidence set.",
+    "receiptIncomplete": "Review every required portfolio item before recording completion.",
+    "downloadStarter": "Download the capstone brief",
+    "completionSummary": "Course completion summary",
+    "exportSummary": "Export private summary",
+    "finishQuiz": "Finish the check",
+    "questionProgressTemplate": "Question {current} of {total}",
+    "scoreSummaryTemplate": "Score: {score} of {total}",
+    "bestScoreTemplate": "Best score: {score} of {total}",
+    "resetConfirm": "Reset all locally saved Claude-course progress?",
+    "resetDone": "Claude-course progress reset.",
+    "capstonePath": "Portfolio capstone"
+  },
+  "units": {
+    "unit-1": {
+      "title": "Describe the work",
+      "summary": "Choose the right Claude surface, write a useful outcome brief, iterate through conversation, and practise discernment before trusting an answer."
+    },
+    "unit-2": {
+      "title": "Create with durable context",
+      "summary": "Work with files, Projects, Artifacts, and Research while keeping source boundaries, native-file inspection, and sharing review visible."
+    },
+    "unit-3": {
+      "title": "Delegate to tools",
+      "summary": "Extend Claude with Skills and Connectors, delegate bounded work in Cowork, and use Claude Code through inspection, tests, diffs, and human review."
+    },
+    "unit-4": {
+      "title": "Discern in real work",
+      "summary": "Transfer the same evidence loop to research, data, writing, office work, and teaching, then build one auditable portfolio packet."
+    }
+  },
+  "lessons": {
+    "choose-your-surface": {
+      "kicker": "Lesson 1 · Surface map",
+      "title": "Choose Chat, Cowork, or Code on purpose",
+      "summary": "Claude is a family of working surfaces, not one interchangeable text box. Start with the smallest surface that matches the outcome, data boundary, and authority you need.",
+      "objective": "Distinguish Chat, Cowork, Code, and the Platform, then justify a surface choice for a low-risk task.",
+      "sections": [
+        {
+          "heading": "Match the signature move to the task",
+          "body": "Use Chat when the work benefits from conversational iteration: explaining, drafting, comparing, analysing an uploaded file, or building an Artifact. Use Cowork when a paid-plan task spans several steps or files and you want Claude to plan and act within a deliberately chosen work boundary. Use Code when the task is grounded in a repository and requires reading code, editing files, running commands, or reviewing a diff. The Claude Platform is a builder surface for applications and agents, not simply another personal chat. These boundaries matter because the same sentence can imply very different tools, permissions, and review duties on each surface."
+        },
+        {
+          "heading": "Keep the learning objective plan-neutral",
+          "body": "Plan access, beta status, organisation policy, device support, and button placement change. The core objective therefore does not require Cowork, Research, Code, or a particular model. A free-path learner can practise surface selection by writing an outcome brief in Chat and explaining how the authority would change on another surface. Paid extensions are opportunities to apply the same control loop, not prerequisites for understanding it. When your interface differs from a figure, look for the same concept—mode, context, tools, permissions, and output—rather than hunting for an exact icon."
+        },
+        {
+          "heading": "Decide before you open sensitive work",
+          "body": "Classify the data and consequence before choosing a workspace. Synthetic or public material is safest for practice. Private research data, student records, customer information, credentials, unpublished writing, and employer files may require an authorised organisational account, approved retention settings, or no AI upload at all. Then name the allowed action: advise, draft, read, edit, send, publish, or execute. A tool being available does not grant permission to use it. Start read-only where possible, preserve recoverable copies, and reserve consequential external actions for an explicit human decision."
+        }
+      ],
+      "practice": {
+        "title": "Build a four-surface decision card",
+        "brief": "Classify four synthetic tasks—explain a concept, reorganise a folder, fix a tested bug, and build a small application—before using Claude.",
+        "steps": [
+          "For each task, choose Chat, Cowork, Code, or Platform and write the outcome in one sentence.",
+          "List the minimum files, tools, write access, and external actions the chosen surface would need.",
+          "Choose one free-path task, run only the low-risk first step, and compare the result with your decision card."
+        ],
+        "evidence": [
+          "A four-row surface decision card with outcome, boundary, and authority.",
+          "A short note explaining whether the real first step confirmed or changed your choice."
+        ],
+        "safety": "Use synthetic or public material. Do not connect accounts, grant write access, or upload private data for this exercise."
+      },
+      "checkpoint": {
+        "prompt": "A task can be done in both Chat and Cowork. Does that make the surfaces equivalent?",
+        "answer": "No. The outcome may overlap, but the execution boundary, available tools, autonomy, permissions, and evidence you must review can differ materially."
+      },
+      "takeaway": "Choose the surface by outcome, context, authority, and review burden—not by which button looks most powerful."
+    },
+    "describe-the-outcome": {
+      "kicker": "Lesson 2 · Description",
+      "title": "Turn a prompt into an outcome brief",
+      "summary": "A useful request gives Claude enough information to make the next decision well without burying the task in irrelevant history.",
+      "objective": "Write a concise brief with goal, audience, context, constraints, output form, examples, and success checks.",
+      "sections": [
+        {
+          "heading": "Lead with the change you want to observe",
+          "body": "Begin with the result: who needs what, for which purpose, and what should be different when the work is done. Then supply only the context that changes a decision. A request to improve this report leaves the audience, problem, and stopping condition hidden. A stronger brief asks for a two-page decision memo for a named audience, identifies the source packet, requires uncertain claims to be labelled, and defines the decision the memo must support. The prompt is not a ritual formula. Goal, context, task, constraints, output, examples, and success criteria are diagnostic questions that expose consequential ambiguity."
+        },
+        {
+          "heading": "Use constraints to protect the work",
+          "body": "Name what must remain unchanged, which sources are authoritative, what Claude may not invent, the level of detail, the language or tone, and which actions remain outside scope. Separate non-negotiable constraints from preferences. If facts are missing, tell Claude to identify the gap rather than filling it plausibly. If the task can affect another person, require a draft for review rather than an automatic send. If evidence matters, request claim-to-source traceability. Constraints are not there to make the prompt long; they remove branches that would create the wrong deliverable or an unsafe action."
+        },
+        {
+          "heading": "Define acceptance before asking for polish",
+          "body": "Output format describes the shape of the response; success criteria describe what makes it usable. A table with five columns is a format. Every recommendation tracing to one supplied source, all calculations reproducible, and unresolved conflicts listed are success criteria. Ask Claude to restate the brief or flag only ambiguities that would materially change the result. This catches mismatched assumptions while change is cheap. When a task is unfamiliar, ask for a plan or outline first. When it is well bounded and reversible, the brief can request a first draft directly."
+        }
+      ],
+      "practice": {
+        "title": "Rewrite one vague request",
+        "brief": "Turn Summarise this into a brief that another person could review before Claude begins.",
+        "steps": [
+          "Choose a short public article and state the audience, decision, and authoritative input.",
+          "Add constraints, desired structure, one positive example or counterexample, and three success checks.",
+          "Ask Claude to paraphrase the brief and surface only decision-changing ambiguity before producing the summary."
+        ],
+        "evidence": [
+          "The final outcome brief with its seven parts visibly labelled.",
+          "A comparison of one consequential difference between the vague and bounded results."
+        ],
+        "safety": "Use a public source and ask for a draft. Do not paste confidential text merely to make the exercise realistic."
+      },
+      "checkpoint": {
+        "prompt": "Why is professional and accurate not a sufficient success criterion?",
+        "answer": "Neither term is observable by itself. Name the audience, evidence rules, required checks, structure, and what must happen when information is uncertain."
+      },
+      "takeaway": "Describe the outcome and its evidence boundary before optimising the wording of the prompt."
+    },
+    "iterate-with-examples": {
+      "kicker": "Lesson 3 · Conversation",
+      "title": "Iterate with examples, critique, and fresh starts",
+      "summary": "Claude's signature move in Chat is the follow-up: preserve what works, name the mismatch, and make the next change testable.",
+      "objective": "Run a three-turn improvement loop and decide when to continue, edit a prior message, or begin a fresh chat.",
+      "sections": [
+        {
+          "heading": "Treat the first response as a probe",
+          "body": "A first response reveals how Claude interpreted the task, what context it used, and which assumptions remain. Review it against the brief before requesting more polish. Point to specific evidence: the introduction answers the wrong audience, the table omits the uncertainty column, or the example violates the supplied style guide. Preserve correct parts explicitly. A steering message such as keep the source table and revise only the recommendation section is more useful than try again because it defines both the stable base and the new boundary."
+        },
+        {
+          "heading": "Examples communicate a decision boundary",
+          "body": "Use examples when a rule is easier to recognise than explain. A positive example shows the target; a counterexample reveals what to avoid. Explain which property matters so Claude does not imitate superficial details. For classification, include close cases. For writing, provide a short voice sample and state whether sentence rhythm, formality, or structure should transfer. For analysis, show one correctly supported claim and one claim that should be marked unknown. Examples are evidence about your intent, not a substitute for checking the resulting output."
+        },
+        {
+          "heading": "Know when conversation history has become noise",
+          "body": "Continue the chat when the goal and evidence base are stable. Edit and resubmit an earlier message when a foundational instruction was wrong and later turns depend on it. Start a fresh chat when the objective changes, the conversation contains conflicting instructions, sensitive context should not carry forward, or you want to test whether Project instructions work without hidden repair turns. Before a fresh start, copy only the verified brief and approved context. A long conversation can feel informed while quietly carrying outdated assumptions."
+        }
+      ],
+      "practice": {
+        "title": "Run a three-turn Description–Discernment loop",
+        "brief": "Create a small public-facing FAQ or visual Artifact, then improve it using evidence-based follow-ups.",
+        "steps": [
+          "Give a bounded first brief and save the initial output without editing it.",
+          "Identify one correct feature and one observable mismatch, then steer only the mismatch with an example.",
+          "Ask Claude to self-critique against the success criteria, verify the result yourself, and decide whether a fresh chat would be cleaner."
+        ],
+        "evidence": [
+          "The initial brief, two follow-ups, and final result in order.",
+          "A short audit separating Claude's self-critique from your independent judgement."
+        ],
+        "safety": "Do not publish the practice Artifact. Use synthetic content and inspect every visible field before sharing."
+      },
+      "checkpoint": {
+        "prompt": "Claude says its revision now meets every criterion. Is the iteration complete?",
+        "answer": "Only after you compare the actual result with the brief, examples, and source material. Self-critique is useful evidence, not independent verification."
+      },
+      "takeaway": "Good iteration is a controlled difference between two states, not an endless request for something better."
+    },
+    "discern-verify-protect": {
+      "kicker": "Lesson 4 · Discernment",
+      "title": "Verify claims and protect the boundary",
+      "summary": "Claude can produce fluent, convincing mistakes. Discernment means matching the verification method and permission boundary to the consequence of being wrong.",
+      "objective": "Audit a consequential claim, distinguish source evidence from model output, and evaluate one tool permission using least privilege.",
+      "sections": [
+        {
+          "heading": "Calibrate trust by consequence",
+          "body": "Use lightweight review for reversible brainstorming and stronger checks for factual, financial, legal, medical, academic, employment, security, or grading decisions. Ask what would happen if the answer were wrong and who could be affected. Claude's citation, confident tone, code block, or polished file does not prove correctness. For central claims, open the original source, locate the supporting passage, verify that the source actually entails the claim, and check dates, units, populations, and exceptions. Preserve not reported when evidence is absent instead of allowing a plausible completion."
+        },
+        {
+          "heading": "Separate retrieval, reasoning, and action",
+          "body": "A source link can show where information came from; it does not prove the reasoning from source to conclusion. A correct explanation does not authorise an external action. Review three layers separately: inputs and source quality, transformation or analysis, and the proposed action or output. For calculations, reproduce a small sample or use an independent method. For code, inspect the diff and run tests. For documents, open the actual file. For teaching, verify content and difficulty with educator judgement. The check should fail visibly when the result is wrong."
+        },
+        {
+          "heading": "Treat tools and external content as risk multipliers",
+          "body": "Skills, Connectors, browsing, file execution, Cowork, and Code can read or change more than a plain conversation. Inspect the exact capability, source, requested resource, and write scope. Connected content and uploaded files can contain instructions designed to redirect an agent; treat them as data unless the user has explicitly made them authoritative. Grant the smallest access needed for the current step, prefer manual approval, keep backups, and stop if a tool asks for unrelated credentials or a broader target. Authentication confirms identity, not that every possible action is appropriate."
+        }
+      ],
+      "practice": {
+        "title": "Build a claim-and-permission audit",
+        "brief": "Use a public, low-stakes question to practise both evidence checking and a hypothetical tool-access decision.",
+        "steps": [
+          "Ask Claude for a short answer with sources, then select the most consequential factual claim.",
+          "Open the original source and record whether it supports, qualifies, contradicts, or does not report the claim.",
+          "Evaluate one hypothetical network or connector request by resource, purpose, write ability, narrower alternative, and approval decision."
+        ],
+        "evidence": [
+          "A claim ledger with the source passage and your entailment judgement.",
+          "A least-privilege permission decision with a named narrower alternative."
+        ],
+        "safety": "Keep the question low stakes and public. Do not enable a tool merely to complete the hypothetical permission audit."
+      },
+      "checkpoint": {
+        "prompt": "A Connector is reviewed, authenticated, and can write to your calendar. What still needs review?",
+        "answer": "The specific action, target, timing, content, consequences, and whether a read-only or draft alternative would meet the current goal."
+      },
+      "takeaway": "Fluency is not only getting a result; it is knowing what evidence and authority that result deserves."
+    },
+    "work-with-files": {
+      "kicker": "Lesson 5 · Files",
+      "title": "Use files without confusing preview with proof",
+      "summary": "Claude can analyse uploads and create editable office files, but the downloaded file—not the conversational preview—is the deliverable you must inspect.",
+      "objective": "Prepare a safe file packet, request a traceable transformation, and verify the generated native file in its intended application.",
+      "sections": [
+        {
+          "heading": "Prepare the smallest useful packet",
+          "body": "Remove secrets, personal identifiers, hidden sheets, tracked metadata, and unrelated appendices before uploading. Tell Claude what each file is, which version is authoritative, and what it may infer across files. For a PDF or image, specify the relevant pages or regions. For a spreadsheet, define units, missing-value codes, and whether formulas or only displayed values are authoritative. A large context window does not guarantee that every detail receives equal attention. Ask for a file inventory and any unreadable or ambiguous elements before requesting the final transformation."
+        },
+        {
+          "heading": "Ask for traceable transformations",
+          "body": "Define the relationship between source and output. A report may require every quantitative claim to include its source row or page. A cleaned spreadsheet may need the original data preserved on a read-only sheet plus a change log. A slide deck may need speaker notes and source footers. A Word revision may need comments or tracked changes rather than silent rewriting. State what Claude must not alter and what should be flagged for human decision. If the feature requires code execution or limited network access, review that permission separately from the document request."
+        },
+        {
+          "heading": "Open, recalculate, and inspect",
+          "body": "Download the file and open it in Word, Excel, PowerPoint, a PDF viewer, or the relevant native tool. Check page breaks, formulas, charts, links, image crops, fonts, accessibility, comments, notes, and source labels. Recalculate a sample of spreadsheet values. Compare several output claims with the inputs. Export or print only after this review. A beautiful preview can hide broken formulas, overflowing slides, missing text, or invented evidence. Keep the source packet and final file versioned so another person can reproduce the transformation."
+        }
+      ],
+      "practice": {
+        "title": "Create and inspect one editable file",
+        "brief": "Use the synthetic capstone source note or another public text to create a one-page DOCX, XLSX, or PPTX deliverable.",
+        "steps": [
+          "Write the file contract: input, audience, structure, immutable facts, traceability, and native-file checks.",
+          "Ask Claude to create the file and disclose any information it could not verify.",
+          "Download it, open it in the native application, inspect at least five properties, and request one bounded correction if needed."
+        ],
+        "evidence": [
+          "The file contract and the final downloaded file version.",
+          "A five-item native inspection log with at least one source comparison."
+        ],
+        "safety": "Use synthetic inputs. Keep external-drive saves and network access off unless they are necessary and explicitly reviewed."
+      },
+      "checkpoint": {
+        "prompt": "The file preview looks correct in Claude. Why open the downloaded file?",
+        "answer": "The preview cannot establish native formulas, layout, metadata, comments, accessibility, links, or application-specific rendering."
+      },
+      "takeaway": "The real deliverable is the native file plus a reproducible inspection record, not a reassuring preview."
+    },
+    "build-projects": {
+      "kicker": "Lesson 6 · Durable context",
+      "title": "Build a Project that survives a fresh chat",
+      "summary": "Projects hold reusable knowledge and instructions, but useful context must be curated, scoped, and tested rather than accumulated without limit.",
+      "objective": "Design Project knowledge and instructions, distinguish them from chat history and memory, and test the setup in two fresh conversations.",
+      "sections": [
+        {
+          "heading": "Separate knowledge from procedure",
+          "body": "Project knowledge contains facts and reference material that should be available across work in that Project: a style guide, research protocol, product glossary, or public dataset description. Project instructions describe how Claude should work with that knowledge: cite page anchors, retain missing values, use British spelling, or ask before external action. The Project name and description should not be assumed to provide task context automatically. Put consequential information in the actual instructions or files. Keep one source of truth for each rule and remove superseded versions."
+        },
+        {
+          "heading": "Understand the context boundaries",
+          "body": "Project knowledge can apply across chats, but one chat does not automatically contain every detail from other chats. Memory, when available, is a separate mechanism and can vary by account or Project. Treat both as inspectable aids, not hidden guarantees. When a decision matters, restate or attach the authoritative fact. Avoid placing secrets or sensitive personal profiles into durable context simply for convenience. Use incognito or a fresh non-Project chat when you need to test a clean boundary, while remembering that incognito is not a universal promise of zero retention in every system."
+        },
+        {
+          "heading": "Test with a fresh-chat acceptance suite",
+          "body": "A Project is reliable only if a new conversation follows the intended rules without relying on repair turns. Create two or three short test prompts: one normal task, one close edge case, and one request the instructions should refuse or flag. Record the expected behaviour before running them. If Claude misses a rule, revise the smallest instruction or source rather than adding a contradictory paragraph. Keep instructions concise, place detailed procedures in a Skill when appropriate, and retest from a fresh chat after every meaningful change."
+        }
+      ],
+      "practice": {
+        "title": "Create a tiny, testable Project",
+        "brief": "Build a Project for a public reading list, style guide, or synthetic office workflow using no more than three source files.",
+        "steps": [
+          "Write a purpose statement, add up to three authoritative files, and create concise instructions with evidence and safety rules.",
+          "Define a normal case and an edge case with expected results before opening any task chat.",
+          "Run both cases in separate fresh chats, compare the results, and revise only the failing context element."
+        ],
+        "evidence": [
+          "A Project map listing purpose, knowledge files, instructions, and excluded data.",
+          "A two-case test record with expected, observed, and revised behaviour."
+        ],
+        "safety": "Use public or synthetic files. Do not add passwords, private profiles, student records, or unapproved employer data to durable Project context."
+      },
+      "checkpoint": {
+        "prompt": "A rule worked after three correction turns in one chat. Does that prove the Project instructions work?",
+        "answer": "No. Test the rule in a fresh chat where only the Project's durable knowledge and instructions can explain the result."
+      },
+      "takeaway": "A good Project is a small, versioned context system with explicit acceptance tests."
+    },
+    "create-artifacts": {
+      "kicker": "Lesson 7 · Artifacts",
+      "title": "Prototype, inspect, and share Artifacts deliberately",
+      "summary": "Artifacts create a visible object beside the conversation, making iteration concrete—but publication creates a separate exposure boundary.",
+      "objective": "Create an Artifact from a bounded brief, test it as an object, and perform a pre-share privacy and correctness review.",
+      "sections": [
+        {
+          "heading": "Use an Artifact when the object matters",
+          "body": "An Artifact is useful when the result benefits from a dedicated preview or interaction surface: a diagram, dashboard, explainer, small application, flashcard set, or reusable text. It differs from a generated DOCX, XLSX, PPTX, or PDF. Choose the format by how the learner or colleague will use the result, not by novelty. Begin with content, users, interactions, constraints, accessibility, and a testable completion state. Keep the first version small enough to inspect rather than asking for a full application in one leap."
+        },
+        {
+          "heading": "Iterate against an acceptance checklist",
+          "body": "Test the Artifact directly. Follow each control, try empty and extreme inputs, use the keyboard, resize the window, and check text contrast and labels. Report failures with reproducible steps and preserve correct behaviour in your follow-up. If code view is available, inspect it for obvious unsafe external calls or hidden data collection, but do not assume a quick code glance is a security audit. For factual Artifacts, verify the content separately from the interaction. An attractive animation can coexist with incorrect or inaccessible information."
+        },
+        {
+          "heading": "Treat Publish as a new decision",
+          "body": "Before sharing, inspect the Artifact, title, attachments, relevant conversation context, embedded links, and any data the public version can expose. Remove personal details and proprietary text. Test the share link in a signed-out or private window when appropriate. Consumer and organisation sharing can behave differently, and later interface changes may move controls, so use current Help guidance. Publishing is not merely the final step of creation; it changes the audience and threat model. A safe default is to keep the draft private and unshared until review is complete."
+        }
+      ],
+      "practice": {
+        "title": "Build a one-purpose Artifact",
+        "brief": "Create a small public-information Artifact such as a study timer, concept map, or vocabulary practice tool.",
+        "steps": [
+          "Write five acceptance checks covering content, interaction, accessibility, error handling, and privacy.",
+          "Generate the smallest version, test every check yourself, and steer one failing behaviour with reproducible evidence.",
+          "Complete a publish-boundary review, but keep the Artifact private unless you intentionally approve the exact public content."
+        ],
+        "evidence": [
+          "The five-check acceptance list with observed results.",
+          "A pre-share inventory of visible content, context, links, and remaining risk."
+        ],
+        "safety": "Use synthetic content and no analytics, login, personal profile, payment, health, or student data."
+      },
+      "checkpoint": {
+        "prompt": "An Artifact contains no secret input fields. Is it automatically safe to publish?",
+        "answer": "No. Review its content, conversation context, attachments, links, embedded behaviour, audience, and what the share mechanism exposes."
+      },
+      "takeaway": "Prototype with fast feedback; publish only after a separate audience and exposure review."
+    },
+    "research-with-citations": {
+      "kicker": "Lesson 8 · Retrieval",
+      "title": "Research with citations you actually inspect",
+      "summary": "Search finds quick external facts; Research explores a broader question. Neither removes the need to inspect original sources and claim-to-evidence fit.",
+      "objective": "Choose Search or Research, define source and inclusion rules, and audit a claim ledger against original sources.",
+      "sections": [
+        {
+          "heading": "Choose the retrieval mode by question",
+          "body": "Use web search for a current, bounded fact or a small set of sources. Use Research, when available on your plan, for a broader multi-source investigation that benefits from decomposition and synthesis. Deeper thinking is different: it can improve reasoning without supplying new external evidence. State the question, date boundary, geography, source types, inclusion and exclusion criteria, and desired output before retrieval. Do not promise a fixed source count or runtime. A free-path learner can practise the same method with ordinary search and a manually assembled source packet."
+        },
+        {
+          "heading": "Build a source and claim ledger",
+          "body": "For each source, record title, publisher, date, direct URL, source type, relevance, and limitations. For each consequential claim, record the supporting source, exact passage or table, and whether the evidence supports, qualifies, contradicts, or does not report the claim. Prefer original papers, official statistics, standards, and primary documentation over summaries when the claim depends on them. Distinguish a source describing a design from evidence that the design worked. Preserve conflicting findings and missing information instead of compressing them into false consensus."
+        },
+        {
+          "heading": "Audit citations beyond link validity",
+          "body": "Open the source and verify authors, title, date, quotation, number, unit, sample, comparison, and conclusion. A link can exist while the cited page does not support the sentence. Check whether a statistic was copied from an abstract, table, secondary source, or another population. For academic work, verify identifiers and publication status. For time-sensitive topics, compare event date with publication date. Ask Claude to identify uncertainty, then conduct your own sample audit weighted toward central and surprising claims. If you cannot verify a key claim, remove or label it."
+        }
+      ],
+      "practice": {
+        "title": "Produce a five-source decision brief",
+        "brief": "Investigate a low-stakes, current question using Research or ordinary web search while preserving a visible evidence trail.",
+        "steps": [
+          "Write the question, date boundary, source priorities, inclusion rules, and output decision before searching.",
+          "Ask Claude for a source ledger and a brief in which each consequential claim maps to a source.",
+          "Open every source behind the three most important claims and record support, qualification, contradiction, or not reported."
+        ],
+        "evidence": [
+          "The source ledger with direct URLs, dates, source types, and limitations.",
+          "A three-claim audit with original passages and your entailment decisions."
+        ],
+        "safety": "Choose a low-stakes topic. Do not use the exercise to make medical, legal, financial, employment, or other high-impact decisions."
+      },
+      "checkpoint": {
+        "prompt": "All cited URLs open successfully. What important failure can still remain?",
+        "answer": "The sources may be low quality, outdated, secondary, or unrelated to the specific claim; the cited passage may qualify or contradict the synthesis."
+      },
+      "takeaway": "Research is complete when the important claims survive an original-source audit, not when the bibliography looks long."
+    },
+    "extend-with-tools": {
+      "kicker": "Lesson 9 · Extension",
+      "title": "Extend Claude with Skills and Connectors safely",
+      "summary": "A Project supplies task knowledge, a Skill supplies a reusable procedure, and a Connector supplies access or action. Each solves a different context problem and creates a different risk.",
+      "objective": "Choose Project, Skill, or Connector for a repeatable workflow and audit the source, permission, test cases, and fallback.",
+      "sections": [
+        {
+          "heading": "Choose the right extension primitive",
+          "body": "Use Project knowledge for stable facts and references tied to a body of work. Use a Skill for a reusable procedure, templates, scripts, or domain method that should be invoked across tasks. Use a Connector when Claude must retrieve from or act in another system. Combining them can be powerful: a Project defines the client context, a Skill defines the review procedure, and a Connector retrieves an approved file. But do not add an extension merely to avoid writing a clear brief. Every added component increases provenance, maintenance, and permission work."
+        },
+        {
+          "heading": "Inspect before you install or connect",
+          "body": "For a Skill, inspect the author, licence, instructions, scripts, requested packages, network behaviour, and files it can access. Public availability and repository popularity are not security review. For a Connector, read whether it can search, read, create, update, or delete; identify the account and inherited source-system permissions; and check organisation approval. Treat content returned by a tool as untrusted data. Avoid unknown packages, credential prompts, broad filesystem access, and instructions that bypass review. Use a disposable test and the smallest account scope."
+        },
+        {
+          "heading": "Test procedures, not just happy paths",
+          "body": "Define a normal case, an edge case, a missing-input case, and a request the extension should refuse or escalate. Observe which Skill or Connector is invoked, what data leaves the current context, and whether the output follows the promised procedure. Keep a manual fallback so the workflow is not trapped by an unavailable integration. Version custom Skills, record their sources, and retest after updates. If an extension contributes to a high-impact decision, its output must remain advisory and human-reviewed."
+        }
+      ],
+      "practice": {
+        "title": "Write an extension decision record",
+        "brief": "Evaluate one harmless Skill or Connector without granting production authority.",
+        "steps": [
+          "State the repeated problem and compare Project knowledge, a Skill, and a Connector as solutions.",
+          "Inspect the chosen extension's provenance, licence, data access, write ability, dependencies, and removal path.",
+          "Run or simulate a normal case and an edge case, then record whether to adopt, revise, isolate, or reject it."
+        ],
+        "evidence": [
+          "A one-page extension decision record with permissions and fallback.",
+          "Two test cases with expected and observed behaviour."
+        ],
+        "safety": "Prefer a first-party, read-only, disposable example. Do not connect production email, calendars, drives, student systems, or customer accounts."
+      },
+      "checkpoint": {
+        "prompt": "A Skill comes from a popular public repository. What does that establish?",
+        "answer": "Only that the source is public and popular. You still need file-level licence, instruction, script, dependency, network, permission, and behaviour review."
+      },
+      "takeaway": "Extensions earn trust through provenance, least privilege, adversarial tests, and a reversible removal path."
+    },
+    "delegate-with-cowork": {
+      "kicker": "Lesson 10 · Agency",
+      "title": "Delegate bounded work in Cowork",
+      "summary": "Cowork can coordinate multi-step knowledge work, but useful autonomy begins with a dedicated boundary, an outcome brief, manual approvals, and recoverable state.",
+      "objective": "Plan a low-risk Cowork task with a dedicated connected folder or Cowork project, review its actions, and verify every changed output.",
+      "sections": [
+        {
+          "heading": "Define the outcome and work boundary",
+          "body": "Choose Cowork for a multi-step outcome such as organising a synthetic folder, preparing a research packet, or producing several related office files. Name the final deliverables, authoritative inputs, constraints, and acceptance checks. Use a dedicated connected folder or clearly scoped Cowork project containing copies, not your broad Desktop or home directory. Cloud Cowork sessions run in an isolated temporary sandbox on Anthropic's servers, while sessions and files are saved to your Claude account. Existing Desktop deployments can still use local execution, so confirm the execution mode and policy for your deployment. A cloud session can reach a local folder only through a running Claude Desktop app and the folder permissions you already granted, and any local content it opens is still processed on Anthropic's servers. Availability depends on plan, surface, rollout, device, and administrator settings. If Cowork is unavailable, write the same task plan and simulate each approval in Chat."
+        },
+        {
+          "heading": "Review the plan and each authority change",
+          "body": "Ask Claude to inventory the inputs and propose an ordered plan before acting. Check that each step traces to the outcome and that destructive or external actions are excluded. Use manual approvals in the course exercise. Read the exact file path, command, Connector action, or network request rather than approving by habit. Reject skip-all-approvals as a beginner default. Connected documents or webpages may contain prompt injection, so keep privileges narrow and ask Claude to stop when content requests unrelated actions, secrets, or scope expansion."
+        },
+        {
+          "heading": "Verify the changed state, not the progress story",
+          "body": "Progress messages help you follow execution but do not prove the final state. Compare the folder before and after, inspect every new or changed file, and verify that no unrelated file moved or disappeared. Open native deliverables, test links and formulas, and compare key claims with source inputs. Keep a change log and backup until review is complete. Scheduled tasks run in the cloud and can continue when your computer is off, but a session cannot reach a connected local folder while Claude Desktop is offline. Review each run's outputs and connected-resource boundary; do not infer current behavior from an older tutorial."
+        }
+      ],
+      "practice": {
+        "title": "Delegate a recoverable folder task",
+        "brief": "Use a dedicated folder containing synthetic notes to create an index, rename copies, and produce a short briefing without external writes.",
+        "steps": [
+          "Duplicate the source folder, record its initial file list, and write the outcome, exclusions, and acceptance checks.",
+          "Ask Cowork for a plan, keep manual approvals, and review every requested action against the dedicated path.",
+          "Compare before and after, open every output, record discrepancies, and restore from the copy if any boundary was crossed."
+        ],
+        "evidence": [
+          "The approved plan and before/after file inventory.",
+          "A verification log covering every output and any rejected action."
+        ],
+        "safety": "Use only synthetic files in a dedicated folder with a recoverable copy. Do not enable email, calendar, payment, cloud-drive, or production-system writes."
+      },
+      "checkpoint": {
+        "prompt": "Cowork's final message says all files were organised successfully. What should you inspect?",
+        "answer": "The actual before/after file set, every changed file, names and paths, native rendering, missing items, unexpected changes, and the recoverable backup."
+      },
+      "takeaway": "Delegate the sequence; retain control of the boundary, approvals, and acceptance evidence."
+    },
+    "software-engineering": {
+      "kicker": "Lesson 11 · Claude Code",
+      "title": "Engineer through inspection, tests, and diffs",
+      "summary": "Claude Code can read repositories, edit files, run commands, and work through terminal, IDE, Desktop, or GitHub. Trust comes from a bounded specification and fresh verification.",
+      "objective": "Complete one small repository change through read-only orientation, an approved plan, a reviewed diff, and fresh test evidence, using Claude Code when entitled or Chat plus local tools on the free path.",
+      "sections": [
+        {
+          "heading": "Orient before editing",
+          "body": "Claude Code is a paid or organisation-entitled extension, not a requirement for this lesson. With Code, start in a disposable or well-versioned repository and confirm the working directory, branch, uncommitted changes, applicable CLAUDE.md instructions, package commands, and test entry points. Ask Claude to trace current behaviour and cite files without changing anything. On the free path, give Chat only a tiny synthetic or public code packet, describe the same repository state and expected behaviour, then apply any proposed patch locally yourself. Turn the desired behaviour into acceptance tests, constraints, and non-goals. Local Claude Code can access development tools and files more broadly than a contained Cowork folder, so do not reuse Cowork's safety assumptions. Protect secrets, avoid broad permissions, and keep commits, pushes, pull requests, deployments, and destructive commands explicitly out of scope unless authorised."
+        },
+        {
+          "heading": "Plan and implement in verifiable slices",
+          "body": "Ask for the smallest coherent plan with affected files, test strategy, risks, and decision points. For a bug, reproduce it and capture a failing focused test before the fix when practical. For a feature, define observable behaviour and regression coverage. Implement one slice, inspect the diff, and steer from evidence. Parallel agents are appropriate only for independent, non-overlapping investigations or modules with stable interfaces. Skills, hooks, MCP servers, and subagents add authority and should be audited like any other executable extension."
+        },
+        {
+          "heading": "Review the exact state and handoff",
+          "body": "Inspect the complete changed-file list, not only inline snippets. Check each file against the plan, watch for unrelated formatting, generated artefacts, dependency changes, deleted tests, and hidden configuration. Run focused tests, then proportionate lint, type, build, security, and integration checks. Record commands, exit results, and anything not run. GitHub automation should use least-privilege tokens, treat issue and pull-request text as untrusted, and keep changes behind branch protection and human review. A polished final answer is a handoff to inspect, not proof that the code is ready."
+        }
+      ],
+      "practice": {
+        "title": "Complete one reversible repository change",
+        "brief": "Use Claude Code when entitled, or Chat plus your own local tools on the free path, to fix a documented bug or add one bounded, tested behaviour in a small public sample repository.",
+        "steps": [
+          "Record repository state. In Code, request read-only orientation; in Chat, provide only the relevant synthetic or public files. Approve a plan tied to observable acceptance criteria.",
+          "Capture a focused failing check, ask for the smallest patch, then review Code's edit or apply Chat's proposal locally yourself and inspect the complete diff.",
+          "Run fresh focused and broader checks, then write a handoff with changed files, evidence, limitations, and unauthorised actions not taken."
+        ],
+        "evidence": [
+          "The task contract, orientation, plan, and complete reviewed diff.",
+          "A command-by-command verification record with failures, successes, and unrun checks."
+        ],
+        "safety": "Use version control and no real secrets. Exclude push, deployment, production data, package publishing, and destructive cleanup unless separately authorised."
+      },
+      "checkpoint": {
+        "prompt": "Focused tests and the build pass. What can still be wrong?",
+        "answer": "The tests may miss the acceptance behaviour, the diff may exceed scope, security or accessibility may regress, configuration may drift, or an important check may never have run."
+      },
+      "takeaway": "For code, the evidence chain is repository fact → plan → diff → fresh checks → honest handoff."
+    },
+    "research-and-data": {
+      "kicker": "Lesson 12 · Role studio",
+      "title": "Conduct research and data analysis with an audit trail",
+      "summary": "Use Claude to accelerate source discovery, coding, analysis, and synthesis while keeping study boundaries, calculations, and inferential limits reproducible.",
+      "objective": "Create a source-and-analysis passport that another researcher can inspect from question through conclusion.",
+      "sections": [
+        {
+          "heading": "Freeze the research contract",
+          "body": "State the research question, population or corpus, date range, inclusion and exclusion rules, variables, outcomes, and evidence hierarchy before asking for synthesis. Keep design affordances separate from observed behaviour and descriptive patterns separate from causal claims. Ask Claude to preserve not reported, ambiguous, and conflicting evidence. For literature work, verify every included paper and central quotation in the original. For qualitative coding, use the exact codebook and retain an uncertainty field. For quantitative analysis, define units, missing values, exclusions, and planned checks before examining a persuasive result."
+        },
+        {
+          "heading": "Make transformations reproducible",
+          "body": "Retain original files unchanged, create a data dictionary, and log every transformation. Ask Claude for code or formulas rather than unexplained numbers when possible. Run the analysis in an appropriate environment, record versions and parameters, and compare a small sample manually or with an independent method. Separate results produced by code from narrative interpretation. A chart is not evidence of a correct pipeline; verify its source data, scale, aggregation, labels, and uncertainty. If Claude Platform or an agent session is used, inspect tools, resources, events, and outputs rather than relying on the final narrative."
+        },
+        {
+          "heading": "Audit claims and disclose assistance",
+          "body": "Create a claim-evidence matrix linking each conclusion to a source passage, table, code output, or figure. Mark unsupported and conditional claims. Pressure-test alternative explanations and near-boundary cases. Ask Claude to red-team the analysis, then have a human or independent method review the highest-risk elements. Keep prompts, source versions, scripts, decisions, and generated drafts in a reproducibility passport. Follow disciplinary, journal, employer, and ethics rules for AI disclosure, authorship, privacy, and human-subject data. Claude cannot assume responsibility for scholarly claims."
+        }
+      ],
+      "practice": {
+        "title": "Build a mini reproducibility passport",
+        "brief": "Use a small public dataset or three public papers to answer one narrow descriptive question.",
+        "steps": [
+          "Write the question, inclusion rules, variables or coding scheme, source versions, and planned outputs before analysis.",
+          "Ask Claude to produce a traceable pipeline, run or inspect it, and independently verify two transformations or claims.",
+          "Create a claim-evidence matrix, limitations paragraph, and accurate AI-use disclosure."
+        ],
+        "evidence": [
+          "The source/data dictionary, transformation log, and executable or inspectable analysis.",
+          "A claim-evidence matrix with verification status, limitations, and disclosure."
+        ],
+        "safety": "Use open, non-identifiable data. Do not upload restricted papers, participant data, peer-review material, or confidential proposals without authorisation."
+      },
+      "checkpoint": {
+        "prompt": "Claude generated valid code and a plausible conclusion. What must the passport still show?",
+        "answer": "The actual executed environment, source versions, transformations, outputs, independent checks, inferential boundary, limitations, and human-reviewed disclosure."
+      },
+      "takeaway": "A research result is trustworthy only when another person can trace and challenge the evidence path."
+    },
+    "writing-and-office": {
+      "kicker": "Lesson 13 · Role studio",
+      "title": "Write, present, and calculate without losing authorship",
+      "summary": "Claude is strongest as a structured collaborator: architecture, alternatives, critique, and file production—followed by factual, rhetorical, and native-format review.",
+      "objective": "Run a versioned writing or office workflow from source packet and audience brief to reviewed native deliverable and disclosure.",
+      "sections": [
+        {
+          "heading": "Design the document before drafting prose",
+          "body": "Supply purpose, audience, decision, source material, voice samples, length, required sections, exclusions, and approval boundary. Ask for a claim inventory and outline before polished prose when the material is consequential. Use Claude to generate structural alternatives, counterarguments, transitions, or examples, then choose deliberately. A voice sample should guide observable traits without impersonating a person deceptively. Preserve versions so you can see what Claude changed and why. For academic or professional writing, never allow fluent filler to create unsupported citations, quotations, achievements, or commitments."
+        },
+        {
+          "heading": "Use office files as engineered deliverables",
+          "body": "For Word, define styles, headings, tables, comments, tracked changes, and accessibility. For PowerPoint, define the story, one purpose per slide, source footers, speaker notes, image rights, and overflow checks. For Excel, define the data dictionary, formulas, assumptions, validation, and chart semantics. Ask Claude to create or revise the file, but inspect it in the native application. Recalculate formulas, check slide dimensions and notes, confirm comments and revisions, test links, and compare claims with the source packet. Visual polish and correct file opening are separate from content validity."
+        },
+        {
+          "heading": "Keep consequential communication human-owned",
+          "body": "Do not delegate sending, publishing, signing, grading, hiring, or financial commitments merely because a Connector or Cowork workflow can perform them. Use graduated autonomy: propose, review, approve, then execute only when the consequence and audience are understood. Inspect recipients, attachments, dates, tone, and confidential content immediately before an external action. Disclose substantive AI contribution where policy or context requires it. The final voice, claim responsibility, and relationship impact remain yours."
+        }
+      ],
+      "practice": {
+        "title": "Produce one native office deliverable",
+        "brief": "Turn a synthetic source packet into either a two-page memo, a five-slide briefing, or a small decision workbook.",
+        "steps": [
+          "Create the audience brief, source ledger, claim inventory, file requirements, and approval boundary.",
+          "Generate the native file, review one structural alternative, and request only bounded revisions.",
+          "Open the final file natively, run content and format checks, and write a short AI-use disclosure."
+        ],
+        "evidence": [
+          "The brief, source ledger, versioned draft decisions, and final native file.",
+          "A review log covering facts, structure, accessibility, rendering, calculations, and disclosure."
+        ],
+        "safety": "Use synthetic stakeholders and addresses. Do not send, publish, sign, or connect a live workplace account during the exercise."
+      },
+      "checkpoint": {
+        "prompt": "The generated slide deck opens and has no visible overflow. Is it complete?",
+        "answer": "Not yet. Verify the narrative, claims, sources, images, speaker notes, accessibility, audience fit, and any native links or embedded data."
+      },
+      "takeaway": "Claude can accelerate document production; authorship means retaining evidence, decisions, review, and responsibility."
+    },
+    "teaching-and-learning": {
+      "kicker": "Lesson 14 · Role studio",
+      "title": "Teach with Claude while preserving learner thinking",
+      "summary": "Use Claude for explanations, examples, differentiation, and formative feedback without outsourcing learning goals, correctness, assessment, or student reasoning.",
+      "objective": "Design and review a grounded learning activity with accessible alternatives, visible student thinking, and an educator-controlled assessment boundary.",
+      "sections": [
+        {
+          "heading": "Ground the instructional design",
+          "body": "Begin with learners, prior knowledge, objective, evidence of learning, time, resources, standards or source material, and accessibility needs. Ask Claude for several pedagogical options before choosing one. Verify the content and standards in authoritative sources. Distinguish a complete lesson packet from a draft that still lacks a standard, source, or local constraint. Use differentiation to change support, representation, or challenge without quietly lowering the intended learning goal. Retain teacher judgement over suitability, cultural context, and classroom feasibility."
+        },
+        {
+          "heading": "Create opportunities for learner cognition",
+          "body": "AI assistance can remove the productive struggle that builds understanding. Insert prediction before generation, retrieval before hints, explanation after an answer, error tracing, comparison of alternatives, and teach-back. Ask students to show what they decided and why. Use Claude to generate multiple explanations or formative questions, then have learners evaluate them. Do not equate polished output with learning. If a task's purpose is practising a skill, constrain what Claude may do so the learner still performs the target thinking."
+        },
+        {
+          "heading": "Keep assessment and student data protected",
+          "body": "Do not upload identifiable student records, disability information, behavioural notes, or graded work without institutional authorisation and appropriate account settings. Use synthetic samples for planning. Claude can propose rubric feedback, but a qualified educator must verify content, fairness, evidence, and consequence before a grade or intervention. Tell learners how AI may be used, what must be disclosed, and which work must remain their own. Audit generated materials for bias, fabricated sources, inappropriate difficulty, accessibility, and copyright boundaries."
+        }
+      ],
+      "practice": {
+        "title": "Design a learning-preserving micro-lesson",
+        "brief": "Create a 20-minute lesson for a synthetic learner group using one public source and one explicit AI-use boundary.",
+        "steps": [
+          "Specify learners, objective, prior knowledge, source, success evidence, accessibility needs, and what Claude may not do for students.",
+          "Ask for two activity designs, choose one, and add prediction, retrieval, error tracing, or teach-back.",
+          "Verify every factual element and question, test the activity with a synthetic response, and revise the educator rubric."
+        ],
+        "evidence": [
+          "The grounded lesson brief, selected design rationale, and student-facing AI-use rule.",
+          "A content, accessibility, bias, assessment, and learner-thinking review log."
+        ],
+        "safety": "Use synthetic students and public sources. No real student records, grading decisions, or confidential school material."
+      },
+      "checkpoint": {
+        "prompt": "Students produce accurate, polished answers with Claude. What evidence of learning is still missing?",
+        "answer": "Their own prediction, retrieval, explanation, error tracing, transfer, or teach-back showing what they understand without hidden substitution."
+      },
+      "takeaway": "Use Claude to multiply learning opportunities, not to make learner thinking disappear."
+    },
+    "portfolio-capstone": {
+      "kicker": "Lesson 15 · Capstone",
+      "title": "Build a trustworthy Claude workflow portfolio",
+      "summary": "Complete one authentic, low-risk workflow and submit the evidence another reviewer would need to understand the delegation, result, limits, and human decisions.",
+      "objective": "Produce a six-part portfolio packet scored on Delegation, Description, Discernment, and Diligence.",
+      "sections": [
+        {
+          "heading": "Choose one bounded pathway",
+          "body": "Select software engineering, research and data, writing and office work, or teaching. Use the provided synthetic brief or a public, non-sensitive task. Define the user, outcome, authoritative inputs, exclusions, chosen surface, minimum permissions, acceptance checks, and actions reserved for a human. The task should be large enough to require at least two iterations but small enough to verify in two hours. Paid tools are optional: Chat with public files can complete the capstone if the evidence chain is strong."
+        },
+        {
+          "heading": "Keep an evidence log while you work",
+          "body": "Record source versions, uploaded inputs, prompt brief, meaningful follow-ups, tool or permission decisions, output versions, and failures. Do not paste private content into the course—your log stays with you. Review Claude's plan before acting, preserve recoverable state, and stop when the task requires new authority. Verify the deliverable using methods that could reveal an error: original-source checking, recalculation, native-file inspection, tests and diff review, or educator evaluation. Ask Claude to critique the result, then distinguish that critique from your independent checks."
+        },
+        {
+          "heading": "Handoff with limits and disclosure",
+          "body": "Assemble the task brief, input log, run log, deliverable, verification record, and disclosure/reflection. State what changed, what evidence passed, what was not tested, where uncertainty remains, and which decisions still require a human. Score the packet against all four rubric dimensions and repair the weakest link rather than adding more polish. The exported completion summary records self-reported milestones only; it is not a credential and contains no prompt or file content. A trustworthy handoff lets another person decide without guessing."
+        }
+      ],
+      "practice": {
+        "title": "Complete the six-part portfolio",
+        "brief": "Run one pathway from outcome brief through independently reviewed deliverable, then complete the on-page self-audit.",
+        "steps": [
+          "Freeze the task brief, input/data boundary, surface, permissions, acceptance checks, and human-only actions.",
+          "Work in traceable iterations and retain the run log, output versions, failures, and independent verification evidence.",
+          "Write the disclosure and reflection, score all four dimensions, repair gaps, and record completion only when all six artifacts exist."
+        ],
+        "evidence": [
+          "The six portfolio artifacts, kept privately in your own workspace.",
+          "A completed rubric with score, critical safety check, limitations, and next human decision."
+        ],
+        "safety": "Use synthetic, public, or explicitly authorised inputs. Keep external messages, publication, deployment, grading, and high-impact decisions outside the exercise."
+      },
+      "checkpoint": {
+        "prompt": "What makes the capstone world-class rather than merely polished?",
+        "answer": "A reviewer can trace the outcome, sources, prompts, permissions, transformations, deliverable, independent checks, failures, limits, disclosure, and remaining human decisions."
+      },
+      "takeaway": "Your portfolio should prove a trustworthy working method, not advertise Claude or hide where human judgement mattered."
+    }
+  },
+  "quiz": {
+    "q01": {
+      "question": "Which factor should drive the choice between Chat, Cowork, and Code?",
+      "options": ["The newest model name", "The outcome, context, authority, and review burden", "The largest number of available tools", "Whichever surface was used last"],
+      "explanation": "Surface selection is a risk and workflow decision, not a power ranking."
+    },
+    "q02": {
+      "question": "Which task most clearly belongs in Claude Code?",
+      "options": ["Brainstorm three meeting titles", "Summarise one public article", "Inspect a repository, edit a tested function, and review the diff", "Draft a private email without sending it"],
+      "explanation": "Repository inspection, file edits, commands, tests, and diffs are the signature context of Code."
+    },
+    "q03": {
+      "question": "What is the strongest outcome brief?",
+      "options": ["Make this better", "Use best practices and be accurate", "Write something professional", "Create a two-page decision memo for a named audience using only the supplied sources, with uncertainty and success checks"],
+      "explanation": "The strongest brief makes the user, purpose, inputs, constraints, output, and acceptance evidence observable."
+    },
+    "q04": {
+      "question": "What should Claude do when a consequential input is missing?",
+      "options": ["Identify the gap and ask or label the limitation", "Invent a plausible value", "Hide the uncertainty in polished language", "Choose the most common assumption without notice"],
+      "explanation": "Explicit gaps preserve the evidence boundary and keep decisions with the user."
+    },
+    "q05": {
+      "question": "What makes a useful follow-up after a partial success?",
+      "options": ["Try harder", "Rewrite everything", "Preserve the verified parts and name one observable mismatch plus its next check", "Add unrelated context"],
+      "explanation": "Evidence-based steering defines the stable state and a bounded change."
+    },
+    "q06": {
+      "question": "When is a fresh chat most useful?",
+      "options": ["After every sentence", "When the goal or foundational instruction changed and history now carries conflicting context", "Only when the model changes", "Never inside a Project"],
+      "explanation": "A fresh chat tests durable context and removes outdated or conflicting conversational assumptions."
+    },
+    "q07": {
+      "question": "Which is the best verification response to a consequential factual claim?",
+      "options": ["Open the original source and check that its passage entails the exact claim", "Ask Claude whether it is confident", "Accept the citation if the link opens", "Judge by writing quality"],
+      "explanation": "Discernment requires original-source and claim-fit review, not fluency or self-confidence."
+    },
+    "q08": {
+      "question": "What does authentication to a Connector establish?",
+      "options": ["Every action is safe", "The Connector is read-only", "Claude may use every account permission", "Identity and access, not that each possible action is appropriate"],
+      "explanation": "Specific actions, targets, consequences, and narrower alternatives still require review."
+    },
+    "q09": {
+      "question": "Which file is the actual deliverable after Claude creates a spreadsheet?",
+      "options": ["The chat summary", "The downloaded workbook inspected in a native application", "The preview image alone", "The filename shown in Claude"],
+      "explanation": "Native formulas, charts, metadata, links, and rendering must be checked in the real file."
+    },
+    "q10": {
+      "question": "What should a safe upload packet include?",
+      "options": ["Every related file available", "Hidden sheets and metadata for completeness", "Only necessary, authorised files with versions, roles, and ambiguity explained", "Credentials so Claude can retrieve missing context"],
+      "explanation": "Data minimisation and file-role clarity reduce privacy and interpretation risk."
+    },
+    "q11": {
+      "question": "Which statement about Project context is correct?",
+      "options": ["Every chat automatically contains every prior chat", "The Project name alone supplies all context", "Memory and knowledge are the same mechanism", "Project knowledge can be reused, but consequential facts should still be explicit and fresh-chat tested"],
+      "explanation": "Project knowledge, instructions, chats, and memory have distinct boundaries."
+    },
+    "q12": {
+      "question": "What is the strongest test of Project instructions?",
+      "options": ["A normal and edge case in separate fresh chats with expected results written first", "One repaired conversation", "A long instruction file", "Claude's claim that it understands"],
+      "explanation": "Fresh-chat acceptance cases show whether durable context works without hidden conversational repair."
+    },
+    "q13": {
+      "question": "When is an Artifact a good fit?",
+      "options": ["Whenever a DOCX is required", "Whenever an answer is long", "When the result benefits from a visible, interactive, or separately iterated object", "Only for professional developers"],
+      "explanation": "Artifacts are dedicated objects; generated office files are a different output type."
+    },
+    "q14": {
+      "question": "What should happen immediately before publishing an Artifact?",
+      "options": ["Trust the preview", "Review content, context, attachments, links, behaviour, audience, and exposure", "Enable every integration", "Remove the acceptance checklist"],
+      "explanation": "Publishing changes the audience and threat model, so it needs a separate review gate."
+    },
+    "q15": {
+      "question": "Which retrieval choice best fits a broad multi-source question?",
+      "options": ["Research when available, with explicit scope and later citation audit", "Higher thinking alone guarantees current sources", "No source rules", "A fixed promise of ten sources in five minutes"],
+      "explanation": "Research supports broader investigation, but scope, time, and source counts remain variable and citations need inspection."
+    },
+    "q16": {
+      "question": "A cited URL opens. What should you check next?",
+      "options": ["Only the site's design", "Whether Claude used a long prompt", "Whether the source is popular", "Source quality, date, exact passage, population, units, and claim entailment"],
+      "explanation": "Link validity is only the start of a source audit."
+    },
+    "q17": {
+      "question": "Which mapping is correct?",
+      "options": ["Project = external action; Skill = chat history; Connector = style", "Project = task knowledge; Skill = reusable procedure; Connector = access or action", "Project = model; Skill = plan; Connector = memory", "All three are interchangeable"],
+      "explanation": "The three extension primitives solve different context and capability problems."
+    },
+    "q18": {
+      "question": "What is required before adopting a public Skill?",
+      "options": ["Only a high star count", "Only an Anthropic-looking name", "File-level licence, instructions, scripts, dependencies, network, permissions, and behaviour review", "Automatic approval of its requests"],
+      "explanation": "Public visibility and popularity do not replace provenance or security review."
+    },
+    "q19": {
+      "question": "What is the safest default for the course's Cowork exercise?",
+      "options": ["Skip all approvals", "Use the entire home folder", "Connect live email and calendar", "Use a dedicated copied folder, synthetic data, manual approvals, and before/after review"],
+      "explanation": "A recoverable, bounded workspace and manual approvals make actions inspectable."
+    },
+    "q20": {
+      "question": "What does a Cowork progress message prove?",
+      "options": ["What the message reports; the actual changed state still needs inspection", "That every file is correct", "That no unrelated action occurred", "That the output is safe to publish"],
+      "explanation": "Progress narration is useful context, not independent verification of filesystem or external state."
+    },
+    "q21": {
+      "question": "What should happen before Claude Code edits an unfamiliar repository?",
+      "options": ["Deploy a speculative fix", "Install new dependencies", "Inspect instructions, state, current behaviour, tests, and likely files read-only", "Delete failing tests"],
+      "explanation": "Repository-grounded orientation prevents generic or out-of-scope implementation."
+    },
+    "q22": {
+      "question": "Which engineering handoff is strongest?",
+      "options": ["It works", "Changed files, reviewed diff, commands and results, limitations, unrun checks, and remaining human decisions", "A large code block", "A promise of production readiness"],
+      "explanation": "A reviewer needs evidence and limits tied to the exact repository state."
+    },
+    "q23": {
+      "question": "What belongs in a reproducibility passport?",
+      "options": ["Question, source/data versions, transformations, environment, outputs, checks, limits, and disclosure", "Only the final narrative", "Only Claude's prompts", "A popularity score"],
+      "explanation": "The passport makes the full evidence and decision path inspectable."
+    },
+    "q24": {
+      "question": "How should a polished chart be verified?",
+      "options": ["By appearance", "By asking Claude to praise it", "By hiding the source data", "By checking source data, transformations, scale, labels, aggregation, uncertainty, and reproducibility"],
+      "explanation": "Visual polish cannot establish analytical correctness."
+    },
+    "q25": {
+      "question": "What is a strong writing workflow?",
+      "options": ["One prompt directly to publication", "Audience and source brief → claim inventory and architecture → draft alternatives → factual and rhetorical review → versioned final", "Imitate a person without disclosure", "Remove all uncertainty"],
+      "explanation": "Architecture, sources, revision, and review preserve authorship and traceability."
+    },
+    "q26": {
+      "question": "What should you do after Claude generates a PowerPoint or Excel file?",
+      "options": ["Approve it from the thumbnail", "Send it immediately", "Open it natively and inspect content, sources, layout, notes, formulas, charts, links, and accessibility", "Convert it to an image"],
+      "explanation": "Native application review covers properties the conversation preview cannot prove."
+    },
+    "q27": {
+      "question": "Which teaching decision should remain educator-controlled?",
+      "options": ["Generating alternative examples", "Drafting formative questions", "Suggesting accessibility options", "Learning objective, correctness, assessment evidence, and consequential grading"],
+      "explanation": "Claude can propose materials, but educator judgement owns the instructional and assessment boundary."
+    },
+    "q28": {
+      "question": "Which activity best preserves learner thinking?",
+      "options": ["Predict before generation, then explain, trace errors, and teach back", "Submit Claude's first answer", "Hide all intermediate reasoning", "Grade only surface polish"],
+      "explanation": "Prediction, retrieval, tracing, and teach-back create visible evidence of the learner's own cognition."
+    },
+    "q29": {
+      "question": "Which capstone evidence deserves the largest rubric weight?",
+      "options": ["Visual polish", "Number of prompts", "Discernment and independent verification", "Use of a paid model"],
+      "explanation": "The capstone gives 30% to Discernment because trustworthy use depends on evaluating claims, outputs, and limits."
+    },
+    "q30": {
+      "question": "What makes a portfolio handoff reviewable?",
+      "options": ["A claim that Claude saved time", "Traceable inputs, decisions, iterations, permissions, deliverable, checks, failures, limits, disclosure, and next human decision", "A hidden prompt history", "Automatic publication"],
+      "explanation": "A reviewer should be able to reproduce the reasoning and decide what remains without guessing."
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "Claude Desktop overview showing the distinct Chat, Cowork, and Code modes",
+      "caption": "Choose a mode by task boundary. Official Academy interface image accessed 23 August 2026; controls and availability may change."
+    },
+    "fig-02": {
+      "alt": "Claude Desktop Chat with sidebar, conversation, response controls, composer, and model indicator",
+      "caption": "The composer is only one part of the task context: conversation, mode, tools, and visible boundary all matter. Model labels in this dated image are not current-plan guidance."
+    },
+    "fig-03": {
+      "alt": "Claude Artifact remix view with conversation on the left and an interactive visual on the right",
+      "caption": "A follow-up can preserve the existing Artifact while changing one observable property. Verify the object directly after every revision."
+    },
+    "fig-04": {
+      "alt": "Claude dialog explaining limited network access for generated files and its security risk",
+      "caption": "Read the exact capability and risk before enabling access. A file request and a network permission are two separate decisions."
+    },
+    "fig-05": {
+      "alt": "Claude generated-document preview with Download and Google Drive controls",
+      "caption": "Preview, download, and external-drive save are different boundaries. Inspect the downloaded native file before sharing it."
+    },
+    "fig-06": {
+      "alt": "Claude Projects interface showing memory, instructions, files, composer, and individual project chats",
+      "caption": "Projects separate durable memory, instructions, files, and chats. Practitioner capture by Chris Blattman, February 2026, used under MIT and treated as dated UI evidence."
+    },
+    "fig-07": {
+      "alt": "Claude Artifact project dashboard with conversation pane, live preview, code toggle, and Publish button",
+      "caption": "Test the Artifact against acceptance criteria before treating Publish as a separate audience and exposure decision."
+    },
+    "fig-08": {
+      "alt": "Claude Academy literature-review roadmap output listing a paper, study design, findings, statistics, and a notes field",
+      "caption": "Unverified example—do not use these medical or research claims as evidence. Polished research output is an audit target, not proof. Open each original paper and verify titles, designs, numbers, quotations, and claim fit."
+    },
+    "fig-09": {
+      "alt": "Claude Connectors directory showing web and desktop-extension categories, tool descriptions, and add controls",
+      "caption": "A directory description states capability, not blanket authorisation. Inspect read/write scope and inherited permissions before connecting."
+    },
+    "fig-10": {
+      "alt": "Claude Cowork home showing mode selection, Projects, Scheduled tasks, Live artifacts, Customize, and the task composer",
+      "caption": "Choose Cowork, the project or folder boundary, task type, and approvals deliberately. Model and beta labels are dated interface evidence only."
+    },
+    "fig-11": {
+      "alt": "Anthropic Claude Code terminal example auditing a repository's CLAUDE.md instructions against the current codebase",
+      "caption": "The terminal makes the task, searched files, scored assessment, and recommended instruction updates inspectable. Official Anthropic repository image used under Apache 2.0 and treated as dated UI evidence."
+    },
+    "fig-12": {
+      "alt": "Claude Platform Sessions interface showing a data-analysis agent, environment, resources, token counts, event timeline, and tool activity",
+      "caption": "A real agent run exposes resources and events behind the answer. Official Anthropic cookbook image used under MIT; this is Claude Platform, not Claude.ai Chat."
+    },
+    "fig-13": {
+      "alt": "Claude Artifact email-writing assistant with conversation, draft controls, and an interactive writing form",
+      "caption": "Use an assistant to structure and critique a draft; keep facts, recipients, tone, approval, and sending under human control."
+    },
+    "fig-14": {
+      "alt": "Claude Artifact language tutor with learning goals, progress indicators, chat area, and customization control",
+      "caption": "An interactive tutor can create practice, but educators still verify content, goals, accessibility, and evidence of learner thinking."
+    },
+    "fig-15": {
+      "alt": "Claude Publish artifact confirmation dialog warning that the artifact will be accessible on the web",
+      "caption": "Pause at the publication boundary. Inspect the exact Artifact, related context, audience, links, and sensitive content before confirming."
+    }
+  },
+  "capstone": {
+    "title": "Trustworthy workflow portfolio",
+    "summary": "Complete one authentic, low-risk Claude workflow and retain the evidence needed to reproduce, challenge, and responsibly continue it.",
+    "scenario": "Choose one pathway: software engineering, research and data, writing and office work, or teaching. Use public, synthetic, or explicitly authorised inputs. The free path may use Chat and local inspection; paid features are optional. External messaging, publication, deployment, grading, and high-impact decisions remain outside the exercise.",
+    "instructions": [
+      "Brief: define the user, observable outcome, authoritative inputs, exclusions, surface, minimum permissions, acceptance checks, and human-only actions.",
+      "Inputs: inventory files, links, versions, data classifications, licences, and anything deliberately excluded.",
+      "Run: retain the initial brief, consequential follow-ups, tool or permission decisions, failures, and output versions.",
+      "Deliver: produce one bounded code change, research/data product, native office file, or learning activity that another person can inspect.",
+      "Verify: use original-source checking, recalculation, native-file inspection, tests and diff review, or educator evaluation—plus a limitations statement.",
+      "Disclose and reflect: state Claude's substantive contribution, what stayed human, what failed, and the next decision that still needs a person."
+    ],
+    "artifacts": {
+      "task-brief": {
+        "title": "Task brief",
+        "description": "Outcome, audience, surface, context, constraints, acceptance checks, authority, and human-only actions."
+      },
+      "input-log": {
+        "title": "Input and data log",
+        "description": "Sources, files, versions, classifications, licences, exclusions, and authoritative boundaries."
+      },
+      "run-log": {
+        "title": "Prompt and run log",
+        "description": "Initial brief, meaningful iterations, tool decisions, permissions, failures, and version checkpoints."
+      },
+      "deliverable": {
+        "title": "Inspectible deliverable",
+        "description": "A bounded output in the real format a reviewer will use, with private data removed."
+      },
+      "verification-record": {
+        "title": "Independent verification record",
+        "description": "Checks capable of revealing error, their observed results, unrun checks, uncertainty, and limitations."
+      },
+      "disclosure-reflection": {
+        "title": "Disclosure and reflection",
+        "description": "Claude's contribution, human decisions, failure analysis, repairs, and the next accountable action."
+      }
+    },
+    "rubric": {
+      "delegation": {
+        "title": "Delegation · 25 points",
+        "description": "The task, surface, context, authority, and human-only decisions match the real outcome and consequence."
+      },
+      "description": {
+        "title": "Description · 25 points",
+        "description": "The brief, inputs, constraints, examples, output form, and success criteria make the work reproducible."
+      },
+      "discernment": {
+        "title": "Discernment · 30 points",
+        "description": "Central claims and behaviour receive independent, consequence-matched checks with gaps and contradictions visible."
+      },
+      "diligence": {
+        "title": "Diligence · 20 points",
+        "description": "Privacy, permissions, copyright, disclosure, affected people, failures, limits, and the final human decision are handled explicitly."
+      }
+    },
+    "pass": "Target 80 points or above, with all six artifacts present and no critical privacy, permission, fabricated-evidence, or undisclosed high-impact failure.",
+    "retry": "Repair the weakest evidence link on the same bounded workflow. Do not hide the gap with a larger output or a new paid feature.",
+    "completion": "You are finished when another reviewer can reproduce the reasoning, inspect the deliverable, challenge the evidence, and decide the next human action without guessing."
+  }
+}

@@ -1,0 +1,60 @@
+export const CLAUDE_INCOME_CAPSTONE = {
+  version: "2026-08-23.v1",
+  passedStorageKey: "claude-income.capstone.v1",
+  minimumScore: 80,
+  criteria: [
+    {
+      id: "buyer-evidence",
+      label: "Problem and buyer evidence",
+      points: 15,
+      fullCredit: "Specific reachable segment, recurring problem, consent or source trail, disconfirming evidence, and no invented quote.",
+    },
+    {
+      id: "scope-economics",
+      label: "Offer scope and economics",
+      points: 15,
+      fullCredit: "Observable deliverable, exclusions, acceptance tests, full cost per accepted delivery, stress cases, and no guarantee.",
+    },
+    {
+      id: "workflow-quality",
+      label: "Workflow quality",
+      points: 15,
+      fullCredit: "Reproducible task contract, authorized inputs, versioning, failure behavior, and a human approval boundary.",
+    },
+    {
+      id: "deliverable-usefulness",
+      label: "Deliverable usefulness",
+      points: 15,
+      fullCredit: "Inspectable artifact, core task completed, relevant user or peer test, and revision tied to observed evidence.",
+    },
+    {
+      id: "independent-verification",
+      label: "Independent verification",
+      points: 20,
+      fullCredit: "A consequence-matched check capable of revealing error, with unresolved risks preserved.",
+    },
+    {
+      id: "integrity",
+      label: "Privacy, rights, safety, and compliance",
+      points: 10,
+      fullCredit: "Data minimization, permission and license records, least privilege, policy check, disclosure, and no prohibited action.",
+    },
+    {
+      id: "experiment-decision",
+      label: "Experiment and learning decision",
+      points: 10,
+      fullCredit: "Predeclared threshold, raw metrics, activity separated from commitment, deviations retained, and an evidence-based decision.",
+    },
+  ],
+  criticalFailures: [
+    "Fabricated customer quote, source, result, testimonial, or revenue evidence.",
+    "Exposure of client secrets, personal data, credentials, private paths, or other unauthorized material.",
+    "Mass unsolicited outreach, deceptive persona, fake review, platform evasion, or an unapproved automated public reply.",
+    "Unsupported income guarantee or presentation of an anecdote as a typical result.",
+    "Unreviewed production deployment, live billing action, or high-impact decision.",
+    "Missing independent verification for a decision-critical output.",
+    "Reuse of code, media, or instructions without a defensible license or permission basis.",
+    "Concealment of a material failure, refund, cost, conflict, or experiment deviation.",
+  ],
+  completionStatement: "You completed an evidence-bounded Claude offer experiment. This record shows that you submitted the required artifacts and met this course's assessment rules. It does not guarantee income, certify professional competence, or independently verify your market results.",
+} as const;

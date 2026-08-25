@@ -52,7 +52,7 @@ Add: learners do Lab steps 3–4 themselves with their own keys (30 min, they wi
 
 **"Is my score wrong if it differs from hers?"** No. Two learners with identical prompts get different scores, because 8 of the 20 cases are themselves model calls. That is a real property of evals, not a bug — and noticing it is worth more than a clean number.
 
-**"Is the site in my language?"** The interface is, in nine — the 🌐 menu, or go straight to `/es/lab/`, `/ar/lab/`. The handbook's articles and the café's twenty cases stay English, and a banner says so.
+**"Is the site in my language?"** Nine locale routes are available through the 🌐 menu, or directly at paths such as `/es/lab/` and `/ar/lab/`. Do not describe a locale as complete from the menu alone: the release audit separately checks pages, dynamic feedback, accessibility copy, media and the deployed artifact. The café's controlled English cases remain English only under the documented experiment-data exception and must have localized explanation.
 
 ---
 

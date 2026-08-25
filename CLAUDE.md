@@ -24,10 +24,11 @@ layout from `dir="rtl"` on <html> with no second stylesheet, and that only holds
 if the rule has no exceptions. Untranslated English content keeps `dir="ltr"`.
 
 ## Strings
-Every user-visible string lives in `messages/*.json` — flat keys, one file per
-language, nine languages, currently 100% covered. Adding a string to English
-without adding it to the other eight is a regression, not a to-do. A translator
-must be able to fix a line without knowing React.
+User-visible strings are expected to live in the appropriate `messages/`
+namespace. Never infer completion from the root dictionary or the language
+menu: `npm run i18n:check:release -- --json` dynamically discovers namespaces,
+routes and course contracts, and any missing target value is a release failure.
+A translator must be able to fix a line without knowing React.
 
 The handbook's article prose is the exception, and lives in `messages/handbook/`.
 `en.json` there is **generated** — never hand-edit it. Change the wording in
@@ -67,5 +68,8 @@ British spelling. Sentence case in headings. Prefer deleting a widget over addin
 one. Do not rewrite existing copy to satisfy a linter.
 
 ## Before you say you're done
-`npm run build` must pass and still emit 50 pages. Never commit `All API Keys.docx`
+`npm run build` must pass; never assert a fixed page count. Reconcile the
+App Router patterns, course manifests, sitemap and actual `out/**/*.html`
+inventory dynamically. `npm run i18n:check:release -- --json` and every
+course release checker must pass before release. Never commit `All API Keys.docx`
 or anything matching the secrets block in `.gitignore`.

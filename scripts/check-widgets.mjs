@@ -34,7 +34,7 @@ const TABLES = join(ROOT, "messages/widgets");
    it here when you move another widget across. It may fall and never rise —
    that is the whole mechanism, and it is why this can be done a widget at a
    time without the half-finished state rotting. */
-const REMAINING = { literals: 99, words: 247 };
+const REMAINING = { literals: 92, words: 233 };
 
 const LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
 
@@ -222,6 +222,31 @@ if (en) {
  * ------------------------------------------------------------------ */
 const CATS = /\.(zero|one|two|few|many|other)$/;
 
+/* Exact source equality is denied by default. These reviewed exceptions are
+   either variable-only readouts or words that are genuinely written the same
+   way in the named language. Keeping this list narrow prevents a translator
+   (or a merge-over-English loader) from making a complete key set look like a
+   complete translation. */
+const IDENTICAL_COMMON = new Set([
+  "w.code.fc.out", "w.code.out.ok", "w.prompt.score", "w.evals.score",
+  "w.security.money", "w.graph.clock",
+]);
+const IDENTICAL_BY_LOCALE = {
+  es: new Set(["w.theme.mode.auto", "w.context.used"]),
+  fr: new Set([
+    "w.theme.mode.auto", "w.progress.sections", "w.prompt.item.flatWhite",
+    "w.prompt.fake.kid2", "w.context.used", "w.graph.lane.question",
+    "w.graph.case.question.label", "w.evals.case13", "w.map.short.code",
+  ]),
+  de: new Set([
+    "w.theme.mode.auto", "w.prompt.item.flatWhite", "w.prompt.fake.kid2",
+    "w.graph.lookups.parallel", "w.graph.node.router", "w.quiz.brief2.who",
+    "w.quiz.brief3.who", "w.quiz.brief8.who", "w.map.short.code",
+    "w.map.short.prompt", "w.map.short.graph", "w.map.short.harness",
+    "w.map.short.evals",
+  ]),
+};
+
 /** The categories a locale's plural rules can actually produce. */
 function categories(loc) {
   const rules = new Intl.PluralRules(loc);
@@ -269,8 +294,22 @@ for (const loc of LOCALES) {
     const m = CATS.exec(k);
     return !(m && pluralStems.has(k.slice(0, m.index))) || cats.has(m[1]);
   });
-  const missing = wanted.filter((k) => own[k] == null).length;
-  if (missing) notes.push(`${loc}: ${missing} of ${wanted.length} strings still English`);
+  const missing = wanted.filter((k) => own[k] == null);
+  if (missing.length) {
+    fail(
+      `messages/widgets/${loc}.json — ${missing.length} of ${wanted.length} required ` +
+      `strings are missing and would silently fall back to English: ` +
+      `${missing.slice(0, 8).join(", ")}${missing.length > 8 ? " …" : ""}`,
+    );
+  }
+  for (const k of wanted) {
+    if (own[k] !== en[k]) continue;
+    if (IDENTICAL_COMMON.has(k) || IDENTICAL_BY_LOCALE[loc]?.has(k)) continue;
+    fail(
+      `messages/widgets/${loc}.json — "${k}" is identical to English without ` +
+      `a reviewed language-neutral or same-spelling exception`,
+    );
+  }
 }
 
 /* A language only needs the categories its plural rules can actually
@@ -339,11 +378,19 @@ const isCopy = (s) => {
   return (t.replace(/<[^>]*>/g, " ").match(/[\p{L}][\p{L}'’-]*/gu) || []).length > 0;
 };
 let litN = 0, wordN = 0;
+const hardCoded = [];
 for (const tok of lex(behaviour)) {
   const s = unescape(tok.value);
   if (!isCopy(s)) continue;
   litN++;
-  wordN += (s.replace(/<[^>]*>/g, " ").match(/[\p{L}][\p{L}'’-]*/gu) || []).length;
+  const words = (s.replace(/<[^>]*>/g, " ").match(/[\p{L}][\p{L}'’-]*/gu) || []).length;
+  wordN += words;
+  hardCoded.push({ line: tok.line, words, text: s });
+}
+if (process.env.WIDGETS_LIST_LITERALS === "1") {
+  for (const item of hardCoded) {
+    console.log(`widgets literal: ${item.line}\t${item.words}\t${JSON.stringify(item.text)}`);
+  }
 }
 if (litN > REMAINING.literals || wordN > REMAINING.words) {
   fail(`hard-coded copy grew: ${litN} literals / ${wordN} words, ratchet allows ` +
