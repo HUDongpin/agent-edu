@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, test as base } from "@playwright/test";
+import { PLAYWRIGHT_TEST_ORIGIN } from "../tests/playwright-test-url";
 
 const EVIDENCE_SCHEMA = "agent-edu.curated-browser-evidence.v1";
 const SANITIZER_POLICY = "uniform-redaction-surface-v2";
@@ -45,7 +46,7 @@ export const test = base.extend<{ _curatedEvidence: void }>({
     page.on("pageerror", () => { pageErrorCount += 1; });
     page.on("request", (request) => {
       const origin = new URL(request.url()).origin;
-      const originClass = origin === "http://127.0.0.1:4173"
+      const originClass = origin === PLAYWRIGHT_TEST_ORIGIN
         ? "local"
         : origin === "https://api.deepseek.com" ? "provider" : "external";
       addTrace({

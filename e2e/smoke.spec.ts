@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { PLAYWRIGHT_TEST_ORIGIN } from "../tests/playwright-test-url";
 import { expect, test } from "./fixtures";
 
 const JOURNEY_LOCALES = [
@@ -15,7 +16,7 @@ const JOURNEY_LOCALES = [
 
 const CORE_ROUTES = ["", "handbook/", "lab/", "build/"] as const;
 const CORE_ROUTE_MARKERS: Record<(typeof CORE_ROUTES)[number], string> = {
-  "": "#curriculum",
+  "": ".platform-home #home-title",
   "handbook/": "#rail",
   "lab/": ".shellwrap.lab .labhero",
   "build/": ".build-page .build-steps",
@@ -82,7 +83,7 @@ test("the unprefixed root resolves to the English home", async ({ page }) => {
   const response = await page.goto("/");
   expect(response?.status()).toBe(200);
   await expect(page).toHaveURL(/\/en\/$/);
-  await expect(page.locator("#curriculum")).toBeVisible();
+  await expect(page.locator(".platform-home #home-title")).toBeVisible();
 });
 
 for (const locale of JOURNEY_LOCALES) {
@@ -106,7 +107,7 @@ for (const locale of JOURNEY_LOCALES) {
 
     page.on("request", (request) => {
       const origin = new URL(request.url()).origin;
-      if (origin !== "http://127.0.0.1:4173" && origin !== "https://api.deepseek.com") {
+      if (origin !== PLAYWRIGHT_TEST_ORIGIN && origin !== "https://api.deepseek.com") {
         unexpectedOrigins.add(origin);
       }
     });
@@ -121,9 +122,9 @@ for (const locale of JOURNEY_LOCALES) {
     await expect(page).toHaveURL(new RegExp(`${prefix}/$`));
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-    await expect(page.locator("#curriculum")).toBeVisible();
+    await expect(page.locator(".platform-home #home-title")).toBeVisible();
 
-    await page.locator(`main .hero a[href="${prefix}/handbook/"]`).click();
+    await page.locator(`.platform-hero a[href="${prefix}/handbook/"]`).click();
     await expect.poll(() => page.evaluate(() => location.pathname))
       .toBe(`${prefix}/handbook/`);
     await expect(page.locator("#rail")).toBeVisible();
@@ -131,7 +132,9 @@ for (const locale of JOURNEY_LOCALES) {
     await expectActiveHandbookTab(page, "#tab-play");
     await expect(page).toHaveURL(/#play$/);
 
-    await page.locator(`header.topbar a[href="${prefix}/lab/"]`).click();
+    const handbookNext = page.locator('[data-course-lesson-nav] a[rel="next"]');
+    await expect(handbookNext).toHaveAttribute("href", `${prefix}/lab/`);
+    await handbookNext.click();
     await expect(page).toHaveURL(new RegExp(`${prefix}/lab/$`));
     await expect(page.locator(".shellwrap.lab .labhero")).toBeVisible();
     await page.locator('.steps [role="tab"]').last().click();

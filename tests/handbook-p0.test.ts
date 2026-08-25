@@ -103,6 +103,8 @@ test("Handbook Part 1 is scripted-only and has no live-provider request path", (
   assert.doesNotMatch(behaviour, /\bfetch\s*\(|sessionStorage|api\.deepseek\.com|Authorization|Bearer/);
   assert.match(behaviour, /t\.tabIndex=on\?0:-1/);
   assert.match(behaviour, /t\.focus\(\); show\(t\.dataset\.p,\{focus:false\}\)/);
+  assert.match(behaviour, /n\.focus\(\); show\(n\.dataset\.p,\{focus:false,preserveTabViewport:true\}\)/);
+  assert.match(behaviour, /!opts\.silent && !opts\.preserveTabViewport && window\.scrollY>120/);
   assert.match(behaviour, /scrollIntoView\(\{block:'nearest',inline:'nearest'\}\)/);
 });
 

@@ -112,7 +112,9 @@ function txt(s){ return document.createTextNode(s); }
       const panel=document.getElementById('p-'+name);
       if (panel) panel.focus({preventScroll:true});
     }
-    if (!opts.silent && window.scrollY>120) window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+    if (!opts.silent && !opts.preserveTabViewport && window.scrollY>120) {
+      window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+    }
     requestAnimationFrame(scrollHints);
   }
 
@@ -125,7 +127,7 @@ function txt(s){ return document.createTextNode(s); }
       if (next===null) return;
       e.preventDefault();
       const n=tabs[next];
-      n.focus(); show(n.dataset.p,{focus:false});
+      n.focus(); show(n.dataset.p,{focus:false,preserveTabViewport:true});
     });
   });
   document.addEventListener('click',e=>{

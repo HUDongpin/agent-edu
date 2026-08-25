@@ -1,4 +1,5 @@
 import type { Locator, Page, Route } from "@playwright/test";
+import { PLAYWRIGHT_TEST_ORIGIN } from "../tests/playwright-test-url";
 import { expect, test } from "./private-fixtures";
 
 const LAB_URL = "/en/lab/";
@@ -114,7 +115,7 @@ function installAudit(page: Page): BrowserAudit {
         method: request.method(),
         body: request.postData() ?? "",
       });
-    } else if (url.origin !== "http://127.0.0.1:4173") {
+    } else if (url.origin !== PLAYWRIGHT_TEST_ORIGIN) {
       audit.unexpectedExternalRequests.push(request.url());
     }
   });

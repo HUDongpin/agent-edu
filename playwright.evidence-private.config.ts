@@ -1,4 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import {
+  PLAYWRIGHT_TEST_HOME_URL,
+  PLAYWRIGHT_TEST_ORIGIN,
+} from "./tests/playwright-test-url";
 
 export default defineConfig({
   testDir: "./e2e-contract",
@@ -11,7 +15,7 @@ export default defineConfig({
   preserveOutput: "never",
   workers: 1,
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: PLAYWRIGHT_TEST_ORIGIN,
     screenshot: "off",
     trace: {
       mode: "off",
@@ -25,8 +29,8 @@ export default defineConfig({
   projects: [{ name: "private-contract-chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: "npm run preview:test",
-    url: "http://127.0.0.1:4173/en/",
-    reuseExistingServer: true,
+    url: PLAYWRIGHT_TEST_HOME_URL,
+    reuseExistingServer: false,
     timeout: 30_000,
     stdout: "ignore",
     stderr: "ignore",
