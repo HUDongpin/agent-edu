@@ -1,9 +1,9 @@
 # Course 12 source verification: How to make money with Claude
 
-**Site:** aicourse.top  
-**Course:** Course 12, “How to make money with Claude”  
-**Verification snapshot:** 2026-08-23, Asia/Taipei  
-**Audit posture:** fail closed  
+**Site:** aicourse.top<br>
+**Course:** Course 12, “How to make money with Claude”<br>
+**Verification snapshot:** 2026-08-23, Asia/Taipei<br>
+**Audit posture:** fail closed<br>
 **Release status:** **HOLD until the release blockers in Section 9 are cleared**
 
 ## 1. Executive verdict

@@ -1,9 +1,9 @@
 # MCP Course 10 browser and release QA
 
-Verified: 2026-08-24 (Asia/Taipei)  
-Course release: `1.0.0`  
-Core protocol target: MCP `2026-07-28`  
-Assessment version: `2026-07-28-v2`  
+Verified: 2026-08-24 (Asia/Taipei)<br>
+Course release: `1.0.0`<br>
+Core protocol target: MCP `2026-07-28`<br>
+Assessment version: `2026-07-28-v2`<br>
 Canonical English course: `https://aicourse.top/en/mcp/`
 
 ## Acceptance result

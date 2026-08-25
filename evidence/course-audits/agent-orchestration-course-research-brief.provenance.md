@@ -1,8 +1,8 @@
 # aicourse.top Course 15《智能体编排》研究溯源台账
 
-配套简报：[agent-orchestration-course-research-brief.md](./agent-orchestration-course-research-brief.md)  
-访问与核验基准日：2026-08-23（Asia/Taipei）  
-台账状态：Course 15 `v1.1.1` 正确性复核完成；独立 reviewer acceptance 已完成  
+配套简报：[agent-orchestration-course-research-brief.md](./agent-orchestration-course-research-brief.md)<br>
+访问与核验基准日：2026-08-23（Asia/Taipei）<br>
+台账状态：Course 15 `v1.1.1` 正确性复核完成；独立 reviewer acceptance 已完成<br>
 核验方法：一手规范/产品文档优先；官方工程文章用于解释；GitHub 只支持项目级或案例级陈述；私有开发输入只用于提出待核验问题
 
 ## 1. 台账字段与转换规则

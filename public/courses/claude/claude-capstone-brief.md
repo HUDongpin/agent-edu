@@ -1,7 +1,7 @@
 # How to Use Claude — portfolio capstone brief
 
-Version: 1.0.0  
-Course: https://aicourse.top/  
+Version: 1.0.0<br>
+Course: https://aicourse.top/<br>
 Privacy: keep this file in your own workspace. Do not paste private prompts, files, or personal data into the course website.
 
 ## Choose one pathway

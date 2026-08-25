@@ -1,8 +1,8 @@
 # Course 11 figure provenance ledger
 
-Ledger version: 2.0.0  
-Verified: 2026-08-23  
-Community index: [OpenAI Developers Codex community](https://developers.openai.com/community)  
+Ledger version: 2.0.0<br>
+Verified: 2026-08-23<br>
+Community index: [OpenAI Developers Codex community](https://developers.openai.com/community)<br>
 First-party rights record: `evidence/course-audits/make-money-with-codex/first-party-captures/rights-record.md`
 
 ## Evidence model

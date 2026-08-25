@@ -1,9 +1,9 @@
 # Course 4 research brief: How to Use Cursor
 
-Research snapshot: 23 August 2026  
-Course version: 1.0.0  
-Primary authority: Cursor-owned documentation, help, product, Learn, blog, and changelog pages  
-Corroborating evidence: revision-pinned public GitHub repositories  
+Research snapshot: 23 August 2026<br>
+Course version: 1.0.0<br>
+Primary authority: Cursor-owned documentation, help, product, Learn, blog, and changelog pages<br>
+Corroborating evidence: revision-pinned public GitHub repositories<br>
 Intended course duration: 800 minutes across 14 lessons, followed by a final quiz and capstone verification
 
 ## Executive judgement

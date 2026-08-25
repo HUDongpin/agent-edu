@@ -1,6 +1,6 @@
 # Course 15 — Agent Orchestration: source and asset notice
 
-Last reviewed: 2026-08-23  
+Last reviewed: 2026-08-23<br>
 Course: `aicourse.top/[locale]/agent-orchestration/`
 
 ## What this course publishes

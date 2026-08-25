@@ -1,8 +1,8 @@
 # Provenance record: Course 4, How to Use Cursor
 
-Snapshot date: 23 August 2026  
-Verification timezone: Asia/Taipei  
-Evidence policy: Cursor-owned sources establish product behaviour; revision-pinned GitHub sources support practitioner patterns only  
+Snapshot date: 23 August 2026<br>
+Verification timezone: Asia/Taipei<br>
+Evidence policy: Cursor-owned sources establish product behaviour; revision-pinned GitHub sources support practitioner patterns only<br>
 Runtime policy: the development/internal-review course uses local figures and does not fetch remote media at runtime; public release is rights-gated
 
 ## Claim and reuse rules

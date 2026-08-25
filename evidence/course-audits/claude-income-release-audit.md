@@ -1,12 +1,12 @@
 # Course 12 release audit: How to Make Money with Claude
 
-**Site:** aicourse.top  
-**Course ID:** `claude-income`  
-**Course ordinal:** 12  
-**Audit date:** 2026-08-23; re-audited 2026-08-24, Asia/Taipei  
-**Content version:** 1.0.1  
-**Audit posture:** fail closed  
-**Independent preimplementation verdict:** HOLD  
+**Site:** aicourse.top<br>
+**Course ID:** `claude-income`<br>
+**Course ordinal:** 12<br>
+**Audit date:** 2026-08-23; re-audited 2026-08-24, Asia/Taipei<br>
+**Content version:** 1.0.1<br>
+**Audit posture:** fail closed<br>
+**Independent preimplementation verdict:** HOLD<br>
 **Current Course 12 decision:** PASS for the corrected v1.0.1 Course 12 slice;
 its browser suite and static export passed in an isolated current-workspace
 snapshot, while unrelated shared-repository blockers are recorded separately

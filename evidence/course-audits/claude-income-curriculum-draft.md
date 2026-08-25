@@ -1,11 +1,11 @@
 # Course 12 Release Curriculum: How to Make Money with Claude
 
-Status: release curriculum aligned to the implemented Course 12 data  
-Course version: 1.0.1  
-Evidence snapshot: 2026-08-23; volatile-source recheck 2026-08-24, Asia/Taipei  
-Interface snapshot: 2026-08-23, Asia/Taipei  
-Content language: English  
-Guided learning time: exactly 895 minutes, including the capstone  
+Status: release curriculum aligned to the implemented Course 12 data<br>
+Course version: 1.0.1<br>
+Evidence snapshot: 2026-08-23; volatile-source recheck 2026-08-24, Asia/Taipei<br>
+Interface snapshot: 2026-08-23, Asia/Taipei<br>
+Content language: English<br>
+Guided learning time: exactly 895 minutes, including the capstone<br>
 Audience: independent professionals, agency operators, consultants, creators, and product builders who can independently judge at least one business workflow
 
 This release companion describes the same four units, 12 lessons, source boundaries, real-interface figures, assessment rules, and capstone rubric as the authoritative data in `lib/claude-income/`. It does not add product claims, source claims, or promised outcomes beyond that implementation.
@@ -101,7 +101,7 @@ Choose a buyer, verify an expensive problem, and turn it into a bounded offer. T
 
 **Quality boundary:** reject prompt-access offers, spam-dependent plans, screenshot-derived income claims, and unsafeguarded high-impact decisions.
 
-**Real UI:** `fig-01-chat-composer`.  
+**Real UI:** `fig-01-chat-composer`.<br>
 **Source IDs:** `academy-work`, `commercial-terms`, `github-marketingskills`, `github-seo-audit`, `github-open-saas`, `github-shotgun-case`.
 
 ### Lesson 2: Validate paid demand before automating — 60 minutes
@@ -118,7 +118,7 @@ Choose a buyer, verify an expensive problem, and turn it into a bounded offer. T
 
 **Quality boundary:** preserve consent and the full evidence trail, minimize personal data, and measure behavior rather than satisfaction.
 
-**Real UI:** none.  
+**Real UI:** none.<br>
 **Source IDs:** `academy-work`, `help-artifacts`, `github-shotgun-case`, `github-seo-audit`, `aup`.
 
 ### Lesson 3: Scope and price an offer you can deliver — 70 minutes
@@ -135,7 +135,7 @@ Choose a buyer, verify an expensive problem, and turn it into a bounded offer. T
 
 **Quality boundary:** reject unlimited revisions, undefined data volume, output guarantees, and pricing that hides review, acquisition, refunds, or connected-tool costs. Templates are not legal advice.
 
-**Real UI:** none.  
+**Real UI:** none.<br>
 **Source IDs:** `commercial-terms`, `docs-cost`, `github-seo-audit`.
 
 ## Unit 2: Deliver work a client can inspect — 205 minutes
@@ -156,7 +156,7 @@ Use Claude in a controlled service workflow with specifications, isolated contex
 
 **Quality boundary:** keep client secrets out of reusable instructions and require source pointers, discrepancy logs, refusal behavior, and human approval.
 
-**Real UI:** `fig-01-chat-composer`.  
+**Real UI:** `fig-01-chat-composer`.<br>
 **Source IDs:** `docs-prompting`, `academy-work`, `commercial-terms`.
 
 ### Lesson 5: Run client work in isolated Projects — 70 minutes
@@ -173,7 +173,7 @@ Use Claude in a controlled service workflow with specifications, isolated contex
 
 **Quality boundary:** never mix clients, grant broad folder access for convenience, upload unlisted inputs, retain credentials, or reuse client content without permission.
 
-**Real UI:** `fig-02-cowork-composer`, `fig-04-new-project`.  
+**Real UI:** `fig-02-cowork-composer`, `fig-04-new-project`.<br>
 **Source IDs:** `help-projects`, `academy-cowork`, `help-cowork-safety`, `commercial-terms`, `aup`.
 
 ### Lesson 6: Deliver citation-grade research briefs — 75 minutes
@@ -190,7 +190,7 @@ Use Claude in a controlled service workflow with specifications, isolated contex
 
 **Quality boundary:** do not accept snippets, aggregators, inaccessible pages, unchecked quotations, or anecdotes as verified general results.
 
-**Real UI:** `fig-03-tools-menu`.  
+**Real UI:** `fig-03-tools-menu`.<br>
 **Source IDs:** `help-research`, `commercial-terms`, `aup`, `academy-work`.
 
 ## Unit 3: Turn delivery into an operating system — 215 minutes
@@ -211,7 +211,7 @@ Create editable files, reusable Skills, least-privilege connections, and testabl
 
 **Quality boundary:** reject screenshot and flattened-only handoffs, unexplained numbers, preview-only review, hidden metadata, and unapproved network access.
 
-**Real UI:** `fig-05-file-outputs`.  
+**Real UI:** `fig-05-file-outputs`.<br>
 **Source IDs:** `academy-work`, `academy-cowork`, `commercial-terms`, `aup`.
 
 ### Lesson 8: Standardize with Skills and least-privilege Connectors — 75 minutes
@@ -228,7 +228,7 @@ Create editable files, reusable Skills, least-privilege connections, and testabl
 
 **Quality boundary:** no production connector, credential, client secret, unlicensed example, broad write access, hidden external action, or untested update.
 
-**Real UI:** `fig-07-skills-settings`.  
+**Real UI:** `fig-07-skills-settings`.<br>
 **Source IDs:** `help-skills`, `help-connectors`, `github-anthropic-skills`, `github-marketingskills`, `github-claude-marketing`, `aup`.
 
 ### Lesson 9: Prototype the buyer's decision with Artifacts — 70 minutes
@@ -245,7 +245,7 @@ Create editable files, reusable Skills, least-privilege connections, and testabl
 
 **Quality boundary:** do not publish client, personal, payment, credential, secret, or unlicensed material. A URL is not evidence of distribution, payment, demand, security, reliability, or support.
 
-**Real UI:** `fig-06-artifact-workspace`.  
+**Real UI:** `fig-06-artifact-workspace`.<br>
 **Source IDs:** `help-artifacts`, `commercial-terms`, `aup`, `github-shotgun-case`, `github-open-saas`.
 
 ## Unit 4: Build, sell, and retain responsibly — 280 minutes
@@ -266,7 +266,7 @@ Move from prototype to software only when evidence supports it, then sell with t
 
 **Quality boundary:** non-production and synthetic data only. Do not use credentials, charge payments, contact users, deploy, or run destructive migrations. A demo is not production evidence.
 
-**Real UI:** none.  
+**Real UI:** none.<br>
 **Source IDs:** `academy-code-101`, `blog-auto-mode`, `docs-cost`, `commercial-terms`, `aup`, `github-open-saas`, `github-lastsaas`, `x-elvissun`.
 
 ### Lesson 11: Earn trust, proof, and recurring work — 65 minutes
@@ -283,7 +283,7 @@ Move from prototype to software only when evidence supports it, then sell with t
 
 **Quality boundary:** never fabricate testimonials, identity, results, affiliations, or typical outcomes; never use scraped data, fake accounts, evasion, unsolicited automated replies, or unlicensed social media.
 
-**Real UI:** none.  
+**Real UI:** none.<br>
 **Source IDs:** `aup`, `x-automation-policy`, `github-seo-audit`, `github-lastsaas`, `x-codyschneider`, `x-wcandillon`, `docs-cost`.
 
 ### Lesson 12: Capstone: run a seven-day demand test — 120 minutes
@@ -308,7 +308,7 @@ Move from prototype to software only when evidence supports it, then sell with t
 
 **Quality boundary:** preserve silence, declines, corrections, deviations, unresolved risks, practitioner caveats, source dates, interface dates, and the no-income-guarantee notice. Use only consented interviews and synthetic or approved data.
 
-**Real UI:** `fig-03-tools-menu`, `fig-06-artifact-workspace`.  
+**Real UI:** `fig-03-tools-menu`, `fig-06-artifact-workspace`.<br>
 **Source IDs:** `academy-work`, `docs-prompting`, `help-research`, `docs-cost`, `commercial-terms`, `aup`, `x-automation-policy`.
 
 ## Real Claude UI figure contract

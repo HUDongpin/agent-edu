@@ -1,9 +1,9 @@
 # Course 14 内容核验与纠错报告
 
-**课程：** How Products Are Imagined, Designed, and Built in the Age of AI  
-**网站：** aicourse.top  
-**核验日期：** 2026-08-23  
-**核验范围：** 14 个模块的正文、概念覆盖、来源映射、互动计算器、模块自测、结业测验、capstone、类型约束与发布校验  
+**课程：** How Products Are Imagined, Designed, and Built in the Age of AI<br>
+**网站：** aicourse.top<br>
+**核验日期：** 2026-08-23<br>
+**核验范围：** 14 个模块的正文、概念覆盖、来源映射、互动计算器、模块自测、结业测验、capstone、类型约束与发布校验<br>
 **状态：** 已修正可确认错误；Course 14 专项开发与发布校验、专项 ESLint、Course 14 路由选择性 Next.js 生产构建均通过
 
 ## 一、结论

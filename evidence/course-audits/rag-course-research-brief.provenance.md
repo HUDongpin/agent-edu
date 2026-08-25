@@ -1,12 +1,12 @@
 # Provenance ledger: Course 9, Retrieval-Augmented Generation
 
-Snapshot date: 2026-08-23 (Asia/Taipei)  
-Course version: 1.1.0  
-Machine-readable curriculum: `lib/rag/manifest.ts`  
-Machine-readable source records: `lib/rag/sources.ts`  
-Machine-readable figure records: `lib/rag/figures.ts`  
-Machine-readable concept and content contracts: `lib/rag/types.ts`  
-Nine locale copies: `messages/rag/{en,es,fr,de,zh-Hans,zh-Hant,ja,ko,ar}.json`  
+Snapshot date: 2026-08-23 (Asia/Taipei)<br>
+Course version: 1.1.0<br>
+Machine-readable curriculum: `lib/rag/manifest.ts`<br>
+Machine-readable source records: `lib/rag/sources.ts`<br>
+Machine-readable figure records: `lib/rag/figures.ts`<br>
+Machine-readable concept and content contracts: `lib/rag/types.ts`<br>
+Nine locale copies: `messages/rag/{en,es,fr,de,zh-Hans,zh-Hant,ja,ko,ar}.json`<br>
 Public asset notice: `public/courses/rag/NOTICE.md`
 
 ## Audit method

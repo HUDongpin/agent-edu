@@ -2,8 +2,8 @@
 
 > This is the authored English source edition. Every translated edition preserves code and protocol invariants and publishes its automated review status without claiming human linguistic review.
 
-Protocol baseline: MCP `2026-07-28`  
-Course assessment version: `2026-07-28-v2`  
+Protocol baseline: MCP `2026-07-28`<br>
+Course assessment version: `2026-07-28-v2`<br>
 Course evidence snapshot: `2026-08-24`
 
 This template supports either the builder track (implement a small server and client) or the auditor track (reproduce and review a public server). Completing it is self-attestation, not an independently verified certificate. Remove all secrets and private data before sharing.

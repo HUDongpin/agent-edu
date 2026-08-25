@@ -1,8 +1,8 @@
 # Provenance ledger: Course 3 — How to Use Claude
 
-Snapshot date: 2026-08-24  
-Machine-readable source records: `lib/claude/sources.ts`  
-Machine-readable figure records: `lib/claude/figures.ts`  
+Snapshot date: 2026-08-24<br>
+Machine-readable source records: `lib/claude/sources.ts`<br>
+Machine-readable figure records: `lib/claude/figures.ts`<br>
 Offline release gate: `scripts/check-claude-course.mjs`
 
 ## Research method

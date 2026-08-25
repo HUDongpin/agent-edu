@@ -1,8 +1,8 @@
 # Research brief: Course 3 — How to Use Claude
 
-Status: product slice implemented; public release blocked by unresolved rights for 12 Claude Academy images and unreproducible source-to-local provenance for Figure 01  
-Research snapshot: 2026-08-24 (Asia/Taipei)  
-Course version: 1.0.0  
+Status: product slice implemented; public release blocked by unresolved rights for 12 Claude Academy images and unreproducible source-to-local provenance for Figure 01<br>
+Research snapshot: 2026-08-24 (Asia/Taipei)<br>
+Course version: 1.0.0<br>
 Primary audience: first-time through intermediate Claude users who need transferable, evidence-based work practices
 
 ## Executive decision

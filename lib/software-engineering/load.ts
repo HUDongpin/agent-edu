@@ -84,4 +84,3 @@ export async function getSoftwareEngineeringLesson(
   const copy = await loadSoftwareEngineeringCopy(locale);
   return materializeLesson(copy, slug);
 }
-

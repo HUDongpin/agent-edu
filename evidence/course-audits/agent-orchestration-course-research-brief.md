@@ -1,9 +1,9 @@
 # aicourse.top Course 15《智能体编排》研究简报
 
-文档状态：课程内容研究基线，不是已发布课程，也不是产品实现说明  
-研究与核验日期：2026-08-23（Asia/Taipei）  
-适用课程：aicourse.top 第 15 门课  
-建议课程名：**智能体编排：从模式选择到可恢复的生产系统**  
+文档状态：课程内容研究基线，不是已发布课程，也不是产品实现说明<br>
+研究与核验日期：2026-08-23（Asia/Taipei）<br>
+适用课程：aicourse.top 第 15 门课<br>
+建议课程名：**智能体编排：从模式选择到可恢复的生产系统**<br>
 配套溯源：[agent-orchestration-course-research-brief.provenance.md](./agent-orchestration-course-research-brief.provenance.md)
 
 ## 执行摘要

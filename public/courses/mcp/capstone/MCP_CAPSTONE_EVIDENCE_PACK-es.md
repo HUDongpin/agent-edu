@@ -2,8 +2,8 @@
 
 > Esta edición se tradujo automáticamente a partir de la versión inglesa y superó comprobaciones automatizadas de estructura y terminología técnica. No ha sido objeto de revisión lingüística humana.
 
-Línea base del protocolo: MCP `2026-07-28`  
-Versión de evaluación del curso: `2026-07-28-v2`  
+Línea base del protocolo: MCP `2026-07-28`<br>
+Versión de evaluación del curso: `2026-07-28-v2`<br>
 Resumen de evidencia del curso: `2026-08-24`
 
 Esta plantilla admite el seguimiento del constructor (implementar un servidor y un cliente pequeños) o el seguimiento del auditor (reproducir y revisar un servidor público). Completarlo es una autodeclaración, no un certificado verificado de forma independiente. Elimine todos los secretos y datos privados antes de compartirlos.

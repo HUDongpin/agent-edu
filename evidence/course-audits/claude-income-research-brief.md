@@ -2,10 +2,10 @@
 
 ## How to Make Money with Claude
 
-**Course ID:** `claude-income`  
-**Public sequence:** Course 12, assigned literally rather than inferred from the current catalogue  
-**Research cut-off:** 2026-08-23; live-source recheck 2026-08-24  
-**Content language:** English  
+**Course ID:** `claude-income`<br>
+**Public sequence:** Course 12, assigned literally rather than inferred from the current catalogue<br>
+**Research cut-off:** 2026-08-23; live-source recheck 2026-08-24<br>
+**Content language:** English<br>
 **Release posture:** Evidence-bounded, no guaranteed income, current facts date-stamped
 
 ## Executive conclusion

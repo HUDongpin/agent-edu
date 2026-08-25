@@ -1,9 +1,9 @@
 # Course 8 capstone: ship one safe agent-assisted change
 
-**Course:** Software Engineering with Agentic AI  
-**Capstone version:** 1.0.0  
-**Evidence snapshot:** 2026-08-23  
-**Passing score:** 80/100  
+**Course:** Software Engineering with Agentic AI<br>
+**Capstone version:** 1.0.0<br>
+**Evidence snapshot:** 2026-08-23<br>
+**Passing score:** 80/100<br>
 **Required submissions:** exactly eight auditable artifacts
 
 ## The assignment

@@ -1,9 +1,9 @@
 # Provenance record: Course 12 Claude income source verification
 
 **Companion report:** `evidence/course-audits/claude-income-source-verification.md`
-**Audit date:** 2026-08-23  
-**Audit timezone:** Asia/Taipei  
-**Prepared for:** aicourse.top Course 12, “How to make money with Claude”  
+**Audit date:** 2026-08-23<br>
+**Audit timezone:** Asia/Taipei<br>
+**Prepared for:** aicourse.top Course 12, “How to make money with Claude”<br>
 **State represented:** public sources retrievable during this audit, not a permanent product snapshot
 
 ## 1. Scope contract

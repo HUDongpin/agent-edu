@@ -2,10 +2,10 @@
 
 **Audit result: PASS.** The seven figure families pass the binary, visual, privacy, and instructional-accessibility audit as course-authored captures of the authenticated Claude Desktop app. The current page implementation also passes the no-endorsement, responsive-image, alternative-text, caption, observation-date, and hash-gate checks documented below.
 
-**Audited at:** 2026-08-23 03:28 CST, UTC+08:00  
-**Final page-level verification:** 2026-08-23 04:04 CST, UTC+08:00  
-**UI observed:** 2026-08-23  
-**Scope:** 7 PNG masters and 14 WebP derivatives under `public/courses/claude-income/figures/`  
+**Audited at:** 2026-08-23 03:28 CST, UTC+08:00<br>
+**Final page-level verification:** 2026-08-23 04:04 CST, UTC+08:00<br>
+**UI observed:** 2026-08-23<br>
+**Scope:** 7 PNG masters and 14 WebP derivatives under `public/courses/claude-income/figures/`<br>
 **Capture provenance supplied for this audit:** Course-authored captures from the user's authenticated Claude Desktop app. The source app viewport was 1322 by 768 pixels. The figure masters are privacy-oriented crops except where the ledger says the full viewport was retained. Device-pixel ratio is not embedded and is therefore unknown.
 
 ## Audit method and global findings

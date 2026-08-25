@@ -1,7 +1,7 @@
 # Course 14 research provenance
 
-**Access date:** 2026-08-23  
-**Method:** public web search and direct source inspection; no authenticated or paywalled material used  
+**Access date:** 2026-08-23<br>
+**Method:** public web search and direct source inspection; no authenticated or paywalled material used<br>
 **Purpose:** source selection, concept coverage, currency check, and rights-boundary review
 
 ## Records retained in the implementation

@@ -1,7 +1,7 @@
 # Course 4 capstone self-check contract
 
-Version: 1.0.0  
-Receipt schema: `aicourse.cursor.capstone.v1`  
+Version: 1.0.0<br>
+Receipt schema: `aicourse.cursor.capstone.v1`<br>
 Fixture version: `1`
 
 This document defines the aicourse.top Course 4 capstone checker. It is a

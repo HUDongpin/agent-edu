@@ -1,6 +1,6 @@
 # Course 11 first-party figure rights record
 
-Record version: 1.1.0  
+Record version: 1.1.0<br>
 Reviewed: 2026-08-23
 
 This record covers the eight Course 11 figures created by the Course 11 production team. The linked X posts are practitioner context used by the curriculum and are not the pixel source for these figures. No creator-post image pixels were copied into the first-party captures or fixtures.

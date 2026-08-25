@@ -2,8 +2,8 @@
 
 > Cette édition est entièrement traduite à partir de la source anglaise et a passé avec succès les contrôles automatisés de structure et de terminologie technique. La révision linguistique humaine n’est pas revendiquée.
 
-Base de référence du protocole : MCP `2026-07-28`  
-Version d'évaluation du cours : `2026-07-28-v2`  
+Base de référence du protocole : MCP `2026-07-28`<br>
+Version d'évaluation du cours : `2026-07-28-v2`<br>
 Aperçu des preuves du cours : `2026-08-24`
 
 Ce modèle prend en charge soit la piste constructeur (implémenter un petit serveur et un petit client), soit la piste auditeur (reproduire et réviser un serveur public). Le remplir constitue une auto-attestation et non un certificat vérifié de manière indépendante. Supprimez tous les secrets et données privées avant de les partager.

@@ -2,10 +2,10 @@
 
 ## Research-brief provenance and rights ledger
 
-**Companion to:** software-engineering-agentic-ai-research-brief.md  
-**Observation date for every record:** 2026-08-23  
-**Purpose:** Auditable source ledger for the GitHub-hosted practitioner-evidence layer of aicourse.top Course 8.  
-**Quotation policy:** Findings are paraphrased. No long copyrighted passage is reproduced.  
+**Companion to:** software-engineering-agentic-ai-research-brief.md<br>
+**Observation date for every record:** 2026-08-23<br>
+**Purpose:** Auditable source ledger for the GitHub-hosted practitioner-evidence layer of aicourse.top Course 8.<br>
+**Quotation policy:** Findings are paraphrased. No long copyrighted passage is reproduced.<br>
 **Rights posture:** Conservative. A repository license is not assumed to cover papers, datasets, issue text, attachments, screenshots, logos, trademarks, linked content, or product interfaces.
 
 ## 1. Method

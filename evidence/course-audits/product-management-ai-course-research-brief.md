@@ -1,8 +1,8 @@
 # Course 14 research brief
 
-**Course:** How Products Are Imagined, Designed, and Built in the Age of AI  
-**Site:** aicourse.top  
-**Prepared:** 2026-08-23  
+**Course:** How Products Are Imagined, Designed, and Built in the Age of AI<br>
+**Site:** aicourse.top<br>
+**Prepared:** 2026-08-23<br>
 **Status:** release evidence brief
 
 ## Executive finding

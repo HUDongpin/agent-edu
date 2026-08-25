@@ -1,8 +1,8 @@
 # Research audit brief: Course 9, Retrieval-Augmented Generation
 
-Status: curriculum and evidence audit complete; corrected implementation is undergoing the separate release QA gate  
-Research snapshot: 2026-08-23 (Asia/Taipei)  
-Course version: 1.1.0  
+Status: curriculum and evidence audit complete; corrected implementation is undergoing the separate release QA gate<br>
+Research snapshot: 2026-08-23 (Asia/Taipei)<br>
+Course version: 1.1.0<br>
 Primary audience: builders, researchers, educators, and technical leaders who need an auditable RAG system rather than a document-chat demonstration
 
 ## Executive result

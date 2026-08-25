@@ -2,8 +2,8 @@
 
 > Diese Ausgabe ist vollständig aus der englischen Quelle übersetzt und hat automatisierte Struktur- und Fachterminologieprüfungen bestanden. Eine menschliche sprachliche Überprüfung wird nicht beansprucht.
 
-Protokollbasislinie: MCP `2026-07-28`  
-Kursbewertungsversion: `2026-07-28-v2`  
+Protokollbasislinie: MCP `2026-07-28`<br>
+Kursbewertungsversion: `2026-07-28-v2`<br>
 Schnappschuss der Kursnachweise: `2026-08-24`
 
 Diese Vorlage unterstützt entweder den Builder-Track (Implementierung eines kleinen Servers und Clients) oder den Auditor-Track (Reproduzieren und Überprüfen eines öffentlichen Servers). Beim Ausfüllen handelt es sich um eine Selbstbescheinigung, nicht um ein unabhängig verifiziertes Zertifikat. Entfernen Sie alle Geheimnisse und privaten Daten, bevor Sie sie teilen.

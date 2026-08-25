@@ -65,10 +65,10 @@ This is a real course-authored terminal capture of `@openai/codex@0.149.1`, not 
 
 Applicable attribution from the pinned upstream NOTICE is preserved locally:
 
-> OpenAI Codex  
-> Copyright 2025 OpenAI  
-> This product includes code derived from Ratatui, licensed under the MIT License.  
-> Copyright (c) 2016-2022 Florian Dehau  
+> OpenAI Codex<br>
+> Copyright 2025 OpenAI<br>
+> This product includes code derived from Ratatui, licensed under the MIT License.<br>
+> Copyright (c) 2016-2022 Florian Dehau<br>
 > Copyright (c) 2023-2025 The Ratatui Developers
 
 The published master is a disclosed privacy crop that removes only black desktop margin and Terminal window chrome containing the local user name; Codex CLI output pixels are otherwise unchanged. Codex masks the synthetic protocol-marker value in its own output. The raw full-window master is retained outside `public/` and protected from accidental staging. The figure's `reviewed-course-capture` status means it passed this project's internal rights and privacy review; it does not mean that OpenAI approved it. OpenAI and Codex marks belong to OpenAI. No affiliation or endorsement is implied.

@@ -1,8 +1,8 @@
 # Course 11 translation readiness
 
-Audit date: 2026-08-24  
-Content language: English (`en`)  
-Localized scope: navigation and course, unit, and lesson titles  
+Audit date: 2026-08-24<br>
+Content language: English (`en`)<br>
+Localized scope: navigation and course, unit, and lesson titles<br>
 Independent native-speaker review: pending for every non-English locale
 
 ## Release truth

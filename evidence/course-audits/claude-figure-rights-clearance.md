@@ -1,7 +1,7 @@
 # Claude interface figures: publication-rights clearance packet
 
-Prepared: 2026-08-24  
-Course: **How to Use Claude**, Course 3 on aicourse.top  
+Prepared: 2026-08-24<br>
+Course: **How to Use Claude**, Course 3 on aicourse.top<br>
 Current state: internal development review only; release gate remains closed
 
 This is an operational clearance packet, not legal advice. The source ledger found no general image-redistribution grant on the Claude Academy pages used below. The course therefore records these figures as `permission-required` and fails its release check until a defensible publication basis is documented.
@@ -104,7 +104,7 @@ Project details:
 
 Thank you. I will keep the figures unpublished until the rights basis is resolved.
 
-Sincerely,  
+Sincerely,<br>
 [name and contact]
 
 ## Preferred replacement path if permission is not granted

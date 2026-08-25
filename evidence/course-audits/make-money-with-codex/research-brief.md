@@ -1,8 +1,8 @@
 # Research brief: How to make money with Codex
 
-Research cut-off: 2026-08-23  
-Official OpenAI docs revalidated: 2026-08-24  
-Course: aicourse.top Course 11  
+Research cut-off: 2026-08-23<br>
+Official OpenAI docs revalidated: 2026-08-24<br>
+Course: aicourse.top Course 11<br>
 Primary question: What can the available evidence responsibly teach about using Codex in work that may lead to paid revenue or economic value?
 
 ## Executive finding

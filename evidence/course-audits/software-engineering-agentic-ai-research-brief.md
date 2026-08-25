@@ -2,10 +2,10 @@
 
 ## Course 8 research brief
 
-**Prepared for:** aicourse.top, Course 8  
-**Evidence observation date:** 2026-08-23  
-**Scope:** GitHub-hosted empirical studies, executable evaluation artifacts, production control patterns, maintainer policies, and carefully bounded issue case studies relevant to real software engineering with coding agents.  
-**Companion audit record:** software-engineering-agentic-ai-research-brief.provenance.md  
+**Prepared for:** aicourse.top, Course 8<br>
+**Evidence observation date:** 2026-08-23<br>
+**Scope:** GitHub-hosted empirical studies, executable evaluation artifacts, production control patterns, maintainer policies, and carefully bounded issue case studies relevant to real software engineering with coding agents.<br>
+**Companion audit record:** software-engineering-agentic-ai-research-brief.provenance.md<br>
 **Status:** Course-design evidence brief, not legal advice, a model ranking, or a substitute for current product documentation.
 
 ## Executive determination
