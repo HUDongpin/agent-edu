@@ -30,6 +30,10 @@ import { walkHandbook } from "../lib/handbook/segments.mjs";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
 const RELEASE = argv.includes("--release");
+/* Structural key parity on its own: no build, no network, no human gates, so
+   it can run inside `npm run build`. The full audit stays the release-time
+   instrument — this is only the half that a missing key can fail on its own. */
+const KEYS_ONLY = argv.includes("--keys");
 const JSON_ONLY = argv.includes("--json");
 const productionArg = argv.find((arg) => arg.startsWith("--production="));
 const PRODUCTION = productionArg ? productionArg.slice("--production=".length).replace(/\/$/, "") : null;
@@ -408,6 +412,51 @@ for (const domain of domains) {
       exceptions: allowed,
     };
   }
+}
+
+if (KEYS_ONLY) {
+  /* Everything a translator can fix by editing one line, and nothing that
+     needs a reviewer's judgement: `unapproved-identical-to-english` is a real
+     finding but it is a question for a native speaker, not for a build. */
+  const STRUCTURAL = new Set([
+    "invalid-json", "invalid-exception",
+    "missing-key-english-fallback", "extra-key", "empty-value",
+    "leaf-type-mismatch", "container-type-mismatch",
+    "placeholder-mismatch", "format-marker-mismatch",
+  ]);
+  /* A namespace with no file for a locale is the documented translation
+     queue — that language keeps the English prose, and dropping a file in
+     turns it on at the next build. It is a release question, not a build
+     one, so it is counted and named here rather than failing. */
+  const QUEUED = findings.filter((item) => item.category === "locale-file-missing");
+  const blocking = findings.filter((item) => STRUCTURAL.has(item.category));
+  const counted = new Map();
+  for (const item of blocking) {
+    const bucket = `${item.domain}/${item.locale}/${item.category}`;
+    counted.set(bucket, (counted.get(bucket) ?? 0) + 1);
+  }
+
+  for (const domain of domains) {
+    const queued = QUEUED.filter((item) => item.domain === domain.name).map((item) => item.locale);
+    console.log(`i18n keys: ${domain.name} — ${locales.length - queued.length}/${locales.length} locales`
+      + (queued.length ? `, queued: ${queued.join(" ")}` : ""));
+  }
+
+  if (blocking.length) {
+    console.error(`\ni18n keys: ${blocking.length} structural problem(s)\n`);
+    for (const [bucket, count] of [...counted].sort()) console.error(`  ${bucket}: ${count}`);
+    const sample = blocking.slice(0, 20);
+    console.error("");
+    for (const item of sample) {
+      console.error(`  ${item.locale} ${item.domain} ${item.category} ${item.key}: ${String(item.evidence || item.observed).slice(0, 120)}`);
+    }
+    if (blocking.length > sample.length) console.error(`  … ${blocking.length - sample.length} more`);
+    console.error(`\nTranslate the key, or record an approved exception in i18n-exceptions.json.`);
+    process.exit(1);
+  }
+
+  console.log(`i18n keys: ${domains.length} namespaces × ${locales.length} locales, no missing, extra or empty values`);
+  process.exit(0);
 }
 
 function extractConstArrays(path) {

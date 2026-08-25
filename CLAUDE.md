@@ -30,6 +30,16 @@ menu: `npm run i18n:check:release -- --json` dynamically discovers namespaces,
 routes and course contracts, and any missing target value is a release failure.
 A translator must be able to fix a line without knowing React.
 
+That audit needs a frozen build, browser evidence and a named human reviewer,
+so it cannot gate a commit. `npm run i18n:check:keys` is the half that can:
+the same discovery, restricted to what a missing key can decide on its own —
+missing, extra, empty, wrong leaf type, wrong `{placeholder}` set, wrong
+`**bold**` markers. It runs inside `npm run build`. It deliberately does not
+judge whether a translation is any good; `unapproved-identical-to-english` is
+a question for a native speaker and stays in the release audit. A namespace
+with no file for a locale is the queue described below, so it is reported and
+not failed.
+
 The handbook's article prose is the exception, and lives in `messages/handbook/`.
 `en.json` there is **generated** — never hand-edit it. Change the wording in
 `lib/handbook/markup.ts` and re-run `npm run handbook:extract`; `npm run
@@ -70,6 +80,8 @@ one. Do not rewrite existing copy to satisfy a linter.
 ## Before you say you're done
 `npm run build` must pass; never assert a fixed page count. Reconcile the
 App Router patterns, course manifests, sitemap and actual `out/**/*.html`
-inventory dynamically. `npm run i18n:check:release -- --json` and every
-course release checker must pass before release. Never commit `All API Keys.docx`
+inventory dynamically. It runs `handbook:check`, `widgets:check`,
+`i18n:check:keys` and every course release checker, so a missing translation
+key fails the build rather than the release. `npm run i18n:check:release
+-- --json` must additionally pass before release. Never commit `All API Keys.docx`
 or anything matching the secrets block in `.gitignore`.

@@ -59,8 +59,8 @@
   "home.a2": "Si la IA es nueva para ti, empieza con el Manual ilustrado y el Laboratorio en el navegador de Ingeniería de agentes. Si ya trabajas con código, puedes comenzar directamente con el curso de Codex. Los itinerarios son recomendaciones, no barreras.",
   "home.q3": "¿Necesito saber programar?",
   "home.a3": "No para el Manual y el Laboratorio. Los cursos por proyectos indican claramente cuándo requieren TypeScript básico, un editor de código o experiencia con la línea de comandos, para que elijas el que mejor se ajuste a tu nivel.",
-  "home.q4": "¿Dónde se guarda mi progreso?",
-  "home.a4": "Los hitos de los cursos y tu elección de tema permanecen en este navegador. No hay cuenta de estudiante. El sitio cuenta visitas anónimas, pero no recibe tu progreso ni ninguna clave API que uses en el Laboratorio.",
+  "home.q4": "¿Está segura mi clave API?",
+  "home.a4": "Tu clave se guarda solo en esta pestaña del navegador y se borra al cerrarla. Se envía al proveedor del modelo y a ningún otro sitio. La web es un conjunto de archivos estáticos sin servidor propio, así que no hay ningún otro lugar al que pueda ir, y el código del Laboratorio está en GitHub si prefieres comprobarlo en vez de confiar.",
   "foot.built": "Creado por",
   "foot.source": "Código fuente en GitHub",
   "foot.licence": "El texto y el código originales tienen licencia MIT; los recursos de terceros conservan sus condiciones indicadas.",
@@ -607,5 +607,13 @@
   "c.agent-orchestration.blurb": "Diseña sistemas de agentes listos para producción con grafos de tareas, delegación, estado, presupuestos, recuperación, autoridad, observabilidad, evaluación y compuertas de despliegue explícitas.",
   "c.agent-orchestration.level": "Intermedio a avanzado",
   "c.agent-orchestration.meta": "15 módulos · 17 h 40 min · 6 laboratorios deterministas · evaluación y proyecto final",
-  "cat.course15": "Curso 15"
+  "cat.course15": "Curso 15",
+  "cat.course13": "Curso 13",
+  "c.ai-tutor.title": "Tutor de IA e ingeniería de sistemas de aprendizaje",
+  "c.ai-tutor.blurb": "Diseña un tutor de IA como un sistema de aprendizaje acotado: objetivos explícitos, diagnóstico basado en evidencia, apoyo adaptativo y evaluación validada. Modela lo que sabe cada estudiante, mide el efecto sobre el aprendizaje y mantén al docente al mando.",
+  "c.ai-tutor.level": "Intermedio a avanzado",
+  "c.ai-tutor.meta": "8 módulos, 7 h 30 min, evaluación final y expediente de evidencias",
+  "lab.storageUnavailable": "El almacenamiento del navegador no está disponible. Todos los pasos siguen funcionando, pero el Laboratorio no podrá recordar cuáles has terminado después de esta sesión.",
+  "home.q5": "¿Dónde se guarda mi progreso?",
+  "home.a5": "Los hitos de los cursos y tu elección de tema permanecen en este navegador. No hay cuenta de estudiante. El sitio cuenta visitas anónimas, pero no recibe tu progreso ni ninguna clave API que uses en el Laboratorio."
 }

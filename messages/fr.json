@@ -59,8 +59,8 @@
   "home.a2": "Si vous découvrez l’IA, commencez par le Manuel illustré et l’Atelier dans le navigateur du cours d’ingénierie agentique. Si vous travaillez déjà avec du code, vous pouvez commencer directement par le cours Codex. Les parcours sont des recommandations, pas des barrières.",
   "home.q3": "Faut-il savoir programmer ?",
   "home.a3": "Pas pour le Manuel et l’Atelier. Les cours fondés sur des projets indiquent clairement lorsqu’ils nécessitent des bases en TypeScript, un éditeur de code ou une expérience de la ligne de commande, afin que vous choisissiez un cours adapté à votre niveau.",
-  "home.q4": "Où ma progression est-elle enregistrée ?",
-  "home.a4": "Les étapes franchies et votre choix de thème restent dans ce navigateur. Il n’existe aucun compte apprenant. Le site compte les pages vues de façon anonyme, mais ne reçoit ni votre progression ni la clé API utilisée dans l’Atelier.",
+  "home.q4": "Ma clé API est-elle en sécurité ?",
+  "home.a4": "Votre clé est conservée dans cet onglet uniquement et effacée à sa fermeture. Elle est envoyée au fournisseur du modèle et nulle part ailleurs. Le site est un ensemble de fichiers statiques sans serveur propre : elle n’a donc nulle part ailleurs où aller, et le code de l’Atelier est sur GitHub si vous préférez vérifier plutôt que faire confiance.",
   "foot.built": "Réalisé par",
   "foot.source": "Code sur GitHub",
   "foot.licence": "Le texte et le code originaux sont sous licence MIT ; les ressources tierces conservent leurs conditions indiquées.",
@@ -607,5 +607,13 @@
   "c.agent-orchestration.blurb": "Concevez des systèmes d’agents prêts pour la production avec graphes de tâches, délégation, état, budgets, reprise, autorité, observabilité, évaluation et portes de déploiement explicites.",
   "c.agent-orchestration.level": "Intermédiaire à avancé",
   "c.agent-orchestration.meta": "15 modules · 17 h 40 · 6 laboratoires déterministes · évaluation et projet final",
-  "cat.course15": "Cours 15"
+  "cat.course15": "Cours 15",
+  "cat.course13": "Cours 13",
+  "c.ai-tutor.title": "Tuteur IA et ingénierie des systèmes d’apprentissage",
+  "c.ai-tutor.blurb": "Concevez un tuteur IA comme un système d’apprentissage borné : objectifs explicites, diagnostic fondé sur des preuves, soutien adaptatif et évaluation validée. Modélisez ce que l’apprenant sait, mesurez l’effet sur l’apprentissage et gardez l’enseignant aux commandes.",
+  "c.ai-tutor.level": "Intermédiaire à avancé",
+  "c.ai-tutor.meta": "8 modules, 7 h 30, évaluation finale et dossier de preuves",
+  "lab.storageUnavailable": "Le stockage du navigateur n’est pas disponible. Toutes les étapes fonctionnent toujours, mais l’Atelier ne pourra pas se souvenir de celles que vous avez terminées après cette session.",
+  "home.q5": "Où ma progression est-elle enregistrée ?",
+  "home.a5": "Les étapes franchies et votre choix de thème restent dans ce navigateur. Il n’existe aucun compte apprenant. Le site compte les pages vues de façon anonyme, mais ne reçoit ni votre progression ni la clé API utilisée dans l’Atelier."
 }

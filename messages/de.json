@@ -59,8 +59,8 @@
   "home.a2": "Wenn KI für Sie neu ist, beginnen Sie mit dem illustrierten Handbuch und dem Browser-Labor der agentischen Softwareentwicklung. Wenn Sie bereits mit Code arbeiten, können Sie direkt mit dem Codex-Kurs starten. Lernpfade sind Empfehlungen, keine Zugangshürden.",
   "home.q3": "Muss ich programmieren können?",
   "home.a3": "Für Handbuch und Labor nicht. Projektkurse weisen klar aus, wenn sie TypeScript-Grundlagen, einen Code-Editor oder Erfahrung mit der Kommandozeile erfordern. So können Sie einen Kurs wählen, der zu Ihrem Kenntnisstand passt.",
-  "home.q4": "Wo wird mein Fortschritt gespeichert?",
-  "home.a4": "Kursmeilensteine und Ihre Designauswahl bleiben in diesem Browser. Es gibt kein Lernkonto. Die Website zählt anonyme Seitenaufrufe, erhält aber weder Ihren Kursfortschritt noch einen API-Schlüssel, den Sie im Labor verwenden.",
+  "home.q4": "Ist mein API-Schlüssel sicher?",
+  "home.a4": "Ihr Schlüssel wird nur in diesem Browser-Tab gehalten und beim Schließen gelöscht. Er geht an den Modellanbieter und sonst nirgendwohin. Die Website besteht aus statischen Dateien ohne eigenen Server, es gibt also keinen anderen Ort, an den er gelangen könnte — und der Code des Labors liegt auf GitHub, falls Sie lieber nachsehen als vertrauen.",
   "foot.built": "Erstellt von",
   "foot.source": "Quellcode auf GitHub",
   "foot.licence": "Eigene Texte und eigener Code stehen unter MIT-Lizenz; Drittanbieter-Inhalte behalten ihre ausgewiesenen Bedingungen.",
@@ -607,5 +607,13 @@
   "c.agent-orchestration.blurb": "Entwerfen Sie produktionsreife Agentensysteme mit expliziten Aufgabengraphen, Delegation, Zustand, Budgets, Wiederherstellung, Berechtigungen, Beobachtbarkeit, Evaluation und Freigabestufen.",
   "c.agent-orchestration.level": "Mittelstufe bis Fortgeschrittene",
   "c.agent-orchestration.meta": "15 Module · 17 Std. 40 Min. · 6 deterministische Labore · Prüfung und Abschlussprojekt",
-  "cat.course15": "Kurs 15"
+  "cat.course15": "Kurs 15",
+  "cat.course13": "Kurs 13",
+  "c.ai-tutor.title": "KI-Tutor und Engineering von Lernsystemen",
+  "c.ai-tutor.blurb": "Entwickeln Sie einen KI-Tutor als begrenztes Lernsystem: explizite Lernziele, evidenzbasierte Diagnose, adaptive Unterstützung und validierte Beurteilung. Modellieren Sie, was eine lernende Person weiß, messen Sie die Wirkung auf das Lernen und behalten Sie die Lehrkraft in der Verantwortung.",
+  "c.ai-tutor.level": "Mittelstufe bis Fortgeschritten",
+  "c.ai-tutor.meta": "8 Module, 7 Std. 30 Min., Abschlussprüfung und Nachweismappe",
+  "lab.storageUnavailable": "Der Browser-Speicher ist nicht verfügbar. Alle Schritte funktionieren weiterhin, aber das Labor kann sich nach dieser Sitzung nicht merken, welche Sie abgeschlossen haben.",
+  "home.q5": "Wo wird mein Fortschritt gespeichert?",
+  "home.a5": "Kursmeilensteine und Ihre Designauswahl bleiben in diesem Browser. Es gibt kein Lernkonto. Die Website zählt anonyme Seitenaufrufe, erhält aber weder Ihren Kursfortschritt noch einen API-Schlüssel, den Sie im Labor verwenden."
 }

@@ -306,7 +306,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <h2 id="faq-title">{t("home.faqTitle")}</h2>
           </header>
           <div className="faq">
-            {["1", "2", "3", "4"].map((key) => (
+            {["1", "2", "3", "4", "5"].map((key) => (
               <details key={key}>
                 <summary>{t(`home.q${key}`)}</summary>
                 <p>{t(`home.a${key}`)}</p>

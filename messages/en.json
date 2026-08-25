@@ -59,8 +59,8 @@
   "home.a2": "If AI is new to you, start with the illustrated Handbook and browser Lab in Agentic Engineering. If you already work with code, you can begin directly with the Codex course. Learning paths are recommendations, not gates.",
   "home.q3": "Do I need to know how to program?",
   "home.a3": "No for the Handbook and Lab. Project courses clearly state when they require basic TypeScript, a code editor or command-line experience, so you can choose a course that fits where you are.",
-  "home.q4": "Where is my progress stored?",
-  "home.a4": "Course milestones and your theme choice stay in this browser. There is no learner account. The site counts anonymous page views, but it does not receive your course progress or any API key you use in the Lab.",
+  "home.q4": "Is my API key safe?",
+  "home.a4": "Your key is held in this browser tab only and is erased when you close it. It is sent to the model provider and nowhere else. The site is a set of static files with no server of its own, so there is nowhere else for it to go — and the Lab's code is on GitHub if you would rather check than trust.",
   "foot.built": "Built by",
   "foot.source": "Source on GitHub",
   "foot.licence": "Original text and code are MIT licensed; third-party assets retain their listed terms.",
@@ -581,7 +581,7 @@
   "c.claude-income.meta": "12 lessons, about 15 hours, 7 real Claude UI figures",
   "c.claude-income.contentLanguage": "Course content: English",
   "c.ai-tutor.title": "AI Tutor & Learning Systems Engineering",
-  "c.ai-tutor.blurb": "Engineer an AI tutor as a bounded learning system with explicit objectives, evidence-aware diagnosis, adaptive support, validated assessment, learner-state uncertainty, outcome experiments, and teacher control.",
+  "c.ai-tutor.blurb": "Engineer an AI tutor as a bounded learning system: explicit objectives, evidence-aware diagnosis, adaptive support, validated assessment. Model what a learner knows, measure the effect on learning, and keep the teacher in control.",
   "c.ai-tutor.level": "Intermediate to advanced",
   "c.ai-tutor.meta": "8 modules, 7.5 hours, final assessment and evidence packet",
   "c.product-management.title": "How Products Are Imagined, Designed, and Built in the Age of AI",
@@ -612,5 +612,8 @@
   "c.agent-orchestration.blurb": "Architect production-grade agent systems with explicit task graphs, delegation, state, budgets, recovery, authority, observability, evaluation, and rollout gates.",
   "c.agent-orchestration.level": "Intermediate to advanced",
   "c.agent-orchestration.meta": "15 modules · 17 h 40 min · 6 deterministic labs · assessment and capstone",
-  "cat.course15": "Course 15"
+  "cat.course15": "Course 15",
+  "lab.storageUnavailable": "Browser storage is unavailable. Every step still runs, but the Lab cannot remember which ones you have finished after this session.",
+  "home.q5": "Where is my progress stored?",
+  "home.a5": "Course milestones and your theme choice stay in this browser. There is no learner account. The site counts anonymous page views, but it does not receive your course progress or any API key you use in the Lab."
 }
