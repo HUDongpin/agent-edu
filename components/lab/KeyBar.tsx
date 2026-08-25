@@ -58,7 +58,7 @@ export default function KeyBar({
   const [draft, setDraft] = useState("");
   const [editing, setEditing] = useState(false);
   const [what, setWhat] = useState(false);
-  const [failure, setFailure] = useState<{ key: string; detail?: string } | null>(null);
+  const [failure, setFailure] = useState<{ key: string } | null>(null);
   const inputId = useId();
   const whatId = useId();
 
@@ -78,10 +78,7 @@ export default function KeyBar({
       if (isProviderError(error) && error.code === "auth" && error.httpStatus === 401) {
         setDraft("");
       }
-      setFailure({
-        key: errorKey(error),
-        detail: error instanceof Error ? error.message : undefined,
-      });
+      setFailure({ key: errorKey(error) });
     }
   }
 
@@ -91,10 +88,7 @@ export default function KeyBar({
       await testSavedKey(model, { timeoutMs: 15_000 });
       setEditing(false);
     } catch (error) {
-      setFailure({
-        key: errorKey(error),
-        detail: error instanceof Error ? error.message : undefined,
-      });
+      setFailure({ key: errorKey(error) });
     }
   }
 
@@ -194,7 +188,6 @@ export default function KeyBar({
               <span className="failico" aria-hidden="true">⚠️</span>
               <div>
                 <p>{t(failure.key)}</p>
-                {failure.detail && <p className="faildetail mono-note">{failure.detail}</p>}
               </div>
             </div>
           )}

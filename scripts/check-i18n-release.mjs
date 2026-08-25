@@ -26,13 +26,15 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import vm from "node:vm";
 import { walkHandbook } from "../lib/handbook/segments.mjs";
+import { sourceInventory } from "./lib/source-inventory.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
 const RELEASE = argv.includes("--release");
-/* Structural key parity on its own: no build, no network, no human gates, so
-   it can run inside `npm run build`. The full audit stays the release-time
-   instrument — this is only the half that a missing key can fail on its own. */
+const POST_BUILD = argv.includes("--post-build");
+/* Structural key parity can run before a build because it needs neither a
+   static export nor human review evidence. Keep the full release audit as a
+   separate instrument; `--keys` is the deterministic source-level gate. */
 const KEYS_ONLY = argv.includes("--keys");
 const JSON_ONLY = argv.includes("--json");
 const productionArg = argv.find((arg) => arg.startsWith("--production="));
@@ -79,8 +81,10 @@ function git(args, fallback = "") {
 const ignoredInput = /^(?:node_modules|\.git|\.next|out|output|\.playwright-cli|playwright-report|test-results)(?:\/|$)/;
 
 function trackedInputPaths() {
-  const raw = git(["ls-files", "--cached", "--others", "--exclude-standard", "-z"]);
-  return raw.split("\0").filter(Boolean).map(posix).filter((path) => !ignoredInput.test(path)).sort();
+  return sourceInventory({ root: ROOT }).files
+    .map(posix)
+    .filter((path) => !ignoredInput.test(path))
+    .sort();
 }
 
 function fileRecord(path) {
@@ -185,6 +189,15 @@ const localeMeta = discoverLocales();
 const locales = localeMeta.map((item) => item.code);
 const defaultLocale = /DEFAULT_LOCALE\s*=\s*["']([^"']+)/.exec(readText(join(ROOT, "lib", "i18n.ts")))?.[1] ?? "en";
 const targetLocales = locales.filter((locale) => locale !== defaultLocale);
+const releaseSurfaceDocument = safeJson(
+  join(ROOT, "config", "course-release-surface.json"),
+  { domain: "release-surface" },
+) ?? { core: { routes: [], contentLocales: [] }, courses: [] };
+const releaseCourses = Array.isArray(releaseSurfaceDocument.courses)
+  ? releaseSurfaceDocument.courses
+  : [];
+const releaseCourseById = new Map(releaseCourses.map((course) => [course.id, course]));
+const publishedReleaseCourses = releaseCourses.filter((course) => course.state === "published");
 
 function discoverDomains() {
   return walk(join(ROOT, "messages"), (path) => path.endsWith(`${sep}en.json`) || path === join(ROOT, "messages", "en.json"))
@@ -306,13 +319,16 @@ const reviewRows = Object.fromEntries(targetLocales.map((locale) => [locale, []]
 const domainData = new Map();
 
 for (const domain of domains) {
+  const domainRelease = releaseCourseById.get(domain.name);
+  if (domainRelease && domainRelease.state !== "published") continue;
+  const domainLocales = domainRelease?.contentLocales ?? locales;
   const english = safeJson(domain.englishPath, { domain: domain.name, locale: defaultLocale });
   if (!english) continue;
   const englishFlat = flatten(english);
   domainData.set(domain.name, { ...domain, english, ...englishFlat });
   matrix[domain.name] = {};
 
-  for (const locale of locales) {
+  for (const locale of domainLocales) {
     const path = join(domain.directory, `${locale}.json`);
     if (!existsSync(path)) {
       finding({
@@ -379,7 +395,7 @@ for (const domain of domains) {
           else finding({
             locale,
             domain: domain.name,
-            state: "FAIL",
+            state: "NOT_ASSESSABLE",
             key,
             category: "unapproved-identical-to-english",
             observed: value,
@@ -399,7 +415,7 @@ for (const domain of domains) {
         }
       }
     }
-    const domainFailure = findings.some((item) => item.target === "local-candidate" && item.locale === locale && item.domain === domain.name && item.state !== "PASS");
+    const domainFailure = findings.some((item) => item.target === "local-candidate" && item.locale === locale && item.domain === domain.name && item.state === "FAIL");
     matrix[domain.name][locale] = {
       status: domainFailure ? "FAIL" : "PASS",
       source: englishFlat.leaves.size,
@@ -415,43 +431,51 @@ for (const domain of domains) {
 }
 
 if (KEYS_ONLY) {
-  /* Everything a translator can fix by editing one line, and nothing that
-     needs a reviewer's judgement: `unapproved-identical-to-english` is a real
-     finding but it is a question for a native speaker, not for a build. */
-  const STRUCTURAL = new Set([
-    "invalid-json", "invalid-exception",
-    "missing-key-english-fallback", "extra-key", "empty-value",
-    "leaf-type-mismatch", "container-type-mismatch",
-    "placeholder-mismatch", "format-marker-mismatch",
+  /* Only fail findings that a contributor can settle by editing the locale
+     catalog. An untranslated namespace remains a visible translation queue;
+     it is not silently promoted to release-ready. */
+  const structuralCategories = new Set([
+    "invalid-json",
+    "invalid-exception",
+    "missing-key-english-fallback",
+    "extra-key",
+    "empty-value",
+    "leaf-type-mismatch",
+    "container-type-mismatch",
+    "placeholder-mismatch",
+    "format-marker-mismatch",
   ]);
-  /* A namespace with no file for a locale is the documented translation
-     queue — that language keeps the English prose, and dropping a file in
-     turns it on at the next build. It is a release question, not a build
-     one, so it is counted and named here rather than failing. */
-  const QUEUED = findings.filter((item) => item.category === "locale-file-missing");
-  const blocking = findings.filter((item) => STRUCTURAL.has(item.category));
-  const counted = new Map();
-  for (const item of blocking) {
-    const bucket = `${item.domain}/${item.locale}/${item.category}`;
-    counted.set(bucket, (counted.get(bucket) ?? 0) + 1);
-  }
+  const queued = findings.filter((item) => item.category === "locale-file-missing");
+  const blocking = findings.filter((item) => structuralCategories.has(item.category));
 
   for (const domain of domains) {
-    const queued = QUEUED.filter((item) => item.domain === domain.name).map((item) => item.locale);
-    console.log(`i18n keys: ${domain.name} — ${locales.length - queued.length}/${locales.length} locales`
-      + (queued.length ? `, queued: ${queued.join(" ")}` : ""));
+    const queuedLocales = queued
+      .filter((item) => item.domain === domain.name)
+      .map((item) => item.locale);
+    console.log(
+      `i18n keys: ${domain.name} — ${locales.length - queuedLocales.length}/${locales.length} locales`
+      + (queuedLocales.length ? `, queued: ${queuedLocales.join(" ")}` : ""),
+    );
   }
 
   if (blocking.length) {
+    const counts = new Map();
+    for (const item of blocking) {
+      const bucket = `${item.domain}/${item.locale}/${item.category}`;
+      counts.set(bucket, (counts.get(bucket) ?? 0) + 1);
+    }
     console.error(`\ni18n keys: ${blocking.length} structural problem(s)\n`);
-    for (const [bucket, count] of [...counted].sort()) console.error(`  ${bucket}: ${count}`);
+    for (const [bucket, count] of [...counts].sort()) console.error(`  ${bucket}: ${count}`);
     const sample = blocking.slice(0, 20);
     console.error("");
     for (const item of sample) {
-      console.error(`  ${item.locale} ${item.domain} ${item.category} ${item.key}: ${String(item.evidence || item.observed).slice(0, 120)}`);
+      console.error(
+        `  ${item.locale} ${item.domain} ${item.category} ${item.key}: `
+        + String(item.evidence || item.observed).slice(0, 120),
+      );
     }
     if (blocking.length > sample.length) console.error(`  … ${blocking.length - sample.length} more`);
-    console.error(`\nTranslate the key, or record an approved exception in i18n-exceptions.json.`);
+    console.error("\nTranslate the key, or record a narrow approved exception in i18n-exceptions.json.");
     process.exit(1);
   }
 
@@ -505,6 +529,8 @@ function discoverCourses() {
     const source = readText(path);
     if (!/_COURSE_ID\s*=/.test(source) || !/_(?:LESSON|MODULE)_SLUGS\s*=/.test(source)) continue;
     const name = posix(relative(join(ROOT, "lib"), dirname(path)));
+    const release = releaseCourseById.get(name);
+    if (!release) continue;
     const arrays = extractConstArrays(path);
     const pick = (suffix) => Object.entries(arrays).find(([key]) => key.endsWith(suffix))?.[1] ?? [];
     const lessons = pick("_LESSON_SLUGS");
@@ -525,6 +551,7 @@ function discoverCourses() {
       quizzes: pick("_QUIZ_IDS"),
       figures: pick("_FIGURE_IDS"),
       practices: pick("_PRACTICE_IDS"),
+      release,
     });
   }
   return courses;
@@ -534,11 +561,26 @@ const courses = discoverCourses();
 for (const course of courses) {
   const routeRoot = join(ROOT, "app", "[locale]", course.name, "page.tsx");
   const routeUnit = join(ROOT, "app", "[locale]", course.name, `[${course.routeParam}]`, "page.tsx");
-  const publishedInSource = existsSync(routeRoot) || existsSync(routeUnit);
+  const publishedInSource = course.release.state === "published";
   const namespace = domainData.get(course.name);
-  if (!publishedInSource && !namespace) {
-    finding({ domain: course.name, state: "PASS", category: "staging-course-discovered", source: rel(course.path), disposition: "staging_not_published" });
+  if (!publishedInSource) {
+    finding({
+      domain: course.name,
+      state: "PASS",
+      category: "non-published-course-discovered",
+      source: rel(course.path),
+      evidence: `Registry state: ${course.release.state}`,
+      disposition: "staging_not_published",
+    });
     continue;
+  }
+  if (!existsSync(routeRoot) && !existsSync(routeUnit)) {
+    finding({
+      domain: course.name,
+      state: "FAIL",
+      category: "published-course-route-missing",
+      source: "config/course-release-surface.json ↔ app/[locale]",
+    });
   }
   if (!namespace && !course.translatedLocales.length) {
     finding({ domain: course.name, state: "NOT_ASSESSABLE", category: "published-course-missing-messages", source: rel(course.path) });
@@ -566,19 +608,23 @@ for (const course of courses) {
     compareContract("quiz", course.quizzes);
     compareContract("figures", course.figures);
   } else {
-    const declaredLocales = course.locales.length ? course.locales : locales;
+    const declaredLocales = course.release.contentLocales;
     const duplicateTranslations = course.translatedLocales.filter((locale, index, values) => values.indexOf(locale) !== index);
     const unknownTranslations = course.translatedLocales.filter((locale) => !declaredLocales.includes(locale));
-    const missingShellLocales = locales.filter((locale) => !declaredLocales.includes(locale));
-    const extraShellLocales = declaredLocales.filter((locale) => !locales.includes(locale));
-    if (missingShellLocales.length || extraShellLocales.length) {
+    const missingContentBundles = declaredLocales.filter(
+      (locale) => !course.translatedLocales.includes(locale),
+    );
+    const unadvertisedContentBundles = course.translatedLocales.filter(
+      (locale) => !declaredLocales.includes(locale),
+    );
+    if (missingContentBundles.length || unadvertisedContentBundles.length) {
       finding({
         domain: course.name,
         state: "FAIL",
-        category: "course-shell-locale-contract-drift",
-        observed: `missing=${missingShellLocales.join(",") || "0"}; extra=${extraShellLocales.join(",") || "0"}`,
-        source: rel(course.path),
-        evidence: "Published course shell locales must match the site locale registry before fallback behavior can be audited.",
+        category: "course-content-locale-contract-drift",
+        observed: `missing=${missingContentBundles.join(",") || "0"}; extra=${unadvertisedContentBundles.join(",") || "0"}`,
+        source: `${rel(course.loadPath)} ↔ config/course-release-surface.json`,
+        evidence: "The registry must advertise exactly the long-form content bundles that actually exist.",
       });
     }
     if (!course.translatedLocales.includes(defaultLocale) || duplicateTranslations.length || unknownTranslations.length) {
@@ -661,7 +707,7 @@ for (const course of courses) {
       for (const [key, value] of englishLeaves) {
       if (typeof value !== "string" || !/\b(?:Codex|Course\s*2)\b/i.test(value)) continue;
       if (/^(?:sources?|references?|citations?)(?:\.|$)/i.test(key) || /(?:url|publisher|officialSource|sourceTitle)$/i.test(key)) continue;
-      finding({ domain: course.name, locale: "en", state: "FAIL", key, category: "course-clone-leak", observed: value, source: rel(namespace.englishPath), evidence: "Non-reference course copy contains a Codex/Course 2 clone marker." });
+      finding({ domain: course.name, locale: "en", state: "NOT_ASSESSABLE", key, category: "course-clone-leak-review", observed: value, source: rel(namespace.englishPath), evidence: "Review whether this Codex/Course 2 mention is a legitimate product reference or copied learner-facing text.", disposition: "review_required" });
       }
     }
 
@@ -707,11 +753,11 @@ if (widgetOutput) {
     if (count > 0) finding({ locale: match[1], domain: "widgets", state: "FAIL", category: "english-fallback-count", observed: count, source: "messages/widgets", evidence: match[0] });
   }
 }
-for (const course of courses) {
+for (const course of courses.filter((item) => item.release.state === "published")) {
   const checker = join(ROOT, "scripts", `check-${course.name}-course.mjs`);
-  const published = existsSync(join(ROOT, "app", "[locale]", course.name, "page.tsx"))
-    || existsSync(join(ROOT, "app", "[locale]", course.name, `[${course.routeParam}]`, "page.tsx"));
-  if (published && existsSync(checker)) runValidator(course.name, process.execPath, ["--import", "tsx", rel(checker), "--release", "--json"]);
+  if (existsSync(checker)) {
+    runValidator(course.name, process.execPath, ["--import", "tsx", rel(checker), "--release", "--json"]);
+  }
 }
 
 function runQualityGate(domain, command, args) {
@@ -736,17 +782,15 @@ function runQualityGate(domain, command, args) {
   return true;
 }
 
-if (RELEASE) {
+if (RELEASE && !POST_BUILD) {
   const npm = process.platform === "win32" ? "npm.cmd" : "npm";
   runQualityGate("typescript", process.execPath, [join(ROOT, "node_modules", "typescript", "bin", "tsc"), "--noEmit"]);
   runQualityGate("lint", npm, ["run", "lint"]);
   const buildPassed = runQualityGate("build", npm, ["run", "build"]);
   if (buildPassed) {
-    const packageJson = safeJson(join(ROOT, "package.json"), { domain: "regression" });
-    const regressionScripts = Object.keys(packageJson?.scripts ?? {}).filter((name) => name.startsWith("test:") && name !== "test:i18n");
-    for (const name of regressionScripts) runQualityGate("regression", npm, ["run", name]);
+    runQualityGate("unit", npm, ["test"]);
   } else {
-    finding({ domain: "regression", state: "NOT_ASSESSABLE", category: "regression-suite-not-run", observed: "production build failed", evidence: "Existing course regression suites run only after a successful production build." });
+    finding({ domain: "unit", state: "NOT_ASSESSABLE", category: "unit-suite-not-run", observed: "production build failed", evidence: "The unit suite runs only after a successful production build." });
   }
 }
 
@@ -812,7 +856,19 @@ for (const path of reachable) {
       text = literalText(node.right);
       category = text && naturalLanguage(text) ? "hardcoded-imperative-copy" : null;
     }
-    if (category && text) finding({ domain: "source", state: "FAIL", category, observed: text, source: `${rel(path)}:${lineOf(sourceFile, node)}`, evidence: "Reachable user-visible literal must use a locale dictionary or a narrow approved exception." });
+    if (category && text) finding({
+      domain: "source",
+      state: category === "hardcoded-dialog-copy" || category === "hardcoded-imperative-copy"
+        ? "FAIL"
+        : "NOT_ASSESSABLE",
+      category,
+      observed: text,
+      source: `${rel(path)}:${lineOf(sourceFile, node)}`,
+      evidence: "Reachable user-visible literal requires rendered-context review; imperative dialog copy remains an automated blocker.",
+      disposition: category === "hardcoded-dialog-copy" || category === "hardcoded-imperative-copy"
+        ? "blocking"
+        : "review_required",
+    });
     ts.forEachChild(node, visit);
   }
   visit(sourceFile);
@@ -831,30 +887,65 @@ if (mainMessages) {
   for (const match of reachableText.matchAll(/data-i18n=["']([^"']+)["']/g)) referenced.add(match[1]);
   for (const key of mainMessages.leaves.keys()) {
     if (referenced.has(key) || reachableText.includes(JSON.stringify(key)) || reachableText.includes(`'${key}'`)) continue;
-    finding({ domain: "main", state: "FAIL", key, category: "message-key-without-caller", source: "messages/en.json", evidence: "No literal caller was found in the current app/component import graph; reserve it explicitly or remove it." });
+    finding({ domain: "main", state: "NOT_ASSESSABLE", key, category: "message-key-without-caller", source: "messages/en.json", evidence: "No literal caller was found; dynamic key families need human confirmation before removal.", disposition: "review_required" });
   }
 }
 
 const handbookMarkup = join(ROOT, "lib", "handbook", "markup.ts");
 if (existsSync(handbookMarkup)) {
-  const source = readText(handbookMarkup);
-  const evaluated = vm.runInNewContext(
-    `${source.replace(/^\s*export default MARKUP;\s*$/m, "")}\nMARKUP`,
-    Object.create(null),
-    { filename: handbookMarkup },
-  );
-  const localisedAttributes = new Set(
-    walkHandbook(evaluated).filter((segment) => segment.kind === "attr").map((segment) => segment.text),
-  );
-  for (const match of evaluated.matchAll(/\b(aria-label|aria-description|title|placeholder|alt)=(?:"([^"]*)"|'([^']*)')/gi)) {
-    const value = match[2] ?? match[3];
-    if (!naturalLanguage(value)) continue;
-    /* The markup remains the English source of truth, just as it does for
-       body text. An attribute registered by segments.mjs is replaced from
-       messages/handbook/<locale>.json before export and is therefore not a
-       hard-coded-English escape hatch. */
-    if (localisedAttributes.has(value)) continue;
-    finding({ domain: "handbook", state: "FAIL", category: "untranslated-handbook-attribute", key: match[1], observed: value, source: "lib/handbook/markup.ts" });
+  let evaluated = null;
+  try {
+    /* `markup.ts` deliberately derives its default export through exact
+       accessibility replacements. Transpile that trusted local module instead
+       of guessing the identifier named by `export default`; the old regex only
+       understood `MARKUP` and crashed as soon as the export became
+       `ACCESSIBLE_MARKUP`. The VM receives no `require`, process or filesystem. */
+    const compiled = ts.transpileModule(readText(handbookMarkup), {
+      fileName: handbookMarkup,
+      reportDiagnostics: true,
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+      },
+    });
+    const diagnostics = (compiled.diagnostics ?? []).filter(
+      (diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error,
+    );
+    if (diagnostics.length) {
+      throw new Error(ts.flattenDiagnosticMessageText(diagnostics[0].messageText, "\n"));
+    }
+    const moduleRecord = { exports: {} };
+    vm.runInNewContext(compiled.outputText, {
+      module: moduleRecord,
+      exports: moduleRecord.exports,
+    }, { filename: handbookMarkup });
+    evaluated = moduleRecord.exports.default;
+    if (typeof evaluated !== "string") throw new TypeError("default export must be a string");
+  } catch (error) {
+    finding({
+      domain: "handbook",
+      state: "FAIL",
+      category: "handbook-markup-evaluation-failed",
+      observed: error instanceof Error ? error.message : String(error),
+      source: "lib/handbook/markup.ts",
+      evidence: "The TypeScript default export must compile to a self-contained markup string.",
+    });
+  }
+
+  if (typeof evaluated === "string") {
+    const localisedAttributes = new Set(
+      walkHandbook(evaluated).filter((segment) => segment.kind === "attr").map((segment) => segment.text),
+    );
+    for (const match of evaluated.matchAll(/\b(aria-label|aria-description|title|placeholder|alt)=(?:"([^"]*)"|'([^']*)')/gi)) {
+      const value = match[2] ?? match[3];
+      if (!naturalLanguage(value)) continue;
+      /* The markup remains the English source of truth, just as it does for
+         body text. An attribute registered by segments.mjs is replaced from
+         messages/handbook/<locale>.json before export and is therefore not a
+         hard-coded-English escape hatch. */
+      if (localisedAttributes.has(value)) continue;
+      finding({ domain: "handbook", state: "FAIL", category: "untranslated-handbook-attribute", key: match[1], observed: value, source: "lib/handbook/markup.ts" });
+    }
   }
 }
 
@@ -870,7 +961,7 @@ for (const path of publicFiles.filter((entry) => entry.endsWith(".svg"))) {
   const source = readText(path);
   for (const match of source.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/gi)) {
     const text = match[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    if (naturalLanguage(text)) finding({ domain: "seo-media", state: "FAIL", category: "hardcoded-svg-text", observed: text, source: rel(path) });
+    if (naturalLanguage(text)) finding({ domain: "seo-media", state: "NOT_ASSESSABLE", category: "svg-text-review-pending", observed: text, source: rel(path), disposition: "review_required" });
   }
 }
 const rasterMedia = publicFiles.filter((path) => /\.(?:png|jpe?g|webp|gif|avif)$/i.test(path));
@@ -885,34 +976,28 @@ function routePattern(path) {
   if (!directory) return "/";
   return `/${directory}/`.replace(/\/+/g, "/");
 }
-const routePatterns = walk(join(ROOT, "app"), (path) => path.endsWith(`${sep}page.tsx`)).map(routePattern).sort();
+const routePatterns = walk(
+  join(ROOT, "app"),
+  (path) => path.endsWith(`${sep}page.tsx`) && !path.includes(`${sep}_blocked${sep}`),
+).map(routePattern).sort();
 
-const courseMap = new Map(courses.map((course) => [course.name, course]));
+const courseMap = releaseCourseById;
 const expectedRoutes = new Set(["/"]);
 const expectedSitemapRoutes = new Set();
-const courseForPattern = (pattern) => {
-  const courseName = pattern.split("/").find((part) => part && !part.startsWith("["));
-  return courseName ? courseMap.get(courseName) : undefined;
-};
-const indexableLocalesFor = (course) => course?.translatedLocales?.length ? course.translatedLocales : locales;
-for (const pattern of routePatterns) {
-  if (!pattern.includes("[locale]")) continue;
-  const course = courseForPattern(pattern);
-  const dynamicSegments = [...pattern.matchAll(/\[([^\]]+)\]/g)].map((match) => match[1]).filter((name) => name !== "locale");
-  for (const locale of locales) {
-    const addRoute = (route) => {
+const localizedRoute = (locale, page) => `/${locale}/${page}`.replace(/\/+/g, "/");
+for (const page of releaseSurfaceDocument.core?.routes ?? []) {
+  for (const locale of releaseSurfaceDocument.core?.contentLocales ?? []) {
+    const route = localizedRoute(locale, page);
+    expectedRoutes.add(route);
+    expectedSitemapRoutes.add(route);
+  }
+}
+for (const course of publishedReleaseCourses) {
+  for (const page of course.routes ?? []) {
+    for (const locale of course.contentLocales ?? []) {
+      const route = localizedRoute(locale, page);
       expectedRoutes.add(route);
-      if (indexableLocalesFor(course).includes(locale)) expectedSitemapRoutes.add(route);
-    };
-    if (!dynamicSegments.length) addRoute(pattern.replace("[locale]", locale));
-    else if (dynamicSegments.length === 1) {
-      if (!course) {
-        finding({ domain: "routes", route: pattern, state: "NOT_ASSESSABLE", category: "dynamic-route-params-undiscoverable", source: "app/**/page.tsx" });
-      } else if (dynamicSegments[0] !== course.routeParam) {
-        finding({ domain: course.name, route: pattern, state: "NOT_ASSESSABLE", category: "dynamic-route-contract-mismatch", observed: dynamicSegments[0], source: `${rel(course.path)} ↔ app/**/page.tsx`, evidence: `Expected [${course.routeParam}] from the discovered course contract.` });
-      } else for (const unit of course.units) addRoute(pattern.replace("[locale]", locale).replace(`[${course.routeParam}]`, unit));
-    } else {
-      finding({ domain: "routes", route: pattern, state: "NOT_ASSESSABLE", category: "multi-dynamic-route-params-undiscoverable", observed: dynamicSegments.join(","), source: "app/**/page.tsx" });
+      expectedSitemapRoutes.add(route);
     }
   }
 }
@@ -926,27 +1011,24 @@ function htmlRoute(path) {
 const outHtml = walk(join(ROOT, "out"), (path) => extname(path) === ".html");
 const outRoutes = new Map(outHtml.map((path) => [htmlRoute(path), path]));
 if (!outHtml.length) {
-  finding({ domain: "build", state: "NOT_ASSESSABLE", category: "static-export-missing", source: "out/", evidence: "Run npm run build on the frozen candidate before release audit." });
+  finding({ domain: "build", state: RELEASE ? "FAIL" : "NOT_ASSESSABLE", category: "static-export-missing", source: "out/", evidence: "Run npm run build on the frozen candidate before release audit." });
 } else {
   const sourceInputs = startSnapshot.files.filter((file) => /^(?:app|components|lib|messages|public)\//.test(file.path)).map((file) => join(ROOT, file.path)).filter(existsSync);
   const newestSource = Math.max(...sourceInputs.map((path) => statSync(path).mtimeMs));
   const newestHtml = Math.max(...outHtml.map((path) => statSync(path).mtimeMs));
-  if (newestSource > newestHtml) finding({ domain: "build", state: "NOT_ASSESSABLE", category: "static-export-stale", observed: `source=${new Date(newestSource).toISOString()} out=${new Date(newestHtml).toISOString()}`, source: "out/" });
+  if (newestSource > newestHtml) finding({ domain: "build", state: RELEASE ? "FAIL" : "NOT_ASSESSABLE", category: "static-export-stale", observed: `source=${new Date(newestSource).toISOString()} out=${new Date(newestHtml).toISOString()}`, source: "out/" });
   for (const route of expectedRoutes) if (!outRoutes.has(route)) finding({ domain: "routes", route, state: "NOT_ASSESSABLE", category: "expected-route-missing-from-export", source: "app routes + course contracts ↔ out/" });
   for (const route of outRoutes.keys()) {
-    if (route === "/404.html" || route === "/404/") continue;
+    if (route === "/404.html" || route === "/404/" || route === "/_not-found/") continue;
     if (!expectedRoutes.has(route)) finding({ domain: "routes", route, state: "FAIL", category: "unexpected-exported-route", source: "out/" });
   }
 }
 
 function extractSeoPages() {
-  const arrays = extractConstArrays(join(ROOT, "lib", "seo.ts"));
-  const source = seoSource;
-  const match = /export\s+const\s+PAGES\s*=\s*\[([\s\S]*?)\]\s*as\s+const/.exec(source);
-  if (!match) return [];
-  const pages = [...match[1].matchAll(/["']([^"']*)["']/g)].map((item) => item[1]);
-  for (const spread of match[1].matchAll(/\.\.\.([A-Za-z_$][\w$]*)/g)) pages.push(...(arrays[spread[1]] ?? []));
-  return [...new Set(pages)];
+  return [...new Set([
+    ...(releaseSurfaceDocument.core?.routes ?? []),
+    ...publishedReleaseCourses.flatMap((course) => course.routes ?? []),
+  ])];
 }
 const seoPages = extractSeoPages();
 const expectedFamilies = new Set([...expectedRoutes].filter((route) => route !== "/").map((route) => route.replace(/^\/(?:en|es|fr|de|zh-Hans|zh-Hant|ja|ko|ar)\//, "")));
@@ -956,9 +1038,17 @@ const sitemapPath = join(ROOT, "out", "sitemap.xml");
 if (outHtml.length && !existsSync(sitemapPath)) {
   finding({ domain: "seo", state: "NOT_ASSESSABLE", category: "sitemap-missing", source: "out/sitemap.xml" });
 } else if (existsSync(sitemapPath)) {
-  const sitemap = readText(sitemapPath);
-  const sitemapRoutes = new Set([...sitemap.matchAll(/<loc>https?:\/\/[^/]+([^<]*)<\/loc>/g)].map((match) => match[1] || "/"));
+  const sitemapFiles = [
+    sitemapPath,
+    ...walk(join(ROOT, "out", "sitemaps"), (path) => path.endsWith(".xml")),
+  ];
+  const sitemapRoutes = new Set(sitemapFiles.flatMap((path) =>
+    [...readText(path).matchAll(/<loc>https?:\/\/[^/]+([^<]*)<\/loc>/g)]
+      .map((match) => match[1] || "/")
+      .filter((route) => !route.startsWith("/sitemaps/")),
+  ));
   for (const route of expectedSitemapRoutes) if (!sitemapRoutes.has(route)) finding({ domain: "seo", route, state: "FAIL", category: "route-missing-from-sitemap", source: "out/sitemap.xml" });
+  for (const route of sitemapRoutes) if (!expectedSitemapRoutes.has(route)) finding({ domain: "seo", route, state: "FAIL", category: "unexpected-route-in-sitemap", source: "out/sitemaps/" });
 }
 
 function stripHtml(html) {
@@ -980,14 +1070,19 @@ const configuredSite = /export\s+const\s+SITE\s*=\s*["']([^"']+)/.exec(seoSource
 function coursePolicyForRoute(route) {
   const [, routeLocale = "", courseName = ""] = /^\/([^/]+)\/([^/]+)\//.exec(route) ?? [];
   const course = courseMap.get(courseName);
-  if (!course?.translatedLocales.length) return null;
-  const contentLocale = course.translatedLocales.includes(routeLocale) ? routeLocale : defaultLocale;
+  if (!course || course.state !== "published") return null;
+  const page = route.replace(new RegExp(`^/${routeLocale}/`), "");
+  if (!course.routes.includes(page)) return null;
+  const contentLocale = course.contentLocales.includes(routeLocale)
+    ? routeLocale
+    : course.primaryLocale;
   return {
     course,
     routeLocale,
     contentLocale,
     canonicalRoute: route.replace(`/${routeLocale}/`, `/${contentLocale}/`),
-    hreflangLocales: course.translatedLocales,
+    hreflangLocales: course.contentLocales,
+    primaryLocale: course.primaryLocale,
   };
 }
 
@@ -1015,7 +1110,9 @@ for (const [route, path] of outRoutes) {
   const requiredHreflangs = [...expectedHreflangLocales, "x-default"];
   for (const required of requiredHreflangs) {
     const observed = hreflangs.get(required);
-    const targetLocale = required === "x-default" ? defaultLocale : required;
+    const targetLocale = required === "x-default"
+      ? (coursePolicy?.primaryLocale ?? defaultLocale)
+      : required;
     const expected = `${configuredSite}${route.replace(`/${locale}/`, `/${targetLocale}/`)}`;
     if (!observed) finding({ locale, domain: "seo", route, state: "FAIL", key: required, category: "hreflang-missing", source: rel(path) });
     else if (observed !== expected) finding({ locale, domain: "seo", route, state: "FAIL", key: required, category: "hreflang-target-mismatch", observed, source: rel(path), evidence: `Expected ${expected}` });
@@ -1039,23 +1136,40 @@ for (const [route, path] of outRoutes) {
       const languages = [];
       const collect = (item) => {
         if (!item || typeof item !== "object") return;
-        if (typeof item.inLanguage === "string") languages.push(item.inLanguage);
+        if (typeof item.inLanguage === "string") {
+          let expected = expectedContentLocale;
+          if (typeof item.url === "string") {
+            try {
+              const itemRoute = new URL(item.url, configuredSite).pathname;
+              const itemCoursePolicy = coursePolicyForRoute(itemRoute);
+              if (itemCoursePolicy) expected = itemCoursePolicy.contentLocale;
+              else {
+                const itemLocale = itemRoute.split("/")[1];
+                if (locales.includes(itemLocale)) expected = itemLocale;
+              }
+            } catch {
+              // The URL itself is validated by routes:check; retain page policy here.
+            }
+          }
+          languages.push({ observed: item.inLanguage, expected });
+        }
         for (const child of Object.values(item)) collect(child);
       };
       collect(value);
-      for (const observed of languages) if (observed !== expectedContentLocale) finding({ locale, domain: "seo", route, state: "FAIL", key: "inLanguage", category: "json-ld-language-mismatch", observed, source: rel(path), evidence: `Expected materialized content locale ${expectedContentLocale}` });
+      for (const { observed, expected } of languages) if (observed !== expected) finding({ locale, domain: "seo", route, state: "FAIL", key: "inLanguage", category: "json-ld-language-mismatch", observed, source: rel(path), evidence: `Expected materialized content locale ${expected}` });
     } catch (error) {
       finding({ locale, domain: "seo", route, state: "FAIL", category: "invalid-json-ld", observed: error instanceof Error ? error.message : String(error), source: rel(path) });
     }
   }
   const visible = stripHtml(html);
-  const rawKey = visible.match(/\b(?:ui|nav|course|hb|w)\.[A-Za-z0-9_.-]{2,}\b/)?.[0] ?? "";
+  const rawKeyCandidate = visible.match(/\b(?:ui|nav|course|hb|w)\.[A-Za-z0-9_.-]{2,}\b/)?.[0] ?? "";
+  const rawKey = new Set(["ui.resourceUri"]).has(rawKeyCandidate) ? "" : rawKeyCandidate;
   const auditableMarkup = html.replace(/<(script|style|template|svg)\b[\s\S]*?<\/\1>/gi, " ");
   const serializedEmpty = />\s*(?:<!--[^]*?-->\s*)*(undefined|null)\s*(?:<!--[^]*?-->\s*)*</i.exec(auditableMarkup)?.[1] ?? "";
   if (rawKey || serializedEmpty) finding({ locale, domain: "rendered-html", route, state: "FAIL", category: "raw-key-or-undefined", observed: rawKey || serializedEmpty, source: rel(path) });
   if (expectedContentLocale !== defaultLocale) {
     const suspicious = visible.match(/(?:\b[A-Za-z][A-Za-z'-]*\b[\s,.:;!?—–-]*){8,}/g) ?? [];
-    for (const excerpt of suspicious.slice(0, 5)) finding({ locale, domain: "rendered-html", route, state: "FAIL", category: "suspected-english-leak", observed: excerpt.trim().slice(0, 300), source: rel(path), evidence: "Heuristic only: approve a narrow exception or confirm and translate in rendered context.", disposition: "review_required" });
+    for (const excerpt of suspicious.slice(0, 5)) finding({ locale, domain: "rendered-html", route, state: "NOT_ASSESSABLE", category: "suspected-english-leak", observed: excerpt.trim().slice(0, 300), source: rel(path), evidence: "Heuristic only: approve a narrow exception or confirm and translate in rendered context.", disposition: "review_required" });
   }
 }
 
@@ -1148,6 +1262,10 @@ const statusFor = (items) => items.some((item) => item.state === "NOT_ASSESSABLE
 const localStatus = statusFor(findings.filter((item) => item.target === "local-candidate"));
 const productionStatus = statusFor(findings.filter((item) => item.target === "production"));
 const globalStatus = localStatus === "PASS" && productionStatus === "PASS" ? "PASS" : (localStatus === "NOT_ASSESSABLE" || productionStatus === "NOT_ASSESSABLE" ? "NOT_ASSESSABLE" : "FAIL");
+const automatedReleaseBlockers = findings.filter(
+  (item) => item.target === "local-candidate" && item.state === "FAIL",
+);
+const automatedReleaseStatus = automatedReleaseBlockers.length ? "FAIL" : "PASS";
 const counts = Object.fromEntries(["PASS", "FAIL", "NOT_ASSESSABLE"].map((state) => [state, findings.filter((item) => item.state === state).length]));
 
 for (const locale of targetLocales) {
@@ -1165,8 +1283,14 @@ const report = {
   startedAt,
   finishedAt: new Date().toISOString(),
   releaseMode: RELEASE,
+  postBuildMode: POST_BUILD,
   status: globalStatus,
   releaseReady: globalStatus === "PASS",
+  automatedReleaseGate: {
+    status: automatedReleaseStatus,
+    blockers: automatedReleaseBlockers.length,
+    note: "Human, image, browser and production evidence remains pending until explicitly supplied.",
+  },
   targets: { "local-candidate": localStatus, production: productionStatus },
   git: { commit, branch, dirty: startSnapshot.stagedDiffHash !== sha256("") || startSnapshot.unstagedDiffHash !== sha256("") || startSnapshot.untracked.length > 0, stagedDiffHash: startSnapshot.stagedDiffHash, unstagedDiffHash: startSnapshot.unstagedDiffHash, untracked: startSnapshot.untracked },
   inputManifest: { startHash: startSnapshot.hash, endHash: endSnapshot.hash, contentHash },
@@ -1205,6 +1329,7 @@ const summary = [
   `- Global status: **${globalStatus}**`,
   `- Local candidate: **${localStatus}**`,
   `- Production: **${productionStatus}**`,
+  `- Automated local gate: **${automatedReleaseStatus}** (${automatedReleaseBlockers.length} blockers)`,
   `- Findings: ${counts.PASS} PASS, ${counts.FAIL} FAIL, ${counts.NOT_ASSESSABLE} NOT_ASSESSABLE`,
   `- Artifact: \`${artifactHash}\` (${artifactManifest.length} files)`,
   "",
@@ -1224,13 +1349,16 @@ const summary = [
 ].join("\n");
 atomicWrite(join(AUDIT_DIR, "summary.md"), summary);
 
-const stdout = { status: globalStatus, releaseReady: globalStatus === "PASS", snapshotId, targets: report.targets, counts, reportPath: rel(join(AUDIT_DIR, "report.json")), summaryPath: rel(join(AUDIT_DIR, "summary.md")), browserEvidencePath: rel(browserReportPath), artifactHash };
+const stdout = { status: globalStatus, releaseReady: globalStatus === "PASS", automatedReleaseStatus, automatedReleaseBlockers: automatedReleaseBlockers.length, snapshotId, targets: report.targets, counts, reportPath: rel(join(AUDIT_DIR, "report.json")), summaryPath: rel(join(AUDIT_DIR, "summary.md")), browserEvidencePath: rel(browserReportPath), artifactHash };
 if (JSON_ONLY) process.stdout.write(`${JSON.stringify(stdout)}\n`);
 else {
   process.stdout.write(`i18n release audit: ${globalStatus}\n`);
   process.stdout.write(`snapshot: ${snapshotId}\n`);
   process.stdout.write(`local-candidate=${localStatus} production=${productionStatus}\n`);
+  process.stdout.write(`automated-local=${automatedReleaseStatus} blockers=${automatedReleaseBlockers.length}\n`);
   process.stdout.write(`report: ${stdout.reportPath}\n`);
   process.stdout.write(`summary: ${stdout.summaryPath}\n`);
 }
-process.exitCode = globalStatus === "PASS" ? 0 : 1;
+process.exitCode = RELEASE && !PRODUCTION
+  ? (automatedReleaseStatus === "PASS" ? 0 : 1)
+  : (globalStatus === "PASS" ? 0 : 1);

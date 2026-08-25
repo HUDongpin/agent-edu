@@ -30,7 +30,8 @@
     "next": "Next",
     "courseDashboard": "Course dashboard",
     "reviewEvidencePath": "Review your evidence path",
-    "backToCatalog": "Courses"
+    "backToCatalog": "Courses",
+    "resetConfirm": "Reset only Course 11 progress in this browser?"
   },
   "units": {
     "value": { "title": "Value before code" },

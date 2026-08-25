@@ -42,6 +42,23 @@ export function isLocale(code: string): boolean {
 
 export type Messages = Record<string, string>;
 
+type MessagesModule = { default: Messages };
+
+// Keep this mapping explicit. A template-string import rooted at `messages/`
+// makes Turbopack conservatively enumerate nested course dictionaries too,
+// which can ship blocked course copy in otherwise public client chunks.
+const MESSAGE_LOADERS: Record<string, () => Promise<MessagesModule>> = {
+  en: () => import("@/messages/en.json") as Promise<MessagesModule>,
+  es: () => import("@/messages/es.json") as Promise<MessagesModule>,
+  fr: () => import("@/messages/fr.json") as Promise<MessagesModule>,
+  de: () => import("@/messages/de.json") as Promise<MessagesModule>,
+  "zh-Hans": () => import("@/messages/zh-Hans.json") as Promise<MessagesModule>,
+  "zh-Hant": () => import("@/messages/zh-Hant.json") as Promise<MessagesModule>,
+  ja: () => import("@/messages/ja.json") as Promise<MessagesModule>,
+  ko: () => import("@/messages/ko.json") as Promise<MessagesModule>,
+  ar: () => import("@/messages/ar.json") as Promise<MessagesModule>,
+};
+
 /**
  * Load one locale's strings, merged over English.
  *
@@ -49,9 +66,9 @@ export type Messages = Record<string, string>;
  * blank element. A half-translated page is usable; an empty one is not.
  */
 export async function getMessages(locale: string): Promise<Messages> {
-  const en = (await import("@/messages/en.json")).default as Messages;
+  const en = (await MESSAGE_LOADERS.en()).default;
   if (locale === DEFAULT_LOCALE || !isLocale(locale)) return en;
-  const own = (await import(`@/messages/${locale}.json`)).default as Messages;
+  const own = (await MESSAGE_LOADERS[locale]()).default;
   return { ...en, ...own };
 }
 

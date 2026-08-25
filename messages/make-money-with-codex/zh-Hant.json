@@ -30,7 +30,8 @@
     "next": "下一課",
     "courseDashboard": "課程總覽",
     "reviewEvidencePath": "檢視你的證據路徑",
-    "backToCatalog": "課程"
+    "backToCatalog": "課程",
+    "resetConfirm": "是否只重設此瀏覽器中的第 11 門課程進度？"
   },
   "units": {
     "value": {

@@ -30,7 +30,8 @@
     "next": "Suivant",
     "courseDashboard": "Tableau de bord du cours",
     "reviewEvidencePath": "Vérifier votre parcours de preuves",
-    "backToCatalog": "Cours"
+    "backToCatalog": "Cours",
+    "resetConfirm": "Réinitialiser uniquement la progression du cours 11 dans ce navigateur ?"
   },
   "units": {
     "value": { "title": "La valeur avant le code" },

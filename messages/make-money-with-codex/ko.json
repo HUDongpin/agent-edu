@@ -30,7 +30,8 @@
     "next": "다음",
     "courseDashboard": "과정 대시보드",
     "reviewEvidencePath": "증거 경로 검토",
-    "backToCatalog": "과정"
+    "backToCatalog": "과정",
+    "resetConfirm": "이 브라우저에서 11번 과정의 진행 상황만 초기화할까요?"
   },
   "units": {
     "value": {

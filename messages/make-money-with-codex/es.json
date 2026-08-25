@@ -30,7 +30,8 @@
     "next": "Siguiente",
     "courseDashboard": "Panel del curso",
     "reviewEvidencePath": "Revisa tu ruta de evidencias",
-    "backToCatalog": "Cursos"
+    "backToCatalog": "Cursos",
+    "resetConfirm": "¿Restablecer solo el progreso del Curso 11 en este navegador?"
   },
   "units": {
     "value": { "title": "Valor antes que código" },

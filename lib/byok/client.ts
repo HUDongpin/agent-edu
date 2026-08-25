@@ -112,15 +112,11 @@ function codeForStatus(status: number): ProviderErrorCode {
   return "provider";
 }
 
-function safeProviderMessage(body: unknown, status: number, secret?: string): string {
-  const error = record(record(body)?.error);
-  const message = error?.message;
-  if (typeof message !== "string" || !message.trim()) return `Provider returned HTTP ${status}.`;
-  // Do not surface an arbitrary raw response body. Keep only the documented
-  // error message, strip control characters and bound its diagnostic size.
-  let sanitized = message.replace(/[\u0000-\u001f\u007f]/g, " ").trim();
-  if (secret && secret.length >= 8) sanitized = sanitized.replaceAll(secret, "[redacted]");
-  return sanitized.slice(0, 280);
+function safeProviderMessage(status: number): string {
+  // A provider-controlled error body can reflect the submitted prompt,
+  // credentials, upstream request details, or arbitrary HTML. Keep the
+  // diagnostic local and typed; the UI localizes the actionable category.
+  return `Provider returned HTTP ${status}.`;
 }
 
 interface AbortScope {
@@ -448,7 +444,7 @@ export function createDeepSeekClient({
 
       const metadata = responseMetadata(body, options.model);
       if (!response.ok) {
-        throw new ProviderError(codeForStatus(response.status), safeProviderMessage(body, response.status, key), {
+        throw new ProviderError(codeForStatus(response.status), safeProviderMessage(response.status), {
           ...metadata,
           billing: metadata.usage ? "usage-confirmed" : "provider-rejected-no-usage",
           httpStatus: response.status,
@@ -520,7 +516,7 @@ export function createDeepSeekClient({
       );
 
       if (!response.ok) {
-        throw new ProviderError(codeForStatus(response.status), safeProviderMessage(body, response.status, key), {
+        throw new ProviderError(codeForStatus(response.status), safeProviderMessage(response.status), {
           billing: "provider-rejected-no-usage",
           httpStatus: response.status,
         });

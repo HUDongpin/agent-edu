@@ -30,7 +30,8 @@
     "next": "التالي",
     "courseDashboard": "لوحة الدورة",
     "reviewEvidencePath": "راجع مسار أدلتك",
-    "backToCatalog": "الدورات"
+    "backToCatalog": "الدورات",
+    "resetConfirm": "هل تريد إعادة تعيين تقدم الدورة 11 في هذا المتصفح فقط؟"
   },
   "units": {
     "value": {

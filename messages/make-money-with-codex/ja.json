@@ -30,7 +30,8 @@
     "next": "次へ",
     "courseDashboard": "コースダッシュボード",
     "reviewEvidencePath": "証拠の流れを確認する",
-    "backToCatalog": "コース"
+    "backToCatalog": "コース",
+    "resetConfirm": "このブラウザーに保存されたコース11の進捗だけをリセットしますか？"
   },
   "units": {
     "value": {

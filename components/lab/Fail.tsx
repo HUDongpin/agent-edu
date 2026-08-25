@@ -12,7 +12,7 @@ import LabIcon from "./LabIcon";
  * says what happened in a sentence, and the one that is genuinely the
  * reader's next move — going and getting a key — is a button.
  */
-export default function Fail({ msgKey, detail }: { msgKey: string; detail?: string }) {
+export default function Fail({ msgKey }: { msgKey: string }) {
   const { t } = useI18n();
   const noKey = msgKey === "lab.err.noKey";
 
@@ -28,7 +28,6 @@ export default function Fail({ msgKey, detail }: { msgKey: string; detail?: stri
             {t("lab.err.noKeyCta")}<span className="arrow" aria-hidden="true">↑</span>
           </a>
         )}
-        {!noKey && detail && <p className="faildetail mono-note">{detail}</p>}
       </div>
     </div>
   );

@@ -30,7 +30,8 @@
     "next": "下一课",
     "courseDashboard": "课程总览",
     "reviewEvidencePath": "检查你的证据路径",
-    "backToCatalog": "课程"
+    "backToCatalog": "课程",
+    "resetConfirm": "是否仅重置此浏览器中的第 11 门课程进度？"
   },
   "units": {
     "value": {

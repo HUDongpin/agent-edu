@@ -30,7 +30,8 @@
     "next": "Weiter",
     "courseDashboard": "Kursübersicht",
     "reviewEvidencePath": "Eigenen Nachweispfad prüfen",
-    "backToCatalog": "Kurse"
+    "backToCatalog": "Kurse",
+    "resetConfirm": "Nur den Fortschritt von Kurs 11 in diesem Browser zurücksetzen?"
   },
   "units": {
     "value": { "title": "Wertschöpfung vor Code" },
