@@ -1,0 +1,58 @@
+{
+  "schema_version": "aicourse.fixture-provenance.v1",
+  "fixture_version": "responsible-ai-governance-case.v1",
+  "notice_version": "responsible-ai-notice.v1",
+  "created_on": "2026-08-26",
+  "created_by": "aicourse.top course authors",
+  "generation": {
+    "method": "Deterministic hand-authored fictional records created from an original teaching specification; no external data, fitted distribution, scraped values, model output, incident record, benchmark row, real identifier, or competing-course asset was used.",
+    "generator_version": "responsible-ai-manual-fixture-spec.v1",
+    "random_seed": "not-applicable-no-random-generator",
+    "network_required": false
+  },
+  "rights": {
+    "authorship_assertion": "The project authors created every byte of the fixture data and metadata except the names of open formats and the linked CC0 legal instrument.",
+    "third_party_inputs": [],
+    "data_dedication": "CC0-1.0",
+    "data_dedication_url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+    "course_code_and_copy": "Not covered by this data dedication; governed by the repository and source-specific terms.",
+    "publication_eligible": true
+  },
+  "resources": [
+    {
+      "path": "governance-case-synthetic-v1.json",
+      "media_type": "application/json",
+      "sha256": "289625c9ff824dea69c96048f6e1b8293d94f2d8434f0ef268aaaf271fad1253",
+      "evaluation_records": 16,
+      "stakeholder_signals": 4,
+      "red_team_injections": 4,
+      "incident_tabletops": 1
+    }
+  ],
+  "datasheet": {
+    "purpose": "A small offline fixture for purpose and risk classification, stakeholder analysis, data minimisation, subgroup error calculation, uncertainty wording, assurance cards, effective human authority, contestability, red teaming, incident response, and a governance go/no-go dossier.",
+    "unit_of_observation": "One fictional evaluation case authored solely for a pre-release tabletop exercise; case codes do not correspond to people.",
+    "composition": "Sixteen fictional evaluation rows, four fictional stakeholder signals, four red-team injections, and one fictional incident tabletop around one invented system and organisation.",
+    "sensitive_attributes": "None. access_path and language_context are artificial test dimensions and explicitly must not be interpreted as disability, diagnosis, ethnicity, nationality, migration status, language proficiency, or another protected or sensitive characteristic.",
+    "label_generation": "All fields, reference labels, scores, thresholds, actions, quotations, and failure patterns were manually selected for inspectable exercises and do not arise from a population, institution, model, intervention, causal mechanism, or measured construct.",
+    "maintenance": "Immutable. Any byte change requires a new fixture version, new hash, and new notice/provenance version."
+  },
+  "known_artificialities": [
+    "The evaluation set is tiny and deliberately gives the alternate access path more authored errors so learners can detect a subgroup signal by hand.",
+    "The 0.60 threshold, reviewer actions, workload limit, response time, and incident severity are fictional policy inputs, not validated controls or recommendations.",
+    "Stakeholder quotations, red-team scenarios, and the incident timeline are authored prompts rather than empirical accounts.",
+    "No row, score, label, explanation, decision, appeal, or incident can be connected to a real person or organisation."
+  ],
+  "regulatory_boundary": {
+    "status": "not-legal-advice",
+    "rule": "A real analysis must identify the jurisdiction, regulated role, system purpose and use, affected population, operative official text or standard version, and verification date.",
+    "verification_date_for_course_sources": "2026-08-26",
+    "non_claim": "The fixture does not classify a real system or establish any duty, exemption, conformity, privacy basis, fairness finding, or legal conclusion."
+  },
+  "non_claims": [
+    "No claim about real people, institutions, systems, models, incidents, harms, benefits, outcomes, disparities, or effectiveness.",
+    "No claim of representativeness, statistical significance, causal identification, calibration, privacy compliance, legal authorization, accessibility, security, safety, fairness, or production readiness.",
+    "No authorization for prediction, profiling, ranking, triage, support allocation, discipline, admission, grading, employment, benefit, or other decision involving a real person.",
+    "No claim that a completed impact assessment, audit, card, red-team log, or governance dossier constitutes independent assurance or release approval."
+  ]
+}

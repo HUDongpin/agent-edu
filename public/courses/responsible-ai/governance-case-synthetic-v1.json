@@ -1,0 +1,176 @@
+{
+  "schema_version": "aicourse.responsible-ai.fixture.v1",
+  "fixture_version": "responsible-ai-governance-case.v1",
+  "created_on": "2026-08-26",
+  "fictionality": {
+    "status": "entirely-fictional",
+    "statement": "Every organisation, person code, system, event, value, group label, decision, and date in this fixture was authored for instruction and has no real-world referent.",
+    "third_party_inputs": []
+  },
+  "system_case": {
+    "system_id": "SYS-LANTERN-01",
+    "organisation": "Northstar Learning Cooperative",
+    "organisation_status": "invented",
+    "system_name": "Lantern Study Check",
+    "deployment_stage": "pre-release tabletop exercise",
+    "stated_purpose": "Suggest an optional study-planning conversation when a fictional learner may want extra help.",
+    "allowed_action": "Place a suggestion in a staff review queue; a named reviewer may accept, amend, or reject it after reading the learner's current context.",
+    "prohibited_uses": [
+      "grade, admission, discipline, attendance, benefit, employment, or access decisions",
+      "ranking learners or allocating scarce support",
+      "automatic messaging to a learner or family",
+      "inferring disability, health, ethnicity, nationality, income, or any other protected or sensitive characteristic",
+      "reuse of fixture fields as a proxy for a real person or institution"
+    ],
+    "model_output": {
+      "field": "review_score",
+      "range": "0.00 to 1.00",
+      "queue_rule": "Scores at or above 0.60 create a suggestion for human review.",
+      "meaning_boundary": "The score is a fictional ranking signal, not a probability, diagnosis, entitlement, or factual finding."
+    },
+    "human_authority": {
+      "role": "learning-support reviewer",
+      "powers": [
+        "inspect the source fields and uncertainty note",
+        "decline or amend a suggestion without management approval",
+        "pause all use after an incident trigger",
+        "record a reason and request correction of input data"
+      ],
+      "workload_limit": "No more than six queued suggestions per reviewer per session.",
+      "learner_recourse": "A fictional learner may request correction or contest a suggestion through a non-automated channel; the target response time is two fictional working days."
+    }
+  },
+  "data_dictionary": [
+    {
+      "field": "case_id",
+      "role": "synthetic primary key",
+      "allowed_use": "join and deduplication inside this fixture",
+      "prohibited_inference": "identity or link to an external record"
+    },
+    {
+      "field": "access_path",
+      "role": "fictional interface path",
+      "allowed_use": "subgroup test for whether interface path coincides with different error rates",
+      "prohibited_inference": "disability, diagnosis, protected status, or accessibility need"
+    },
+    {
+      "field": "language_context",
+      "role": "fictional content-context label",
+      "allowed_use": "subgroup test for the toy model",
+      "prohibited_inference": "nationality, ethnicity, migration status, or language proficiency"
+    },
+    {
+      "field": "observed_study_change",
+      "role": "fictional recent change code",
+      "allowed_use": "pre-release test input",
+      "prohibited_inference": "motivation, ability, future outcome, or cause"
+    },
+    {
+      "field": "self_requested_conversation",
+      "role": "fictional explicit request",
+      "allowed_use": "human review context",
+      "prohibited_inference": "need, risk, or consent to unrelated processing"
+    },
+    {
+      "field": "reference_need",
+      "role": "fictional test label authored solely to calculate confusion matrices",
+      "allowed_use": "offline metric calculation",
+      "prohibited_inference": "ground truth about any real learner"
+    },
+    {
+      "field": "review_score",
+      "role": "fictional model output",
+      "allowed_use": "threshold, calibration-language, and error-analysis exercises",
+      "prohibited_inference": "probability, diagnosis, eligibility, or causal effect"
+    }
+  ],
+  "evaluation_records": [
+    {"case_id":"CASE-001","access_path":"standard","language_context":"context-a","observed_study_change":"large-decrease","self_requested_conversation":true,"reference_need":true,"review_score":0.91,"queued":true,"reviewer_action":"accept-with-context-check"},
+    {"case_id":"CASE-002","access_path":"standard","language_context":"context-a","observed_study_change":"small-decrease","self_requested_conversation":false,"reference_need":false,"review_score":0.38,"queued":false,"reviewer_action":"not-reviewed"},
+    {"case_id":"CASE-003","access_path":"standard","language_context":"context-a","observed_study_change":"large-decrease","self_requested_conversation":false,"reference_need":true,"review_score":0.74,"queued":true,"reviewer_action":"accept"},
+    {"case_id":"CASE-004","access_path":"standard","language_context":"context-a","observed_study_change":"no-change","self_requested_conversation":true,"reference_need":true,"review_score":0.65,"queued":true,"reviewer_action":"amend"},
+    {"case_id":"CASE-005","access_path":"standard","language_context":"context-b","observed_study_change":"small-decrease","self_requested_conversation":false,"reference_need":false,"review_score":0.61,"queued":true,"reviewer_action":"reject-false-positive"},
+    {"case_id":"CASE-006","access_path":"standard","language_context":"context-b","observed_study_change":"large-decrease","self_requested_conversation":false,"reference_need":true,"review_score":0.72,"queued":true,"reviewer_action":"accept"},
+    {"case_id":"CASE-007","access_path":"standard","language_context":"context-b","observed_study_change":"increase","self_requested_conversation":false,"reference_need":false,"review_score":0.22,"queued":false,"reviewer_action":"not-reviewed"},
+    {"case_id":"CASE-008","access_path":"standard","language_context":"context-b","observed_study_change":"small-decrease","self_requested_conversation":true,"reference_need":true,"review_score":0.58,"queued":false,"reviewer_action":"not-reviewed-false-negative"},
+    {"case_id":"CASE-009","access_path":"alternate","language_context":"context-a","observed_study_change":"large-decrease","self_requested_conversation":true,"reference_need":true,"review_score":0.69,"queued":true,"reviewer_action":"accept"},
+    {"case_id":"CASE-010","access_path":"alternate","language_context":"context-a","observed_study_change":"small-decrease","self_requested_conversation":false,"reference_need":false,"review_score":0.64,"queued":true,"reviewer_action":"reject-false-positive"},
+    {"case_id":"CASE-011","access_path":"alternate","language_context":"context-a","observed_study_change":"large-decrease","self_requested_conversation":false,"reference_need":true,"review_score":0.55,"queued":false,"reviewer_action":"not-reviewed-false-negative"},
+    {"case_id":"CASE-012","access_path":"alternate","language_context":"context-a","observed_study_change":"no-change","self_requested_conversation":false,"reference_need":false,"review_score":0.31,"queued":false,"reviewer_action":"not-reviewed"},
+    {"case_id":"CASE-013","access_path":"alternate","language_context":"context-b","observed_study_change":"large-decrease","self_requested_conversation":true,"reference_need":true,"review_score":0.62,"queued":true,"reviewer_action":"amend"},
+    {"case_id":"CASE-014","access_path":"alternate","language_context":"context-b","observed_study_change":"small-decrease","self_requested_conversation":false,"reference_need":false,"review_score":0.67,"queued":true,"reviewer_action":"reject-false-positive"},
+    {"case_id":"CASE-015","access_path":"alternate","language_context":"context-b","observed_study_change":"large-decrease","self_requested_conversation":false,"reference_need":true,"review_score":0.49,"queued":false,"reviewer_action":"not-reviewed-false-negative"},
+    {"case_id":"CASE-016","access_path":"alternate","language_context":"context-b","observed_study_change":"increase","self_requested_conversation":false,"reference_need":false,"review_score":0.18,"queued":false,"reviewer_action":"not-reviewed"}
+  ],
+  "stakeholder_signals": [
+    {
+      "signal_id": "SIG-01",
+      "speaker_role": "fictional learner representative",
+      "statement": "A suggestion should not appear to be a hidden judgement, and the learner should be able to ask what data was used.",
+      "design_question": "How will notice, explanation, correction, and contestability be available before any conversation?"
+    },
+    {
+      "signal_id": "SIG-02",
+      "speaker_role": "fictional reviewer",
+      "statement": "A queue larger than six items makes source-field review perfunctory.",
+      "design_question": "What capacity limit blocks operation rather than silently degrading oversight?"
+    },
+    {
+      "signal_id": "SIG-03",
+      "speaker_role": "fictional privacy lead",
+      "statement": "The team has not justified retaining raw interaction events after the review window.",
+      "design_question": "Which fields can be deleted, aggregated, or never collected?"
+    },
+    {
+      "signal_id": "SIG-04",
+      "speaker_role": "fictional accessibility reviewer",
+      "statement": "The alternate access path has a visibly different error pattern in this tiny test set.",
+      "design_question": "What additional testing and stop condition are required before release?"
+    }
+  ],
+  "red_team_injections": [
+    {
+      "injection_id": "RT-01",
+      "scenario": "A manager asks to sort the queue from highest to lowest score and contact the first five learners because staff time is scarce.",
+      "failure_type": "purpose expansion and resource allocation",
+      "expected_control": "Reject the request, preserve the original non-ranking purpose, and escalate the capacity mismatch."
+    },
+    {
+      "injection_id": "RT-02",
+      "scenario": "The alternate interface stops sending self-request fields, but the service health dashboard remains green.",
+      "failure_type": "silent data-quality and subgroup harm",
+      "expected_control": "Trigger field-level monitoring, pause affected suggestions, investigate, and notify accountable owners."
+    },
+    {
+      "injection_id": "RT-03",
+      "scenario": "A reviewer cannot reject a suggestion without entering a manager-only override code.",
+      "failure_type": "nominal rather than effective human authority",
+      "expected_control": "Block release until the reviewer can change outcomes without unreasonable friction or retaliation."
+    },
+    {
+      "injection_id": "RT-04",
+      "scenario": "A learner's correction is acknowledged, but the old field remains in the next scoring run.",
+      "failure_type": "failed correction and recourse loop",
+      "expected_control": "Stop reuse of the disputed field, trace lineage, correct downstream copies, and verify the remedy."
+    }
+  ],
+  "incident_tabletop": {
+    "incident_id": "INC-FICTION-01",
+    "trigger": "Three false negatives occur in eight alternate-path test records while the corresponding standard-path count is one.",
+    "initial_severity": "high-for-tabletop",
+    "required_first_actions": [
+      "pause the affected workflow",
+      "preserve logs and the versioned evaluation slice",
+      "name the incident commander and affected-owner contacts",
+      "assess notice, correction, appeal, and disclosure obligations with qualified local counsel",
+      "document what is known, unknown, and time-bound"
+    ],
+    "non_claim": "The fictional count does not estimate a population disparity or establish unlawful discrimination."
+  },
+  "exercise_boundaries": [
+    "The 16 records are deliberately tiny and uneven in their error pattern; calculate mechanics, but do not infer statistical significance, population fairness, or causal harm.",
+    "The threshold and reviewer actions are authored examples, not validated operating policies.",
+    "Completing a model card, impact assessment, or governance dossier does not itself make a system lawful, safe, fair, accurate, or ready for release.",
+    "Legal classification and obligations depend on jurisdiction, role, version, facts, and date; verify the current official text and obtain qualified advice before real use."
+  ]
+}
