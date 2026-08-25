@@ -1,0 +1,4 @@
+import { AGENTIC_QUANT_TRADING_COURSE } from "./definition";
+
+export const AGENTIC_QUANT_TRADING_MANIFEST =
+  AGENTIC_QUANT_TRADING_COURSE.manifest;

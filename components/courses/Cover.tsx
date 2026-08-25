@@ -638,6 +638,45 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
           strokeWidth="1.3" strokeLinecap="round" />
       </>
     ),
+    // A bounded agent desk reads a synthetic tape, proposes a paper order, and
+    // can proceed only after the deterministic risk gate accepts the receipt.
+    "agentic-quant-trading": (
+      <>
+        <rect width="190" height="140" fill="var(--course-cover-bg)" />
+        <circle cx="178" cy="18" r="42" fill="var(--course-cover-accent)" opacity=".13" />
+        <rect x="18" y="14" width="154" height="113" rx="13"
+          fill="var(--course-cover-surface)" stroke="var(--course-cover-line)" />
+        <path d="M18 36 H172" stroke="var(--course-cover-line)" />
+        <circle cx="29" cy="25" r="2.2" fill="var(--course-cover-accent)" />
+        <circle cx="37" cy="25" r="2.2" fill="var(--course-cover-muted)" opacity=".46" />
+        <circle cx="45" cy="25" r="2.2" fill="var(--course-cover-muted)" opacity=".26" />
+
+        <rect x="27" y="45" width="73" height="66" rx="8"
+          fill="var(--course-cover-editor)" stroke="var(--course-cover-line)" />
+        <path d="M36 96 H91" stroke="var(--course-cover-line)" />
+        <path d="M42 61 V78 M38 66 H46 M55 53 V71 M51 58 H59 M68 68 V91 M64 74 H72 M82 57 V81 M78 62 H86"
+          fill="none" stroke="var(--course-cover-accent)" strokeWidth="1.8" strokeLinecap="round" />
+        <rect x="38" y="99" width="23" height="4" rx="2" fill="var(--course-cover-muted)" opacity=".42" />
+        <rect x="67" y="99" width="22" height="4" rx="2" fill="var(--course-cover-accent)" opacity=".78" />
+
+        <path d="M101 77 H113" stroke="var(--course-cover-accent)" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M109 73 113 77 109 81" fill="none" stroke="var(--course-cover-accent)"
+          strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+
+        <rect x="115" y="46" width="47" height="65" rx="9"
+          fill="var(--course-cover-panel)" stroke="var(--course-cover-line)" />
+        <circle cx="127" cy="59" r="5" fill="var(--course-cover-accent)" />
+        <path d="M136 57.5 H153 M136 62.5 H148" stroke="var(--course-cover-muted)"
+          strokeWidth="2.2" strokeLinecap="round" opacity=".48" />
+        <rect x="123" y="72" width="31" height="16" rx="6"
+          fill="var(--course-cover-surface)" stroke="var(--course-cover-accent)" />
+        <path d="M129 80 133 84 140 76" fill="none" stroke="var(--course-cover-accent)"
+          strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M145 80 H150" stroke="var(--course-cover-muted)" strokeWidth="2" strokeLinecap="round" />
+        <rect x="123" y="95" width="31" height="7" rx="3.5" fill="var(--course-cover-accent)" />
+        <path d="M130 98.5 H147" stroke="var(--course-cover-accent-ink)" strokeWidth="1.2" strokeLinecap="round" />
+      </>
+    ),
     // steps descending — "a list of steps"
     handbook: (
       <>
@@ -712,6 +751,7 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
     "product-management": styles.claudeIncome,
     "agent-orchestration": styles.engineering,
     "responsible-ai": styles.responsible,
+    "agentic-quant-trading": styles.engineering,
   };
   const motifId = id === "rag" ? "ai-research" : id === "ai-tutor" ? "ai-teaching" : id;
   const variantClass = variantClasses[motifId] ?? styles.legacy;
