@@ -77,7 +77,9 @@ function txt(s){ return document.createTextNode(s); }
   }
 
   function revealTab(tab){
-    if (tab && tab.scrollIntoView) tab.scrollIntoView({block:'nearest',inline:'nearest'});
+    // Keyboard focus must be visible synchronously; inheriting the document's
+    // smooth-scroll policy can leave the newly focused tab off-screen.
+    if (tab && tab.scrollIntoView) tab.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
   }
 
   function syncOrientation(){
