@@ -160,6 +160,11 @@ The protected GitHub course remains intact after Course 10 registration. The fin
 
 ## Visual inspection artifacts
 
+The capture paths below identify reproducible local QA output and are not
+versioned release inputs. Their dimensions, hashes and inspection conclusions
+remain in this audit ledger; a fresh browser run must regenerate any pixels
+needed for a new review.
+
 | Capture | Dimensions | SHA-256 | Inspection result |
 | --- | ---: | --- | --- |
 | `outputs/mcp-browser-qa-screenshots/en-dashboard-1440x1100.png` | 1440×1100 | `27a285b20f29d7985afb05ab058eeb8a7cf52a29a7adedf83badee3ca79e98a2` | Clear evidence-first hierarchy; 18 lessons, 17 h 55 min, 8 figures, 48 concepts, protocol version, and evidence date are legible above the fold. |
