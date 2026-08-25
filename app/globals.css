@@ -1586,7 +1586,7 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
 .labnav{display:flex;align-items:center;gap:12px;margin:26px 0 0;
   padding-block-start:16px;border-block-start:1px solid var(--line)}
-.labcount{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
+.labcount{font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
 .lab .steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;
   margin:24px 0 32px}
 .lab .step{min-height:112px;display:flex;flex-direction:column;gap:5px;padding:15px 16px;

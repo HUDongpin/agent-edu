@@ -53,6 +53,16 @@ import { RAG_COURSE_MANIFEST } from "./rag/manifest";
 import { SOFTWARE_ENGINEERING_COURSE_MANIFEST } from "./software-engineering/manifest";
 import { isSoftwareEngineeringCapstoneSubmission } from "./software-engineering/capstone";
 import { isSoftwareEngineeringQuizPassed } from "./software-engineering/quiz";
+import {
+  RESPONSIBLE_AI_COURSE,
+  RESPONSIBLE_AI_PROGRESS_EVENT,
+  responsibleAiProgressPercent,
+} from "./responsible-ai";
+import {
+  AGENTIC_QUANT_TRADING_COURSE,
+  AGENTIC_QUANT_TRADING_PROGRESS_EVENT,
+  agenticQuantTradingProgressPercent,
+} from "./agentic-quant-trading";
 
 export type Level = "beginner" | "intermediate" | "advanced";
 export type Format = "read" | "interactive" | "code";
@@ -95,8 +105,10 @@ export interface TopLevelCourse {
     | "claude-income"
     | "ai-tutor"
     | "product-management"
-    | "agent-orchestration";
-  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+    | "agent-orchestration"
+    | "responsible-ai"
+    | "agentic-quant-trading";
+  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17;
   href: string;
   minutes: number;
   durationMinutes: number;
@@ -112,6 +124,7 @@ export interface TopLevelCourse {
     | "seventeen-equal-milestones"
     | "eleven-equal-milestones"
     | "ten-equal-milestones"
+    | "twelve-equal-milestones"
     | "twenty-equal-milestones";
   /** Browser store supplied to the progress adapter; defaults to `ae.progress`. */
   progressStorageKey?: string;
@@ -123,8 +136,7 @@ export interface TopLevelCourse {
 export type CatalogCourseId =
   | TopLevelCourse["id"]
   | "ai-research"
-  | "ai-teaching"
-  | "responsible-ai";
+  | "ai-teaching";
 
 export type CatalogTopic =
   | "ai-systems"
@@ -161,6 +173,8 @@ export interface CatalogCourse {
   blurbKey: string;
   /** Optional translated curriculum summary, for example lesson count and study time. */
   metaKey?: string;
+  /** Optional disclosure of the curriculum language shown by the course page. */
+  contentLanguageKey?: string;
   topic: CatalogTopic;
   topicKey: string;
   level: CatalogLevel;
@@ -647,6 +661,56 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     progressEvent: AGENT_ORCHESTRATION_PROGRESS_EVENT,
     progress: (p) => agentOrchestrationProgressPercent(p),
   },
+  {
+    id: "responsible-ai",
+    displayNumber: 16,
+    href: "/responsible-ai/",
+    minutes: RESPONSIBLE_AI_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: RESPONSIBLE_AI_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--red)",
+    level: "beginner-to-intermediate",
+    moduleIds: RESPONSIBLE_AI_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: [
+      "c.responsibleAi.blurb",
+      "c.responsibleAi.title",
+      "c.responsibleAi.meta",
+    ],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: RESPONSIBLE_AI_PROGRESS_EVENT,
+    progress: (p) => responsibleAiProgressPercent(p),
+  },
+  {
+    id: "agentic-quant-trading",
+    displayNumber: 17,
+    href: "/agentic-quant-trading/",
+    minutes: AGENTIC_QUANT_TRADING_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: AGENTIC_QUANT_TRADING_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--teal)",
+    level: "intermediate-to-advanced",
+    moduleIds: AGENTIC_QUANT_TRADING_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: [
+      "c.agentic-quant-trading.blurb",
+      "c.agentic-quant-trading.title",
+      "c.agentic-quant-trading.meta",
+    ],
+    progressStrategy: "fourteen-equal-milestones",
+    progressEvent: AGENTIC_QUANT_TRADING_PROGRESS_EVENT,
+    progress: (p) => agenticQuantTradingProgressPercent(p),
+  },
 ];
 
 const agenticCourse = TOP_LEVEL_COURSES.find((course) => course.id === "agentic")!;
@@ -673,6 +737,12 @@ const productManagementCourse = TOP_LEVEL_COURSES.find(
 )!;
 const agentOrchestrationCourse = TOP_LEVEL_COURSES.find(
   (course) => course.id === "agent-orchestration",
+)!;
+const responsibleAiCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "responsible-ai",
+)!;
+const agenticQuantTradingCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "agentic-quant-trading",
 )!;
 
 /**
@@ -978,18 +1048,43 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
   },
   {
     id: "responsible-ai",
-    href: "#",
+    displayNumber: responsibleAiCourse.displayNumber,
+    href: responsibleAiCourse.href,
     titleKey: "c.responsibleAi.title",
     blurbKey: "c.responsibleAi.blurb",
+    metaKey: "c.responsibleAi.meta",
+    contentLanguageKey: "c.responsibleAi.contentLanguage",
     topic: "responsible-ai",
     topicKey: "topic.responsibleAi",
-    level: "beginner-to-intermediate",
+    level: responsibleAiCourse.level,
     levelKey: "c.responsibleAi.level",
     format: "guided",
     formatKey: "cat.formatGuided",
-    minutes: null,
-    status: "soon",
-    hue: "var(--red)",
+    minutes: responsibleAiCourse.minutes,
+    status: responsibleAiCourse.status,
+    hue: responsibleAiCourse.hue,
+    progressEvent: responsibleAiCourse.progressEvent,
+    progress: responsibleAiCourse.progress,
+  },
+  {
+    id: "agentic-quant-trading",
+    displayNumber: agenticQuantTradingCourse.displayNumber,
+    href: agenticQuantTradingCourse.href,
+    titleKey: "c.agentic-quant-trading.title",
+    blurbKey: "c.agentic-quant-trading.blurb",
+    metaKey: "c.agentic-quant-trading.meta",
+    contentLanguageKey: "c.agentic-quant-trading.contentLanguage",
+    topic: "business",
+    topicKey: "topic.business",
+    level: agenticQuantTradingCourse.level,
+    levelKey: "c.agentic-quant-trading.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: agenticQuantTradingCourse.minutes,
+    status: agenticQuantTradingCourse.status,
+    hue: agenticQuantTradingCourse.hue,
+    progressEvent: agenticQuantTradingCourse.progressEvent,
+    progress: agenticQuantTradingCourse.progress,
   },
 ];
 

@@ -6,6 +6,8 @@ import { PRODUCT_MANAGEMENT_TRANSLATED_LOCALES } from "@/lib/product-management"
 import { AGENT_ORCHESTRATION_TRANSLATED_LOCALES } from "@/lib/agent-orchestration";
 import { RAG_LOCALES } from "@/lib/rag";
 import { MCP_LOCALES } from "@/lib/mcp";
+import { isCourseKitPage } from "@/lib/course-kit/registry";
+import { COURSE_KIT_REVIEWED_LOCALES } from "@/lib/course-kit/types";
 
 export const dynamic = "force-static";
 
@@ -28,6 +30,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return PAGES.flatMap((page) => {
     const availableLocales = page === "ai-tutor/" || page.startsWith("ai-tutor/")
       ? AI_TUTOR_TRANSLATED_LOCALES
+      : isCourseKitPage(page)
+      ? COURSE_KIT_REVIEWED_LOCALES
       : page === "product-management/" || page.startsWith("product-management/")
       ? PRODUCT_MANAGEMENT_TRANSLATED_LOCALES
       : page === "agent-orchestration/" || page.startsWith("agent-orchestration/")
@@ -45,7 +49,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return availableLocales.map((locale) => ({
       url: urlFor(locale, page),
       lastModified: new Date(
-        page === "rag/" || page.startsWith("rag/")
+        isCourseKitPage(page)
+          ? "2026-08-26"
+          : page === "rag/" || page.startsWith("rag/")
         || page === "mcp/" || page.startsWith("mcp/")
           ? "2026-08-24"
           : "2026-08-23",

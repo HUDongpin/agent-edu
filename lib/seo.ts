@@ -16,6 +16,7 @@
  */
 import type { Metadata } from "next";
 import { LOCALE_CODES, DEFAULT_LOCALE } from "@/lib/i18n";
+import { COURSE_KIT_PAGES } from "@/lib/course-kit/registry";
 
 export const SITE = "https://aicourse.top";
 
@@ -283,6 +284,7 @@ export const PAGES = [
   ...AI_TUTOR_MODULE_PAGES,
   ...PRODUCT_MANAGEMENT_MODULE_PAGES,
   ...AGENT_ORCHESTRATION_MODULE_PAGES,
+  ...COURSE_KIT_PAGES,
 ] as const;
 export type Page = (typeof PAGES)[number];
 

@@ -167,6 +167,8 @@ function CourseCard({
   const isAiTutor = course.id === "ai-tutor";
   const isProductManagement = course.id === "product-management";
   const isAgentOrchestration = course.id === "agent-orchestration";
+  const isResponsibleAi = course.id === "responsible-ai";
+  const isAgenticQuantTrading = course.id === "agentic-quant-trading";
   const duration = course.metaKey
     ? t(course.metaKey)
     : course.minutes == null
@@ -190,10 +192,11 @@ function CourseCard({
           <span>{t(course.formatKey)}</span>
           <span aria-hidden="true">·</span>
           <span>{duration}</span>
-          {isClaudeIncome && locale !== "en" ? (
+          {(isClaudeIncome && locale !== "en")
+          || (course.contentLanguageKey && !["en", "zh-Hans"].includes(locale)) ? (
             <>
               <span aria-hidden="true">·</span>
-              <span>{t("c.claude-income.contentLanguage")}</span>
+              <span>{t(course.contentLanguageKey ?? "c.claude-income.contentLanguage")}</span>
             </>
           ) : null}
         </div>
@@ -271,6 +274,10 @@ function CourseCard({
       ? "product-management-in-the-age-of-ai"
     : isAgentOrchestration
       ? "agent-orchestration"
+    : isResponsibleAi
+      ? "responsible-ai"
+    : isAgenticQuantTrading
+      ? "agentic-quant-trading"
       : undefined;
 
   if (!available) {

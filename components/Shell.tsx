@@ -83,6 +83,8 @@ export default async function Shell({
               <li><Link href={p("/ai-tutor/")}>{t("c.ai-tutor.title")}</Link></li>
               <li><Link href={p("/product-management/")}>{t("c.product-management.title")}</Link></li>
               <li><Link href={p("/agent-orchestration/")}>{t("c.agent-orchestration.title")}</Link></li>
+              <li><Link href={p("/responsible-ai/")}>{t("c.responsibleAi.title")}</Link></li>
+              <li><Link href={p("/agentic-quant-trading/")}>{t("c.agentic-quant-trading.title")}</Link></li>
             </ul>
           </div>
           <div>
