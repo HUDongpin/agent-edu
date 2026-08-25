@@ -92,6 +92,26 @@ test("the registry preserves twelve published, three blocked, and two roadmap co
   }
 });
 
+test("the public README does not promote blocked course routes or detailed course sections", () => {
+  const readme = readFileSync("README.md", "utf8");
+  const englishMessages = JSON.parse(readFileSync("messages/en.json", "utf8")) as Record<string, string>;
+  for (const course of BLOCKED_COURSE_SURFACES) {
+    const routeRoot = course.routes[0];
+    assert.ok(routeRoot);
+    for (const locale of LOCALE_CODES) {
+      assert.equal(readme.includes(`/${locale}/${routeRoot}`), false, `${course.id} ${locale}`);
+    }
+    assert.doesNotMatch(
+      readme,
+      new RegExp(`^## Course: ${englishMessages[course.titleKey]}\\s*$`, "m"),
+      course.id,
+    );
+    assert.equal(readme.includes(course.releaseGate!), false, course.id);
+  }
+  const checker = readFileSync("scripts/check-release-surface.mjs", "utf8");
+  assert.match(checker, /assertReadmePublicationBoundary\(contract, blocked\)/);
+});
+
 test("contentLocales match the loader-backed translation boundary", async () => {
   const loaderLocales = new Map<string, readonly string[]>([
     ["agentic", LOCALE_CODES],

@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 const PROJECT = resolve(process.cwd());
 const CONTRACT_PATH = join(PROJECT, "config", "course-release-surface.json");
 const PACKAGE_PATH = join(PROJECT, "package.json");
+const README_PATH = join(PROJECT, "README.md");
 
 function fail(message) {
   throw new Error(message);
@@ -35,6 +36,37 @@ function assertGateExists(command, packageJson) {
   const nodeGate = /^node (scripts\/[a-z0-9-]+\.mjs) --release$/.exec(command);
   assert(nodeGate, `unsupported release gate command: ${command}`);
   assert(existsSync(join(PROJECT, nodeGate[1])), `release gate file is missing: ${nodeGate[1]}`);
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function assertReadmePublicationBoundary(contract, blocked) {
+  const readme = readFileSync(README_PATH, "utf8");
+  const englishMessages = readJson(join(PROJECT, "messages", "en.json"));
+  for (const course of blocked) {
+    const routeRoot = course.routes[0];
+    assert(typeof routeRoot === "string", `${course.id} blocked route root is required`);
+    for (const locale of contract.siteLocales) {
+      const publicPath = `/${locale}/${routeRoot}`;
+      assert(
+        !readme.includes(publicPath),
+        `README.md must not promote blocked course route ${publicPath}`,
+      );
+    }
+
+    const englishTitle = englishMessages[course.titleKey];
+    assert(typeof englishTitle === "string", `${course.id} English title is required`);
+    assert(
+      !new RegExp(`^## Course: ${escapeRegExp(englishTitle)}\\s*$`, "m").test(readme),
+      `README.md must not publish a detailed section for blocked course ${course.id}`,
+    );
+    assert(
+      !readme.includes(course.releaseGate),
+      `README.md must not describe blocked gate ${course.releaseGate} as a public release requirement`,
+    );
+  }
 }
 
 function assertRouteWiring(course) {
@@ -232,6 +264,7 @@ export function validateReleaseSurface(contract, packageJson) {
     coursesPageSource.includes("courseHrefFor(course.id, locale)"),
     "course collection JSON-LD must use registry-resolved hrefs",
   );
+  assertReadmePublicationBoundary(contract, blocked);
 
   return { published, blocked, roadmap };
 }

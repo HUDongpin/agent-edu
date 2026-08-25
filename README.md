@@ -11,7 +11,6 @@
 | Available course | Modules and outcomes | Needs |
 |---|---|---|
 | **[Agentic Engineering](https://aicourse.top/en/courses/#agentic-engineering)** | [Handbook](https://aicourse.top/en/handbook/), [Lab](https://aicourse.top/en/lab/), and [Build an Agent](course/) | nothing for the handbook; a DeepSeek key for optional live Lab calls; TypeScript for the build |
-| **[How to Use Codex](https://aicourse.top/en/codex/)** | four units, twelve lessons, a 24-question bank, final assessment, and locally verified capstone | Codex for the hands-on workflows; no third-party framework |
 | **[Software Engineering with Agentic AI](https://aicourse.top/en/software-engineering/)** | five units, eighteen evidence-producing lessons, a stratified 25-question bank, nine authentic figures, and an eight-package safe-change capstone | no account for the course; Git and code-reading ability for the hands-on labs |
 | **[How to Write Prompts](https://aicourse.top/en/prompts/)** | three units, nine lessons, nine original prompt figures, a source-linked assessment, and a prompt evidence-packet capstone | no account, API key, or coding experience |
 | **[Retrieval-Augmented Generation](https://aicourse.top/en/rag/)** | four units, twelve lessons in nine languages, a deterministic retrieval lab, five authentic UI figures, one official Anthropic teaching diagram, a source-linked assessment, and a production evidence-packet capstone | no account, API key, vector database, or coding experience for the teaching lab |
@@ -79,27 +78,6 @@ The evidence synthesis and publication boundaries live in
 [`evidence/course-audits/agent-orchestration-course-research-brief.md`](evidence/course-audits/agent-orchestration-course-research-brief.md)
 and
 [`evidence/course-audits/agent-orchestration-course-research-brief.provenance.md`](evidence/course-audits/agent-orchestration-course-research-brief.provenance.md).
-
----
-
-## Course: How to Use Codex
-
-The Codex course uses one repeatable operating loop: bound the task, orient to the repository, plan from evidence, implement in testable slices, steer early, verify fresh behavior, and review the actual diff. It applies that loop across the desktop app, CLI, IDE extension, cloud environments, worktrees, subagents, Skills, scheduled tasks, and GitHub automation.
-
-The course is deliberately fail-closed about product media. Every figure record begins as `capture-required`; `npm run codex:check:release` will not pass until a genuine Codex or GitHub surface has local responsive assets, dimensions, a matching SHA-256, version and operating-system metadata, a current source, and recorded privacy review. Generated or reconstructed Codex UI is not accepted.
-
-The capstone starter source lives in [`tests/fixtures/codex-course-demo/`](tests/fixtures/codex-course-demo/). It intentionally begins with two failing assertions for the missing keyboard-accessible **Incomplete** filter. After the learner implements the bounded fix, `npm run course:verify` inside the fixture runs tests, lint, build, route preservation, keyboard checks, and a no-new-dependencies check. It writes a receipt only when all six pass. The course browser validates that exact schema, fixture version, fixture hash, and check set, then stores only a completion boolean.
-
-Useful maintenance commands:
-
-```bash
-npm run codex:fixture       # rebuild the deterministic starter ZIP and checksum
-npm run codex:check         # content, locale, route, source, quiz, fixture, and media checks
-npm run codex:check:release # same checks, with every pending real capture treated as an error
-npm run test:codex          # Playwright smoke and interaction suite
-```
-
-Course content is language-neutral in `lib/codex/`; all learner-facing prose, questions, figure descriptions, feedback, and accessibility copy lives in `messages/codex/<locale>.json`. The nine locale files must have exact key and placeholder parity for release.
 
 ---
 
@@ -293,7 +271,7 @@ FC.draw($('#fcYours'), {
 
 ### Before you open a PR
 
-`npm run build` must pass for every generated route. Run `npm run handbook:check`, `npm run widgets:check`, and `npm run codex:check`; a release also requires `npm run codex:check:release`. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported byte-for-byte from the verified single-file build, and `behaviour.ts` holds 210 DOM queries against the ids in `markup.ts`: fix a real bug in place, in the smallest diff you can, and don't rename an id, reformat, or turn it into JSX. `npm run lint` has pre-existing complaints about those files that are meant to stay.
+`npm run verify:source` and `npm run build:release` must pass for the complete registry-derived published surface. For a focused Handbook change, run `npm run handbook:check` and `npm run widgets:check` before the full gates. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported byte-for-byte from the verified single-file build, and `behaviour.ts` holds 210 DOM queries against the ids in `markup.ts`: fix a real bug in place, in the smallest diff you can, and don't rename an id, reformat, or turn it into JSX. `npm run lint` has pre-existing complaints about those files that are meant to stay.
 
 Then the checks used on every change to the handbook. Open the page and paste them into the browser console:
 
@@ -320,7 +298,7 @@ grep -rhoE 'src="https?://[^"]*"' out --include='*.html' | sort -u || echo "clea
 
 ## Publishing your own copy
 
-The live site is a static export on **Vercel** — zero config, it picks up `next build`. Any host that serves a folder will do just as well: `npm run build`, then upload `out/`.
+The live site is a static export on **Vercel**. `vercel.json` runs the complete `npm run build:release` boundary for deployment candidates. Any host that serves a folder will do just as well: run `npm ci` and `npm run build:release`, then upload `out/` only after the candidate's required review evidence is complete.
 
 If you fork it, change the canonical domain (`SITE`, in `lib/seo.ts` — one line, and the canonicals, hreflang, og:url, sitemap and robots.txt all follow) and the GitHub links in `components/Shell.tsx`. Note that Vercel uploads the working directory, not the git tree, so `.gitignore` does not protect you there — `.vercelignore` is what keeps `course/`, `legacy/` and anything secret out of the upload.
 
