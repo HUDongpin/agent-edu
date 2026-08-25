@@ -5,7 +5,7 @@
  *
  * 1.  When the SDK or a model id changes, exactly one file needs editing.
  * 2.  It gives us a seam for --offline, so someone without an API key can
- *     still run all nine stages.
+ *     still run all nine guided stages (0–8); Stage 9 is the transfer project.
  * 3.  It gives us a seam for *which vendor*. This course runs on DeepSeek or
  *     on Anthropic's Claude, and not one line of any stage changes between
  *     them. Swapping the model underneath your system without rewriting the
@@ -21,12 +21,14 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
-import { createHash } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const HERE = dirname(fileURLToPath(import.meta.url));
+import { DEEPSEEK_PRICING, priceBandAt } from "../../lib/byok/pricing";
+import { createOfflineClient, offlineText } from "./offline";
+import {
+  EMPTY_COURSE_USAGE_LEDGER,
+  priceAnthropicCourseUsage,
+  priceDeepSeekCourseUsage,
+  recordCourseUsage,
+} from "./pricing";
 
 /* ---------------------------------------------------------------------------
  * Providers
@@ -43,7 +45,7 @@ interface Provider {
   env: string;
   baseURL?: string;
   model: string;
-  prices: { in: number; out: number; cachedIn: number };
+  prices?: { in: number; out: number; cachedIn: number };
   quirks: { jsonSchema: boolean };
   help: string;
 }
@@ -62,9 +64,9 @@ export const PROVIDERS: Record<string, Provider> = {
     env: "DEEPSEEK_API_KEY",
     baseURL: "https://api.deepseek.com/anthropic",
     model: "deepseek-v4-flash",
-    // USD per 1M tokens, off-peak. Peak is double and is applied below.
-    // Checked 2026-08-18 against api-docs.deepseek.com/quick_start/pricing.
-    prices: { in: 0.22, out: 0.66, cachedIn: 0.007 },
+    // Flash and Pro pricing come from lib/byok/pricing.ts, the same dated
+    // source used by the browser Lab. Keeping one snapshot prevents the CLI
+    // from silently pricing a CAFE_MODEL=deepseek-v4-pro run as Flash.
     // json_schema is ACCEPTED AND SILENTLY IGNORED by DeepSeek — you get
     // prose back and JSON.parse explodes. So we fall back to asking in the
     // prompt and validating ourselves. See schemaFallback().
@@ -93,8 +95,6 @@ const CFG = PROVIDERS[PROVIDER];
 
 /** One line to change for a different model; CAFE_MODEL overrides without editing. */
 export const MODEL = process.env.CAFE_MODEL || CFG.model;
-export const PRICE_IN = CFG.prices.in;
-export const PRICE_OUT = CFG.prices.out;
 
 /**
  * Effort: low | medium | high | xhigh | max. The course defaults to "low"
@@ -106,19 +106,19 @@ export const PRICE_OUT = CFG.prices.out;
  */
 export const EFFORT = process.env.CAFE_EFFORT || "low";
 
-const CASSETTES = join(HERE, `fixtures.${PROVIDER}.json`);
-
-/** --offline anywhere on the command line replays recorded answers. */
+/** --offline anywhere on the command line uses the deterministic local stand-in. */
 export const OFFLINE = process.argv.includes("--offline");
 
-const spent = { in: 0, out: 0, cached: 0, calls: 0 };
+let spent = { ...EMPTY_COURSE_USAGE_LEDGER };
 let client: Anthropic | null = null;
 
 export function getClient(): Anthropic {
   if (!client) {
-    client = new Anthropic({
-      ...(CFG.baseURL ? { baseURL: CFG.baseURL, apiKey: process.env[CFG.env] ?? "" } : {}),
-    });
+    client = OFFLINE
+      ? createOfflineClient() as unknown as Anthropic
+      : new Anthropic({
+          ...(CFG.baseURL ? { baseURL: CFG.baseURL, apiKey: process.env[CFG.env] ?? "" } : {}),
+        });
   }
   return client;
 }
@@ -136,18 +136,6 @@ export function tuning(effort: string = EFFORT): Record<string, unknown> {
     return effort === "low" ? { thinking: { type: "disabled" } } : {};
   }
   return { output_config: { effort } };
-}
-
-/* ------------------------------ record / replay ------------------------- */
-
-function cassetteKey(payload: unknown): string {
-  return createHash("sha256").update(JSON.stringify(payload)).digest("hex").slice(0, 16);
-}
-function loadCassettes(): Record<string, string> {
-  return existsSync(CASSETTES) ? JSON.parse(readFileSync(CASSETTES, "utf8")) : {};
-}
-function saveCassettes(store: Record<string, string>): void {
-  writeFileSync(CASSETTES, JSON.stringify(store, null, 1));
 }
 
 /* ---------------- making a schema stick on a vendor that ignores it ------ */
@@ -221,28 +209,22 @@ export async function ask<T>(prompt: string, opts: AskOptions = {}): Promise<str
     };
   }
 
-  const key = cassetteKey({ ...request, _variant: variant, _p: PROVIDER });
-  const store = loadCassettes();
   let text: string;
 
   if (OFFLINE) {
-    if (!(key in store)) {
-      throw new Error(
-        "\n  No recording for this exact request, so --offline cannot answer it.\n" +
-        "  Recordings are keyed on the whole request, so any change to your\n" +
-        `  prompt needs a fresh recording. Set ${CFG.env} and drop --offline.\n`);
-    }
-    text = store[key];
+    text = offlineText(prompt, { system, schema, variant });
   } else {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     const response: any = await getClient().messages.create(request as any);
+    // Meter every HTTP-success response before interpreting its content. A
+    // refusal can still consume billable input/output tokens.
+    meter(response);
 
     // Claude runs safety classifiers. A declined request is a normal 200 with
     // empty or partial content, so check BEFORE indexing into content.
     if (response.stop_reason === "refusal") {
       throw new Error(`The model declined this request (category: ${response.stop_details?.category}).`);
     }
-    meter(response);
     text = (response.content ?? [])
       .filter((b: any) => b.type === "text").map((b: any) => b.text).join("");
 
@@ -254,8 +236,6 @@ export async function ask<T>(prompt: string, opts: AskOptions = {}): Promise<str
         `${CFG.label} used all ${maxTokens} tokens on hidden reasoning and left ` +
         `no answer. Raise maxTokens, or pass effort:"low" to turn thinking off.`);
     }
-    store[key] = text;
-    saveCassettes(store);
   }
 
   if (!schema) return text;
@@ -268,13 +248,11 @@ export async function ask<T>(prompt: string, opts: AskOptions = {}): Promise<str
  * this their spend is invisible — and a cost you cannot see is one you will
  * not manage.
  */
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-export function meter(response: any): void {
-  const u = response.usage ?? {};
-  spent.in += u.input_tokens ?? 0;
-  spent.out += u.output_tokens ?? 0;
-  spent.cached += u.cache_read_input_tokens ?? 0;
-  spent.calls++;
+export function meter(response: unknown): void {
+  const usage = response !== null && typeof response === "object" && !Array.isArray(response)
+    ? (response as Record<string, unknown>).usage
+    : undefined;
+  spent = recordCourseUsage(spent, usage);
 }
 
 let baseline: number | null = null;
@@ -297,29 +275,67 @@ export async function tokens(text: string): Promise<number> {
   return Math.max(0, (await count(text)) - baseline);
 }
 
-/** DeepSeek halves its prices outside 01:00-04:00 and 06:00-10:00 UTC. */
-function isPeak(): boolean {
-  const h = new Date().getUTCHours();
-  return (h >= 1 && h < 4) || (h >= 6 && h < 10);
-}
-
 export function spend(): string {
   if (OFFLINE) return "offline — no tokens spent";
-  const mult = PROVIDER === "deepseek" && isPeak() ? 2 : 1;
-  const fresh = Math.max(0, spent.in - spent.cached);
-  const dollars =
-    ((fresh * PRICE_IN + spent.cached * CFG.prices.cachedIn + spent.out * PRICE_OUT) * mult) / 1e6;
   let note = "";
-  if (spent.cached) note += ` (${spent.cached.toLocaleString()} cached)`;
-  if (mult > 1) note += " · peak rate";
-  return `${spent.calls} call(s) · ${spent.in.toLocaleString()} in / ` +
-    `${spent.out.toLocaleString()} out${note} · $${dollars.toFixed(4)} on ${MODEL}`;
+  if (spent.cachedInputTokens) {
+    note += ` (${spent.cachedInputTokens.toLocaleString()} cache-read)`;
+  }
+  if (spent.cacheCreationInputTokens) {
+    note += ` (${spent.cacheCreationInputTokens.toLocaleString()} cache-created)`;
+  }
+  const usage = `${spent.calls} call(s) · ${spent.inputTokens.toLocaleString()} confirmed in / ` +
+    `${spent.outputTokens.toLocaleString()} confirmed out${note}`;
+
+  if (spent.unknownCalls > 0) {
+    return `${usage} · cost unknown on ${MODEL} ` +
+      `(${spent.unknownCalls} call(s) had missing, invalid, or unrecognised usage)`;
+  }
+
+  if (PROVIDER === "deepseek") {
+    const band = priceBandAt();
+    const priced = priceDeepSeekCourseUsage(MODEL, {
+      inputTokens: spent.inputTokens,
+      cachedInputTokens: spent.cachedInputTokens,
+      cacheCreationInputTokens: spent.cacheCreationInputTokens,
+      outputTokens: spent.outputTokens,
+    }, band);
+    if (!priced.known) {
+      return `${usage} · cost unknown on ${MODEL} ` +
+        `(not safely priceable from the ${priced.checkedAt} DeepSeek snapshot)`;
+    }
+    return `${usage} · $${priced.usd.toFixed(4)} on ${MODEL} · ${band} rate · ` +
+      `prices checked ${DEEPSEEK_PRICING.checkedAt}`;
+  }
+
+  const prices = CFG.prices;
+  if (!prices) return `${usage} · cost unknown on ${MODEL}`;
+  const priced = priceAnthropicCourseUsage(
+    MODEL,
+    CFG.model,
+    {
+      inputTokens: spent.inputTokens,
+      cachedInputTokens: spent.cachedInputTokens,
+      cacheCreationInputTokens: spent.cacheCreationInputTokens,
+      outputTokens: spent.outputTokens,
+    },
+    { input: prices.in, output: prices.out, cachedInput: prices.cachedIn },
+  );
+  if (!priced.known) {
+    const detail = priced.reason === "cache-creation-price-unknown"
+      ? "cache-creation usage needs a separate rate"
+      : priced.reason === "unknown-model"
+        ? `the configured rates belong to ${CFG.model}`
+        : "usage is not safely priceable";
+    return `${usage} · cost unknown on ${MODEL} (${detail})`;
+  }
+  return `${usage} · $${priced.usd.toFixed(4)} on ${MODEL}`;
 }
 
 /** Fail early and clearly, instead of deep inside a stack trace. */
 export function preflight(): void {
   if (OFFLINE) {
-    console.log("  [offline] replaying recorded answers — you are not seeing real model variation.\n");
+    console.log("  [offline] scripted local stand-in — no Provider request or real model variation.\n");
     return;
   }
   if (!process.env[CFG.env]) {
@@ -331,7 +347,7 @@ export function preflight(): void {
     throw new Error(
       `\n  ${CFG.env} is not set, so the ${CFG.label} provider cannot run.\n\n` +
       `    export ${CFG.env}=...\n\n  Get a key: ${CFG.help}\n${hint}` +
-      "  Or run any stage with --offline to replay recorded answers.\n");
+      "  Or run any stage with --offline to use the scripted local stand-in.\n");
   }
   console.log(`  [${CFG.label}] ${MODEL} · effort=${EFFORT}\n`);
 }

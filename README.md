@@ -10,9 +10,9 @@ Every program is a list of steps. The only question is *who picks them*. Three p
 
 | | | Needs |
 |---|---|---|
-| **1 · [The Handbook](https://aicourse.top/en/handbook/)** | eleven illustrated sections, twenty interactive diagrams | nothing |
-| **2 · [The Lab](https://aicourse.top/en/lab/)** | four hands-on steps in the browser — a real API call, the rules wall, your own prompt, **and twenty cases that score it** | a DeepSeek key · ~1¢ |
-| **3 · [The Course](course/)** | five more stages — the agent loop, a permission gate, a mandatory reviewer, prompt injection | TypeScript · ~2¢ |
+| **1 · [The Handbook](https://aicourse.top/en/handbook/)** | eleven illustrated sections and scripted interactive simulations | nothing · works offline · no key |
+| **2 · [The Lab](https://aicourse.top/en/lab/)** | four browser steps — a real DeepSeek call, the rules wall, your own prompt, **and twenty cases that score it** | your DeepSeek key · real Provider charges |
+| **3 · [The Course](https://aicourse.top/en/build/)** | nine guided TypeScript stages (0–8), then a Stage 9 transfer project — the agent loop, a permission gate, a mandatory reviewer, prompt injection | TypeScript · DeepSeek / Claude / offline |
 
 All three, and what is still to come, are listed on the [catalogue](https://aicourse.top/en/courses/). Teaching it? There's a **[90-minute lesson plan](TEACHING.md)**.
 
@@ -24,9 +24,9 @@ All three, and what is still to come, are listed on the [catalogue](https://aico
 npm install && npm run dev
 ```
 
-`npm run build` type-checks and writes the whole site to `out/` as **50 static pages**. No server, no database, no API route — you can serve `out/` with anything.
+`npm run build` type-checks and writes the whole site to `out/` as static files. `npm run routes:check` compares every exported route and recovery artifact with the committed manifest. There is no application server, database or API route; you can serve `out/` with any static host.
 
-**Nothing here is a real AI — by default.** Every "model" reply in the handbook is scripted, so the patterns stay legible and the page can never break because a key expired. The Lab is the exception: give it your own [DeepSeek](https://platform.deepseek.com/api_keys) key and it calls a real model, so you can watch the same question come back different. Your key is held in that one browser tab, erased when you close it, and sent to `api.deepseek.com` and nowhere else. No page loads a script, font or image from another host.
+**Part 1 is not a real AI.** Every Handbook "model" reply is scripted, so it works offline, needs no key and stays pedagogically reproducible. Part 2 is deliberately different: give the browser Lab your own [DeepSeek](https://platform.deepseek.com/api_keys) key and it makes real calls with real Provider charges. The key is held in session storage for that tab; closing the tab forgets the local copy but does not revoke the Provider-side credential. The site does not intentionally send keys, prompts or replies to analytics. Vercel Analytics is nevertheless a same-origin third-party script and therefore a disclosed trust boundary, not a technical guarantee of isolation.
 
 ---
 
@@ -67,18 +67,18 @@ Plus **09 Which one, when** — a comparison table and a decision tree — and *
 
 It began as one self-contained HTML file. Nine languages ended that: nine dictionaries hand-copied across three pages would drift, and a drifted translation is worse than none. Per-locale URLs then ended the no-build-step rule too — with one shared URL, search engines only ever indexed the English copy.
 
-So it is now **Next.js 16 / React 19 / TypeScript, exported as static files** (`output: "export"`). No server: the handbook is scripted and the lab talks to the model provider straight from your browser with your own key, so hosting stays free and there is no runtime that can leak anything.
+So it is now **Next.js 16 / React 19 / TypeScript, exported as static files** (`output: "export"`). The Handbook is scripted and the Lab talks to the fixed Provider endpoint from the browser. The static architecture removes an application backend, but it does not erase browser, hosting, analytics or Provider trust boundaries; those are disclosed and constrained separately.
 
 | | |
 |---|---|
-| `app/[locale]/` | the five pages — home, courses, handbook, lab, about — across 9 locales |
+| `app/[locale]/` | the localized pages — home, courses, handbook, lab, build and about — across 9 locales |
 | `messages/*.json` | every string, one flat file per language. A translator edits one line; no React, no build |
 | `messages/handbook/` | the handbook's article prose, extracted from the markup — same idea, one file per language |
 | `components/` | the shell React owns: nav, language menu, theme toggle, the Lab |
 | `lib/flowchart.ts` | the diagram engine, byte-identical to the verified original |
 | `lib/handbook/` | `markup.ts`, the verified handbook markup, and `behaviour.ts`, its 22 widget modules |
 | `scripts/` | `extract-handbook.mjs`, which turns the markup's text nodes into `messages/handbook/en.json` |
-| `course/` | the nine-stage TypeScript course |
+| `course/` | nine guided TypeScript stages (0–8) plus the Stage 9 transfer project |
 | `legacy/` | the original single-file HTML, and the Python course |
 
 Bare `/` is a real page rather than a redirect — a static export has no server to redirect with — so it reads your saved choice or your browser's languages and sends you on to `/en/`, `/ar/` and so on. Inside the handbook every section has its own hash: [`/en/handbook/#security`](https://aicourse.top/en/handbook/#security).
@@ -93,11 +93,11 @@ English · Español · Français · Deutsch · 简体中文 · 繁體中文 · �
 
 Pick one from the 🌐 menu, or link straight to it — each language is its own URL, so `/ar/handbook/` *is* the Arabic handbook. Your choice is remembered in the browser.
 
-**The long-form articles in the handbook are still English.** The interface around them is translated; the essays are not, and a banner says so in your language rather than pretending otherwise. Untranslated English keeps `dir="ltr"` inside the Arabic shell, so punctuation and code samples stay the right way round.
+The Handbook article dictionaries contain all 540 current source keys in every locale. Code, URLs and model identifiers stay left-to-right inside Arabic. Structure checks can prove key, placeholder and markup parity; they do **not** replace the release gate for native-speaker review of meaning, terminology and beginner readability. The authoritative count is printed by `npm run handbook:check`; update this sentence whenever that source contract changes.
 
-Translating them is now a matter of filling in one file. `messages/handbook/en.json` holds the 560 strings of article prose, pulled out of the markup by `npm run handbook:extract`; copy it to `fr.json`, translate the values, and `/fr/handbook/` ships in French — the substitution happens at build time, so the exported file is French for a reader, for a crawler and for anyone with JavaScript off. No code change, and nothing to know about React. A part-finished file is fine and its strings appear straight away; the banner and the `en-content` wrapper only drop away once every key is filled in, because flipping a half-translated Arabic page to right-to-left would lay the paragraphs nobody had reached yet out backwards. The build prints what is still missing.
+`messages/handbook/en.json` holds the 540 current strings of article prose, pulled out of the markup by `npm run handbook:extract`; each sibling locale file supplies the translated values. Substitution happens at build time, so the exported page is localized for a reader, crawler and anyone with JavaScript off. A part-finished contribution may use the English fallback during development, but the nine-language release gate rejects unexplained user-visible fallbacks.
 
-Keys are `hb.body.<nearest ancestor id>.<nth text node>`, and text broken by an `<em>` or a link arrives in pieces: only text is replaced, never the tags around it, which is what keeps the verified markup and its 210 DOM queries intact. Readouts a widget rewrites as you use it — counters, verdicts, the game — come back in English, because those strings live in `behaviour.ts`.
+Keys are `hb.body.<nearest ancestor id>.<nth text node>`, and text broken by an `<em>` or a link arrives in pieces: only text is replaced, never the tags around it, which is what keeps the verified markup and its DOM queries intact. Dynamic readouts use the separate `messages/widgets/*.json` dictionaries and are subject to the same zero-unexplained-fallback release gate.
 
 Every string lives in [`messages/`](messages/) — one flat JSON file per language, the same keys in each. To fix a translation, edit one line. To add a language, copy `en.json`, translate the values, and add a row to `LOCALES` in [`lib/i18n.ts`](lib/i18n.ts) (set `dir:"rtl"` if it needs it). A missing key falls back to English rather than rendering blank, and the menu shows each translation's coverage — so a partial contribution is useful rather than embarrassing.
 
@@ -141,7 +141,7 @@ FC.draw($('#fcYours'), {
 
 ### Before you open a PR
 
-`npm run build` must pass and still say 50/50 pages, and `npm run handbook:check` must pass. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported byte-for-byte from the verified single-file build, and `behaviour.ts` holds 210 DOM queries against the ids in `markup.ts`: fix a real bug in place, in the smallest diff you can, and don't rename an id, reformat, or turn it into JSX. `npm run lint` has pre-existing complaints about those files that are meant to stay.
+`npm run build`, `npm run routes:check` and `npm run handbook:check` must pass. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported from the verified single-file build and contain tightly coupled DOM queries: fix a real bug in place, in the smallest diff you can, and do not rename an id, reformat, or turn the port into JSX as a side effect.
 
 Then the checks used on every change to the handbook. Open the page and paste them into the browser console:
 

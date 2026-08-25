@@ -1,0 +1,598 @@
+{
+  "schema": "agent-edu.synthetic-lab-vitals.v1",
+  "evidenceKind": "synthetic-lab",
+  "generatedAtUtc": "2026-08-21T02:41:51.640Z",
+  "source": {
+    "commitSha": "a586b44a6b58bf209864d2cd9529bb9adff12012",
+    "dirty": false
+  },
+  "artifact": {
+    "nextBuildId": "0GwnNBsh0p0oK6n5oI0Kt",
+    "export": {
+      "algorithm": "sha256",
+      "digest": "75e74e7c138cf5da9f6a5cbb342f8e9c0a75a4bea7b456a82b52a467cf9987cb",
+      "fileCount": 448,
+      "totalBytes": 24247762
+    }
+  },
+  "runtime": {
+    "node": "v24.15.0",
+    "next": "16.3.1",
+    "platform": "darwin",
+    "arch": "arm64",
+    "browser": {
+      "name": "chromium",
+      "version": "151.0.7922.34",
+      "headless": true
+    }
+  },
+  "conditions": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "samplesPerMode": 3,
+    "cache": {
+      "serverHeader": "public, max-age=3600",
+      "cold": "Chromium cache disabled with CDP",
+      "warm": "Chromium cache enabled and route primed once before measurement"
+    },
+    "networkEmulation": "none",
+    "cpuSlowdownMultiplier": 4,
+    "thresholds": "none; this harness verifies measurement and schema only"
+  },
+  "routes": [
+    {
+      "id": "home",
+      "path": "/en/",
+      "expectedStatus": 200,
+      "interaction": "open first FAQ",
+      "modes": {
+        "cold": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "open first FAQ",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 228,
+              "cls": 0,
+              "inpMs": 48
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "open first FAQ",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 160,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "open first FAQ",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 164,
+              "cls": 0,
+              "inpMs": 40
+            }
+          ],
+          "medians": {
+            "lcpMs": 164,
+            "cls": 0,
+            "inpMs": 40
+          }
+        },
+        "warm": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "open first FAQ",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 36,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "open first FAQ",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 36,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "open first FAQ",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 36,
+              "cls": 0,
+              "inpMs": 32
+            }
+          ],
+          "medians": {
+            "lcpMs": 36,
+            "cls": 0,
+            "inpMs": 40
+          }
+        }
+      }
+    },
+    {
+      "id": "handbook",
+      "path": "/en/handbook/",
+      "expectedStatus": 200,
+      "interaction": "select Handbook code tab",
+      "modes": {
+        "cold": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Handbook code tab",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 496,
+              "cls": 0,
+              "inpMs": 80
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Handbook code tab",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 460,
+              "cls": 0,
+              "inpMs": 80
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Handbook code tab",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 456,
+              "cls": 0,
+              "inpMs": 80
+            }
+          ],
+          "medians": {
+            "lcpMs": 460,
+            "cls": 0,
+            "inpMs": 80
+          }
+        },
+        "warm": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Handbook code tab",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 288,
+              "cls": 0,
+              "inpMs": 80
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Handbook code tab",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 296,
+              "cls": 0,
+              "inpMs": 80
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Handbook code tab",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 292,
+              "cls": 0,
+              "inpMs": 80
+            }
+          ],
+          "medians": {
+            "lcpMs": 292,
+            "cls": 0,
+            "inpMs": 80
+          }
+        }
+      }
+    },
+    {
+      "id": "lab",
+      "path": "/en/lab/",
+      "expectedStatus": 200,
+      "interaction": "select Lab rules stage",
+      "modes": {
+        "cold": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Lab rules stage",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 180,
+              "cls": 0,
+              "inpMs": 56
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Lab rules stage",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 172,
+              "cls": 0,
+              "inpMs": 48
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Lab rules stage",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 172,
+              "cls": 0,
+              "inpMs": 56
+            }
+          ],
+          "medians": {
+            "lcpMs": 172,
+            "cls": 0,
+            "inpMs": 56
+          }
+        },
+        "warm": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Lab rules stage",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 36,
+              "cls": 0,
+              "inpMs": 56
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Lab rules stage",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 40,
+              "cls": 0,
+              "inpMs": 56
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "select Lab rules stage",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 36,
+              "cls": 0,
+              "inpMs": 56
+            }
+          ],
+          "medians": {
+            "lcpMs": 36,
+            "cls": 0,
+            "inpMs": 56
+          }
+        }
+      }
+    },
+    {
+      "id": "build",
+      "path": "/en/build/",
+      "expectedStatus": 200,
+      "interaction": "toggle theme while viewing Build",
+      "modes": {
+        "cold": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Build",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 144,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Build",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 148,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Build",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 148,
+              "cls": 0,
+              "inpMs": 40
+            }
+          ],
+          "medians": {
+            "lcpMs": 148,
+            "cls": 0,
+            "inpMs": 40
+          }
+        },
+        "warm": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Build",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 32,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Build",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 32,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Build",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 40,
+              "cls": 0,
+              "inpMs": 40
+            }
+          ],
+          "medians": {
+            "lcpMs": 32,
+            "cls": 0,
+            "inpMs": 40
+          }
+        }
+      }
+    },
+    {
+      "id": "teach",
+      "path": "/en/teach/",
+      "expectedStatus": 200,
+      "interaction": "toggle theme while viewing Teach",
+      "modes": {
+        "cold": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Teach",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 140,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Teach",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 144,
+              "cls": 0,
+              "inpMs": 48
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Teach",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 152,
+              "cls": 0,
+              "inpMs": 48
+            }
+          ],
+          "medians": {
+            "lcpMs": 144,
+            "cls": 0,
+            "inpMs": 48
+          }
+        },
+        "warm": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Teach",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 32,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 2,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Teach",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 32,
+              "cls": 0,
+              "inpMs": 40
+            },
+            {
+              "iteration": 3,
+              "status": 200,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "toggle theme while viewing Teach",
+              "interactionEvents": 4,
+              "inpSource": "first-input",
+              "lcpMs": 28,
+              "cls": 0,
+              "inpMs": 40
+            }
+          ],
+          "medians": {
+            "lcpMs": 32,
+            "cls": 0,
+            "inpMs": 40
+          }
+        }
+      }
+    },
+    {
+      "id": "404",
+      "path": "/missing-lab-vitals/",
+      "expectedStatus": 404,
+      "interaction": "activate English recovery link",
+      "modes": {
+        "cold": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 404,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "activate English recovery link",
+              "interactionEvents": 1,
+              "inpSource": "first-input",
+              "lcpMs": 128,
+              "cls": 0,
+              "inpMs": 8
+            },
+            {
+              "iteration": 2,
+              "status": 404,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "activate English recovery link",
+              "interactionEvents": 1,
+              "inpSource": "first-input",
+              "lcpMs": 120,
+              "cls": 0,
+              "inpMs": 8
+            },
+            {
+              "iteration": 3,
+              "status": 404,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "activate English recovery link",
+              "interactionEvents": 1,
+              "inpSource": "first-input",
+              "lcpMs": 128,
+              "cls": 0,
+              "inpMs": 8
+            }
+          ],
+          "medians": {
+            "lcpMs": 128,
+            "cls": 0,
+            "inpMs": 8
+          }
+        },
+        "warm": {
+          "samples": [
+            {
+              "iteration": 1,
+              "status": 404,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "activate English recovery link",
+              "interactionEvents": 1,
+              "inpSource": "first-input",
+              "lcpMs": 24,
+              "cls": 0,
+              "inpMs": 8
+            },
+            {
+              "iteration": 2,
+              "status": 404,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "activate English recovery link",
+              "interactionEvents": 1,
+              "inpSource": "first-input",
+              "lcpMs": 24,
+              "cls": 0,
+              "inpMs": 8
+            },
+            {
+              "iteration": 3,
+              "status": 404,
+              "cacheControl": "public, max-age=3600",
+              "interaction": "activate English recovery link",
+              "interactionEvents": 1,
+              "inpSource": "first-input",
+              "lcpMs": 48,
+              "cls": 0,
+              "inpMs": 8
+            }
+          ],
+          "medians": {
+            "lcpMs": 24,
+            "cls": 0,
+            "inpMs": 8
+          }
+        }
+      }
+    }
+  ]
+}

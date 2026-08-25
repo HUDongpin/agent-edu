@@ -12,7 +12,7 @@
  * `segments.mjs`, which hands back the exact byte range of each text run;
  * everything between those ranges — ids, classes, styles, comments, the
  * elements themselves — is copied through untouched. That is what keeps
- * `markup.ts` byte-for-byte and the 210 DOM queries in `behaviour.ts`
+ * `markup.ts` byte-for-byte and the coupled DOM queries in `behaviour.ts`
  * resolving against a Japanese page as well as an English one.
  *
  * A locale with no table under messages/handbook/ simply keeps the English
@@ -43,7 +43,7 @@ export interface LocalisedHandbook {
 }
 
 /* Walked once per build process, not once per page: the markup is a constant
-   and the walk is the same 560 answers every time. */
+   and the walk returns the same source segments every time. */
 const SEGMENTS = walkHandbook(MARKUP);
 const BODY_KEYS = SEGMENTS.filter((s) => s.kind === "body").map((s) => s.key);
 

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "locales": [
+    "en",
+    "es",
+    "fr",
+    "de",
+    "zh-Hans",
+    "zh-Hant",
+    "ja",
+    "ko",
+    "ar"
+  ],
+  "localizedPaths": [
+    "",
+    "about",
+    "build",
+    "courses",
+    "handbook",
+    "lab",
+    "teach"
+  ],
+  "staticRoutes": [
+    "/",
+    "/robots.txt",
+    "/sitemap.xml"
+  ],
+  "internalRoutes": [
+    "/_global-error",
+    "/_not-found"
+  ],
+  "requiredArtifacts": [
+    "out/404.html",
+    "out/404/index.html",
+    "out/_not-found/index.html",
+    "out/teacher-pack.txt"
+  ],
+  "requiredArtifactText": {
+    "out/404.html": [
+      "lang=\"und\"",
+      "Página no encontrada",
+      "/ar/courses/"
+    ],
+    "out/en/build/index.html": [
+      "--offline",
+      "stage 0 complete.",
+      "course/progress.json"
+    ],
+    "out/teacher-pack.txt": [
+      "20 generator + up to 8 judge = 28 calls",
+      "Never share the teacher key",
+      "npm run course:offline",
+      "replace the empty QUESTION string",
+      "Projection cues",
+      "Reference-answer boundary",
+      "Project rubric"
+    ]
+  }
+}

@@ -1,0 +1,763 @@
+{
+  "schema": "agent-edu.csp-report-only-observation.v1",
+  "sourceCommitSha": "a586b44a6b58bf209864d2cd9529bb9adff12012",
+  "generatedAt": "2026-08-21T03:02:25.072Z",
+  "environment": {
+    "node": "v24.15.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "policy": {
+    "algorithm": "sha256",
+    "digest": "ffa5a7e48bb0c879ad1133c9fffe2b82e8af9a019dd69cdc626834b8dbda698b",
+    "headerBytes": 14204,
+    "disposition": "report"
+  },
+  "routeCount": 15,
+  "browsers": [
+    {
+      "name": "chromium",
+      "version": "151.0.7922.34",
+      "routes": [
+        {
+          "path": "/en/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/ar/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/zh-Hans/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/zh-Hant/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/ja/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/ko/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/fr/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/de/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/es/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/handbook/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 145,
+          "directives": {
+            "style-src-attr": 145
+          },
+          "dispositions": {
+            "report": 145
+          },
+          "blockedCategories": {
+            "inline": 145
+          },
+          "network": {
+            "self": 17
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/lab/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 17
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/build/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 20
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/teach/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 16
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/courses/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 21
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/csp-spike/missing/",
+          "expectedStatus": 404,
+          "actualStatus": 404,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 8
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        }
+      ],
+      "summary": {
+        "routes": 15,
+        "statusMismatches": 0,
+        "invisibleMain": 0,
+        "violations": 145,
+        "pageErrors": 0,
+        "consoleErrors": 29,
+        "externalRequests": 0,
+        "providerRequests": 0,
+        "analyticsRequests": 0
+      }
+    },
+    {
+      "name": "firefox",
+      "version": "153.0",
+      "routes": [
+        {
+          "path": "/en/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 25
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/ar/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 25
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/zh-Hans/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 25
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/zh-Hant/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 25
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/ja/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 25
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/ko/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 25
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/fr/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 25
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/de/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 25
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/es/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 25
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/en/handbook/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 145,
+          "directives": {
+            "style-src-attr": 145
+          },
+          "dispositions": {
+            "report": 145
+          },
+          "blockedCategories": {
+            "inline": 145
+          },
+          "network": {
+            "self": 18
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 147
+        },
+        {
+          "path": "/en/lab/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 18
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/en/build/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 21
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/en/teach/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 17
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/en/courses/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 22
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        },
+        {
+          "path": "/csp-spike/missing/",
+          "expectedStatus": 404,
+          "actualStatus": 404,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 8
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 0
+        }
+      ],
+      "summary": {
+        "routes": 15,
+        "statusMismatches": 0,
+        "invisibleMain": 0,
+        "violations": 145,
+        "pageErrors": 0,
+        "consoleErrors": 160,
+        "externalRequests": 0,
+        "providerRequests": 0,
+        "analyticsRequests": 0
+      }
+    },
+    {
+      "name": "webkit",
+      "version": "26.5",
+      "routes": [
+        {
+          "path": "/en/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/ar/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/zh-Hans/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/zh-Hant/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/ja/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/ko/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/fr/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/de/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/es/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 24
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/handbook/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 145,
+          "directives": {
+            "style-src-attr": 145
+          },
+          "dispositions": {
+            "report": 145
+          },
+          "blockedCategories": {
+            "inline": 145
+          },
+          "network": {
+            "self": 17
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/lab/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 17
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/build/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 20
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/teach/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 16
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/en/courses/",
+          "expectedStatus": 200,
+          "actualStatus": 200,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 21
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 2
+        },
+        {
+          "path": "/csp-spike/missing/",
+          "expectedStatus": 404,
+          "actualStatus": 404,
+          "mainVisible": true,
+          "violationCount": 0,
+          "directives": {},
+          "dispositions": {},
+          "blockedCategories": {},
+          "network": {
+            "self": 8
+          },
+          "pageErrorCount": 0,
+          "consoleErrorCount": 1
+        }
+      ],
+      "summary": {
+        "routes": 15,
+        "statusMismatches": 0,
+        "invisibleMain": 0,
+        "violations": 145,
+        "pageErrors": 0,
+        "consoleErrors": 29,
+        "externalRequests": 0,
+        "providerRequests": 0,
+        "analyticsRequests": 0
+      }
+    }
+  ]
+}

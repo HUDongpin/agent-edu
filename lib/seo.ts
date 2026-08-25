@@ -20,7 +20,7 @@ import { LOCALE_CODES, DEFAULT_LOCALE } from "@/lib/i18n";
 export const SITE = "https://aicourse.top";
 
 /** Every route under a locale, as a path relative to the locale root. */
-export const PAGES = ["", "courses/", "handbook/", "lab/", "about/"] as const;
+export const PAGES = ["", "courses/", "handbook/", "lab/", "build/", "teach/", "about/"] as const;
 export type Page = (typeof PAGES)[number];
 
 /** One shared card for now — see the note in app/[locale]/layout.tsx. */

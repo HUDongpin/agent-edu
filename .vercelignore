@@ -6,6 +6,9 @@
 .env
 .env.*
 *.key
+*.pem
+*.p12
+*.pfx
 *secret*
 *credential*
 *API*Key*
@@ -16,6 +19,9 @@ legacy/
 .next/
 out/
 .claude/
+playwright-report/
+test-results/
+blob-report/
 TEACHING.md
 .git/
 .venv/

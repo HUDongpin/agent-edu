@@ -1,0 +1,186 @@
+{
+  "schema": "agent-edu.stage-a-automated-precheck.v1",
+  "status": "automated-precheck-pass-external-gates-pending",
+  "generatedAtUtc": "2026-08-21T14:40:10Z",
+  "target": {
+    "candidateCommitSha": "29e1f8b8405068875b1ba94a92b516930bc0d6b0",
+    "checkpointSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+    "integrationBranch": "codex/release-202608-agent-edu",
+    "vercelDeploymentId": "dpl_7BA4NvQEMZV4x5HajDqdhCGn3o9y",
+    "workflowDefinitionSha": "141c3f366ba118ed69fbaf4777a2bcd33376f12f"
+  },
+  "sourceFiles": {
+    ".github/workflows/ci.yml": "0d7ea3838f34797eae194a4ce74c159b3f3e19dd434d7b9348402c2d98296055",
+    "e2e/smoke.spec.ts": "e8abfb76ef3c4a1c1720316a78bfda807dfbfe262f4160d29cc383f51bf9e9c5",
+    "e2e/compat.spec.ts": "a1b8223df8f32ce2f4d899833f36359761d75a889368bb4cb710704344b10711",
+    "config/csp-stage.json": "322a3cfaf40b23afd3272419ecd2a830a25770f3127094f1190ebf3858e757e8",
+    "vercel.json": "1b1d15a4207d87c4abdd7205ae0ffc201a8f15d6c2f241e94692adaee382b7cb"
+  },
+  "githubActions": {
+    "runId": 32448414858,
+    "runAttempt": 1,
+    "workflowName": "CI",
+    "event": "pull_request",
+    "headSha": "29e1f8b8405068875b1ba94a92b516930bc0d6b0",
+    "headBranch": "codex/release-202608-agent-edu",
+    "createdAtUtc": "2026-08-21T04:51:26Z",
+    "completedAtUtc": "2026-08-21T04:54:08Z",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "quality",
+        "jobId": 96672180498,
+        "startedAtUtc": "2026-08-21T04:51:28Z",
+        "completedAtUtc": "2026-08-21T04:52:21Z",
+        "conclusion": "success",
+        "observedSummary": {
+          "unitTests": "231/231 pass",
+          "cspCheck": "pass-report-only-baseline",
+          "staticRoutes": 68,
+          "routeArtifacts": 70,
+          "assetBudgetsPassed": 9
+        }
+      },
+      {
+        "name": "smoke-chromium",
+        "jobId": 96672180497,
+        "startedAtUtc": "2026-08-21T04:51:28Z",
+        "completedAtUtc": "2026-08-21T04:53:54Z",
+        "conclusion": "success",
+        "observedSummary": {
+          "publicSmokeTests": "59/59 pass",
+          "privateProviderContractTests": "14/14 pass",
+          "failureEvidenceContract": "pass"
+        }
+      },
+      {
+        "name": "compatibility",
+        "jobId": 96672180470,
+        "startedAtUtc": "2026-08-21T04:51:28Z",
+        "completedAtUtc": "2026-08-21T04:54:08Z",
+        "conclusion": "success",
+        "observedSummary": {
+          "compatibilityTests": "9/9 pass",
+          "compatibilityPerBrowser": "3/3 pass",
+          "resilienceTests": "1/1 pass",
+          "syntheticLabVitals": "six routes; one cold and one warm sample per route"
+        }
+      }
+    ]
+  },
+  "automatedBrowserCoverage": {
+    "executionOrigin": "CI-built localhost static export",
+    "journey": {
+      "locales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "path": [
+        "Home",
+        "Handbook",
+        "Control Room #play",
+        "Lab",
+        "Part 3 Build"
+      ],
+      "testsPassed": 9,
+      "paidProviderRequestsExpected": 0
+    },
+    "coreRouteLayout": {
+      "locales": 9,
+      "routes": [
+        "Home",
+        "Handbook",
+        "Lab",
+        "Build"
+      ],
+      "widths": [
+        390,
+        1440
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "matrixCasesPassed": 36,
+      "routeAssertionsPassed": 144
+    },
+    "arabicRtlKeyboard": {
+      "widths": [
+        390,
+        979,
+        980,
+        1440
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "matrixCasesPassed": 8,
+      "checks": [
+        "979/980 orientation boundary",
+        "Home and End focus",
+        "mirrored horizontal arrows",
+        "vertical arrows",
+        "active tab visibility",
+        "RTL scroll containment",
+        "LTR diagrams and code"
+      ]
+    },
+    "compatibility": {
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "testsPerBrowser": 3,
+      "totalTestsPassed": 9
+    }
+  },
+  "vercelDeploymentMetadata": {
+    "deploymentId": "dpl_7BA4NvQEMZV4x5HajDqdhCGn3o9y",
+    "target": "preview",
+    "readyState": "READY",
+    "createdAtUtc": "2026-08-21T04:50:05.410Z",
+    "buildReadyAtUtc": "2026-08-21T04:50:04.116Z",
+    "configuredHeaderName": "content-security-policy-report-only",
+    "configuredPolicySha256": "0c5cede8982b73e427417fff2e2f3e90968998cab2ab6f85fb26fc3bf8da394a",
+    "configuredPolicyBytes": 303,
+    "inspectionLayer": "Vercel deployment build configuration metadata",
+    "actualResponseHeaderObserved": false
+  },
+  "gateEffect": {
+    "stageAReportOnlyStatus": "pending",
+    "stageAResultChanged": false,
+    "finalCandidateStableRunCountChanged": false,
+    "releaseAuthorized": false
+  },
+  "externalBoundaries": {
+    "actualVercelResponseHeaderObserved": false,
+    "deployedBrowserObservationWindowCompleted": false,
+    "nativeLocaleReviewPerformed": false,
+    "arabicHumanMatrixPerformed": false,
+    "realProviderCallPerformed": false,
+    "providerCorsObserved": false,
+    "githubRequiredChecksConfigurationObserved": false,
+    "productionDeploymentPerformed": false,
+    "productionRollbackPerformed": false
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsModelReplies": false,
+    "containsProviderBodies": false,
+    "containsBillingAccountDetails": false,
+    "containsScreenshotsOrTraces": false
+  },
+  "decision": "The exact report-only predecessor has a successful attempt-1 CI run and a READY immutable preview whose build configuration contains the reviewed report-only CSP. This is an automated precheck only. Stage A remains pending until the actual deployed response header and a sanitized deployed-browser observation window are independently recorded."
+}

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "systemUnderTest": "Describe the exact version or commit being evaluated.",
+  "scoringRule": "Describe what counts as pass and who or what decides.",
+  "cases": [
+    {
+      "id": "ordinary-01",
+      "input": "Replace with an ordinary input from the domain.",
+      "expectedEvidence": "Observable condition required for pass.",
+      "risk": "reversible"
+    },
+    {
+      "id": "boundary-01",
+      "input": "Replace with an ambiguous or out-of-scope request.",
+      "expectedEvidence": "Clarifies, refuses, or routes to a person as designed.",
+      "risk": "review-required"
+    },
+    {
+      "id": "hostile-01",
+      "input": "Replace with untrusted content that attempts to change instructions.",
+      "expectedEvidence": "Untrusted text cannot bypass the enforced action gate.",
+      "risk": "irreversible"
+    }
+  ],
+  "runs": []
+}

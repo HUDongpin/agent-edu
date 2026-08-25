@@ -1,0 +1,192 @@
+{
+  "schema": "agent-edu.stage-a-browser-header-observation.v1",
+  "status": "actual-header-nine-locale-arabic-and-analytics-observed-provider-pending",
+  "observedAt": "2026-08-21T15:37:24Z",
+  "target": {
+    "candidateCommitSha": "29e1f8b8405068875b1ba94a92b516930bc0d6b0",
+    "checkpointSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+    "integrationBranch": "codex/release-202608-agent-edu",
+    "vercelDeploymentId": "dpl_7BA4NvQEMZV4x5HajDqdhCGn3o9y",
+    "workflowDefinitionSha": "141c3f366ba118ed69fbaf4777a2bcd33376f12f"
+  },
+  "observation": {
+    "tool": "Chrome DevTools through Computer Use",
+    "browser": "Google Chrome 151",
+    "platform": "macOS",
+    "requestPath": "/en/",
+    "requestMethod": "GET",
+    "cacheDisabled": true,
+    "statusCode": 200,
+    "authenticatedByExistingVercelSession": true,
+    "bypassCredentialCreated": false
+  },
+  "responseHeaders": {
+    "contentSecurityPolicyReportOnly": {
+      "present": true,
+      "policySha256": "0c5cede8982b73e427417fff2e2f3e90968998cab2ab6f85fb26fc3bf8da394a",
+      "policyBytes": 303,
+      "matchesReviewedBaseline": true,
+      "unexpectedEgressOriginPresent": false
+    },
+    "contentSecurityPolicyEnforcedPresent": false,
+    "xContentTypeOptions": "nosniff",
+    "xFrameOptions": "DENY",
+    "referrerPolicy": "no-referrer",
+    "strictTransportSecurityPresent": true,
+    "server": "Vercel",
+    "vercelCache": "MISS"
+  },
+  "deployedJourney": {
+    "observedAt": "2026-08-21T16:06:02Z",
+    "localesObserved": [
+      "en",
+      "zh-Hans",
+      "zh-Hant",
+      "ar",
+      "de",
+      "es",
+      "fr",
+      "ja",
+      "ko"
+    ],
+    "path": [
+      "Home",
+      "Handbook",
+      "Control Room #play",
+      "Lab",
+      "Part 3 Build"
+    ],
+    "english": {
+      "allPathStopsLoaded": true,
+      "controlRoomDeepLinkSelected": true,
+      "labKeyFieldEmpty": true,
+      "saveAndTestDisabledWithoutKey": true,
+      "paidRunTriggered": false
+    },
+    "arabic": {
+      "allPathStopsLoaded": true,
+      "rtlLocaleRoutePreserved": true,
+      "controlRoomDeepLinkSelected": true,
+      "homeKeySelectedFirstTab": true,
+      "endKeySelectedLastTab": true,
+      "darkThemeToggleObservedAndRestored": true,
+      "labKeyFieldEmpty": true,
+      "saveAndTestDisabledWithoutKey": true,
+      "paidRunTriggered": false
+    },
+    "otherLocales": {
+      "zh-Hans": {
+        "allPathStopsLoaded": true,
+        "homeH1Observed": true,
+        "controlRoomSelected": true,
+        "labEmptyKeyFieldObserved": true,
+        "buildCourseLinkObserved": true
+      },
+      "zh-Hant": {
+        "allPathStopsLoaded": true,
+        "homeH1Observed": true,
+        "controlRoomSelected": true,
+        "labEmptyKeyFieldObserved": true,
+        "buildCourseLinkObserved": true
+      },
+      "de": {
+        "allPathStopsLoaded": true,
+        "homeH1Observed": true,
+        "controlRoomSelected": true,
+        "labEmptyKeyFieldObserved": true,
+        "buildCourseLinkObserved": true
+      },
+      "es": {
+        "allPathStopsLoaded": true,
+        "homeH1Observed": true,
+        "controlRoomSelected": true,
+        "labEmptyKeyFieldObserved": true,
+        "buildCourseLinkObserved": true
+      },
+      "fr": {
+        "allPathStopsLoaded": true,
+        "homeH1Observed": true,
+        "controlRoomSelected": true,
+        "labEmptyKeyFieldObserved": true,
+        "buildCourseLinkObserved": true
+      },
+      "ja": {
+        "allPathStopsLoaded": true,
+        "homeH1Observed": true,
+        "controlRoomSelected": true,
+        "labEmptyKeyFieldObserved": true,
+        "buildCourseLinkObserved": true
+      },
+      "ko": {
+        "allPathStopsLoaded": true,
+        "homeH1Observed": true,
+        "controlRoomSelected": true,
+        "labEmptyKeyFieldObserved": true,
+        "buildCourseLinkObserved": true
+      }
+    },
+    "routeMatrixCases": 45,
+    "routeMatrixPassed": 45,
+    "otherSevenLocalesObserved": true,
+    "viewportWidthAsserted": false
+  },
+  "consoleObservation": {
+    "totalMessages": 6,
+    "documentAttributedMessages": [
+      {
+        "classification": "report-only-directive-warning",
+        "directive": "upgrade-insecure-requests",
+        "summary": "Chrome reports that this directive is ignored in a report-only policy."
+      },
+      {
+        "classification": "extension-induced-clean-session-not-reproduced",
+        "directive": "font-src",
+        "blockedScheme": "data:",
+        "summary": "One data-font load was reported while browser extensions were active. After all ten previously enabled extensions were temporarily disabled, both a fresh Handbook navigation and an explicit reload produced zero console messages; every extension was then restored to its original enabled state."
+      }
+    ],
+    "extensionAttributedMessages": 4,
+    "cleanExtensionFreeWindowObserved": true,
+    "cleanSession": {
+      "observedAt": "2026-08-21T16:50:52Z",
+      "temporarilyDisabledExtensionCount": 10,
+      "extensionStatesRestored": true,
+      "freshNavigationConsoleMessages": 0,
+      "explicitReloadConsoleMessages": 0,
+      "fontViolationReproduced": false,
+      "authenticatedByExistingVercelSession": true,
+      "bypassCredentialCreated": false
+    },
+    "unclassifiedViolationCount": 0
+  },
+  "stageAChecklistEffect": {
+    "actualResponseHeaderObserved": true,
+    "reviewedBaselineMatched": true,
+    "unexpectedEgressOriginObserved": false,
+    "partialJourneyLocalesObserved": 9,
+    "nineLocaleCriticalJourneyObserved": true,
+    "arabicHomeEndObserved": true,
+    "arabicThemeToggleObserved": true,
+    "widthThemeArabicMatrixObserved": true,
+    "arabicMechanicalCasesObserved": 8,
+    "arabicMechanicalCasesPassed": 8,
+    "arabicHumanReviewSigned": false,
+    "arabicMatrixEvidenceRef": "docs/release/evidence/arabic-rtl-computer-use-precheck-20260821.json",
+    "providerPathObserved": false,
+    "analyticsBoundaryObserved": true,
+    "analyticsEvidenceRef": "docs/release/evidence/stage-a-analytics-computer-use-observation-20260821.json",
+    "allViolationsClassified": true,
+    "stageAStatusChanged": false,
+    "releaseAuthorized": false
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsReplies": false,
+    "containsProviderBodies": false,
+    "containsFullDataFontPayload": false
+  },
+  "decision": "The exact frozen Preview returned the expected report-only CSP on a fresh 200 response; all nine locales loaded the critical route path; all eight Arabic width and theme cases passed the mechanical browser precheck; and the deployed Analytics boundary produced only same-origin pageview traffic with no Lab custom event. The prior data-font report did not reproduce with extensions disabled and is classified as extension-induced. Stage A remains pending because the low-limit real Provider path is not yet observed, while the separate Arabic release gate still requires signed human review."
+}

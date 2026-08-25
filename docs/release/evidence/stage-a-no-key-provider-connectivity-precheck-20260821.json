@@ -1,0 +1,71 @@
+{
+  "schema": "agent-edu.stage-a-no-key-provider-connectivity-precheck.v1",
+  "status": "real-provider-origin-cors-readable-unauthenticated-401-authenticated-canary-pending",
+  "observedAtUtc": "2026-08-21T18:06:09Z",
+  "target": {
+    "candidateCommitSha": "29e1f8b8405068875b1ba94a92b516930bc0d6b0",
+    "checkpointSha": "0f4246ab19a0b4f987f45a50ec6a3b2e7eac14bd",
+    "integrationBranch": "codex/release-202608-agent-edu",
+    "vercelDeploymentId": "dpl_7BA4NvQEMZV4x5HajDqdhCGn3o9y",
+    "workflowDefinitionSha": "141c3f366ba118ed69fbaf4777a2bcd33376f12f"
+  },
+  "observation": {
+    "tool": "Chrome DevTools through Computer Use",
+    "browser": "Google Chrome",
+    "sourceRoute": "/en/",
+    "authenticatedByExistingVercelSession": true,
+    "devtoolsClosedAfterObservation": true,
+    "browserReturnedToEnglishPreview": true
+  },
+  "request": {
+    "endpointOrigin": "https://api.deepseek.com",
+    "endpointPath": "/models",
+    "method": "GET",
+    "credentialsMode": "omit",
+    "authorizationAttached": false,
+    "providerKeyPresent": false,
+    "requestBodySent": false
+  },
+  "response": {
+    "status": 401,
+    "ok": false,
+    "fetchResponseType": "cors",
+    "statusReadableByPage": true,
+    "corsRequestBlocked": false,
+    "accessControlAllowOriginExposedValue": null,
+    "contentTypeExposedValue": null,
+    "responseBodyRead": false,
+    "modelCatalogRead": false
+  },
+  "callCounts": {
+    "unauthenticatedModelsRequests": 1,
+    "authenticatedModelsRequests": 0,
+    "billableGenerationRequests": 0,
+    "judgeRequests": 0
+  },
+  "boundary": {
+    "realProviderOriginContacted": true,
+    "browserConnectionCompleted": true,
+    "corsResponseExposedToPage": true,
+    "authenticatedProviderPathObserved": false,
+    "credentialVerified": false,
+    "availableModelIdsObserved": false,
+    "usageObserved": false,
+    "billingObserved": false,
+    "stageAStatusChanged": false,
+    "stageBAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsReplies": false,
+    "containsProviderBodies": false,
+    "containsModelCatalog": false,
+    "containsUsageOrBillingAccountData": false,
+    "containsScreenshotsOrTraces": false
+  },
+  "decision": "The frozen report-only Preview made one credential-free GET /models request to the real DeepSeek origin. The page received a CORS response with readable status 401, so the browser connection was not blocked by CSP or CORS. No Authorization value or request body was sent, and no response body or model catalog was read. This is a connectivity precheck only; the authenticated GET /models and low-limit real Provider canary remain pending, so Stage A is unchanged."
+}

@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20.x
+          cache: npm
+      - name: Restore Next.js build cache
+        uses: actions/cache@v5
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('package-lock.json', 'app/**', 'components/**', 'lib/**', 'messages/**', 'public/**', 'next.config.ts', 'tsconfig.json', 'tsconfig.build.json') }}
+          restore-keys: |
+            ${{ runner.os }}-next-
+      - run: npm ci
+      - run: npm run handbook:check
+      - run: npm run widgets:check
+      - run: npm run analytics:check
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run secrets:check
+      - run: npm run csp:check
+      - run: npm run build
+      - run: npm run routes:check
+      - run: npm run assets:check
+
+  smoke-chromium:
+    name: smoke-chromium
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20.x
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Prove safe/private failure evidence contracts
+        run: npm run test:evidence-contract
+      - run: npm run test:smoke
+      - name: Scan browser failure evidence for private data
+        id: artifact_privacy
+        if: ${{ failure() }}
+        run: npm run artifacts:check
+      - name: Upload browser failure evidence
+        if: ${{ failure() && steps.artifact_privacy.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-chromium-failure
+          path: browser-evidence/
+          if-no-files-found: error
+          retention-days: 3
+
+  compatibility:
+    name: compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20.x
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run build
+      - run: npm run test:compat
+      - run: npm run test:resilience
+      - name: Verify synthetic lab-vitals harness and schema
+        run: npm run --silent vitals:lab -- --samples=1
+      - name: Scan compatibility failure evidence for private data
+        id: artifact_privacy
+        if: ${{ failure() }}
+        run: npm run artifacts:check
+      - name: Upload compatibility failure evidence
+        if: ${{ failure() && steps.artifact_privacy.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: compatibility-failure
+          path: browser-evidence/
+          if-no-files-found: error
+          retention-days: 3

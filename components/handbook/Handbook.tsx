@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import initHandbook from "@/lib/handbook/behaviour";
+import { makeCopy, type WidgetTable } from "@/lib/handbook/copy";
 import { useI18n } from "../I18nProvider";
 
 /**
@@ -24,9 +25,17 @@ import { useI18n } from "../I18nProvider";
  * indexable. React does not diff dangerouslySetInnerHTML content, so the
  * widgets are still free to mutate the subtree afterwards.
  */
-export default function Handbook({ html, localised }: { html: string; localised: boolean }) {
+export default function Handbook(
+  { html, localised, copy }: { html: string; localised: boolean; copy: WidgetTable },
+) {
   const { t, locale } = useI18n();
   const startedFor = useRef<string | null>(null);
+
+  /* The widgets' own strings. They arrive as a prop for the same reason the
+     markup does — the table is chosen per locale on the server — but they
+     are handed to the widgets rather than spliced, because none of this text
+     exists until a reader presses something. */
+  const C = useMemo(() => makeCopy(locale, copy), [locale, copy]);
 
   /* Start the widgets once per body of markup.
    *
@@ -38,12 +47,16 @@ export default function Handbook({ html, localised }: { html: string; localised:
     if (startedFor.current === html) return;
     startedFor.current = html;
     try {
-      initHandbook();
+      initHandbook(C);
     } catch (err) {
       // A broken widget must not blank the page — the articles and diagrams
       // still have value without it.
       console.error("handbook widget failed to start:", err);
     }
+    // C is intentionally excluded: it and the markup are both chosen from the
+    // locale on the server, so they arrive together and change together, and
+    // the markup is the honest key — it is the thing the widgets bound to.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [html]);
 
   return (

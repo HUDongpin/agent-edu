@@ -55,9 +55,9 @@ export default async function Shell({
 
           <MobileNav label={t("nav.menu")}>
             <NavLinks items={nav.map((n) => ({ href: n.href, label: t(n.key) }))} />
-            <a href="https://github.com/HUDongpin/agent-edu/blob/main/TEACHING.md" rel="noopener">
+            <Link href={p("/teach/")}>
               {t("nav.teach")}
-            </a>
+            </Link>
           </MobileNav>
 
           <div className="topacts">
@@ -81,12 +81,13 @@ export default async function Shell({
             <ul>
               <li><Link href={p("/courses/")}>{t("nav.courses")}</Link></li>
               <li><Link href={p("/about/")}>{t("nav.about")}</Link></li>
+              <li><Link href={p("/teach/")}>{t("nav.teach")}</Link></li>
               <li><Link href={p("/handbook/")}>{t("track.1.title")}</Link></li>
               <li><Link href={p("/lab/")}>{t("track.2.title")}</Link></li>
               <li>
-                <a href="https://github.com/HUDongpin/agent-edu/tree/main/course" rel="noopener">
+                <Link href={p("/build/")}>
                   {t("track.3.title")}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

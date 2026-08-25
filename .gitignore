@@ -11,10 +11,11 @@
 *.pem
 *.key
 *secret*
+!scripts/check-secrets.mjs
 *credential*
 *API*Key*
 
-# Recorded model replies (may contain your prompts; regenerate locally)
+# Legacy recorded model replies may contain prompts; never commit them.
 course/cafe/fixtures.*.json
 course/progress.json
 legacy/course-python/cafe/fixtures.*.json
@@ -27,6 +28,14 @@ legacy/course-python/cafe/fixtures.*.json
 /out/
 /build
 /coverage
+/playwright-report/
+/test-results/
+/blob-report/
+/browser-evidence/
+/.playwright-raw/
+/.playwright-private/
+/.playwright-evidence-contract-safe/
+/.playwright-evidence-contract-private/
 next-env.d.ts
 *.tsbuildinfo
 .vercel

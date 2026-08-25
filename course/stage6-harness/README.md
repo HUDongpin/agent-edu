@@ -14,11 +14,11 @@ npx tsx course/check.ts 6
 
 ## What to notice
 
-`run.ts` runs the same job four times, switching one part off each time. The model, the prompt and the tools are **identical** in every run. Only the code around them changes.
+`run.ts` runs the same job five times: once with everything on, then once with each of the four parts switched off. The model, the prompt and the tools are **identical** in every run. Only the code around them changes.
 
 | Part off | What the morning looks like |
 |---|---|
-| retry | one flaky network call ends the whole run |
+| retry | the error leaves the harness; recovery now depends on whether the model chooses to retry |
 | useful errors | the model sees `Error`, guesses wrong, and retries the same mistake |
 | permission gate | it spends real money with nobody asked |
 | run log | something went wrong and you cannot tell what |

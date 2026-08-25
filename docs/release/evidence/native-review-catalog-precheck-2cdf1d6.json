@@ -1,0 +1,172 @@
+{
+  "schema": "agent-edu.native-review-catalog-precheck.v1",
+  "status": "catalogs-frozen-automatic-checks-pass-human-review-pending",
+  "generatedAtUtc": "2026-08-21T15:07:06Z",
+  "source": {
+    "productCandidateCommitSha": "2cdf1d6894b2f8293631742229fdd52cfa744d4d",
+    "unchangedThroughCommitSha": "d221d5d096be5644857162ad4e7f3bfaf768e979",
+    "catalogsChangedSinceProductCandidate": false,
+    "catalogTypes": [
+      "site",
+      "handbook",
+      "widgets"
+    ],
+    "sourceEnglishKeyCounts": {
+      "site": 402,
+      "handbook": 540,
+      "widgets": 676
+    }
+  },
+  "automaticValidation": {
+    "keyCompleteness": "pass",
+    "placeholderParity": "pass",
+    "pluralCoverage": "pass",
+    "reasonedIdenticalTextAllowlist": "pass",
+    "nativeLanguageJudgment": "not-performed"
+  },
+  "locales": {
+    "zh-Hans": {
+      "files": {
+        "messages/zh-Hans.json": {
+          "keyCount": 402,
+          "sha256": "74f47d68001e9724fcfe3a458521905bc3c1b3b2af26cda0624a9fe27b8df9ad"
+        },
+        "messages/handbook/zh-Hans.json": {
+          "keyCount": 540,
+          "sha256": "765df06f3dc80d915db8176813f72cd0a0c3cc232749be64a4c8149aa3628669"
+        },
+        "messages/widgets/zh-Hans.json": {
+          "keyCount": 673,
+          "sha256": "7c7709a58d73c1adcb865868b9553ca3c2bee5e6d1dd3dabdf0d1658172232fa"
+        }
+      }
+    },
+    "zh-Hant": {
+      "files": {
+        "messages/zh-Hant.json": {
+          "keyCount": 402,
+          "sha256": "8427d4044da37d3a66e2426a6c2adb94464d91a80e6773ea7831839ec1a74416"
+        },
+        "messages/handbook/zh-Hant.json": {
+          "keyCount": 540,
+          "sha256": "b616969de7213ba7f8587f9b3a224e710db45b9e10dad15acdcf1df736e0bfd7"
+        },
+        "messages/widgets/zh-Hant.json": {
+          "keyCount": 673,
+          "sha256": "d114dfa713239a1d42d70b35d48e36d62333f96ff11397fdba5137e63adf496d"
+        }
+      }
+    },
+    "ar": {
+      "files": {
+        "messages/ar.json": {
+          "keyCount": 402,
+          "sha256": "669ce2e29f5e9b1cf0db6f55cd1180e3bced34baa38db821e1aeed62b9c5ea2f"
+        },
+        "messages/handbook/ar.json": {
+          "keyCount": 540,
+          "sha256": "327269dc05ca09e5977eb747fa0d17424f76d12050d23786952ef316113c6b2e"
+        },
+        "messages/widgets/ar.json": {
+          "keyCount": 688,
+          "sha256": "7a4e124db2643b15c7d8ea7883f0f2854dd3beee1396a340cd57802b5cd8d2b5"
+        }
+      }
+    },
+    "de": {
+      "files": {
+        "messages/de.json": {
+          "keyCount": 402,
+          "sha256": "bcb960c0a60c9b86958249ecb585678a38debb4f363332eb69ef41dfdf9cb902"
+        },
+        "messages/handbook/de.json": {
+          "keyCount": 540,
+          "sha256": "1f18926ba6f48b855a7db800ff63ec37c2c957a14fd4cc62b6985653b4888be8"
+        },
+        "messages/widgets/de.json": {
+          "keyCount": 676,
+          "sha256": "f11d9199936a378aeb3fef1393b731fb195546962d0b1cbbfb8cfaf656367877"
+        }
+      }
+    },
+    "es": {
+      "files": {
+        "messages/es.json": {
+          "keyCount": 402,
+          "sha256": "7396227f6020af8787bcde6b542d09c58be23b8eaeea1cf5eb2a97c35158e052"
+        },
+        "messages/handbook/es.json": {
+          "keyCount": 540,
+          "sha256": "c8cfba0d9174f3a8407691ec0576d97f2ab9a5069d4732fbf3b501ec663b8e6e"
+        },
+        "messages/widgets/es.json": {
+          "keyCount": 676,
+          "sha256": "15bf8b359cb8413db034d9d06b4b9ca9124480aab47ea6511d5f7e75bdf2f90a"
+        }
+      }
+    },
+    "fr": {
+      "files": {
+        "messages/fr.json": {
+          "keyCount": 402,
+          "sha256": "2b4dd0480a623ae429c8087b36fd0df65eb7f95e5b731b0cc067454ecc3bb29d"
+        },
+        "messages/handbook/fr.json": {
+          "keyCount": 540,
+          "sha256": "3b08b6aa7a38fecc69f7ad351d2240ad2d35163e3f36532d6014e367dd108ccc"
+        },
+        "messages/widgets/fr.json": {
+          "keyCount": 676,
+          "sha256": "879b7e9191d443b63fca34c80f61c1641606b5f30870b98d1611918249656e18"
+        }
+      }
+    },
+    "ja": {
+      "files": {
+        "messages/ja.json": {
+          "keyCount": 402,
+          "sha256": "e2915db833860ec425a5e02b118f0ca5221daf8043338f0d63d6c6a4715b9d97"
+        },
+        "messages/handbook/ja.json": {
+          "keyCount": 540,
+          "sha256": "a05410cb832d3bb0bfa553f102b4f497e0060eb41aa5dcb395056ae942582977"
+        },
+        "messages/widgets/ja.json": {
+          "keyCount": 673,
+          "sha256": "93206afd4a01950f236d8652c334d0d3fc76c9d1b37851214ebf8e359772589d"
+        }
+      }
+    },
+    "ko": {
+      "files": {
+        "messages/ko.json": {
+          "keyCount": 402,
+          "sha256": "d804f0f1a4089cd5e37ed854f1ae53ad5eef3ecc789096cef65ccc4f26dc0500"
+        },
+        "messages/handbook/ko.json": {
+          "keyCount": 540,
+          "sha256": "c3119912978ffe8d30f5ddaebb27b2156085411d33be37b15d8d12694d656ed5"
+        },
+        "messages/widgets/ko.json": {
+          "keyCount": 673,
+          "sha256": "2eb6472f053c19d8705b7be650b353ae07b6952ffff2240b35df4f4cb3acae8e"
+        }
+      }
+    }
+  },
+  "gateEffect": {
+    "nativeReviewStatusesChanged": false,
+    "humanSignaturesPresent": false,
+    "finalCandidateBound": false,
+    "releaseAuthorized": false
+  },
+  "reviewReuseRule": "A reviewer may use this manifest only if all 24 file digests still match the final candidate. Any catalog change requires a regenerated manifest and review of the changed locale before signing the final target.",
+  "privacy": {
+    "containsReviewerIdentity": false,
+    "containsPrivateContactDetails": false,
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsScreenshotsOrTraces": false
+  }
+}
