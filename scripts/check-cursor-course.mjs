@@ -180,8 +180,11 @@ const adapterComplete = {
   [CURSOR_CAPSTONE_ASSESSMENT_PROGRESS_KEY]: adapterCapstoneAssessment,
 };
 const sharedProgressComponent = text("components/Progress.tsx");
-const sharedCodexResetIndex = sharedProgressComponent.indexOf("resetAllCourseProgress();");
-const sharedCursorResetIndex = sharedProgressComponent.indexOf("await resetCursorProgressAfterGlobalReset();");
+/* The reset button delegates to one registry, so the ordering and the await
+   that this contract depends on are asserted where they now live. */
+const sharedResetRegistry = text("components/progress-reset.ts");
+const sharedCodexResetIndex = sharedResetRegistry.indexOf("resetAllCourseProgress();");
+const sharedCursorResetIndex = sharedResetRegistry.indexOf("await resetCursorProgressAfterGlobalReset()");
 if (CURSOR_PROGRESS_MILESTONES !== 16
   || cursorProgressCompletedMilestones(adapterComplete) !== 16
   || cursorProgressPercent(adapterComplete) !== 100
@@ -200,7 +203,9 @@ if (CURSOR_PROGRESS_MILESTONES !== 16
   || CURSOR_PROGRESS_CACHE_CONTRACT.nonCooperatingWriterStrategy !== "isolated-record-no-cross-course-writers"
   || CURSOR_PROGRESS_CACHE_CONTRACT.globalReset.adapter !== "resetCursorProgressAfterGlobalReset"
   || CURSOR_PROGRESS_CACHE_CONTRACT.globalReset.awaitAdapter !== true
-  || !/import\s+\{\s*resetCursorProgressAfterGlobalReset\s*\}\s+from\s+["']\.\/cursor\/progress-store["']/.test(sharedProgressComponent)
+  || !/import\s+\{\s*resetCursorProgressAfterGlobalReset\s*\}\s+from\s+["']\.\/cursor\/progress-store["']/.test(sharedResetRegistry)
+  || !/import\s+\{\s*resetEveryCourseProgress\s*\}\s+from\s+["']\.\/progress-reset["']/.test(sharedProgressComponent)
+  || !sharedProgressComponent.includes("await resetEveryCourseProgress();")
   || sharedCodexResetIndex < 0
   || sharedCursorResetIndex <= sharedCodexResetIndex) {
   fail("pure sixteen-milestone progress or global-reset cache contract changed");

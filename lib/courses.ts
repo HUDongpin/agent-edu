@@ -9,6 +9,7 @@
  */
 
 import { isCodexQuizPassed } from "./codex/quiz";
+import { AGENTIC_PROGRESS_EVENT } from "./progress";
 import {
   AI_TUTOR_COURSE_MANIFEST,
   AI_TUTOR_PROGRESS_EVENT,
@@ -358,6 +359,7 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     moduleIds: COURSE_MODULES.map((module) => module.id),
     outcomeKeys: ["track.1.title", "home.learn1", "track.3.title"],
     progressStrategy: "module-average",
+    progressEvent: AGENTIC_PROGRESS_EVENT,
     progress: (p, seen) => clamp(
       COURSE_MODULES.reduce((sum, module) => sum + module.progress(p, seen), 0) /
       COURSE_MODULES.length,
@@ -697,6 +699,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: agenticCourse.minutes,
     status: agenticCourse.status,
     hue: agenticCourse.hue,
+    progressEvent: agenticCourse.progressEvent,
     progress: agenticCourse.progress,
   },
   {
@@ -808,6 +811,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: githubCourse.minutes,
     status: githubCourse.status,
     hue: githubCourse.hue,
+    progressEvent: githubCourse.progressEvent,
     progress: githubCourse.progress,
   },
   {
@@ -826,6 +830,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: promptsCourse.minutes,
     status: promptsCourse.status,
     hue: promptsCourse.hue,
+    progressEvent: promptsCourse.progressEvent,
     progress: promptsCourse.progress,
   },
   {
@@ -844,6 +849,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: softwareEngineeringCourse.minutes,
     status: softwareEngineeringCourse.status,
     hue: softwareEngineeringCourse.hue,
+    progressEvent: softwareEngineeringCourse.progressEvent,
     progress: softwareEngineeringCourse.progress,
   },
   {
@@ -862,6 +868,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: ragCourse.minutes,
     status: ragCourse.status,
     hue: ragCourse.hue,
+    progressEvent: ragCourse.progressEvent,
     progress: ragCourse.progress,
   },
   {
@@ -880,6 +887,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: mcpCourse.minutes,
     status: mcpCourse.status,
     hue: mcpCourse.hue,
+    progressEvent: mcpCourse.progressEvent,
     progress: mcpCourse.progress,
   },
   {
@@ -898,6 +906,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: makeMoneyWithCodexCourse.minutes,
     status: makeMoneyWithCodexCourse.status,
     hue: makeMoneyWithCodexCourse.hue,
+    progressEvent: makeMoneyWithCodexCourse.progressEvent,
     progress: makeMoneyWithCodexCourse.progress,
   },
   {
@@ -916,6 +925,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: claudeIncomeCourse.minutes,
     status: claudeIncomeCourse.status,
     hue: claudeIncomeCourse.hue,
+    progressEvent: claudeIncomeCourse.progressEvent,
     progress: claudeIncomeCourse.progress,
   },
   {

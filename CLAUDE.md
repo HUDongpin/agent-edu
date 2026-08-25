@@ -30,6 +30,16 @@ menu: `npm run i18n:check:release -- --json` dynamically discovers namespaces,
 routes and course contracts, and any missing target value is a release failure.
 A translator must be able to fix a line without knowing React.
 
+That audit needs a frozen build, browser evidence and a named human reviewer,
+so it cannot gate a commit. `npm run i18n:check:keys` is the half that can:
+the same discovery, restricted to what a missing key can decide on its own —
+missing, extra, empty, wrong leaf type, wrong `{placeholder}` set, wrong
+`**bold**` markers. It runs inside `npm run build`. It deliberately does not
+judge whether a translation is any good; `unapproved-identical-to-english` is
+a question for a native speaker and stays in the release audit. A namespace
+with no file for a locale is the queue described below, so it is reported and
+not failed.
+
 The handbook's article prose is the exception, and lives in `messages/handbook/`.
 `en.json` there is **generated** — never hand-edit it. Change the wording in
 `lib/handbook/markup.ts` and re-run `npm run handbook:extract`; `npm run
@@ -57,6 +67,27 @@ its language needs, and that every id the file queries still exists in
 that number may fall and never rise, which is what lets the remaining widgets
 move across one at a time without the half-finished state rotting.
 
+## Progress
+One record, `ae.progress`, written by the Lab and the handbook through
+`lib/progress.ts` and by every course through its own
+`components/*/progress-store.ts`. They only agree because each keeps the same
+four promises: quarantine an unreadable record rather than overwriting it,
+treat memory as authoritative once a read or write has failed, return whether
+a write actually landed, and dispatch a DOM event so the tab that wrote it
+repaints — `storage` never fires in the writing tab.
+
+`npm run progress:check` proves it: every catalogue entry that reports progress
+declares a `progressEvent`, every declared event has exactly one dispatcher,
+and `components/progress-reset.ts` imports every store that exists, so the
+site-wide reset cannot leave a stale module cache behind to revive milestones
+the reader just cleared. It carries a ratchet on how many modules still
+hard-code the key string instead of importing `PROG`: same rule as the widgets
+ratchet — that number may fall and never rise.
+
+A new course means a new store, a `progressEvent` on both its
+`TOP_LEVEL_COURSES` and `CATALOG_COURSES` entries, and a line in
+`progress-reset.ts`. The checker fails the build for each one you forget.
+
 ## Static export
 `output: "export"`. No server, no middleware, no route handlers, no server
 actions, no `next/image` optimiser. The lab calls the model provider straight
@@ -70,6 +101,9 @@ one. Do not rewrite existing copy to satisfy a linter.
 ## Before you say you're done
 `npm run build` must pass; never assert a fixed page count. Reconcile the
 App Router patterns, course manifests, sitemap and actual `out/**/*.html`
-inventory dynamically. `npm run i18n:check:release -- --json` and every
-course release checker must pass before release. Never commit `All API Keys.docx`
+inventory dynamically. It runs `handbook:check`, `widgets:check`,
+`progress:check`, `i18n:check:keys` and every course release checker, so a
+missing translation key, an undeclared progress event or an unreset store
+fails the build rather than the release. `npm run i18n:check:release -- --json`
+must additionally pass before release. Never commit `All API Keys.docx`
 or anything matching the secrets block in `.gitignore`.

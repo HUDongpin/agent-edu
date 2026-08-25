@@ -17,9 +17,9 @@ import {
   type Level,
   type Status,
 } from "@/lib/courses";
+import { PROG, SECTIONS } from "@/lib/progress";
 
 const ALL = "__all__";
-const DEFAULT_PROGRESS_STORAGE_KEY = "ae.progress";
 const CATALOG_RESULTS_IDS = "catalog-course-results catalog-upcoming-course-results";
 
 type ProgressMap = Record<string, number>;
@@ -51,7 +51,7 @@ function useCourseProgress(): ProgressMap {
     const read = () => {
       let sectionsSeen = 0;
       try {
-        sectionsSeen = (localStorage.getItem("tch.seen") || "")
+        sectionsSeen = (localStorage.getItem(SECTIONS) || "")
           .split(",")
           .filter(Boolean).length;
       } catch {
@@ -78,7 +78,7 @@ function useCourseProgress(): ProgressMap {
       const next: ProgressMap = {};
       for (const course of CATALOG_COURSES) {
         if (course.progress) {
-          const progress = progressFor(course.progressStorageKey ?? DEFAULT_PROGRESS_STORAGE_KEY);
+          const progress = progressFor(course.progressStorageKey ?? PROG);
           next[course.id] = course.progress(progress, sectionsSeen);
         }
       }

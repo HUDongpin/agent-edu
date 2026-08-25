@@ -726,9 +726,14 @@ if (release) {
     if (!sharedCoursePage.includes(token)) fail(`Course catalogue JSON-LD is missing Grok token: ${token}`);
   }
 
+  /* The site-wide reset is a registry now, so the chain is button → registry →
+     store, and both hops are asserted rather than one direct call. */
   const sharedProgress = readFileSync(resolve(ROOT, "components/Progress.tsx"), "utf8");
-  if (!sharedProgress.includes('import { resetGrokProgress } from "./grok/progress-store";')
-    || !sharedProgress.includes("resetGrokProgress();")) {
+  const resetRegistry = readFileSync(resolve(ROOT, "components/progress-reset.ts"), "utf8");
+  if (!sharedProgress.includes('import { resetEveryCourseProgress } from "./progress-reset";')
+    || !sharedProgress.includes("await resetEveryCourseProgress();")
+    || !resetRegistry.includes('import { resetGrokProgress } from "./grok/progress-store";')
+    || !resetRegistry.includes("resetGrokProgress(),")) {
     fail("Global progress reset does not clear the isolated Grok progress store");
   }
 

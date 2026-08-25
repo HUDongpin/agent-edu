@@ -8,7 +8,7 @@ import LabIcon, { type LabIconName } from "./LabIcon";
 import Rich from "../Rich";
 import { useI18n } from "../I18nProvider";
 import { asJSON, call, errorKey, getKey, pool, spend, usd, type Model } from "@/lib/deepseek";
-import { mark, progressOnServer, progressSnapshot, readProgress, subscribeProgress } from "@/lib/progress";
+import { isProgressPersistenceAvailable, mark, progressOnServer, progressSnapshot, readProgress, subscribeProgress } from "@/lib/progress";
 import { MENU, menuText, priceOf, type Order } from "@/lib/cafe/menu";
 import { CASES } from "@/lib/cafe/evalset";
 
@@ -43,6 +43,9 @@ export default function Lab() {
      the catalogue read. Subscribed rather than loaded in an effect, so the
      ticks are right on the first paint. */
   const raw = useSyncExternalStore(subscribeProgress, progressSnapshot, progressOnServer);
+  /* Whether those ticks will still be here tomorrow. Every course says so when
+     the answer is no, and the Lab is the one place that used to tick anyway. */
+  const stored = useSyncExternalStore(subscribeProgress, isProgressPersistenceAvailable, () => true);
   const done = useMemo(() => {
     const p = readProgress(raw);
     return [!!p.play0, !!p.play1, !!p.play2, Number(p.evalBest ?? 0) >= 16];
@@ -164,6 +167,8 @@ export default function Lab() {
       {/* The prose here is translated; the café itself is not, and saying so
           is cheaper than letting a reader wonder whether it is a bug. */}
       {locale !== "en" && <p className="langnote">{t("lab.enData")}</p>}
+
+      {!stored && <p className="langnote" role="status">{t("lab.storageUnavailable")}</p>}
 
       <Stages stages={stages} current={stage} onPick={setStage} panelId={PANEL} />
 

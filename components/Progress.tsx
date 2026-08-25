@@ -4,13 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "./I18nProvider";
 import { TOP_LEVEL_COURSES } from "@/lib/courses";
-import { resetAllCourseProgress } from "./codex/progress-store";
-import { resetClaudeProgressAfterGlobalReset } from "./claude/progress-store";
-import { resetCursorProgressAfterGlobalReset } from "./cursor/progress-store";
-import { resetGrokProgress } from "./grok/progress-store";
-
-const PROGRESS_KEY = "ae.progress";
-const SECTIONS_KEY = "tch.seen";
+import { PROG, SECTIONS } from "@/lib/progress";
+import { resetEveryCourseProgress } from "./progress-reset";
 
 type CourseProgress = {
   id: (typeof TOP_LEVEL_COURSES)[number]["id"];
@@ -29,7 +24,7 @@ export default function Progress({ locale }: { locale: string }) {
     let sectionsSeen = 0;
 
     try {
-      sectionsSeen = (localStorage.getItem(SECTIONS_KEY) || "")
+      sectionsSeen = (localStorage.getItem(SECTIONS) || "")
         .split(",")
         .filter(Boolean).length;
     } catch {
@@ -56,7 +51,7 @@ export default function Progress({ locale }: { locale: string }) {
     return TOP_LEVEL_COURSES.map((course) => ({
       id: course.id,
       percent: course.progress(
-        progressFor(course.progressStorageKey ?? PROGRESS_KEY),
+        progressFor(course.progressStorageKey ?? PROG),
         sectionsSeen,
       ),
     }));
@@ -138,15 +133,7 @@ export default function Progress({ locale }: { locale: string }) {
         className="iconbtn progress-reset"
         type="button"
         onClick={async () => {
-          resetAllCourseProgress();
-          resetClaudeProgressAfterGlobalReset();
-          await resetCursorProgressAfterGlobalReset();
-          resetGrokProgress();
-          try {
-            localStorage.removeItem(SECTIONS_KEY);
-          } catch {
-            // Keep the control harmless when storage is unavailable.
-          }
+          await resetEveryCourseProgress();
           setCourses(read());
         }}
       >
