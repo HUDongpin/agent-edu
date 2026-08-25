@@ -98,8 +98,14 @@ test("the public README does not promote blocked course routes or detailed cours
   for (const course of BLOCKED_COURSE_SURFACES) {
     const routeRoot = course.routes[0];
     assert.ok(routeRoot);
+    const routePrefix = routeRoot.replace(/\/+$/, "");
     for (const locale of LOCALE_CODES) {
-      assert.equal(readme.includes(`/${locale}/${routeRoot}`), false, `${course.id} ${locale}`);
+      const escapedPath = `/${locale}/${routePrefix}`.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      assert.doesNotMatch(
+        readme,
+        new RegExp(`${escapedPath}(?:/|[?#]|$)`),
+        `${course.id} ${locale}`,
+      );
     }
     assert.doesNotMatch(
       readme,

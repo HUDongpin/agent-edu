@@ -48,10 +48,14 @@ function assertReadmePublicationBoundary(contract, blocked) {
   for (const course of blocked) {
     const routeRoot = course.routes[0];
     assert(typeof routeRoot === "string", `${course.id} blocked route root is required`);
+    const routePrefix = routeRoot.replace(/\/+$/, "");
     for (const locale of contract.siteLocales) {
-      const publicPath = `/${locale}/${routeRoot}`;
+      const publicPath = `/${locale}/${routePrefix}`;
+      const publicPathPattern = new RegExp(
+        `${escapeRegExp(publicPath)}(?:/|[?#]|$)`,
+      );
       assert(
-        !readme.includes(publicPath),
+        !publicPathPattern.test(readme),
         `README.md must not promote blocked course route ${publicPath}`,
       );
     }
