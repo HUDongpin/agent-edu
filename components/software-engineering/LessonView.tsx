@@ -162,7 +162,7 @@ export default function LessonView({
 
             <LessonCompletion slug={lesson.slug} labels={course.copy.ui} />
 
-            <nav className={styles.lessonPager} aria-label={course.copy.ui.lessons}>
+            <nav className={styles.lessonPager} aria-label={course.copy.ui.lessons} data-course-lesson-nav>
               {previous ? (
                 <Link href={hrefFor(previous.slug)} rel="prev">
                   <span>{course.copy.ui.previous}</span><strong {...localizedText}>{previous.localizedTitle}</strong>

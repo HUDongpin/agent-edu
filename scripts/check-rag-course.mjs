@@ -18,6 +18,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RELEASE = process.argv.includes("--release");
@@ -946,6 +947,7 @@ function validateInteractionContracts(copy) {
   const figure = readText("components/rag/RagFigure.tsx");
   const lessonView = readText("components/rag/LessonView.tsx");
   const progress = readText("components/rag/progress-store.ts");
+  const progressStorageContract = readText("lib/progress-storage-contract.ts");
 
   for (const marker of [
     "lessons.map((lesson)",
@@ -968,11 +970,21 @@ function validateInteractionContracts(copy) {
     'RAG_CAPSTONE_KEY = "rag.capstone.v1"',
     'RAG_CAPSTONE_DRAFT_KEY = "rag.capstone.draft.v1"',
     'RAG_RESET_EVENT = "aicourse:rag-progress-reset"',
-    'CORRUPT_BACKUP_KEY = "ae.progress.corrupt-backup"',
+    "RAG_CORRUPT_PROGRESS_BACKUP_KEY,",
+    '} from "@/lib/progress-storage-contract"',
+    "sessionStorage.setItem(RAG_CORRUPT_PROGRESS_BACKUP_KEY, raw)",
     "recoverCorruptProgress",
     "key.startsWith(RAG_PROGRESS_PREFIX)",
     "window.dispatchEvent(new CustomEvent(RAG_RESET_EVENT))",
   ]) if (!progress.includes(marker)) fail(`progress implementation: missing scoped marker ${marker}`);
+  if (!progressStorageContract.includes(
+    'RAG_CORRUPT_PROGRESS_BACKUP_KEY = "ae.progress.corrupt-backup"',
+  )) {
+    fail("progress storage contract: missing the canonical RAG corrupt-backup key");
+  }
+  if (/const\s+\w*CORRUPT\w*BACKUP\w*\s*=/.test(progress)) {
+    fail("progress implementation: RAG must import, not redeclare, its corrupt-backup key");
+  }
   for (const marker of ["lessons.length + 2", "practices + quiz + capstone", "ragPracticeKey(lesson.slug)"]) {
     if (!interactions.includes(marker)) fail(`progress implementation: 14 equal milestones require ${marker}`);
   }
@@ -1174,17 +1186,16 @@ function validateRoutesAndIntegration() {
   }
 
   const coursePage = readText("app/[locale]/rag/page.tsx");
-  for (const marker of ["dynamicParams = false", "generateStaticParams", "RAG_LOCALES.map", "await params", 'page: "rag/"']) {
+  for (const marker of ["dynamicParams = false", "generateStaticParams", 'courseLocaleParams("rag")', "await params", 'page: "rag/"']) {
     if (!coursePage.includes(marker)) fail(`RAG dashboard route: missing static-export marker ${marker}`);
   }
   const lessonPage = readText("app/[locale]/rag/[lesson]/page.tsx");
-  for (const marker of ["dynamicParams = false", "generateStaticParams", "RAG_LESSON_SLUGS.map", "await params", "ragLessonPage(lesson)"]) {
+  for (const marker of ["dynamicParams = false", "generateStaticParams", "courseChildParams", "RAG_LESSON_SLUGS", "await params", "ragLessonPage(lesson)"]) {
     if (!lessonPage.includes(marker)) fail(`RAG lesson route: missing static-export marker ${marker}`);
   }
 
   const seo = readText("lib/seo.ts");
-  if (!seo.includes('"rag/"') || !seo.includes("RAG_LESSON_PAGES") || !seo.includes("function ragLessonPage")) fail("lib/seo.ts: RAG dashboard registry or route guard missing");
-  for (const slug of EXPECTED_LESSONS) if (!seo.includes(`"rag/${slug}/"`)) fail(`lib/seo.ts: missing rag/${slug}/`);
+  if (!seo.includes('RAG_LESSON_PAGES = childPagesFor("rag")') || !seo.includes("function ragLessonPage")) fail("lib/seo.ts: RAG registry projection or route guard missing");
   const sitemap = readText("app/sitemap.ts");
   if (!sitemap.includes("PAGES.flatMap") || !sitemap.includes("LOCALE_CODES") || !sitemap.includes("availableLocales.map")) {
     fail("app/sitemap.ts: locale-expanded PAGES registry is not used");
@@ -1208,11 +1219,8 @@ function validateRoutesAndIntegration() {
   if (catalog.includes('(isRag || isClaudeIncome) && locale !== "en"') || catalog.includes('t(isRag ? "c.rag.contentLanguage"')) {
     fail("components/courses/Catalog.tsx: obsolete English-only Course 9 disclosure remains");
   }
-  if (!catalog.includes('isClaudeIncome && locale !== "en"')) fail("components/courses/Catalog.tsx: unrelated Claude Income language boundary was not preserved");
   const cover = readText("components/courses/Cover.tsx");
   if (!cover.includes('id === "rag"') || !cover.includes("data-course-cover={id}")) fail("components/courses/Cover.tsx: Course 9 cover mapping missing");
-  const shell = readText("components/Shell.tsx");
-  if (!shell.includes('p("/rag/")') || !shell.includes('t("c.rag.title")')) fail("components/Shell.tsx: Course 9 navigation link missing");
 
   const coursesPage = readText("app/[locale]/courses/page.tsx");
   for (const marker of ["loadRagCourse", "RAG_LESSONS", "courseNineParts", "rag: courseNineParts"]) {
@@ -1220,9 +1228,6 @@ function validateRoutesAndIntegration() {
   }
   if (!coursesPage.includes("inLanguage: ragCourse.contentLocale") || !coursesPage.includes("urlFor(ragCourse.contentLocale)")) {
     fail("courses page: Course 9 lesson resources must use the localized content locale");
-  }
-  if (!/course\.id === "rag"\s*\?\s*ragCourse\.contentLocale/.test(coursesPage)) {
-    fail("courses page: Course 9 ItemList must disclose its localized content language");
   }
 
   const ragDashboardPage = readText("app/[locale]/rag/page.tsx");
@@ -1243,12 +1248,12 @@ function validateRoutesAndIntegration() {
     }
   }
 
-  const packageJson = readJson("package.json");
-  for (const scriptName of ["build", "build:release"]) {
-    if (!String(packageJson?.scripts?.[scriptName] || "").includes("npm run rag:check:release")) {
-      fail(`package.json scripts.${scriptName}: Course 9 release gate must run before next build`);
-    }
-  }
+  for (const error of publishedReleaseIntegrationErrors(
+    ROOT,
+    "rag",
+    "npm run rag:check:release",
+    ["rag/", ...EXPECTED_LESSONS.map((slug) => `rag/${slug}/`)],
+  )) fail(error);
   const readme = readText("README.md");
   for (const marker of ["twelve lessons in nine languages", "one official Anthropic teaching diagram", "Six additional figures are original semantic HTML", "Arabic course views render right to left"]) {
     if (!readme.includes(marker)) fail(`README.md: Course 9 release description is missing ${marker}`);

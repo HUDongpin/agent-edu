@@ -12,6 +12,7 @@ import {
   loadProductManagementCourse,
 } from "@/lib/product-management";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseChildParams } from "@/lib/release-surface";
 import {
   productManagementModulePage,
   seoFor,
@@ -24,7 +25,11 @@ type Props = { params: Promise<{ locale: string; module: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return PRODUCT_MANAGEMENT_MODULE_SLUGS.map((module) => ({ module }));
+  return courseChildParams(
+    "product-management",
+    "module",
+    PRODUCT_MANAGEMENT_MODULE_SLUGS,
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

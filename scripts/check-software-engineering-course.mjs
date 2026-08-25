@@ -110,9 +110,9 @@ function readJson(relativePath) {
 }
 
 function loadLedgers() {
-  const tsx = join(ROOT, "node_modules", ".bin", "tsx");
-  if (!existsSync(tsx)) {
-    fail("node_modules/.bin/tsx is required to import the typed Course 8 ledgers");
+  const tsxModule = join(ROOT, "node_modules", "tsx");
+  if (!existsSync(tsxModule)) {
+    fail("node_modules/tsx is required to import the typed Course 8 ledgers");
     return null;
   }
   const expression = [
@@ -125,7 +125,7 @@ function loadLedgers() {
     'import { SOFTWARE_ENGINEERING_LOCALES, SOFTWARE_ENGINEERING_LESSON_SLUGS, SOFTWARE_ENGINEERING_QUESTION_IDS, SOFTWARE_ENGINEERING_MEDIA_IDS } from "./lib/software-engineering/types.ts";',
     "process.stdout.write(JSON.stringify({manifest:SOFTWARE_ENGINEERING_COURSE_MANIFEST,sources:SOFTWARE_ENGINEERING_SOURCES,media:SOFTWARE_ENGINEERING_MEDIA,quiz:SOFTWARE_ENGINEERING_QUIZ,finalQuiz:SOFTWARE_ENGINEERING_FINAL_QUIZ,capstone:SOFTWARE_ENGINEERING_CAPSTONE,coverage:SOFTWARE_ENGINEERING_COVERAGE,locales:SOFTWARE_ENGINEERING_LOCALES,lessonIds:SOFTWARE_ENGINEERING_LESSON_SLUGS,questionIds:SOFTWARE_ENGINEERING_QUESTION_IDS,mediaIds:SOFTWARE_ENGINEERING_MEDIA_IDS}));",
   ].join(" ");
-  const result = spawnSync(tsx, ["-e", expression], {
+  const result = spawnSync(process.execPath, ["--import", "tsx", "--input-type=module", "-e", expression], {
     cwd: ROOT,
     encoding: "utf8",
     maxBuffer: 16 * 1024 * 1024,
@@ -377,9 +377,9 @@ function validateFiles() {
     "lib/software-engineering/capstone.ts",
     "public/courses/software-engineering/NOTICE.md",
     "public/courses/software-engineering/agentic-se-capstone-brief.md",
-    "outputs/software-engineering-agentic-ai-research-brief.md",
-    "outputs/software-engineering-agentic-ai-research-brief.provenance.md",
-    "outputs/software-engineering-figure-rights-clearance.md",
+    "evidence/course-audits/software-engineering-agentic-ai-research-brief.md",
+    "evidence/course-audits/software-engineering-agentic-ai-research-brief.provenance.md",
+    "evidence/course-audits/software-engineering-figure-rights-clearance.md",
     "tests/software-engineering-course.spec.ts",
   ];
   for (const path of required) if (!existsSync(join(ROOT, path))) fail(`Missing required Course 8 file ${path}`);

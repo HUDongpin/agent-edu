@@ -19,12 +19,14 @@ export default function CourseProgress({
   labels,
   startLabel,
   resumeLabel,
+  reviewLabel,
 }: {
   locale: string;
   lessons: readonly LessonLink[];
   labels: GrokCourseCopy["ui"];
   startLabel: string;
   resumeLabel: string;
+  reviewLabel: string;
 }) {
   const progress = useGrokProgress();
   const hydrated = useGrokHydrated();
@@ -45,7 +47,13 @@ export default function CourseProgress({
       ?? (!progress.quizPassed ? "#grok-final-quiz"
         : !progress.capstoneReady ? lessons.find((lesson) => lesson.slug === "capstone")?.href
           : undefined);
-    return { completeLessons, completed, total, nextHref };
+    return {
+      completeLessons,
+      completed,
+      total,
+      complete: completed === total,
+      nextHref: nextHref ?? lessons[0]?.href,
+    };
   }, [lessons, progress]);
 
   const hasProgress = Object.values(progress.lessons).some(Boolean)
@@ -112,8 +120,8 @@ export default function CourseProgress({
 
       <div className={styles.progressActions}>
         {state.nextHref ? (
-          <Link className={styles.primaryAction} href={state.nextHref}>
-            {hasProgress ? resumeLabel : startLabel}
+          <Link className={styles.primaryAction} href={state.nextHref} data-course-journey-action>
+            {state.complete ? reviewLabel : hasProgress ? resumeLabel : startLabel}
             <span aria-hidden="true">→</span>
           </Link>
         ) : null}

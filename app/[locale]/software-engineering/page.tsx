@@ -4,12 +4,12 @@ import CourseDashboard from "@/components/software-engineering/CourseDashboard";
 import JsonLd from "@/components/JsonLd";
 import {
   SOFTWARE_ENGINEERING_COVERAGE,
-  SOFTWARE_ENGINEERING_LOCALES,
   SOFTWARE_ENGINEERING_OVERVIEW,
   isSoftwareEngineeringLocale,
   loadSoftwareEngineeringCourse,
 } from "@/lib/software-engineering";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseLocaleParams } from "@/lib/release-surface";
 import {
   SITE,
   seoFor,
@@ -22,7 +22,7 @@ type Props = { params: Promise<{ locale: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return SOFTWARE_ENGINEERING_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("software-engineering");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -41,6 +41,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${course.copy.meta.title} · aicourse.top`,
     description: SOFTWARE_ENGINEERING_OVERVIEW.summary,
     siteName: t("brand.name"),
+    availableLocales: ["en"],
+    canonicalLocale: "en",
   });
 }
 

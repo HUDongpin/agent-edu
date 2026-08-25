@@ -9,6 +9,7 @@ import type { McpDirection } from "@/lib/mcp/types";
 import { resetMcpProgress } from "./progress-store";
 import { useMcpProgress } from "./useMcpProgress";
 import styles from "./McpCourse.module.css";
+import { useI18n } from "../I18nProvider";
 
 export default function CourseProgress({
   locale,
@@ -21,6 +22,7 @@ export default function CourseProgress({
   direction: McpDirection;
   ui: McpUiCopy;
 }) {
+  const { t } = useI18n();
   const progress = useMcpProgress();
   const [confirmReset, setConfirmReset] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
@@ -33,13 +35,18 @@ export default function CourseProgress({
   const hasMcpProgress = Object.keys(progress).some((key) => key.startsWith("mcp."));
   const total = lessons.length + 2;
   const percent = Math.round(((completed + quiz + capstone) / total) * 100);
+  const courseCompleted = completed + quiz + capstone === total;
   const next = lessons.find((lesson) => progress[`mcp.lesson.${lesson.slug}`] !== true);
-  const nextHref = next
+  const nextHref = courseCompleted
+    ? `/${locale}/mcp/${lessons[0]?.slug ?? "why-mcp"}/`
+    : next
     ? `/${locale}/mcp/${next.slug}/`
     : !quiz
       ? `/${locale}/mcp/#assessment`
       : `/${locale}/mcp/#capstone`;
-  const nextLabel = next
+  const nextLabel = courseCompleted
+    ? t("cat.review")
+    : next
     ? (completed ? ui.progressContinue : ui.progressStart)
     : !quiz
       ? ui.progressTakeAssessment
@@ -86,7 +93,7 @@ export default function CourseProgress({
         </div>
       </div>
       <div className={styles.progressActions}>
-        <Link className={styles.primaryButton} href={nextHref}>
+        <Link className={styles.primaryButton} href={nextHref} data-course-journey-action>
           {nextLabel} <span aria-hidden="true">{direction === "rtl" ? "←" : "→"}</span>
         </Link>
         {hasMcpProgress ? (

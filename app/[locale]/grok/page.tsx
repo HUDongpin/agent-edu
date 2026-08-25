@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import CourseDashboard from "@/components/grok/CourseDashboard";
 import JsonLd from "@/components/JsonLd";
 import {
-  GROK_LOCALES,
   grokSeoFor,
   grokUrlFor,
   isGrokLocale,
@@ -11,13 +10,14 @@ import {
 } from "@/lib/grok";
 import { getMessages, translator } from "@/lib/i18n";
 import { SITE } from "@/lib/seo";
+import { courseLocaleParams } from "@/lib/release-surface";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return GROK_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("grok");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -98,7 +98,11 @@ export default async function GrokCoursePage({ params }: Props) {
   return (
     <>
       <JsonLd data={data} />
-      <CourseDashboard course={course} catalogLabel={t("nav.courses")} />
+      <CourseDashboard
+        course={course}
+        catalogLabel={t("nav.courses")}
+        reviewLabel={t("cat.review")}
+      />
     </>
   );
 }

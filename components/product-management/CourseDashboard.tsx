@@ -11,6 +11,7 @@ import {
   type ProductManagementAssessmentQuestion,
 } from "./Interactions";
 import styles from "./ProductManagementCourse.module.css";
+import SharedCourseShell from "../SharedCourseShell";
 
 type Labels = MaterializedProductManagementCourse["copy"]["ui"];
 
@@ -69,6 +70,7 @@ export default function CourseDashboard({
         <span aria-hidden="true">/</span>
         <span aria-current="page">{label(course.copy.ui, "module", "Course")} 14</span>
       </nav>
+      <SharedCourseShell courseId="product-management" locale={course.locale} showBreadcrumb={false} />
 
       <header className={styles.courseHero}>
         <div className={styles.heroCopy}>
@@ -78,10 +80,6 @@ export default function CourseDashboard({
           <p className={styles.heroAudience}>{course.copy.meta.audience}</p>
 
           <div className={styles.heroActions}>
-            <Link className={styles.primaryButton} href={hrefFor(course.modules[0].slug)}>
-              {course.copy.meta.startCta}
-              <span aria-hidden="true">→</span>
-            </Link>
             <a className={styles.secondaryButton} href="#product-management-curriculum">
               {label(course.copy.ui, "tableOfContents", "Explore the course map")}
             </a>
@@ -158,6 +156,7 @@ export default function CourseDashboard({
         labels={course.copy.ui}
         startLabel={course.copy.meta.startCta}
         resumeLabel={course.copy.meta.resumeCta}
+        reviewLabel={course.copy.meta.reviewCta}
       />
 
       <section className={styles.outcomes} aria-labelledby="product-management-outcomes-title">

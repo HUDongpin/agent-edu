@@ -25,6 +25,7 @@ import {
   type PromptProgressRecord,
 } from "./progress-store";
 import styles from "./PromptCourse.module.css";
+import { useI18n } from "../I18nProvider";
 
 type Labels = PromptCourseCopy["ui"];
 
@@ -155,6 +156,7 @@ export function CourseProgress({
   startLabel: string;
   resumeLabel: string;
 }) {
+  const { t } = useI18n();
   const { progress, storageAvailable } = usePromptProgress();
   const [resetStatus, setResetStatus] = useState("");
 
@@ -165,9 +167,12 @@ export function CourseProgress({
     const complete = completePractices + quiz + capstone;
     const total = lessons.length + 2;
     const nextLesson = lessons.find((lesson) => progress[promptPracticeKey(lesson.slug)] !== true);
-    const nextHref = nextLesson?.href
-      ?? (quiz ? (capstone ? null : lessons.at(-1)?.href ?? null) : "#prompts-final-quiz");
-    return { complete, total, percent: Math.round((complete / total) * 100), nextHref };
+    const courseCompleted = complete === total;
+    const nextHref = courseCompleted
+      ? lessons[0]?.href ?? null
+      : nextLesson?.href
+        ?? (quiz ? lessons.at(-1)?.href ?? null : "#prompts-final-quiz");
+    return { complete, total, courseCompleted, percent: Math.round((complete / total) * 100), nextHref };
   }, [lessons, progress]);
 
   const hasProgress = Object.keys(progress).some((key) => key.startsWith("prompts."));
@@ -190,8 +195,8 @@ export function CourseProgress({
       </progress>
       <div className={styles.actionRow}>
         {state.nextHref ? (
-          <Link className={styles.primaryButton} href={state.nextHref}>
-            {hasProgress ? resumeLabel : startLabel}<span aria-hidden="true">→</span>
+          <Link className={styles.primaryButton} href={state.nextHref} data-course-journey-action>
+            {state.courseCompleted ? t("cat.review") : hasProgress ? resumeLabel : startLabel}<span aria-hidden="true">→</span>
           </Link>
         ) : null}
         <button

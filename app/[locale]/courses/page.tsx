@@ -1,11 +1,13 @@
 import Catalog from "@/components/courses/Catalog";
-import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
+import { LOCALE_CODES, getMessages, isLocale, translator } from "@/lib/i18n";
 import { SITE, seoFor, urlFor } from "@/lib/seo";
-import { COURSE_MODULES, TOP_LEVEL_COURSES } from "@/lib/courses";
-import { CODEX_LESSONS, isCodexLocale, loadCodexCopy } from "@/lib/codex";
-import { CLAUDE_COURSE_MANIFEST, loadClaudeCourse } from "@/lib/claude";
-import { loadCursorCourse } from "@/lib/cursor/load";
-import { CURSOR_COURSE_MANIFEST } from "@/lib/cursor/manifest";
+import { COURSE_MODULES, PUBLISHED_CATALOG_COURSES } from "@/lib/public-courses";
+import {
+  COURSE_RELEASE_SURFACES,
+  contentLocaleForCourse,
+  courseHrefFor,
+  type ContentLocale,
+} from "@/lib/release-surface";
 import { GROK_COURSE_MANIFEST, loadGrokCourse } from "@/lib/grok";
 import { GITHUB_LESSONS, loadGithubCourse } from "@/lib/github";
 import { PROMPT_LESSONS, loadPromptCourse } from "@/lib/prompts";
@@ -40,11 +42,9 @@ export async function generateMetadata(
 export default async function CoursesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = translator(await getMessages(locale));
-  if (!isCodexLocale(locale)) throw new Error(`Unsupported locale: ${locale}`);
+  if (!isLocale(locale)) throw new Error(`Unsupported locale: ${locale}`);
+  const contentLocale = locale as ContentLocale;
   const [
-    codexCopy,
-    claudeCourse,
-    cursorCourse,
     grokCourse,
     githubCourse,
     promptCourse,
@@ -53,18 +53,15 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     productManagementCourse,
     agentOrchestrationCourse,
   ] = await Promise.all([
-    loadCodexCopy(locale),
-    loadClaudeCourse(locale),
-    loadCursorCourse(locale),
-    loadGrokCourse(locale),
-    loadGithubCourse(locale),
-    loadPromptCourse(locale),
-    loadRagCourse(locale),
-    loadAiTutorCourse(locale),
-    loadProductManagementCourse(locale),
-    loadAgentOrchestrationCourse(locale),
+    loadGrokCourse(contentLocale),
+    loadGithubCourse(contentLocale),
+    loadPromptCourse(contentLocale),
+    loadRagCourse(contentLocale),
+    loadAiTutorCourse(contentLocale),
+    loadProductManagementCourse(contentLocale),
+    loadAgentOrchestrationCourse(contentLocale),
   ]);
-  const mcpCourse = await loadMcpCourse(locale);
+  const mcpCourse = await loadMcpCourse(contentLocale);
 
   const courseOneParts = COURSE_MODULES.map((module) => ({
     "@type": "Course",
@@ -72,33 +69,6 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     description: t(`c.${module.id}.blurb`),
     url: module.external ? module.href : `${urlFor(locale)}${module.href.replace(/^\//, "")}`,
     inLanguage: locale,
-  }));
-
-  const courseTwoParts = CODEX_LESSONS.map((lesson) => ({
-    "@type": "LearningResource",
-    position: lesson.order,
-    name: codexCopy.lessons[lesson.slug].title,
-    url: `${urlFor(locale)}codex/${lesson.slug}/`,
-    inLanguage: locale,
-    timeRequired: `PT${lesson.minutes}M`,
-  }));
-
-  const courseThreeParts = CLAUDE_COURSE_MANIFEST.lessons.map((lesson) => ({
-    "@type": "LearningResource",
-    position: lesson.order,
-    name: claudeCourse.copy.lessons[lesson.slug].title,
-    url: `${urlFor(locale)}claude/${lesson.slug}/`,
-    inLanguage: locale,
-    timeRequired: `PT${lesson.minutes}M`,
-  }));
-
-  const courseFourParts = CURSOR_COURSE_MANIFEST.lessons.map((lesson) => ({
-    "@type": "LearningResource",
-    position: lesson.order,
-    name: cursorCourse.copy.lessons[lesson.slug].title,
-    url: `${urlFor(locale)}cursor/${lesson.slug}/`,
-    inLanguage: locale,
-    timeRequired: `PT${lesson.minutes}M`,
   }));
 
   const courseFiveParts = GROK_COURSE_MANIFEST.lessons.map((lesson) => ({
@@ -132,7 +102,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     "@type": "LearningResource",
     position: lesson.order,
     name: lesson.title,
-    url: `${urlFor(locale)}software-engineering/${lesson.slug}/`,
+    url: `${urlFor("en")}software-engineering/${lesson.slug}/`,
     inLanguage: "en",
     timeRequired: `PT${lesson.minutes}M`,
   }));
@@ -168,7 +138,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     "@type": "LearningResource",
     position: lesson.order,
     name: lesson.title,
-    url: `${urlFor(locale)}claude-income/${lesson.slug}/`,
+    url: `${urlFor("en")}claude-income/${lesson.slug}/`,
     inLanguage: "en",
     timeRequired: `PT${lesson.minutes}M`,
   }));
@@ -200,11 +170,33 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     timeRequired: `PT${module.minutes}M`,
   }));
 
-  const partsByCourse = {
+  const registryPartsByCourse = Object.fromEntries(
+    COURSE_RELEASE_SURFACES.map((course) => {
+      const routeLocale = contentLocaleForCourse(course.id, locale);
+      const parts = routeLocale
+        ? course.routes.map((route, index) => {
+          const slug = route.replace(/\/$/, "").split("/").at(-1) ?? course.id;
+          return {
+            "@type": "LearningResource",
+            position: index + 1,
+            name: slug.split("-").map((word) => (
+              word ? `${word[0].toUpperCase()}${word.slice(1)}` : word
+            )).join(" "),
+            url: `${urlFor(routeLocale)}${route}`,
+            inLanguage: routeLocale,
+          };
+        })
+        : [];
+      return [course.id, parts] as const;
+    }),
+  ) as Readonly<Record<string, readonly Record<string, unknown>[]>>;
+
+  // Rich authored labels replace the registry-derived fallback for released
+  // curricula. Every registry course still has a complete default, so a
+  // reviewed blocked -> published state flip cannot break catalogue JSON-LD.
+  const partsByCourse: Readonly<Record<string, readonly Record<string, unknown>[]>> = {
+    ...registryPartsByCourse,
     agentic: courseOneParts,
-    codex: courseTwoParts,
-    claude: courseThreeParts,
-    cursor: courseFourParts,
     grok: courseFiveParts,
     mcp: courseTenParts,
     github: courseSixParts,
@@ -221,48 +213,19 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
   const list = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: TOP_LEVEL_COURSES.map((course) => ({
+    itemListElement: PUBLISHED_CATALOG_COURSES.map(({ course }, index) => ({
       "@type": "ListItem",
-      position: course.displayNumber,
+      position: index + 1,
       item: {
         "@type": "Course",
         name: course.id === "mcp" ? mcpCourse.title : t(`c.${course.id}.title`),
         description: course.id === "mcp" ? mcpCourse.summary : t(`c.${course.id}.blurb`),
-        url: course.id === "agentic"
-          ? `${urlFor(locale)}courses/#agentic-engineering`
-          : course.id === "mcp"
-            ? `${urlFor(mcpCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : course.id === "make-money-with-codex"
-            ? `${urlFor("en")}${course.href.replace(/^\//, "")}`
-          : course.id === "ai-tutor"
-            ? `${urlFor(aiTutorCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : course.id === "product-management"
-            ? `${urlFor(productManagementCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : course.id === "agent-orchestration"
-            ? `${urlFor(agentOrchestrationCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : course.id === "prompts"
-            ? `${urlFor(promptCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : `${urlFor(locale)}${course.href.replace(/^\//, "")}`,
+        url: `${SITE}${courseHrefFor(course.id, locale)}`,
         provider: { "@id": `${SITE}/#org` },
-        inLanguage: course.id === "rag"
-          ? ragCourse.contentLocale
-          : course.id === "mcp"
-          ? mcpCourse.contentLocale
-          : course.id === "prompts"
-          || course.id === "software-engineering"
-          || course.id === "make-money-with-codex"
-          || course.id === "claude-income"
-          ? "en"
-          : course.id === "ai-tutor"
-            ? aiTutorCourse.contentLocale
-          : course.id === "product-management"
-            ? productManagementCourse.contentLocale
-          : course.id === "agent-orchestration"
-            ? agentOrchestrationCourse.contentLocale
-          : locale,
+        inLanguage: contentLocaleForCourse(course.id, locale),
         educationalLevel: t(`c.${course.id}.level`),
         isAccessibleForFree: true,
-        ...(partsByCourse[course.id].length ? { hasPart: partsByCourse[course.id] } : {}),
+        ...(partsByCourse[course.id]?.length ? { hasPart: partsByCourse[course.id] } : {}),
         offers: {
           "@type": "Offer", price: 0, priceCurrency: "USD",
           category: "Free", availability: "https://schema.org/InStock",

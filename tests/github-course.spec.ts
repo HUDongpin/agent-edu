@@ -6,6 +6,7 @@ import {
   GITHUB_LOCALES,
   GITHUB_QUIZ,
 } from "../lib/github";
+import { publishedSitemapUrls } from "./published-course-test-helpers";
 
 const dashboard = "/en/github/";
 const correctIndex: ReadonlyMap<string, number> = new Map(
@@ -299,8 +300,9 @@ test.describe.serial("Course 6 private progress and assessment", () => {
 
   test("storage denial keeps all lesson content usable", async ({
     browser,
+    baseURL,
   }) => {
-    const context = await browser.newContext();
+    const context = await browser.newContext({ baseURL });
     await context.addInitScript(() => {
       Object.defineProperty(window, "localStorage", {
         configurable: true,
@@ -393,8 +395,9 @@ test.describe.serial("Course 6 private progress and assessment", () => {
 test.describe("Course 6 responsive and static delivery", () => {
   test("figures remain instructional without JavaScript", async ({
     browser,
+    baseURL,
   }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false });
+    const context = await browser.newContext({ baseURL, javaScriptEnabled: false });
     const page = await context.newPage();
     await page.goto("/en/github/pull-requests-reviews/");
     await expect(
@@ -430,13 +433,11 @@ test.describe("Course 6 responsive and static delivery", () => {
   test("sitemap contains the dashboard and every lesson in all locales", async ({
     request,
   }) => {
-    const response = await request.get("/sitemap.xml");
-    expect(response.ok()).toBeTruthy();
-    const xml = await response.text();
+    const urls = await publishedSitemapUrls(request);
     for (const locale of GITHUB_LOCALES) {
-      expect(xml).toContain(`https://aicourse.top/${locale}/github/`);
+      expect(urls).toContain(`https://aicourse.top/${locale}/github/`);
       for (const slug of GITHUB_LESSON_SLUGS) {
-        expect(xml).toContain(`https://aicourse.top/${locale}/github/${slug}/`);
+        expect(urls).toContain(`https://aicourse.top/${locale}/github/${slug}/`);
       }
     }
   });

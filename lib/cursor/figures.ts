@@ -53,7 +53,7 @@ export const CURSOR_FIGURES = [
   figure({
     id: "fig-01", lessonSlug: "orient-privacy", surface: "app",
     captureIntent: "Open Agents Window from the command palette and identify the agent-first workspace.",
-    width: 2400, height: 1399, sha256: "57dc0260a1b60348d50814b253d3b55c6aa39428e8db6441af9c30820e42a013",
+    width: 2400, height: 1399, sha256: "4ddba0ebc46c6cc550e7f8e1c353a602cf16c73b31686c2609e7fa3d315ecbd4",
     cursorVersion: "Current Agents Window docs; Desktop 3.17 latest when checked", os: "macOS, official demo",
     sourceUrl: "https://cursor.com/docs-static/images/agent/open-agents-window-final.png",
     sourcePageUrl: "https://cursor.com/docs/agent/agents-window", uiFreshness: "current",
@@ -61,7 +61,7 @@ export const CURSOR_FIGURES = [
   figure({
     id: "fig-02", lessonSlug: "tab-inline-edit", surface: "app",
     captureIntent: "Recognise a multi-line Tab prediction as a suggestion that remains under the learner's control.",
-    width: 2400, height: 1260, sha256: "360a586c0c7562cb75df243a984a5f2190fe18792c2a0658799508a9015b8d93",
+    width: 2400, height: 1260, sha256: "03d702720b971f169a106ff5dccac0d7c009ab36fb10f6f883f0e36aa88cd17f",
     cursorVersion: "Cursor Tab product visual, current", os: "First-party product artwork",
     sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/features/tab-og-image-2.png",
     sourcePageUrl: "https://cursor.com/tab", uiFreshness: "current",
@@ -69,7 +69,7 @@ export const CURSOR_FIGURES = [
   figure({
     id: "fig-03", lessonSlug: "agent-interface", surface: "app",
     captureIntent: "Read an Agent result beside the file it inspected and separate claims from visible repository evidence.",
-    width: 2400, height: 1386, sha256: "6c0404d33c7f9035b8b186bffaa30da7120e2b71cd85a98c2fd08dcad8fcdd47",
+    width: 2400, height: 1386, sha256: "bc93ca7881d5fd2bb99dd30aae104a8cb42c99f84cea66b1651d950123b52ff7",
     cursorVersion: "Current Agents Window docs; Desktop 3.17 latest when checked", os: "macOS, official demo",
     sourceUrl: "https://cursor.com/docs-static/images/agent/file-agents-window-final.png",
     sourcePageUrl: "https://cursor.com/docs/agent/agents-window", uiFreshness: "current",
@@ -90,7 +90,7 @@ export const CURSOR_FIGURES = [
   figure({
     id: "fig-05", lessonSlug: "plan-execute-steer", surface: "app",
     captureIntent: "Inspect an editable prepared plan and approve the Build transition only after scope and checks are explicit.",
-    width: 1739, height: 1124, sha256: "e6d6b599ad5fc2d173bb855633fb983150b15ea62adf7a9b639e1db198329701",
+    width: 1739, height: 1124, sha256: "baf22ef12a61165288c3e97553794978128179706cdeac774f15bd08d8b4f3a8",
     cursorVersion: "Cursor Plan Mode UI, October 2025", os: "macOS, official demo",
     sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/blog/plan-mode-0.png",
     sourcePageUrl: "https://cursor.com/blog/plan-mode", sourcePublishedOn: "2025-10-07", uiFreshness: "historical-interface",
@@ -98,7 +98,7 @@ export const CURSOR_FIGURES = [
   figure({
     id: "fig-06", lessonSlug: "test-review-recover", surface: "app",
     captureIntent: "Review multiple agent tabs and diffs while keeping the changed-file boundary visible.",
-    width: 1833, height: 1179, sha256: "458fccd51d59de6b52201efc01d3cd5d148cff48021fa006ae60c5ab1ca843c6",
+    width: 1833, height: 1179, sha256: "48b7b6e4db15d0293380a3572352c9e96a6187e6e1ff5dfb398504e533f839e0",
     cursorVersion: "Cursor 3.0", os: "macOS, official demo",
     sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/agent-tabs",
     sourcePageUrl: "https://cursor.com/changelog/3-0", sourcePublishedOn: "2026-04-02", uiFreshness: "dated-current",
@@ -118,7 +118,7 @@ export const CURSOR_FIGURES = [
   figure({
     id: "fig-08", lessonSlug: "cloud-parallel", surface: "cloud",
     captureIntent: "Choose Local or Cloud deliberately and keep the execution environment visible during handoff.",
-    width: 2142, height: 1356, sha256: "e0856bda345d77bcef18d7643b0e680cb36b043c7f4127bccb9aa1739b6b2849",
+    width: 2142, height: 1356, sha256: "f301dd1785af2852a1c30a6c5106dafae67387aa31fd8a2abca8c47b48ac015c",
     cursorVersion: "Cursor 3.7", os: "Agents Window, official demo",
     sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/handoff-to-cloud.png",
     sourcePageUrl: "https://cursor.com/changelog/cloud-in-agents-window", sourcePublishedOn: "2026-06-17", uiFreshness: "dated-current",
@@ -134,7 +134,7 @@ export const CURSOR_FIGURES = [
   figure({
     id: "fig-10", lessonSlug: "research-studio", surface: "app",
     captureIntent: "Observe Agentic Search locating relevant repository material before a research claim is drafted.",
-    width: 1920, height: 1080, sha256: "cb48af304ab84d255535ec2dc13fab6ce39266a3eea87c9f40f6b7ae4d309cfd",
+    width: 1920, height: 1080, sha256: "2bc1f485d9378ee14ccf7f24f1ed8c2c93ecc1f51c156b76a5b5745817cd1f11",
     cursorVersion: "Cursor Learn video UI", os: "macOS, official lesson",
     sourceUrl: "https://image.mux.com/Qd4HOPoW018byI6froV6iiMH900mm00D802ywLjMueEZWQM/thumbnail.jpg?time=70&width=1920",
     sourcePageUrl: "https://cursor.com/learn/understanding-your-codebase", uiFreshness: "historical-interface",
@@ -145,7 +145,7 @@ export const CURSOR_FIGURES = [
   figure({
     id: "fig-11", lessonSlug: "writing-studio", surface: "app",
     captureIntent: "Use a visible plan to separate source review, outline, drafting, style checks, and integrity checks.",
-    width: 1920, height: 1080, sha256: "9eb3c0433416b0e338f1e130313ee29840db63b32d2ce9be3b2d22d7dbbb8e07",
+    width: 1920, height: 1080, sha256: "1ba338ea6a1c5b98ce1c3a8f52cc7a11ce2f0ec896dfb6b0e88bea5dcafad07a",
     cursorVersion: "Cursor Learn video UI", os: "macOS, official lesson",
     sourceUrl: "https://image.mux.com/lV01vHZrA4Y8JWAbiRnCF95GhgqwQcw1H7T7bXCRFrAY/thumbnail.jpg?time=180&width=1920",
     sourcePageUrl: "https://cursor.com/learn/creating-features", uiFreshness: "historical-interface",

@@ -10,6 +10,7 @@ import {
 } from "@/lib/mcp";
 import { loadMcpCourse } from "@/lib/mcp/load";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseChildParams } from "@/lib/release-surface";
 import { SITE, mcpLessonPage, seoFor, urlFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string; lesson: string }> };
@@ -17,7 +18,11 @@ type Props = { params: Promise<{ locale: string; lesson: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return MCP_LESSONS.map((lesson) => ({ lesson: lesson.slug }));
+  return courseChildParams(
+    "mcp",
+    "lesson",
+    MCP_LESSONS.map((lesson) => lesson.slug),
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

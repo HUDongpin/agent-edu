@@ -1,48 +1,47 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import CourseDashboard from "@/components/codex/CourseDashboard";
+import CourseDashboard from "@/components/claude/CourseDashboard";
 import JsonLd from "@/components/JsonLd";
 import {
-  CODEX_LOCALES,
-  isCodexLocale,
-  loadCodexCourse,
-} from "@/lib/codex";
+  isClaudeLocale,
+  loadClaudeCourse,
+} from "@/lib/claude";
+import { CLAUDE_SITE, claudeSeoFor, claudeUrlFor } from "@/lib/claude/seo";
 import { getMessages, translator } from "@/lib/i18n";
-import { SITE, codexLessonPage, seoFor, urlFor } from "@/lib/seo";
+import { courseLocaleParams } from "@/lib/release-surface";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return CODEX_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("claude");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  if (!isCodexLocale(locale)) notFound();
+  if (!isClaudeLocale(locale)) notFound();
 
   const [course, messages] = await Promise.all([
-    loadCodexCourse(locale),
+    loadClaudeCourse(locale),
     getMessages(locale),
   ]);
   const t = translator(messages);
 
-  return seoFor({
+  return claudeSeoFor({
     locale,
-    page: "codex/",
     title: `${course.copy.meta.title} · aicourse.top`,
     description: course.copy.meta.summary,
     siteName: t("brand.name"),
   });
 }
 
-export default async function CodexCoursePage({ params }: Props) {
+export default async function ClaudeCoursePage({ params }: Props) {
   const { locale } = await params;
-  if (!isCodexLocale(locale)) notFound();
+  if (!isClaudeLocale(locale)) notFound();
 
   const [course, messages] = await Promise.all([
-    loadCodexCourse(locale),
+    loadClaudeCourse(locale),
     getMessages(locale),
   ]);
   const t = translator(messages);
@@ -51,8 +50,8 @@ export default async function CodexCoursePage({ params }: Props) {
     "@type": "Course",
     name: course.copy.meta.title,
     description: course.copy.meta.summary,
-    url: urlFor(locale, "codex/"),
-    provider: { "@id": `${SITE}/#org` },
+    url: claudeUrlFor(locale),
+    provider: { "@id": `${CLAUDE_SITE}/#org` },
     inLanguage: locale,
     audience: {
       "@type": "Audience",
@@ -67,7 +66,7 @@ export default async function CodexCoursePage({ params }: Props) {
     hasPart: course.units.flatMap((unit) => unit.lessons).map((lesson) => ({
       "@type": "LearningResource",
       name: lesson.copy.title,
-      url: urlFor(locale, codexLessonPage(lesson.slug)),
+      url: claudeUrlFor(locale, lesson.slug),
       position: lesson.order,
       timeRequired: `PT${lesson.minutes}M`,
     })),
@@ -83,13 +82,13 @@ export default async function CodexCoursePage({ params }: Props) {
             "@type": "ListItem",
             position: 1,
             name: t("nav.courses"),
-            item: urlFor(locale, "courses/"),
+            item: `${CLAUDE_SITE}/${locale}/courses/`,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: course.copy.meta.title,
-            item: urlFor(locale, "codex/"),
+            item: claudeUrlFor(locale),
           },
         ],
       },

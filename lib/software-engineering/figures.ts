@@ -12,7 +12,7 @@ export const SOFTWARE_ENGINEERING_MEDIA = [
     webpSrc: "/courses/software-engineering/figures/codex-cli-plan-1600.webp",
     width: 1898,
     height: 1190,
-    sha256: "15b86fa9c0790a779ecdd84f1e7dee029ab79bfb093bd3c4876998696925b013",
+    sha256: "e001d6a7f61d43fc8f460315fadb10a8afb047a5774563e68f3eedb01ed87f94",
     webpWidth: 1600,
     webpHeight: 1004,
     webpSha256: "3abc328ec5ecd76814fe44bd371f7d4f68d89f87e9508d73dcb7af7a5601df88",

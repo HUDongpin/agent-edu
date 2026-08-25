@@ -1,3 +1,9 @@
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import {
+  isJsonObjectRecord,
+  persistenceFailureReason as reasonForError,
+} from "@/lib/progress-persistence";
+
 export const COURSE_PROGRESS_STORAGE_KEY = "ae.progress";
 export const CLAUDE_PROGRESS_EVENT = "claude:progress-change";
 
@@ -5,10 +11,12 @@ export type CourseProgressRecord = Record<string, unknown>;
 export type CourseProgressUpdateResult = {
   readonly progress: CourseProgressRecord;
   readonly persisted: boolean;
+  readonly reason?: PersistenceResult["reason"];
 };
 
 let memorySnapshot = "{}";
 let persistenceAvailable: boolean | null = null;
+let failureReason: PersistenceResult["reason"];
 
 export function readCourseProgressSnapshot(): string {
   if (typeof window === "undefined") return memorySnapshot;
@@ -19,16 +27,26 @@ export function readCourseProgressSnapshot(): string {
   // incorrectly announce that persistence is available again.
   if (persistenceAvailable === false) return memorySnapshot;
 
+  let storedSnapshot: string;
   try {
-    const storedSnapshot = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+    storedSnapshot = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+  } catch (error) {
+    memorySnapshot = "{}";
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
+    return memorySnapshot;
+  }
+  try {
     const parsed = JSON.parse(storedSnapshot);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       memorySnapshot = "{}";
       persistenceAvailable = false;
+      failureReason = "corrupt";
       return memorySnapshot;
     }
     memorySnapshot = storedSnapshot;
     persistenceAvailable = true;
+    failureReason = undefined;
     return memorySnapshot;
   } catch {
     // A denied read or malformed shared record means this session does not
@@ -36,6 +54,7 @@ export function readCourseProgressSnapshot(): string {
     // and refuse persistent writes that could replace those unknown bytes.
     memorySnapshot = "{}";
     persistenceAvailable = false;
+    failureReason = "corrupt";
     return memorySnapshot;
   }
 }
@@ -67,9 +86,11 @@ export function writeCourseProgress(progress: CourseProgressRecord): boolean {
   try {
     window.localStorage.setItem(COURSE_PROGRESS_STORAGE_KEY, memorySnapshot);
     persistenceAvailable = true;
+    failureReason = undefined;
     persisted = true;
-  } catch {
+  } catch (error) {
     persistenceAvailable = false;
+    failureReason = reasonForError(error);
   }
   window.dispatchEvent(new Event(CLAUDE_PROGRESS_EVENT));
   return persisted;
@@ -81,7 +102,11 @@ export function updateCourseProgress(
   const progress = readCourseProgress();
   update(progress);
   const persisted = writeCourseProgress(progress);
-  return { progress, persisted };
+  return {
+    progress,
+    persisted,
+    ...(persisted ? {} : { reason: failureReason ?? "unavailable" }),
+  };
 }
 
 export function resetClaudeProgress(): CourseProgressUpdateResult {
@@ -96,20 +121,28 @@ export function resetClaudeProgress(): CourseProgressUpdateResult {
 export function resetClaudeProgressAfterGlobalReset(): CourseProgressUpdateResult {
   const progress = {};
   memorySnapshot = "{}";
-  let persisted = false;
-
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.removeItem(COURSE_PROGRESS_STORAGE_KEY);
-      persistenceAvailable = true;
-      persisted = true;
-    } catch {
-      persistenceAvailable = false;
-    }
-    window.dispatchEvent(new Event(CLAUDE_PROGRESS_EVENT));
+  if (typeof window === "undefined") {
+    persistenceAvailable = false;
+    failureReason = "unavailable";
+    return { progress, persisted: false, reason: failureReason };
   }
 
-  return { progress, persisted };
+  try {
+    const raw = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY);
+    if (raw === null) {
+      persistenceAvailable = true;
+      failureReason = undefined;
+      window.dispatchEvent(new Event(CLAUDE_PROGRESS_EVENT));
+      return { progress, persisted: true };
+    }
+    persistenceAvailable = false;
+    failureReason = isJsonObjectRecord(raw) ? "unavailable" : "corrupt";
+  } catch (error) {
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
+  }
+  window.dispatchEvent(new Event(CLAUDE_PROGRESS_EVENT));
+  return { progress, persisted: false, reason: failureReason };
 }
 
 export function subscribeToCourseProgress(listener: () => void): () => void {

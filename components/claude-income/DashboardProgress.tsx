@@ -68,8 +68,12 @@ export default function DashboardProgress({ lessons }: { lessons: readonly Lesso
 
       <div className={styles.progressActions}>
         {resume ? (
-          <Link className={styles.primaryAction} href={resume.href}>
-            {completed.length ? "Resume course" : "Start lesson 1"}
+          <Link className={styles.primaryAction} href={resume.href} data-course-journey-action>
+            {completed.length === lessons.length
+              ? "Review course"
+              : completed.length
+                ? "Resume course"
+                : "Start lesson 1"}
             <span aria-hidden="true">→</span>
           </Link>
         ) : null}

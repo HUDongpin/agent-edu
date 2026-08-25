@@ -1,7 +1,11 @@
-import { AGENT_ORCHESTRATION_COURSE_MANIFEST } from "./manifest";
-import { AGENT_ORCHESTRATION_EN_COPY } from "./copy/en";
-import { AGENT_ORCHESTRATION_ZH_HANS_COPY } from "./copy/zh-Hans";
 import {
+  AGENT_ORCHESTRATION_PROGRESS_EVENT as TOPOLOGY_PROGRESS_EVENT,
+  AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS,
+  AGENT_ORCHESTRATION_PROGRESS_RESET_EVENT as TOPOLOGY_PROGRESS_RESET_EVENT,
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA,
+} from "../progress-topology";
+import {
+  AGENT_ORCHESTRATION_LAB_ID_BY_MODULE,
   AGENT_ORCHESTRATION_LAB_SCHEMA_VERSION,
   AGENT_ORCHESTRATION_LAB_SCENARIO_VERSION,
   agentOrchestrationLabDecisionsEqual,
@@ -10,6 +14,7 @@ import {
   isAgentOrchestrationLabStateCompletable,
   normalizeAgentOrchestrationLabState,
 } from "./lab-model";
+import { AGENT_ORCHESTRATION_PRACTICE_TEMPLATES } from "./practice-templates";
 import type {
   AgentOrchestrationLabDecision,
   AgentOrchestrationLabState,
@@ -19,27 +24,30 @@ import type {
   AgentOrchestrationModuleSlug,
 } from "./types";
 
-export const AGENT_ORCHESTRATION_PROGRESS_PREFIX = "agent-orchestration.";
+export const AGENT_ORCHESTRATION_PROGRESS_PREFIX =
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.prefix;
 export const AGENT_ORCHESTRATION_PROGRESS_VERSION =
-  `${AGENT_ORCHESTRATION_COURSE_MANIFEST.version}:progress-v4`;
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.version;
 export const AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY =
-  "agent-orchestration.progress.version";
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.versionKey;
 export const AGENT_ORCHESTRATION_PROGRESS_EVENT =
-  "agent-orchestration:progress-change";
+  TOPOLOGY_PROGRESS_EVENT;
 export const AGENT_ORCHESTRATION_PROGRESS_RESET_EVENT =
-  "agent-orchestration:progress-reset";
+  TOPOLOGY_PROGRESS_RESET_EVENT;
 export const AGENT_ORCHESTRATION_QUIZ_BEST_KEY =
-  "agent-orchestration.quiz.best";
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.quizBestKey;
 export const AGENT_ORCHESTRATION_QUIZ_PASSED_KEY =
-  "agent-orchestration.quiz.passed";
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.quizPassedKey;
 export const AGENT_ORCHESTRATION_CAPSTONE_KEY =
   "agent-orchestration.capstone.v2";
 export const AGENT_ORCHESTRATION_CAPSTONE_CHECKS_KEY =
-  "agent-orchestration.capstone.checks";
-export const AGENT_ORCHESTRATION_QUIZ_PASS_PERCENT = 80;
-export const AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT = 15;
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.capstoneEvidenceKey;
+export const AGENT_ORCHESTRATION_QUIZ_PASS_PERCENT =
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.quizPassPercent;
+export const AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT =
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.capstoneArtifactCount;
 export const AGENT_ORCHESTRATION_PROGRESS_MILESTONES =
-  AGENT_ORCHESTRATION_COURSE_MANIFEST.modules.length + 2;
+  AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS.length + 2;
 
 export function agentOrchestrationModuleProgressKey(
   slug: AgentOrchestrationModuleSlug,
@@ -707,10 +715,9 @@ function isSavedArtifactEvidence(
 ): boolean {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const record = value as Record<string, unknown>;
-  const canonicalTemplates: readonly string[] = [
-    AGENT_ORCHESTRATION_EN_COPY.modules[slug].practice.template,
-    AGENT_ORCHESTRATION_ZH_HANS_COPY.modules[slug].practice.template,
-  ];
+  const canonicalTemplates: readonly string[] = Object.values(
+    AGENT_ORCHESTRATION_PRACTICE_TEMPLATES[slug],
+  );
   return record.saved === true
     && record.moduleSlug === slug
     && typeof record.starterTemplate === "string"
@@ -729,12 +736,10 @@ export function agentOrchestrationModuleRequirements(
   progress: Record<string, unknown>,
   slug: AgentOrchestrationModuleSlug,
 ): AgentOrchestrationModuleRequirements {
-  const courseModule = AGENT_ORCHESTRATION_COURSE_MANIFEST.modules.find(
-    (candidate) => candidate.slug === slug,
-  );
-  if (!courseModule || !isCurrentAgentOrchestrationProgress(progress)) {
+  if (!isCurrentAgentOrchestrationProgress(progress)) {
     return { artifact: false, lab: false, checkpoint: false, ready: false };
   }
+  const labId = AGENT_ORCHESTRATION_LAB_ID_BY_MODULE[slug];
   const storedArtifact = progress[agentOrchestrationArtifactKey(slug)];
   const artifact = isNonEmptyString(storedArtifact)
     && isSavedArtifactEvidence(
@@ -743,9 +748,9 @@ export function agentOrchestrationModuleRequirements(
       storedArtifact,
     );
   const lab = isSavedLabRecord(
-    progress[agentOrchestrationLabKey(courseModule.labId, slug)],
+    progress[agentOrchestrationLabKey(labId, slug)],
     slug,
-    courseModule.labId,
+    labId,
   );
   const checkpoint = progress[agentOrchestrationCheckpointPassedKey(slug)] === true;
   return {
@@ -804,7 +809,7 @@ export function isAgentOrchestrationQuizPassed(
 
 export function agentOrchestrationCapstoneEvidence(
   progress: Record<string, unknown>,
-  artifactCount = AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
+  artifactCount: number = AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
 ): string[] {
   const stored = progress[AGENT_ORCHESTRATION_CAPSTONE_CHECKS_KEY];
   if (!Array.isArray(stored) || stored.length !== artifactCount) {
@@ -888,7 +893,7 @@ export interface AgentOrchestrationCapstoneEvidenceValidation {
 
 export function validateAgentOrchestrationCapstoneEvidence(
   evidence: readonly unknown[],
-  artifactCount = AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
+  artifactCount: number = AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
 ): AgentOrchestrationCapstoneEvidenceValidation {
   if (evidence.length !== artifactCount) {
     return {
@@ -918,7 +923,7 @@ export function validateAgentOrchestrationCapstoneEvidence(
 
 export function isAgentOrchestrationCapstoneComplete(
   progress: Record<string, unknown>,
-  artifactCount = AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
+  artifactCount: number = AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
 ): boolean {
   return validateAgentOrchestrationCapstoneEvidence(
     agentOrchestrationCapstoneEvidence(progress, artifactCount),
@@ -930,8 +935,8 @@ export function agentOrchestrationProgressPercent(
   progress: Record<string, unknown>,
 ): number {
   if (!isCurrentAgentOrchestrationProgress(progress)) return 0;
-  const modules = AGENT_ORCHESTRATION_COURSE_MANIFEST.modules.filter(
-    (module) => isAgentOrchestrationModuleComplete(progress, module.slug),
+  const modules = AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS.filter(
+    (slug) => isAgentOrchestrationModuleComplete(progress, slug),
   ).length;
   const quiz = isAgentOrchestrationQuizPassed(progress) ? 1 : 0;
   const capstone = isAgentOrchestrationCapstoneComplete(progress) ? 1 : 0;

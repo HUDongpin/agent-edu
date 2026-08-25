@@ -215,7 +215,7 @@ export const GITHUB_FIGURES = [
     sourcePublisher: "GitHub Docs",
     sourceLicence: "CC-BY-4.0",
     observedOn: OBSERVED_ON,
-    sha256: "bf87184d39f692474231dca24cdea2eb857b16e66aab9f04f5763ff2aaf09082",
+    sha256: "5a136d26fa1c0b9f965df250bd43d1409e687faaab02cfca79c9e9ed04550cec",
     privacyReviewed: true,
   },
   {

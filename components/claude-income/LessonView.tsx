@@ -285,7 +285,7 @@ export default function LessonView({
 
           <LessonCompletion slug={lesson.slug} />
 
-          <nav className={styles.lessonPager} aria-label="Lesson navigation">
+          <nav className={styles.lessonPager} aria-label="Lesson navigation" data-course-lesson-nav>
             {previous ? (
               <Link href={`${courseHref}${previous.slug}/`} rel="prev">
                 <span>Previous lesson</span>

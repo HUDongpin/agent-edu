@@ -30,6 +30,7 @@ export const AGENT_ORCHESTRATION_EN_COPY = {
       "OpenAI, Anthropic, Claude Academy, the current MCP specification, and official repositories provide the primary evidence. Each lesson labels portable synthesis and version-sensitive facts. Private development inputs are excluded from the learner-facing evidence register; no private media or prose is redistributed.",
   },
   ui: {
+    reviewCourse: "Review course",
     course: "Course 15",
     module: "Module",
     modules: "Modules",

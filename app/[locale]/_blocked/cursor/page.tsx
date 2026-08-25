@@ -3,20 +3,20 @@ import { notFound } from "next/navigation";
 import CourseDashboard from "@/components/cursor/CourseDashboard";
 import JsonLd from "@/components/JsonLd";
 import {
-  CURSOR_LOCALES,
   isCursorLocale,
   loadCursorCourse,
 } from "@/lib/cursor";
 import { getMessages, translator } from "@/lib/i18n";
 import { SITE } from "@/lib/seo";
 import { cursorLessonPage, cursorSeoFor, cursorUrlFor } from "@/lib/cursor/seo";
+import { courseLocaleParams } from "@/lib/release-surface";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return CURSOR_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("cursor");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

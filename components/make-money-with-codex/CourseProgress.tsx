@@ -12,9 +12,11 @@ type LessonLink = { readonly slug: CodexIncomeLessonSlug; readonly title: string
 export default function CourseProgress({
   lessons,
   locale,
+  resetConfirm,
 }: {
   lessons: readonly LessonLink[];
   locale: string;
+  resetConfirm: string;
 }) {
   const progress = useIncomeProgress();
   const hydrated = useIncomeHydrated();
@@ -25,18 +27,22 @@ export default function CourseProgress({
     const lessonCount = lessons.filter((lesson) => progress.lessons[lesson.slug]).length;
     const completed = lessonCount + Number(progress.quizPassed) + Number(progress.capstoneReady);
     const total = lessons.length + 2;
+    const courseCompleted = completed >= total;
     const next = lessons.find((lesson) => !progress.lessons[lesson.slug]);
     return {
       completed,
       total,
+      courseCompleted,
       hasAnyProgress: lessonCount > 0
         || progress.quizBest > 0
         || progress.quizPassed
         || progress.capstoneChecks.some(Boolean)
         || progress.capstoneReady,
-      nextHref: next?.href ?? (!progress.quizPassed
-        ? "#income-knowledge-check"
-        : lessons.at(-1)?.href ?? "#income-knowledge-check"),
+      nextHref: courseCompleted
+        ? lessons[0]?.href ?? "#income-curriculum"
+        : next?.href ?? (!progress.quizPassed
+          ? "#income-knowledge-check"
+          : lessons.at(-1)?.href ?? "#income-knowledge-check"),
     };
   }, [lessons, progress]);
 
@@ -60,14 +66,26 @@ export default function CourseProgress({
       </ol>
       {!storageAvailable ? <p className={styles.storageWarning} role="status" lang="en">Browser storage is unavailable. All course content and tools still work.</p> : null}
       <div className={styles.progressActions}>
-        <Link className={styles.primaryButton} href={state.nextHref} lang="en">{state.completed ? "Resume course" : "Start the evidence path"}<span aria-hidden="true">→</span></Link>
+        <Link
+          className={styles.primaryButton}
+          href={state.nextHref}
+          lang="en"
+          data-course-journey-action
+        >
+          {state.courseCompleted
+            ? "Review course"
+            : state.hasAnyProgress
+              ? "Resume course"
+              : "Start the evidence path"}
+          <span aria-hidden="true">→</span>
+        </Link>
         <button
           type="button"
           className={styles.secondaryButton}
           lang="en"
           disabled={!hydrated || !state.hasAnyProgress}
           onClick={() => {
-            if (!window.confirm("Reset only Course 11 progress in this browser?")) return;
+            if (!window.confirm(resetConfirm)) return;
             const reset = resetIncomeProgress();
             setMessage(reset
               ? storageAvailable

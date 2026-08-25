@@ -4,7 +4,7 @@ const sourcePage = "https://developers.openai.com/community";
 const verifiedOn = "2026-08-23";
 const rightsBasis = "first-party-original" as const;
 const captureMethod = "first-party-synthetic-capture" as const;
-const rightsEvidencePath = "outputs/make-money-with-codex/first-party-captures/rights-record.md";
+const rightsEvidencePath = "evidence/course-audits/make-money-with-codex/first-party-captures/rights-record.md";
 
 export const MAKE_MONEY_WITH_CODEX_FIGURES = [
   {

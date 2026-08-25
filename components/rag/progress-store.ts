@@ -1,4 +1,12 @@
-import type { RagLessonSlug } from "@/lib/rag";
+import type { RAG_PROGRESS_LESSON_SLUGS } from "@/lib/progress-topology";
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import { verifySharedProgressReset } from "@/lib/progress-persistence";
+import {
+  RAG_CORRUPT_PROGRESS_BACKUP_KEY,
+  RAG_PROGRESS_PROBE_KEY,
+} from "@/lib/progress-storage-contract";
+
+type RagLessonSlug = (typeof RAG_PROGRESS_LESSON_SLUGS)[number];
 
 export const RAG_PROGRESS_STORAGE_KEY = "ae.progress";
 export const RAG_PROGRESS_EVENT = "aicourse:rag-progress";
@@ -12,8 +20,6 @@ export const RAG_CAPSTONE_DRAFT_KEY = "rag.capstone.draft.v1";
 
 export type RagProgressRecord = Record<string, unknown>;
 
-const STORAGE_PROBE_KEY = "__aicourse_rag_storage_probe__";
-const CORRUPT_BACKUP_KEY = "ae.progress.corrupt-backup";
 let memoryProgress: RagProgressRecord = {};
 let storageAvailable: boolean | null = null;
 
@@ -21,24 +27,22 @@ function recoverCorruptProgress(raw: string | null): void {
   memoryProgress = {};
   if (raw) {
     try {
-      sessionStorage.setItem(CORRUPT_BACKUP_KEY, raw);
+      sessionStorage.setItem(RAG_CORRUPT_PROGRESS_BACKUP_KEY, raw);
     } catch {
       // Recovery must not depend on session storage being available.
     }
   }
-  try {
-    localStorage.setItem(RAG_PROGRESS_STORAGE_KEY, "{}");
-  } catch {
-    storageAvailable = false;
-  }
+  // Preserve the unreadable shared record. This course remains memory-only
+  // until the learner explicitly performs a site-wide reset.
+  storageAvailable = false;
 }
 
-export function isRagProgressStorageAvailable(): boolean {
+function ensureStorageAccess(): boolean {
   if (typeof window === "undefined") return true;
   if (storageAvailable !== null) return storageAvailable;
   try {
-    localStorage.setItem(STORAGE_PROBE_KEY, "1");
-    localStorage.removeItem(STORAGE_PROBE_KEY);
+    localStorage.setItem(RAG_PROGRESS_PROBE_KEY, "1");
+    localStorage.removeItem(RAG_PROGRESS_PROBE_KEY);
     storageAvailable = true;
   } catch {
     storageAvailable = false;
@@ -46,12 +50,18 @@ export function isRagProgressStorageAvailable(): boolean {
   return storageAvailable;
 }
 
+export function isRagProgressStorageAvailable(): boolean {
+  if (typeof window === "undefined") return true;
+  if (storageAvailable !== false) readRagProgress();
+  return storageAvailable === true;
+}
+
 export function ragPracticeKey(slug: RagLessonSlug): string {
   return `rag.lesson.${slug}.practice`;
 }
 
 export function readRagProgress(): RagProgressRecord {
-  if (typeof window === "undefined" || !isRagProgressStorageAvailable()) return { ...memoryProgress };
+  if (typeof window === "undefined" || !ensureStorageAccess()) return { ...memoryProgress };
   try {
     const raw = localStorage.getItem(RAG_PROGRESS_STORAGE_KEY);
     let value: unknown;
@@ -76,7 +86,16 @@ export function writeRagProgress(record: RagProgressRecord): boolean {
   memoryProgress = { ...record };
   let persisted = false;
   try {
-    if (isRagProgressStorageAvailable()) {
+    if (storageAvailable !== false) {
+      const raw = localStorage.getItem(RAG_PROGRESS_STORAGE_KEY) || "{}";
+      const parsed: unknown = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        recoverCorruptProgress(raw);
+      } else {
+        storageAvailable = true;
+      }
+    }
+    if (storageAvailable === true) {
       localStorage.setItem(RAG_PROGRESS_STORAGE_KEY, JSON.stringify(memoryProgress));
       persisted = true;
     }
@@ -99,4 +118,16 @@ export function resetRagProgress(): boolean {
   const persisted = writeRagProgress(record);
   window.dispatchEvent(new CustomEvent(RAG_RESET_EVENT));
   return persisted;
+}
+
+/** Reset this module's session cache after the site-wide owner removed `ae.progress`. */
+export function resetRagProgressAfterGlobalReset(): PersistenceResult {
+  memoryProgress = {};
+  const result = typeof window === "undefined"
+    ? { persisted: false, reason: "unavailable" } as const
+    : verifySharedProgressReset(localStorage, RAG_PROGRESS_STORAGE_KEY);
+  storageAvailable = result.persisted;
+  window.dispatchEvent(new CustomEvent(RAG_PROGRESS_EVENT));
+  window.dispatchEvent(new CustomEvent(RAG_RESET_EVENT));
+  return result;
 }

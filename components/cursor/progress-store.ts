@@ -3,8 +3,13 @@ import {
   CURSOR_PROGRESS_LOCK_NAME,
   CURSOR_PROGRESS_PREFIX,
   CURSOR_PROGRESS_STORAGE_KEY,
-  cursorLessonProgressKey,
-} from "@/lib/cursor/progress";
+  cursorProgressLessonKey,
+} from "@/lib/progress-topology";
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import {
+  isJsonObjectRecord,
+  persistenceFailureReason as reasonForError,
+} from "@/lib/progress-persistence";
 import type { CursorLessonSlug } from "@/lib/cursor/types";
 
 export { CURSOR_PROGRESS_EVENT };
@@ -14,6 +19,7 @@ export type CourseProgressRecord = Record<string, unknown>;
 export type CourseProgressUpdateResult = {
   readonly progress: CourseProgressRecord;
   readonly persisted: boolean;
+  readonly reason?: PersistenceResult["reason"];
 };
 
 export type CursorQuizScorePatch = {
@@ -35,6 +41,7 @@ export type CursorProgressPatch = {
 
 let memorySnapshot = "{}";
 let persistenceAvailable: boolean | null = null;
+let failureReason: PersistenceResult["reason"];
 
 export function readCourseProgressSnapshot(): string {
   if (typeof window === "undefined") return memorySnapshot;
@@ -45,22 +52,33 @@ export function readCourseProgressSnapshot(): string {
   // incorrectly announce that persistence is available again.
   if (persistenceAvailable === false) return memorySnapshot;
 
+  let storedSnapshot: string;
   try {
-    const storedSnapshot = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+    storedSnapshot = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+  } catch (error) {
+    memorySnapshot = "{}";
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
+    return memorySnapshot;
+  }
+  try {
     const parsed = JSON.parse(storedSnapshot);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       memorySnapshot = "{}";
       persistenceAvailable = false;
+      failureReason = "corrupt";
       return memorySnapshot;
     }
     memorySnapshot = storedSnapshot;
     persistenceAvailable = true;
+    failureReason = undefined;
     return memorySnapshot;
   } catch {
     // Malformed JSON is an unknown isolated snapshot. Treat it like a denied
     // read so a Cursor update cannot silently replace unrecoverable bytes.
     memorySnapshot = "{}";
     persistenceAvailable = false;
+    failureReason = "corrupt";
     return memorySnapshot;
   }
 }
@@ -72,7 +90,7 @@ export function isCourseProgressPersistenceAvailable(): boolean {
 }
 
 export function lessonProgressKey(slug: CursorLessonSlug): `cursor.lesson.${CursorLessonSlug}` {
-  return cursorLessonProgressKey(slug);
+  return cursorProgressLessonKey(slug) as `cursor.lesson.${CursorLessonSlug}`;
 }
 
 export function readCourseProgress(): CourseProgressRecord {
@@ -163,13 +181,25 @@ function outsideCursorSnapshot(record: CourseProgressRecord): CourseProgressReco
 }
 
 function readCursorRecordForCommit(): CourseProgressRecord | null {
+  let raw: string;
   try {
-    const raw = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+    raw = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+  } catch (error) {
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
+    return null;
+  }
+  try {
     const parsed: unknown = JSON.parse(raw);
-    if (!isRecord(parsed)) throw new TypeError("Cursor progress is not an object.");
+    if (!isRecord(parsed)) {
+      persistenceAvailable = false;
+      failureReason = "corrupt";
+      return null;
+    }
     return parsed;
   } catch {
     persistenceAvailable = false;
+    failureReason = "corrupt";
     return null;
   }
 }
@@ -179,7 +209,7 @@ function commitCursorPatch(patch: CursorProgressPatch): CourseProgressUpdateResu
     const progress = applyPatch(readCourseProgress(), patch);
     memorySnapshot = JSON.stringify(progress);
     window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
-    return { progress, persisted: false };
+    return { progress, persisted: false, reason: failureReason ?? "unavailable" };
   }
 
   let progress = readCourseProgress();
@@ -189,7 +219,7 @@ function commitCursorPatch(patch: CursorProgressPatch): CourseProgressUpdateResu
       progress = applyPatch(progress, patch);
       memorySnapshot = JSON.stringify(progress);
       window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
-      return { progress, persisted: false };
+      return { progress, persisted: false, reason: failureReason ?? "unavailable" };
     }
 
     const preserved = outsideCursorSnapshot(latest);
@@ -204,20 +234,22 @@ function commitCursorPatch(patch: CursorProgressPatch): CourseProgressUpdateResu
         progress = observed;
         memorySnapshot = JSON.stringify(observed);
         persistenceAvailable = true;
+        failureReason = undefined;
         window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
         return { progress, persisted: true };
       }
       if (observed) progress = observed;
-    } catch {
+    } catch (error) {
       persistenceAvailable = false;
+      failureReason = reasonForError(error);
       window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
-      return { progress, persisted: false };
+      return { progress, persisted: false, reason: failureReason };
     }
   }
 
   memorySnapshot = JSON.stringify(progress);
   window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
-  return { progress, persisted: false };
+  return { progress, persisted: false, reason: failureReason ?? "unavailable" };
 }
 
 /**
@@ -230,7 +262,9 @@ export async function applyCursorProgressPatch(
   patch: CursorProgressPatch,
 ): Promise<CourseProgressUpdateResult> {
   assertCursorPatch(patch);
-  if (typeof window === "undefined") return { progress: applyPatch({}, patch), persisted: false };
+  if (typeof window === "undefined") {
+    return { progress: applyPatch({}, patch), persisted: false, reason: "unavailable" };
+  }
   if (typeof navigator !== "undefined" && navigator.locks) {
     return navigator.locks.request(
       CURSOR_PROGRESS_LOCK_NAME,
@@ -256,20 +290,31 @@ export async function resetCursorProgressAfterGlobalReset(): Promise<CourseProgr
   const commitReset = (): CourseProgressUpdateResult => {
     const progress = {};
     memorySnapshot = "{}";
-    let persisted = false;
-
-    if (typeof window !== "undefined") {
-      try {
-        window.localStorage.removeItem(COURSE_PROGRESS_STORAGE_KEY);
-        persistenceAvailable = true;
-        persisted = true;
-      } catch {
-        persistenceAvailable = false;
-      }
-      window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
+    if (typeof window === "undefined") {
+      persistenceAvailable = false;
+      failureReason = "unavailable";
+      return { progress, persisted: false, reason: failureReason };
     }
 
-    return { progress, persisted };
+    try {
+      const raw = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY);
+      if (raw !== null && !isJsonObjectRecord(raw)) {
+        persistenceAvailable = false;
+        failureReason = "corrupt";
+        window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
+        return { progress, persisted: false, reason: failureReason };
+      }
+      window.localStorage.removeItem(COURSE_PROGRESS_STORAGE_KEY);
+      persistenceAvailable = true;
+      failureReason = undefined;
+      window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
+      return { progress, persisted: true };
+    } catch (error) {
+      persistenceAvailable = false;
+      failureReason = reasonForError(error);
+      window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
+      return { progress, persisted: false, reason: failureReason };
+    }
   };
 
   if (typeof window === "undefined") return commitReset();

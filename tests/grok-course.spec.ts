@@ -613,7 +613,7 @@ test.describe("How to Use Grok course", () => {
     expect(await page.evaluate(() => localStorage.getItem("unrelated.course"))).toBe("keep-me");
   });
 
-  test("malformed progress replaces a previously cached valid state and stays empty after reload", async ({ page }) => {
+  test("malformed progress is preserved and the course fails closed to session-only state", async ({ page }) => {
     await page.goto("/en/grok/map-grok/");
     const completionButton = page
       .getByTestId("grok-lesson-completion-map-grok")
@@ -630,10 +630,14 @@ test.describe("How to Use Grok course", () => {
 
     await setProgressAndDispatchStorage(page, "{not-valid-json");
     await expect(completionButton).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByText("Browser storage is unavailable.", { exact: false }).first())
+      .toBeVisible();
     expect(await page.evaluate((key) => localStorage.getItem(key), PROGRESS_KEY)).toBe("{not-valid-json");
 
     await page.reload();
     await expect(completionButton).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByText("Browser storage is unavailable.", { exact: false }).first())
+      .toBeVisible();
     await expect(page.getByTestId("grok-lesson-map-grok")).toBeVisible();
   });
 
@@ -805,8 +809,8 @@ test.describe("How to Use Grok course", () => {
     expect(stored.capstoneChecks).toEqual([true, true, true, true, true, true, true]);
   });
 
-  test("figures and evidence remain available without JavaScript", async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false });
+  test("figures and evidence remain available without JavaScript", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL, javaScriptEnabled: false });
     const page = await context.newPage();
     await page.goto("/en/grok/software-engineering/");
     await expect(page.getByTestId("grok-figure-fig-06").getByRole("img")).toBeVisible();

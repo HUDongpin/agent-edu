@@ -244,7 +244,7 @@ export default function ModuleView({
 
             <ModuleCompletion slug={module.slug} labels={course.copy.ui} />
 
-            <nav className={base.lessonPager} aria-label={course.copy.ui.allModules}>
+            <nav className={base.lessonPager} aria-label={course.copy.ui.allModules} data-course-lesson-nav>
               {previous ? (
                 <Link href={hrefFor(previous.slug)} rel="prev">
                   <span>{course.copy.ui.previous}</span><strong>{previous.copy.title}</strong>

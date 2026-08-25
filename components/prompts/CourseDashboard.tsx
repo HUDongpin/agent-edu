@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PROMPT_SOURCE_BY_ID, type MaterializedPromptCourse } from "@/lib/prompts";
 import { CapstoneChecklist, CourseProgress, FinalQuiz, type PromptQuizQuestion } from "./PromptInteractions";
 import styles from "./PromptCourse.module.css";
+import SharedCourseShell from "../SharedCourseShell";
 
 export default function CourseDashboard({
   course,
@@ -34,6 +35,7 @@ export default function CourseDashboard({
       dir="ltr"
       data-testid="prompts-course-dashboard"
     >
+      <SharedCourseShell courseId="prompts" locale={course.locale} />
       {course.locale !== "en" ? <p className={styles.languageNotice}>{course.copy.ui.englishOnly}</p> : null}
       <header className={styles.courseHero}>
         <div className={styles.heroCopy}>

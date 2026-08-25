@@ -17,6 +17,7 @@ import useSoftwareEngineeringProgress, {
   useSoftwareEngineeringStorageAvailable,
 } from "./useSoftwareEngineeringProgress";
 import styles from "./SoftwareEngineeringCourse.module.css";
+import { useI18n } from "../I18nProvider";
 
 export default function CourseProgress({
   lessons,
@@ -25,6 +26,7 @@ export default function CourseProgress({
   lessons: readonly { readonly slug: SoftwareEngineeringLessonSlug; readonly href: string }[];
   labels: SoftwareEngineeringLocaleCopy["ui"];
 }) {
+  const { t } = useI18n();
   const progress = useSoftwareEngineeringProgress();
   const storageAvailable = useSoftwareEngineeringStorageAvailable();
   const [resetStatus, setResetStatus] = useState("");
@@ -38,8 +40,11 @@ export default function CourseProgress({
     const completed = lessonCount + quizCount + capstoneCount;
     const total = lessons.length + 2;
     const nextLesson = lessons.find((lesson) => progress[softwareEngineeringLessonKey(lesson.slug)] !== true);
-    const nextHref = nextLesson?.href ?? (quizCount ? (capstoneCount ? null : lessons.at(-1)?.href ?? null) : "#final-assessment");
-    return { completed, total, percent: Math.round((completed / total) * 100), nextHref };
+    const courseCompleted = completed === total;
+    const nextHref = courseCompleted
+      ? lessons[0]?.href ?? null
+      : nextLesson?.href ?? (quizCount ? lessons.at(-1)?.href ?? null : "#final-assessment");
+    return { completed, total, courseCompleted, percent: Math.round((completed / total) * 100), nextHref };
   }, [lessons, progress]);
 
   const hasProgress = Object.keys(progress).some((key) => key.startsWith("softwareEngineering."));
@@ -67,8 +72,8 @@ export default function CourseProgress({
       </progress>
       <div className={styles.actionRow}>
         {state.nextHref ? (
-          <Link className={styles.primaryButton} href={state.nextHref}>
-            {hasProgress ? labels.resumeCourse : labels.startCourse}<span aria-hidden="true">→</span>
+          <Link className={styles.primaryButton} href={state.nextHref} data-course-journey-action>
+            {state.courseCompleted ? t("cat.review") : hasProgress ? labels.resumeCourse : labels.startCourse}<span aria-hidden="true">→</span>
           </Link>
         ) : null}
         <button

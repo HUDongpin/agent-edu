@@ -67,10 +67,10 @@ const COURSE_MANIFESTS = [
   "lib/codex/manifest.json",
 ];
 
-const COURSE_INDEX_ROUTE = "app/[locale]/codex/page.tsx";
+const COURSE_INDEX_ROUTE = "app/[locale]/_blocked/codex/page.tsx";
 const COURSE_LESSON_ROUTES = [
-  "app/[locale]/codex/[lesson]/page.tsx",
-  "app/[locale]/codex/[slug]/page.tsx",
+  "app/[locale]/_blocked/codex/[lesson]/page.tsx",
+  "app/[locale]/_blocked/codex/[slug]/page.tsx",
 ];
 
 const FIGURE_AUDIT_PATH = "lib/codex/figure-audits.json";
@@ -111,7 +111,7 @@ const FIGURE_METADATA_CHECKS = [
   "finalDerivativeReinspected",
 ];
 
-const CAPSTONE_ROOT = "examples/codex-course-demo";
+const CAPSTONE_ROOT = "tests/fixtures/codex-course-demo";
 const CAPSTONE_ARCHIVE = "public/courses/codex/aicourse-codex-demo-v1.zip";
 const CAPSTONE_CHECKSUM = "public/courses/codex/aicourse-codex-demo-v1.sha256";
 const CAPSTONE_BROWSER_CONTRACT = "lib/codex/capstone.ts";
@@ -1709,11 +1709,11 @@ function walk(path) {
 
 function scanTextSafety() {
   const roots = [
-    join(ROOT, "app/[locale]/codex"),
+    join(ROOT, "app/[locale]/_blocked/codex"),
     join(ROOT, "components/codex"),
     join(ROOT, "lib/codex"),
     join(ROOT, "messages/codex"),
-    join(ROOT, "examples/codex-course-demo"),
+    join(ROOT, "tests/fixtures/codex-course-demo"),
     join(ROOT, "public/courses/codex"),
   ];
   const textExtensions = new Set(["", ".ts", ".tsx", ".js", ".jsx", ".mjs", ".json", ".md", ".css", ".html", ".svg", ".txt", ".sha256"]);

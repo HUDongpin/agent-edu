@@ -12,6 +12,7 @@ import {
   loadAiTutorCourse,
 } from "@/lib/ai-tutor";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseChildParams } from "@/lib/release-surface";
 import { aiTutorModulePage, seoFor, SITE, urlFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string; module: string }> };
@@ -19,7 +20,7 @@ type Props = { params: Promise<{ locale: string; module: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return AI_TUTOR_MODULE_SLUGS.map((module) => ({ module }));
+  return courseChildParams("ai-tutor", "module", AI_TUTOR_MODULE_SLUGS);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

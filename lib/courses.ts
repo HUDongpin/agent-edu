@@ -53,6 +53,11 @@ import { RAG_COURSE_MANIFEST } from "./rag/manifest";
 import { SOFTWARE_ENGINEERING_COURSE_MANIFEST } from "./software-engineering/manifest";
 import { isSoftwareEngineeringCapstoneSubmission } from "./software-engineering/capstone";
 import { isSoftwareEngineeringQuizPassed } from "./software-engineering/quiz";
+import {
+  isPublishedCourse,
+  releaseSurfaceFor,
+  type CourseId as ReleaseCourseId,
+} from "./release-surface";
 
 export type Level = "beginner" | "intermediate" | "advanced";
 export type Format = "read" | "interactive" | "code";
@@ -649,6 +654,24 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
   },
 ];
 
+/**
+ * The existing learner-facing `available` flag is preserved for compatibility,
+ * while the release registry supplies the authoritative published/blocked/
+ * roadmap state. Generated routes and publication gates consume that state.
+ */
+export const TOP_LEVEL_COURSE_RELEASES = TOP_LEVEL_COURSES.map((course) => ({
+  course,
+  surface: releaseSurfaceFor(course.id as ReleaseCourseId),
+}));
+
+export const PUBLISHED_TOP_LEVEL_COURSES = TOP_LEVEL_COURSES.filter((course) =>
+  isPublishedCourse(course.id as ReleaseCourseId),
+);
+
+export const BLOCKED_TOP_LEVEL_COURSES = TOP_LEVEL_COURSES.filter((course) =>
+  !isPublishedCourse(course.id as ReleaseCourseId),
+);
+
 const agenticCourse = TOP_LEVEL_COURSES.find((course) => course.id === "agentic")!;
 const codexCourse = TOP_LEVEL_COURSES.find((course) => course.id === "codex")!;
 const claudeCourse = TOP_LEVEL_COURSES.find((course) => course.id === "claude")!;
@@ -992,6 +1015,28 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     hue: "var(--red)",
   },
 ];
+
+/**
+ * Display-ready catalogue records joined to the machine-readable release
+ * contract. Consumers get the existing href/title/progress adapter together
+ * with the authoritative primary/content locales and release gate.
+ */
+export const CATALOG_COURSE_RELEASES = CATALOG_COURSES.map((course) => ({
+  course,
+  surface: releaseSurfaceFor(course.id as ReleaseCourseId),
+}));
+
+export const PUBLISHED_CATALOG_COURSES = CATALOG_COURSE_RELEASES.filter(
+  ({ surface }) => surface.state === "published",
+);
+
+export const BLOCKED_CATALOG_COURSES = CATALOG_COURSE_RELEASES.filter(
+  ({ surface }) => surface.state === "blocked",
+);
+
+export const ROADMAP_CATALOG_COURSES = CATALOG_COURSE_RELEASES.filter(
+  ({ surface }) => surface.state === "roadmap",
+);
 
 export const CATALOG_TOPICS: readonly CatalogTopic[] = [
   "ai-systems",

@@ -202,9 +202,9 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
 
             <LessonCompletion slug={lesson.slug} ui={ui} />
 
-            <nav className={styles.lessonPager} aria-label={ui.lessonNavigationAria}>
-              {previous ? <Link href={hrefFor(previous.slug)}><span><span aria-hidden="true">{arrowBack}</span> {ui.lessonPrevious}</span><strong>{previous.title}</strong></Link> : <span />}
-              {next ? <Link href={hrefFor(next.slug)}><span>{ui.lessonNext} <span aria-hidden="true">{arrowForward}</span></span><strong>{next.title}</strong></Link> : <Link href={`/${course.locale}/mcp/#assessment`}><span>{ui.lessonFinish} <span aria-hidden="true">{arrowForward}</span></span><strong>{ui.lessonFinalAssessment}</strong></Link>}
+            <nav className={styles.lessonPager} aria-label={ui.lessonNavigationAria} data-course-lesson-nav>
+              {previous ? <Link href={hrefFor(previous.slug)} rel="prev"><span><span aria-hidden="true">{arrowBack}</span> {ui.lessonPrevious}</span><strong>{previous.title}</strong></Link> : <span />}
+              {next ? <Link href={hrefFor(next.slug)} rel="next"><span>{ui.lessonNext} <span aria-hidden="true">{arrowForward}</span></span><strong>{next.title}</strong></Link> : <Link href={`/${course.locale}/mcp/#assessment`} rel="next"><span>{ui.lessonFinish} <span aria-hidden="true">{arrowForward}</span></span><strong>{ui.lessonFinalAssessment}</strong></Link>}
             </nav>
           </article>
         </div>

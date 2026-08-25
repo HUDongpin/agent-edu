@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "courses": [
+    {
+      "id": "agentic",
+      "state": "published",
+      "href": "/handbook/",
+      "titleKey": "c.agentic.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "progressEvent": "agentic:progress-change"
+    },
+    {
+      "id": "codex",
+      "state": "blocked",
+      "href": null,
+      "titleKey": "c.codex.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "progressEvent": null
+    },
+    {
+      "id": "claude",
+      "state": "blocked",
+      "href": null,
+      "titleKey": "c.claude.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "progressEvent": null
+    },
+    {
+      "id": "cursor",
+      "state": "blocked",
+      "href": null,
+      "titleKey": "c.cursor.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "progressEvent": null
+    },
+    {
+      "id": "grok",
+      "state": "published",
+      "href": "/grok/",
+      "titleKey": "c.grok.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "progressEvent": "aicourse:grok-progress"
+    },
+    {
+      "id": "github",
+      "state": "published",
+      "href": "/github/",
+      "titleKey": "c.github.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "progressEvent": "github:progress-change"
+    },
+    {
+      "id": "prompts",
+      "state": "published",
+      "href": "/prompts/",
+      "titleKey": "c.prompts.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en"
+      ],
+      "progressEvent": "aicourse:prompts-progress"
+    },
+    {
+      "id": "software-engineering",
+      "state": "published",
+      "href": "/software-engineering/",
+      "titleKey": "c.softwareEngineering.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en"
+      ],
+      "progressEvent": "software-engineering:progress-change"
+    },
+    {
+      "id": "rag",
+      "state": "published",
+      "href": "/rag/",
+      "titleKey": "c.rag.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "progressEvent": "aicourse:rag-progress"
+    },
+    {
+      "id": "mcp",
+      "state": "published",
+      "href": "/mcp/",
+      "titleKey": "c.mcp.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "progressEvent": "mcp:progress-change"
+    },
+    {
+      "id": "make-money-with-codex",
+      "state": "published",
+      "href": "/make-money-with-codex/",
+      "titleKey": "c.make-money-with-codex.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en"
+      ],
+      "progressEvent": "aicourse:make-money-with-codex-progress"
+    },
+    {
+      "id": "claude-income",
+      "state": "published",
+      "href": "/claude-income/",
+      "titleKey": "c.claude-income.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en"
+      ],
+      "progressEvent": "claude-income:progress-change"
+    },
+    {
+      "id": "ai-tutor",
+      "state": "published",
+      "href": "/ai-tutor/",
+      "titleKey": "c.ai-tutor.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en"
+      ],
+      "progressEvent": "ai-tutor:progress-change"
+    },
+    {
+      "id": "product-management",
+      "state": "published",
+      "href": "/product-management/",
+      "titleKey": "c.product-management.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en"
+      ],
+      "progressEvent": "product-management:progress-change"
+    },
+    {
+      "id": "agent-orchestration",
+      "state": "published",
+      "href": "/agent-orchestration/",
+      "titleKey": "c.agent-orchestration.title",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "progressEvent": "agent-orchestration:progress-change"
+    },
+    {
+      "id": "ai-research",
+      "state": "roadmap",
+      "href": null,
+      "titleKey": "c.aiResearch.title",
+      "primaryLocale": null,
+      "contentLocales": [],
+      "progressEvent": null
+    },
+    {
+      "id": "responsible-ai",
+      "state": "roadmap",
+      "href": null,
+      "titleKey": "c.responsibleAi.title",
+      "primaryLocale": null,
+      "contentLocales": [],
+      "progressEvent": null
+    }
+  ]
+}

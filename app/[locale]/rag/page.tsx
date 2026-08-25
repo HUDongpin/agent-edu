@@ -4,6 +4,7 @@ import CourseDashboard from "@/components/rag/CourseDashboard";
 import JsonLd from "@/components/JsonLd";
 import { RAG_LOCALES, isRagLocale, loadRagCourse } from "@/lib/rag";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseLocaleParams } from "@/lib/release-surface";
 import { SITE, ragLessonPage, seoFor, urlFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -11,7 +12,7 @@ type Props = { params: Promise<{ locale: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return RAG_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("rag");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

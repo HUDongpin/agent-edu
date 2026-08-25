@@ -11,6 +11,7 @@ import {
 } from "@/lib/make-money-with-codex";
 import { loadCodexIncomeCopy } from "@/lib/make-money-with-codex/load";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseChildParams } from "@/lib/release-surface";
 import { makeMoneyWithCodexLessonPage, seoFor, SITE, urlFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string; lesson: string }> };
@@ -18,7 +19,11 @@ type Props = { params: Promise<{ locale: string; lesson: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return MAKE_MONEY_WITH_CODEX_LESSON_SLUGS.map((lesson) => ({ lesson }));
+  return courseChildParams(
+    "make-money-with-codex",
+    "lesson",
+    MAKE_MONEY_WITH_CODEX_LESSON_SLUGS,
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

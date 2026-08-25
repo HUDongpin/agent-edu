@@ -19,6 +19,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
+import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RELEASE = process.argv.includes("--release");
@@ -32,11 +33,11 @@ const ECONOMICS_PATH = "lib/make-money-with-codex/economics.ts";
 const NOTICE_PATH = "public/courses/make-money-with-codex/NOTICE.md";
 const UPSTREAM_LICENSE_PATH = "public/courses/make-money-with-codex/licenses/openai-codex-343074d-LICENSE.txt";
 const UPSTREAM_NOTICE_PATH = "public/courses/make-money-with-codex/licenses/openai-codex-343074d-NOTICE.txt";
-const RESEARCH_PATH = "outputs/make-money-with-codex/research-brief.md";
-const PROVENANCE_PATH = "outputs/make-money-with-codex/figure-provenance.md";
-const CLI_TRANSCRIPT_PATH = "outputs/make-money-with-codex/first-party-captures/fig-04-cli-transcript.txt";
-const FIGURE_FIXTURE_PATH = "outputs/make-money-with-codex/first-party-captures/figure-fixture.html";
-const TRANSLATION_READINESS_PATH = "outputs/make-money-with-codex/translation-readiness.md";
+const RESEARCH_PATH = "evidence/course-audits/make-money-with-codex/research-brief.md";
+const PROVENANCE_PATH = "evidence/course-audits/make-money-with-codex/figure-provenance.md";
+const CLI_TRANSCRIPT_PATH = "evidence/course-audits/make-money-with-codex/first-party-captures/fig-04-cli-transcript.txt";
+const FIGURE_FIXTURE_PATH = "evidence/course-audits/make-money-with-codex/first-party-captures/figure-fixture.html";
+const TRANSLATION_READINESS_PATH = "evidence/course-audits/make-money-with-codex/translation-readiness.md";
 
 const EXPECTED_LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
 const EXPECTED_LESSONS = [
@@ -85,6 +86,7 @@ const EXPECTED_LOCALIZED_UI_KEYS = [
   "courseDashboard",
   "reviewEvidencePath",
   "backToCatalog",
+  "resetConfirm",
 ];
 const EXPECTED_SURFACES = {
   "fig-1": "codex-app",
@@ -962,12 +964,6 @@ if (catalogueRecords.length === 0) {
   }
 }
 
-const seoText = readText("lib/seo.ts");
-for (const page of ["make-money-with-codex/", ...lessonContract.map((slug) => `make-money-with-codex/${slug}/`)]) {
-  if (!seoText.includes(`"${page}"`) && !seoText.includes(`'${page}'`)) {
-    fail(`lib/seo.ts: sitemap page contract is missing ${page}`);
-  }
-}
 const sitemapText = readText("app/sitemap.ts");
 if (!/import\s*\{[^}]*\bPAGES\b[^}]*\}\s*from\s*["']@\/lib\/seo["']/.test(sitemapText) || !/PAGES\.flatMap/.test(sitemapText)) {
   fail("app/sitemap.ts: sitemap must be generated from the canonical PAGES contract");
@@ -982,22 +978,13 @@ const cataloguePageText = readText("app/[locale]/courses/page.tsx");
 if (!/courseElevenParts[\s\S]*?url:\s*`\$\{urlFor\(["']en["']\)\}make-money-with-codex\//.test(cataloguePageText)) {
   fail("app/[locale]/courses/page.tsx: Course 11 lesson structured-data URLs must use the English canonical");
 }
-const packageText = readText("package.json");
 const vercelText = readText("vercel.json");
-let packageScripts = {};
-try {
-  packageScripts = JSON.parse(packageText)?.scripts ?? {};
-} catch (error) {
-  fail(`package.json: cannot parse scripts (${error.message})`);
-}
-for (const scriptName of ["build", "build:release"]) {
-  const buildCommand = packageScripts[scriptName] ?? "";
-  const courseGateIndex = buildCommand.indexOf("npm run make-money-with-codex:check:release");
-  const nextBuildIndex = buildCommand.indexOf("next build");
-  if (courseGateIndex < 0 || nextBuildIndex < 0 || courseGateIndex > nextBuildIndex) {
-    fail(`package.json: ${scriptName} must run the strict Course 11 gate before next build, while permitting other release gates between them`);
-  }
-}
+for (const error of publishedReleaseIntegrationErrors(
+  ROOT,
+  "make-money-with-codex",
+  "npm run make-money-with-codex:check:release",
+  ["make-money-with-codex/", ...lessonContract.map((slug) => `make-money-with-codex/${slug}/`)],
+)) fail(error);
 if (!vercelText.includes('"buildCommand": "npm run build:release"')) {
   fail("vercel.json: production builds must use the release-gated build command");
 }

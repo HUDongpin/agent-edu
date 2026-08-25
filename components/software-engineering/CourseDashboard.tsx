@@ -14,6 +14,7 @@ import CourseFigure from "./CourseFigure";
 import CourseProgress from "./CourseProgress";
 import FinalAssessment from "./FinalAssessment";
 import styles from "./SoftwareEngineeringCourse.module.css";
+import SharedCourseShell from "../SharedCourseShell";
 
 export default function CourseDashboard({
   course,
@@ -31,6 +32,7 @@ export default function CourseDashboard({
       className={`shellwrap ${styles.seRoot} ${styles.coursePage}`}
       data-testid="software-engineering-course-dashboard"
     >
+      <SharedCourseShell courseId="software-engineering" locale={course.locale} />
       {course.locale !== "en" ? (
         <p className={styles.languageNotice} lang={course.locale}>{course.copy.meta.languageNotice}</p>
       ) : null}

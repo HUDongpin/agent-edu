@@ -7,6 +7,7 @@ import CapstoneChecklist from "./CapstoneChecklist";
 import CourseProgress from "./CourseProgress";
 import FinalAssessment from "./FinalAssessment";
 import styles from "./McpCourse.module.css";
+import SharedCourseShell from "../SharedCourseShell";
 
 export default function CourseDashboard({
   course,
@@ -51,6 +52,7 @@ export default function CourseDashboard({
 
   return (
     <div className={`shellwrap ${styles.coursePage}`} data-testid="mcp-course-dashboard" lang={course.contentLocale} dir={course.contentDirection}>
+      <SharedCourseShell courseId="mcp" locale={course.locale} />
       <header className={styles.courseHero}>
         <div className={styles.heroCopy}>
           <div className={styles.heroBadges}>

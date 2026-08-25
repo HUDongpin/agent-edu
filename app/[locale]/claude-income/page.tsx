@@ -4,12 +4,12 @@ import CourseDashboard from "@/components/claude-income/CourseDashboard";
 import JsonLd from "@/components/JsonLd";
 import {
   CLAUDE_INCOME_COURSE,
-  CLAUDE_INCOME_LOCALES,
   assertValidClaudeIncomeCourse,
   isClaudeIncomeLocale,
 } from "@/lib/claude-income";
 import { claudeIncomeSeoFor, claudeIncomeUrlFor } from "@/lib/claude-income/seo";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseLocaleParams } from "@/lib/release-surface";
 import { SITE } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -17,7 +17,7 @@ type Props = { params: Promise<{ locale: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return CLAUDE_INCOME_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("claude-income");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

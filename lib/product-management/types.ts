@@ -183,6 +183,7 @@ export interface ProductManagementCourseCopy {
     readonly duration: string;
     readonly startCta: string;
     readonly resumeCta: string;
+    readonly reviewCta: string;
     readonly englishOnly: string;
     readonly evidenceNote: string;
   };

@@ -16,6 +16,7 @@ import {
 import useGithubProgress, {
   useGithubStorageAvailable,
 } from "./useGithubProgress";
+import { useI18n } from "../I18nProvider";
 import base from "@/components/codex/CodexCourse.module.css";
 
 type LessonLink = {
@@ -34,6 +35,7 @@ export default function CourseProgress({
   startLabel: string;
   resumeLabel: string;
 }) {
+  const { t } = useI18n();
   const progress = useGithubProgress();
   const storageAvailable = useGithubStorageAvailable();
   const [resetMessage, setResetMessage] = useState("");
@@ -54,18 +56,19 @@ export default function CourseProgress({
     const capstoneLesson = lessons.find(
       (lesson) => lesson.slug === "teaching-capstone",
     );
-    const nextAction =
-      incompleteLesson ??
-      (!quizPassed
-        ? { href: "#github-final-quiz-title" }
-        : !capstonePassed
-          ? capstoneLesson
-          : null);
+    const courseCompleted = completed === total;
+    const nextAction = courseCompleted
+      ? lessons[0] ?? null
+      : incompleteLesson ??
+        (!quizPassed
+          ? { href: "#github-final-quiz-title" }
+          : capstoneLesson ?? null);
 
     return {
       completed,
       total,
       percent: Math.round((completed / total) * 100),
+      courseCompleted,
       nextAction,
     };
   }, [lessons, progress]);
@@ -107,6 +110,7 @@ export default function CourseProgress({
           <Link
             className={base.primaryAction}
             href={state.nextAction.href}
+            data-course-journey-action
             onClick={(event) => {
               if (!state.nextAction?.href.startsWith("#")) return;
               const target = document.querySelector<HTMLElement>(
@@ -119,7 +123,7 @@ export default function CourseProgress({
               target.scrollIntoView({ block: "start" });
             }}
           >
-            {hasProgress ? resumeLabel : startLabel}
+            {state.courseCompleted ? t("cat.review") : hasProgress ? resumeLabel : startLabel}
             <span className={base.arrow} aria-hidden="true">
               →
             </span>

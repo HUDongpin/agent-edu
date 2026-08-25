@@ -11,6 +11,7 @@ import {
   loadRagCourse,
 } from "@/lib/rag";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseChildParams } from "@/lib/release-surface";
 import { SITE, ragLessonPage, seoFor, urlFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string; lesson: string }> };
@@ -18,7 +19,7 @@ type Props = { params: Promise<{ locale: string; lesson: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return RAG_LESSON_SLUGS.map((lesson) => ({ lesson }));
+  return courseChildParams("rag", "lesson", RAG_LESSON_SLUGS);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

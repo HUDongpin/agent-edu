@@ -20,6 +20,7 @@ import {
 } from "./progress-store";
 import useRagHydrated from "./useRagHydrated";
 import styles from "../prompts/PromptCourse.module.css";
+import { useI18n } from "../I18nProvider";
 
 type Labels = RagCourseCopy["ui"];
 
@@ -104,6 +105,7 @@ export function CourseProgress({
   startLabel: string;
   resumeLabel: string;
 }) {
+  const { t } = useI18n();
   const { progress, storageAvailable } = useRagProgress();
   const hydrated = useRagHydrated();
   const [resetStatus, setResetStatus] = useState("");
@@ -116,8 +118,11 @@ export function CourseProgress({
     const complete = practices + quiz + capstone;
     const total = lessons.length + 2;
     const nextLesson = lessons.find((lesson) => progress[ragPracticeKey(lesson.slug)] !== true);
-    const nextHref = nextLesson?.href ?? (quiz ? (capstone ? null : "#rag-capstone") : "#rag-final-quiz");
-    return { complete, total, percent: Math.round((complete / total) * 100), nextHref };
+    const courseCompleted = complete === total;
+    const nextHref = courseCompleted
+      ? lessons[0]?.href ?? null
+      : nextLesson?.href ?? (quiz ? "#rag-capstone" : "#rag-final-quiz");
+    return { complete, total, courseCompleted, percent: Math.round((complete / total) * 100), nextHref };
   }, [lessons, progress]);
   const hasProgress = Object.keys(progress).some((key) => key.startsWith("rag."));
 
@@ -155,6 +160,7 @@ export function CourseProgress({
           <Link
             className={styles.primaryButton}
             href={state.nextHref}
+            data-course-journey-action
             onClick={() => {
               if (!state.nextHref?.startsWith("#")) return;
               window.requestAnimationFrame(() => {
@@ -162,7 +168,7 @@ export function CourseProgress({
               });
             }}
           >
-            {hasProgress ? resumeLabel : startLabel}<span aria-hidden="true">→</span>
+            {state.courseCompleted ? t("cat.review") : hasProgress ? resumeLabel : startLabel}<span aria-hidden="true">→</span>
           </Link>
         ) : null}
         <button

@@ -34,6 +34,7 @@ import {
   validateCursorCopy,
   validateCursorManifests,
 } from "../lib/cursor/index.ts";
+import { PROGRESS_RESET_REGISTRY } from "../components/progress-reset.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const release = process.argv.includes("--release");
@@ -179,12 +180,9 @@ const adapterComplete = {
   [CURSOR_CAPSTONE_META_PROGRESS_KEY]: CURSOR_CAPSTONE_PROGRESS_META,
   [CURSOR_CAPSTONE_ASSESSMENT_PROGRESS_KEY]: adapterCapstoneAssessment,
 };
-const sharedProgressComponent = text("components/Progress.tsx");
-/* The reset button delegates to one registry, so the ordering and the await
-   that this contract depends on are asserted where they now live. */
-const sharedResetRegistry = text("components/progress-reset.ts");
-const sharedCodexResetIndex = sharedResetRegistry.indexOf("resetAllCourseProgress();");
-const sharedCursorResetIndex = sharedResetRegistry.indexOf("await resetCursorProgressAfterGlobalReset()");
+const sharedResetIds = PROGRESS_RESET_REGISTRY.map((entry) => entry.id);
+const sharedCodexResetIndex = sharedResetIds.indexOf("codex/shared-record");
+const sharedCursorResetIndex = sharedResetIds.indexOf("cursor");
 if (CURSOR_PROGRESS_MILESTONES !== 16
   || cursorProgressCompletedMilestones(adapterComplete) !== 16
   || cursorProgressPercent(adapterComplete) !== 100
@@ -203,11 +201,10 @@ if (CURSOR_PROGRESS_MILESTONES !== 16
   || CURSOR_PROGRESS_CACHE_CONTRACT.nonCooperatingWriterStrategy !== "isolated-record-no-cross-course-writers"
   || CURSOR_PROGRESS_CACHE_CONTRACT.globalReset.adapter !== "resetCursorProgressAfterGlobalReset"
   || CURSOR_PROGRESS_CACHE_CONTRACT.globalReset.awaitAdapter !== true
-  || !/import\s+\{\s*resetCursorProgressAfterGlobalReset\s*\}\s+from\s+["']\.\/cursor\/progress-store["']/.test(sharedResetRegistry)
-  || !/import\s+\{\s*resetEveryCourseProgress\s*\}\s+from\s+["']\.\/progress-reset["']/.test(sharedProgressComponent)
-  || !sharedProgressComponent.includes("await resetEveryCourseProgress();")
   || sharedCodexResetIndex < 0
-  || sharedCursorResetIndex <= sharedCodexResetIndex) {
+  || sharedCursorResetIndex <= sharedCodexResetIndex
+  || sharedCursorResetIndex !== sharedResetIds.length - 2
+  || sharedResetIds.at(-1) !== "recency") {
   fail("pure sixteen-milestone progress or global-reset cache contract changed");
 } else {
   pass("pure progress adapter counts 14 lesson flags, strict quiz pass, and versioned capstone");
@@ -478,12 +475,12 @@ if ([...figureIds].some((id) => !usedFigures.includes(id))) fail("figure ledger 
 pass("14 real first-party Cursor figures are technically present, integrity-checked, privacy-reviewed, and source-attributed");
 
 for (const required of [
-  "app/[locale]/cursor/page.tsx",
-  "app/[locale]/cursor/[lesson]/page.tsx",
+  "app/[locale]/_blocked/cursor/page.tsx",
+  "app/[locale]/_blocked/cursor/[lesson]/page.tsx",
   "lib/cursor/seo.ts",
-  "examples/cursor-course-demo/course-fixture.json",
-  "outputs/cursor-course-research-brief.md",
-  "outputs/cursor-course-research-brief.provenance.md",
+  "tests/fixtures/cursor-course-demo/course-fixture.json",
+  "evidence/course-audits/cursor-course-research-brief.md",
+  "evidence/course-audits/cursor-course-research-brief.provenance.md",
   "public/courses/cursor/aicourse-cursor-demo-v1.zip",
   "public/courses/cursor/aicourse-cursor-demo-v1.sha256",
   "public/courses/cursor/CAPSTONE_CONTRACT.md",
@@ -491,7 +488,7 @@ for (const required of [
 ]) {
   if (!existsSync(join(ROOT, required))) fail(`required course file missing: ${required}`);
 }
-const fixturePath = "examples/cursor-course-demo/course-fixture.json";
+const fixturePath = "tests/fixtures/cursor-course-demo/course-fixture.json";
 const fixtureArchiveFiles = [
   ".gitignore",
   "LICENSE",
@@ -520,18 +517,18 @@ function listFixtureSourceFiles(directory, base = directory) {
     return [relative(base, path)];
   });
 }
-const fixtureSourceFiles = listFixtureSourceFiles("examples/cursor-course-demo").sort();
+const fixtureSourceFiles = listFixtureSourceFiles("tests/fixtures/cursor-course-demo").sort();
 if (fixtureSourceFiles.join("|") !== [...fixtureArchiveFiles].sort().join("|")) {
   fail(`capstone fixture source differs from the explicit 17-file archive allowlist: ${fixtureSourceFiles.join(", ")}`);
 }
 if (digest(fixturePath) !== CURSOR_CAPSTONE_FIXTURE_SHA256) fail("capstone fixture manifest SHA-256 differs from the receipt contract");
-const verifier = text("examples/cursor-course-demo/scripts/course-verify.mjs");
+const verifier = text("tests/fixtures/cursor-course-demo/scripts/course-verify.mjs");
 if (!verifier.includes(CURSOR_CAPSTONE_FIXTURE_SHA256)) fail("fixture verifier is not pinned to the published fixture hash");
 for (const check of CURSOR_CAPSTONE_REQUIRED_CHECKS) {
   if (!verifier.includes(check)) fail(`fixture verifier is missing check: ${check}`);
 }
-const fixturePackage = json("examples/cursor-course-demo/package.json");
-const fixtureTests = text("examples/cursor-course-demo/tests/CourseList.test.tsx");
+const fixturePackage = json("tests/fixtures/cursor-course-demo/package.json");
+const fixtureTests = text("tests/fixtures/cursor-course-demo/tests/CourseList.test.tsx");
 if (fixturePackage.scripts?.["test:keyboard"] !== "node --import tsx --test --test-name-pattern=keyboard-contract tests/CourseList.test.tsx"
   || !verifier.includes('const keyboardBehavior = run("test:keyboard")')) {
   fail("fixture keyboardBehavior must be derived from the named keyboard-contract tests");
@@ -550,7 +547,7 @@ try {
   } else {
     for (const fileName of fixtureArchiveFiles) {
       const archived = capture("unzip", ["-p", archivePath, fileName]);
-      const source = readFileSync(join(ROOT, "examples/cursor-course-demo", fileName));
+      const source = readFileSync(join(ROOT, "tests/fixtures/cursor-course-demo", fileName));
       if (!archived.equals(source)) fail(`published starter archive member differs from fixture source: ${fileName}`);
     }
   }
@@ -581,7 +578,7 @@ if (!/not covered by\s+this repository's MIT licence/i.test(mediaNotice)
 pass("capstone fixture, verifier, archive, checksum, and receipt contract agree");
 
 const namespaceFiles = [
-  ...listFiles("app/[locale]/cursor"),
+  ...listFiles("app/[locale]/_blocked/cursor"),
   ...listFiles("components/cursor"),
   ...listFiles("lib/cursor"),
   "scripts/check-cursor-course.mjs",
@@ -594,8 +591,8 @@ for (const path of namespaceFiles) {
 }
 pass("Cursor slice is namespace-isolated and contains no remote runtime image references or secret-like tokens");
 
-const appPage = text("app/[locale]/cursor/page.tsx");
-const lessonPage = text("app/[locale]/cursor/[lesson]/page.tsx");
+const appPage = text("app/[locale]/_blocked/cursor/page.tsx");
+const lessonPage = text("app/[locale]/_blocked/cursor/[lesson]/page.tsx");
 for (const token of ["generateStaticParams", "dynamicParams = false", "Course", "BreadcrumbList"]) {
   if (!appPage.includes(token)) fail(`dashboard route is missing ${token}`);
 }

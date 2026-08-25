@@ -272,6 +272,7 @@ export interface CodexIncomeLocaleCopy {
     readonly courseDashboard: string;
     readonly reviewEvidencePath: string;
     readonly backToCatalog: string;
+    readonly resetConfirm: string;
   };
   readonly units: Readonly<Record<CodexIncomeUnitId, { readonly title: string }>>;
   readonly lessons: Readonly<Record<CodexIncomeLessonSlug, { readonly title: string }>>;

@@ -6,6 +6,9 @@ import { PRODUCT_MANAGEMENT_TRANSLATED_LOCALES } from "@/lib/product-management"
 import { AGENT_ORCHESTRATION_TRANSLATED_LOCALES } from "@/lib/agent-orchestration";
 import { RAG_LOCALES } from "@/lib/rag";
 import { MCP_LOCALES } from "@/lib/mcp";
+import {
+  contentLocalesForPage,
+} from "@/lib/release-surface";
 
 export const dynamic = "force-static";
 
@@ -26,7 +29,13 @@ export const dynamic = "force-static";
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   return PAGES.flatMap((page) => {
-    const availableLocales = page === "ai-tutor/" || page.startsWith("ai-tutor/")
+    /*
+     * These loader-owned constants pressure-test the central contract. They
+     * are not used to choose routes: `contentLocalesForPage` is the sole
+     * publication source. A new reviewed translation must therefore update
+     * its loader and the release contract together or the build fails closed.
+     */
+    const loaderContentLocales = page === "ai-tutor/" || page.startsWith("ai-tutor/")
       ? AI_TUTOR_TRANSLATED_LOCALES
       : page === "product-management/" || page.startsWith("product-management/")
       ? PRODUCT_MANAGEMENT_TRANSLATED_LOCALES
@@ -37,10 +46,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       : page === "mcp/" || page.startsWith("mcp/")
       ? MCP_LOCALES
       : page === "prompts/" || page.startsWith("prompts/")
+      || page === "software-engineering/" || page.startsWith("software-engineering/")
       || page === "make-money-with-codex/" || page.startsWith("make-money-with-codex/")
       || page === "claude-income/" || page.startsWith("claude-income/")
       ? [DEFAULT_LOCALE]
       : LOCALE_CODES;
+    const availableLocales = contentLocalesForPage(page);
+    if (JSON.stringify(availableLocales) !== JSON.stringify(loaderContentLocales)) {
+      throw new Error(`Release locale contract drifted from the content loader for ${page || "/"}`);
+    }
 
     return availableLocales.map((locale) => ({
       url: urlFor(locale, page),

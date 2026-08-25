@@ -4,9 +4,19 @@ import LanguageMenu from "./LanguageMenu";
 import ThemeToggle from "./ThemeToggle";
 import MobileNav from "./MobileNav";
 import NavLinks from "./NavLinks";
+import RouteFocus from "./RouteFocus";
+import ProgressRecencyTracker from "./ProgressRecencyTracker";
+import CourseLocaleReturn from "./CourseLocaleReturn";
 import { I18nProvider } from "./I18nProvider";
 import { translator, type Messages } from "@/lib/i18n";
-import type { ReactNode } from "react";
+import { PUBLISHED_CATALOG_COURSES } from "@/lib/public-courses";
+import {
+  PUBLISHED_COURSE_SURFACES,
+  contentLocaleForCourse,
+  courseHrefFor,
+  type CourseId,
+} from "@/lib/release-surface";
+import { Suspense, type ReactNode } from "react";
 
 export default async function Shell({
   locale,
@@ -20,15 +30,33 @@ export default async function Shell({
   const t = translator(messages);
   const p = (path: string) => `/${locale}${path}`;
 
+  const coursePrefixes = Array.from(new Set(
+    PUBLISHED_COURSE_SURFACES.flatMap((surface) =>
+      surface.routes.map((route) => p(`/${route.split("/")[0]}/`))),
+  ));
+
   const nav = [
-    { href: p("/courses/"), key: "nav.courses" },
-    { href: p("/#paths"), key: "nav.paths" },
-    { href: p("/about/"), key: "nav.about" },
+    { href: p("/courses/"), key: "nav.courses", activePrefixes: [p("/courses/"), ...coursePrefixes] },
+    { href: p("/learning/"), key: "nav.learning", exact: true },
+    { href: p("/#paths"), key: "nav.paths", exact: true },
+    { href: p("/about/"), key: "nav.about", exact: true },
+    { href: p("/teach/"), key: "nav.teach", exact: true },
   ];
+
+  const footerCourses = PUBLISHED_CATALOG_COURSES.map(({ course }) => {
+    const contentLocale = contentLocaleForCourse(course.id as CourseId, locale);
+    const rawHref = courseHrefFor(course.id as CourseId, locale)!;
+    const href = contentLocale && contentLocale !== locale
+      ? `${rawHref}?fromLocale=${encodeURIComponent(locale)}`
+      : rawHref;
+    return { href, label: t(course.titleKey), id: course.id };
+  });
 
   return (
     <I18nProvider locale={locale} messages={messages}>
       <a className="skip" href="#main">{t("ui.skip")}</a>
+      <RouteFocus />
+      <ProgressRecencyTracker />
 
       <header className="topbar">
         <div className="topbar-in">
@@ -41,10 +69,12 @@ export default async function Shell({
           </Link>
 
           <MobileNav label={t("nav.menu")}>
-            <NavLinks items={nav.map((n) => ({ href: n.href, label: t(n.key) }))} />
-            <Link href={p("/teach/")}>
-              {t("nav.teach")}
-            </Link>
+            <NavLinks items={nav.map((n) => ({
+              href: n.href,
+              label: t(n.key),
+              activePrefixes: "activePrefixes" in n ? n.activePrefixes : undefined,
+              exact: "exact" in n ? n.exact : undefined,
+            }))} />
           </MobileNav>
 
           <div className="topacts">
@@ -54,6 +84,9 @@ export default async function Shell({
         </div>
       </header>
 
+      <Suspense fallback={null}>
+        <CourseLocaleReturn />
+      </Suspense>
       <main id="main">{children}</main>
 
       <footer className="sitefoot">
@@ -67,22 +100,11 @@ export default async function Shell({
             <h2>{t("foot.explore")}</h2>
             <ul>
               <li><Link href={p("/courses/")}>{t("nav.courses")}</Link></li>
+              <li><Link href={p("/learning/")}>{t("nav.learning")}</Link></li>
               <li><Link href={p("/#paths")}>{t("nav.paths")}</Link></li>
-              <li><Link href={p("/courses/#agentic-engineering")}>{t("c.agentic.title")}</Link></li>
-              <li><Link href={p("/codex/")}>{t("c.codex.title")}</Link></li>
-              <li><Link href={p("/claude/")}>{t("c.claude.title")}</Link></li>
-              <li><Link href={p("/cursor/")}>{t("c.cursor.title")}</Link></li>
-              <li><Link href={p("/grok/")}>{t("c.grok.title")}</Link></li>
-              <li><Link href={p("/github/")}>{t("c.github.title")}</Link></li>
-              <li><Link href={p("/prompts/")}>{t("c.prompts.title")}</Link></li>
-              <li><Link href={p("/software-engineering/")}>{t("c.softwareEngineering.title")}</Link></li>
-              <li><Link href={p("/rag/")}>{t("c.rag.title")}</Link></li>
-              <li><Link href={p("/mcp/")}>{t("c.mcp.title")}</Link></li>
-              <li><Link href={p("/make-money-with-codex/")}>{t("c.make-money-with-codex.title")}</Link></li>
-              <li><Link href={p("/claude-income/")}>{t("c.claude-income.title")}</Link></li>
-              <li><Link href={p("/ai-tutor/")}>{t("c.ai-tutor.title")}</Link></li>
-              <li><Link href={p("/product-management/")}>{t("c.product-management.title")}</Link></li>
-              <li><Link href={p("/agent-orchestration/")}>{t("c.agent-orchestration.title")}</Link></li>
+              {footerCourses.map((course) => (
+                <li key={course.id}><Link href={course.href}>{course.label}</Link></li>
+              ))}
             </ul>
           </div>
           <div>
@@ -102,6 +124,7 @@ export default async function Shell({
             <h2>{t("foot.openTitle")}</h2>
             <ul>
               <li><Link href={p("/about/")}>{t("nav.about")}</Link></li>
+              <li><Link href={p("/privacy/")}>{t("privacy.title")}</Link></li>
               <li>
               <a href="https://github.com/HUDongpin/agent-edu/tree/main/messages" rel="noopener">
                 {t("foot.translate")}

@@ -3,11 +3,11 @@ import { notFound } from "next/navigation";
 import CourseDashboard from "@/components/prompts/CourseDashboard";
 import JsonLd from "@/components/JsonLd";
 import {
-  PROMPT_LOCALES,
   isPromptLocale,
   loadPromptCourse,
 } from "@/lib/prompts";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseLocaleParams } from "@/lib/release-surface";
 import { SITE, promptLessonPage, seoFor, urlFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -15,7 +15,7 @@ type Props = { params: Promise<{ locale: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return PROMPT_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("prompts");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

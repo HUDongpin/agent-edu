@@ -351,7 +351,7 @@
           "mediaType": "image/png",
           "width": 2240,
           "height": 1533,
-          "sha256": "ff067ade89f44271b982d49429cbdd182e048c12e24ebf9bb06ce0ff52dbed15"
+          "sha256": "8252a38df634f508f80c21df81e8ce22c9c19bac8d4797d0470478c9db2bc55f"
         },
         "webp2240": {
           "path": "/courses/codex/figures/fig-16-2240.webp",
@@ -460,7 +460,7 @@
           "mediaType": "image/png",
           "width": 2240,
           "height": 1533,
-          "sha256": "0dca112da28a56eb3ef2b7a3a79e1d8e8718510cfb2080a3c22b975d4bcc1516"
+          "sha256": "317eda5912236d9b2970849d524f921c8f7dbf52d0ea9e918c7df2093768e2ff"
         },
         "webp2240": {
           "path": "/courses/codex/figures/fig-17-2240.webp",

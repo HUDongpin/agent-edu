@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CourseDashboard from "@/components/github/CourseDashboard";
 import JsonLd from "@/components/JsonLd";
-import { GITHUB_LOCALES, isGithubLocale, loadGithubCourse } from "@/lib/github";
+import { isGithubLocale, loadGithubCourse } from "@/lib/github";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseLocaleParams } from "@/lib/release-surface";
 import { SITE, githubLessonPage, seoFor, urlFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -11,7 +12,7 @@ type Props = { params: Promise<{ locale: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return GITHUB_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("github");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

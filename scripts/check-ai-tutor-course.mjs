@@ -15,6 +15,7 @@
 import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
 
 import {
   AI_TUTOR_COURSE_MANIFEST,
@@ -181,7 +182,7 @@ function checkRequiredFilesAndRoutes() {
   const dashboardRoute = requireTokens("app/[locale]/ai-tutor/page.tsx", [
     "dynamicParams = false",
     "generateStaticParams",
-    "AI_TUTOR_LOCALES.map",
+    'courseLocaleParams("ai-tutor")',
     "await params",
     "availableLocales: AI_TUTOR_TRANSLATED_LOCALES",
     "canonicalLocale: course.contentLocale",
@@ -200,7 +201,8 @@ function checkRequiredFilesAndRoutes() {
     const routeText = requireTokens(moduleRoute, [
       "dynamicParams = false",
       "generateStaticParams",
-      "AI_TUTOR_MODULE_SLUGS.map",
+      "courseChildParams",
+      "AI_TUTOR_MODULE_SLUGS",
       "await params",
       "isAiTutorLocale",
       "isAiTutorModuleSlug",
@@ -241,7 +243,9 @@ function checkRequiredFilesAndRoutes() {
 
   const store = requireTokens("components/ai-tutor/progress-store.ts", [
     'AI_TUTOR_PROGRESS_STORAGE_KEY = "ae.progress"',
-    'CORRUPT_BACKUP_KEY = "ae.progress.ai-tutor-corrupt-backup"',
+    "AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY,",
+    '} from "@/lib/progress-storage-contract"',
+    "sessionStorage.setItem(AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY, raw)",
     "key.startsWith(AI_TUTOR_PROGRESS_PREFIX)",
     "AI_TUTOR_PROGRESS_VERSION_KEY",
     "AI_TUTOR_PROGRESS_RESET_EVENT",
@@ -249,18 +253,22 @@ function checkRequiredFilesAndRoutes() {
   if (/localStorage\.clear\s*\(/.test(store)) {
     fail("components/ai-tutor/progress-store.ts: Course 13 must never clear the shared progress store");
   }
+  const progressStorageContract = requireTokens("lib/progress-storage-contract.ts", [
+    "export const AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY =",
+    '"ae.progress.ai-tutor-corrupt-backup"',
+  ]);
+  if (!progressStorageContract) return;
+  if (/const\s+\w*CORRUPT\w*BACKUP\w*\s*=/.test(store)) {
+    fail("components/ai-tutor/progress-store.ts: import, do not redeclare, the corrupt-backup key");
+  }
 }
 
 function checkReleaseIntegration() {
-  const seo = requireTokens("lib/seo.ts", [
-    "AI_TUTOR_MODULE_PAGES",
-    '"ai-tutor/"',
+  requireTokens("lib/seo.ts", [
+    'AI_TUTOR_MODULE_PAGES = childPagesFor("ai-tutor")',
     "function aiTutorModulePage",
-    "...AI_TUTOR_MODULE_PAGES",
+    "export const PAGES = PUBLISHED_LOCALIZED_PAGES",
   ]);
-  for (const slug of EXPECTED_SLUGS) {
-    if (!seo.includes(`"ai-tutor/${slug}/"`)) fail(`lib/seo.ts: missing ai-tutor/${slug}/`);
-  }
 
   const sitemap = requireTokens("app/sitemap.ts", ["PAGES.flatMap", "DEFAULT_LOCALE"]);
   if (
@@ -282,8 +290,6 @@ function checkReleaseIntegration() {
   const coursesPage = requireTokens("app/[locale]/courses/page.tsx", [
     "courseThirteenParts",
     '"ai-tutor": courseThirteenParts',
-    'course.id === "ai-tutor"',
-    '? "en"',
   ]);
   requirePattern(
     "app/[locale]/courses/page.tsx",
@@ -302,11 +308,6 @@ function checkReleaseIntegration() {
   if (!catalog.includes('"ai-tutor-learning-systems-engineering"')) {
     fail("components/courses/Catalog.tsx: Course 13 stable anchor is missing");
   }
-
-  requireTokens("components/Shell.tsx", [
-    'p("/ai-tutor/")',
-    't("c.ai-tutor.title")',
-  ]);
 
   requireTokens("components/courses/Cover.tsx", [
     "data-course-cover={id}",
@@ -348,14 +349,13 @@ function checkReleaseIntegration() {
       fail("package.json: test:ai-tutor must run the isolated Course 13 Playwright spec");
     }
 
-    const releaseBuild = String(scripts["build:release"] ?? "");
-    const gate = "npm run ai-tutor:check:release";
-    const gateAt = releaseBuild.indexOf(gate);
-    const buildAt = releaseBuild.lastIndexOf("next build");
-    if (gateAt < 0 || buildAt < 0 || gateAt > buildAt) {
-      fail("package.json: build:release must run ai-tutor:check:release before next build");
-    }
   }
+  for (const error of publishedReleaseIntegrationErrors(
+    ROOT,
+    "ai-tutor",
+    "npm run ai-tutor:check:release",
+    ["ai-tutor/", ...EXPECTED_SLUGS.map((slug) => `ai-tutor/${slug}/`)],
+  )) fail(error);
 
   const vercel = readJson("vercel.json");
   if (vercel && vercel.buildCommand !== "npm run build:release") {

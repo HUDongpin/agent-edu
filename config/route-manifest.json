@@ -1,25 +1,6 @@
 {
-  "version": 1,
-  "locales": [
-    "en",
-    "es",
-    "fr",
-    "de",
-    "zh-Hans",
-    "zh-Hant",
-    "ja",
-    "ko",
-    "ar"
-  ],
-  "localizedPaths": [
-    "",
-    "about",
-    "build",
-    "courses",
-    "handbook",
-    "lab",
-    "teach"
-  ],
+  "version": 2,
+  "releaseSurface": "config/course-release-surface.json",
   "staticRoutes": [
     "/",
     "/robots.txt",

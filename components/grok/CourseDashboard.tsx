@@ -8,13 +8,16 @@ import {
 import CourseProgress from "./CourseProgress";
 import FinalQuiz, { type GrokQuizQuestion } from "./FinalQuiz";
 import styles from "./GrokCourse.module.css";
+import SharedCourseShell from "../SharedCourseShell";
 
 export default function CourseDashboard({
   course,
   catalogLabel,
+  reviewLabel,
 }: {
   course: MaterializedGrokCourse;
   catalogLabel: string;
+  reviewLabel: string;
 }) {
   const lessons = course.units.flatMap((unit) => unit.lessons);
   const numberFormat = new Intl.NumberFormat(course.locale);
@@ -34,7 +37,6 @@ export default function CourseDashboard({
     .replace("{hours}", numberFormat.format(hours))
     .replace("{minutes}", numberFormat.format(remainingMinutes));
   const hrefFor = (slug: string) => `/${course.locale}/grok/${slug}/`;
-  const first = lessons[0];
   const heroFigure = GROK_FIGURE_BY_ID["fig-01"];
   const previewFigureIds = ["fig-06", "fig-07", "fig-08"] as const;
   const previewFigures = previewFigureIds.map((id) => GROK_FIGURE_BY_ID[id]);
@@ -50,15 +52,12 @@ export default function CourseDashboard({
 
   return (
     <div className={styles.coursePage} data-testid="grok-course-dashboard">
+      <SharedCourseShell courseId="grok" locale={course.locale} standalone />
       <section className={`shellwrap ${styles.courseHero}`} aria-labelledby="grok-course-title">
         <div className={styles.heroCopy}>
           <p className={styles.heroKicker}>{course.copy.meta.kicker}</p>
           <h1 id="grok-course-title">{course.copy.meta.title}</h1>
           <p className={styles.heroSummary}>{course.copy.meta.summary}</p>
-          <Link className={styles.primaryAction} href={hrefFor(first.slug)}>
-            {course.copy.meta.startCta}
-            <span aria-hidden="true">→</span>
-          </Link>
         </div>
         <figure className={styles.heroFigure}>
           <Image
@@ -99,6 +98,7 @@ export default function CourseDashboard({
           labels={course.copy.ui}
           startLabel={course.copy.meta.startCta}
           resumeLabel={course.copy.meta.resumeCta}
+          reviewLabel={reviewLabel}
         />
       </div>
 

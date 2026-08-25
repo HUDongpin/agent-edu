@@ -12,6 +12,7 @@ import {
 import DashboardProgress from "./DashboardProgress";
 import FinalQuiz from "./FinalQuiz";
 import styles from "./ClaudeIncomeCourse.module.css";
+import SharedCourseShell from "../SharedCourseShell";
 
 const claimLabels = {
   "verified-capability": "Verified capability",
@@ -60,6 +61,7 @@ export default function CourseDashboard({
       dir="ltr"
       data-testid="claude-income-dashboard"
     >
+      <SharedCourseShell courseId="claude-income" locale={locale} />
       {locale !== "en" ? (
         <p className={styles.languageNotice} role="note">
           {CLAUDE_INCOME_ENGLISH_BODY_NOTICE}
@@ -73,10 +75,6 @@ export default function CourseDashboard({
           <p className={styles.heroSummary}>{course.summary}</p>
           <p className={styles.heroAudience}>{course.audience}</p>
           <div className={styles.heroActions}>
-            <Link className={styles.primaryAction} href={lessonHref(course.lessons[0].slug)}>
-              Start with the money map
-              <span aria-hidden="true">→</span>
-            </Link>
             <a className={styles.secondaryAction} href="#curriculum">Inspect the curriculum</a>
           </div>
         </div>

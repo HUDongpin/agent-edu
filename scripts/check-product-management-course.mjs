@@ -11,6 +11,7 @@
 import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
 
 import {
   PRODUCT_MANAGEMENT_CONCEPT_DOMAIN_IDS,
@@ -156,10 +157,10 @@ function checkFilesAndRoutes() {
     "lib/product-management/sources.ts",
     "lib/product-management/types.ts",
     "lib/product-management/validate.ts",
-    "outputs/product-management-ai-course-research-brief.md",
-    "outputs/product-management-ai-course-research-brief.provenance.md",
-    "outputs/product-management-course-content-verification-2026-08-23.md",
-    "outputs/product-management-course-content-verification-2026-08-23.provenance.md",
+    "evidence/course-audits/product-management-ai-course-research-brief.md",
+    "evidence/course-audits/product-management-ai-course-research-brief.provenance.md",
+    "evidence/course-audits/product-management-course-content-verification-2026-08-23.md",
+    "evidence/course-audits/product-management-course-content-verification-2026-08-23.provenance.md",
   ];
   for (const path of requiredFiles) regularFile(abs(path), path);
 
@@ -195,7 +196,7 @@ function checkFilesAndRoutes() {
   requireTokens("app/[locale]/product-management/page.tsx", [
     "dynamicParams = false",
     "generateStaticParams",
-    "PRODUCT_MANAGEMENT_LOCALES.map",
+    'courseLocaleParams("product-management")',
     "availableLocales: PRODUCT_MANAGEMENT_TRANSLATED_LOCALES",
     "canonicalLocale: course.contentLocale",
     'courseCode: "14"',
@@ -203,7 +204,8 @@ function checkFilesAndRoutes() {
   ]);
   requireTokens("app/[locale]/product-management/[module]/page.tsx", [
     "dynamicParams = false",
-    "PRODUCT_MANAGEMENT_MODULE_SLUGS.map",
+    "courseChildParams",
+    "PRODUCT_MANAGEMENT_MODULE_SLUGS",
     "isProductManagementModuleSlug",
     "productManagementModulePage",
     "<ModuleView",
@@ -250,17 +252,11 @@ function checkFilesAndRoutes() {
 }
 
 function checkIntegration() {
-  const seo = requireTokens("lib/seo.ts", [
-    "PRODUCT_MANAGEMENT_MODULE_PAGES",
-    '"product-management/"',
+  requireTokens("lib/seo.ts", [
+    'PRODUCT_MANAGEMENT_MODULE_PAGES = childPagesFor("product-management")',
     "function productManagementModulePage",
-    "...PRODUCT_MANAGEMENT_MODULE_PAGES",
+    "export const PAGES = PUBLISHED_LOCALIZED_PAGES",
   ]);
-  for (const slug of EXPECTED_SLUGS) {
-    if (!seo.includes(`"product-management/${slug}/"`)) {
-      fail(`lib/seo.ts: missing product-management/${slug}/`);
-    }
-  }
   requireTokens("app/sitemap.ts", [
     "PRODUCT_MANAGEMENT_TRANSLATED_LOCALES",
     'page === "product-management/"',
@@ -277,7 +273,6 @@ function checkIntegration() {
   requireTokens("app/[locale]/courses/page.tsx", [
     "courseFourteenParts",
     '"product-management": courseFourteenParts',
-    'course.id === "product-management"',
     "productManagementCourse.contentLocale",
   ]);
   requireTokens("components/courses/Catalog.tsx", [
@@ -288,11 +283,6 @@ function checkIntegration() {
     '"product-management":',
     'id === "product-management"',
   ]);
-  requireTokens("components/Shell.tsx", [
-    'p("/product-management/")',
-    't("c.product-management.title")',
-  ]);
-
   for (const locale of ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"]) {
     const messages = readJson(`messages/${locale}.json`);
     if (!messages) continue;
@@ -318,14 +308,13 @@ function checkIntegration() {
     if (!String(scripts["product-management:check:release"] ?? "").includes("--release")) {
       fail("package.json: release checker must use --release");
     }
-    const build = String(scripts["build:release"] ?? "");
-    if (
-      build.indexOf("npm run product-management:check:release") < 0
-      || build.indexOf("npm run product-management:check:release") > build.lastIndexOf("next build")
-    ) {
-      fail("package.json: release build must run Course 14 gate before next build");
-    }
   }
+  for (const error of publishedReleaseIntegrationErrors(
+    ROOT,
+    "product-management",
+    "npm run product-management:check:release",
+    ["product-management/", ...EXPECTED_SLUGS.map((slug) => `product-management/${slug}/`)],
+  )) fail(error);
 }
 
 function main() {

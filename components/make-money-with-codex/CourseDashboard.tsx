@@ -13,6 +13,7 @@ import CourseProgress from "./CourseProgress";
 import EvidenceBadge from "./EvidenceBadge";
 import KnowledgeCheck from "./KnowledgeCheck";
 import styles from "./IncomeCourse.module.css";
+import SharedCourseShell from "../SharedCourseShell";
 
 function durationLabel(totalMinutes: number): string {
   const hours = Math.floor(totalMinutes / 60);
@@ -47,15 +48,13 @@ export default function CourseDashboard({
 
   return (
     <div className={`${styles.coursePage} en-content`} dir="ltr" data-testid="income-course-dashboard">
+      <SharedCourseShell courseId="make-money-with-codex" locale={locale} standalone />
       <section className={`shellwrap ${styles.courseHero}`} aria-labelledby="income-course-title">
         <div className={styles.heroCopy}>
           <p className={styles.kicker} lang="en">{course.kicker}</p>
           <h1 id="income-course-title" {...localizedText}>{copy.meta.title}</h1>
           <p className={styles.heroSummary} lang="en">{course.summary}</p>
           <div className={styles.heroActions}>
-            <Link className={styles.primaryButton} href={hrefFor(course.lessons[0].slug)} {...localizedText}>
-              {copy.ui.startCourse} <span aria-hidden="true">→</span>
-            </Link>
             <a className={styles.secondaryButton} href="#income-curriculum" {...localizedText}>{copy.ui.inspectLessons}</a>
           </div>
           <p className={styles.heroNonPromise} lang="en">{course.nonPromise}</p>
@@ -100,6 +99,7 @@ export default function CourseDashboard({
       <div className="shellwrap">
         <CourseProgress
           locale={locale}
+          resetConfirm={copy.ui.resetConfirm}
           lessons={course.lessons.map((lesson) => ({
             slug: lesson.slug,
             title: copy.lessons[lesson.slug].title,

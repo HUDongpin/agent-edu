@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import JsonLd from "@/components/JsonLd";
 import CourseDashboard from "@/components/agent-orchestration/CourseDashboard";
 import {
-  AGENT_ORCHESTRATION_LOCALES,
   AGENT_ORCHESTRATION_TRANSLATED_LOCALES,
   assertValidAgentOrchestrationCourse,
   isAgentOrchestrationLocale,
   loadAgentOrchestrationCourse,
 } from "@/lib/agent-orchestration";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseLocaleParams } from "@/lib/release-surface";
 import {
   agentOrchestrationModulePage,
   seoFor,
@@ -22,7 +22,7 @@ type Props = { params: Promise<{ locale: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return AGENT_ORCHESTRATION_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("agent-orchestration");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

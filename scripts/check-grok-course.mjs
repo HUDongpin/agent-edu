@@ -3,6 +3,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
+import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
 
 const ROOT = process.cwd();
 const release = process.argv.includes("--release");
@@ -722,33 +723,27 @@ if (release) {
   }
 
   const sharedCoursePage = readFileSync(resolve(ROOT, "app/[locale]/courses/page.tsx"), "utf8");
-  for (const token of ["loadGrokCourse(locale)", "const courseFiveParts", "grok: courseFiveParts"]) {
+  for (const token of [
+    "loadGrokCourse(contentLocale)",
+    "const courseFiveParts",
+    "grok: courseFiveParts",
+    "PUBLISHED_CATALOG_COURSES.map",
+  ]) {
     if (!sharedCoursePage.includes(token)) fail(`Course catalogue JSON-LD is missing Grok token: ${token}`);
   }
 
-  /* The site-wide reset is a registry now, so the chain is button → registry →
-     store, and both hops are asserted rather than one direct call. */
-  const sharedProgress = readFileSync(resolve(ROOT, "components/Progress.tsx"), "utf8");
-  const resetRegistry = readFileSync(resolve(ROOT, "components/progress-reset.ts"), "utf8");
-  if (!sharedProgress.includes('import { resetEveryCourseProgress } from "./progress-reset";')
-    || !sharedProgress.includes("await resetEveryCourseProgress();")
-    || !resetRegistry.includes('import { resetGrokProgress } from "./grok/progress-store";')
-    || !resetRegistry.includes("resetGrokProgress(),")) {
+  const sharedProgressReset = readFileSync(resolve(ROOT, "components/progress-reset.ts"), "utf8");
+  const sharedProgressAdapters = readFileSync(resolve(ROOT, "components/progress-adapters.ts"), "utf8");
+  if (!sharedProgressReset.includes('createAllProgressAdapters("en")')
+    || !sharedProgressAdapters.includes("resetGrokProgressAfterGlobalReset")
+    || !sharedProgressAdapters.includes('courseId: "grok"')) {
     fail("Global progress reset does not clear the isolated Grok progress store");
   }
 
-  const sharedSeo = readFileSync(resolve(ROOT, "lib/seo.ts"), "utf8");
-  if (!sharedSeo.includes('"grok/"') || !sharedSeo.includes("...GROK_LESSON_PAGES")) {
-    fail("Shared SEO registry is missing the Grok dashboard or lesson family");
-  }
-  for (const lesson of manifest.lessons) {
-    if (!sharedSeo.includes(`"grok/${lesson.slug}/"`)) {
-      fail(`Shared SEO registry is missing Grok lesson route ${lesson.slug}`);
-    }
-  }
-
   const sharedShell = readFileSync(resolve(ROOT, "components/Shell.tsx"), "utf8");
-  if (!sharedShell.includes('href={p("/grok/")}') || !sharedShell.includes('t("c.grok.title")')) {
+  if (!sharedShell.includes("PUBLISHED_CATALOG_COURSES")
+    || !sharedShell.includes("courseHrefFor")
+    || !sharedShell.includes("footerCourses.map")) {
     fail("Shared footer navigation is missing the localized Grok course link");
   }
 
@@ -763,14 +758,13 @@ if (release) {
     if (packageJson.scripts?.["test:grok"] !== "playwright test tests/grok-course.spec.ts") {
       fail("package.json test:grok script is missing or changed");
     }
-    for (const scriptName of ["build", "build:release"]) {
-      const script = packageJson.scripts?.[scriptName] ?? "";
-      if (!script.includes("npm run grok:check:release")
-        || script.indexOf("npm run grok:check:release") > script.indexOf("next build")) {
-        fail(`package.json ${scriptName} must run the Grok release gate before next build`);
-      }
-    }
   }
+  for (const error of publishedReleaseIntegrationErrors(
+    ROOT,
+    "grok",
+    "npm run grok:check:release",
+    ["grok/", ...manifest.lessons.map((lesson) => `grok/${lesson.slug}/`)],
+  )) fail(error);
 }
 
 notes.push(`${manifest.units.length} units, ${manifest.lessons.length} lessons, ${computedMinutes} minutes`);

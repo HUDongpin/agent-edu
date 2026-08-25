@@ -1,0 +1,694 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
+import { PUBLISHED_TOP_LEVEL_COURSES } from "../lib/courses";
+import {
+  PUBLIC_COURSE_SURFACES,
+  type PublicCourseSurface,
+} from "../lib/public-release-surface";
+import {
+  PROGRESS_ADAPTER_COURSE_IDS,
+  PUBLISHED_PROGRESS_COURSE_IDS,
+} from "../lib/public-progress-contract";
+import { projectPublicCourseSurface } from "../scripts/sync-course-public-surface.mjs";
+import { GROK_LESSON_SLUGS } from "../lib/grok";
+import { GITHUB_LESSON_SLUGS } from "../lib/github";
+import { EMPTY_LEARNING_STATE, LEARNING_KEY } from "../lib/progress";
+import { CURSOR_PROGRESS_STORAGE_KEY } from "../lib/progress-topology";
+import { DEEPSEEK_KEY_STORAGE } from "../lib/byok/key-store";
+import { LAB_DRAFT_KEY } from "../lib/lab/draft";
+import {
+  createAllProgressAdapters,
+  createProgressAdaptersForProjection,
+  createPublishedProgressAdapters,
+  readPublishedProgressSummaries,
+  validatePublishedProgressAdapterRegistry,
+} from "../components/progress-adapters";
+import {
+  PROGRESS_RESET_REGISTRY,
+  resetEveryCourseProgress,
+} from "../components/progress-reset";
+import {
+  GROK_PROGRESS_KEY,
+  updateGrokProgress,
+} from "../components/grok/progress-store";
+import { updateCourseProgress as updateGithubProgress } from "../components/github/progress-store";
+import { updatePromptProgress } from "../components/prompts/progress-store";
+import { updateSoftwareEngineeringProgress } from "../components/software-engineering/progress-store";
+import { updateRagProgress } from "../components/rag/progress-store";
+import { updateMcpProgress } from "../components/mcp/progress-store";
+import { updateIncomeRecord } from "../components/make-money-with-codex/progress-store";
+import { updateProgress as updateClaudeIncomeProgress } from "../components/claude-income/progress-store";
+import { updateAiTutorProgress } from "../components/ai-tutor/progress-store";
+import { updateProductManagementProgress } from "../components/product-management/progress-store";
+import { updateAgentOrchestrationProgress } from "../components/agent-orchestration/progress-store";
+import { updateCourseProgress as updateCodexProgress } from "../components/codex/progress-store";
+import { updateCourseProgress as updateClaudeProgress } from "../components/claude/progress-store";
+import { applyCursorProgressPatch } from "../components/cursor/progress-store";
+import {
+  PROGRESS_RECENCY_STORAGE_KEY,
+  readProgressRecency,
+  recordProgressActivity,
+  resetProgressRecencyAfterGlobalReset,
+  sortCourseIdsByRecentActivity,
+} from "../components/progress-recency";
+
+class MemoryStorage implements Storage {
+  private readonly values = new Map<string, string>();
+
+  get length(): number { return this.values.size; }
+  clear(): void { this.values.clear(); }
+  getItem(key: string): string | null { return this.values.get(key) ?? null; }
+  key(index: number): string | null { return [...this.values.keys()][index] ?? null; }
+  removeItem(key: string): void { this.values.delete(key); }
+  setItem(key: string, value: string): void { this.values.set(key, value); }
+}
+
+type StorageOperation = "getItem" | "setItem" | "removeItem";
+
+class FaultingStorage extends MemoryStorage {
+  private readonly faults = new Map<string, string>();
+
+  fail(operation: StorageOperation, key: string, name = "Error"): void {
+    this.faults.set(`${operation}:${key}`, name);
+  }
+
+  allow(operation: StorageOperation, key: string): void {
+    this.faults.delete(`${operation}:${key}`);
+  }
+
+  private throwIfFaulted(operation: StorageOperation, key: string): void {
+    const name = this.faults.get(`${operation}:${key}`);
+    if (!name) return;
+    const error = new Error(`${operation} unavailable`);
+    error.name = name;
+    throw error;
+  }
+
+  override getItem(key: string): string | null {
+    this.throwIfFaulted("getItem", key);
+    return super.getItem(key);
+  }
+
+  override setItem(key: string, value: string): void {
+    this.throwIfFaulted("setItem", key);
+    super.setItem(key, value);
+  }
+
+  override removeItem(key: string): void {
+    this.throwIfFaulted("removeItem", key);
+    super.removeItem(key);
+  }
+}
+
+class BrowserEvents extends EventTarget {
+  constructor(
+    readonly localStorage: Storage,
+    readonly sessionStorage: Storage,
+  ) {
+    super();
+  }
+}
+
+const EXPECTED_FIRST_HREFS = {
+  agentic: "/en/handbook/#start",
+  codex: "/en/codex/meet-codex/",
+  claude: "/en/claude/choose-your-surface/",
+  cursor: "/en/cursor/orient-privacy/",
+  grok: "/en/grok/map-grok/",
+  github: "/en/github/start-secure/",
+  prompts: "/en/prompts/prompts-are-specifications/",
+  "software-engineering": "/en/software-engineering/agentic-engineering-system/",
+  rag: "/en/rag/choose-rag/",
+  mcp: "/en/mcp/why-mcp/",
+  "make-money-with-codex": "/en/make-money-with-codex/money-not-magic/",
+  "claude-income": "/en/claude-income/choose-a-money-path/",
+  "ai-tutor": "/en/ai-tutor/objectives-concept-map/",
+  "product-management": "/en/product-management/product-judgment-operating-model/",
+  "agent-orchestration": "/en/agent-orchestration/workflow-agent-boundary/",
+} as const;
+
+test("published progress adapters exactly match the twelve public courses", () => {
+  const adapters = createPublishedProgressAdapters("en");
+  assert.deepEqual(validatePublishedProgressAdapterRegistry(adapters), []);
+  assert.deepEqual(
+    adapters.map((adapter) => adapter.courseId).sort(),
+    PUBLISHED_TOP_LEVEL_COURSES.map((course) => course.id).sort(),
+  );
+  assert.equal(new Set(adapters.map((adapter) => adapter.progressEvent)).size, 12);
+  assert.ok(adapters.every((adapter) => adapter.storageKeys.length > 0));
+  assert.ok(adapters.every((adapter) => typeof adapter.resetAfterGlobalReset === "function"));
+  const noStorage = readPublishedProgressSummaries("en");
+  assert.deepEqual(
+    noStorage.map((summary) => summary.courseId),
+    adapters.map((adapter) => adapter.courseId),
+  );
+  assert.ok(noStorage.every(
+    (summary) => summary.state === "unavailable" && summary.nextHref === null,
+  ));
+});
+
+test("blocked progress adapters stay dormant until the generated registry publishes them", async () => {
+  const currentAdapters = createPublishedProgressAdapters("en");
+  const allAdapters = createAllProgressAdapters("en");
+  const currentIds = new Set(currentAdapters.map((adapter) => adapter.courseId));
+  const dormantIds = allAdapters
+    .map((adapter) => adapter.courseId)
+    .filter((courseId) => !currentIds.has(courseId));
+
+  assert.equal(currentAdapters.length, 12, "the accepted product scope remains twelve courses");
+  assert.deepEqual(PUBLISHED_PROGRESS_COURSE_IDS, currentAdapters.map((adapter) => adapter.courseId));
+  assert.deepEqual(
+    allAdapters.map((adapter) => adapter.courseId),
+    PROGRESS_ADAPTER_COURSE_IDS,
+  );
+  assert.deepEqual(dormantIds, ["codex", "claude", "cursor"]);
+  assert.ok(PUBLIC_COURSE_SURFACES
+    .filter((surface) => dormantIds.includes(surface.id as never))
+    .every((surface) => surface.state === "blocked" && surface.progressEvent === null));
+
+  const releaseContract = JSON.parse(
+    readFileSync("config/course-release-surface.json", "utf8"),
+  );
+  for (const course of releaseContract.courses) {
+    if (dormantIds.includes(course.id)) course.state = "published";
+  }
+  const futureProjection = projectPublicCourseSurface(releaseContract)
+    .courses as readonly PublicCourseSurface[];
+  const futureAdapters = createProgressAdaptersForProjection("en", futureProjection);
+  assert.deepEqual(validatePublishedProgressAdapterRegistry(
+    futureAdapters,
+    futureProjection,
+  ), []);
+  assert.deepEqual(
+    futureAdapters.map((adapter) => adapter.courseId),
+    PROGRESS_ADAPTER_COURSE_IDS,
+    "a registry state flip activates all three adapters without adapter code changes",
+  );
+
+  const storage = new MemoryStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  try {
+    assert.equal((await resetEveryCourseProgress()).persistent, true);
+    const activated = createProgressAdaptersForProjection("en", futureProjection)
+      .filter((adapter) => dormantIds.includes(adapter.courseId));
+    assert.deepEqual(
+      activated.map((adapter) => [
+        adapter.courseId,
+        adapter.progressEvent,
+        adapter.storageKeys,
+        adapter.readSummary().nextHref,
+      ]),
+      [
+        ["codex", "codex:progress-change", ["ae.progress"], EXPECTED_FIRST_HREFS.codex],
+        ["claude", "claude:progress-change", ["ae.progress"], EXPECTED_FIRST_HREFS.claude],
+        ["cursor", "cursor:progress-change", ["aicourse.cursor.progress.v1"], EXPECTED_FIRST_HREFS.cursor],
+      ],
+    );
+
+    storage.setItem("ae.progress", JSON.stringify({
+      "codex.lesson.meet-codex": true,
+      "claude.lesson.choose-your-surface": true,
+    }));
+    storage.setItem("aicourse.cursor.progress.v1", JSON.stringify({
+      "cursor.lesson.orient-privacy": true,
+    }));
+    assert.deepEqual(
+      activated.map((adapter) => [adapter.courseId, adapter.readSummary().nextHref]),
+      [
+        ["codex", "/en/codex/task-contracts/"],
+        ["claude", "/en/claude/describe-the-outcome/"],
+        ["cursor", "/en/cursor/tab-inline-edit/"],
+      ],
+      "future adapters resume the exact first incomplete lesson",
+    );
+
+    const repaintEvents = new Set<string>();
+    for (const adapter of activated) {
+      browser.addEventListener(adapter.progressEvent, () => repaintEvents.add(adapter.progressEvent));
+    }
+    storage.setItem("ae.progress", "{unknown-shared-progress");
+    storage.setItem("aicourse.cursor.progress.v1", "[]");
+    for (const adapter of activated) {
+      assert.deepEqual(adapter.readSummary(), {
+        state: "unavailable",
+        percent: 0,
+        nextHref: null,
+      }, adapter.courseId);
+    }
+    assert.equal(updateCodexProgress((record) => {
+      record["codex.lesson.meet-codex"] = true;
+    }).persisted, false);
+    assert.equal(updateClaudeProgress((record) => {
+      record["claude.lesson.choose-your-surface"] = true;
+    }).persisted, false);
+    assert.equal((await applyCursorProgressPatch({
+      set: { "cursor.lesson.orient-privacy": true },
+    })).persisted, false);
+    assert.equal(storage.getItem("ae.progress"), "{unknown-shared-progress");
+    assert.equal(storage.getItem("aicourse.cursor.progress.v1"), "[]");
+
+    const corruptReset = await resetEveryCourseProgress();
+    assert.equal(corruptReset.persistent, false);
+    assert.equal(corruptReset.failureReasons["codex/shared-record"], "corrupt");
+    assert.equal(corruptReset.failureReasons.claude, "corrupt");
+    assert.equal(corruptReset.failureReasons.cursor, "corrupt");
+    assert.equal(storage.getItem("ae.progress"), "{unknown-shared-progress");
+    assert.equal(storage.getItem(CURSOR_PROGRESS_STORAGE_KEY), "[]");
+    assert.deepEqual(
+      [...repaintEvents].sort(),
+      ["claude:progress-change", "codex:progress-change", "cursor:progress-change"],
+    );
+
+    // The reset quarantines, rather than destroys, unknown bytes. Simulate an
+    // explicit recovery outside the product contract, then clear module caches
+    // so this test cannot leak session-only state into the next test.
+    storage.removeItem("ae.progress");
+    storage.removeItem(CURSOR_PROGRESS_STORAGE_KEY);
+    assert.equal((await resetEveryCourseProgress()).persistent, true);
+  } finally {
+    if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) {
+      Object.defineProperty(globalThis, "localStorage", { configurable: true, value: previousLocalStorage });
+    } else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) {
+      Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
+    } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("global reset covers blocked stores without exposing them as public summaries", () => {
+  const publicIds = new Set<string>(
+    createPublishedProgressAdapters("en").map((adapter) => adapter.courseId),
+  );
+  const resetIds = PROGRESS_RESET_REGISTRY.map((entry) => entry.id);
+
+  assert.deepEqual(resetIds.slice(0, 2), ["codex/shared-record", "agentic"]);
+  assert.equal(new Set(resetIds).size, resetIds.length);
+  assert.ok(resetIds.includes("claude"));
+  assert.ok(resetIds.includes("cursor"));
+  assert.equal(resetIds.at(-1), "recency");
+  assert.equal(publicIds.has("codex"), false);
+  assert.equal(publicIds.has("claude"), false);
+  assert.equal(publicIds.has("cursor"), false);
+});
+
+test("central reset reports quota and unavailable without clearing unrelated device state", async () => {
+  const storage = new FaultingStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  try {
+    assert.equal((await resetEveryCourseProgress()).persistent, true);
+    storage.setItem("ae.progress", JSON.stringify({ "github.lesson.start-secure": true }));
+    storage.setItem(CURSOR_PROGRESS_STORAGE_KEY, JSON.stringify({
+      "cursor.lesson.orient-privacy": true,
+    }));
+    storage.setItem(LEARNING_KEY, JSON.stringify(EMPTY_LEARNING_STATE));
+    storage.setItem("ae.theme", "dark");
+    storage.setItem("ae.lang", "ar");
+    storage.setItem(LAB_DRAFT_KEY, JSON.stringify({ prompt: "keep the learner draft" }));
+    session.setItem(DEEPSEEK_KEY_STORAGE, "keep-provider-key-in-current-tab");
+
+    storage.fail("removeItem", "ae.progress", "QuotaExceededError");
+    storage.fail("removeItem", CURSOR_PROGRESS_STORAGE_KEY);
+
+    const result = await resetEveryCourseProgress();
+    assert.equal(result.persistent, false);
+    assert.equal(result.failureReasons["codex/shared-record"], "quota");
+    assert.equal(result.failureReasons.github, "quota");
+    assert.equal(result.failureReasons["make-money-with-codex"], "quota");
+    assert.equal(result.failureReasons.cursor, "unavailable");
+    assert.equal(storage.getItem("ae.progress"), JSON.stringify({
+      "github.lesson.start-secure": true,
+    }));
+    assert.equal(storage.getItem(CURSOR_PROGRESS_STORAGE_KEY), JSON.stringify({
+      "cursor.lesson.orient-privacy": true,
+    }));
+
+    assert.equal(storage.getItem("ae.theme"), "dark");
+    assert.equal(storage.getItem("ae.lang"), "ar");
+    assert.equal(
+      storage.getItem(LAB_DRAFT_KEY),
+      JSON.stringify({ prompt: "keep the learner draft" }),
+    );
+    assert.equal(session.getItem(DEEPSEEK_KEY_STORAGE), "keep-provider-key-in-current-tab");
+
+    storage.allow("removeItem", "ae.progress");
+    storage.allow("removeItem", CURSOR_PROGRESS_STORAGE_KEY);
+    storage.removeItem("ae.progress");
+    storage.removeItem(CURSOR_PROGRESS_STORAGE_KEY);
+    assert.equal((await resetEveryCourseProgress()).persistent, true);
+    assert.equal(storage.getItem("ae.theme"), "dark");
+    assert.equal(storage.getItem("ae.lang"), "ar");
+    assert.notEqual(storage.getItem(LAB_DRAFT_KEY), null);
+    assert.equal(session.getItem(DEEPSEEK_KEY_STORAGE), "keep-provider-key-in-current-tab");
+  } finally {
+    if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) {
+      Object.defineProperty(globalThis, "localStorage", { configurable: true, value: previousLocalStorage });
+    } else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) {
+      Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
+    } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("a fresh learner gets the exact first lesson for every published course", () => {
+  const storage = new MemoryStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  try {
+    const adapters = createPublishedProgressAdapters("en");
+    for (const adapter of adapters) {
+      const current = adapter.readSummary();
+      assert.equal(current.state, "not-started", adapter.courseId);
+      assert.equal(current.percent, 0, adapter.courseId);
+      assert.equal(current.nextHref, EXPECTED_FIRST_HREFS[adapter.courseId], adapter.courseId);
+    }
+  } finally {
+    if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) {
+      Object.defineProperty(globalThis, "localStorage", { configurable: true, value: previousLocalStorage });
+    } else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) {
+      Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
+    } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("a published adapter resumes the first incomplete lesson, not the dashboard", () => {
+  const storage = new MemoryStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  try {
+    storage.setItem("ae.progress", JSON.stringify({
+      [`github.lesson.${GITHUB_LESSON_SLUGS[0]}`]: true,
+    }));
+    const github = createPublishedProgressAdapters("en").find(
+      (adapter) => adapter.courseId === "github",
+    );
+    assert.ok(github);
+    assert.deepEqual(github.readSummary(), {
+      state: "in-progress",
+      percent: 7,
+      nextHref: "/en/github/repository-readme/",
+    });
+
+    storage.setItem("ae.progress", JSON.stringify(Object.fromEntries(
+      GITHUB_LESSON_SLUGS.map((slug) => [`github.lesson.${slug}`, true]),
+    )));
+    assert.equal(github.readSummary().nextHref, "/en/github/#github-final-quiz-title");
+  } finally {
+    if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) {
+      Object.defineProperty(globalThis, "localStorage", { configurable: true, value: previousLocalStorage });
+    } else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) {
+      Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
+    } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("corrupt public progress stays unavailable and ordinary updates never replace raw evidence", async () => {
+  const storage = new MemoryStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  const malformed = "{shared-progress-is-not-json";
+  const sharedCourseIds = [
+    "github",
+    "prompts",
+    "software-engineering",
+    "rag",
+    "mcp",
+    "make-money-with-codex",
+    "claude-income",
+    "ai-tutor",
+    "product-management",
+    "agent-orchestration",
+  ] as const;
+  const sharedUpdates: readonly (() => boolean)[] = [
+    () => updateGithubProgress((record) => { record["github.lesson.start-secure"] = true; }).persisted,
+    () => updatePromptProgress((record) => { record["prompts.lesson.test.practice"] = true; }),
+    () => updateSoftwareEngineeringProgress((record) => {
+      record["softwareEngineering.lesson.test"] = true;
+    }),
+    () => updateRagProgress((record) => { record["rag.lesson.test.practice"] = true; }),
+    () => updateMcpProgress((record) => { record["mcp.lesson.test"] = true; }),
+    () => updateIncomeRecord((record) => ({
+      ...record,
+      "make-money-with-codex.lesson.test": true,
+    })),
+    () => updateClaudeIncomeProgress((record) => { record["claude-income.lesson.test"] = true; }),
+    () => updateAiTutorProgress((record) => { record["ai-tutor.module.test"] = true; }),
+    () => updateProductManagementProgress((record) => {
+      record["product-management.module.test"] = true;
+    }),
+    () => updateAgentOrchestrationProgress((record) => {
+      record["agent-orchestration.module.test"] = true;
+    }),
+  ];
+
+  try {
+    storage.setItem("ae.progress", malformed);
+    const adapters = createPublishedProgressAdapters("en");
+    for (const courseId of sharedCourseIds) {
+      const adapter = adapters.find((candidate) => candidate.courseId === courseId);
+      assert.ok(adapter, courseId);
+      assert.equal(adapter.isPersistent(), false, courseId);
+      assert.deepEqual(adapter.readSummary(), {
+        state: "unavailable",
+        percent: 0,
+        nextHref: null,
+      }, courseId);
+      assert.equal(storage.getItem("ae.progress"), malformed, courseId);
+    }
+
+    const failedReset = await adapters.find(
+      (candidate) => candidate.courseId === "github",
+    )?.resetAfterGlobalReset();
+    assert.deepEqual(failedReset, {
+      persisted: false,
+      reason: "corrupt",
+    });
+    assert.equal(storage.getItem("ae.progress"), malformed);
+
+    for (let index = 0; index < sharedUpdates.length; index += 1) {
+      assert.equal(sharedUpdates[index](), false, sharedCourseIds[index]);
+      assert.equal(storage.getItem("ae.progress"), malformed, sharedCourseIds[index]);
+    }
+
+    const invalidObject = "[]";
+    storage.setItem(GROK_PROGRESS_KEY, invalidObject);
+    const grok = adapters.find((candidate) => candidate.courseId === "grok");
+    assert.ok(grok);
+    assert.equal(grok.isPersistent(), false);
+    assert.deepEqual(grok.readSummary(), {
+      state: "unavailable",
+      percent: 0,
+      nextHref: null,
+    });
+    assert.equal(updateGrokProgress((current) => ({
+      ...current,
+      lessons: { ...current.lessons, [GROK_LESSON_SLUGS[0]]: true },
+    })), false);
+    assert.equal(storage.getItem(GROK_PROGRESS_KEY), invalidObject);
+
+    const reset = await resetEveryCourseProgress();
+    assert.equal(reset.persistent, false);
+    assert.equal(reset.failureReasons["codex/shared-record"], "corrupt");
+    assert.equal(reset.failureReasons.github, "corrupt");
+    assert.equal(reset.failureReasons.grok, "corrupt");
+    assert.equal(storage.getItem("ae.progress"), malformed);
+    assert.equal(storage.getItem(GROK_PROGRESS_KEY), invalidObject);
+
+    storage.removeItem("ae.progress");
+    storage.removeItem(GROK_PROGRESS_KEY);
+    assert.equal((await resetEveryCourseProgress()).persistent, true);
+    for (const adapter of createPublishedProgressAdapters("en")) {
+      assert.equal(adapter.isPersistent(), true, adapter.courseId);
+      assert.equal(adapter.readSummary().percent, 0, adapter.courseId);
+      assert.deepEqual(await adapter.resetAfterGlobalReset(), { persisted: true }, adapter.courseId);
+    }
+
+    storage.setItem("ae.progress", invalidObject);
+    for (const courseId of sharedCourseIds) {
+      const adapter = createPublishedProgressAdapters("en").find(
+        (candidate) => candidate.courseId === courseId,
+      );
+      assert.ok(adapter, courseId);
+      assert.equal(adapter.isPersistent(), false, `${courseId}: non-object JSON`);
+      assert.equal(adapter.readSummary().state, "unavailable", courseId);
+      assert.equal(adapter.readSummary().nextHref, null, courseId);
+      assert.equal(storage.getItem("ae.progress"), invalidObject, courseId);
+    }
+    const invalidReset = await resetEveryCourseProgress();
+    assert.equal(invalidReset.persistent, false);
+    assert.equal(invalidReset.failureReasons["codex/shared-record"], "corrupt");
+    assert.equal(storage.getItem("ae.progress"), invalidObject);
+    storage.removeItem("ae.progress");
+    assert.equal((await resetEveryCourseProgress()).persistent, true);
+  } finally {
+    if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) {
+      Object.defineProperty(globalThis, "localStorage", { configurable: true, value: previousLocalStorage });
+    } else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) {
+      Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
+    } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("the minimal recency ledger survives refresh ordering and fails closed when corrupt", () => {
+  const storage = new MemoryStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  try {
+    assert.deepEqual(resetProgressRecencyAfterGlobalReset(), { persisted: true });
+    assert.deepEqual(recordProgressActivity("github", 100), { persisted: true });
+    assert.deepEqual(recordProgressActivity("prompts", 200), { persisted: true });
+    assert.deepEqual(recordProgressActivity("github", 300), { persisted: true });
+    assert.deepEqual(
+      sortCourseIdsByRecentActivity(
+        ["rag", "github", "prompts"],
+        readProgressRecency().activity,
+      ),
+      ["github", "prompts", "rag"],
+    );
+
+    const persisted = JSON.parse(storage.getItem(PROGRESS_RECENCY_STORAGE_KEY) || "null");
+    assert.deepEqual(Object.keys(persisted).sort(), ["activity", "version"]);
+    assert.deepEqual(Object.keys(persisted.activity).sort(), ["github", "prompts"]);
+
+    storage.setItem(PROGRESS_RECENCY_STORAGE_KEY, JSON.stringify({
+      version: 1,
+      activity: { github: 700, prompts: 800, rag: 900 },
+    }));
+    const refreshed = readProgressRecency();
+    assert.equal(refreshed.persistence, "persistent");
+    assert.deepEqual(
+      sortCourseIdsByRecentActivity(["github", "prompts", "rag"], refreshed.activity),
+      ["rag", "prompts", "github"],
+      "a refresh or another tab uses the persisted multi-course ordering",
+    );
+
+    const malformed = "{recency-is-not-json";
+    storage.setItem(PROGRESS_RECENCY_STORAGE_KEY, malformed);
+    assert.deepEqual(readProgressRecency(), {
+      activity: {},
+      persistence: "session-only",
+      reason: "corrupt",
+    });
+    assert.deepEqual(recordProgressActivity("mcp", 1_000), {
+      persisted: false,
+      reason: "corrupt",
+    });
+    assert.equal(storage.getItem(PROGRESS_RECENCY_STORAGE_KEY), malformed);
+    assert.deepEqual(readProgressRecency().activity, { mcp: 1_000 });
+    assert.deepEqual(resetProgressRecencyAfterGlobalReset(), {
+      persisted: false,
+      reason: "corrupt",
+    });
+    assert.equal(storage.getItem(PROGRESS_RECENCY_STORAGE_KEY), malformed);
+    storage.removeItem(PROGRESS_RECENCY_STORAGE_KEY);
+    assert.deepEqual(resetProgressRecencyAfterGlobalReset(), { persisted: true });
+  } finally {
+    if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) {
+      Object.defineProperty(globalThis, "localStorage", { configurable: true, value: previousLocalStorage });
+    } else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) {
+      Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
+    } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});

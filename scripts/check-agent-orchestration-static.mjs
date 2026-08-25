@@ -13,10 +13,10 @@ import { join, relative } from "node:path";
 
 const ROOT = process.cwd();
 const APP_ROOT = join(ROOT, ".next", "server", "app");
+const OUT_ROOT = join(ROOT, "out");
 const SITE = "https://aicourse.top";
-const locales = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
-const nativeLocales = new Set(["en", "zh-Hans"]);
-const fallbackLocales = new Set(locales.filter((locale) => !nativeLocales.has(locale)));
+const locales = ["en", "zh-Hans"];
+const unsupportedLocales = ["es", "fr", "de", "zh-Hant", "ja", "ko", "ar"];
 const slugs = [
   "workflow-agent-boundary",
   "task-graphs-contracts",
@@ -63,6 +63,7 @@ const courseBuildInputs = [
   join(ROOT, "components", "agent-orchestration"),
   join(ROOT, "lib", "agent-orchestration"),
   join(ROOT, "app", "sitemap.ts"),
+  join(ROOT, "scripts", "generate-sitemaps.mjs"),
   join(ROOT, "scripts", "check-agent-orchestration-static.mjs"),
 ];
 const latestCourseInputMtime = Math.max(...courseBuildInputs.map(latestMtimeMs));
@@ -74,7 +75,6 @@ const expectedCourseArtifacts = locales.flatMap((locale) => [
   join(APP_ROOT, locale, "agent-orchestration.html"),
   ...slugs.map((slug) => join(APP_ROOT, locale, "agent-orchestration", `${slug}.html`)),
 ]);
-expectedCourseArtifacts.push(join(APP_ROOT, "sitemap.xml.body"));
 const missingCourseArtifacts = expectedCourseArtifacts.filter((path) => !existsSync(path));
 if (missingCourseArtifacts.length) {
   console.error(
@@ -125,8 +125,8 @@ function auditHtml(locale, slug) {
     return;
   }
 
-  const expectedOuterDir = locale === "ar" ? "rtl" : "ltr";
-  const contentLocale = locale === "zh-Hans" ? "zh-Hans" : "en";
+  const expectedOuterDir = "ltr";
+  const contentLocale = locale;
   const canonicalLocale = contentLocale;
   const expectedCanonical = publicUrl(canonicalLocale, slug);
 
@@ -165,13 +165,6 @@ function auditHtml(locale, slug) {
     }
   }
 
-  const fallbackNotice = "This is the canonical English edition. Interface localization does not change source boundaries, runtime caveats, or assessment standards.";
-  if (fallbackLocales.has(locale) && !has(html, `languageNotice">${fallbackNotice}</p>`)) {
-    fail(`${file}: missing visible English fallback notice`);
-  }
-  if (!fallbackLocales.has(locale) && has(html, `languageNotice">${fallbackNotice}</p>`)) {
-    fail(`${file}: native edition unexpectedly shows the fallback notice`);
-  }
 }
 
 for (const locale of locales) {
@@ -190,7 +183,7 @@ for (const locale of locales) {
     if (name.endsWith(".html")) emitted.push(join(moduleRoot, name));
   }
 }
-if (emitted.length !== 144) fail(`emitted Course 15 HTML count is ${emitted.length}, expected 144`);
+if (emitted.length !== 32) fail(`emitted Course 15 HTML count is ${emitted.length}, expected 32`);
 
 const enOverview = readFileSync(coursePath("en", undefined), "utf8");
 const zhOverview = readFileSync(coursePath("zh-Hans", undefined), "utf8");
@@ -250,12 +243,15 @@ for (const required of [
   if (!has(emittedChineseCourse, required)) fail(`Chinese static output is missing corrected text: ${required}`);
 }
 
-const sitemapPath = join(APP_ROOT, "sitemap.xml.body");
+const sitemapPaths = locales.map((locale) =>
+  join(OUT_ROOT, "sitemaps", `course-agent-orchestration-${locale}.xml`));
 let sitemap = "";
-try {
-  sitemap = readFileSync(sitemapPath, "utf8");
-} catch {
-  fail(`${relative(ROOT, sitemapPath)}: missing emitted sitemap`);
+for (const sitemapPath of sitemapPaths) {
+  try {
+    sitemap += readFileSync(sitemapPath, "utf8");
+  } catch {
+    fail(`${relative(ROOT, sitemapPath)}: missing emitted sitemap shard`);
+  }
 }
 const courseEntries = [...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)]
   .map((match) => match[1])
@@ -269,7 +265,7 @@ for (const entry of courseEntries) {
   for (const hrefLang of ["en", "zh-Hans", "x-default"]) {
     if (!entry.includes(`hreflang="${hrefLang}"`)) fail(`${loc}: sitemap is missing ${hrefLang} alternate`);
   }
-  for (const fallback of fallbackLocales) {
+  for (const fallback of unsupportedLocales) {
     if (entry.includes(`hreflang="${fallback}"`)) fail(`${loc}: sitemap advertises fallback locale ${fallback} as a translation`);
   }
 }
@@ -281,9 +277,8 @@ if (failures.length) {
 }
 
 console.log("PASS Course 15 static output audit");
-console.log("- 144 HTML documents: 9 locales × (1 overview + 15 modules)");
+console.log("- 32 HTML documents: 2 real content locales × (1 overview + 15 modules)");
 console.log("- one h1, unique ids, locale/content lang-dir contracts, canonical/hreflang, and JSON-LD verified per document");
-console.log("- 112 fallback documents visibly disclose canonical English content");
 console.log("- source-role labels distinguish Official GitHub, supporting claim evidence, and version anchors");
 console.log("- build freshness, v1.1.1 marker, corrected ACI/workflow/scheduling/shadow/Baggage terms, and Official SDK docs labels verified");
 console.log("- 32 sitemap URLs: native en + zh-Hans only, with en/zh-Hans/x-default alternates");

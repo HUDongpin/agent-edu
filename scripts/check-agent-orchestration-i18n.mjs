@@ -148,13 +148,14 @@ function compareCopyContracts() {
 function checkSourceContracts() {
   const required = new Map([
     ["app/[locale]/agent-orchestration/page.tsx", [
-      "AGENT_ORCHESTRATION_LOCALES.map",
+      'courseLocaleParams("agent-orchestration")',
       "availableLocales: AGENT_ORCHESTRATION_TRANSLATED_LOCALES",
       "canonicalLocale: course.contentLocale",
       "inLanguage: course.contentLocale",
     ]],
     ["app/[locale]/agent-orchestration/[module]/page.tsx", [
-      "AGENT_ORCHESTRATION_MODULE_SLUGS.map",
+      "courseChildParams",
+      "AGENT_ORCHESTRATION_MODULE_SLUGS",
       "availableLocales: AGENT_ORCHESTRATION_TRANSLATED_LOCALES",
       "canonicalLocale: course.contentLocale",
       "inLanguage: course.contentLocale",
@@ -266,7 +267,7 @@ async function main() {
   await checkMaterializationAndSeo();
   notes.push("2 reviewed long-form bundles: en, zh-Hans");
   notes.push("7 explicit English fallbacks: es, fr, de, zh-Hant, ja, ko, ar");
-  notes.push("144 static Course 15 route combinations; 32 sitemap entries");
+  notes.push("144 loader fallback combinations audited; 32 published static routes and sitemap entries");
 
   const result = { ok: errors.length === 0, course: "agent-orchestration", errors, notes };
   if (JSON_OUTPUT) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);

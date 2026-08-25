@@ -7,6 +7,7 @@ import {
   type PromptCourseCopy,
 } from "../lib/prompts/types";
 import { LOCALES } from "../lib/i18n";
+import { publishedSitemapUrls } from "./published-course-test-helpers";
 
 const promptCopy = JSON.parse(
   readFileSync(new URL("../messages/prompts/en.json", import.meta.url), "utf8"),
@@ -504,47 +505,38 @@ test.describe("private Course 7 progress and assessment", () => {
 });
 
 test.describe("localization, metadata, catalogue, and discovery", () => {
-  for (const { code, dir } of LOCALES) {
-    test(`${code} dashboard and lesson preserve the locale shell around English content`, async ({ page }) => {
-      for (const [suffix, testId] of [
-        ["", "prompts-course-dashboard"],
-        ["grounding-and-safety/", "prompts-lesson-grounding-and-safety"],
-      ] as const) {
-        const response = await page.goto(`/${code}/prompts/${suffix}`);
-        expect(response?.status()).toBe(200);
-        await expect(page.locator("html")).toHaveAttribute("lang", code);
-        await expect(page.locator("html")).toHaveAttribute("dir", dir);
-
-        const content = page.getByTestId(testId);
-        await expect(content).toHaveAttribute("lang", "en");
-        await expect(content).toHaveAttribute("dir", "ltr");
-        expect(await content.evaluate((element) => getComputedStyle(element).direction)).toBe("ltr");
-
-        if (code === "en") {
-          await expect(content.getByText(promptCopy.ui.englishOnly, { exact: true })).toHaveCount(0);
-        } else {
-          await expect(content.getByText(promptCopy.ui.englishOnly, { exact: true })).toBeVisible();
-        }
-      }
-    });
-  }
-
-  test("Arabic shell stays RTL while the English course content is explicitly LTR", async ({ page }) => {
-    for (const [path, testId] of [
-      ["/ar/prompts/", "prompts-course-dashboard"],
-      ["/ar/prompts/grounding-and-safety/", "prompts-lesson-grounding-and-safety"],
+  test("English dashboard and lesson publish as explicitly LTR English content", async ({ page }) => {
+    for (const [suffix, testId] of [
+      ["", "prompts-course-dashboard"],
+      ["grounding-and-safety/", "prompts-lesson-grounding-and-safety"],
     ] as const) {
-      const response = await page.goto(path);
+      const response = await page.goto(`/en/prompts/${suffix}`);
       expect(response?.status()).toBe(200);
-      await expect(page.locator("html")).toHaveAttribute("lang", "ar");
-      await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
       const content = page.getByTestId(testId);
       await expect(content).toHaveAttribute("lang", "en");
       await expect(content).toHaveAttribute("dir", "ltr");
       expect(await content.evaluate((element) => getComputedStyle(element).direction)).toBe("ltr");
-      await expect(content.getByText(promptCopy.ui.englishOnly, { exact: true })).toBeVisible();
+      await expect(content.getByText(promptCopy.ui.englishOnly, { exact: true })).toHaveCount(0);
     }
+  });
+
+  test("unsupported locale course URLs 404 while localized catalogues link to English", async ({ page }) => {
+    for (const { code } of LOCALES.filter((locale) => locale.code !== "en")) {
+      for (const suffix of ["", "grounding-and-safety/"]) {
+        const response = await page.goto(`/${code}/prompts/${suffix}`);
+        expect(response?.status(), `${code}/${suffix || "dashboard"}`).toBe(404);
+        await expect(page.locator('[data-testid^="prompts-"]')).toHaveCount(0);
+      }
+    }
+
+    await page.goto("/ar/courses/");
+    await expect(page.locator("html")).toHaveAttribute("lang", "ar");
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    const card = page.locator("#how-to-write-prompts");
+    await expect(card.locator(".catalog-course-meta")).toContainText("الإنجليزية");
+    await expect(card.locator('a[href="/en/prompts/?fromLocale=ar"]')).toBeVisible();
   });
 
   test("English-only course shells canonicalize to English and do not advertise untranslated hreflang variants", async ({ page }) => {
@@ -571,7 +563,7 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
     expect((course?.hasCourseInstance as JsonLdNode)?.courseWorkload).toBe("PT380M");
     expect(nodes.some((node) => node["@type"] === "BreadcrumbList")).toBe(true);
 
-    await page.goto("/ar/prompts/grounding-and-safety/");
+    await page.goto("/en/prompts/grounding-and-safety/");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
       "https://aicourse.top/en/prompts/grounding-and-safety/",
@@ -602,7 +594,7 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
       for (const path of [
         DASHBOARD,
         "/en/prompts/evaluation-flywheel/",
-        "/ar/prompts/capstone-prompt-packet/",
+        "/en/prompts/capstone-prompt-packet/",
       ]) {
         await page.goto(path);
         await page.evaluate(async () => { await document.fonts.ready; });
@@ -702,11 +694,9 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
   });
 
   test("sitemap lists the English dashboard and nine English lessons exactly once", async ({ request }) => {
-    const response = await request.get("/sitemap.xml");
-    expect(response.status()).toBe(200);
-    const xml = await response.text();
-    const locations = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-    const promptLocations = locations.filter((location) => new URL(location).pathname.includes("/prompts/"));
+    const urls = await publishedSitemapUrls(request);
+    const promptLocations = [...urls]
+      .filter((location) => new URL(location).pathname.includes("/prompts/"));
     expect(new Set(promptLocations).size).toBe(PROMPT_LESSON_SLUGS.length + 1);
     expect(promptLocations).toHaveLength(PROMPT_LESSON_SLUGS.length + 1);
 

@@ -10,6 +10,7 @@ import {
   type RagCourseCopy,
   type RagLessonSlug,
 } from "../lib/rag/types";
+import { publishedSitemapUrls } from "./published-course-test-helpers";
 
 const ragCopyByLocale = Object.fromEntries(RAG_LOCALES.map((locale) => [
   locale,
@@ -734,7 +735,7 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     await expect(page.getByTestId("rag-lesson-choose-rag")).toBeVisible();
   });
 
-  test("malformed shared progress is backed up and repaired without disabling storage", async ({ page }) => {
+  test("malformed shared progress is preserved and the course fails closed to memory", async ({ page }) => {
     const malformed = "{not-json";
     await page.goto(DASHBOARD);
     await page.evaluate((value) => {
@@ -744,14 +745,15 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     await page.reload();
     await expect(page.locator('[data-rag-hydrated="true"]')).toBeAttached();
 
-    await expect(page.getByText(ragCopy.ui.storageUnavailable)).toHaveCount(0);
+    await expect(page.getByText(ragCopy.ui.storageUnavailable).first()).toBeVisible();
     expect(await page.evaluate(() => sessionStorage.getItem("ae.progress.corrupt-backup"))).toBe(malformed);
-    expect(await page.evaluate(() => localStorage.getItem("ae.progress"))).toBe("{}");
+    expect(await page.evaluate(() => localStorage.getItem("ae.progress"))).toBe(malformed);
 
     await page.goto("/en/rag/choose-rag/");
     await page.getByRole("button", { name: ragCopy.ui.markPracticeComplete }).click();
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}")))
-      .toMatchObject({ "rag.lesson.choose-rag.practice": true });
+    await expect(page.getByRole("button", { name: ragCopy.ui.markedPracticeComplete }))
+      .toBeDisabled();
+    expect(await page.evaluate(() => localStorage.getItem("ae.progress"))).toBe(malformed);
   });
 });
 
@@ -845,11 +847,9 @@ test.describe("locale boundaries, SEO, accessibility, and responsive rendering",
   });
 
   test("sitemap publishes the dashboard and twelve lessons in all nine locales", async ({ request }) => {
-    const response = await request.get("/sitemap.xml");
-    expect(response.status()).toBe(200);
-    const xml = await response.text();
-    const locations = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-    const ragLocations = locations.filter((location) => new URL(location).pathname.includes("/rag/"));
+    const urls = await publishedSitemapUrls(request);
+    const ragLocations = [...urls]
+      .filter((location) => new URL(location).pathname.includes("/rag/"));
     const expectedCount = RAG_LOCALES.length * (RAG_LESSON_SLUGS.length + 1);
     expect(ragLocations).toHaveLength(expectedCount);
     expect(new Set(ragLocations).size).toBe(expectedCount);
@@ -894,8 +894,8 @@ test.describe("locale boundaries, SEO, accessibility, and responsive rendering",
     await expect(lesson.locator('a[target="_blank"]:not([rel~="noopener"])')).toHaveCount(0);
   });
 
-  test("the licensed Claude figure and its provenance remain available without JavaScript", async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false });
+  test("the licensed Claude figure and its provenance remain available without JavaScript", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL, javaScriptEnabled: false });
     const page = await context.newPage();
     const response = await page.goto("/en/rag/ground-and-cite/");
     expect(response?.status()).toBe(200);

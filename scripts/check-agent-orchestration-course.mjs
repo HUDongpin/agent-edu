@@ -11,6 +11,7 @@
 import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
 
 import {
   AGENT_ORCHESTRATION_CONCEPT_DOMAIN_IDS,
@@ -236,8 +237,8 @@ function checkPrivateDevelopmentInputBoundary() {
     "components/agent-orchestration",
     "lib/agent-orchestration",
     "public/courses/agent-orchestration",
-    "outputs/agent-orchestration-course-research-brief.md",
-    "outputs/agent-orchestration-course-research-brief.provenance.md",
+    "evidence/course-audits/agent-orchestration-course-research-brief.md",
+    "evidence/course-audits/agent-orchestration-course-research-brief.provenance.md",
     "scripts",
   ];
   const files = [...new Set(roots.flatMap(collectRegularTextFiles))]
@@ -437,8 +438,8 @@ function checkFilesAndRoutes() {
     "lib/agent-orchestration/sources.ts",
     "lib/agent-orchestration/types.ts",
     "lib/agent-orchestration/validate.ts",
-    "outputs/agent-orchestration-course-research-brief.md",
-    "outputs/agent-orchestration-course-research-brief.provenance.md",
+    "evidence/course-audits/agent-orchestration-course-research-brief.md",
+    "evidence/course-audits/agent-orchestration-course-research-brief.provenance.md",
     "public/courses/agent-orchestration/NOTICE.md",
     "scripts/check-agent-orchestration-labs.mjs",
   ];
@@ -527,7 +528,7 @@ function checkFilesAndRoutes() {
 
   requireTokens("app/[locale]/agent-orchestration/page.tsx", [
     "dynamicParams = false",
-    "AGENT_ORCHESTRATION_LOCALES.map",
+    'courseLocaleParams("agent-orchestration")',
     "availableLocales: AGENT_ORCHESTRATION_TRANSLATED_LOCALES",
     "canonicalLocale: course.contentLocale",
     'courseCode: "15"',
@@ -535,7 +536,8 @@ function checkFilesAndRoutes() {
   ]);
   const moduleRoute = requireTokens("app/[locale]/agent-orchestration/[module]/page.tsx", [
     "dynamicParams = false",
-    "AGENT_ORCHESTRATION_MODULE_SLUGS.map",
+    "courseChildParams",
+    "AGENT_ORCHESTRATION_MODULE_SLUGS",
     "isAgentOrchestrationModuleSlug",
     "agentOrchestrationModulePage",
     "<ModuleView",
@@ -620,7 +622,7 @@ function checkFilesAndRoutes() {
     fail("Course 15 notice must not embed uploaded or third-party images");
   }
 
-  const briefPath = "outputs/agent-orchestration-course-research-brief.md";
+  const briefPath = "evidence/course-audits/agent-orchestration-course-research-brief.md";
   const brief = requireTokens(briefPath, [
     "## 15 模块证据与课程覆盖台账",
     "canonical source IDs",
@@ -653,7 +655,7 @@ function checkFilesAndRoutes() {
     }
   }
 
-  const provenancePath = "outputs/agent-orchestration-course-research-brief.provenance.md";
+  const provenancePath = "evidence/course-audits/agent-orchestration-course-research-brief.provenance.md";
   const provenance = requireTokens(provenancePath, [
     `Course 15 \`v${EXPECTED_VERSION}\``,
     "67/67",
@@ -759,15 +761,11 @@ function checkFilesAndRoutes() {
 }
 
 function checkIntegration() {
-  const seo = requireTokens("lib/seo.ts", [
-    "AGENT_ORCHESTRATION_MODULE_PAGES",
-    '"agent-orchestration/"',
+  requireTokens("lib/seo.ts", [
+    'AGENT_ORCHESTRATION_MODULE_PAGES = childPagesFor("agent-orchestration")',
     "function agentOrchestrationModulePage",
-    "...AGENT_ORCHESTRATION_MODULE_PAGES",
+    "export const PAGES = PUBLISHED_LOCALIZED_PAGES",
   ]);
-  for (const slug of EXPECTED_SLUGS) {
-    if (!seo.includes(`"agent-orchestration/${slug}/"`)) fail(`lib/seo.ts: missing agent-orchestration/${slug}/`);
-  }
   requireTokens("app/sitemap.ts", [
     "AGENT_ORCHESTRATION_TRANSLATED_LOCALES",
     'page === "agent-orchestration/"',
@@ -784,7 +782,6 @@ function checkIntegration() {
   requireTokens("app/[locale]/courses/page.tsx", [
     "courseFifteenParts",
     '"agent-orchestration": courseFifteenParts',
-    'course.id === "agent-orchestration"',
     "agentOrchestrationCourse.contentLocale",
   ]);
   requireTokens("components/courses/Catalog.tsx", [
@@ -794,10 +791,6 @@ function checkIntegration() {
   requireTokens("components/courses/Cover.tsx", [
     '"agent-orchestration": (',
     '"agent-orchestration": styles.engineering',
-  ]);
-  requireTokens("components/Shell.tsx", [
-    'p("/agent-orchestration/")',
-    't("c.agent-orchestration.title")',
   ]);
   requireTokens("README.md", [
     "Course: Agent Orchestration",
@@ -833,19 +826,19 @@ function checkIntegration() {
     if (!String(scripts["agent-orchestration:static-check"] ?? "").includes("check-agent-orchestration-static.mjs")) {
       fail("package.json: agent-orchestration:static-check is missing");
     }
-    for (const scriptName of ["build", "build:release"]) {
-      const build = String(scripts[scriptName] ?? "");
-      const releaseGateIndex = build.indexOf("npm run agent-orchestration:check:release");
-      const nextBuildIndex = build.lastIndexOf("next build");
-      const staticGateIndex = build.indexOf("npm run agent-orchestration:static-check");
-      if (releaseGateIndex < 0 || nextBuildIndex < 0 || releaseGateIndex > nextBuildIndex) {
-        fail(`package.json: ${scriptName} must run the Course 15 source/release gate before next build`);
-      }
-      if (staticGateIndex < 0 || staticGateIndex < nextBuildIndex) {
-        fail(`package.json: ${scriptName} must run the Course 15 static-output gate after next build`);
-      }
+    const releaseBuild = String(scripts["build:release"] ?? "");
+    const nextBuildIndex = releaseBuild.indexOf("next build");
+    const staticGateIndex = releaseBuild.indexOf("npm run agent-orchestration:static-check");
+    if (nextBuildIndex < 0 || staticGateIndex < nextBuildIndex) {
+      fail("package.json: build:release must run the Course 15 static-output gate after next build");
     }
   }
+  for (const error of publishedReleaseIntegrationErrors(
+    ROOT,
+    "agent-orchestration",
+    "npm run agent-orchestration:check:release",
+    ["agent-orchestration/", ...EXPECTED_SLUGS.map((slug) => `agent-orchestration/${slug}/`)],
+  )) fail(error);
 }
 
 function main() {

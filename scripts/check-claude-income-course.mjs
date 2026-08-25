@@ -12,6 +12,7 @@ import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
 
 import {
   CLAUDE_INCOME_CAPSTONE,
@@ -51,13 +52,13 @@ const REQUIRED_FILES = [
   "lib/claude-income/sources.ts",
   "lib/claude-income/types.ts",
   "lib/claude-income/validate.ts",
-  "outputs/claude-income-curriculum-draft.md",
-  "outputs/claude-income-media-audit.md",
-  "outputs/claude-income-research-brief.md",
-  "outputs/claude-income-research-brief.provenance.md",
-  "outputs/claude-income-release-audit.md",
-  "outputs/claude-income-source-verification.md",
-  "outputs/claude-income-source-verification.provenance.md",
+  "evidence/course-audits/claude-income-curriculum-draft.md",
+  "evidence/course-audits/claude-income-media-audit.md",
+  "evidence/course-audits/claude-income-research-brief.md",
+  "evidence/course-audits/claude-income-research-brief.provenance.md",
+  "evidence/course-audits/claude-income-release-audit.md",
+  "evidence/course-audits/claude-income-source-verification.md",
+  "evidence/course-audits/claude-income-source-verification.provenance.md",
   "public/courses/claude-income/NOTICE.md",
   "public/courses/claude-income/media-manifest.json",
   "public/courses/claude-income/repository-rights-manifest.json",
@@ -339,38 +340,15 @@ function checkRepositoryIntegrationBoundary() {
     fail("Sitemap must limit the Course 12 dashboard and lesson routes to DEFAULT_LOCALE");
   }
 
-  const seoSource = readFileSync(resolve(ROOT, "lib/seo.ts"), "utf8");
-  const lessonBlock = seoSource.match(
-    /export const CLAUDE_INCOME_LESSON_PAGES = \[([\s\S]*?)\] as const;/,
-  )?.[1] ?? "";
-  const publishedLessonPages = [...lessonBlock.matchAll(/["'](claude-income\/[^"']+\/)['"]/g)]
-    .map((match) => match[1]);
   const expectedLessonPages = CLAUDE_INCOME_COURSE.lessons.map(
     (lesson) => `claude-income/${lesson.slug}/`,
   );
-  if (publishedLessonPages.length !== expectedLessonPages.length
-    || publishedLessonPages.some((page, index) => page !== expectedLessonPages[index])) {
-    fail(`Sitemap source must register the ${expectedLessonPages.length} Course 12 lessons in curriculum order`);
-  }
-  const pagesBlock = seoSource.match(/export const PAGES = \[([\s\S]*?)\] as const;/)?.[1] ?? "";
-  if (!pagesBlock.includes('"claude-income/"')
-    || !pagesBlock.includes("...CLAUDE_INCOME_LESSON_PAGES")) {
-    fail("Sitemap source must register the Course 12 dashboard and lesson-page collection");
-  }
-
-  const packageJson = readJson(resolve(ROOT, "package.json"));
-  for (const scriptName of ["build", "build:release"]) {
-    const script = packageJson?.scripts?.[scriptName];
-    const gate = "npm run claude-income:check:release";
-    if (typeof script !== "string" || !script.includes(gate) || script.indexOf(gate) > script.indexOf("next build")) {
-      fail(`package.json ${scriptName} must run the Course 12 release gate before next build`);
-    }
-  }
-
-  const catalogSource = readFileSync(resolve(ROOT, "components/courses/Catalog.tsx"), "utf8");
-  if (!catalogSource.includes("c.claude-income.contentLanguage")) {
-    fail("Course catalog does not disclose the English-only Course 12 body");
-  }
+  for (const error of publishedReleaseIntegrationErrors(
+    ROOT,
+    "claude-income",
+    "npm run claude-income:check:release",
+    ["claude-income/", ...expectedLessonPages],
+  )) fail(error);
   for (const locale of CLAUDE_INCOME_LOCALES) {
     const messages = readJson(resolve(ROOT, `messages/${locale}.json`));
     if (typeof messages?.["c.claude-income.contentLanguage"] !== "string"
@@ -381,7 +359,7 @@ function checkRepositoryIntegrationBoundary() {
 }
 
 function checkCurriculumReleaseDocument() {
-  const path = resolve(ROOT, "outputs/claude-income-curriculum-draft.md");
+  const path = resolve(ROOT, "evidence/course-audits/claude-income-curriculum-draft.md");
   if (!regularFile(path)) return;
   const normalized = readFileSync(path, "utf8").replace(/\s+/g, " ");
   if (!normalized.includes("895 minutes")) {
@@ -404,7 +382,7 @@ function checkCurriculumReleaseDocument() {
 }
 
 function checkReleaseRecord() {
-  const releasePath = resolve(ROOT, "outputs/claude-income-release-audit.md");
+  const releasePath = resolve(ROOT, "evidence/course-audits/claude-income-release-audit.md");
   if (!regularFile(releasePath)) return;
   const text = readFileSync(releasePath, "utf8");
   const unchecked = text.match(/^- \[ \]/gm) ?? [];

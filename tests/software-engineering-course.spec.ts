@@ -20,6 +20,7 @@ import {
   type SoftwareEngineeringMediaRecord,
   type SoftwareEngineeringQuestionId,
 } from "../lib/software-engineering";
+import { publishedSitemapUrls } from "./published-course-test-helpers";
 
 const DASHBOARD = "/en/software-engineering/";
 
@@ -327,81 +328,46 @@ test.describe("authentic media and immutable provenance", () => {
 });
 
 test.describe("localization, metadata, and discovery", () => {
-  test("all locale dashboards materialize with an honest English-body boundary", async ({ page }) => {
+  test("only the real English dashboard materializes and localized catalogues point to it", async ({ page }) => {
     test.setTimeout(90_000);
-    for (const locale of SOFTWARE_ENGINEERING_LOCALES) {
-      const response = await page.goto(`/${locale}/software-engineering/`);
-      expect(response?.status(), locale).toBe(200);
-      await expect(page.locator("html")).toHaveAttribute("lang", locale);
+    let response = await page.goto(DASHBOARD);
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    const dashboard = page.getByTestId("software-engineering-course-dashboard");
+    const heading = dashboard.getByRole("heading", {
+      level: 1,
+      name: english.meta.title,
+    });
+    await expect(heading).toBeVisible();
+    await expect(heading.locator("xpath=ancestor::header[1]"))
+      .toHaveAttribute("lang", "en");
+    await expect(heading.locator("xpath=ancestor::header[1]"))
+      .toHaveAttribute("dir", "ltr");
+    await expect(dashboard.locator(
+      'section[aria-labelledby="software-engineering-curriculum-title"] ol > li span[lang="en"][dir="ltr"]',
+    )).toHaveCount(18);
 
-      const dashboard = page.getByTestId("software-engineering-course-dashboard");
-      const heading = dashboard.getByRole("heading", {
-        level: 1,
-        name: localeCopy[locale].meta.title,
-      });
-      await expect(heading).toBeVisible();
-      await expect(heading).toHaveAttribute("lang", locale);
-      await expect(heading).toHaveAttribute("dir", "auto");
-      await expect(heading.locator("xpath=ancestor::header[1]"))
-        .toHaveAttribute("lang", "en");
-      await expect(heading.locator("xpath=ancestor::header[1]"))
-        .toHaveAttribute("dir", "ltr");
-      await expect(dashboard.locator(
-        'section[aria-labelledby="software-engineering-curriculum-title"] ol > li span[lang="en"][dir="ltr"]',
-      )).toHaveCount(18);
-      if (locale === "en") {
-        await expect(dashboard.getByText(localeCopy[locale].meta.languageNotice, { exact: true }))
-          .toHaveCount(0);
-      } else {
-        await expect(dashboard.getByText(localeCopy[locale].meta.languageNotice, { exact: true }))
-          .toBeVisible();
+    for (const locale of SOFTWARE_ENGINEERING_LOCALES.filter((candidate) => candidate !== "en")) {
+      for (const suffix of ["", "agent-evaluation/"]) {
+        response = await page.goto(`/${locale}/software-engineering/${suffix}`);
+        expect(response?.status(), `${locale}/${suffix || "dashboard"}`).toBe(404);
+        await expect(page.getByTestId("software-engineering-course-dashboard")).toHaveCount(0);
       }
     }
+
+    await page.goto("/ar/courses/");
+    await expect(page.locator('main a[href="/en/software-engineering/?fromLocale=ar"]'))
+      .toBeVisible();
   });
 
-  test("Arabic shell remains RTL while localized headings and English lesson body are explicit", async ({ page }) => {
-    await page.goto("/ar/software-engineering/agent-evaluation/");
+  test("the Arabic catalogue remains RTL and declares the English course language", async ({ page }) => {
+    await page.goto("/ar/courses/");
     await expect(page.locator("html")).toHaveAttribute("lang", "ar");
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-
-    const lesson = page.getByTestId("software-engineering-lesson-agent-evaluation");
-    await expect(lesson.getByText(localeCopy.ar.meta.languageNotice, { exact: true })).toBeVisible();
-    const heading = lesson.getByRole("heading", {
-      level: 1,
-      name: localeCopy.ar.lessons["agent-evaluation"].title,
-    });
-    await expect(heading).toHaveAttribute("lang", "ar");
-    await expect(heading).toHaveAttribute("dir", "auto");
-    await expect(lesson.locator('section[aria-labelledby^="lesson-section-"][lang="en"][dir="ltr"]'))
-      .toHaveCount(3);
-    const englishSection = lesson.locator(
-      'section[aria-labelledby^="lesson-section-"][lang="en"][dir="ltr"]',
-    ).first();
-    expect(await englishSection.evaluate((element) => getComputedStyle(element).direction))
-      .toBe("ltr");
-
-    const figure = lesson.locator("figure[data-media-id]").first();
-    await expect(figure).toHaveAttribute("lang", "ar");
-    await expect(figure).toHaveAttribute("dir", "auto");
-    const localizedFigureChrome = figure.getByText(localeCopy.ar.ui.authenticUi, {
-      exact: false,
-    }).first();
-    expect(await localizedFigureChrome.evaluate((element) => ({
-      inheritedLanguage: element.closest("[lang]")?.getAttribute("lang"),
-      direction: getComputedStyle(element).direction,
-    }))).toEqual({ inheritedLanguage: "ar", direction: "rtl" });
-    await expect(figure.locator("figcaption strong").first()).toHaveAttribute("lang", "en");
-    await expect(figure.locator("figcaption strong").first()).toHaveAttribute("dir", "ltr");
-
-    await page.goto("/ar/software-engineering/capstone-safe-change/");
-    const capstone = page.getByTestId("software-engineering-capstone");
-    const artifactLegend = capstone.locator("fieldset").first().locator("legend");
-    await expect(artifactLegend).toHaveAttribute("lang", "ar");
-    await expect(artifactLegend).toHaveAttribute("dir", "auto");
-    await expect(capstone.locator("#capstone-rubric-title")).toHaveAttribute("lang", "ar");
-    await expect(capstone.locator("#capstone-rubric-title")).toHaveAttribute("dir", "auto");
-    await expect(capstone.locator('option[value=""]')).toHaveAttribute("lang", "en");
-    await expect(capstone.locator('option[value="release"]')).toHaveAttribute("lang", "ar");
+    const card = page.locator("#software-engineering-with-agentic-ai");
+    await expect(card.locator(".catalog-course-meta")).toContainText("الإنجليزية");
+    await expect(card.locator('a[href="/en/software-engineering/?fromLocale=ar"]'))
+      .toBeVisible();
   });
 
   test("dashboard and lesson metadata are canonical, reciprocal, and honestly English", async ({ page }) => {
@@ -411,7 +377,7 @@ test.describe("localization, metadata, and discovery", () => {
       "https://aicourse.top/en/software-engineering/",
     );
     await expect(page.locator('link[rel="alternate"][hreflang]'))
-      .toHaveCount(SOFTWARE_ENGINEERING_LOCALES.length + 1);
+      .toHaveCount(2);
     await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
       "href",
       "https://aicourse.top/en/software-engineering/",
@@ -426,13 +392,13 @@ test.describe("localization, metadata, and discovery", () => {
     expect(course?.teaches).toHaveLength(18);
     expect(nodes.some((node) => node["@type"] === "BreadcrumbList")).toBe(true);
 
-    await page.goto("/fr/software-engineering/agent-evaluation/");
+    await page.goto("/en/software-engineering/agent-evaluation/");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      "https://aicourse.top/fr/software-engineering/agent-evaluation/",
+      "https://aicourse.top/en/software-engineering/agent-evaluation/",
     );
     await expect(page.locator('link[rel="alternate"][hreflang]'))
-      .toHaveCount(SOFTWARE_ENGINEERING_LOCALES.length + 1);
+      .toHaveCount(2);
     await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
       "href",
       "https://aicourse.top/en/software-engineering/agent-evaluation/",
@@ -480,30 +446,23 @@ test.describe("localization, metadata, and discovery", () => {
     await expect(page.locator("#software-engineering-with-agentic-ai")).toHaveCount(1);
   });
 
-  test("sitemap contains all 171 Course 8 routes exactly once", async ({ request }) => {
-    const response = await request.get("/sitemap.xml");
-    expect(response.status()).toBe(200);
-    const xml = await response.text();
-    const locations = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-    const courseLocations = locations.filter((location) => {
-      const pathname = new URL(location).pathname;
-      return SOFTWARE_ENGINEERING_LOCALES.some((locale) => (
-        pathname.startsWith(`/${locale}/software-engineering/`)
-      ));
-    });
-    const expectedCount = SOFTWARE_ENGINEERING_LOCALES.length
-      * (SOFTWARE_ENGINEERING_LESSON_SLUGS.length + 1);
+  test("sitemap contains only the real English Course 8 routes", async ({ request }) => {
+    const urls = await publishedSitemapUrls(request);
+    const courseLocations = [...urls].filter((location) => (
+      new URL(location).pathname.includes("/software-engineering/")
+    ));
+    const expectedCount = SOFTWARE_ENGINEERING_LESSON_SLUGS.length + 1;
     expect(courseLocations).toHaveLength(expectedCount);
     expect(new Set(courseLocations).size).toBe(expectedCount);
 
-    for (const locale of SOFTWARE_ENGINEERING_LOCALES) {
-      expect(courseLocations).toContain(`https://aicourse.top/${locale}/software-engineering/`);
-      for (const slug of SOFTWARE_ENGINEERING_LESSON_SLUGS) {
-        expect(courseLocations).toContain(
-          `https://aicourse.top/${locale}/software-engineering/${slug}/`,
-        );
-      }
+    expect(courseLocations).toContain("https://aicourse.top/en/software-engineering/");
+    for (const slug of SOFTWARE_ENGINEERING_LESSON_SLUGS) {
+      expect(courseLocations).toContain(
+        `https://aicourse.top/en/software-engineering/${slug}/`,
+      );
     }
+    expect(courseLocations.every((location) => location.includes("/en/software-engineering/")))
+      .toBe(true);
   });
 });
 
@@ -551,8 +510,8 @@ test.describe("private progress, assessment, and capstone", () => {
     });
   });
 
-  test("storage denial leaves lesson content and ephemeral completion usable", async ({ browser }) => {
-    const context = await browser.newContext();
+  test("storage denial leaves lesson content and ephemeral completion usable", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL });
     await context.addInitScript(() => {
       Object.defineProperty(window, "localStorage", {
         configurable: true,
@@ -774,8 +733,8 @@ test.describe("private progress, assessment, and capstone", () => {
 });
 
 test.describe("no-JavaScript and responsive publication", () => {
-  test("dashboard and a real Claude figure remain instructional without JavaScript", async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false });
+  test("dashboard and a real Claude figure remain instructional without JavaScript", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL, javaScriptEnabled: false });
     const page = await context.newPage();
 
     await page.goto(DASHBOARD);
@@ -827,13 +786,13 @@ test.describe("no-JavaScript and responsive publication", () => {
   });
 
   for (const width of [390, 768, 1440]) {
-    test(`dashboard and representative LTR/RTL lessons do not overflow at ${width}px`, async ({ page }) => {
+    test(`dashboard and representative English lessons do not overflow at ${width}px`, async ({ page }) => {
       test.setTimeout(90_000);
       await page.setViewportSize({ width, height: 900 });
       for (const path of [
         DASHBOARD,
         "/en/software-engineering/security-privacy-supply-chain/",
-        "/ar/software-engineering/agent-evaluation/",
+        "/en/software-engineering/agent-evaluation/",
       ]) {
         await page.goto(path);
         await page.evaluate(async () => { await document.fonts.ready; });

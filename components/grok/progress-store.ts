@@ -1,6 +1,11 @@
 "use client";
 
-import type { GrokLessonSlug } from "@/lib/grok/types";
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import {
+  persistenceFailureReason as reasonForError,
+} from "@/lib/progress-persistence";
+import { GROK_PROGRESS_PROBE_KEY } from "@/lib/progress-storage-contract";
+import type { GROK_PROGRESS_LESSON_SLUGS } from "@/lib/progress-topology";
 import {
   GROK_CAPSTONE_ITEM_COUNT,
   GROK_PROGRESS_STORAGE_KEY,
@@ -8,8 +13,10 @@ import {
   GROK_QUIZ_QUESTION_COUNT,
 } from "@/lib/grok/progress";
 
+type GrokLessonSlug = (typeof GROK_PROGRESS_LESSON_SLUGS)[number];
+
 export const GROK_PROGRESS_KEY = GROK_PROGRESS_STORAGE_KEY;
-const EVENT_NAME = "aicourse:grok-progress";
+export const GROK_PROGRESS_EVENT = "aicourse:grok-progress";
 
 export type GrokProgress = {
   readonly schemaVersion: 1;
@@ -34,6 +41,12 @@ export const EMPTY_GROK_PROGRESS: GrokProgress = Object.freeze({
 
 let cachedRaw: string | null | undefined;
 let cachedProgress: GrokProgress = EMPTY_GROK_PROGRESS;
+let persistenceAvailable: boolean | null = null;
+let failureReason: PersistenceResult["reason"];
+
+function isProgressObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
 
 function normalise(value: unknown): GrokProgress {
   if (!value || typeof value !== "object") return EMPTY_GROK_PROGRESS;
@@ -69,36 +82,70 @@ function normalise(value: unknown): GrokProgress {
 
 export function readGrokProgress(): GrokProgress {
   if (typeof window === "undefined") return EMPTY_GROK_PROGRESS;
+  if (persistenceAvailable === false) return cachedProgress;
   let raw: string | null;
   try {
     raw = window.localStorage.getItem(GROK_PROGRESS_KEY);
-  } catch {
+  } catch (error) {
     cachedRaw = undefined;
     cachedProgress = EMPTY_GROK_PROGRESS;
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
     return EMPTY_GROK_PROGRESS;
   }
   if (raw === cachedRaw) return cachedProgress;
   try {
-    const nextProgress = raw ? normalise(JSON.parse(raw)) : EMPTY_GROK_PROGRESS;
+    const parsed: unknown = raw ? JSON.parse(raw) : {};
+    if (!isProgressObject(parsed)) {
+      cachedRaw = raw;
+      cachedProgress = EMPTY_GROK_PROGRESS;
+      persistenceAvailable = false;
+      failureReason = "corrupt";
+      return cachedProgress;
+    }
+    const nextProgress = raw ? normalise(parsed) : EMPTY_GROK_PROGRESS;
     cachedRaw = raw;
     cachedProgress = nextProgress;
+    persistenceAvailable = true;
+    failureReason = undefined;
     return cachedProgress;
   } catch {
     cachedRaw = raw;
     cachedProgress = EMPTY_GROK_PROGRESS;
+    persistenceAvailable = false;
+    failureReason = "corrupt";
     return EMPTY_GROK_PROGRESS;
   }
 }
 
 export function writeGrokProgress(progress: GrokProgress): boolean {
+  cachedProgress = progress;
+  if (typeof window === "undefined") return false;
+  if (persistenceAvailable === false) {
+    window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
+    return false;
+  }
   try {
+    const currentRaw = window.localStorage.getItem(GROK_PROGRESS_KEY);
+    if (currentRaw) {
+      const current: unknown = JSON.parse(currentRaw);
+      if (!isProgressObject(current)) {
+        persistenceAvailable = false;
+        window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
+        return false;
+      }
+    }
     const raw = JSON.stringify(progress);
     window.localStorage.setItem(GROK_PROGRESS_KEY, raw);
     cachedRaw = raw;
-    cachedProgress = progress;
-    window.dispatchEvent(new Event(EVENT_NAME));
+    persistenceAvailable = true;
+    failureReason = undefined;
+    window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
     return true;
-  } catch {
+  } catch (error) {
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
+    window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
     return false;
   }
 }
@@ -110,14 +157,73 @@ export function updateGrokProgress(
 }
 
 export function resetGrokProgress(): boolean {
+  cachedProgress = EMPTY_GROK_PROGRESS;
+  if (persistenceAvailable === false) {
+    window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
+    return false;
+  }
   try {
+    const currentRaw = window.localStorage.getItem(GROK_PROGRESS_KEY);
+    if (currentRaw) {
+      const current: unknown = JSON.parse(currentRaw);
+      if (!isProgressObject(current)) {
+        persistenceAvailable = false;
+        window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
+        return false;
+      }
+    }
     window.localStorage.removeItem(GROK_PROGRESS_KEY);
     cachedRaw = null;
-    cachedProgress = EMPTY_GROK_PROGRESS;
-    window.dispatchEvent(new Event(EVENT_NAME));
+    persistenceAvailable = true;
+    failureReason = undefined;
+    window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
     return true;
-  } catch {
+  } catch (error) {
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
+    window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
     return false;
+  }
+}
+
+/** Reset session memory, but quarantine an unreadable persistent record. */
+export function resetGrokProgressAfterGlobalReset(): PersistenceResult {
+  cachedRaw = undefined;
+  cachedProgress = EMPTY_GROK_PROGRESS;
+  if (typeof window === "undefined") {
+    persistenceAvailable = false;
+    failureReason = "unavailable";
+    return { persisted: false, reason: failureReason };
+  }
+  try {
+    const raw = window.localStorage.getItem(GROK_PROGRESS_KEY);
+    if (raw !== null) {
+      try {
+        const parsed: unknown = JSON.parse(raw);
+        if (!isProgressObject(parsed)) {
+          persistenceAvailable = false;
+          failureReason = "corrupt";
+          window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
+          return { persisted: false, reason: failureReason };
+        }
+      } catch {
+        persistenceAvailable = false;
+        failureReason = "corrupt";
+        window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
+        return { persisted: false, reason: failureReason };
+      }
+    }
+    window.localStorage.removeItem(GROK_PROGRESS_KEY);
+    cachedRaw = null;
+    persistenceAvailable = true;
+    failureReason = undefined;
+    window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
+    return { persisted: true };
+  } catch (error) {
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
+    window.dispatchEvent(new Event(GROK_PROGRESS_EVENT));
+    return { persisted: false, reason: failureReason };
   }
 }
 
@@ -128,22 +234,25 @@ export function subscribeToGrokProgress(callback: () => void): () => void {
       callback();
     }
   };
-  window.addEventListener(EVENT_NAME, callback);
+  window.addEventListener(GROK_PROGRESS_EVENT, callback);
   window.addEventListener("storage", handleStorage);
   return () => {
-    window.removeEventListener(EVENT_NAME, callback);
+    window.removeEventListener(GROK_PROGRESS_EVENT, callback);
     window.removeEventListener("storage", handleStorage);
   };
 }
 
 export function grokStorageAvailable(): boolean {
   if (typeof window === "undefined") return true;
+  if (persistenceAvailable === false) return false;
   try {
-    const key = `${GROK_PROGRESS_KEY}.probe`;
-    window.localStorage.setItem(key, "1");
-    window.localStorage.removeItem(key);
-    return true;
-  } catch {
+    window.localStorage.setItem(GROK_PROGRESS_PROBE_KEY, "1");
+    window.localStorage.removeItem(GROK_PROGRESS_PROBE_KEY);
+    readGrokProgress();
+    return persistenceAvailable === true;
+  } catch (error) {
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
     return false;
   }
 }

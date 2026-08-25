@@ -10,6 +10,7 @@ import {
 } from "./Interactions";
 import { CourseTopology, RuntimeSemanticsLedger } from "./OrchestrationMap";
 import styles from "./AgentOrchestrationCourse.module.css";
+import SharedCourseShell from "../SharedCourseShell";
 
 function label(
   labels: Readonly<Record<string, string>>,
@@ -46,7 +47,6 @@ export default function CourseDashboard({
   course: MaterializedAgentOrchestrationCourse;
   catalogLabel: string;
 }) {
-  const first = course.modules[0];
   const courseHref = `/${course.locale}/agent-orchestration/`;
   const hrefFor = (slug: string) => `/${course.locale}/agent-orchestration/${slug}/`;
   const totalMinutes = course.modules.reduce((sum, module) => sum + module.minutes, 0);
@@ -82,6 +82,7 @@ export default function CourseDashboard({
         <span aria-hidden="true">/</span>
         <span aria-current="page">{label(course.copy.ui, "course", "Course 15")}</span>
       </nav>
+      <SharedCourseShell courseId="agent-orchestration" locale={course.locale} showBreadcrumb={false} />
 
       <header className={styles.hero}>
         <div className={styles.heroCopy}>
@@ -94,10 +95,6 @@ export default function CourseDashboard({
           <h1>{course.copy.meta.title}</h1>
           <p className={styles.heroSummary}>{course.copy.meta.summary}</p>
           <div className={styles.heroActions}>
-            <Link className={styles.primaryAction} href={hrefFor(first.slug)}>
-              {course.copy.meta.startCta}
-              <span aria-hidden="true">↗</span>
-            </Link>
             <a className={styles.secondaryAction} href="#agent-orchestration-curriculum">
               {label(course.copy.ui, "explore", "Explore the system")}
             </a>
@@ -135,7 +132,14 @@ export default function CourseDashboard({
               <i key={`${height}-${index}`} style={{ height: `${height}%` }} />
             ))}
           </div>
-          <CourseProgress labels={course.copy.ui} compact />
+          <CourseProgress
+            labels={course.copy.ui}
+            compact
+            locale={course.locale}
+            showJourneyAction
+            startLabel={course.copy.meta.startCta}
+            resumeLabel={course.copy.meta.resumeCta}
+          />
         </aside>
       </header>
 

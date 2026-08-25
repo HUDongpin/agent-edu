@@ -5,24 +5,42 @@ import { useEffect, useId, useMemo, useState } from "react";
 import Cover from "./Cover";
 import { useI18n } from "../I18nProvider";
 import {
-  CATALOG_COURSES,
+  CATALOG_COURSE_RELEASES,
   CATALOG_TOPICS,
   COURSE_MODULES,
   LEVELS,
   STATUSES,
-  TOP_LEVEL_COURSES,
   catalogCourseMatchesLevel,
   type CatalogCourse,
   type CatalogTopic,
   type Level,
   type Status,
-} from "@/lib/courses";
+} from "@/lib/public-courses";
+import {
+  publicContentLocaleForCourse as contentLocaleForCourse,
+  publicCourseHrefFor as courseHrefFor,
+  withPublicCourseReturnLocale,
+  type PublicContentLocale as ContentLocale,
+  type PublicCourseId as CourseId,
+  type PublicPublicationState as PublicationStatus,
+} from "@/lib/public-release-surface";
+import type { ProgressSummaryState } from "@/lib/public-progress-contract";
 
 const ALL = "__all__";
-const DEFAULT_PROGRESS_STORAGE_KEY = "ae.progress";
 const CATALOG_RESULTS_IDS = "catalog-course-results catalog-upcoming-course-results";
 
-type ProgressMap = Record<string, number>;
+type CatalogProgress = {
+  readonly state: ProgressSummaryState;
+  readonly percent: number | null;
+  readonly nextHref: string | null;
+};
+
+type ProgressMap = Record<string, CatalogProgress>;
+type DirectoryCourse = CatalogCourse & {
+  readonly publicationState: PublicationStatus;
+  readonly targetHref: string | null;
+  readonly contentLocale: ContentLocale | null;
+};
 type Translator = (key: string) => string;
 
 function catalogTopicFromQuery(value: string | null): CatalogTopic | typeof ALL {
@@ -44,61 +62,56 @@ function statusFromQuery(value: string | null): Status | typeof ALL {
 }
 
 /** Course progress is private browser state, so it is read only after mount. */
-function useCourseProgress(): ProgressMap {
+function useCourseProgress(locale: string): ProgressMap {
   const [map, setMap] = useState<ProgressMap>({});
 
   useEffect(() => {
-    const read = () => {
-      let sectionsSeen = 0;
-      try {
-        sectionsSeen = (localStorage.getItem("tch.seen") || "")
-          .split(",")
-          .filter(Boolean).length;
-      } catch {
-        // Storage can be unavailable in private browsing. The courses still work.
-      }
-
-      const records = new Map<string, Record<string, unknown>>();
-      const progressFor = (storageKey: string): Record<string, unknown> => {
-        const cached = records.get(storageKey);
-        if (cached) return cached;
-        let record: Record<string, unknown> = {};
-        try {
-          const stored: unknown = JSON.parse(localStorage.getItem(storageKey) || "{}");
-          if (stored && typeof stored === "object" && !Array.isArray(stored)) {
-            record = stored as Record<string, unknown>;
+    let cancelled = false;
+    let removeListeners = () => {};
+    void import("../progress-adapters").then(({ createPublishedProgressAdapters }) => {
+      if (cancelled) return;
+      const adapters = createPublishedProgressAdapters(locale);
+      const read = () => {
+        const next: ProgressMap = {};
+        for (const adapter of adapters) {
+          try {
+            const summary = adapter.readSummary();
+            if (summary.state === "unavailable") {
+              next[adapter.courseId] = {
+                state: "unavailable",
+                percent: null,
+                nextHref: null,
+              };
+              continue;
+            }
+            next[adapter.courseId] = summary;
+          } catch {
+            next[adapter.courseId] = {
+              state: "unavailable",
+              percent: null,
+              nextHref: null,
+            };
           }
-        } catch {
-          // Malformed or unavailable storage is worth zero, never a destructive rewrite.
         }
-        records.set(storageKey, record);
-        return record;
+        if (!cancelled) setMap(next);
       };
 
-      const next: ProgressMap = {};
-      for (const course of CATALOG_COURSES) {
-        if (course.progress) {
-          const progress = progressFor(course.progressStorageKey ?? DEFAULT_PROGRESS_STORAGE_KEY);
-          next[course.id] = course.progress(progress, sectionsSeen);
-        }
-      }
-      setMap(next);
-    };
-
-    read();
-    const progressEvents = new Set([
-      ...CATALOG_COURSES.map((course) => course.progressEvent),
-      ...TOP_LEVEL_COURSES.map((course) => course.progressEvent),
-    ].filter((event): event is string => Boolean(event)));
-    window.addEventListener("focus", read);
-    window.addEventListener("storage", read);
-    for (const event of progressEvents) window.addEventListener(event, read);
+      read();
+      const progressEvents = new Set(adapters.map((adapter) => adapter.progressEvent));
+      window.addEventListener("focus", read);
+      window.addEventListener("storage", read);
+      for (const event of progressEvents) window.addEventListener(event, read);
+      removeListeners = () => {
+        window.removeEventListener("focus", read);
+        window.removeEventListener("storage", read);
+        for (const event of progressEvents) window.removeEventListener(event, read);
+      };
+    });
     return () => {
-      window.removeEventListener("focus", read);
-      window.removeEventListener("storage", read);
-      for (const event of progressEvents) window.removeEventListener(event, read);
+      cancelled = true;
+      removeListeners();
     };
-  }, []);
+  }, [locale]);
 
   return map;
 }
@@ -148,12 +161,15 @@ function CourseCard({
   locale,
   progress,
 }: {
-  course: CatalogCourse;
+  course: DirectoryCourse;
   locale: string;
-  progress: number;
+  progress?: CatalogProgress;
 }) {
   const { t } = useI18n();
-  const available = course.status === "available";
+  const available = course.publicationState === "published" && Boolean(course.targetHref);
+  const progressPending = available && progress === undefined;
+  const progressUnavailable = progress?.state === "unavailable";
+  const progressPercent = progress && !progressUnavailable ? progress.percent : null;
   const isAgentic = course.id === "agentic";
   const isClaude = course.id === "claude";
   const isCursor = course.id === "cursor";
@@ -190,10 +206,10 @@ function CourseCard({
           <span>{t(course.formatKey)}</span>
           <span aria-hidden="true">·</span>
           <span>{duration}</span>
-          {isClaudeIncome && locale !== "en" ? (
+          {course.contentLocale && course.contentLocale !== locale ? (
             <>
               <span aria-hidden="true">·</span>
-              <span>{t("c.claude-income.contentLanguage")}</span>
+              <span>{t("cat.contentLanguageEnglish")}</span>
             </>
           ) : null}
         </div>
@@ -202,24 +218,34 @@ function CourseCard({
         <div className="cfoot catalog-course-footer">
           {available ? (
             <>
-              <div className="cprog catalog-course-progress">
-                <div
-                  className="cbar"
-                  role="progressbar"
-                  aria-label={`${t(course.titleKey)}: ${t("cat.progress")}`}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={progress}
-                >
-                  <span style={{ width: `${progress}%`, background: course.hue }} />
+              {progressPending ? (
+                <span className="catalog-progress-pending" role="status" aria-live="polite">
+                  {t("ui.loading")}
+                </span>
+              ) : progressUnavailable ? (
+                <span className="catalog-progress-unavailable" role="status">
+                  {t("progress.storageUnavailable")}
+                </span>
+              ) : progressPercent !== null ? (
+                <div className="cprog catalog-course-progress">
+                  <div
+                    className="cbar"
+                    role="progressbar"
+                    aria-label={`${t(course.titleKey)}: ${t("cat.progress")}`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={progressPercent}
+                  >
+                    <span style={{ width: `${progressPercent}%`, background: course.hue }} />
+                  </div>
+                  <span className="cpct">{progressPercent}%</span>
                 </div>
-                <span className="cpct">{progress}%</span>
-              </div>
-              <span className="cgo catalog-course-action" style={{ color: course.hue }}>
-                {isAgentic ? t("cat.modules") : (
-                  <>{actionLabel(progress, t)} <span className="arrow" aria-hidden="true">→</span></>
-                )}
-              </span>
+              ) : null}
+              {!progressPending && !progressUnavailable && progressPercent !== null ? (
+                <span className="cgo catalog-course-action" style={{ color: course.hue }}>
+                  {actionLabel(progressPercent, t)} <span className="arrow" aria-hidden="true">→</span>
+                </span>
+              ) : null}
             </>
           ) : (
             <span className="pill neutral catalog-course-status">{t("cat.soonBadge")}</span>
@@ -334,7 +360,7 @@ function CourseCard({
     );
   }
 
-  const href = course.external ? course.href : `/${locale}${course.href}`;
+  const href = course.targetHref ?? "#";
   return (
     <li id={anchorId} className={cardClass}>
       {course.external ? (
@@ -350,7 +376,7 @@ function CourseCard({
 
 export default function Catalog({ locale }: { locale: string }) {
   const { t } = useI18n();
-  const progress = useCourseProgress();
+  const progress = useCourseProgress(locale);
   const searchId = useId();
   const topicId = useId();
   const levelId = useId();
@@ -361,6 +387,21 @@ export default function Catalog({ locale }: { locale: string }) {
   const [level, setLevel] = useState<Level | typeof ALL>(ALL);
   const [status, setStatus] = useState<Status | typeof ALL>(ALL);
   const [filtersReady, setFiltersReady] = useState(false);
+
+  const directoryCourses = useMemo<readonly DirectoryCourse[]>(() =>
+    CATALOG_COURSE_RELEASES.map(({ course, surface }) => {
+      const contentLocale = contentLocaleForCourse(course.id as CourseId, locale);
+      const rawHref = courseHrefFor(course.id as CourseId, locale);
+      return {
+        ...course,
+        status: surface.state === "published" ? "available" : "soon",
+        publicationState: surface.state,
+        contentLocale,
+        targetHref: rawHref && contentLocale
+          ? withPublicCourseReturnLocale(rawHref, locale)
+          : null,
+      };
+    }), [locale]);
 
   // Static export friendly: hydrate shareable filter state only in the browser.
   useEffect(() => {
@@ -395,13 +436,13 @@ export default function Catalog({ locale }: { locale: string }) {
     { value: ALL, label: t("cat.all") },
     ...CATALOG_TOPICS.map((value) => ({
       value,
-      label: t(CATALOG_COURSES.find((course) => course.topic === value)?.topicKey ?? value),
+      label: t(directoryCourses.find((course) => course.topic === value)?.topicKey ?? value),
     })),
-  ], [t]);
+  ], [directoryCourses, t]);
 
   const shown = useMemo(() => {
     const wanted = normalise(query, locale);
-    return CATALOG_COURSES.filter((course) => {
+    return directoryCourses.filter((course) => {
       if (topic !== ALL && course.topic !== topic) return false;
       if (level !== ALL && !catalogCourseMatchesLevel(course, level)) return false;
       if (status !== ALL && course.status !== status) return false;
@@ -421,7 +462,7 @@ export default function Catalog({ locale }: { locale: string }) {
       ].join(" ");
       return normalise(searchable, locale).includes(wanted);
     }).sort((a, b) => Number(a.status === "soon") - Number(b.status === "soon"));
-  }, [level, locale, query, status, t, topic]);
+  }, [directoryCourses, level, locale, query, status, t, topic]);
 
   const releasedCourses = shown.filter((course) => course.status === "available");
   const upcomingCourses = shown.filter((course) => course.status === "soon");
@@ -519,7 +560,7 @@ export default function Catalog({ locale }: { locale: string }) {
                   key={course.id}
                   course={course}
                   locale={locale}
-                  progress={progress[course.id] ?? 0}
+                  progress={progress[course.id]}
                 />
               ))}
             </ul>
@@ -539,7 +580,7 @@ export default function Catalog({ locale }: { locale: string }) {
                   key={course.id}
                   course={course}
                   locale={locale}
-                  progress={progress[course.id] ?? 0}
+                  progress={progress[course.id]}
                 />
               ))}
             </ul>

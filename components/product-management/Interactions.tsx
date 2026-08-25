@@ -120,6 +120,7 @@ export function CourseProgress({
   labels,
   startLabel,
   resumeLabel,
+  reviewLabel,
 }: {
   modules: readonly {
     slug: ProductManagementModuleSlug;
@@ -129,6 +130,7 @@ export function CourseProgress({
   labels: Labels;
   startLabel: string;
   resumeLabel: string;
+  reviewLabel: string;
 }) {
   const { progress, storageAvailable } = useProductManagementProgress();
   const [resetMessage, setResetMessage] = useState("");
@@ -245,9 +247,9 @@ export function CourseProgress({
       </dl>
 
       <div className={styles.actionRow}>
-        {state.nextHref ? (
-          <Link className={styles.primaryButton} href={state.nextHref}>
-            {hasProgress ? resumeLabel : startLabel}
+        {state.nextHref || modules[0] ? (
+          <Link className={styles.primaryButton} href={state.nextHref ?? modules[0].href} data-course-journey-action>
+            {state.nextHref ? (hasProgress ? resumeLabel : startLabel) : reviewLabel}
             <span aria-hidden="true">→</span>
           </Link>
         ) : (

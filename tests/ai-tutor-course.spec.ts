@@ -81,26 +81,28 @@ test.describe("Course 13 public curriculum and routes", () => {
     expect(response?.status()).toBe(404);
   });
 
-  test("non-English shells disclose English content and canonicalize to English", async ({ page }) => {
+  test("English metadata is truthful and unsupported course locales fail closed", async ({ page }) => {
     await page.goto(DASHBOARD);
     await expect(page.getByTestId("ai-tutor-course-dashboard").getByText(
       /Course 13 is currently taught in English/,
     )).toHaveCount(0);
-
-    const response = await page.goto("/fr/ai-tutor/");
-    expect(response?.status()).toBe(200);
-    await expect(page.locator("html")).toHaveAttribute("lang", "fr");
-    await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-
-    const dashboard = page.getByTestId("ai-tutor-course-dashboard");
-    await expect(dashboard).toHaveAttribute("lang", "en");
-    await expect(dashboard).toHaveAttribute("dir", "ltr");
-    await expect(dashboard.getByText(/Course 13 is currently taught in English/)).toBeVisible();
     await expect(page.locator('link[rel="canonical"]'))
       .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
-    await expect(page.locator('link[rel="alternate"][hreflang="fr"]')).toHaveCount(0);
+    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(2);
     await expect(page.locator('link[rel="alternate"][hreflang="en"]'))
       .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
+    await expect(page.locator('link[rel="alternate"][hreflang="x-default"]'))
+      .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
+
+    for (const route of ["/fr/ai-tutor/", "/fr/ai-tutor/objectives-concept-map/"]) {
+      const response = await page.goto(route);
+      expect(response?.status(), route).toBe(404);
+      await expect(page.getByTestId("ai-tutor-course-dashboard")).toHaveCount(0);
+    }
+
+    await page.goto("/fr/courses/");
+    await expect(page.locator('main a[href="/en/ai-tutor/?fromLocale=fr"]'))
+      .toBeVisible();
   });
 });
 
@@ -172,8 +174,8 @@ test.describe("Course 13 private progress", () => {
     await page.reload();
 
     await expect(page.getByTestId("ai-tutor-course-dashboard")).toBeVisible();
-    await expect(page.locator('progress[aria-labelledby="ai-tutor-progress-title"]'))
-      .toHaveAttribute("value", "0");
+    await expect(page.getByRole("status").filter({ hasText: /storage/i }).first())
+      .toBeVisible();
     await expect(page.getByRole("link", { name: "Start with the learning contract" }))
       .toHaveAttribute("href", "/en/ai-tutor/objectives-concept-map/");
 

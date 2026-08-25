@@ -277,7 +277,7 @@ export default function ModuleView({
             </section>
 
             <ModuleCompletion slug={module.slug} labels={course.copy.ui} />
-            <nav className={styles.modulePager} aria-label={label(course.copy.ui, "moduleNavigation", "Module navigation")}>
+            <nav className={styles.modulePager} aria-label={label(course.copy.ui, "moduleNavigation", "Module navigation")} data-course-lesson-nav>
               {previous ? <Link href={hrefFor(previous.slug)} rel="prev"><span>{label(course.copy.ui, "previous", "Previous")}</span><strong>{String(previous.order).padStart(2, "0")} · {previous.copy.title}</strong></Link> : <span />}
               {next ? <Link href={hrefFor(next.slug)} rel="next"><span>{label(course.copy.ui, "next", "Next")}</span><strong>{String(next.order).padStart(2, "0")} · {next.copy.title}</strong></Link> : <Link href={courseHref}><span>{label(course.copy.ui, "return", "Return")}</span><strong>{label(course.copy.ui, "courseMap", "Course map")}</strong></Link>}
             </nav>

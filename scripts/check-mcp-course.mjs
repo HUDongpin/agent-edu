@@ -14,6 +14,7 @@ import { existsSync, lstatSync, readFileSync, readdirSync, statSync } from "node
 import { dirname, extname, relative, resolve, sep } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
 
 import {
   MCP_ASSESSMENT_VERSION,
@@ -63,11 +64,11 @@ const REQUIRED_FILES = [
   "components/mcp/McpFigure.tsx",
   "components/mcp/progress-store.ts",
   "components/mcp/useMcpProgress.ts",
-  "examples/mcp-courseops/README.md",
-  "examples/mcp-courseops/package-lock.json",
-  "examples/mcp-courseops/src/client.mjs",
-  "examples/mcp-courseops/src/server.mjs",
-  "examples/mcp-courseops/test/courseops.test.mjs",
+  "tests/fixtures/mcp-courseops/README.md",
+  "tests/fixtures/mcp-courseops/package-lock.json",
+  "tests/fixtures/mcp-courseops/src/client.mjs",
+  "tests/fixtures/mcp-courseops/src/server.mjs",
+  "tests/fixtures/mcp-courseops/test/courseops.test.mjs",
   "lib/mcp/assessment.ts",
   "lib/mcp/claims.ts",
   "lib/mcp/copy.ts",
@@ -79,10 +80,10 @@ const REQUIRED_FILES = [
   "lib/mcp/format.ts",
   "lib/mcp/sources.ts",
   "lib/mcp/types.ts",
-  "outputs/mcp-browser-qa.md",
-  "outputs/mcp-course-research-brief.md",
-  "outputs/mcp-course-research-brief.provenance.md",
-  "outputs/mcp-host-ui-capture-provenance.md",
+  "evidence/course-audits/mcp-browser-qa.md",
+  "evidence/course-audits/mcp-course-research-brief.md",
+  "evidence/course-audits/mcp-course-research-brief.provenance.md",
+  "evidence/course-audits/mcp-host-ui-capture-provenance.md",
   "public/courses/mcp/MCP_CAPSTONE_EVIDENCE_PACK.md",
   "public/courses/mcp/NOTICE.md",
   "public/courses/mcp/licenses/APACHE-2.0.txt",
@@ -572,11 +573,11 @@ function checkFixture() {
       if (JSON.stringify(files) !== JSON.stringify([...expectedFiles].sort())) fail(`CourseOps archive file allowlist mismatch: ${files.join(", ")}`);
       for (const file of expectedFiles) {
         const archived = spawnSync("unzip", ["-p", archive, `mcp-courseops/${file}`], { encoding: null });
-        if (archived.error || archived.status !== 0 || !Buffer.from(archived.stdout).equals(readFileSync(resolve(ROOT, "examples/mcp-courseops", file)))) fail(`CourseOps archive differs from source fixture: ${file}`);
+        if (archived.error || archived.status !== 0 || !Buffer.from(archived.stdout).equals(readFileSync(resolve(ROOT, "tests/fixtures/mcp-courseops", file)))) fail(`CourseOps archive differs from source fixture: ${file}`);
       }
     }
   }
-  const fixtureRoot = resolve(ROOT, "examples/mcp-courseops");
+  const fixtureRoot = resolve(ROOT, "tests/fixtures/mcp-courseops");
   const result = spawnSync(process.execPath, ["--test", "test/courseops.test.mjs"], { cwd: fixtureRoot, encoding: "utf8" });
   if (result.status !== 0) fail(`CourseOps fixture tests failed: ${(result.stderr || result.stdout).trim()}`);
   const combined = `${result.stdout}\n${result.stderr}`;
@@ -629,10 +630,12 @@ function checkIntegration() {
   if (!catalogComponent.includes("model-context-protocol") || !catalogComponent.includes("isMcp")) fail("catalogue card lacks MCP anchor or styling hook");
   const cover = readText("components/courses/Cover.tsx");
   if (!cover.includes("mcp: (") || !cover.includes("A host negotiates one explicit client boundary")) fail("course cover lacks an MCP-specific motif");
-  const shell = readText("components/Shell.tsx");
-  if (!shell.includes('p("/mcp/")') || !shell.includes('t("c.mcp.title")')) fail("site shell lacks the MCP course link");
-  const seo = readText("lib/seo.ts");
-  if (!seo.includes('"mcp/"') || MCP_LESSONS.some((lesson) => !seo.includes(`"mcp/${lesson.slug}/"`))) fail("SEO page registry lacks MCP routes");
+  for (const error of publishedReleaseIntegrationErrors(
+    ROOT,
+    "mcp",
+    "npm run mcp:check:release",
+    ["mcp/", ...MCP_LESSONS.map((lesson) => `mcp/${lesson.slug}/`)],
+  )) fail(error);
   const sitemap = readText("app/sitemap.ts");
   if (!sitemap.includes('page === "mcp/"') || !sitemap.includes('page.startsWith("mcp/")')) fail("sitemap lacks the MCP multilingual route rule");
   for (const locale of MCP_LOCALES) {
@@ -657,7 +660,7 @@ function checkIntegration() {
 
 function checkBrowserQaRecord() {
   if (!RELEASE) return;
-  const qa = readText("outputs/mcp-browser-qa.md");
+  const qa = readText("evidence/course-audits/mcp-browser-qa.md");
   const required = [
     "Verified: 2026-08-24 (Asia/Taipei)",
     `${MCP_CONCEPTS.length} concepts`,

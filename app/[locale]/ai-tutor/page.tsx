@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import CourseDashboard from "@/components/ai-tutor/CourseDashboard";
 import JsonLd from "@/components/JsonLd";
 import {
-  AI_TUTOR_LOCALES,
   AI_TUTOR_TRANSLATED_LOCALES,
   assertValidAiTutorCourse,
   isAiTutorLocale,
   loadAiTutorCourse,
 } from "@/lib/ai-tutor";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseLocaleParams } from "@/lib/release-surface";
 import { aiTutorModulePage, seoFor, SITE, urlFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -17,7 +17,7 @@ type Props = { params: Promise<{ locale: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return AI_TUTOR_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("ai-tutor");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

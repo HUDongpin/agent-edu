@@ -18,6 +18,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RELEASE = process.argv.includes("--release");
@@ -798,14 +799,6 @@ function validateIntegration() {
     }
   }
 
-  const seo = readText("lib/seo.ts");
-  if (
-    !seo.includes('"github/"') ||
-    EXPECTED_LESSONS.some((slug) => !seo.includes(`"github/${slug}/"`))
-  )
-    fail(
-      "lib/seo.ts: dashboard or lesson route missing from sitemap page registry",
-    );
   const catalogue = readText("lib/courses.ts");
   if (
     !catalogue.includes('id: "github"') ||
@@ -849,19 +842,12 @@ function validateIntegration() {
     fail(
       "figure attribution: pinned commit, licence, or independence disclaimer is missing",
     );
-  const home = readText("app/[locale]/page.tsx");
-  if (
-    !home.includes('Cover id="github"') ||
-    !home.includes('href={p("/github/")}')
-  )
-    fail("home page: Course 6 featured card is missing");
-  const shell = readText("components/Shell.tsx");
-  if (
-    !shell.includes('href={p("/github/")}') ||
-    !shell.includes('t("c.github.title")')
-  ) {
-    fail("site shell: Course 6 navigation link is missing");
-  }
+  for (const error of publishedReleaseIntegrationErrors(
+    ROOT,
+    "github",
+    "npm run github:check:release",
+    ["github/", ...EXPECTED_LESSONS.map((slug) => `github/${slug}/`)],
+  )) fail(error);
   const exceptionDocument = readJson("i18n-exceptions.json");
   const githubExceptions =
     exceptionDocument?.exceptions?.filter(

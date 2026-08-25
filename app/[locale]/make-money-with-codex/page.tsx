@@ -4,12 +4,12 @@ import CourseDashboard from "@/components/make-money-with-codex/CourseDashboard"
 import JsonLd from "@/components/JsonLd";
 import {
   MAKE_MONEY_WITH_CODEX_COURSE,
-  MAKE_MONEY_WITH_CODEX_LOCALES,
   MAKE_MONEY_WITH_CODEX_TOTAL_MINUTES,
   isCodexIncomeLocale,
 } from "@/lib/make-money-with-codex";
 import { loadCodexIncomeCopy } from "@/lib/make-money-with-codex/load";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseLocaleParams } from "@/lib/release-surface";
 import { seoFor, SITE, urlFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -17,7 +17,7 @@ type Props = { params: Promise<{ locale: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return MAKE_MONEY_WITH_CODEX_LOCALES.map((locale) => ({ locale }));
+  return courseLocaleParams("make-money-with-codex");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

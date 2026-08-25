@@ -279,6 +279,7 @@ export default function LessonView({
             <nav
               className={base.lessonPager}
               aria-label={course.copy.ui.lessons}
+              data-course-lesson-nav
             >
               {previous ? (
                 <Link href={hrefFor(previous.slug)} rel="prev">

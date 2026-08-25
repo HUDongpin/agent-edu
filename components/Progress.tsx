@@ -1,88 +1,105 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useI18n } from "./I18nProvider";
-import { TOP_LEVEL_COURSES } from "@/lib/courses";
-import { resetAllCourseProgress } from "./codex/progress-store";
-import { resetClaudeProgressAfterGlobalReset } from "./claude/progress-store";
-import { resetCursorProgressAfterGlobalReset } from "./cursor/progress-store";
-import { resetGrokProgress } from "./grok/progress-store";
-
-const PROGRESS_KEY = "ae.progress";
-const SECTIONS_KEY = "tch.seen";
+import {
+  PUBLISHED_CATALOG_COURSES,
+} from "@/lib/public-courses";
+import { withPublicCourseReturnLocale } from "@/lib/public-release-surface";
+import type {
+  PublishedProgressCourseId,
+  ProgressSummaryState,
+} from "@/lib/public-progress-contract";
 
 type CourseProgress = {
-  id: (typeof TOP_LEVEL_COURSES)[number]["id"];
+  id: PublishedProgressCourseId;
+  state: ProgressSummaryState;
   percent: number;
+  nextHref: string | null;
 };
+
+type ProgressView = {
+  courses: CourseProgress[];
+  persistent: boolean;
+};
+
+export interface ProgressFeedbackCopy {
+  readonly resetConfirm?: string;
+  readonly storageUnavailable?: string;
+  readonly resetComplete?: string;
+  readonly resetSessionOnly?: string;
+}
+
+export interface ProgressProps {
+  readonly locale: string;
+  /**
+   * Optional until the root locale bundles expose the four progress feedback
+   * messages. English fallbacks keep storage failure and reset outcomes honest.
+   */
+  readonly feedbackCopy?: ProgressFeedbackCopy;
+}
+
+const FALLBACK_FEEDBACK = {
+  storageUnavailable:
+    "Browser storage is unavailable. Learning still works, but progress will last only for this session.",
+} as const;
+
+const titleKeyById = new Map(
+  PUBLISHED_CATALOG_COURSES.map(({ course }) => [course.id, course.titleKey] as const),
+);
 
 /**
  * A private, course-level return state. Progress is read from this browser and
  * never sent to the site, so the statically exported page remains account-free.
  */
-export default function Progress({ locale }: { locale: string }) {
+export default function Progress({ locale, feedbackCopy }: ProgressProps) {
   const { t } = useI18n();
-  const [courses, setCourses] = useState<CourseProgress[] | null>(null);
-
-  const read = useCallback((): CourseProgress[] => {
-    let sectionsSeen = 0;
-
-    try {
-      sectionsSeen = (localStorage.getItem(SECTIONS_KEY) || "")
-        .split(",")
-        .filter(Boolean).length;
-    } catch {
-      // Storage can be unavailable in private browsing. Learning still works.
-    }
-
-    const records = new Map<string, Record<string, unknown>>();
-    const progressFor = (storageKey: string): Record<string, unknown> => {
-      const cached = records.get(storageKey);
-      if (cached) return cached;
-      let record: Record<string, unknown> = {};
-      try {
-        const stored: unknown = JSON.parse(localStorage.getItem(storageKey) || "{}");
-        if (stored && typeof stored === "object" && !Array.isArray(stored)) {
-          record = stored as Record<string, unknown>;
-        }
-      } catch {
-        // Treat malformed or unavailable browser data as zero progress.
-      }
-      records.set(storageKey, record);
-      return record;
-    };
-
-    return TOP_LEVEL_COURSES.map((course) => ({
-      id: course.id,
-      percent: course.progress(
-        progressFor(course.progressStorageKey ?? PROGRESS_KEY),
-        sectionsSeen,
-      ),
-    }));
-  }, []);
+  const [view, setView] = useState<ProgressView | null>(null);
 
   useEffect(() => {
-    const refresh = () => setCourses(read());
-    refresh();
-    const progressEvents = new Set(
-      TOP_LEVEL_COURSES
-        .map((course) => course.progressEvent)
-        .filter((event): event is string => Boolean(event)),
-    );
-    window.addEventListener("focus", refresh);
-    window.addEventListener("storage", refresh);
-    for (const event of progressEvents) window.addEventListener(event, refresh);
+    let cancelled = false;
+    let removeListeners = () => {};
+    void import("./progress-adapters").then(({ createPublishedProgressAdapters }) => {
+      if (cancelled) return;
+      const adapters = createPublishedProgressAdapters(locale);
+      const refresh = () => {
+        const courses = adapters.map((adapter) => ({
+          id: adapter.courseId,
+          ...adapter.readSummary(),
+        }));
+        if (!cancelled) {
+          setView({
+            courses,
+            persistent: courses.every((course) => course.state !== "unavailable"),
+          });
+        }
+      };
+      refresh();
+      const progressEvents = new Set(adapters.map((adapter) => adapter.progressEvent));
+      window.addEventListener("focus", refresh);
+      window.addEventListener("storage", refresh);
+      for (const event of progressEvents) window.addEventListener(event, refresh);
+      removeListeners = () => {
+        window.removeEventListener("focus", refresh);
+        window.removeEventListener("storage", refresh);
+        for (const event of progressEvents) window.removeEventListener(event, refresh);
+      };
+    });
     return () => {
-      window.removeEventListener("focus", refresh);
-      window.removeEventListener("storage", refresh);
-      for (const event of progressEvents) window.removeEventListener(event, refresh);
+      cancelled = true;
+      removeListeners();
     };
-  }, [read, locale]);
+  }, [locale]);
 
-  const active = courses?.filter((course) => course.percent > 0) ?? [];
+  const active = view?.courses.filter(
+    (course) => course.state === "in-progress" || course.state === "completed",
+  ) ?? [];
+  const statusMessage = view && !view.persistent
+    ? feedbackCopy?.storageUnavailable ?? FALLBACK_FEEDBACK.storageUnavailable
+    : null;
 
-  if (!courses) {
+  if (!view) {
     return <div className="progwrap progress-empty" aria-hidden="true" />;
   }
 
@@ -92,6 +109,7 @@ export default function Progress({ locale }: { locale: string }) {
         <div>
           <strong>{t("home.progNoneTitle")}</strong>
           <p>{t("home.progNone")}</p>
+          {statusMessage ? <p role="status" aria-live="polite">{statusMessage}</p> : null}
         </div>
         <Link className="btn primary" href={`/${locale}/courses/`}>
           {t("home.progBrowse")}<span className="arrow" aria-hidden="true">→</span>
@@ -103,13 +121,9 @@ export default function Progress({ locale }: { locale: string }) {
   return (
     <div className="progwrap">
       <div className="progress-course-list">
-        {active.map((course) => {
-          const definition = TOP_LEVEL_COURSES.find((item) => item.id === course.id)!;
-          const title = t(`c.${course.id}.title`);
-          const href = course.id === "agentic"
-            ? `/${locale}/handbook/`
-            : `/${locale}${definition.href}`;
-          const label = course.percent >= 100 ? t("cat.review") : t("cat.resume");
+        {active.slice(0, 2).map((course) => {
+          const title = t(titleKeyById.get(course.id) ?? `c.${course.id}.title`);
+          const label = course.state === "completed" ? t("cat.review") : t("cat.resume");
 
           return (
             <article className="progress-course" key={course.id}>
@@ -127,31 +141,22 @@ export default function Progress({ locale }: { locale: string }) {
               >
                 <span style={{ width: `${course.percent}%` }} />
               </div>
-              <Link className="text-link" href={href}>
-                {label}<span aria-hidden="true">→</span>
-              </Link>
+              {course.nextHref ? (
+                <Link
+                  className="text-link"
+                  href={withPublicCourseReturnLocale(course.nextHref, locale)}
+                >
+                  {label}<span aria-hidden="true">→</span>
+                </Link>
+              ) : null}
             </article>
           );
         })}
       </div>
-      <button
-        className="iconbtn progress-reset"
-        type="button"
-        onClick={async () => {
-          resetAllCourseProgress();
-          resetClaudeProgressAfterGlobalReset();
-          await resetCursorProgressAfterGlobalReset();
-          resetGrokProgress();
-          try {
-            localStorage.removeItem(SECTIONS_KEY);
-          } catch {
-            // Keep the control harmless when storage is unavailable.
-          }
-          setCourses(read());
-        }}
-      >
-        {t("home.progReset")}
-      </button>
+      {statusMessage ? <p role="status" aria-live="polite">{statusMessage}</p> : null}
+      <Link className="btn progress-manage" href={`/${locale}/learning/`}>
+        {t("nav.learning")}<span className="arrow" aria-hidden="true">→</span>
+      </Link>
     </div>
   );
 }

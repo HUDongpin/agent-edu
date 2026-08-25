@@ -1,17 +1,26 @@
 import {
-  AI_TUTOR_PROGRESS_EVENT,
-  AI_TUTOR_PROGRESS_PREFIX,
-  AI_TUTOR_PROGRESS_RESET_EVENT,
-  AI_TUTOR_PROGRESS_VERSION,
-  AI_TUTOR_PROGRESS_VERSION_KEY,
-  isCurrentAiTutorProgress,
-} from "@/lib/ai-tutor";
+  AI_TUTOR_PROGRESS_SCHEMA,
+} from "@/lib/progress-topology";
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import { verifySharedProgressReset } from "@/lib/progress-persistence";
+import {
+  AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY,
+  AI_TUTOR_PROGRESS_PROBE_KEY,
+} from "@/lib/progress-storage-contract";
+
+const AI_TUTOR_PROGRESS_EVENT = AI_TUTOR_PROGRESS_SCHEMA.progressEvent;
+const AI_TUTOR_PROGRESS_PREFIX = AI_TUTOR_PROGRESS_SCHEMA.prefix;
+const AI_TUTOR_PROGRESS_RESET_EVENT = AI_TUTOR_PROGRESS_SCHEMA.resetEvent;
+const AI_TUTOR_PROGRESS_VERSION = AI_TUTOR_PROGRESS_SCHEMA.version;
+const AI_TUTOR_PROGRESS_VERSION_KEY = AI_TUTOR_PROGRESS_SCHEMA.versionKey;
+
+function isCurrentAiTutorProgress(progress: Record<string, unknown>): boolean {
+  return progress[AI_TUTOR_PROGRESS_VERSION_KEY] === AI_TUTOR_PROGRESS_VERSION;
+}
 
 export const AI_TUTOR_PROGRESS_STORAGE_KEY = "ae.progress";
 export type AiTutorProgressRecord = Record<string, unknown>;
 
-const STORAGE_PROBE_KEY = "__aicourse_ai_tutor_storage_probe__";
-const CORRUPT_BACKUP_KEY = "ae.progress.ai-tutor-corrupt-backup";
 let memoryProgress: AiTutorProgressRecord = {};
 let storageAvailable: boolean | null = null;
 
@@ -19,7 +28,7 @@ function holdCorruptProgress(raw: string | null): void {
   memoryProgress = {};
   if (raw) {
     try {
-      sessionStorage.setItem(CORRUPT_BACKUP_KEY, raw);
+      sessionStorage.setItem(AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY, raw);
     } catch {
       // The unreadable record remains untouched even when backup storage is unavailable.
     }
@@ -28,12 +37,12 @@ function holdCorruptProgress(raw: string | null): void {
   storageAvailable = false;
 }
 
-export function isAiTutorProgressStorageAvailable(): boolean {
+function ensureStorageAccess(): boolean {
   if (typeof window === "undefined") return true;
   if (storageAvailable !== null) return storageAvailable;
   try {
-    localStorage.setItem(STORAGE_PROBE_KEY, "1");
-    localStorage.removeItem(STORAGE_PROBE_KEY);
+    localStorage.setItem(AI_TUTOR_PROGRESS_PROBE_KEY, "1");
+    localStorage.removeItem(AI_TUTOR_PROGRESS_PROBE_KEY);
     storageAvailable = true;
   } catch {
     storageAvailable = false;
@@ -41,8 +50,14 @@ export function isAiTutorProgressStorageAvailable(): boolean {
   return storageAvailable;
 }
 
+export function isAiTutorProgressStorageAvailable(): boolean {
+  if (typeof window === "undefined") return true;
+  if (storageAvailable !== false) readAiTutorProgress();
+  return storageAvailable === true;
+}
+
 export function readAiTutorProgress(): AiTutorProgressRecord {
-  if (typeof window === "undefined" || !isAiTutorProgressStorageAvailable()) {
+  if (typeof window === "undefined" || !ensureStorageAccess()) {
     return { ...memoryProgress };
   }
   try {
@@ -72,7 +87,16 @@ export function writeAiTutorProgress(record: AiTutorProgressRecord): boolean {
   };
   let persisted = false;
   try {
-    if (isAiTutorProgressStorageAvailable()) {
+    if (storageAvailable !== false) {
+      const raw = localStorage.getItem(AI_TUTOR_PROGRESS_STORAGE_KEY) || "{}";
+      const parsed: unknown = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        holdCorruptProgress(raw);
+      } else {
+        storageAvailable = true;
+      }
+    }
+    if (storageAvailable === true) {
       localStorage.setItem(AI_TUTOR_PROGRESS_STORAGE_KEY, JSON.stringify(memoryProgress));
       persisted = true;
     }
@@ -104,4 +128,16 @@ export function resetAiTutorProgress(): boolean {
   const persisted = writeAiTutorProgress(record);
   window.dispatchEvent(new CustomEvent(AI_TUTOR_PROGRESS_RESET_EVENT));
   return persisted;
+}
+
+/** Reset this module's session cache after the site-wide owner removed `ae.progress`. */
+export function resetAiTutorProgressAfterGlobalReset(): PersistenceResult {
+  memoryProgress = {};
+  const result = typeof window === "undefined"
+    ? { persisted: false, reason: "unavailable" } as const
+    : verifySharedProgressReset(localStorage, AI_TUTOR_PROGRESS_STORAGE_KEY);
+  storageAvailable = result.persisted;
+  window.dispatchEvent(new CustomEvent(AI_TUTOR_PROGRESS_EVENT));
+  window.dispatchEvent(new CustomEvent(AI_TUTOR_PROGRESS_RESET_EVENT));
+  return result;
 }

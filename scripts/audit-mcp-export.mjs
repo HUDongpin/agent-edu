@@ -427,20 +427,36 @@ function auditPage(route, pagePath, html, referencedCss, dashboardTitles) {
 }
 
 function auditSitemap(routes) {
-  const path = resolve(OUT, "sitemap.xml");
-  const xml = readText(path, "out/sitemap.xml");
-  if (xml === null) return 0;
-  const urls = [...xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/gi)]
+  const indexPath = resolve(OUT, "sitemap.xml");
+  const indexXml = readText(indexPath, "out/sitemap.xml");
+  if (indexXml === null) return { count: 0, paths: [] };
+  if (!/<sitemapindex\b/i.test(indexXml)) {
+    fail("out/sitemap.xml must be a sitemap index");
+  }
+
+  const expectedShardUrls = LOCALES.map((locale) => `${SITE_ORIGIN}/sitemaps/course-mcp-${locale}.xml`);
+  const indexedShardUrls = [...indexXml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/gi)]
     .map((match) => decodeEntities(match[1].trim()))
-    .filter((value) => {
-      try {
-        return new URL(value).pathname.includes("/mcp/");
-      } catch {
-        return value.includes("/mcp/");
-      }
-    });
+    .filter((value) => /\/sitemaps\/course-mcp-[^/]+\.xml$/.test(value));
+  compareExactInventory("sitemap index MCP shards", indexedShardUrls, expectedShardUrls);
+
+  const shardPaths = [];
+  const urls = [];
+  for (const locale of LOCALES) {
+    const relativePath = `sitemaps/course-mcp-${locale}.xml`;
+    const shardPath = resolve(OUT, relativePath);
+    shardPaths.push(shardPath);
+    if (existsSync(shardPath) && statSync(shardPath).size > 500 * 1024) {
+      fail(`out/${relativePath}: sitemap shard exceeds 500 KiB`);
+    }
+    const xml = readText(shardPath, `out/${relativePath}`);
+    if (xml === null) continue;
+    if (!/<urlset\b/i.test(xml)) fail(`out/${relativePath}: must be a sitemap urlset`);
+    urls.push(...[...xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/gi)]
+      .map((match) => decodeEntities(match[1].trim())));
+  }
   compareExactInventory("sitemap MCP URLs", urls, routes.map((route) => route.canonical));
-  return urls.length;
+  return { count: urls.length, paths: shardPaths };
 }
 
 function auditFigureManifest(allHtml) {
@@ -566,6 +582,7 @@ function auditFreshness(outputPages) {
     "package.json",
     "package-lock.json",
     "scripts/check-mcp-course.mjs",
+    "scripts/generate-sitemaps.mjs",
     "tests/mcp-course.spec.ts",
     "tests/mcp-playwright.config.ts",
     "scripts/audit-mcp-export.mjs",
@@ -627,10 +644,11 @@ function main() {
     fail("Arabic dashboard title does not contain Arabic-script teaching copy");
   }
 
-  const sitemapCount = auditSitemap(routes);
+  const sitemap = auditSitemap(routes);
   const figureCount = auditFigureManifest(pageHtml.join("\n"));
   auditDownloads();
   if (existsSync(resolve(OUT, "sitemap.xml"))) generatedPages.push(resolve(OUT, "sitemap.xml"));
+  generatedPages.push(...sitemap.paths.filter(existsSync));
   auditFreshness(generatedPages);
 
   const findings = [...errors].sort((left, right) => left.localeCompare(right));
@@ -646,7 +664,7 @@ function main() {
   }
   console.log(
     `MCP export audit passed: ${actualHtml.length}/${EXPECTED_PAGE_COUNT} HTML files, ` +
-    `${referencedCss.size} local CSS files, ${sitemapCount}/${EXPECTED_PAGE_COUNT} sitemap URLs, ` +
+    `${referencedCss.size} local CSS files, ${sitemap.count}/${EXPECTED_PAGE_COUNT} sitemap URLs, ` +
     `${figureCount}/8 provenance-checked figures, and fresh static output.`,
   );
 }

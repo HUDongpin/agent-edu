@@ -6,6 +6,12 @@ import Cover from "@/components/courses/Cover";
 import LearningIcon, { type LearningIconName } from "@/components/home/LearningIcon";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
 import { SITE, urlFor } from "@/lib/seo";
+import { PUBLISHED_CATALOG_COURSES } from "@/lib/public-courses";
+import {
+  contentLocaleForCourse,
+  courseHrefFor,
+  type CourseId,
+} from "@/lib/release-surface";
 
 /* Every route under [locale] declares its own params. The layout's are not
    inherited for export purposes, and without this the exporter cannot tell
@@ -36,9 +42,21 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   const paths = [
     { key: "1", icon: "book" as const, href: p("/handbook/") },
-    { key: "2", icon: "code" as const, href: p("/codex/") },
+    { key: "2", icon: "code" as const, href: p("/courses/?topic=coding-assistants") },
     { key: "3", icon: "research" as const, href: p("/courses/?topic=research") },
   ];
+
+  const featuredCourses = PUBLISHED_CATALOG_COURSES.slice(0, 5).map(({ course }) => {
+    const contentLocale = contentLocaleForCourse(course.id as CourseId, locale);
+    const rawHref = courseHrefFor(course.id as CourseId, locale)!;
+    return {
+      course,
+      href: contentLocale && contentLocale !== locale
+        ? `${rawHref}?fromLocale=${encodeURIComponent(locale)}`
+        : rawHref,
+      crossLanguage: contentLocale !== null && contentLocale !== locale,
+    };
+  });
 
   const methods = [
     { key: "1", icon: "practice" as const },
@@ -146,95 +164,37 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <p>{t("home.coursesLede")}</p>
           </header>
           <div className="featured-course-grid">
-            <article className="featured-course-card agentic">
-              <div className="featured-cover"><Cover id="agentic" hue="var(--brand)" /></div>
-              <div className="featured-copy">
-                <div className="course-card-meta">
-                  <span className="pill available">{t("cat.availableBadge")}</span>
-                  <span>{t("c.agentic.meta")}</span>
-                </div>
-                <h3>{t("c.agentic.title")}</h3>
-                <p>{t("c.agentic.blurb")}</p>
-                <ul>
-                  {["1", "2", "3"].map((key) => <li key={key}>{t(`home.agenticPoint${key}`)}</li>)}
-                </ul>
-                <Link className="text-link" href={p("/courses/#agentic-engineering")}>
-                  {t("home.course1Cta")}<span aria-hidden="true">→</span>
-                </Link>
-              </div>
-            </article>
-
-            <article className="featured-course-card codex">
-              <div className="featured-cover"><Cover id="codex" hue="var(--green)" /></div>
-              <div className="featured-copy">
-                <div className="course-card-meta">
-                  <span className="pill available">{t("cat.availableBadge")}</span>
-                  <span>{t("c.codex.meta")}</span>
-                </div>
-                <h3>{t("c.codex.title")}</h3>
-                <p>{t("c.codex.blurb")}</p>
-                <ul>
-                  {["1", "2", "3"].map((key) => <li key={key}>{t(`home.codexPoint${key}`)}</li>)}
-                </ul>
-                <Link className="text-link" href={p("/codex/")}>
-                  {t("home.course2Cta")}<span aria-hidden="true">→</span>
-                </Link>
-              </div>
-            </article>
-
-            <article className="featured-course-card claude">
-              <div className="featured-cover"><Cover id="claude" hue="var(--claude, #d97757)" /></div>
-              <div className="featured-copy">
-                <div className="course-card-meta">
-                  <span className="pill available">{t("cat.availableBadge")}</span>
-                  <span>{t("c.claude.meta")}</span>
-                </div>
-                <h3>{t("c.claude.title")}</h3>
-                <p>{t("c.claude.blurb")}</p>
-                <ul>
-                  {["1", "2", "3"].map((key) => <li key={key}>{t(`home.claudePoint${key}`)}</li>)}
-                </ul>
-                <Link className="text-link" href={p("/claude/")}>
-                  {t("home.course3Cta")}<span aria-hidden="true">→</span>
-                </Link>
-              </div>
-            </article>
-
-            <article className="featured-course-card github">
-              <div className="featured-cover"><Cover id="github" hue="var(--brand-2)" /></div>
-              <div className="featured-copy">
-                <div className="course-card-meta">
-                  <span className="pill available">{t("cat.availableBadge")}</span>
-                  <span>{t("c.github.meta")}</span>
-                </div>
-                <h3>{t("c.github.title")}</h3>
-                <p>{t("c.github.blurb")}</p>
-                <ul>
-                  {["1", "2", "3"].map((key) => <li key={key}>{t(`home.githubPoint${key}`)}</li>)}
-                </ul>
-                <Link className="text-link" href={p("/github/")}>
-                  {t("home.course6Cta")}<span aria-hidden="true">→</span>
-                </Link>
-              </div>
-            </article>
-
-            <article className="featured-course-card prompts">
-              <div className="featured-cover"><Cover id="prompts" hue="var(--coral)" /></div>
-              <div className="featured-copy">
-                <div className="course-card-meta">
-                  <span className="pill available">{t("cat.availableBadge")}</span>
-                  <span>{t("c.prompts.meta")}</span>
-                </div>
-                <h3>{t("c.prompts.title")}</h3>
-                <p>{t("c.prompts.blurb")}</p>
-                <ul>
-                  {["1", "2", "3"].map((key) => <li key={key}>{t(`home.promptsPoint${key}`)}</li>)}
-                </ul>
-                <Link className="text-link" href={p("/prompts/")}>
-                  {t("home.course7Cta")}<span aria-hidden="true">→</span>
-                </Link>
-              </div>
-            </article>
+            {featuredCourses.map(({ course, href, crossLanguage }) => {
+              const pointPrefix = course.id === "agentic"
+                || course.id === "github"
+                || course.id === "prompts"
+                ? course.id
+                : null;
+              return (
+                <article className={`featured-course-card ${course.id}`} key={course.id}>
+                  <div className="featured-cover"><Cover id={course.id} hue={course.hue} /></div>
+                  <div className="featured-copy">
+                    <div className="course-card-meta">
+                      <span className="pill available">{t("cat.availableBadge")}</span>
+                      <span>{course.metaKey ? t(course.metaKey) : `${course.minutes} ${t("cat.minutes")}`}</span>
+                    </div>
+                    <h3>{t(course.titleKey)}</h3>
+                    <p>{t(course.blurbKey)}</p>
+                    {pointPrefix ? (
+                      <ul>
+                        {["1", "2", "3"].map((key) => (
+                          <li key={key}>{t(`home.${pointPrefix}Point${key}`)}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {crossLanguage ? <p className="course-language-note">{t("cat.contentLanguageEnglish")}</p> : null}
+                    <Link className="text-link" href={href}>
+                      {t("cat.start")}<span aria-hidden="true">→</span>
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
           </div>
           <p className="section-action">
             <Link className="btn" href={p("/courses/")}>
@@ -297,7 +257,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <h2 id="progress-title">{t("home.progTitle")}</h2>
             <p>{t("home.progressLede")}</p>
           </header>
-          <Progress locale={locale} />
+          <Progress
+            locale={locale}
+            feedbackCopy={{ storageUnavailable: t("progress.storageUnavailable") }}
+          />
         </section>
 
         <section className="platform-section faq-section" aria-labelledby="faq-title">

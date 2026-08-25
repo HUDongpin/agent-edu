@@ -44,8 +44,8 @@ const JSON_OUTPUT = process.argv.includes("--json");
 const SOURCE_FRESHNESS_TIME_ZONE = "Asia/Taipei";
 
 const REQUIRED_FILES = [
-  "app/[locale]/claude/page.tsx",
-  "app/[locale]/claude/[lesson]/page.tsx",
+  "app/[locale]/_blocked/claude/page.tsx",
+  "app/[locale]/_blocked/claude/[lesson]/page.tsx",
   "components/claude/CapstonePortfolio.tsx",
   "components/claude/CompletionSummary.tsx",
   "components/claude/CourseDashboard.tsx",
@@ -69,9 +69,9 @@ const REQUIRED_FILES = [
   "lib/claude/sources.ts",
   "lib/claude/types.ts",
   "lib/claude/validate.ts",
-  "outputs/claude-course-research-brief.md",
-  "outputs/claude-course-research-brief.provenance.md",
-  "outputs/claude-figure-rights-clearance.md",
+  "evidence/course-audits/claude-course-research-brief.md",
+  "evidence/course-audits/claude-course-research-brief.provenance.md",
+  "evidence/course-audits/claude-figure-rights-clearance.md",
   "public/courses/claude/NOTICE.md",
   "public/courses/claude/claude-capstone-brief.md",
   "public/courses/claude/licenses/CLAUDEBLATTMAN-MIT.txt",
@@ -522,8 +522,8 @@ function checkOfficialSourceFreshness() {
 
 function checkLocalImageUse() {
   const files = [
-    "app/[locale]/claude/page.tsx",
-    "app/[locale]/claude/[lesson]/page.tsx",
+    "app/[locale]/_blocked/claude/page.tsx",
+    "app/[locale]/_blocked/claude/[lesson]/page.tsx",
     "components/claude/CourseFigure.tsx",
     "components/claude/LessonView.tsx",
   ];

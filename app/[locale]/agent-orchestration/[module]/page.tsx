@@ -12,6 +12,7 @@ import {
   loadAgentOrchestrationCourse,
 } from "@/lib/agent-orchestration";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseChildParams } from "@/lib/release-surface";
 import {
   agentOrchestrationModulePage,
   seoFor,
@@ -24,7 +25,11 @@ type Props = { params: Promise<{ locale: string; module: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return AGENT_ORCHESTRATION_MODULE_SLUGS.map((module) => ({ module }));
+  return courseChildParams(
+    "agent-orchestration",
+    "module",
+    AGENT_ORCHESTRATION_MODULE_SLUGS,
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

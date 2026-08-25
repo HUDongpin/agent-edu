@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 2,
+  "siteLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+  "core": {
+    "contentLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+    "routes": ["", "courses/", "teach/", "about/", "privacy/", "learning/"]
+  },
+  "courses": [
+    {
+      "id": "agentic",
+      "state": "published",
+      "href": "/handbook/",
+      "titleKey": "c.agentic.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+      "routes": ["handbook/", "lab/", "build/"],
+      "releaseGate": "node scripts/check-agentic-course.mjs --release",
+      "progress": {"strategy": "agentic-learning-v2", "storageKey": "ae.learning.v2", "event": "agentic:progress-change"}
+    },
+    {
+      "id": "codex",
+      "state": "blocked",
+      "href": "/codex/",
+      "titleKey": "c.codex.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+      "routes": [
+        "codex/", "codex/meet-codex/", "codex/task-contracts/",
+        "codex/environments-permissions/", "codex/ground-plan/",
+        "codex/implement-steer/", "codex/debug-test/", "codex/review-diff/",
+        "codex/agents-skills/", "codex/cli/", "codex/ide/",
+        "codex/cloud-parallel/", "codex/automation-capstone/"
+      ],
+      "releaseGate": "npm run codex:check:release",
+      "progress": {"strategy": "fourteen-equal-milestones", "storageKey": "ae.progress", "event": "codex:progress-change"},
+      "blockers": ["capture-evidence-required"]
+    },
+    {
+      "id": "claude",
+      "state": "blocked",
+      "href": "/claude/",
+      "titleKey": "c.claude.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+      "routes": [
+        "claude/", "claude/choose-your-surface/", "claude/describe-the-outcome/",
+        "claude/iterate-with-examples/", "claude/discern-verify-protect/",
+        "claude/work-with-files/", "claude/build-projects/", "claude/create-artifacts/",
+        "claude/research-with-citations/", "claude/extend-with-tools/",
+        "claude/delegate-with-cowork/", "claude/software-engineering/",
+        "claude/research-and-data/", "claude/writing-and-office/",
+        "claude/teaching-and-learning/", "claude/portfolio-capstone/"
+      ],
+      "releaseGate": "npm run claude:check:release",
+      "progress": {"strategy": "seventeen-equal-milestones", "storageKey": "ae.progress", "event": "claude:progress-change"},
+      "blockers": ["publication-permission-required"]
+    },
+    {
+      "id": "cursor",
+      "state": "blocked",
+      "href": "/cursor/",
+      "titleKey": "c.cursor.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+      "routes": [
+        "cursor/", "cursor/orient-privacy/", "cursor/tab-inline-edit/",
+        "cursor/agent-interface/", "cursor/task-contracts/",
+        "cursor/plan-execute-steer/", "cursor/test-review-recover/",
+        "cursor/rules-skills-mcp/", "cursor/cloud-parallel/",
+        "cursor/software-studio/", "cursor/research-studio/",
+        "cursor/writing-studio/", "cursor/office-studio/",
+        "cursor/teaching-studio/", "cursor/workflow-capstone/"
+      ],
+      "releaseGate": "npm run cursor:check:release",
+      "progress": {"strategy": "sixteen-equal-milestones", "storageKey": "aicourse.cursor.progress.v1", "event": "cursor:progress-change"},
+      "blockers": ["publication-rights-evidence-required"]
+    },
+    {
+      "id": "grok",
+      "state": "published",
+      "href": "/grok/",
+      "titleKey": "c.grok.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+      "routes": [
+        "grok/", "grok/map-grok/", "grok/read-interface/",
+        "grok/privacy-boundaries/", "grok/task-contracts/", "grok/search-verify/",
+        "grok/files-data/", "grok/software-engineering/", "grok/research-workflow/",
+        "grok/writing-workflow/", "grok/office-workflow/", "grok/teaching-workflow/",
+        "grok/imagine-multimodal/", "grok/connect-automate/", "grok/capstone/"
+      ],
+      "releaseGate": "npm run grok:check:release",
+      "progress": {"strategy": "sixteen-equal-milestones", "storageKey": "aicourse.grok.progress.v1", "event": "aicourse:grok-progress"}
+    },
+    {
+      "id": "github",
+      "state": "published",
+      "href": "/github/",
+      "titleKey": "c.github.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+      "routes": [
+        "github/", "github/start-secure/", "github/repository-readme/",
+        "github/branches-commits/", "github/pull-requests-reviews/",
+        "github/issues-discussions/", "github/projects-office-work/",
+        "github/forks-conflicts/", "github/notifications-governance/",
+        "github/software-automation/", "github/research-reproducibility/",
+        "github/writing-publishing/", "github/teaching-capstone/"
+      ],
+      "releaseGate": "npm run github:check:release",
+      "progress": {"strategy": "fourteen-equal-milestones", "storageKey": "ae.progress", "event": "github:progress-change"}
+    },
+    {
+      "id": "prompts",
+      "state": "published",
+      "href": "/prompts/",
+      "titleKey": "c.prompts.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en"],
+      "routes": [
+        "prompts/", "prompts/prompts-are-specifications/", "prompts/six-part-prompt/",
+        "prompts/instructions-and-data/", "prompts/examples-and-contracts/",
+        "prompts/four-prompt-jobs/", "prompts/evaluation-flywheel/",
+        "prompts/decompose-and-chain/", "prompts/grounding-and-safety/",
+        "prompts/capstone-prompt-packet/"
+      ],
+      "releaseGate": "npm run prompts:check:release",
+      "progress": {"strategy": "eleven-equal-milestones", "storageKey": "ae.progress", "event": "aicourse:prompts-progress"}
+    },
+    {
+      "id": "software-engineering",
+      "state": "published",
+      "href": "/software-engineering/",
+      "titleKey": "c.softwareEngineering.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en"],
+      "routes": [
+        "software-engineering/", "software-engineering/agentic-engineering-system/",
+        "software-engineering/requirements-task-contracts/",
+        "software-engineering/architecture-tradeoffs/",
+        "software-engineering/planning-estimation-risk/",
+        "software-engineering/repository-context/",
+        "software-engineering/git-environments-worktrees/",
+        "software-engineering/construction-quality/",
+        "software-engineering/testing-strategy/",
+        "software-engineering/debugging-root-cause/",
+        "software-engineering/review-refactoring-debt/",
+        "software-engineering/documentation-knowledge/",
+        "software-engineering/cicd-release/",
+        "software-engineering/reliability-observability/",
+        "software-engineering/performance-economics/",
+        "software-engineering/security-privacy-supply-chain/",
+        "software-engineering/teams-governance/",
+        "software-engineering/agent-evaluation/",
+        "software-engineering/capstone-safe-change/"
+      ],
+      "releaseGate": "npm run software-engineering:check:release",
+      "progress": {"strategy": "twenty-equal-milestones", "storageKey": "ae.progress", "event": "software-engineering:progress-change"}
+    },
+    {
+      "id": "rag",
+      "state": "published",
+      "href": "/rag/",
+      "titleKey": "c.rag.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+      "routes": [
+        "rag/", "rag/choose-rag/", "rag/trace-the-pipeline/", "rag/corpus-contract/",
+        "rag/parse-and-chunk/", "rag/embeddings-and-indexes/",
+        "rag/retrieval-engineering/", "rag/rerank-and-assemble/",
+        "rag/ground-and-cite/", "rag/advanced-patterns/", "rag/evaluate-rag/",
+        "rag/secure-and-refresh/", "rag/production-capstone/"
+      ],
+      "releaseGate": "npm run rag:check:release",
+      "progress": {"strategy": "fourteen-equal-milestones", "storageKey": "ae.progress", "event": "aicourse:rag-progress"}
+    },
+    {
+      "id": "mcp",
+      "state": "published",
+      "href": "/mcp/",
+      "titleKey": "c.mcp.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"],
+      "routes": [
+        "mcp/", "mcp/why-mcp/", "mcp/architecture-trust/",
+        "mcp/discovery-versioning/", "mcp/inspect-the-wire/", "mcp/tools/",
+        "mcp/resources/", "mcp/prompts-completion/", "mcp/elicitation-mrtr/",
+        "mcp/transports-json-rpc/", "mcp/flow-control/", "mcp/authorization/",
+        "mcp/security/", "mcp/build-server/", "mcp/build-client/",
+        "mcp/host-integrations/", "mcp/practitioner-patterns/",
+        "mcp/production-registry/", "mcp/apps-tasks-capstone/"
+      ],
+      "releaseGate": "npm run mcp:check:release",
+      "progress": {"strategy": "twenty-equal-milestones", "storageKey": "ae.progress", "event": "mcp:progress-change"}
+    },
+    {
+      "id": "make-money-with-codex",
+      "state": "published",
+      "href": "/make-money-with-codex/",
+      "titleKey": "c.make-money-with-codex.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en"],
+      "routes": [
+        "make-money-with-codex/", "make-money-with-codex/money-not-magic/",
+        "make-money-with-codex/choose-market-wedge/",
+        "make-money-with-codex/validate-before-building/",
+        "make-money-with-codex/write-commercial-spec/",
+        "make-money-with-codex/protect-client-work/",
+        "make-money-with-codex/build-verified-pilot/",
+        "make-money-with-codex/price-for-margin/",
+        "make-money-with-codex/sell-with-proof/",
+        "make-money-with-codex/deliver-with-control/",
+        "make-money-with-codex/productize-reuse/",
+        "make-money-with-codex/retain-and-automate/",
+        "make-money-with-codex/launch-capstone/"
+      ],
+      "releaseGate": "npm run make-money-with-codex:check:release",
+      "progress": {"strategy": "fourteen-equal-milestones", "storageKey": "ae.progress", "event": "aicourse:make-money-with-codex-progress"}
+    },
+    {
+      "id": "claude-income",
+      "state": "published",
+      "href": "/claude-income/",
+      "titleKey": "c.claude-income.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en"],
+      "routes": [
+        "claude-income/", "claude-income/choose-a-money-path/",
+        "claude-income/validate-paid-demand/",
+        "claude-income/scope-and-price-the-offer/",
+        "claude-income/write-a-delivery-spec/",
+        "claude-income/run-client-projects/",
+        "claude-income/sell-citation-grade-research/",
+        "claude-income/deliver-files-that-survive-review/",
+        "claude-income/standardize-with-skills-and-connectors/",
+        "claude-income/prototype-with-artifacts/",
+        "claude-income/build-software-with-claude/",
+        "claude-income/earn-trust-and-retainers/",
+        "claude-income/capstone-seven-day-demand-test/"
+      ],
+      "releaseGate": "npm run claude-income:check:release",
+      "progress": {"strategy": "fourteen-equal-milestones", "storageKey": "ae.progress", "event": "claude-income:progress-change"}
+    },
+    {
+      "id": "ai-tutor",
+      "state": "published",
+      "href": "/ai-tutor/",
+      "titleKey": "c.ai-tutor.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en"],
+      "routes": [
+        "ai-tutor/", "ai-tutor/objectives-concept-map/",
+        "ai-tutor/diagnostic-engine/", "ai-tutor/adaptive-scaffolding/",
+        "ai-tutor/formative-assessment-loop/", "ai-tutor/item-validation/",
+        "ai-tutor/learner-modeling/", "ai-tutor/learning-impact-experiment/",
+        "ai-tutor/safety-teacher-oversight/"
+      ],
+      "releaseGate": "npm run ai-tutor:check:release",
+      "progress": {"strategy": "ten-equal-milestones", "storageKey": "ae.progress", "event": "ai-tutor:progress-change"}
+    },
+    {
+      "id": "product-management",
+      "state": "published",
+      "href": "/product-management/",
+      "titleKey": "c.product-management.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en"],
+      "routes": [
+        "product-management/", "product-management/product-judgment-operating-model/",
+        "product-management/vision-strategy-business-model/",
+        "product-management/customer-market-discovery/",
+        "product-management/synthesis-opportunity-definition/",
+        "product-management/outcomes-metrics-analytics/",
+        "product-management/prioritization-roadmaps-portfolio/",
+        "product-management/solution-discovery-experiments/",
+        "product-management/product-design-experience-systems/",
+        "product-management/requirements-prd-decisions/",
+        "product-management/ai-capability-architecture/",
+        "product-management/delivery-engineering-ai-agents/",
+        "product-management/quality-safety-governance/",
+        "product-management/launch-go-to-market-growth/",
+        "product-management/experimentation-operations-leadership/"
+      ],
+      "releaseGate": "npm run product-management:check:release",
+      "progress": {"strategy": "sixteen-equal-milestones", "storageKey": "ae.progress", "event": "product-management:progress-change"}
+    },
+    {
+      "id": "agent-orchestration",
+      "state": "published",
+      "href": "/agent-orchestration/",
+      "titleKey": "c.agent-orchestration.title",
+      "primaryLocale": "en",
+      "contentLocales": ["en", "zh-Hans"],
+      "routes": [
+        "agent-orchestration/", "agent-orchestration/workflow-agent-boundary/",
+        "agent-orchestration/task-graphs-contracts/",
+        "agent-orchestration/chaining-routing/",
+        "agent-orchestration/parallel-fanout-fanin/",
+        "agent-orchestration/manager-roles-ownership/",
+        "agent-orchestration/delegation-handoffs/",
+        "agent-orchestration/orchestrator-workers-verification/",
+        "agent-orchestration/tools-aci-mcp/",
+        "agent-orchestration/context-state-memory/",
+        "agent-orchestration/budgets-concurrency-stopping/",
+        "agent-orchestration/reliability-recovery/",
+        "agent-orchestration/security-authority-human-control/",
+        "agent-orchestration/tracing-observability-economics/",
+        "agent-orchestration/evaluation-regression-evolution/",
+        "agent-orchestration/production-orchestration-capstone/"
+      ],
+      "releaseGate": "npm run agent-orchestration:check:release",
+      "progress": {"strategy": "seventeen-equal-milestones", "storageKey": "ae.progress", "event": "agent-orchestration:progress-change"}
+    },
+    {
+      "id": "ai-research",
+      "state": "roadmap",
+      "href": null,
+      "titleKey": "c.aiResearch.title",
+      "primaryLocale": null,
+      "contentLocales": [],
+      "routes": [],
+      "releaseGate": null,
+      "progress": null
+    },
+    {
+      "id": "responsible-ai",
+      "state": "roadmap",
+      "href": null,
+      "titleKey": "c.responsibleAi.title",
+      "primaryLocale": null,
+      "contentLocales": [],
+      "routes": [],
+      "releaseGate": null,
+      "progress": null
+    }
+  ]
+}

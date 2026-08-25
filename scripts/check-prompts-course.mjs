@@ -71,10 +71,18 @@ const EXPECTED_RASTERS = {
   workbench: {
     pngPath: "/courses/prompts/prompt-workbench-v2.png",
     webpPath: "/courses/prompts/prompt-workbench-v2.webp",
+    pngWidth: 1536,
+    pngHeight: 1024,
+    webpWidth: 1536,
+    webpHeight: 1024,
   },
   "evaluation-loop": {
     pngPath: "/courses/prompts/evaluation-loop.png",
     webpPath: "/courses/prompts/evaluation-loop.webp",
+    pngWidth: 1280,
+    pngHeight: 853,
+    webpWidth: 1536,
+    webpHeight: 1024,
   },
 };
 
@@ -153,9 +161,9 @@ function readJson(relativePath) {
 }
 
 function loadTypeScriptCourseData() {
-  const tsxBin = join(ROOT, "node_modules", ".bin", "tsx");
-  if (!existsSync(tsxBin)) {
-    fail("node_modules/.bin/tsx is required to validate the TypeScript course ledgers.");
+  const tsxModule = join(ROOT, "node_modules", "tsx");
+  if (!existsSync(tsxModule)) {
+    fail("node_modules/tsx is required to validate the TypeScript course ledgers.");
     return null;
   }
 
@@ -173,7 +181,7 @@ function loadTypeScriptCourseData() {
     'process.stdout.write(JSON.stringify({ manifest: PROMPT_COURSE_MANIFEST, sources: PROMPT_SOURCES, figures: PROMPT_FIGURES, catalogue: { course: TOP_LEVEL_COURSES.find((item) => item.id === "prompts"), completeProgress: promptProgress(completeProgress), staleCapstoneProgress: promptProgress(staleCapstoneProgress) }, capstoneScoreChecks }));',
   ].join(" ");
 
-  const result = spawnSync(tsxBin, ["-e", expression], {
+  const result = spawnSync(process.execPath, ["--import", "tsx", "--input-type=module", "-e", expression], {
     cwd: ROOT,
     encoding: "utf8",
     maxBuffer: 2 * 1024 * 1024,
@@ -892,16 +900,29 @@ function validateFigures(figures) {
     if (!requireRecord(figure.raster, `${label}.raster`)) continue;
     if (figure.raster.pngPath !== expectedRaster.pngPath) fail(`${label}.raster.pngPath must be ${expectedRaster.pngPath}.`);
     if (figure.raster.webpPath !== expectedRaster.webpPath) fail(`${label}.raster.webpPath must be ${expectedRaster.webpPath}.`);
-    if (figure.raster.width !== 1536 || figure.raster.height !== 1024) {
-      fail(`${label}.raster dimensions must be 1536x1024.`);
+    if (
+      figure.raster.width !== expectedRaster.pngWidth
+      || figure.raster.height !== expectedRaster.pngHeight
+    ) {
+      fail(`${label}.raster dimensions must be ${expectedRaster.pngWidth}x${expectedRaster.pngHeight}.`);
     }
     if (figure.raster.createdOn !== RELEASE_CREATED_ON) fail(`${label}.raster.createdOn must be ${RELEASE_CREATED_ON}.`);
     if (figure.raster.creator !== "OpenAI image generation") fail(`${label}.raster.creator must be OpenAI image generation.`);
     requireString(figure.raster.creationPrompt, `${label}.raster.creationPrompt`);
     if (!/^[a-f0-9]{64}$/.test(figure.raster.pngSha256 || "")) fail(`${label}.raster.pngSha256 must be a lowercase SHA-256 digest.`);
     if (!/^[a-f0-9]{64}$/.test(figure.raster.webpSha256 || "")) fail(`${label}.raster.webpSha256 must be a lowercase SHA-256 digest.`);
-    validateRasterFile(figure.raster.pngPath, figure.raster.pngSha256, 1536, 1024);
-    validateRasterFile(figure.raster.webpPath, figure.raster.webpSha256, 1536, 1024);
+    validateRasterFile(
+      figure.raster.pngPath,
+      figure.raster.pngSha256,
+      expectedRaster.pngWidth,
+      expectedRaster.pngHeight,
+    );
+    validateRasterFile(
+      figure.raster.webpPath,
+      figure.raster.webpSha256,
+      expectedRaster.webpWidth,
+      expectedRaster.webpHeight,
+    );
   }
 
   const assetDirectory = join(ROOT, "public", "courses", "prompts");

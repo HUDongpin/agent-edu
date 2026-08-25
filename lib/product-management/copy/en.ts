@@ -17,6 +17,7 @@ export const PRODUCT_MANAGEMENT_EN_COPY = {
     duration: "15 hr 10 min",
     startCta: "Begin the product loop",
     resumeCta: "Resume your product loop",
+    reviewCta: "Review the product loop",
     englishOnly: "The long-form lessons are currently authored in English. Navigation remains available in your chosen language.",
     evidenceNote: "PMaker is the course’s primary orientation source. Its public material is linked and paraphrased; this independent course does not reproduce its text, prompts, or visual design. Claims that require broader evidence are paired with official guidance, research, or open product-management references.",
   },

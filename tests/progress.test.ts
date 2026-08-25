@@ -4,12 +4,14 @@ import {
   EMPTY_LEARNING_STATE,
   HANDBOOK_SECTION_IDS,
   LEARNING_KEY,
+  LEARNING_PROGRESS_EVENT,
   LEGACY_PROGRESS_KEY,
   LEGACY_SECTION_KEY,
   LEGACY_SEEN_KEY,
   createLearningStore,
   decodeLearningState,
   migrateLegacyLearningState,
+  selectAgenticJourneyPercent,
   selectCourseProgress,
   selectHandbookProgress,
   selectLabProgress,
@@ -41,6 +43,11 @@ class BrokenStorage implements StorageLike {
   getItem(): string | null { throw new Error("blocked"); }
   setItem(): void { throw new Error("blocked"); }
   removeItem(): void { throw new Error("blocked"); }
+}
+
+class WriteBlockedStorage extends MemoryStorage {
+  override setItem(): void { throw new Error("write blocked"); }
+  override removeItem(): void { throw new Error("remove blocked"); }
 }
 
 class StorageEvents extends EventTarget {
@@ -177,17 +184,21 @@ test("an existing valid v2 record is authoritative over conflicting legacy data"
   assert.deepEqual(state.lab.completedSteps, []);
 });
 
-test("a corrupt existing v2 record repairs to default without reabsorbing legacy", () => {
+test("a corrupt existing v2 record is quarantined without overwriting or reabsorbing legacy", () => {
   const storage = new MemoryStorage({
     [LEARNING_KEY]: "{broken",
     [LEGACY_SECTION_KEY]: "security",
     [LEGACY_SEEN_KEY]: "security",
     [LEGACY_PROGRESS_KEY]: json({ play0: true, evalBest: 20 }),
   });
-  const state = createLearningStore({ storage, events: null }).readLearningState();
+  const store = createLearningStore({ storage, events: null });
+  const state = store.readLearningState();
 
   assert.deepEqual(state, EMPTY_LEARNING_STATE);
-  assert.deepEqual(JSON.parse(storage.getItem(LEARNING_KEY)!), EMPTY_LEARNING_STATE);
+  assert.equal(storage.getItem(LEARNING_KEY), "{broken");
+  assert.equal(store.readLearningSnapshot().persistence, "session-only");
+  assert.strictEqual(store.recordHandbookVisit("code"), EMPTY_LEARNING_STATE);
+  assert.equal(storage.getItem(LEARNING_KEY), "{broken");
 });
 
 test("v2 decoding safely normalises duplicate ids and invalid scalar fields", () => {
@@ -233,6 +244,16 @@ test("visiting all eleven Handbook sections still does not imply completion", ()
   assert.equal(progress.status, "in-progress");
   assert.equal(progress.completed, false);
   assert.equal(progress.exploredSections, 11);
+});
+
+test("Agentic journey display averages only the two browser-tracked v2 modules", () => {
+  const state = v2({
+    handbook: { visitedSections: [...HANDBOOK_SECTION_IDS] },
+    lab: { completedSteps: ["first-call", "rules"] },
+  });
+
+  // Handbook 100%, Lab 50%; external Build is not misrepresented as zero.
+  assert.equal(selectAgenticJourneyPercent(state), 75);
 });
 
 test("a zero-score Control Room run is a real Handbook completion", () => {
@@ -342,21 +363,28 @@ test("same-tab subscribers are notified exactly once for a real mutation", () =>
   const events = new StorageEvents();
   const store = createLearningStore({ storage: new MemoryStorage(), events });
   let calls = 0;
+  let domEvents = 0;
+  events.addEventListener(LEARNING_PROGRESS_EVENT, () => { domEvents += 1; });
   const unsubscribe = store.subscribeLearningState(() => { calls += 1; });
 
   store.recordHandbookVisit("code");
   assert.equal(calls, 1);
+  assert.equal(domEvents, 1);
   unsubscribe();
 });
 
 test("idempotent records do not notify same-tab subscribers again", () => {
-  const store = createLearningStore({ storage: new MemoryStorage(), events: new StorageEvents() });
+  const events = new StorageEvents();
+  const store = createLearningStore({ storage: new MemoryStorage(), events });
   let calls = 0;
+  let domEvents = 0;
+  events.addEventListener(LEARNING_PROGRESS_EVENT, () => { domEvents += 1; });
   const unsubscribe = store.subscribeLearningState(() => { calls += 1; });
 
   store.recordHandbookVisit("code");
   store.recordHandbookVisit("code");
   assert.equal(calls, 1);
+  assert.equal(domEvents, 1);
   unsubscribe();
 });
 
@@ -444,7 +472,7 @@ test("lab reset preserves Handbook state and unrelated legacy retirement data", 
   });
 });
 
-test("all reset keeps a v2 marker but clears every legacy progress key", () => {
+test("Agentic all reset leaves the shared record for the central owning reset", () => {
   const storage = new MemoryStorage({
     [LEGACY_PROGRESS_KEY]: json({ part2: true }),
   });
@@ -457,7 +485,10 @@ test("all reset keeps a v2 marker but clears every legacy progress key", () => {
   assert.deepEqual(JSON.parse(storage.getItem(LEARNING_KEY)!), EMPTY_LEARNING_STATE);
   assert.equal(storage.getItem(LEGACY_SECTION_KEY), null);
   assert.equal(storage.getItem(LEGACY_SEEN_KEY), null);
-  assert.equal(storage.getItem(LEGACY_PROGRESS_KEY), null);
+  assert.deepEqual(JSON.parse(storage.getItem(LEGACY_PROGRESS_KEY)!), {
+    part2: true,
+    play0: true,
+  });
 });
 
 test("Part 3 is always external/open with no website percentage", () => {
@@ -488,6 +519,7 @@ test("server-style null storage is safe and cannot claim a transient completion"
   assert.strictEqual(store.readLearningState(), EMPTY_LEARNING_STATE);
   assert.strictEqual(store.recordHandbookVisit("code"), EMPTY_LEARNING_STATE);
   assert.strictEqual(store.recordLabStep("full-eval", { score: 20 }), EMPTY_LEARNING_STATE);
+  assert.equal(store.readLearningSnapshot().persistence, "session-only");
 });
 
 test("blocked browser storage fails closed without throwing", () => {
@@ -495,4 +527,41 @@ test("blocked browser storage fails closed without throwing", () => {
   assert.doesNotThrow(() => store.readLearningState());
   assert.strictEqual(store.readLearningState(), EMPTY_LEARNING_STATE);
   assert.strictEqual(store.recordHandbookControlRoomFinish(10), EMPTY_LEARNING_STATE);
+  assert.equal(store.readLearningSnapshot().persistence, "session-only");
+  assert.equal(store.isLearningPersistenceAvailable(), false);
+});
+
+test("a failed injected write stays fail-closed while reporting unavailable persistence", () => {
+  const original = json(v2({ handbook: { lastSection: "code", visitedSections: ["code"] } }));
+  const storage = new WriteBlockedStorage({ [LEARNING_KEY]: original });
+  const events = new StorageEvents();
+  const store = createLearningStore({ storage, events });
+  let domEvents = 0;
+  events.addEventListener(LEARNING_PROGRESS_EVENT, () => { domEvents += 1; });
+
+  const state = store.recordHandbookVisit("security");
+  assert.deepEqual(state.handbook.visitedSections, ["code"]);
+  assert.deepEqual(store.readLearningState().handbook.visitedSections, ["code"]);
+  assert.equal(storage.getItem(LEARNING_KEY), original);
+  assert.equal(store.readLearningSnapshot().persistence, "session-only");
+  assert.equal(domEvents, 0);
+});
+
+test("an explicit all reset preserves a quarantined v2 record and reports corrupt", () => {
+  const storage = new MemoryStorage({
+    [LEARNING_KEY]: "{broken",
+    [LEGACY_PROGRESS_KEY]: json({ play0: true, note: "old" }),
+  });
+  const store = createLearningStore({ storage, events: new StorageEvents() });
+  store.readLearningState();
+
+  const result = store.resetLearningStateWithResult("all");
+  assert.equal(result.persisted, false);
+  assert.equal(result.persistence, "session-only");
+  assert.equal(result.reason, "corrupt");
+  assert.equal(storage.getItem(LEARNING_KEY), "{broken");
+  assert.deepEqual(JSON.parse(storage.getItem(LEGACY_PROGRESS_KEY)!), {
+    play0: true,
+    note: "old",
+  });
 });

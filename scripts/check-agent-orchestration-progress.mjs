@@ -606,10 +606,24 @@ assert.equal(
   session.getItem("ae.progress.agent-orchestration-corrupt-backup"),
   "{broken-json",
 );
-assert.equal(progressStore.isAgentOrchestrationStorageAvailable(), true);
-assert.doesNotThrow(() => JSON.parse(
+assert.equal(progressStore.isAgentOrchestrationStorageAvailable(), false);
+assert.equal(
   local.getItem(progressStore.AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY),
-));
+  "{broken-json",
+  "a corrupt shared record remains untouched for forensic recovery",
+);
+assert.equal(progressStore.resetAgentOrchestrationProgress(), false);
+assert.equal(
+  local.getItem(progressStore.AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY),
+  "{broken-json",
+  "an ordinary course reset cannot replace a corrupt shared record",
+);
+
+local.removeItem(progressStore.AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY);
+assert.deepEqual(
+  progressStore.resetAgentOrchestrationProgressAfterGlobalReset(),
+  { persisted: true },
+);
 
 local.setItem(progressStore.AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY, JSON.stringify({
   "another-course.lesson.1": true,

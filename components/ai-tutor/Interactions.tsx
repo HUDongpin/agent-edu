@@ -26,6 +26,7 @@ import {
 } from "./progress-store";
 import base from "../prompts/PromptCourse.module.css";
 import styles from "./AiTutorCourse.module.css";
+import { useI18n } from "../I18nProvider";
 
 type Labels = AiTutorCourseCopy["ui"];
 
@@ -137,6 +138,7 @@ export function CourseProgress({
   startLabel: string;
   resumeLabel: string;
 }) {
+  const { t } = useI18n();
   const { progress, storageAvailable } = useAiTutorProgress();
   const [resetStatus, setResetStatus] = useState("");
   const [resetCount, setResetCount] = useState(0);
@@ -151,10 +153,14 @@ export function CourseProgress({
     const nextModule = modules.find(
       (module) => progress[aiTutorModuleProgressKey(module.slug)] !== true,
     );
-    const nextHref = nextModule?.href
-      ?? (quiz ? (capstone ? null : "#ai-tutor-capstone") : "#ai-tutor-final-assessment");
+    const courseCompleted = complete === AI_TUTOR_PROGRESS_MILESTONES;
+    const nextHref = courseCompleted
+      ? modules[0]?.href ?? null
+      : nextModule?.href
+        ?? (quiz ? "#ai-tutor-capstone" : "#ai-tutor-final-assessment");
     return {
       complete,
+      courseCompleted,
       percent: Math.round((complete / AI_TUTOR_PROGRESS_MILESTONES) * 100),
       nextHref,
     };
@@ -195,8 +201,8 @@ export function CourseProgress({
       </progress>
       <div className={base.actionRow}>
         {state.nextHref ? (
-          <Link className={base.primaryButton} href={state.nextHref}>
-            {hasProgress ? resumeLabel : startLabel}<span aria-hidden="true">→</span>
+          <Link className={base.primaryButton} href={state.nextHref} data-course-journey-action>
+            {state.courseCompleted ? t("cat.review") : hasProgress ? resumeLabel : startLabel}<span aria-hidden="true">→</span>
           </Link>
         ) : null}
         <button

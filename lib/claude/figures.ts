@@ -186,7 +186,7 @@ const RAW_CLAUDE_FIGURES = [
     src: "/courses/claude/figures/fig-12-data-analysis-platform.png",
     srcSet: { webpLarge: "/courses/claude/figures/fig-12-data-analysis-platform-1600.webp", largeWidth: 1600, largeSha256: "d92c9579e353db0112816f6b1575f198dfb333963d0ce4246c56bb0ce9aac746", webpSmall: "/courses/claude/figures/fig-12-data-analysis-platform-800.webp", smallWidth: 800, smallSha256: "9da9d9348d1d3245f55397269ab54495faaa4a051e95a2c09cdeba2243cdba2e" },
     width: 2894, height: 1924, observedOn: "2026-08-19", observedUi: "Claude Platform Sessions · official cookbook repository snapshot",
-    sha256: "26bf21e75b29d31bbd6beb3dc79fcf93f4af653740bfbc8587aedeccdde97cd3", privacyReviewed: true,
+    sha256: "e9595e13bb1a1c0f1da2763af3e791d5b541173fc31ad24db7f9d8e3969541e2", privacyReviewed: true,
     sourceUrl: "https://github.com/anthropics/claude-cookbooks/blob/35f2eec7e44897c537e44441b7dff2f0ecbfb804/managed_agents/example_data/data_analyst_agent/console_session.png", provenance: "licensed-community", rightsStatus: repositoryRights,
     attribution: "Claude Platform screenshot from anthropics/claude-cookbooks, used under the MIT License.",
     thirdPartySourceUrl: "https://github.com/anthropics/claude-cookbooks", thirdPartyLicense: "MIT", sourceCommit: "35f2eec7e44897c537e44441b7dff2f0ecbfb804",

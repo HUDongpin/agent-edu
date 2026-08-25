@@ -1,3 +1,9 @@
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import {
+  isJsonObjectRecord,
+  persistenceFailureReason as reasonForError,
+} from "@/lib/progress-persistence";
+
 export const COURSE_PROGRESS_STORAGE_KEY = "ae.progress";
 export const CODEX_PROGRESS_EVENT = "codex:progress-change";
 
@@ -5,10 +11,12 @@ export type CourseProgressRecord = Record<string, unknown>;
 export type CourseProgressUpdateResult = {
   readonly progress: CourseProgressRecord;
   readonly persisted: boolean;
+  readonly reason?: PersistenceResult["reason"];
 };
 
 let memorySnapshot = "{}";
 let persistenceAvailable: boolean | null = null;
+let failureReason: PersistenceResult["reason"];
 
 export function readCourseProgressSnapshot(): string {
   if (typeof window === "undefined") return memorySnapshot;
@@ -19,12 +27,33 @@ export function readCourseProgressSnapshot(): string {
   // incorrectly announce that persistence is available again.
   if (persistenceAvailable === false) return memorySnapshot;
 
+  let storedSnapshot: string;
   try {
-    memorySnapshot = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+    storedSnapshot = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+  } catch (error) {
+    memorySnapshot = "{}";
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
+    return memorySnapshot;
+  }
+  try {
+    const parsed: unknown = JSON.parse(storedSnapshot);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      memorySnapshot = "{}";
+      persistenceAvailable = false;
+      failureReason = "corrupt";
+      return memorySnapshot;
+    }
+    memorySnapshot = storedSnapshot;
     persistenceAvailable = true;
+    failureReason = undefined;
     return memorySnapshot;
   } catch {
+    // Preserve malformed or unreadable bytes. This session can continue in
+    // memory, but an ordinary Codex write must never replace unknown evidence.
+    memorySnapshot = "{}";
     persistenceAvailable = false;
+    failureReason = "corrupt";
     return memorySnapshot;
   }
 }
@@ -40,27 +69,27 @@ export function lessonProgressKey(slug: string): string {
 }
 
 export function readCourseProgress(): CourseProgressRecord {
-  try {
-    const value = JSON.parse(readCourseProgressSnapshot());
-    return value && typeof value === "object" && !Array.isArray(value)
-      ? value as CourseProgressRecord
-      : {};
-  } catch {
-    return {};
-  }
+  return JSON.parse(readCourseProgressSnapshot()) as CourseProgressRecord;
 }
 
 export function writeCourseProgress(progress: CourseProgressRecord): boolean {
   if (typeof window === "undefined") return false;
 
   memorySnapshot = JSON.stringify(progress);
+  if (persistenceAvailable === false) {
+    window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
+    return false;
+  }
+
   let persisted = false;
   try {
     window.localStorage.setItem(COURSE_PROGRESS_STORAGE_KEY, memorySnapshot);
     persistenceAvailable = true;
+    failureReason = undefined;
     persisted = true;
-  } catch {
+  } catch (error) {
     persistenceAvailable = false;
+    failureReason = reasonForError(error);
   }
   window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
   return persisted;
@@ -72,7 +101,11 @@ export function updateCourseProgress(
   const progress = readCourseProgress();
   update(progress);
   const persisted = writeCourseProgress(progress);
-  return { progress, persisted };
+  return {
+    progress,
+    persisted,
+    ...(persisted ? {} : { reason: failureReason ?? "unavailable" }),
+  };
 }
 
 export function resetCodexProgress(): CourseProgressUpdateResult {
@@ -91,20 +124,31 @@ export function resetCodexProgress(): CourseProgressUpdateResult {
 export function resetAllCourseProgress(): CourseProgressUpdateResult {
   const progress = {};
   memorySnapshot = "{}";
-  let persisted = false;
-
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.removeItem(COURSE_PROGRESS_STORAGE_KEY);
-      persistenceAvailable = true;
-      persisted = true;
-    } catch {
-      persistenceAvailable = false;
-    }
-    window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
+  if (typeof window === "undefined") {
+    persistenceAvailable = false;
+    failureReason = "unavailable";
+    return { progress, persisted: false, reason: failureReason };
   }
 
-  return { progress, persisted };
+  try {
+    const raw = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY);
+    if (raw !== null && !isJsonObjectRecord(raw)) {
+      persistenceAvailable = false;
+      failureReason = "corrupt";
+      window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
+      return { progress, persisted: false, reason: failureReason };
+    }
+    window.localStorage.removeItem(COURSE_PROGRESS_STORAGE_KEY);
+    persistenceAvailable = true;
+    failureReason = undefined;
+    window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
+    return { progress, persisted: true };
+  } catch (error) {
+    persistenceAvailable = false;
+    failureReason = reasonForError(error);
+    window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
+    return { progress, persisted: false, reason: failureReason };
+  }
 }
 
 export function subscribeToCourseProgress(listener: () => void): () => void {

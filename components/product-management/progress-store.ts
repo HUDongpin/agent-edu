@@ -1,17 +1,32 @@
 import {
-  PRODUCT_MANAGEMENT_PROGRESS_EVENT,
-  PRODUCT_MANAGEMENT_PROGRESS_PREFIX,
-  PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT,
-  PRODUCT_MANAGEMENT_PROGRESS_VERSION,
-  PRODUCT_MANAGEMENT_PROGRESS_VERSION_KEY,
-  isCurrentProductManagementProgress,
-} from "@/lib/product-management";
+  PRODUCT_MANAGEMENT_PROGRESS_SCHEMA,
+} from "@/lib/progress-topology";
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import { verifySharedProgressReset } from "@/lib/progress-persistence";
+import {
+  PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
+  PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
+} from "@/lib/progress-storage-contract";
+
+const PRODUCT_MANAGEMENT_PROGRESS_EVENT =
+  PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.progressEvent;
+const PRODUCT_MANAGEMENT_PROGRESS_PREFIX = PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.prefix;
+const PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT =
+  PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.resetEvent;
+const PRODUCT_MANAGEMENT_PROGRESS_VERSION = PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.version;
+const PRODUCT_MANAGEMENT_PROGRESS_VERSION_KEY =
+  PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.versionKey;
+
+function isCurrentProductManagementProgress(
+  progress: Record<string, unknown>,
+): boolean {
+  return progress[PRODUCT_MANAGEMENT_PROGRESS_VERSION_KEY]
+    === PRODUCT_MANAGEMENT_PROGRESS_VERSION;
+}
 
 export const PRODUCT_MANAGEMENT_PROGRESS_STORAGE_KEY = "ae.progress";
 export type ProductManagementProgressRecord = Record<string, unknown>;
 
-const STORAGE_PROBE_KEY = "__aicourse_product_management_storage_probe__";
-const CORRUPT_BACKUP_KEY = "ae.progress.product-management-corrupt-backup";
 let memoryProgress: ProductManagementProgressRecord = {};
 let storageAvailable: boolean | null = null;
 
@@ -19,7 +34,7 @@ function holdCorruptProgress(raw: string | null): void {
   memoryProgress = {};
   if (raw) {
     try {
-      sessionStorage.setItem(CORRUPT_BACKUP_KEY, raw);
+      sessionStorage.setItem(PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY, raw);
     } catch {
       // Preserve the unreadable shared record when session storage is unavailable.
     }
@@ -27,12 +42,12 @@ function holdCorruptProgress(raw: string | null): void {
   storageAvailable = false;
 }
 
-export function isProductManagementStorageAvailable(): boolean {
+function ensureStorageAccess(): boolean {
   if (typeof window === "undefined") return true;
   if (storageAvailable !== null) return storageAvailable;
   try {
-    localStorage.setItem(STORAGE_PROBE_KEY, "1");
-    localStorage.removeItem(STORAGE_PROBE_KEY);
+    localStorage.setItem(PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY, "1");
+    localStorage.removeItem(PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY);
     storageAvailable = true;
   } catch {
     storageAvailable = false;
@@ -40,8 +55,14 @@ export function isProductManagementStorageAvailable(): boolean {
   return storageAvailable;
 }
 
+export function isProductManagementStorageAvailable(): boolean {
+  if (typeof window === "undefined") return true;
+  if (storageAvailable !== false) readProductManagementProgress();
+  return storageAvailable === true;
+}
+
 export function readProductManagementProgress(): ProductManagementProgressRecord {
-  if (typeof window === "undefined" || !isProductManagementStorageAvailable()) {
+  if (typeof window === "undefined" || !ensureStorageAccess()) {
     return { ...memoryProgress };
   }
   try {
@@ -73,7 +94,16 @@ export function writeProductManagementProgress(
   };
   let persisted = false;
   try {
-    if (isProductManagementStorageAvailable()) {
+    if (storageAvailable !== false) {
+      const raw = localStorage.getItem(PRODUCT_MANAGEMENT_PROGRESS_STORAGE_KEY) || "{}";
+      const parsed: unknown = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        holdCorruptProgress(raw);
+      } else {
+        storageAvailable = true;
+      }
+    }
+    if (storageAvailable === true) {
       localStorage.setItem(
         PRODUCT_MANAGEMENT_PROGRESS_STORAGE_KEY,
         JSON.stringify(memoryProgress),
@@ -108,4 +138,16 @@ export function resetProductManagementProgress(): boolean {
   const persisted = writeProductManagementProgress(record);
   window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT));
   return persisted;
+}
+
+/** Reset this module's session cache after the site-wide owner removed `ae.progress`. */
+export function resetProductManagementProgressAfterGlobalReset(): PersistenceResult {
+  memoryProgress = {};
+  const result = typeof window === "undefined"
+    ? { persisted: false, reason: "unavailable" } as const
+    : verifySharedProgressReset(localStorage, PRODUCT_MANAGEMENT_PROGRESS_STORAGE_KEY);
+  storageAvailable = result.persisted;
+  window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_EVENT));
+  window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT));
+  return result;
 }

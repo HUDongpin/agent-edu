@@ -5,6 +5,7 @@ import { MCP_LESSONS } from "../lib/mcp/course";
 import { MCP_EXTENSIONS } from "../lib/mcp/extensions";
 import { MCP_FIGURES } from "../lib/mcp/figures";
 import { MCP_ASSESSMENT_VERSION, MCP_LOCALES } from "../lib/mcp/types";
+import { publishedSitemapUrls } from "./published-course-test-helpers";
 
 const DASHBOARD = "/en/mcp/";
 const LESSON_SLUGS = MCP_LESSONS.map((lesson) => lesson.slug);
@@ -604,11 +605,8 @@ test.describe("Course 10 metadata and static publication inventory", () => {
   });
 
   test("sitemap contains exactly 171 MCP URLs", async ({ request }) => {
-    const response = await request.get("/sitemap.xml");
-    expect(response.status()).toBe(200);
-    const xml = await response.text();
-    const urls = [...xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)]
-      .map((match) => match[1].replaceAll("&amp;", "&"))
+    const pageUrls = await publishedSitemapUrls(request);
+    const urls = [...pageUrls]
       .filter((url) => new URL(url).pathname.includes("/mcp/"));
     expect(urls).toHaveLength(EXPECTED_MCP_ROUTE_COUNT);
     expect(new Set(urls).size).toBe(EXPECTED_MCP_ROUTE_COUNT);

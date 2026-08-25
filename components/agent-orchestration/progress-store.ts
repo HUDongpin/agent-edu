@@ -1,11 +1,31 @@
 import {
   AGENT_ORCHESTRATION_PROGRESS_EVENT,
-  AGENT_ORCHESTRATION_PROGRESS_PREFIX,
   AGENT_ORCHESTRATION_PROGRESS_RESET_EVENT,
-  AGENT_ORCHESTRATION_PROGRESS_VERSION,
-  AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY,
-  normalizeAgentOrchestrationProgress,
-} from "@/lib/agent-orchestration";
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA,
+  normalizeVersionedProgressRecord,
+} from "@/lib/progress-topology";
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import { verifySharedProgressReset } from "@/lib/progress-persistence";
+import {
+  AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY,
+  AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY,
+} from "@/lib/progress-storage-contract";
+
+const AGENT_ORCHESTRATION_PROGRESS_PREFIX =
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.prefix;
+const AGENT_ORCHESTRATION_PROGRESS_VERSION =
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.version;
+const AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY =
+  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.versionKey;
+
+function normalizeAgentOrchestrationProgress(
+  progress: Record<string, unknown>,
+): Record<string, unknown> {
+  return normalizeVersionedProgressRecord(
+    progress,
+    AGENT_ORCHESTRATION_PROGRESS_SCHEMA,
+  );
+}
 
 export const AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY = "ae.progress";
 export type AgentOrchestrationProgressRecord = Record<string, unknown>;
@@ -21,8 +41,6 @@ export function isAgentOrchestrationProgressStorageEvent(
     );
 }
 
-const STORAGE_PROBE_KEY = "__aicourse_agent_orchestration_storage_probe__";
-const CORRUPT_BACKUP_KEY = "ae.progress.agent-orchestration-corrupt-backup";
 let memoryProgress: AgentOrchestrationProgressRecord = {};
 let storageAvailable: boolean | null = null;
 
@@ -30,26 +48,23 @@ function repairCorruptProgress(raw: string | null): AgentOrchestrationProgressRe
   memoryProgress = {};
   if (raw) {
     try {
-      sessionStorage.setItem(CORRUPT_BACKUP_KEY, raw);
+      sessionStorage.setItem(AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY, raw);
     } catch {
       // A memory-only fallback remains available when both stores are blocked.
     }
   }
-  try {
-    localStorage.setItem(AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY, "{}");
-    storageAvailable = true;
-  } catch {
-    storageAvailable = false;
-  }
+  // Never replace an unreadable shared record. This module remains
+  // session-only until the learner explicitly performs a site-wide reset.
+  storageAvailable = false;
   return memoryProgress;
 }
 
-export function isAgentOrchestrationStorageAvailable(): boolean {
+function ensureStorageAccess(): boolean {
   if (typeof window === "undefined") return true;
   if (storageAvailable !== null) return storageAvailable;
   try {
-    localStorage.setItem(STORAGE_PROBE_KEY, "1");
-    localStorage.removeItem(STORAGE_PROBE_KEY);
+    localStorage.setItem(AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY, "1");
+    localStorage.removeItem(AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY);
     storageAvailable = true;
   } catch {
     storageAvailable = false;
@@ -57,8 +72,14 @@ export function isAgentOrchestrationStorageAvailable(): boolean {
   return storageAvailable;
 }
 
+export function isAgentOrchestrationStorageAvailable(): boolean {
+  if (typeof window === "undefined") return true;
+  if (storageAvailable !== false) readAgentOrchestrationProgress();
+  return storageAvailable === true;
+}
+
 export function readAgentOrchestrationProgress(): AgentOrchestrationProgressRecord {
-  if (typeof window === "undefined" || !isAgentOrchestrationStorageAvailable()) {
+  if (typeof window === "undefined" || !ensureStorageAccess()) {
     return { ...memoryProgress };
   }
   try {
@@ -76,9 +97,11 @@ export function readAgentOrchestrationProgress(): AgentOrchestrationProgressReco
     const normalized = normalizeAgentOrchestrationProgress(candidate);
     memoryProgress = normalized;
     if (
+      raw !== null
+      &&
       candidate[AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY]
       !== AGENT_ORCHESTRATION_PROGRESS_VERSION
-      && isAgentOrchestrationStorageAvailable()
+      && storageAvailable === true
     ) {
       localStorage.setItem(
         AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY,
@@ -101,7 +124,16 @@ export function writeAgentOrchestrationProgress(
   };
   let persisted = false;
   try {
-    if (isAgentOrchestrationStorageAvailable()) {
+    if (storageAvailable !== false) {
+      const raw = localStorage.getItem(AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY) || "{}";
+      const parsed: unknown = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        repairCorruptProgress(raw);
+      } else {
+        storageAvailable = true;
+      }
+    }
+    if (storageAvailable === true) {
       localStorage.setItem(
         AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY,
         JSON.stringify(memoryProgress),
@@ -139,4 +171,20 @@ export function resetAgentOrchestrationProgress(): boolean {
     }));
   }
   return persisted;
+}
+
+/** Reset this module's session cache after the site-wide owner removed `ae.progress`. */
+export function resetAgentOrchestrationProgressAfterGlobalReset(): PersistenceResult {
+  memoryProgress = {};
+  const result = typeof window === "undefined"
+    ? { persisted: false, reason: "unavailable" } as const
+    : verifySharedProgressReset(localStorage, AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY);
+  storageAvailable = result.persisted;
+  window.dispatchEvent(new CustomEvent(AGENT_ORCHESTRATION_PROGRESS_EVENT, {
+    detail: { persisted: result.persisted },
+  }));
+  window.dispatchEvent(new CustomEvent(AGENT_ORCHESTRATION_PROGRESS_RESET_EVENT, {
+    detail: { persisted: result.persisted },
+  }));
+  return result;
 }

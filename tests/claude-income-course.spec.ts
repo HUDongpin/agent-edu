@@ -6,7 +6,6 @@ import {
   CLAUDE_INCOME_CAPSTONE,
   CLAUDE_INCOME_CONTENT_LANGUAGE,
   CLAUDE_INCOME_COURSE,
-  CLAUDE_INCOME_ENGLISH_BODY_NOTICE,
   CLAUDE_INCOME_FIGURES,
   CLAUDE_INCOME_FINAL_QUIZ,
   CLAUDE_INCOME_LESSON_SLUGS,
@@ -496,43 +495,45 @@ test.describe("Course 12 routes, evidence rendering, and media boundaries", () =
 });
 
 test.describe("Course 12 language and search metadata boundaries", () => {
-  test("nine localized shells identify the English course body without claiming translations", async ({ page }) => {
+  test("only real English course routes publish while shell locales remain available in the catalogue", async ({ page }) => {
     test.setTimeout(90_000);
     expect(CLAUDE_INCOME_LOCALES).toHaveLength(9);
-    for (const locale of CLAUDE_INCOME_LOCALES) {
-      let response = await page.goto(`/${locale}/claude-income/`);
-      expect(response?.status(), `${locale} dashboard`).toBe(200);
-      await expect(page.locator("html")).toHaveAttribute("lang", locale);
-      await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-      const dashboard = page.getByTestId("claude-income-dashboard");
-      await expect(dashboard).toHaveAttribute("lang", "en");
-      await expect(dashboard).toHaveAttribute("dir", "ltr");
-      await expect(dashboard.getByRole("heading", { level: 1 })).toHaveText(CLAUDE_INCOME_COURSE.title);
-      await expect(dashboard.getByRole("note")).toHaveCount(locale === "en" ? 0 : 1);
-      if (locale !== "en") {
-        await expect(dashboard.getByRole("note")).toHaveText(CLAUDE_INCOME_ENGLISH_BODY_NOTICE);
-      }
+    let response = await page.goto(DASHBOARD);
+    expect(response?.status()).toBe(200);
+    const dashboard = page.getByTestId("claude-income-dashboard");
+    await expect(dashboard).toHaveAttribute("lang", "en");
+    await expect(dashboard).toHaveAttribute("dir", "ltr");
+    await expect(dashboard.getByRole("heading", { level: 1 })).toHaveText(
+      CLAUDE_INCOME_COURSE.title,
+    );
 
-      response = await page.goto(`/${locale}/claude-income/choose-a-money-path/`);
-      expect(response?.status(), `${locale} lesson`).toBe(200);
-      const lesson = page.getByTestId("claude-income-lesson-choose-a-money-path");
-      await expect(lesson).toHaveAttribute("lang", "en");
-      await expect(lesson).toHaveAttribute("dir", "ltr");
-      await expect(lesson.getByRole("heading", { level: 1 })).toHaveText(
-        CLAUDE_INCOME_COURSE.lessons[0].title,
-      );
-      await expect(lesson.getByRole("note")).toHaveCount(locale === "en" ? 0 : 1);
-      if (locale !== "en") {
-        await expect(lesson.getByRole("note")).toHaveText(CLAUDE_INCOME_ENGLISH_BODY_NOTICE);
+    response = await page.goto("/en/claude-income/choose-a-money-path/");
+    expect(response?.status()).toBe(200);
+    const lesson = page.getByTestId("claude-income-lesson-choose-a-money-path");
+    await expect(lesson).toHaveAttribute("lang", "en");
+    await expect(lesson).toHaveAttribute("dir", "ltr");
+    await expect(lesson.getByRole("heading", { level: 1 })).toHaveText(
+      CLAUDE_INCOME_COURSE.lessons[0].title,
+    );
+
+    for (const locale of CLAUDE_INCOME_LOCALES.filter((candidate) => candidate !== "en")) {
+      for (const suffix of ["", "choose-a-money-path/"]) {
+        response = await page.goto(`/${locale}/claude-income/${suffix}`);
+        expect(response?.status(), `${locale}/${suffix || "dashboard"}`).toBe(404);
+        await expect(page.locator(COURSE_ROOT)).toHaveCount(0);
       }
     }
+
+    await page.goto("/fr/courses/");
+    await expect(page.locator('main a[href="/en/claude-income/?fromLocale=fr"]'))
+      .toBeVisible();
   });
 
-  test("dashboard metadata publishes a locale canonical but only honest English hreflang", async ({ page }) => {
-    await page.goto("/fr/claude-income/");
+  test("dashboard metadata publishes only the real English canonical and hreflang", async ({ page }) => {
+    await page.goto(DASHBOARD);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `${SITE}/fr/claude-income/`,
+      `${SITE}/en/claude-income/`,
     );
     const alternates = page.locator('link[rel="alternate"][hreflang]');
     await expect(alternates).toHaveCount(2);
@@ -567,10 +568,10 @@ test.describe("Course 12 language and search metadata boundaries", () => {
 
   test("lesson metadata keeps the route canonical, English resource language, and breadcrumb", async ({ page }) => {
     const lesson = CLAUDE_INCOME_COURSE.lessons[8];
-    await page.goto(`/zh-Hans/claude-income/${lesson.slug}/`);
+    await page.goto(`/en/claude-income/${lesson.slug}/`);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `${SITE}/zh-Hans/claude-income/${lesson.slug}/`,
+      `${SITE}/en/claude-income/${lesson.slug}/`,
     );
     await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(2);
     await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(

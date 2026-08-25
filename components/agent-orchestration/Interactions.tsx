@@ -1,13 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   AGENT_ORCHESTRATION_CAPSTONE_CHECKS_KEY,
   AGENT_ORCHESTRATION_CAPSTONE_KEY,
   AGENT_ORCHESTRATION_PROGRESS_EVENT,
+  AGENT_ORCHESTRATION_PROGRESS_PREFIX,
   AGENT_ORCHESTRATION_PROGRESS_RESET_EVENT,
+  AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY,
   AGENT_ORCHESTRATION_QUIZ_BEST_KEY,
-  AGENT_ORCHESTRATION_INITIAL_LAB_STATE,
   AGENT_ORCHESTRATION_MAX_ARTIFACT_DRAFT_LENGTH,
   AGENT_ORCHESTRATION_MAX_EVIDENCE_REFERENCE_LENGTH,
   AGENT_ORCHESTRATION_MAX_LAB_EVIDENCE_LENGTH,
@@ -22,13 +24,10 @@ import {
   agentOrchestrationModuleRequirements,
   agentOrchestrationModuleProgressKey,
   agentOrchestrationProgressPercent,
-  evaluateAgentOrchestrationLab,
   isMeaningfulAgentOrchestrationArtifact,
   isMeaningfulAgentOrchestrationLearnerEvidence,
   isAgentOrchestrationModuleComplete,
   isAgentOrchestrationQuizPassed,
-  isAgentOrchestrationLabStateCompletable,
-  normalizeAgentOrchestrationLabState,
   recordAgentOrchestrationQuizAttempt,
   reconcileAgentOrchestrationModuleCompletion,
   saveAgentOrchestrationArtifactDraft,
@@ -36,13 +35,22 @@ import {
   saveAgentOrchestrationPendingArtifactDraft,
   saveAgentOrchestrationPendingLabWork,
   validateAgentOrchestrationCapstoneEvidence,
-  type AgentOrchestrationCheckpointCopy,
-  type AgentOrchestrationLabCopy,
-  type AgentOrchestrationLabId,
+} from "@/lib/agent-orchestration/progress";
+import {
+  AGENT_ORCHESTRATION_INITIAL_LAB_STATE,
+  evaluateAgentOrchestrationLab,
+  isAgentOrchestrationLabStateCompletable,
+  normalizeAgentOrchestrationLabState,
   type AgentOrchestrationLabState as LabState,
-  type AgentOrchestrationModuleSlug,
-  type AgentOrchestrationPracticeCopy,
-} from "@/lib/agent-orchestration";
+} from "@/lib/agent-orchestration/lab-model";
+import type {
+  AgentOrchestrationCheckpointCopy,
+  AgentOrchestrationLabCopy,
+  AgentOrchestrationLabId,
+  AgentOrchestrationModuleSlug,
+  AgentOrchestrationPracticeCopy,
+} from "@/lib/agent-orchestration/types";
+import { AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS } from "@/lib/progress-topology";
 import {
   isAgentOrchestrationStorageAvailable,
   isAgentOrchestrationProgressStorageEvent,
@@ -103,12 +111,36 @@ function serializedRecord(value: unknown): string {
 export function CourseProgress({
   labels,
   compact = false,
+  locale,
+  showJourneyAction = false,
+  startLabel,
+  resumeLabel,
 }: {
   labels: Labels;
   compact?: boolean;
+  locale?: string;
+  showJourneyAction?: boolean;
+  startLabel?: string;
+  resumeLabel?: string;
 }) {
   const record = useProgress();
   const percent = agentOrchestrationProgressPercent(record);
+  const firstIncomplete = AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS.find(
+    (slug) => !isAgentOrchestrationModuleComplete(record, slug),
+  );
+  const hasProgress = Object.keys(record).some(
+    (key) => key.startsWith(AGENT_ORCHESTRATION_PROGRESS_PREFIX)
+      && key !== AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY,
+  );
+  const journeyHref = locale
+    ? percent === 100
+      ? `/${locale}/agent-orchestration/${AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS[0]}/`
+      : firstIncomplete
+        ? `/${locale}/agent-orchestration/${firstIncomplete}/`
+        : !isAgentOrchestrationQuizPassed(record)
+          ? `/${locale}/agent-orchestration/#agent-orchestration-assessment`
+          : `/${locale}/agent-orchestration/#agent-orchestration-capstone-title`
+    : null;
   const [resetArmed, setResetArmed] = useState(false);
   const [storageReady, setStorageReady] = useState<boolean | null>(null);
   const [resetResult, setResetResult] = useState<boolean | null>(null);
@@ -147,6 +179,16 @@ export function CourseProgress({
       >
         <span style={{ width: `${percent}%` }} />
       </div>
+      {showJourneyAction && journeyHref ? (
+        <Link className={styles.primaryAction} href={journeyHref} data-course-journey-action>
+          {percent === 100
+            ? label(labels, "reviewCourse", "Review course")
+            : hasProgress
+              ? resumeLabel ?? "Resume course"
+              : startLabel ?? "Start course"}
+          <span aria-hidden="true">→</span>
+        </Link>
+      ) : null}
       {!compact ? (
         <div className={styles.progressActions}>
           <small role="status" aria-live="polite">

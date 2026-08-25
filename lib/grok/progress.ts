@@ -1,4 +1,6 @@
-import { GROK_LESSON_SLUGS } from "./types";
+import { GROK_PROGRESS_LESSON_SLUGS } from "@/lib/progress-topology";
+
+const GROK_LESSON_SLUGS = GROK_PROGRESS_LESSON_SLUGS;
 
 export const GROK_PROGRESS_STORAGE_KEY = "aicourse.grok.progress.v1" as const;
 export const GROK_PROGRESS_MILESTONES = GROK_LESSON_SLUGS.length + 2;

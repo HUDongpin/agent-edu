@@ -13,6 +13,7 @@ import {
   type SoftwareEngineeringLessonSlug,
 } from "@/lib/software-engineering";
 import { getMessages, translator } from "@/lib/i18n";
+import { courseChildParams } from "@/lib/release-surface";
 import {
   SITE,
   seoFor,
@@ -25,7 +26,11 @@ type Props = { params: Promise<{ locale: string; lesson: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return SOFTWARE_ENGINEERING_LESSON_SLUGS.map((lesson) => ({ lesson }));
+  return courseChildParams(
+    "software-engineering",
+    "lesson",
+    SOFTWARE_ENGINEERING_LESSON_SLUGS,
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -45,6 +50,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${currentLesson.title} · ${course.copy.meta.title}`,
     description: currentLesson.summary,
     siteName: t("brand.name"),
+    availableLocales: ["en"],
+    canonicalLocale: "en",
   });
 }
 

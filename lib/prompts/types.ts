@@ -249,17 +249,18 @@ export interface PromptCourseCopy {
   };
 }
 
-export interface PromptRasterAsset {
+export type PromptRasterAsset = {
   readonly webpPath: `/${string}.webp`;
   readonly pngPath: `/${string}.png`;
-  readonly width: 1536;
-  readonly height: 1024;
   readonly webpSha256: string;
   readonly pngSha256: string;
   readonly createdOn: "2026-08-23";
   readonly creator: "OpenAI image generation";
   readonly creationPrompt: string;
-}
+} & (
+  | { readonly width: 1536; readonly height: 1024 }
+  | { readonly width: 1280; readonly height: 853 }
+);
 
 export interface PromptFigureManifest {
   readonly kind: PromptFigureKind;

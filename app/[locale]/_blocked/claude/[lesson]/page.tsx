@@ -1,52 +1,52 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import LessonView from "@/components/cursor/LessonView";
+import LessonView from "@/components/claude/LessonView";
 import JsonLd from "@/components/JsonLd";
 import {
-  CURSOR_LESSON_SLUGS,
-  getCursorLesson,
-  isCursorLessonSlug,
-  isCursorLocale,
-  loadCursorCourse,
-} from "@/lib/cursor";
+  CLAUDE_LESSON_SLUGS,
+  getClaudeLesson,
+  isClaudeLessonSlug,
+  isClaudeLocale,
+  loadClaudeCourse,
+} from "@/lib/claude";
+import { CLAUDE_SITE, claudeSeoFor, claudeUrlFor } from "@/lib/claude/seo";
 import { getMessages, translator } from "@/lib/i18n";
-import { SITE } from "@/lib/seo";
-import { cursorLessonPage, cursorSeoFor, cursorUrlFor } from "@/lib/cursor/seo";
+import { courseChildParams } from "@/lib/release-surface";
 
 type Props = { params: Promise<{ locale: string; lesson: string }> };
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return CURSOR_LESSON_SLUGS.map((lesson) => ({ lesson }));
+  return courseChildParams("claude", "lesson", CLAUDE_LESSON_SLUGS);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, lesson } = await params;
-  if (!isCursorLocale(locale) || !isCursorLessonSlug(lesson)) notFound();
+  if (!isClaudeLocale(locale) || !isClaudeLessonSlug(lesson)) notFound();
 
   const [course, currentLesson, messages] = await Promise.all([
-    loadCursorCourse(locale),
-    getCursorLesson(locale, lesson),
+    loadClaudeCourse(locale),
+    getClaudeLesson(locale, lesson),
     getMessages(locale),
   ]);
   const t = translator(messages);
 
-  return cursorSeoFor({
+  return claudeSeoFor({
     locale,
-    page: cursorLessonPage(lesson),
+    slug: lesson,
     title: `${currentLesson.copy.title} · ${course.copy.meta.title}`,
     description: currentLesson.copy.summary,
     siteName: t("brand.name"),
   });
 }
 
-export default async function CursorLessonPage({ params }: Props) {
+export default async function ClaudeLessonPage({ params }: Props) {
   const { locale, lesson } = await params;
-  if (!isCursorLocale(locale) || !isCursorLessonSlug(lesson)) notFound();
+  if (!isClaudeLocale(locale) || !isClaudeLessonSlug(lesson)) notFound();
 
   const [course, messages] = await Promise.all([
-    loadCursorCourse(locale),
+    loadClaudeCourse(locale),
     getMessages(locale),
   ]);
   const t = translator(messages);
@@ -55,20 +55,20 @@ export default async function CursorLessonPage({ params }: Props) {
     .find((item) => item.slug === lesson);
   if (!currentLesson) notFound();
 
-  const page = cursorLessonPage(lesson);
+  const url = claudeUrlFor(locale, lesson);
   const lessonData = {
     "@type": "LearningResource",
     name: currentLesson.copy.title,
     description: currentLesson.copy.summary,
-    url: cursorUrlFor(locale, page),
+    url,
     inLanguage: locale,
     learningResourceType: "lesson",
     timeRequired: `PT${currentLesson.minutes}M`,
     isPartOf: {
       "@type": "Course",
       name: course.copy.meta.title,
-      url: cursorUrlFor(locale, "cursor/"),
-      provider: { "@id": `${SITE}/#org` },
+      url: claudeUrlFor(locale),
+      provider: { "@id": `${CLAUDE_SITE}/#org` },
     },
   };
   const data = {
@@ -82,19 +82,19 @@ export default async function CursorLessonPage({ params }: Props) {
             "@type": "ListItem",
             position: 1,
             name: t("nav.courses"),
-            item: `${SITE}/${locale}/courses/`,
+            item: `${CLAUDE_SITE}/${locale}/courses/`,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: course.copy.meta.title,
-            item: cursorUrlFor(locale, "cursor/"),
+            item: claudeUrlFor(locale),
           },
           {
             "@type": "ListItem",
             position: 3,
             name: currentLesson.copy.title,
-            item: cursorUrlFor(locale, page),
+            item: url,
           },
         ],
       },

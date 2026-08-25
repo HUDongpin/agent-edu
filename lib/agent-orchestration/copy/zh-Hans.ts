@@ -29,6 +29,7 @@ export const AGENT_ORCHESTRATION_ZH_HANS_COPY = {
       "课程以 OpenAI、Anthropic 与 Claude Academy 官方资料为主，并用官方 GitHub 仓库补足实现证据。来源支持、工程综合与版本观察会分别标注；私有开发资料不进入学习者可见的证据登记册，也不重新发布其中的媒体或文字。",
   },
   ui: {
+    reviewCourse: "复习课程",
     course: "课程 15",
     module: "模块",
     modules: "个模块",
