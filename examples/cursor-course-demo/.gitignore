@@ -1,0 +1,6 @@
+node_modules/
+.next/
+out/
+course-receipt.json
+*.tsbuildinfo
+next-env.d.ts

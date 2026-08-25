@@ -1,0 +1,472 @@
+{
+  "meta": {
+    "title": "Bien utiliser Codex",
+    "kicker": "Cours 2",
+    "summary": "Apprenez à transformer une tâche claire en modification de code sûre et vérifiable dans l'application Codex, la CLI, l'IDE et le cloud.",
+    "audience": "Pour les personnes qui savent parcourir des fichiers et lancer des commandes simples. Aucune expérience professionnelle du logiciel n'est requise.",
+    "duration": "Environ 9 à 11 heures, dont un projet final de 130 minutes",
+    "sourceNote": "Le cours repose sur la documentation OpenAI actuelle et une sélection de dépôts très étoilés, vérifiés le 24/08/2026. Le nombre d'étoiles d'un dépôt est un signal de popularité daté, pas une preuve de justesse ni de sécurité.",
+    "figureNote": "Une figure n'est publiée qu'après validation d'une vraie capture Codex pour la version, la confidentialité et la légende. Une carte capture requise est volontaire, pas une fausse interface.",
+    "startCta": "Commencer le cours",
+    "resumeCta": "Continuer le cours"
+  },
+  "ui": {
+    "lessons": "Leçons",
+    "minutes": "minutes",
+    "objectives": "Objectif pédagogique",
+    "evidence": "Preuves à conserver",
+    "practice": "Exercice",
+    "checkpoint": "Point de contrôle",
+    "sources": "Références",
+    "quiz": "Test de connaissances",
+    "previous": "Leçon précédente",
+    "next": "Leçon suivante",
+    "capturePending": "Une vraie capture d'interface est requise",
+    "optionalAdvanced": "Contenu avancé facultatif",
+    "progress": "Progression",
+    "courseProgress": "Progression du cours",
+    "completed": "Terminé",
+    "markComplete": "Marquer comme terminé",
+    "markedComplete": "Marqué comme terminé",
+    "resetProgress": "Réinitialiser la progression",
+    "question": "Question du quiz",
+    "of": "sur",
+    "checkAnswer": "Vérifier la réponse",
+    "checkAnswers": "Vérifier les réponses",
+    "correct": "Bonne réponse",
+    "incorrect": "Pas encore",
+    "tryAgain": "Réessayer",
+    "score": "Résultat",
+    "quizPassed": "Test réussi",
+    "quizNeedsReview": "Relisez la leçon et réessayez",
+    "capstoneArtifacts": "Livrables requis",
+    "capstoneReceipt": "Reçu du projet final",
+    "artifactReady": "Livrable prêt",
+    "rubric": "Barème",
+    "rubricComplete": "Barème terminé",
+    "passingScore": "Score minimal",
+    "weight": "Poids",
+    "status": "État",
+    "notStarted": "Non commencé",
+    "printReceipt": "Imprimer le reçu",
+    "browserStorageNote": "La progression est enregistrée uniquement dans ce navigateur.",
+    "backToCourse": "Retour au cours",
+    "allLessons": "Toutes les leçons",
+    "recordCompletion": "Enregistrer la réussite",
+    "finalQuizTitle": "Évaluation finale",
+    "finalQuizIntro": "Répondez à 12 questions, trois par unité. Il faut 10 bonnes réponses pour réussir; votre meilleur score est conservé dans ce navigateur.",
+    "beginQuiz": "Commencer l’évaluation",
+    "nextQuestion": "Question suivante",
+    "retryQuiz": "Recommencer l’évaluation",
+    "bestScore": "Meilleur score",
+    "passRequirement": "10 bonnes réponses sur 12 requises",
+    "source": "Référence",
+    "sourceVerifiedOn": "Vérifié le",
+    "stars": "Étoiles GitHub",
+    "license": "Licence",
+    "storageUnavailable": "Le stockage du navigateur est indisponible. Le cours reste utilisable, mais la progression et la réussite ne seront pas enregistrées après cette session.",
+    "receiptInstructions": "Collez le reçu structuré produit par le vérificateur du projet final. Le cours vérifiera son schéma, la version et le hachage du projet de départ, ainsi que tous les contrôles obligatoires.",
+    "receiptSchemaLabel": "Schéma du reçu",
+    "fixtureVersionLabel": "Version du projet de départ",
+    "fixtureHashLabel": "SHA-256 du projet de départ",
+    "requiredChecksLabel": "Contrôles obligatoires",
+    "pasteReceipt": "Coller le JSON du reçu",
+    "verifyReceipt": "Vérifier le reçu",
+    "receiptValid": "Reçu vérifié",
+    "receiptInvalidJson": "Ce contenu n’est pas un JSON valide.",
+    "receiptWrongSchema": "Le reçu utilise un schéma incorrect.",
+    "receiptWrongVersion": "La version du projet de départ n’est pas prise en charge.",
+    "receiptWrongHash": "Le reçu ne correspond pas au projet de départ requis.",
+    "receiptIncomplete": "Le reçu ne contient pas tous les contrôles obligatoires réussis.",
+    "downloadStarter": "Télécharger le projet de départ",
+    "completionSummary": "Résumé de progression",
+    "exportSummary": "Exporter le résumé",
+    "finishQuiz": "Terminer l’évaluation",
+    "questionProgressTemplate": "Question {current} sur {total}",
+    "scoreSummaryTemplate": "Score : {score} sur {total}",
+    "bestScoreTemplate": "Meilleur score : {score} sur {total}",
+    "resetConfirm": "Réinitialiser toute la progression enregistrée du cours ?",
+    "resetDone": "La progression du cours a été réinitialisée.",
+    "capstonePath": "Parcours du projet final"
+  },
+  "units": {
+    "unit-1": { "title": "Un premier résultat sûr", "summary": "Construisez un modèle mental fiable, écrivez un contrat borné, choisissez les permissions et planifiez à partir du dépôt." },
+    "unit-2": { "title": "Implémenter avec des preuves", "summary": "Pilotez l'implémentation, trouvez la cause racine, testez à nouveau et relisez le diff exact avant d'accepter." },
+    "unit-3": { "title": "Maîtriser chaque interface", "summary": "Choisissez CLI, IDE, app ou cloud selon la tâche et ne parallélisez que les travaux réellement indépendants." },
+    "unit-4": { "title": "Projet final sûr pour la production", "summary": "Réalisez une modification bornée et remettez un dossier prouvant périmètre, sécurité, comportement et limites." }
+  },
+  "lessons": {
+    "meet-codex": {
+      "kicker": "Leçon 1",
+      "title": "Découvrir Codex et ses interfaces",
+      "summary": "Codex peut inspecter un projet, expliquer ses constats, modifier des fichiers, exécuter des commandes et fournir des preuves dans l'application de bureau ChatGPT, la CLI, l'IDE et le cloud. Vous choisissez l'interface, le contexte, l'autorité et la décision d'acceptation.",
+      "objective": "Comparer les quatre interfaces de Codex, distinguer la connexion ChatGPT de l'accès financé par API, ouvrir le projet synthétique et choisir l'interface adaptée à une tâche bornée.",
+      "sections": [
+        { "heading": "Joindre le contexte dont la tâche a réellement besoin", "body": "Dans l'application de bureau ChatGPT, choisissez Codex, puis ouvrez le dossier ou projet prévu pour travailler sur le dépôt. Une conversation autonome peut commencer sans projet, mais elle n'acquiert pas automatiquement le contexte d'un dépôt que vous n'avez pas joint. Dans la CLI, le répertoire de travail ancre la découverte des fichiers et instructions. Dans l'IDE, l'espace de travail, le fichier et la sélection ouverts fournissent un contexte précis. Dans le cloud, la révision sélectionnée du dépôt et l'environnement configuré définissent l'état initial. Utilisez une conversation distincte pour chaque résultat afin que l'objectif, les preuves et l'historique de revue restent cohérents." },
+        { "heading": "Choisir l'interface et le mode de connexion", "body": "Utilisez l'application de bureau pour les conversations de projet, la revue visuelle, les worktrees, les Goals et les tâches planifiées; la CLI lorsque les commandes et la sortie du terminal dominent; l'IDE lorsque le fichier ouvert ou le code sélectionné compte; et le cloud lorsqu'une tâche de dépôt préparée peut s'exécuter indépendamment. Le travail local dans l'application de bureau, la CLI et l'IDE accepte une connexion ChatGPT ou une clé API. La connexion ChatGPT utilise l'accès par abonnement et les politiques de l'espace de travail. La connexion par clé API utilise la facturation API et les contrôles de données de l'organisation API. Codex cloud exige une connexion ChatGPT, et certaines fonctions d'abonnement ou de cloud ne sont pas disponibles avec une clé API seule. Ne collez jamais une clé API dans la conversation." },
+        { "heading": "Garder la responsabilité humaine visible", "body": "L'interface ne change pas le modèle de responsabilité. Vous définissez le résultat, joignez le bon contexte, sélectionnez les permissions et évaluez les preuves. Considérez les messages de progression comme un journal de travail en direct, pas comme une preuve en eux-mêmes, et la réponse finale comme une transmission. Avant d'accepter une modification, inspectez le véritable diff et la sortie de vérification fraîche. L'autorisation de modifier du code n'autorise pas automatiquement un commit, un push, une pull request, un déploiement, une suppression, un message ou une autre action externe. Codex peut exécuter le travail borné tandis que vous conservez l'intention produit et les décisions lourdes de conséquences." }
+      ],
+      "practice": {
+        "title": "Choisir une interface pour six situations",
+        "brief": "Classez six tâches courantes, justifiez chaque interface, puis ouvrez le projet jetable aicourse-codex-demo sans le modifier.",
+        "steps": [
+          "Choisissez bureau, CLI, IDE ou cloud pour : diagnostiquer une fonction sélectionnée, trier des tests au moyen de commandes, revoir visuellement plusieurs fichiers, exécuter une tâche préparée indépendante, s'orienter en lecture seule et lancer un travail d'automatisation contraint par un schéma.",
+          "Pour chaque choix, nommez le contexte nécessaire, la boucle de rétroaction, le mode de connexion ou de facturation et la raison pour laquelle une autre interface serait moins efficace.",
+          "Dans l'application de bureau ChatGPT avec Codex sélectionné, ouvrez aicourse-codex-demo et confirmez le nom du projet et la frontière de lecture seule avant d'envoyer une tâche."
+        ],
+        "evidence": ["Un tableau de décision à six lignes avec une justification fondée sur des preuves pour chaque situation.", "Une note confirmant le projet synthétique, le mode de connexion choisi et l'absence de modification de fichier."],
+        "safety": "Utilisez un dépôt public ou jetable sans secret. N'accordez pas l'écriture pour cet exercice."
+      },
+      "checkpoint": { "prompt": "Quelle est la différence pratique entre la connexion ChatGPT et la connexion par clé API dans Codex ?", "answer": "La connexion ChatGPT utilise l'accès par abonnement et les contrôles de l'espace de travail, et elle est obligatoire pour Codex cloud. La connexion par clé API utilise la facturation API et les contrôles de l'organisation API, et peut ne pas fournir les fonctions d'abonnement ou de cloud." },
+      "takeaway": "Choisissez l'interface selon le contexte et la boucle de rétroaction, puis ne joignez que l'espace de travail et l'autorité nécessaires à la tâche."
+    },
+    "task-contracts": {
+      "kicker": "Leçon 2",
+      "title": "Écrire un contrat de tâche réalisable",
+      "summary": "Le prompt le plus rapide est le plus petit contrat complet qui élimine les ambiguïtés importantes avant l'implémentation.",
+      "objective": "Utiliser le modèle de contrat de tâche en six parties de ce cours : Objectif, Contexte, Contraintes, Non-objectifs, Critères d'acceptation et Vérification.",
+      "sections": [
+        { "heading": "Définir un résultat observable", "body": "Commencez par ce qui doit être différent pour l'utilisateur ou le mainteneur une fois la tâche terminée. Nommez ensuite l'emplacement pertinent et le comportement actuel. Une demande solide pourrait exiger qu'un formulaire conserve les valeurs valides lorsqu'un champ échoue à la validation, plutôt que de demander d'améliorer le formulaire. Les résultats observables donnent à Codex une condition d'arrêt et vous donnent quelque chose à tester. Ajoutez des exemples lorsqu'un cas limite est facile à mal comprendre. Si une capture, un ticket ou un journal fournit du contexte, précisez quelle partie fait autorité. Davantage de contexte n'est pas toujours préférable : fournissez les quelques faits qui changent les décisions d'implémentation et excluez l'historique sans rapport qui pourrait distraire la tâche." },
+        { "heading": "Nommer les contraintes et les non-objectifs", "body": "Les contraintes protègent l'architecture, la compatibilité, la sécurité et le périmètre. Indiquez les fichiers ou interfaces qui doivent rester stables, les dépendances qui ne peuvent être ajoutées, les plateformes prises en charge et si les commits ou écritures externes sont exclus. Un non-objectif est tout aussi utile, car il ferme une voie attrayante mais indésirable. Vous pouvez par exemple vouloir corriger l'accessibilité clavier d'une boîte de dialogue sans redessiner le système visuel. Évitez les demandes vagues telles que rendre le tout prêt pour la production. Traduisez-les en contrôles : aucune nouvelle dépendance d'exécution, compatibilité des types publics, retour du focus au déclencheur et réussite des tests pertinents. Si une contrainte entre en conflit avec le résultat, demandez à Codex de s'arrêter et d'exposer le conflit plutôt que de choisir silencieusement." },
+        { "heading": "Définir séparément l'acceptation et la vérification", "body": "Les critères d'acceptation décrivent le comportement dont vous avez besoin. La vérification décrit comment Codex doit produire une preuve crédible de ce comportement. Une commande de test peut faire partie de la vérification, mais sa réussite ne résume pas toute l'acceptation. Demandez des contrôles ciblés qui exercent la modification, des contrôles plus larges proportionnés au risque et une revue du diff. Exigez aussi la divulgation de tout contrôle impossible à exécuter. Cela empêche qu'une dépendance absente ou un service indisponible devienne une affirmation sans fondement. Terminez le contrat par la transmission attendue : fichiers modifiés, résultats, limites et toute décision qu'il vous reste à prendre. Le contrat est un outil de collaboration : révisez-le lorsque l'inspection révèle qu'une hypothèse initiale était fausse." }
+      ],
+      "practice": {
+        "title": "Transformer une demande vague en contrat",
+        "brief": "Réparez trois demandes ambiguës, puis soumettez un contrat en six parties avant de demander à Codex de modifier du code.",
+        "steps": [
+          "Pour trois demandes vagues, identifiez la décision manquante qui affecterait le plus le périmètre, l'architecture, la sécurité ou l'acceptation.",
+          "Réécrivez une demande avec six champs nommés : Objectif, Contexte, Contraintes, Non-objectifs, Critères d'acceptation et Vérification.",
+          "Demandez à Codex de ne signaler que les ambiguïtés lourdes de conséquences, révisez le contrat et incluez les preuves précises attendues dans la transmission."
+        ],
+        "evidence": ["Trois courts diagnostics d'ambiguïté et un contrat final dont les six champs sont nommés.", "Une note montrant quelle ambiguïté lourde de conséquences a été levée et comment l'acceptation est devenue observable."],
+        "safety": "Commit, push, déploiement, données et messages externes restent exclus sauf autorisation volontaire."
+      },
+      "checkpoint": { "prompt": "Pourquoi tester la fonction est-il incomplet?", "answer": "Cela ne précise ni le comportement, ni la commande, ni le résultat, ni le risque, ni le rapport en cas d'impossibilité." },
+      "takeaway": "Un bon contrat de tâche est assez bref pour être parcouru rapidement et assez complet pour rendre la réussite observable."
+    },
+    "environments-permissions": {
+      "kicker": "Leçon 3",
+      "title": "Choisir environnements et permissions",
+      "summary": "Codex est plus fiable lorsque ses permissions techniques correspondent au contrat de tâche. Commencez par la plus petite frontière et ne l'élargissez que pour une raison précise.",
+      "objective": "Choisir Local, Worktree ou Cloud; distinguer le sandbox de la politique d'approbation; et appliquer le moindre privilège aux fichiers, commandes, réseau, secrets et actions destructives.",
+      "sections": [
+        { "heading": "Distinguer les trois modes d'exécution", "body": "Le mode Local travaille directement dans le répertoire du projet actuel. Le mode Worktree s'exécute lui aussi sur votre ordinateur, mais donne à la conversation un worktree Git distinct qui isole ses fichiers de travail du checkout Local. Cela réduit les interférences directes entre les checkouts, sans éliminer les conflits de fusion ou d'intégration. Le mode Cloud extrait une révision sélectionnée du dépôt dans un conteneur hébergé. La configuration cloud ne devient reproductible que lorsque la révision, les environnements d'exécution et les dépendances sont maîtrisés. Par ailleurs, la fonction de bureau appelée environnements locaux configure des scripts d'installation pour les worktrees et des actions de projet réutilisables; ce n'est pas un autre nom du mode Local. Choisissez selon la frontière du code et des données, les besoins de configuration, l'isolation et la boucle de rétroaction souhaitée, et non en supposant qu'un mode est toujours plus sûr." },
+        { "heading": "Séparer les capacités du sandbox du moment de l'approbation", "body": "Le sandbox détermine ce que Codex peut faire techniquement. La politique d'approbation détermine quand Codex doit s'arrêter avant d'agir. Par défaut, les demandes d'approbation vous sont adressées, mais Auto-review peut évaluer les demandes admissibles lorsqu'il est configuré. Utilisez la lecture seule au moyen du contrôle des permissions pendant l'orientation ou la planification, puis n'accordez l'écriture dans l'espace de travail que lorsque l'implémentation l'exige. Certaines approbations demandent une exception pour écrire hors de la racine ou accéder au réseau depuis une commande; d'autres couvrent une commande non fiable, un profil de permissions demandé, un script de Skill ou une action d'application ou de serveur MCP produisant des effets secondaires. Lisez l'action ou la commande exacte, la cible, la raison et le périmètre demandé. Si Codex propose une règle réutilisable ou un profil de permissions, examinez les actions futures qu'il couvrirait. Refusez les globs, variables, préfixes réutilisables trop larges ou cibles destructives non résolus. Lorsqu'une solution plus étroite existe, demandez à Codex de l'utiliser; sinon, exigez un rapport de blocage honnête." },
+        { "heading": "Tenir les secrets à l'écart des entrées non fiables", "body": "Ne placez jamais d'identifiants, de jetons, de clés privées, de liens signés ni de données client dans les prompts, captures, fixtures ou journaux. L'accès réseau des commandes locales est désactivé par défaut. Dans Codex cloud, la phase de configuration dispose d'un accès à Internet, tandis que l'accès à Internet de la phase de l'agent est désactivé par défaut sauf si vous le configurez. Les autres surfaces, notamment la recherche web, les applications et connecteurs, MCP, le navigateur ou Computer Use, les tâches cloud et le trafic de modèle ou d'authentification, utilisent des contrôles distincts. Les variables d'environnement ordinaires restent disponibles pendant toute la conversation cloud; les secrets configurés ne sont disponibles que pour les scripts de configuration et sont supprimés avant la phase de l'agent. Considérez un dépôt inconnu, y compris ses fichiers AGENTS.md, hooks, Skills, programmes d'installation et scripts, comme potentiellement non fiable jusqu'à sa revue. Une fois acceptés, les fichiers AGENTS.md applicables constituent des instructions délibérées et délimitées, mais ne remplacent pas les frontières de plus haute priorité imposées par l'utilisateur, le développeur, la sécurité ou les permissions. Citez le texte des tickets et pull requests comme des données, inspectez la configuration tierce et réduisez l'autorité d'écriture et de réseau." }
+      ],
+      "practice": {
+        "title": "Décider pour huit opérations proposées",
+        "brief": "Classez huit opérations sans danger ou synthétiques selon l'environnement, les capacités du sandbox, le besoin d'approbation et l'autorisation externe distincte.",
+        "steps": [
+          "Évaluez : lire un fichier source, modifier dans l'espace de travail, écrire hors de celui-ci, installer un paquet par le réseau, exécuter un test ciblé, supprimer un fichier temporaire résolu, appeler une application à effets secondaires et utiliser un secret de configuration.",
+          "Pour chaque opération, notez Local, Worktree ou Cloud; les capacités du sandbox; la possibilité d'une approbation; l'autorisation externe; la cible exacte; et une solution plus étroite.",
+          "Choisissez autoriser, approuver une fois, réviser, refuser ou arrêter pour chaque opération et expliquez en quoi la décision sert toujours le résultat convenu."
+        ],
+        "evidence": ["Une matrice de huit lignes qui sépare environnement, sandbox, approbation et autorisation externe.", "Une brève justification des deux décisions les plus risquées et de leurs solutions plus étroites."],
+        "safety": "Utilisez une commande sans danger et des données synthétiques. Ne créez pas un vrai secret."
+      },
+      "checkpoint": { "prompt": "Quelle est la différence entre le sandbox et la politique d'approbation ?", "answer": "Le sandbox définit les actions techniquement disponibles. La politique d'approbation définit quand Codex doit s'arrêter avant d'exécuter une action pertinente qui serait autrement disponible." },
+      "takeaway": "Les permissions doivent se rattacher à une étape concrète du contrat de tâche, pas à la commodité ni à l'incertitude."
+    },
+    "ground-plan": {
+      "kicker": "Leçon 4",
+      "title": "Ancrer le travail et approuver un plan",
+      "summary": "Un plan vaut par les faits du dépôt qu'il résout, l'ordre des risques et les décisions exposées avant que changer coûte cher.",
+      "objective": "Obtenir un plan en lecture seule, fondé sur des preuves, avec jalons, décisions et vérification par phase.",
+      "sections": [
+        { "heading": "Inspecter avant de proposer une architecture", "body": "Un plan crédible commence par un passage sans écriture. Vérifiez les fichiers AGENTS.md applicables, les consignes README, les manifestes de paquets ou de build, l'état Git, le point d'entrée actuel, un analogue fonctionnel proche et les commandes de tests ciblés et plus larges. Suivez le comportement de l'interface à l'implémentation puis au test, et identifiez la plus petite surface de modification probable. Séparez les faits observés des déductions et nommez les conflits non résolus entre la documentation et le code. Pour un bug, notez le parcours de reproduction; pour une fonctionnalité, identifiez le point d'extension et la frontière de compatibilité. Cette liste de contrôle empêche un plan générique plausible d'importer des conventions que le dépôt n'utilise pas." },
+        { "heading": "Ordonner des phases vérifiables indépendamment", "body": "Séparez l'intention de l'implémentation : Spécifier, clarifier toute ambiguïté lourde de conséquences, Planifier, définir les Tâches, Implémenter et Vérifier. Le guide ExecPlans de l'OpenAI Cookbook recommande des jalons contrôlables indépendamment. Le Spec Kit actuel confirme séparément la séparation entre Specify, Plan, Tasks, Implement et Converge; sa commande Clarify est facultative avant la planification, ne présentez donc pas la séquence du cours comme son workflow littéral. Chaque phase doit avoir un résultat, des fichiers bornés, des non-objectifs explicites, une vérification ciblée, des dépendances et une condition d'arrêt. Une liste d'activités ne devient un plan que lorsque son ordre et ses preuves rendent sa réalisation vérifiable." },
+        { "heading": "S'arrêter pour les choix lourds de conséquences", "body": "Codex peut prendre des décisions d'implémentation routinières dans un plan approuvé, mais les choix qui modifient le comportement produit, les interfaces publiques, les données, le coût, la sécurité ou le périmètre méritent une décision humaine explicite. Demandez-lui de présenter le plus petit choix utile, ses compromis et une recommandation. Ne demandez pas de confirmation à chaque ligne : cela crée du bruit et détourne l'attention des décisions importantes. À l'inverse, ne cachez pas une question produit non résolue dans le code. N'approuvez le plan qu'après avoir vérifié qu'il répond au contrat de tâche, respecte les instructions locales, nomme la validation et exclut les actions externes non autorisées. Si de nouvelles preuves invalident le plan pendant l'implémentation, mettez-le à jour et expliquez pourquoi au lieu de suivre une séquence périmée." }
+      ],
+      "practice": {
+        "title": "Réparer un plan trop large",
+        "brief": "Auditez un plan volontairement trop large pour le filtre Incomplets d'aicourse-codex-demo et remplacez-le sans passer en mode écriture.",
+        "steps": [
+          "Signalez toute hypothèse non étayée, refactorisation hors sujet, non-objectif manquant, action dangereuse, contrôle du dépôt absent et phase impossible à vérifier indépendamment.",
+          "Inspectez AGENTS.md, les fichiers README, les manifestes, l'état Git, CourseList.tsx, lib/courses.ts, le test CourseList fourni, les points d'entrée des routes et un modèle de filtre fonctionnel proche.",
+          "Produisez un plan de remplacement en deux à quatre phases, avec pour chacune résultat, fichiers possédés, non-objectifs, contrôle ciblé, dépendance et condition d'arrêt."
+        ],
+        "evidence": ["Une liste annotée des défauts du plan trop large avec les preuves du dépôt.", "Le plan de remplacement plus sûr accompagné d'une décision explicite d'approbation ou de révision."],
+        "safety": "Aucun fichier, dépendance, branche, commit ou système externe ne doit changer."
+      },
+      "checkpoint": { "prompt": "Qu'est-ce qui ancre un plan dans le dépôt au lieu de le rendre simplement plausible ?", "answer": "Ses étapes et hypothèses remontent aux instructions, aux parcours du code, aux tests et au comportement actuel inspectés dans l'espace de travail réel." },
+      "takeaway": "Approuvez un plan lorsque ses preuves, ses phases, ses décisions et ses contrôles rendent l'action suivante prévisible."
+    },
+    "implement-steer": {
+      "kicker": "Leçon 5",
+      "title": "Implémenter, observer et orienter",
+      "summary": "Utilisez des phases bornées pour les travaux ordinaires et le mode Goal pour les résultats de longue durée, puis orientez la même tâche à partir de preuves sans modifier sa frontière de permissions.",
+      "objective": "Créer un Goal mesurable, exécuter des phases testables indépendamment, formuler deux corrections précises et s'arrêter proprement en cas de blocage.",
+      "sections": [
+        { "heading": "Transformer un travail long et flou en Goal mesurable", "body": "Lorsque le résultat reste flou, utilisez /plan pour exposer les contraintes et transformer le résultat en critères d'achèvement mesurables. Le texte du Goal devient à la fois le premier prompt et les critères d'achèvement : incluez donc le résultat, les contraintes et la vérification. Dans l'application de bureau ChatGPT, la ligne de progression du Goal permet de le mettre en pause, de le reprendre, de le modifier ou de l'effacer. Dans la CLI Codex, utilisez les commandes /goal documentées et pilotez la tâche par des messages de suivi dans la même session. Dans l'IDE, lancez /goal et continuez à piloter la tâche dans la même conversation. Lancer un Goal n'accorde pas d'accès supplémentaire; le sandbox et la politique d'approbation existants restent en vigueur. Pour les travaux de plusieurs heures, maintenez un ExecPlan vivant afin qu'un autre relecteur puisse retrouver l'état à partir de jalons durables." },
+        { "heading": "Autoriser et orienter une phase testable à la fois", "body": "Donnez à chaque phase un contrat compact : Résultat / fichiers possédés / non-objectifs / vérification ciblée / s'arrêter avant. Une phase risquée doit renvoyer tôt un diff et un résultat de test avant que davantage de code ne s'accumule. Exigez des messages de progression qui relient chaque action à cette phase. Orientez dans la même tâche en citant les nouvelles preuves et en préservant ce qui est déjà validé. Par exemple : conservez la bonne mise en page de bureau, modifiez seulement l'ordre du focus mobile, puis préservez cette correction en relançant le parcours clavier et un contrôle de régression. Si une correction change le résultat, le risque ou l'autorité visés, créez un nouveau contrat de tâche au lieu d'étirer silencieusement le contrat actuel." },
+        { "heading": "Reconnaître un véritable blocage", "body": "L'absence d'un outil facultatif ne constitue pas automatiquement un blocage. Inspectez d'abord les solutions locales, les contrôles plus étroits ou un parcours manuel reproductible. Un véritable blocage empêche tout progrès crédible dans le périmètre autorisé, par exemple un identifiant obligatoire, un choix produit non résolu ou un échec reproductible de l'environnement sans solution sûre. Mettez le Goal ou la phase en pause, préservez l'état vérifiable et signalez la condition exacte, les tentatives, les fichiers inchangés, les contrôles omis et la plus petite entrée nécessaire. N'acceptez pas un succès inventé pour maintenir l'élan. Le travail partiel ne reste utile que si son état et ses limites sont explicites." }
+      ],
+      "practice": {
+        "title": "Orienter deux fois sans recommencer",
+        "brief": "Exécutez une petite modification en deux phases dans un projet jetable et formulez deux corrections précises, fondées sur les preuves, dans la même tâche.",
+        "steps": [
+          "Rédigez la première phase sous la forme Résultat / fichiers possédés / non-objectifs / vérification ciblée / s'arrêter avant, puis n'autorisez que cette phase.",
+          "Après avoir inspecté son diff, envoyez une correction qui préserve un comportement validé tout en corrigeant un défaut observé; envoyez ensuite une seconde correction qui resserre le prochain contrôle ciblé sans supprimer les contrôles finaux d'acceptation et de régression ni recommencer la tâche.",
+          "Demandez à Codex de terminer la tâche bornée et de relier les deux suivis au diff obtenu et aux sorties de contrôle fraîches."
+        ],
+        "evidence": ["Le contrat de phase, le premier diff et le résultat de vérification ciblé.", "Les deux messages d'orientation et une note finale reliant chacun à des preuves de code ou de test."],
+        "safety": "Modification locale et réversible uniquement, sans commit, push, publication ou déploiement."
+      },
+      "checkpoint": { "prompt": "Le lancement de /goal élargit-il les permissions de Codex ?", "answer": "Non. Le mode Goal conserve le même sandbox et la même politique d'approbation, et il s'arrête lorsque la tâche exige une décision ou une autorité supplémentaire." },
+      "takeaway": "Orientez en citant les preuves observées et en préservant le travail validé, pas en recommençant avec un rejet vague."
+    },
+    "debug-test": {
+      "kicker": "Leçon 6",
+      "title": "Déboguer par les preuves et tester la correction",
+      "summary": "Un débogage fiable passe de la reproduction à la cause racine puis à une correction minimale, avant de prouver le résultat par un test ciblé et des contrôles plus larges proportionnés.",
+      "objective": "Guider reproduction, analyse causale, échec attendu, correction minimale et vérification fraîche.",
+      "sections": [
+        { "heading": "Reproduire avant d'expliquer", "body": "Commencez par la plus petite reproduction fiable et lisez l'échec en entier. Notez l'entrée, l'environnement, la commande ou l'interaction, le résultat réel et le résultat attendu. Avant toute modification, inspectez les changements récents et trouvez un analogue fonctionnel proche. Formulez une hypothèse réfutable sous la forme : Je pense que X provoque l'échec parce que Y. Testez la plus petite variable unique susceptible de la réfuter; si elle est réfutée, abandonnez-la avant d'en formuler une autre. Suivez la valeur ou le flux de contrôle jusqu'à relier la condition déclenchante, l'hypothèse erronée et le symptôme observé. Lorsque la reproduction diffère selon l'environnement, comparez version, graine, heure, permissions et données plutôt que de modifier du code de manière spéculative." },
+        { "heading": "Exécuter rouge, vert, puis refactoriser", "body": "Encodez le défaut dans un test ciblé avant de modifier le code de production. Exécutez-le et confirmez qu'il échoue pour la raison attendue, et non à cause d'une faute de frappe ou d'un fixture cassé. Effectuez la plus petite modification qui fasse passer ce même contrôle au vert. Ce n'est qu'une fois le vert obtenu que vous pouvez nettoyer sans changer le comportement, et chaque étape de nettoyage doit maintenir le test ciblé au vert. Ne combinez pas la correction causale avec un refactoring sans rapport. Si les tests automatisés sont impossibles, utilisez un contrôle manuel reproductible avec des entrées et sorties conservées : observez l'échec, modifiez une seule zone causale, répétez le même contrôle, puis n'effectuez qu'un nettoyage qui préserve les preuves." },
+        { "heading": "Vérifier un comportement frais, puis élargir", "body": "Exécutez le contrôle ciblé après la correction et conservez sa sortie réelle. Choisissez ensuite des contrôles plus larges selon ce qui pourrait avoir régressé : tests unitaires voisins, vérification des types, lint, build, tests d'intégration ou parcours utilisateur ciblé. N'affirmez pas qu'une commande a réussi parce qu'elle avait réussi auparavant ou parce que le code semble correct. La vérification doit être fraîche et liée à l'espace de travail actuel. Lisez le diff après la réussite des tests; un test vert peut coexister avec des fichiers accidentels, des assertions affaiblies ou des modifications inutiles. Si un contrôle large échoue pour une raison préexistante, séparez ces preuves des échecs causés par votre modification et expliquez comment vous les avez distingués. Ne supprimez ni ne désactivez jamais un test utile pour obtenir une sortie verte." }
+      ],
+      "practice": {
+        "title": "Effectuer un cycle rouge-vert-refactorisation",
+        "brief": "Utilisez le défaut injecté du filtre Incomplets de CourseList dans un projet aicourse-codex-demo jetable et ajoutez ou préservez son test de régression ciblé.",
+        "steps": [
+          "Reproduisez l'échec du filtre, inspectez le code récent et un analogue de filtre fonctionnel, puis énoncez une hypothèse réfutable sur la cause racine.",
+          "Exécutez le test ciblé de CourseList et confirmez l'échec rouge attendu avant de modifier CourseList.tsx ou lib/courses.ts.",
+          "Appliquez la correction minimale, obtenez le vert, n'effectuez que le nettoyage nécessaire qui préserve le comportement, relancez le test ciblé, exécutez un contrôle plus large et inspectez le diff."
+        ],
+        "evidence": ["La sortie rouge attendue, l'analogue fonctionnel et l'énoncé de cause racine fondé sur une seule hypothèse.", "La sortie verte fraîche après tout nettoyage, un résultat plus large et une note confirmant que le diff est resté ciblé."],
+        "safety": "Utilisez un défaut synthétique, jamais des données de production ou un travail précieux non sauvegardé."
+      },
+      "checkpoint": { "prompt": "Pourquoi faut-il voir le nouveau test échouer avant d'implémenter la correction ?", "answer": "Cela montre que le test détecte réellement le défaut et échoue pour la raison prévue, ce qui donne du sens à sa réussite ultérieure." },
+      "takeaway": "Une correction crédible possède un symptôme reproductible, une explication causale, une modification minimale et des preuves fraîches."
+    },
+    "review-diff": {
+      "kicker": "Leçon 7",
+      "title": "Relire le diff et les preuves",
+      "summary": "La revue décide si l'implémentation respecte le contrat, pas seulement si Codex a fini ses commandes.",
+      "objective": "Sélectionner le bon périmètre de revue, utiliser /review, réserver les commentaires en ligne ainsi que l'indexation et le rétablissement au volet de revue de l'application de bureau, employer le workflow Git ou de l'éditeur dans la CLI et l'IDE, vérifier les réparations et produire une transmission honnête.",
+      "sections": [
+        { "heading": "Revoir le bon périmètre du dépôt", "body": "Le volet de revue de l'application de bureau reflète l'état du dépôt, pas seulement les modifications de Codex. Commencez par la liste complète des fichiers modifiés et choisissez Non indexé, Indexé, Commit, Branche ou Dernier tour selon l'affirmation d'acceptation. Dans la CLI, /review permet de choisir les modifications non commitées, une branche de base, un commit ou des instructions personnalisées. Dans l'IDE, /review permet seulement de choisir les modifications non commitées ou une branche de base. Si /review n'apparaît pas, vérifiez d'abord que le projet ouvert se trouve dans un dépôt Git, car la commande n'apparaît que pour les projets adossés à Git. La revue signale des constats classés sans modifier l'arbre. Chaque fichier modifié doit se rattacher au plan; examinez les lockfiles inattendus, les artefacts générés, les tests supprimés, les modifications de routes, le formatage massif ou la configuration de sécurité avant de lire chaque hunk en contexte." },
+        { "heading": "Transformer les constats en réparations bornées", "body": "Les constats utiles nomment un comportement, un emplacement, un déclencheur et un impact concrets. Dans le volet de revue de l'application de bureau, laissez des commentaires liés à des lignes précises pour les défauts, demandez à Codex de ne traiter que ces commentaires et inspectez le diff de réparation avant de l'accepter. Toujours dans ce volet, n'indexez une modification acceptée ou ne rétablissez une modification rejetée qu'après avoir résolu la cible exacte. Dans la CLI et l'IDE, effectuez les actions équivalentes au moyen du workflow Git ou de l'éditeur; ne supposez pas qu'ils offrent les contrôles du volet de bureau. Pour une passe plus indépendante, configurez la revue détachée dans l'application de bureau ou réglez chatgpt.reviewDelivery sur detached dans l'extension IDE; la CLI restitue sa revue dans la session en cours. Vous pouvez aussi lancer un nouveau passage de relecteur avec le contrat initial et le diff actuel. Plusieurs résumés assurés ne constituent pas une preuve; comparez chaque constat à l'artefact et relancez la vérification ciblée après réparation. Une préférence de style sans règle de projet n'est pas un défaut, tandis qu'une suite verte n'excuse pas une erreur produit ou de sécurité visible qu'elle n'a jamais testée." },
+        { "heading": "Relier les preuves à l'acceptation et transmettre", "body": "Pour chaque critère d'acceptation, notez le test, la commande, l'inspection ou le parcours manuel qui le vérifie, ainsi que son résultat réel. Lisez les journaux pour repérer les tests ignorés, les avertissements, les sorties mises en cache ou une commande exécutée dans le mauvais paquet. Marquez tout contrôle indisponible comme non exécuté et expliquez ce qui reste incertain. Commencez ensuite la transmission par le résultat, les zones modifiées, les vérifications fraîches, les risques et les décisions humaines restantes. Si le dépôt était déjà sale, séparez les modifications de la tâche du travail utilisateur préservé. Évitez les affirmations prêt pour la production, sûr ou entièrement testé, sauf si les preuves étayent exactement ce périmètre." }
+      ],
+      "practice": {
+        "title": "Trouver et vérifier des défauts de revue injectés",
+        "brief": "Revoyez un diff CourseList préparé contenant un contrôle réservé à la souris, un mauvais décompte, une modification accidentelle de route ou un test affaibli, puis vérifiez une réparation bornée.",
+        "steps": [
+          "Dans un dépôt jetable, choisissez le bon périmètre de revue, exécutez /review sur la surface disponible, inspectez chaque fichier modifié et classez chaque défaut injecté selon son impact concret.",
+          "Si vous utilisez le volet de revue de l'application de bureau, laissez au moins un commentaire en ligne, ne demandez que les réparations bornées et inspectez le nouveau diff avant d'indexer ou de rétablir chaque résultat; dans la CLI ou l'IDE, consignez le constat et appliquez ou écartez la modification au moyen du workflow Git ou de l'éditeur.",
+          "Relancez les tests ciblés, actualisez une matrice d'acceptation et rédigez une transmission incluant les limites et les actions toujours non autorisées."
+        ],
+        "evidence": ["Le résultat de /review borné, les défauts classés, le commentaire en ligne et le diff de réparation relu.", "La vérification fraîche, la matrice d'acceptation complète et la transmission finale."],
+        "safety": "Effectuez cet exercice uniquement dans un dépôt local jetable. Ne fusionnez, commitez, poussez ou déployez pas à cause d'une revue favorable."
+      },
+      "checkpoint": { "prompt": "Pourquoi tous les tests passent est-il faux si une suite n'a pas démarré?", "answer": "Cela transforme une lacune connue en réussite. Dites ce qui a réussi, ce qui n'a pas tourné et ce qui reste incertain." },
+      "takeaway": "N'acceptez la modification que lorsque le diff, les preuves et les limites correspondent tous au contrat initial."
+    },
+    "agents-skills": {
+      "kicker": "Leçon 8",
+      "title": "Bien utiliser AGENTS.md, skills et sous-agents",
+      "summary": "Les instructions durables, les processus réutilisables et les agents parallèles résolvent des problèmes différents. N'utilisez chacun que lorsque sa frontière est explicite et inspectable.",
+      "objective": "Appliquer la découverte et la priorité d'AGENTS.md, concevoir une Skill privilégiant les instructions, refuser une configuration tierce dangereuse et briefer un sous-agent indépendant.",
+      "sections": [
+        { "heading": "Appliquer la découverte et la priorité d'AGENTS.md", "body": "Utilisez AGENTS.md pour les commandes de build durables, les frontières d'architecture, les règles de nommage, les fichiers générés et les étapes de revue obligatoires. À l'échelle globale, puis dans chaque répertoire du projet depuis la racine jusqu'au répertoire de travail actuel, Codex cherche d'abord AGENTS.override.md, puis AGENTS.md et enfin les noms de fichiers de remplacement configurés. Il sélectionne au plus un fichier non vide à chaque emplacement, combine les instructions dans cet ordre et permet aux consignes les plus proches d'affiner ou de remplacer les précédentes. La découverte a lieu au démarrage de l'exécution et la limite combinée par défaut est de 32 KiB. Gardez les fichiers concis, précis et vérifiables; ne créez un fichier imbriqué que lorsqu'un sous-arbre exige des consignes plus étroites. Relisez les instructions d'un dépôt inconnu avant d'autoriser un travail privilégié." },
+        { "heading": "Créer une Skill lorsque la répétition est réelle", "body": "Une Skill regroupe une tâche répétable éprouvée avec un déclencheur, des entrées, des sorties, des règles de décision et une validation explicites. Gardez le fichier SKILL.md principal concis et ne révélez progressivement les références ou ressources qu'en cas de besoin. Préférez une Skill fondée uniquement sur des instructions. N'ajoutez ou ne réutilisez un script testé que lorsque le comportement déterministe, l'enchaînement fragile des commandes ou les outils externes rendent la prose insuffisante, et inspectez le script avant de l'exécuter. Traitez les Skills, plugins, hooks, serveurs MCP et installateurs tiers comme du code exécutable de la chaîne d'approvisionnement : examinez leur réseau et leurs écritures, auditez une version ou un commit exact, testez-les dans le périmètre du projet sans secret et n'envoyez jamais le téléchargement d'une branche main mouvante vers un shell privilégié." },
+        { "heading": "Ne déléguer que le travail indépendant", "body": "Les versions actuelles de Codex activent les sous-agents par défaut et permettent de leur déléguer directement du travail. Chaque sous-agent consomme des jetons et des appels d'outils supplémentaires; réservez-les donc aux sous-tâches bornées qui peuvent progresser indépendamment, par exemple pour étudier une API, revoir un module distinct ou mener un audit de tests séparé. Les sous-agents héritent du sandbox et des permissions du parent; les demandes d'approbation relèvent de la conversation qui a déclenché l'action. Donnez à chacun le contexte pertinent, un périmètre de fichiers possédé, la sortie attendue et l'interdiction des modifications qui se chevauchent. Le parallélisme est contre-productif lorsque des agents dépendent de la même décision non résolue ou modifient les mêmes fichiers. L'agent coordinateur doit intégrer les résultats, résoudre les contradictions et relancer la vérification sur l'état combiné. Ne confondez pas plusieurs rapports assurés avec des preuves indépendantes. Pour les débutants, un agent doté d'un bon plan suffit généralement. Les sous-agents deviennent utiles lorsque la décomposition est évidente et que la coordination coûte moins que le temps gagné." }
+      ],
+      "practice": {
+        "title": "Rédiger des instructions délimitées et refuser un installateur dangereux",
+        "brief": "Créez une règle AGENTS.md bornée, auditez un extrait inerte d'installateur de Skill dangereux et rédigez la transmission à un sous-agent indépendant.",
+        "steps": [
+          "Rédigez une règle concise dans un AGENTS.md racine ou imbriqué, avec son périmètre, sa commande de référence, sa validation observable et le résultat de priorité attendu.",
+          "Refusez un installateur inerte qui télécharge une branche mouvante, l'envoie vers un shell, demande des secrets, ajoute un hook ou active des écritures réseau; indiquez la version ou le commit exacts et l'audit sans secret requis à la place.",
+          "Rédigez une mission de sous-agent avec un périmètre indépendant, le contexte complet, aucun fichier modifiable en chevauchement, le contrat de retour attendu et la vérification d'intégration."
+        ],
+        "evidence": ["La règle AGENTS.md délimitée et une explication de l'instruction qui l'emporte lors d'un conflit de la racine à la feuille.", "L'audit de l'installateur refusé et la mission sans chevauchement du sous-agent."],
+        "safety": "Effectuez cet exercice uniquement dans un dépôt local jetable. N'installez ni n'exécutez de skill tierce. Inspectez puis épinglez une version révisée."
+      },
+      "checkpoint": { "prompt": "Quand un AGENTS.md imbriqué est-il adapté?", "answer": "Quand un sous-arbre possède des instructions durables différentes ou plus précises, avec une frontière claire." },
+      "takeaway": "Utilisez AGENTS.md pour les règles locales durables, les Skills pour les processus répétables éprouvés et les sous-agents pour le travail véritablement indépendant."
+    },
+    "cli": {
+      "kicker": "Leçon 9",
+      "title": "Travailler efficacement dans la CLI Codex",
+      "summary": "La CLI place le cycle fondé sur les preuves dans le terminal, où le répertoire courant, les sorties de commande et les frontières de l'automatisation sont particulièrement visibles.",
+      "objective": "Installer et authentifier la CLI, inspecter et contrôler une session, reprendre le travail, exécuter /review et utiliser codex exec avec le bon contrat de sortie structurée.",
+      "sections": [
+        { "heading": "Installer, s'authentifier et confirmer le contexte", "body": "Installez la CLI actuelle en suivant les instructions officielles de votre plateforme; la méthode npm est npm install -g @openai/codex. Depuis la racine prévue du dépôt, exécutez codex. Utilisez codex login pour l'authentification ChatGPT par navigateur, codex login status pour inspecter le mode actif, ou printenv OPENAI_API_KEY | codex login --with-api-key pour un accès API facturé à l'usage. Ne collez jamais la clé dans la conversation ou les journaux. La connexion ChatGPT utilise les contrôles d'abonnement et d'espace de travail; la connexion par clé API utilise la facturation API et les contrôles de l'organisation API, et Codex cloud exige toujours une connexion ChatGPT. Avant de travailler, confirmez le répertoire, l'état Git et les instructions AGENTS.md applicables." },
+        { "heading": "Contrôler et reprendre la session interactive", "body": "Utilisez /status pour vérifier le modèle actif, la politique d'approbation, les racines modifiables et le contexte de session; /permissions pour choisir la frontière nécessaire; /model pour changer de modèle; /init pour créer un squelette AGENTS.md; /diff pour inspecter les modifications; et /review pour revoir le travail non commité, une branche de base, un commit ou des critères personnalisés. Commencez en lecture seule pour vous orienter, puis approuvez une seule modification bornée. Utilisez /resume dans le menu de commandes ou codex resume --last pour continuer la dernière session du répertoire actuel; n'ajoutez --all que lorsque vous avez volontairement besoin d'une liste plus large de sessions. Inspectez les substitutions shell, globs, variables et cibles résolues avant toute commande large ou destructive." },
+        { "heading": "Réserver codex exec à l'automatisation définie", "body": "Le guide OpenAI du mode non interactif décrit le réglage par défaut sans configuration comme étant en lecture seule, tandis que la référence actuelle des commandes indique que l'omission de --sandbox hérite de la configuration active. Une automatisation ne doit donc pas supposer un mode lecture seule lorsque l'option est omise. Pour une inspection ou une revue en lecture seule, transmettez explicitement --sandbox read-only. codex exec --json \"Inspect the test command without editing\" émet un flux d'événements JSON Lines, pas un objet JSON final unique. Lorsqu'un consommateur en aval exige un résultat final conforme à un schéma, utilisez codex exec \"...\" --output-schema ./schema.json -o ./result.json et rejetez un code de sortie non nul, un fichier manquant ou une non-conformité au schéma. N'ajoutez --sandbox workspace-write que pour une tâche dont la modification bornée est explicite. N'utilisez codex exec resume --last que pour reprendre la session d'automatisation voulue. Commencez le workflow en mode interactif, observez ses permissions et ses échecs, puis automatisez le contrat stable." }
+      ],
+      "practice": {
+        "title": "Revoir en lecture seule, puis approuver une modification",
+        "brief": "Utilisez un dépôt jetable pour une orientation et une revue interactives, une modification explicitement approuvée et une vérification ciblée.",
+        "steps": [
+          "Depuis la racine vérifiée du dépôt, exécutez /status, sélectionnez la lecture seule avec /permissions, n'utilisez /init que si un squelette est réellement nécessaire et demandez une carte du dépôt étayée par des chemins.",
+          "Exécutez /review sur le périmètre voulu, puis autorisez une seule modification de l'espace de travail et inspectez /diff avant de l'accepter.",
+          "Exécutez la vérification ciblée et démontrez séparément soit la sortie JSONL de codex exec --json, soit un résultat final contraint par un schéma sans exposer d'identifiants."
+        ],
+        "evidence": ["Les preuves /status, permissions, /review et /diff de la tâche interactive.", "La vérification ciblée fraîche, plus la sortie JSONL ou contrainte par schéma et sa règle d'échec explicite."],
+        "safety": "Gardez la revue et la démonstration non interactive en local; n'autorisez que la seule modification bornée de l'espace de travail. Inspectez chaque commande avant de l'approuver et n'utilisez aucun identifiant."
+      },
+      "checkpoint": { "prompt": "Pourquoi un nouveau workflow devrait-il commencer en mode interactif avant de passer à codex exec ?", "answer": "Pour découvrir ambiguïtés, permissions, échecs et format utile avant de supprimer la boucle de clarification." },
+      "takeaway": "Interactif pour découvrir et orienter; codex exec pour un contrat stable."
+    },
+    "ide": {
+      "kicker": "Leçon 10",
+      "title": "Utiliser Codex dans l'IDE",
+      "summary": "L'interface IDE est la plus forte lorsque le fichier ouvert, le code sélectionné, la conversation récente, le point de contrôle et le diff en ligne constituent précisément le contexte nécessaire.",
+      "objective": "Joindre le contexte documenté de l'éditeur, créer des points de contrôle Git, effectuer et revoir une modification ciblée, récupérer en toute sécurité et déléguer une tâche bornée au cloud.",
+      "sections": [
+        { "heading": "Joindre moins, mais avec précision", "body": "Le fichier ouvert, le code sélectionné et la conversation récente peuvent préciser une demande dans l'IDE. Indiquez à Codex quel contexte fait autorité et pourquoi, puis vérifiez ou joignez délibérément ce contexte dans le compositeur de l'IDE. N'utilisez /ide-context que pour activer ou désactiver le contexte IDE automatique ; c'est un réglage, pas une commande d'inspection. Sélectionnez la fonction en échec et son appelant plutôt que de joindre un répertoire inexpliqué. Exigez tout de même les instructions et tests applicables du dépôt avant toute modification, car le fichier visible peut ne pas contenir le contrat complet. Si le comportement traverse une frontière de type, de service, de route ou de composant, demandez ce parcours. Une sélection précise réduit le coût de recherche, mais ne remplace pas l'acceptation ni la vérification à l'échelle du dépôt." },
+        { "heading": "Créer un point de contrôle, revoir et récupérer", "body": "Créez un point de contrôle Git avant la tâche afin de distinguer l'état initial du travail de Codex, puis, si nécessaire, un autre après la revue du résultat. Inspectez les diffs en ligne à côté du code source et refusez le formatage ou le nettoyage sans rapport. Utilisez /review pour le périmètre disponible qui convient (modifications non commitées ou branche de base), exécutez le test ciblé, puis la commande plus large exigée par le contrat. Si la modification est mauvaise, rétablissez uniquement le hunk résolu ou restaurez à partir du point de contrôle connu au lieu de supprimer le travail utilisateur sans rapport. Un diff en ligne peut sembler correct alors que le comportement d'exécution, les fichiers générés ou les lockfiles sont erronés; inspectez donc toujours l'ensemble complet des fichiers modifiés." },
+        { "heading": "Déléguer une tâche bornée au cloud", "body": "Lorsqu'une tâche de dépôt préparée peut s'exécuter indépendamment, utilisez /cloud et choisissez le /cloud-environment voulu dans l'IDE. Reformulez la révision de base, le résultat, les contraintes, la vérification et les actions externes qui restent non autorisées. Revenez dans l'éditeur lorsque la tâche cloud se termine, comparez son résultat à votre point de contrôle et revoyez le diff complet avant d'appliquer ou d'accepter quoi que ce soit. Utilisez /local ou /worktree lorsque le contexte local ou des modifications locales isolées conviennent mieux. Ne laissez jamais deux interfaces écrire simultanément dans le même checkout : un seul propriétaire modifie, tandis que les autres travaux restent en lecture seule ou isolés." }
+      ],
+      "practice": {
+        "title": "Réaliser une correction ancrée dans l'éditeur",
+        "brief": "Utilisez un projet jetable avec petite fonction et test existant.",
+        "steps": [
+          "Créez un point de contrôle Git de référence, ne sélectionnez que la fonction pertinente et décrivez le comportement observable, la contrainte du dépôt et le contrôle d'acceptation.",
+          "Demandez à Codex d'inspecter l'appelant et le test, d'effectuer la plus petite correction en ligne et de ne revoir que le diff obtenu avec /review.",
+          "Exécutez les contrôles ciblé et à l'échelle du dépôt, entraînez-vous à un rétablissement sûr ou à une comparaison de points de contrôle, puis esquissez une délégation /cloud bornée sans lancer un second écrivain en chevauchement."
+        ],
+        "evidence": ["Le point de contrôle initial et le diff en ligne accepté, avec une justification pour chaque fichier modifié.", "La vérification fraîche, les preuves de récupération et le contrat borné de transmission au cloud."],
+        "safety": "Désactivez tout déploiement automatique et gardez un seul écrivain."
+      },
+      "checkpoint": { "prompt": "Quel risque à ne joindre que la fonction?", "answer": "Elle peut cacher instructions, appelants, tests, contrats publics ou effets croisés qui déterminent la bonne correction." },
+      "takeaway": "Utilisez le contexte de l'éditeur pour gagner en précision, puis restaurez le contexte du dépôt avant d'accepter la modification."
+    },
+    "cloud-parallel": {
+      "kicker": "Leçon 11",
+      "title": "Utiliser le bureau, le cloud, les worktrees et le travail parallèle",
+      "summary": "Les projets, le terminal intégré, les Goals, les tâches cloud, les worktrees, les sous-agents et les tâches planifiées n'augmentent la capacité que lorsque chacun possède un responsable délimité et un résultat vérifiable.",
+      "objective": "Préparer un travail cloud reproductible, transmettre des worktrees isolés, revoir les sous-agents, exploiter les Goals et les tâches planifiées et identifier ce qui peut s'exécuter simultanément.",
+      "sections": [
+        { "heading": "Rendre explicites les états local et cloud", "body": "Utilisez des projets et des conversations distinctes pour organiser les fichiers liés et les résultats différents. Chaque conversation de bureau dispose d'un terminal intégré délimité à son projet ou worktree; ChatGPT peut lire la sortie actuelle, alors exécutez-y des tests ciblés sans considérer la sortie visible comme une réussite automatique. Une tâche cloud part d'une révision sélectionnée du dépôt et d'une configuration déclarée, pas de l'état invisible du portable. Épinglez les environnements d'exécution et les dépendances lorsque la reproductibilité compte. Les secrets cloud n'existent que pendant la configuration et sont supprimés avant la phase de l'agent; l'accès Internet de cette phase est désactivé par défaut sauf configuration contraire. Si la tâche dépend d'un fichier non commité ou d'un service manuel, rendez-la reproductible ou gardez-la en local." },
+        { "heading": "Isoler les auteurs et revoir chaque résultat parallèle", "body": "Une conversation Worktree isole les fichiers sur votre ordinateur et peut être transférée entre Local et Worktree, mais des branches distinctes peuvent toujours émettre des hypothèses incompatibles. Donnez à chaque tâche cloud ou sous-agent une révision de base stable, le contexte complet, un périmètre possédé disjoint, un contrat de retour explicite et une validation ciblée. Utilisez /agent dans la CLI pour inspecter les fils des sous-agents ou passer de l'un à l'autre. Dans l'application de bureau, lancez /goal pour un résultat long et mesurable, puis utilisez sa ligne de progression pour le mettre en pause, le reprendre, le modifier ou l'effacer. Dans la CLI et l'IDE, lancez /goal et pilotez le travail par des messages de suivi dans la même session ou conversation. Le mode Goal n'élargit pas les permissions existantes. L'exploration principalement en lecture, les tests et le triage sont de meilleurs premiers usages des sous-agents que des travaux d'écriture lourds et superposés. Le coordinateur revoit chaque résultat et exécute des contrôles frais sur l'état intégré." },
+        { "heading": "Ne planifier qu'un prompt testé manuellement", "body": "Dans l'application de bureau ChatGPT, une tâche planifiée peut s'exécuter dans un projet local ou un worktree dédié en arrière-plan; la machine doit rester allumée, l'application continuer de fonctionner et le projet rester disponible. Une tâche web planifiée peut utiliser un contexte chargé ou connecté, mais ne peut pas conserver directement un dossier local arbitraire ou un worktree. Avant la planification, exécutez le prompt manuellement et relisez ses premières sorties. Indiquez l'action, ce qui compte comme important, la destination de la sortie, la cadence, les besoins de sandbox par défaut et le moment où s'arrêter ou demander une entrée. Les tâches planifiées s'exécutent sans surveillance : choisissez l'accès le plus étroit et examinez les premières exécutions avant de faire confiance à la répétition." }
+      ],
+      "practice": {
+        "title": "Décomposer en toute sécurité une demande en plusieurs parties",
+        "brief": "Planifiez, sans l'exécuter, une demande en plusieurs parties répartie entre un Goal, deux agents ou worktrees indépendants, l'intégration et un éventuel suivi planifié.",
+        "steps": [
+          "Définissez le résultat mesurable de /goal et la révision de base commune, puis marquez toute dépendance ou décision d'interface non résolue qui doit rester séquentielle.",
+          "Donnez à deux voies véritablement indépendantes des fichiers ou responsabilités disjoints, le contexte complet, des retours explicites, des contrôles ciblés et une étape de revue /agent ou worktree.",
+          "Écrivez l'ordre d'intégration et les contrôles combinés, puis rédigez un prompt planifié testable manuellement avec choix local ou web, cadence, condition d'arrêt et destination de revue."
+        ],
+        "evidence": ["La carte des dépendances et deux missions sans chevauchement avec des contrats de retour explicites.", "La liste d'intégration ainsi que le prompt de tâche planifiée et ses critères de test manuel et d'arrêt."],
+        "safety": "Restez en planification, sans branche distante, PR, déploiement ou nettoyage destructif."
+      },
+      "checkpoint": { "prompt": "Pourquoi les worktrees ne suffisent-ils pas?", "answer": "Ils isolent les fichiers, mais pas les hypothèses incompatibles, les contrats partagés ou les échecs d'intégration." },
+      "takeaway": "Ne parallélisez que des contrats indépendants et traitez l'intégration comme une modification distincte à revoir et à tester à nouveau."
+    },
+    "automation-capstone": {
+      "kicker": "Leçon 12",
+      "title": "Automatiser prudemment et terminer le projet final",
+      "summary": "L'automatisation se mérite après avoir compris le workflow. Construisez une boucle de moindre privilège Revue → Réparation → Validation, puis terminez un projet final local et borné sans masquer permissions, échecs ni incertitudes.",
+      "objective": "Concevoir une boucle d'automatisation GitHub autorisée séparément, avec des défenses contre l'injection et des conditions d'arrêt, puis livrer et vérifier localement le projet final du cours.",
+      "sections": [
+        { "heading": "Séparer Revue, Réparation et Validation", "body": "Exécutez d'abord une tâche Revue avec actions/checkout configuré sur persist-credentials: false, contents: read, sans secret ni réseau inutile, et openai/codex-action@v1. La référence d'action @v1 n'épingle pas la CLI Codex ; lorsque la reproductibilité compte, définissez séparément codex-version sur une version de CLI compatible et auditée. L'entrée permission-profile exige actuellement Codex CLI 0.138.0 ou une version ultérieure. Un humain de confiance ou une porte de politique autorise séparément la Réparation. Pour modifier le checkout, utilisez le permission-profile le plus étroit, tel que :workspace; il ne remplace pas safety-strategy et ne peut pas être combiné à l'entrée sandbox historique. Conservez l'isolation drop-sudo ou unprivileged-user de l'action. Exécutez Codex en dernier dans sa tâche, ne transmettez que sa sortie déclarée à une nouvelle tâche Validation, puis laissez des tests déterministes décider si l'artefact réparé progresse." },
+        { "heading": "Protéger la CI des instructions non fiables", "body": "Le texte des tickets, le corps des pull requests, les commentaires du code, les captures, les noms de fichiers, les messages de commit, les fixtures et les instructions du dépôt peuvent être contrôlés par un attaquant. Citez-les comme des données sous un contrat de tâche fiable; n'interpolez jamais des valeurs ${{ ... }} brutes dans une commande shell. Transmettez les valeurs externes par env et citez les variables shell. Traitez la configuration codex-home et les profils de permissions nommés comme du code fiable. Protégez OPENAI_API_KEY, limitez les personnes autorisées à déclencher le workflow et tenez les exécutions provenant de forks à l'écart des secrets. Fixez un nombre maximal de réparations, arrêtez-vous si les sorties ne progressent plus ou si la validation échoue, puis transmettez à un humain au lieu de réessayer sans fin ou d'effectuer une écriture externe." },
+        { "heading": "Soumettre un dossier de modification sûr", "body": "Le projet final utilise le projet jetable aicourse-codex-demo. Conservez un dossier de six artefacts : contrat de tâche, orientation en lecture seule, plan approuvé, diff relu, registre de vérification fraîche et transmission au mainteneur. Évaluez-le vous-même avec le barème et réparez le maillon de preuve le plus faible. Le reçu structuré du navigateur n'est que la porte technique d'achèvement et une auto-évaluation locale fondée sur l'honneur; il ne téléverse pas le code source, ne vérifie pas le dossier, ne crée pas un justificatif d'identité et ne rend pas l'exécution locale infalsifiable. Une transmission fiable relie tous les artefacts et laisse commits, pushes, pull requests, fusions, déploiements et autres écritures externes sous autorisation séparée." }
+      ],
+      "practice": {
+        "title": "Réaliser le projet final aicourse-codex-demo",
+        "brief": "Téléchargez le projet aicourse-codex-demo fourni et ajoutez un filtre de cours Incomplets accessible au clavier sans ajouter de dépendance ni modifier les routes existantes.",
+        "steps": [
+          "Décompressez la démonstration, exécutez npm ci et inspectez CourseList.tsx, lib/courses.ts, le fichier CourseList.test.tsx fourni, les scripts du paquet et les fichiers des routes / et /courses/ avant toute modification.",
+          "Exécutez npm test pour observer les échecs injectés du filtre Incomplets, puis implémentez les plus petites modifications cohérentes et accessibles au clavier dans CourseList.tsx et lib/courses.ts. Ne modifiez pas le fichier CourseList.test.tsx fourni; ajoutez un fichier de test distinct uniquement pour renforcer la couverture.",
+          "Exécutez npm test, npm run lint, npm run build et npm run course:verify; relisez le diff complet et transmettez le fichier course-receipt.json généré avec toute limite restante."
+        ],
+        "evidence": ["Un diff relu centré sur CourseList.tsx et lib/courses.ts, avec le fichier CourseList.test.tsx fourni inchangé, le comportement clavier du filtre Incomplets et la préservation des routes reliés à des preuves.", "Le fichier course-receipt.json généré ainsi que les résultats frais de npm test, lint, build et course:verify, avec chaque contrôle non exécuté ou en échec explicitement signalé."],
+        "safety": "Travaillez uniquement dans la démonstration téléchargée. N'ajoutez aucune dépendance, préservez / et /courses/, n'utilisez ni identifiant réel ni donnée privée, et n'effectuez ni push, ni fusion, ni déploiement, ni écriture dans un système externe."
+      },
+      "checkpoint": { "prompt": "Quand une boucle automatisée Revue → Réparation → Validation doit-elle s'arrêter et faire appel à un humain ?", "answer": "À la limite d'essais définie, après des sorties répétées sans progrès, lorsque la validation échoue sans réparation bornée ou dès qu'une autorité plus large ou une action externe est requise." },
+      "takeaway": "Un workflow Codex de premier ordre n'est pas le plus autonome : c'est celui dont le périmètre, les actions, les preuves et les décisions restantes sont clairs."
+    }
+  },
+  "quiz": {
+    "q01": { "question": "Quelle première tâche dans un dépôt inconnu?", "options": ["Mettre toutes les dépendances à jour", "Cartographier en lecture seule entrées, instructions, tests et risques", "Faire commiter un nettoyage", "Lancer immédiatement la plus longue suite"], "explanation": "La lecture seule crée un contexte contrôlable sans mutation." },
+    "q02": { "question": "Qui accepte le travail terminé?", "options": ["Le dernier message", "Le gestionnaire de paquets", "L'utilisateur responsable après contrôle des preuves", "Le premier test vert"], "explanation": "L'intention, l'autorisation et l'acceptation restent humaines." },
+    "q03": { "question": "Quelle demande est la plus observable?", "options": ["Améliore le tableau", "Nettoie le code", "Corrige toute l'accessibilité", "Si l'e-mail échoue, conserve le nom valide et focalise l'erreur"], "explanation": "La dernière définit déclencheur et comportement testable." },
+    "q04": { "question": "Que contient un contrat de tâche complet ?", "options": ["Objectif, contexte, contraintes, non-objectifs, critères d'acceptation et vérification", "Uniquement une longue description du code souhaité", "Une demande d'appliquer les bonnes pratiques sans les définir", "L'autorisation d'effectuer toute action qui semble utile"], "explanation": "Ces six champs nommés donnent à Codex une cible bornée et au relecteur des preuves d'acceptation observables." },
+    "q05": { "question": "Comment traiter une demande de permission ?", "options": ["Approuver chaque demande d'un produit de confiance", "Refuser toutes les demandes quelle que soit la tâche", "Vérifier l'action, la raison et la cible exactes ainsi que les solutions plus étroites", "Approuver immédiatement un accès large pour éviter de futures interruptions"], "explanation": "Le sandbox et la politique d'approbation sont des contrôles distincts. Toute approbation doit rester justifiée par l'action, la cible et le risque actuels précis, ainsi que par la solution plus étroite." },
+    "q06": { "question": "Quelle affirmation sur les modes Local, Worktree et Cloud est correcte ?", "options": ["Cloud contient automatiquement tous les fichiers locaux non commités", "Choisissez entre eux selon les besoins de données, de configuration, d'isolation et de boucle de rétroaction", "L'exécution Local ne nécessite jamais de revue des permissions", "L'exécution Cloud est toujours plus sûre"], "explanation": "Local travaille dans le répertoire actuel, Worktree isole les fichiers locaux et Cloud s'exécute à distance; le bon mode dépend du code, des données, de la configuration, de l'isolation et des besoins d'interaction de la tâche." },
+    "q07": { "question": "Avant un plan spécifique?", "options": ["Inspecter instructions, code, tests et comportement", "Choisir l'architecture la plus récente", "Créer une branche", "Approuver chaque ligne"], "explanation": "Les preuves du dépôt ancrent le plan." },
+    "q08": { "question": "Quand une phase est-elle utile?", "options": ["Pour allonger", "Après tout le code", "Quand deux agents veulent les mêmes fichiers", "Quand son résultat est relisible et vérifiable seul"], "explanation": "Les phases vérifiables créent des points de contrôle." },
+    "q09": { "question": "Quel suivi est le plus fort?", "options": ["Recommence", "Garde la mise en page, corrige seulement le focus mobile et reteste", "Change de framework", "Fais au mieux"], "explanation": "Il conserve le validé et précise la frontière." },
+    "q10": { "question": "Que deviennent les permissions lorsque vous lancez /goal ?", "options": ["Le mode Goal accorde automatiquement un accès complet", "Le mode Goal désactive toutes les approbations jusqu'à l'achèvement", "Le sandbox et la politique d'approbation existants restent en vigueur, et le Goal se met en pause lorsqu'une décision est nécessaire", "Le Goal peut déployer automatiquement puisque les critères d'achèvement sont définis"], "explanation": "Le mode Goal conserve un objectif et des critères d'achèvement; il n'élargit ni le sandbox, ni les approbations, ni l'autorité externe de la tâche." },
+    "q11": { "question": "Premier but du débogage?", "options": ["Reproduire et tracer la cause", "Refactorer", "Logger partout", "Désactiver le test"], "explanation": "La reproduction évite les modifications spéculatives." },
+    "q12": { "question": "Qu'est-ce qui crédibilise un test de régression?", "options": ["Il n'a jamais échoué", "Il copie l'algorithme", "Il remplace tous les tests", "Il échoue sur le défaut puis passe après la correction minimale"], "explanation": "Le rouge observé prouve la détection." },
+    "q13": { "question": "Que lire en premier lors de la revue?", "options": ["Le résumé", "Le build", "Tous les fichiers et leur lien au plan", "Le nombre de lignes"], "explanation": "La liste révèle artefacts et dérive." },
+    "q14": { "question": "Comment signaler une suite non démarrée?", "options": ["Tout passe", "Non exécutée, raison et incertitude", "L'omettre", "La marquer verte"], "explanation": "Une lacune précise vaut mieux qu'un faux succès." },
+    "q15": { "question": "Bon usage d'AGENTS.md?", "options": ["Historique complet", "Contourner la sécurité", "Notes temporaires", "Commandes, limites et validation durables"], "explanation": "AGENTS.md est plus efficace pour des règles stables, délimitées et applicables à plusieurs tâches." },
+    "q16": { "question": "Quand utiliser sous-agent ou skill?", "options": ["Sous-agent indépendant; skill pour processus répété prouvé", "Toujours les deux", "Skill sans inspection", "Agents sur mêmes fichiers"], "explanation": "Ils servent respectivement la concurrence indépendante et la réutilisation." },
+    "q17": { "question": "Avant de lancer le CLI?", "options": ["Police du terminal", "Répertoire, état et instructions", "Tout le réseau", "Absence de tests"], "explanation": "Le répertoire détermine une grande part du contexte." },
+    "q18": { "question": "Tâche adaptée à codex exec?", "options": ["Architecture ambiguë", "Choix fréquents", "Travail stable avec permissions, échecs, validation et sortie définis", "Première migration inconnue"], "explanation": "Le non-interactif exige un contrat explicite." },
+    "q19": { "question": "Quel est le principal avantage de l'interface IDE ?", "options": ["Un contexte précis fourni par le code sélectionné, les fichiers ouverts, les conversations récentes et les diffs en ligne", "La preuve automatique que le comportement d'exécution est correct", "Un accès illimité à tous les dépôts", "L'absence de besoin d'exécuter des tests"], "explanation": "Le contexte de l'éditeur permet des demandes et des revues précises, mais des preuves à l'échelle du dépôt restent nécessaires." },
+    "q20": { "question": "Après un bon diff en ligne?", "options": ["Déployer", "Accepter les générés", "Ajouter un écrivain", "Tester et revoir tous les fichiers"], "explanation": "L'apparence ne prouve pas le comportement." },
+    "q21": { "question": "Quelle paire paralléliser?", "options": ["Même fichier", "Même décision ouverte", "Audits indépendants à portées disjointes", "Deux déploiements identiques"], "explanation": "Les portées disjointes réduisent le risque." },
+    "q22": { "question": "Quand une boucle automatisée Revue → Réparation → Validation doit-elle s'arrêter ?", "options": ["Seulement après un premier déploiement", "À une limite d'essais définie, après des résultats répétés sans progrès, en cas d'échec de validation non résolu ou si une nouvelle autorité est requise", "Jamais; l'automatisation doit réessayer jusqu'à modifier quelque chose", "Chaque fois qu'une revue en lecture seule ne signale aucun constat"], "explanation": "Des conditions d'arrêt explicites évitent les reprises sans fin et imposent une décision humaine lorsque la réparation ne converge pas ou exige une autorité plus large." },
+    "q23": { "question": "Réglage CI le plus sûr pour analyser une PR?", "options": ["Écriture et secrets", "Exécuter le texte de PR", "Action non épinglée", "Lecture seule, texte traité comme donnée et portes révisées"], "explanation": "Entrée non fiable et automatisation exigent le moindre privilège." },
+    "q24": { "question": "Qu'est-ce qui rend la transmission du projet final digne de confiance ?", "options": ["Un dossier traçable reliant contrat, preuves du dépôt, plan, diff, vérification et transmission honnête", "Un grand nombre de fichiers modifiés", "Un déploiement automatique en production", "Un message final indiquant prêt pour la production"], "explanation": "Le dossier de preuves rend le processus vérifiable. Séparément, le navigateur n'enregistre l'achèvement technique qu'à partir du reçu structuré local." }
+  },
+  "figures": {
+    "fig-01": { "alt": "Application de bureau ChatGPT avec Codex sélectionné", "caption": "Sélectionnez Codex dans l'application de bureau ChatGPT avant d'ouvrir le dépôt qui délimitera la tâche." },
+    "fig-02": { "alt": "Application de bureau ChatGPT avec Codex ouvrant le dossier aicourse-codex-demo téléchargé", "caption": "La démonstration téléchargeable fournit un espace de travail jetable et reproductible pour chaque action guidée." },
+    "fig-03": { "alt": "Zone de saisie Codex contenant le contrat de tâche complet du filtre de cours Incomplets", "caption": "Le contrat fixe CourseList.tsx et lib/courses.ts comme cibles d'implémentation, garde le test fourni figé et énonce avant l'édition les contraintes de routes, de dépendances et de vérification." },
+    "fig-04": { "alt": "Sélecteur d'environnement Codex présentant les options Local, Worktree et Cloud", "caption": "Choisissez la frontière d'exécution adaptée à la tâche avant d'accorder des outils ou un accès en écriture." },
+    "fig-05": { "alt": "Orientation en lecture seule de Codex citant le code source, les tests, les scripts et les routes de CourseList", "caption": "Une orientation ancrée établit le comportement actuel et les fichiers probables sans modifier la démonstration." },
+    "fig-06": { "alt": "Demande d'approbation sans danger de Codex affichant la commande exacte et la raison précise", "caption": "Approuvez le plus petit changement de frontière compréhensible et refusez toute demande dont l'effet manque de clarté." },
+    "fig-07": { "alt": "Terminal intégré de Codex exécutant les tests ciblés de CourseList", "caption": "Exécutez le plus petit test pertinent dans l'espace de travail où Codex réalisera la modification." },
+    "fig-08": { "alt": "Un message envoyé pendant la tâche réoriente Codex vers le filtre Incomplets accessible au clavier", "caption": "Une réorientation fondée sur les preuves observées préserve le travail valide tout en corrigeant la voie active." },
+    "fig-09": { "alt": "Test ciblé de CourseList qui échoue avant la modification puis réussit après", "caption": "Un résultat rouge puis vert relie l'implémentation à un contrôle de régression reproductible." },
+    "fig-10": { "alt": "Liste des fichiers modifiés et diff Codex pour CourseList.tsx et lib/courses.ts, avec le test fourni inchangé", "caption": "Relisez l'ensemble complet des fichiers modifiés avant d'accepter une implémentation bornée." },
+    "fig-11": { "alt": "Revue en ligne Codex à côté d'une commande /review limitée aux modifications actuelles", "caption": "Déclarez explicitement le périmètre de la revue afin que chaque constat reste lié au diff pertinent et au comportement attendu." },
+    "fig-12": { "alt": "Transmission de preuves Codex énumérant les modifications, commandes, contrôles de routes et limites", "caption": "Une transmission utile sépare les preuves fraîches, les contrôles non exécutés, le risque restant et les décisions humaines." },
+    "fig-13": { "alt": "Sortie /status de la CLI Codex affichant la version 0.149.0-alpha.4, le modèle sélectionné, le répertoire de travail synthétique /private/tmp/aicourse-codex-demo et les autorisations Read Only", "caption": "Utilisez /status pour vérifier le modèle actif, le répertoire de travail et le mode d'autorisation avant de commencer à travailler dans le dépôt." },
+    "fig-14": { "alt": "La CLI Codex affiche le modèle sélectionné et le menu /permissions avec l’option « Ask for approval » sélectionnée.", "caption": "Rendez les choix de permissions et de modèle visibles au lieu de dépendre de valeurs par défaut cachées." },
+    "fig-15": { "alt": "Menu des préréglages /review de la CLI Codex proposant d'examiner les changements par rapport à une branche de base, les modifications non validées, un commit ou des instructions de revue personnalisées", "caption": "Choisissez le préréglage de revue le plus étroit qui correspond à l'artefact à examiner ; ce menu n'affiche pas une revue achevée." },
+    "fig-16": { "alt": "L’extension IDE Codex examine le code source CourseList sélectionné comme contexte et explique l’ajout du filtre accessible « Incomplete ».", "caption": "Le code sélectionné fournit un contexte local précis, tandis que le dépôt reste la source de vérité." },
+    "fig-17": { "alt": "Le diff Codex dans l’IDE affiche les modifications du filtre « Incomplete » dans deux fichiers à côté des commandes Review et Undo ; le compte rendu précise qu’aucun test n’a été exécuté.", "caption": "Inspectez la modification là où elle a été faite, puis reliez le point de contrôle à une vérification fraîche." },
+    "fig-18": { "alt": "L'IDE Codex délègue au cloud la tâche bornée de la démonstration", "caption": "Une transmission de l'IDE vers le cloud doit conserver le dépôt, le contrat de tâche, les contraintes et les attentes de vérification." },
+    "fig-19": { "alt": "Configuration cloud Codex, tâche bornée et journaux d'exécution pour aicourse-codex-demo", "caption": "Le travail dans le cloud reste relisible lorsque la configuration de l'environnement, le périmètre de la tâche et les journaux demeurent reliés." },
+    "fig-20": { "alt": "Contrôles de worktree et transmission Codex avec l'état de la branche et de l'intégration visible", "caption": "Les worktrees isolent les modifications de fichiers, mais l'intégration exige toujours un responsable explicite et une vérification fraîche." },
+    "fig-21": { "alt": "Deux sous-agents Codex travaillant sur des questions indépendantes et sans chevauchement dans le dépôt", "caption": "Ne parallélisez que les investigations indépendantes, inspectez le fil de chaque agent et relancez les contrôles d'intégration." },
+    "fig-22": { "alt": "Sélecteur de Skills de la CLI Codex affichant le résultat systematic-debugging et les filtres de provenance visibles Filesystem Only et Plugins", "caption": "Cette Skill fournie par un plugin est présentée uniquement comme exemple d'audit : examinez son nom, son objectif et sa provenance avant de l'utiliser ; le cours 2 n'en dépend pas et ne la recommande pas." },
+    "fig-23": { "alt": "Configuration d'une tâche planifiée ChatGPT avec cadence, projet local ou worktree, prompt durable et contrôles de modèle", "caption": "Ne planifiez qu'un prompt testé manuellement avec des besoins explicites de sandbox, des critères d'arrêt, une sortie et une destination de revue." },
+    "fig-24": { "alt": "Codex GitHub Action avec privilèges minimaux et preuves issues de la pull request", "caption": "Séparez les tâches Revue en lecture seule, Réparation autorisée et Validation fraîche tout en traitant les entrées de la pull request comme non fiables." }
+  },
+  "capstone": {
+    "title": "Dossier de modification sûre",
+    "summary": "Réalisez une correction reproductible ou une fonctionnalité bornée, auto-évaluez son dossier de preuves et générez un reçu technique local pour la porte d'achèvement du navigateur.",
+    "scenario": "Téléchargez et décompressez aicourse-codex-demo. CourseList.tsx et lib/courses.ts doivent ensemble fournir un filtre de cours Incomplets accessible au clavier et couvert par le fichier CourseList.test.tsx fourni. Codex peut inspecter, planifier, modifier et vérifier uniquement dans cette démonstration. Gardez le test fourni inchangé, n'ajoutez aucune dépendance et préservez à la fois / et /courses/. Commit, push, pull request, déploiement, vrais secrets, données privées et écritures externes restent hors périmètre.",
+    "instructions": [
+      "Contrat: ajoutez un filtre de cours Incomplets qui utilise des contrôles natifs utilisables au clavier, n'ajoutez aucune dépendance, préservez / et /courses/ et maintenez toute action externe non autorisée.",
+      "Orientation: après npm ci, inspectez CourseList.tsx, lib/courses.ts, le fichier CourseList.test.tsx fourni, les scripts du paquet, les filtres existants et les deux points d'entrée des routes sans modifier de fichier.",
+      "Plan: reliez le comportement manquant au test ciblé, nommez les plus petites modifications de CourseList.tsx et lib/courses.ts, gardez le test fourni inchangé, puis définissez comme portes npm test, lint, build, la préservation des routes, le comportement au clavier et l'absence de nouvelle dépendance.",
+      "Implémentation: exécutez npm test pour capturer l'échec attendu, puis apportez les plus petites modifications cohérentes à CourseList.tsx et lib/courses.ts pour le filtre Incomplets. Ne modifiez pas le fichier CourseList.test.tsx fourni; placez toute couverture supplémentaire dans un nouveau fichier de test.",
+      "Vérification: exécutez npm test, npm run lint et npm run build, en confirmant que les routes / et /courses/ fonctionnent toujours et qu'aucun fichier de dépendances n'a changé de façon inattendue.",
+      "Revue: inspectez chaque fichier modifié et confrontez au diff le libellé du filtre, le comportement natif du bouton, l'état enfoncé, la logique des cours incomplets, le périmètre et les contraintes de sécurité.",
+      "Transmission: exécutez npm run course:verify, conservez le fichier course-receipt.json généré et signalez le résultat, les fichiers modifiés, les preuves des commandes, les limites et les décisions encore réservées à une personne."
+    ],
+    "artifacts": {
+      "task-contract": { "title": "Contrat de tâche", "description": "Résultat, contexte, contraintes, acceptation, vérification et autorisation." },
+      "orientation-note": { "title": "Note d'orientation", "description": "Faits en lecture seule avec chemins, comportement, tests, risques et incertitudes." },
+      "approved-plan": { "title": "Plan approuvé", "description": "Phases ordonnées avec sorties, zones, preuves, décisions et arrêts." },
+      "reviewed-diff": { "title": "Diff relu", "description": "Tous les fichiers modifiés, raison du périmètre et constats." },
+      "verification-record": { "title": "Registre de vérification", "description": "Échecs et succès récents, contrôles larges, sorties et tests non exécutés." },
+      "handoff": { "title": "Transmission au mainteneur", "description": "Résultat, changements, vérification, limites et décisions restantes." }
+    },
+    "rubric": {
+      "scope": { "title": "Périmètre et contrat, 20 points", "description": "Résultat observable, non-objectifs explicites et fichiers traçables." },
+      "safety": { "title": "Environnement et sécurité, 20 points", "description": "Permissions minimales, secrets et entrées contrôlés, aucune action externe non autorisée." },
+      "implementation": { "title": "Qualité d'implémentation, 20 points", "description": "Modification ancrée, ciblée, compatible et sans réécriture hors sujet." },
+      "verification": { "title": "Qualité de vérification, 25 points", "description": "Preuves fraîches d'acceptation et de régression, échecs et lacunes honnêtes." },
+      "handoff": { "title": "Revue et transmission, 15 points", "description": "Diff relu et résultats, limites et décisions compréhensibles." }
+    },
+    "pass": "Réussite à 80 points ou plus, sans violation critique de sécurité ni preuve inventée.",
+    "retry": "Sous 80, réparez le maillon de preuve le plus faible et resoumettez la même tâche sans élargir le périmètre.",
+    "completion": "Auto-évaluez le dossier jusqu'à ce qu'un relecteur puisse reproduire le raisonnement sans deviner. Le navigateur n'enregistre l'achèvement technique du projet final qu'après un reçu local valide; il n'inspecte ni ne certifie le dossier."
+  }
+}

@@ -1,0 +1,1250 @@
+{
+  "meta": {
+    "title": "Comment utiliser GitHub",
+    "kicker": "Cours 6 · GitHub",
+    "summary": "Apprenez à utiliser GitHub comme un système de collaboration sûr et traçable. Construisez un véritable dépôt, du premier commit à la révision, à la publication et à la réutilisation, dans les domaines du logiciel, de la recherche, de la rédaction, du travail administratif et de l’enseignement.",
+    "audience": "Pour les personnes qui débutent entièrement comme pour les collaborateurs expérimentés qui souhaitent disposer d’un modèle mental fiable, et non d’une simple liste de boutons.",
+    "duration": "11 heures guidées · 12 leçons · un projet final continu",
+    "sourceNote": "Le fonctionnement du produit s’appuie en priorité sur la documentation GitHub Docs et les projets officiels de GitHub, vérifiés le 24 août 2026. Les sources évaluées par les pairs et celles issues de la pratique sont clairement signalées lorsqu’elles décrivent des pratiques de travail effectivement mises en œuvre.",
+    "figureNote": "Les 21 figures d’interface sont d’authentiques ressources GitHub Docs, conservées localement avec leurs dimensions intrinsèques, leurs sommes de contrôle SHA-256, un commit source github/docs épinglé et l’attribution CC BY 4.0.",
+    "startCta": "Commencer par la sécurité du compte",
+    "resumeCta": "Continuer votre dépôt",
+    "disclaimer": "Cours pédagogique indépendant. GitHub et les marques associées sont des marques de GitHub, Inc. Ce cours n’est ni affilié à GitHub ni approuvé par GitHub."
+  },
+  "ui": {
+    "lessons": "Leçons",
+    "minutes": "Min",
+    "objectives": "Objectif d’apprentissage",
+    "evidence": "Éléments de preuve à conserver",
+    "practice": "Atelier pratique",
+    "checkpoint": "Point de contrôle du raisonnement",
+    "sources": "Références",
+    "quiz": "Évaluation finale",
+    "previous": "Leçon précédente",
+    "next": "Leçon suivante",
+    "progress": "Progression",
+    "courseProgress": "Progression dans le cours",
+    "completed": "Terminé",
+    "markComplete": "Marquer la leçon comme terminée",
+    "markedComplete": "Leçon terminée",
+    "resetProgress": "Réinitialiser la progression du cours GitHub",
+    "correct": "Bonne réponse",
+    "incorrect": "À revoir",
+    "score": "Résultat",
+    "quizPassed": "Évaluation réussie. Vos décisions fondées sur les sources sont prêtes pour le projet final.",
+    "quizNeedsReview": "Pas encore. Revenez à la source citée et essayez une nouvelle série de questions.",
+    "passingScore": "Réussite avec 10 réponses sur 12",
+    "source": "Source à l’appui",
+    "storageUnavailable": "Ce navigateur bloque le stockage local. Les leçons fonctionnent toujours, mais la progression ne peut pas être conservée.",
+    "browserStorageNote": "La progression reste dans ce navigateur et n’est jamais téléversée.",
+    "backToCourse": "Comment utiliser GitHub",
+    "allLessons": "Plan du cours",
+    "finalQuizTitle": "Décidez à partir des preuves",
+    "finalQuizIntro": "Chaque tentative sélectionne quatre questions dans chaque unité. Après votre réponse, les explications indiquent la source pertinente.",
+    "beginQuiz": "Commencer l’évaluation de 12 questions",
+    "checkAnswer": "Vérifier la réponse",
+    "nextQuestion": "Question suivante",
+    "retryQuiz": "Essayer une nouvelle série",
+    "finishQuiz": "Terminer l’évaluation",
+    "questionProgressTemplate": "Question {current} sur {total}",
+    "scoreSummaryTemplate": "Vous avez répondu correctement à {score} questions sur {total}.",
+    "bestScoreTemplate": "Meilleur score : {score}/{total}",
+    "passRequirement": "Norme de preuve",
+    "resetConfirm": "Réinitialiser uniquement vos leçons Comment utiliser GitHub, votre questionnaire et la progression du projet final ?",
+    "resetDone": "La progression du cours GitHub a été réinitialisée.",
+    "capstonePath": "Projet final continu",
+    "capstoneArtifacts": "Éléments de preuve du projet final",
+    "capstoneComplete": "Projet final terminé",
+    "capstoneIncomplete": "Vérifiez chaque production avant de terminer le projet final.",
+    "completeCapstone": "Terminer le projet final",
+    "completionSummary": "Votre système de collaboration est terminé",
+    "exportSummary": "Exporter le récapitulatif d’achèvement",
+    "authenticFigure": "Interface GitHub authentique",
+    "figureSource": "Ouvrir la page source",
+    "classroomNotice": "Avis actuel pour l’enseignement"
+  },
+  "units": {
+    "unit-1": {
+      "title": "Comprendre et proposer un changement",
+      "summary": "Construisez un modèle mental sûr : dépôt, README, branche, commit, pull request et révision."
+    },
+    "unit-2": {
+      "title": "Coordonner les personnes et les décisions",
+      "summary": "Transformez les échanges en travail responsabilisé grâce aux issues, aux Discussions, aux Projects, aux forks, aux autorisations et à de bonnes habitudes de notification."
+    },
+    "unit-3": {
+      "title": "Appliquer GitHub au travail réel",
+      "summary": "Adaptez la même boucle traçable à l’ingénierie, à la recherche, à la publication, aux activités administratives et à l’enseignement, sans gommer leurs différences."
+    }
+  },
+  "lessons": {
+    "start-secure": {
+      "kicker": "Leçon 1 · Fondamentaux",
+      "title": "Commencer avec le bon modèle mental et un compte sécurisé",
+      "summary": "Distinguez Git de GitHub, choisissez l’environnement de travail le plus léger et sécurisez votre identité avant toute publication.",
+      "objective": "Expliquez ce qu’enregistre un dépôt, choisissez un flux de travail dans le navigateur ou en local selon la tâche, et effectuez une vérification préalable du compte respectueuse de la vie privée.",
+      "sections": [
+        {
+          "heading": "Git enregistre les changements ; GitHub coordonne les personnes autour de ceux-ci",
+          "body": [
+            "Git est le système de gestion de versions qui enregistre l’historique des fichiers. GitHub héberge les dépôts Git et y ajoute l’identité, les autorisations, les issues, les pull requests, la révision, les Projects, les releases et l’automatisation. Un dépôt est donc plus qu’un dossier : c’est un registre délimité de fichiers, de décisions, de propositions et d’états acceptés.",
+            "Commencez dans le navigateur. Le parcours officiel Hello World de GitHub ne nécessite ni code, ni ligne de commande, ni connaissance préalable de Git. Passez à github.dev, GitHub Desktop, Codespaces ou à la ligne de commande uniquement lorsque le travail bénéficie de l’édition de plusieurs fichiers, d’outils locaux, de builds ou de l’automatisation."
+          ],
+          "bullets": [
+            "Propriétaire : contrôle la visibilité, les collaborateurs, les paramètres et les règles.",
+            "Collaborateur : travaille directement dans un dépôt selon le rôle qui lui est attribué.",
+            "Contributeur externe : propose généralement son travail depuis un fork lorsqu’il ne dispose pas d’un accès direct en écriture."
+          ]
+        },
+        {
+          "heading": "Sécuriser le compte associé à votre travail",
+          "body": [
+            "Activez l’authentification à deux facteurs avant que le dépôt du cours ne devienne utile à d’autres personnes. GitHub recommande vivement une application d’authentification TOTP pour la configuration initiale de la 2FA. Après avoir configuré TOTP ou les SMS, ajoutez une clé de sécurité comme méthode de secours au lieu de dépendre des SMS. Conservez les codes de récupération dans un lieu sûr, distinct de l’appareil que vous utilisez habituellement.",
+            "Considérez votre profil, l’adresse électronique de commit, l’activité publique, les noms de dépôts et l’appartenance à une organisation comme des informations publiables. Les révisions et l’activité dans le navigateur sont associées à votre compte GitHub. Pour les commits créés en ligne de commande, GitHub ne relie un commit à votre compte que si l’adresse électronique de l’en-tête du commit est associée à ce compte ou correspond à l’adresse `noreply` fournie par GitHub pour celui-ci. Cette attribution est distincte du badge Verified, qui résulte d’une signature de commit GPG, SSH ou S/MIME valide."
+          ],
+          "bullets": [
+            "Utilisez un mot de passe unique et l’authentification à deux facteurs.",
+            "Conservez les codes de récupération en lieu sûr et vérifiez que vous savez les retrouver.",
+            "Vérifiez les champs du profil public et la confidentialité de l’adresse électronique de commit avant le premier commit public."
+          ]
+        },
+        {
+          "heading": "Effectuer une vérification des limites avant publication",
+          "body": [
+            "Public signifie accessible à toute personne sur Internet. Privé limite l’accès, mais ne rend pas acceptable une mauvaise gestion des identifiants, des données à caractère personnel, des dossiers d’étudiants, de recherches confidentielles, de fichiers clients ou de secrets professionnels. Utilisez du contenu fictif ou sous licence ouverte pour chaque exercice du cours.",
+            "Si un identifiant est un jour inclus dans un commit, révoquez-le ou renouvelez-le d’abord. Supprimer ultérieurement la ligne visible ne retire pas la copie antérieure de l’historique Git, des forks, des caches ou des clones."
+          ],
+          "bullets": [
+            "Aucun mot de passe, jeton, clé privée, code de récupération ou chaîne de connexion.",
+            "Aucune donnée relative à des participants humains, des étudiants, des clients, des employés ou des patients, ni aucune donnée propriétaire.",
+            "Aucun fichier protégé par le droit d’auteur ou soumis à des restrictions institutionnelles, sauf si sa réutilisation et son accès sont autorisés."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "Vérification préalable du compte et de la publication",
+        "brief": "Préparez votre compte sans exposer aucune preuve de sécurité. Vous consignerez uniquement les décisions d’achèvement, jamais des identifiants ou des éléments de récupération.",
+        "steps": [
+          "Examinez votre profil public après vous être déconnecté ou dans une fenêtre de navigation privée.",
+          "Activez l’authentification à deux facteurs et conservez les codes de récupération en lieu sûr. Ne les capturez pas à l’écran et ne les collez nulle part.",
+          "Décidez si le dépôt du cours doit être public ou privé et rédigez une phrase qui explique ce choix.",
+          "Créez une liste de contrôle locale du contenu qui ne doit jamais entrer dans le dépôt."
+        ],
+        "evidence": [
+          "Une décision de visibilité en une phrase, sans information privée sur le compte.",
+          "Une déclaration cochée confirmant que l’authentification à deux facteurs et le stockage des éléments de récupération sont configurés, sans afficher aucun code.",
+          "Une liste de contrôle en quatre points des éléments exclus du dépôt."
+        ],
+        "safety": "Ne remettez jamais de capture d’écran d’un code QR, d’un secret, d’un code de récupération, d’une boîte de réception, d’une organisation privée ou d’une page de paramètres de sécurité."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi supprimer un jeton divulgué dans un deuxième commit ne constitue-t-il pas une réponse complète ?",
+        "answer": "Le jeton reste présent dans l’historique Git antérieur et peut déjà exister dans des clones, des forks, des journaux ou des caches. Révoquez-le ou renouvelez-le d’abord, puis suivez la procédure du dépôt pour remédier à l’exposition de données sensibles."
+      },
+      "takeaway": "Un dépôt digne de confiance commence par une décision explicite de visibilité, une identité sécurisée et une limite stricte autour des données qui ne doivent jamais faire l’objet d’un commit."
+    },
+    "repository-readme": {
+      "kicker": "Leçon 2 · Dépôt",
+      "title": "Créer un dépôt que chacun peut comprendre",
+      "summary": "Choisissez une délimitation et une visibilité pertinentes, puis faites en sorte que le README réponde aux premières questions d’un visiteur.",
+      "objective": "Créez un dépôt dont le nom et la visibilité sont intentionnels, puis rédigez un README concis dans un format GitHub Flavored Markdown valide.",
+      "sections": [
+        {
+          "heading": "Donner un emplacement clair à un ensemble de travaux",
+          "body": [
+            "Créez `github-collaboration-lab` comme espace de travail propre pour le cours. Un bon nom de dépôt est court, descriptif et suffisamment stable pour survivre au premier brouillon. La description doit indiquer le résultat que le dépôt est destiné à produire.",
+            "La visibilité est un choix de gouvernance, pas un simple réglage esthétique. Les dépôts publics favorisent l’apprentissage ouvert et la révision ; les dépôts privés conviennent aux brouillons et aux équipes à accès restreint. Ne téléversez pas d’abord pour réfléchir à la visibilité ensuite."
+          ],
+          "bullets": [
+            "Initialisez le dépôt avec un README afin que le projet s’explique dès le premier commit.",
+            "Ajoutez une licence uniquement lorsque vous comprenez quelle autorisation vous souhaitez accorder.",
+            "Conservez les projets sans rapport entre eux dans des dépôts distincts lorsque leurs propriétaires, leurs publics ou leurs règles d’accès diffèrent."
+          ]
+        },
+        {
+          "heading": "Rédiger le README comme un contrat de fonctionnement",
+          "body": [
+            "Un README doit indiquer à une nouvelle personne ce qu’est le projet, pourquoi il compte, comment l’utiliser ou y contribuer, où obtenir de l’aide et qui en assure la maintenance. Pour les travaux administratifs, de recherche et d’enseignement, ajoutez la source faisant autorité, la limite des données, la personne responsable de la décision et la définition de l’achèvement.",
+            "Utilisez les titres pour faire apparaître la structure, les liens pour montrer les preuves, les listes de tâches pour les petits engagements visibles et les blocs de code délimités uniquement pour les commandes ou le texte littéral. Prévisualisez le Markdown avant le commit."
+          ],
+          "code": {
+            "label": "Un README minimal pour la collaboration",
+            "language": "markdown",
+            "value": "# GitHub collaboration lab\n\n## Purpose\nBuild one privacy-safe, reviewable project from issue to release.\n\n## Working agreement\n- Propose changes on a branch.\n- Link each pull request to an issue.\n- Never commit credentials or personal data.\n\n## Definition of done\nA reviewed pull request is merged and a release records the accepted result."
+          }
+        },
+        {
+          "heading": "Considérer chaque premier commit comme une décision",
+          "body": [
+            "L’initialisation d’un README crée un historique. Avant de cliquer sur Valider les modifications, lisez le diff, rédigez un message qui décrit le résultat et confirmez la branche cible. Un message utile est `Add repository purpose and working agreement`, et non `Update README`.",
+            "Le navigateur est idéal pour cette petite modification d’un seul fichier. Vous apprenez le modèle avant d’ajouter le coût opérationnel de Git en local."
+          ],
+          "bullets": [
+            "Prévisualisez le rendu Markdown.",
+            "Examinez les lignes modifiées.",
+            "Confirmez que le commit contient un changement cohérent."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "Créer le laboratoire de collaboration",
+        "brief": "Créez le dépôt et rendez sa première page utile à une personne qui n’a pas suivi ce cours.",
+        "steps": [
+          "Créez `github-collaboration-lab` avec la visibilité choisie dans la leçon 1.",
+          "Initialisez-le avec un README.",
+          "Ajoutez l’objectif, le public, l’accord de travail, la limite de confidentialité et la définition de l’achèvement.",
+          "Prévisualisez le Markdown, examinez le diff et créez un commit dont le message décrit le résultat."
+        ],
+        "evidence": [
+          "Une URL de dépôt qui ne révèle aucun nom confidentiel d’organisation ou de projet.",
+          "Un README comportant cinq sections nommées et une limite de confidentialité visible.",
+          "Un message de premier commit qui explique le résultat."
+        ],
+        "safety": "Utilisez uniquement du contenu fictif, synthétique ou sous licence ouverte. Un dépôt privé n’autorise pas le téléversement de contenu soumis à des restrictions."
+      },
+      "checkpoint": {
+        "prompt": "Quand deux ensembles de travaux doivent-ils utiliser des dépôts distincts ?",
+        "answer": "Séparez-les lorsque leurs propriétaires, leurs autorisations d’accès, leur cycle de vie, leur public ou leur source de vérité diffèrent. Un dépôt doit faciliter la compréhension d’une seule limite de travail, et non dissimuler plusieurs limites incompatibles."
+      },
+      "takeaway": "Un dépôt devient collaboratif lorsque sa délimitation, son public, son accord de travail et sa norme d’achèvement sont compréhensibles dès l’arrivée."
+    },
+    "branches-commits": {
+      "kicker": "Leçon 3 · Historique",
+      "title": "Utiliser les branches et les commits pour rendre le changement explicable",
+      "summary": "Isolez une proposition, enregistrez des points de contrôle significatifs et lisez le diff avant de demander une révision.",
+      "objective": "Créez une branche ciblée, produisez deux commits atomiques et expliquez la relation entre branche, commit, diff et `main`.",
+      "sections": [
+        {
+          "heading": "Une branche est une proposition isolée, pas un dossier de sauvegarde",
+          "body": [
+            "Créez une branche pour un changement cohérent. Travaillez-y sans modifier l’état accepté de la branche par défaut du dépôt, appelée `main` tout au long de ce laboratoire. Un autre dépôt peut employer un nom de branche par défaut différent. GitHub flow recommande des branches distinctes pour les travaux sans rapport afin que la révision, les tests, le retour en arrière et la responsabilité restent compréhensibles.",
+            "Nommez la branche d’après le résultat visé, par exemple `docs/add-audience`, plutôt que d’après une personne ou une phase vague comme `peter-work` ou `updates`."
+          ],
+          "bullets": [
+            "`main` : l’état actuellement accepté.",
+            "Branche de travail : l’état proposé en cours de construction.",
+            "Pull request : la comparaison révisable entre ces deux états."
+          ]
+        },
+        {
+          "heading": "Vérifier la branche avant chaque modification",
+          "body": [
+            "Le sélecteur de branche indique la version que vous modifiez. Vérifiez-la avant de changer un fichier, en particulier après avoir suivi un lien ou lorsque vous revenez plus tard dans un dépôt.",
+            "Si un changement poursuit un autre objectif, arrêtez-vous et créez une autre branche. Une branche qui mélange règles, révision rédactionnelle, mises à jour de dépendances et fonctionnalité oblige les personnes chargées de la révision à examiner plusieurs risques simultanément."
+          ],
+          "bullets": [
+            "Créez la branche à partir de la base prévue la plus récente.",
+            "Écartez les changements sans rapport.",
+            "Supprimez la branche une fois son travail fusionné en toute sécurité."
+          ]
+        },
+        {
+          "heading": "Les commits sont des points de contrôle significatifs ; les diffs en constituent la preuve",
+          "body": [
+            "Un commit enregistre un instantané et un message. Créez-en un lorsqu’un résultat cohérent est terminé, puis examinez le diff pour vérifier que seules les lignes prévues ont changé. Petit ne signifie pas arbitraire : une faute de frappe et sa correction vont ensemble, tandis qu’une nouvelle section et un reformatage sans rapport n’y vont souvent pas.",
+            "Un historique lisible aide la personne chargée de la révision à comprendre pourquoi le dépôt a changé et permet à la future personne responsable de la maintenance de retrouver le moment où le comportement a été modifié."
+          ],
+          "code": {
+            "label": "Commandes facultatives d’inspection locale",
+            "language": "shell",
+            "value": "git status\ngit diff\ngit add README.md\ngit commit -m \"Add audience and success criteria\""
+          }
+        }
+      ],
+      "practice": {
+        "title": "Deux changements, deux commits cohérents",
+        "brief": "Ajoutez une présentation du public et une liste de contrôle d’achèvement sans modifier directement `main`.",
+        "steps": [
+          "Créez `docs/add-audience` à partir de `main`.",
+          "Ajoutez une section Public et créez un commit dont le message décrit le résultat.",
+          "Ajoutez une liste de contrôle d’achèvement en trois points et créez un deuxième commit.",
+          "Ouvrez l’historique des commits de la branche et examinez les deux diffs."
+        ],
+        "evidence": [
+          "Une branche dont le nom décrit le travail.",
+          "Deux commits, chacun correspondant à un résultat cohérent.",
+          "Une courte note expliquant pourquoi `main` n’a pas encore changé."
+        ],
+        "safety": "Si vous utilisez Git en local, vérifiez le dépôt distant et la branche actuelle avant de pousser. Ne collez jamais de jetons d’authentification dans des commandes, des fichiers ou des captures d’écran."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi une branche n’est-elle pas la même chose que la copie d’un dossier ?",
+        "answer": "Une branche est une ligne nommée de l’historique du dépôt qui partage des commits antérieurs avec d’autres branches. Git peut comparer, fusionner et retracer ses commits ; un dossier copié n’entretient aucune relation de ce type, sauf s’il constitue lui-même un dépôt Git."
+      },
+      "takeaway": "Faites une proposition par branche, un résultat cohérent par commit, et laissez le diff prouver ce qui a changé."
+    },
+    "pull-requests-reviews": {
+      "kicker": "Leçon 4 · Révision",
+      "title": "Transformer une branche en décision révisable",
+      "summary": "Ouvrez tôt une pull request, examinez chaque fichier modifié et distinguez les signaux utiles de révision des règles imposées par le dépôt.",
+      "objective": "Ouvrez une pull request riche en éléments de preuve, effectuez une révision ligne par ligne, répondez aux retours et expliquez quand une approbation relève d’une attente sociale ou d’une exigence technique.",
+      "sections": [
+        {
+          "heading": "Une pull request est une proposition assortie d’une trace",
+          "body": [
+            "Une pull request relie la raison du travail, les commits qui le mettent en œuvre, les contrôles automatisés, la conversation de révision, les fichiers exactement modifiés et la fusion finale. Ouvrez-la avant que le changement ne vous semble parfait lorsqu’un retour précoce peut éviter du travail inutile ; marquez-la comme brouillon si elle n’est pas prête à être fusionnée.",
+            "Rédigez la description pour la personne chargée de la révision : problème, résultat visé, modifications apportées, méthode de vérification, incertitudes restantes et issue clôturée. Vérifiez la branche de base et la branche de comparaison avant de créer la demande."
+          ],
+          "bullets": [
+            "Problème : pourquoi ce changement existe.",
+            "Preuve : ce que vous avez examiné, rendu, testé ou vérifié.",
+            "Risque : ce que la personne chargée de la révision doit mettre à l’épreuve."
+          ]
+        },
+        {
+          "heading": "Examiner le diff, puis rendre les retours exploitables",
+          "body": [
+            "Commencez par Fichiers modifiés. Examinez chaque fichier, laissez des commentaires sur les lignes lorsque le contexte importe, posez des questions lorsque l’intention n’est pas claire et proposez une modification suggérée lorsque vous pouvez fournir un texte de remplacement exact. La révision n’est pas une chasse aux erreurs ; c’est une démarche structurée visant à améliorer l’état accepté.",
+            "L’auteur doit répondre sur le fond, appliquer ou refuser les suggestions en donnant une raison, pousser un commit supplémentaire si nécessaire et confirmer que le nouveau diff résout le problème."
+          ],
+          "bullets": [
+            "Commenter permet de communiquer sans prendre de décision d’approbation.",
+            "Approuver indique que la proposition est acceptable pour la personne chargée de la révision.",
+            "Demander des modifications consigne les problèmes considérés comme bloquants par la personne chargée de la révision."
+          ]
+        },
+        {
+          "heading": "Connaître la différence entre un signal et un verrou",
+          "body": [
+            "Sélectionner Demander des modifications est généralement informatif. Cela bloque la fusion lorsque la branche cible possède un ensemble de règles ou une règle classique de protection de branche où Exiger une pull request est activé, et qu’un collaborateur disposant d’un accès en écriture, administrateur ou propriétaire soumet la révision. Le blocage reste en vigueur jusqu’à l’approbation de ce collaborateur, sauf si une autorité configurée permet d’annuler la révision ou de contourner la règle. Les contrôles obligatoires et les règles exigeant la résolution des conversations sont des verrous distincts.",
+            "Les contrôles verts ne prouvent eux aussi que ce que les contrôles configurés ont testé. La révision humaine évalue encore l’adéquation, les preuves, la confidentialité, le raisonnement et la qualité propre au contexte."
+          ],
+          "bullets": [
+            "Norme sociale : l’équipe convient de ne pas fusionner avant la révision.",
+            "Verrou technique : les règles du dépôt empêchent la fusion tant que les conditions ne sont pas satisfaites.",
+            "Jugement : ni un contrôle ni une approbation ne prouvent que le travail est universellement correct."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "Réviser la modification du public",
+        "brief": "Ouvrez la branche de la leçon 3 sous forme de pull request et effectuez une boucle complète de retours entre auteur et personne chargée de la révision.",
+        "steps": [
+          "Ouvrez une pull request vers `main` avec le problème, le résumé du changement, la validation, le risque et un espace réservé pour clôturer une issue.",
+          "Examinez chaque fichier modifié avant d’effectuer la révision.",
+          "Posez une question de fond et ajoutez une suggestion applicable, en faisant appel si nécessaire à un pair ou à un second dépôt d’exercice.",
+          "Répondez aux retours, poussez une amélioration et consignez une décision d’approbation ou de demande de modifications."
+        ],
+        "evidence": [
+          "Une description de pull request contenant les cinq champs de révision.",
+          "Un commentaire ou une question sur une ligne et une modification suggérée.",
+          "Une réponse de l’auteur qui explique ce qui a changé ou pourquoi une suggestion a été refusée."
+        ],
+        "safety": "N’invitez pas de personnes inconnues dans un dépôt privé pour vous exercer. Faites appel à un pair de confiance, à une organisation temporaire ou à un dépôt officiel GitHub Skills."
+      },
+      "checkpoint": {
+        "prompt": "Une personne chargée de la révision a sélectionné Demander des modifications. La fusion est-elle désormais impossible ?",
+        "answer": "Pas nécessairement. Une révision Request changes bloque la fusion lorsque Require a pull request s’applique et qu’un collaborateur disposant d’un accès en écriture, administrateur ou propriétaire la soumet, sauf si un droit configuré permet de la révoquer ou de contourner la règle. Les vérifications d’état obligatoires et la résolution obligatoire des conversations sont des portes de fusion distinctes. L’équipe doit néanmoins respecter son accord de révision même en l’absence de blocage technique."
+      },
+      "takeaway": "Une pull request solide rend visibles en un seul endroit l’objectif, le changement, les preuves, le risque et la décision."
+    },
+    "issues-discussions": {
+      "kicker": "Leçon 5 · Coordination",
+      "title": "Choisir le bon espace pour le travail et la conversation",
+      "summary": "Utilisez les issues pour les résultats donnant lieu à une action, les Discussions pour les échanges communautaires ouverts et les commentaires de pull request pour une proposition de changement précise.",
+      "objective": "Classez correctement une conversation, rédigez une issue orientée vers un résultat et préservez le lien entre la décision et sa mise en œuvre.",
+      "sections": [
+        {
+          "heading": "Une issue répond à la question : quel résultat doit être obtenu ?",
+          "body": [
+            "Les issues peuvent suivre des tâches, des bogues, des idées, des retours et des décisions. Une issue utile contient le contexte, le résultat souhaité, les critères d’acceptation, un responsable lorsqu’il est connu et suffisamment de métadonnées pour la retrouver et la classer par priorité. Les sous-issues et les dépendances permettent de représenter un travail qui dépasse une seule action.",
+            "N’utilisez pas une issue comme transcription non structurée d’une discussion. Résumez la décision et mettez à jour la description lorsque le périmètre accepté change."
+          ],
+          "bullets": [
+            "Contexte : pourquoi le travail compte maintenant.",
+            "Résultat : ce qui sera différent de manière observable.",
+            "Critères d’acceptation : comment l’achèvement sera évalué."
+          ]
+        },
+        {
+          "heading": "Une Discussion répond à la question : que devons-nous apprendre ou décider ensemble ?",
+          "body": [
+            "Utilisez les Discussions pour les questions ouvertes, les propositions, les annonces, les sondages et l’orientation de la communauté. Les Discussions peuvent devoir être activées par une personne disposant d’un accès administrateur au dépôt. Dès qu’une conversation aboutit à une action décidée, créez ou liez une issue afin que la responsabilité et l’achèvement ne disparaissent pas dans le fil.",
+            "Utilisez les commentaires de pull request lorsque la conversation porte sur les lignes exactes ou sur l’état de préparation à la fusion d’une proposition. L’outil doit correspondre à la limite de la décision."
+          ],
+          "bullets": [
+            "Issue : travail donnant lieu à une action, avec un responsable et une condition d’achèvement.",
+            "Discussion : exploration, questions-réponses, annonce ou orientation de la communauté.",
+            "Commentaire de pull request : retour sur une proposition de changement donnée."
+          ]
+        },
+        {
+          "heading": "Relier l’intention à la mise en œuvre",
+          "body": [
+            "Créez la branche depuis l’issue lorsque cela convient à votre flux de travail, puis liez la pull request. Placez un mot-clé de clôture pris en charge, tel que `Closes #12`, dans la description de la pull request et ciblez la branche par défaut : GitHub lie la pull request à l’issue et ferme l’issue lorsque la pull request est fusionnée dans cette branche par défaut. En revanche, un mot-clé pris en charge dans un message de commit ferme l’issue lorsque ce commit atteint la branche par défaut, mais GitHub n’affiche pas la pull request comme liée à l’issue.",
+            "Cette chaîne permet à une future personne de remonter de la raison d’être du travail à ce qui a changé, à la manière dont il a été révisé, puis au résultat accepté."
+          ],
+          "code": {
+            "label": "Extrait concis de description de pull request",
+            "language": "markdown",
+            "value": "## Why\nNew contributors cannot tell who this repository is for.\n\n## Acceptance criteria\n- README names the audience.\n- A reviewer confirms the wording is clear.\n\nCloses #12"
+          }
+        }
+      ],
+      "practice": {
+        "title": "Planifier avant de modifier",
+        "brief": "Créez une issue donnant lieu à une action pour améliorer le README et classez cinq autres conversations.",
+        "steps": [
+          "Ouvrez une issue avec le contexte, le résultat, les critères d’acceptation et une étiquette appropriée.",
+          "Dans la description de la pull request, liez l’issue à l’aide d’un mot-clé de clôture pris en charge et confirmez que la pull request cible la branche par défaut.",
+          "Classez un bogue, une proposition issue d’une séance d’idéation, une préoccupation rédactionnelle au niveau d’une ligne, une annonce et une tâche planifiée comme issue, Discussion ou commentaire de pull request.",
+          "Expliquez un classement qui vous a d’abord semblé ambigu."
+        ],
+        "evidence": [
+          "Une issue dont le titre décrit un résultat plutôt qu’un fichier.",
+          "Un lien visible entre l’issue et la pull request.",
+          "Cinq classements accompagnés chacun d’une justification en une phrase."
+        ],
+        "safety": "Le contenu des issues et des Discussions peut être public et consultable. Retirez les coordonnées personnelles, le contexte professionnel privé, les dossiers d’étudiants et les informations confidentielles sur les incidents."
+      },
+      "checkpoint": {
+        "prompt": "Une Discussion aboutit à un accord selon lequel un nouveau guide doit être rédigé. Que se passe-t-il ensuite ?",
+        "answer": "Consignez le résultat accepté, puis créez ou liez une issue avec un responsable et des critères d’achèvement. Conservez la Discussion comme contexte de décision et l’issue comme registre du travail responsabilisé."
+      },
+      "takeaway": "Placez l’exploration dans les Discussions, les résultats responsabilisés dans les issues et la révision propre à une proposition dans les pull requests."
+    },
+    "projects-office-work": {
+      "kicker": "Leçon 6 · Activités administratives et gestion de projet",
+      "title": "Gérer un projet sans transformer GitHub en fourre-tout de fichiers",
+      "summary": "Construisez une charte de projet, un système de travail fondé sur les issues et des vues adaptées aux publics pour un lancement, une campagne, une soumission ou une initiative d’équipe.",
+      "objective": "Concevez un GitHub Project doté d’un modèle d’état faisant autorité, d’un accès selon le moindre privilège et de vues distinctes pour l’équipe opérationnelle et la direction.",
+      "sections": [
+        {
+          "heading": "Commencer par une charte et une limite d’information",
+          "body": [
+            "Les recommandations de planification de GitHub prennent explicitement en charge le travail lié aux produits, aux projets, aux équipes et aux activités personnelles. Utilisez le README comme charte de projet : objectif, périmètre, responsable, autorité décisionnelle, norme de communication, source de vérité, convention de fichiers et définition de l’achèvement.",
+            "Ne considérez pas le dépôt comme un substitut à un système de gestion documentaire régi. Les fichiers bureautiques binaires opaques, les contrats, les dossiers du personnel, les notes, les données clients et les documents soumis à des règles de conservation peuvent nécessiter un autre système autorisé. Créez un lien vers le document faisant autorité au lieu de le dupliquer."
+          ],
+          "bullets": [
+            "Dépôt : charte durable, texte révisable, modèles, décisions et liens.",
+            "Issues : travail attribué, risques, approbations et dépendances.",
+            "Système d’enregistrement externe : originaux confidentiels, signés, réglementés ou soumis à des règles de conservation."
+          ]
+        },
+        {
+          "heading": "Utiliser un modèle de travail et plusieurs vues",
+          "body": [
+            "Un Project relie les issues et les pull requests à l’aide de champs personnalisés. Un tableau permet un tri détaillé, un tableau de bord rend l’état du travail visible et une feuille de route peut communiquer le calendrier. Créez des vues à partir des mêmes éléments au lieu de tenir une seconde feuille de calcul d’état.",
+            "Conservez des états utiles à la décision, par exemple À traiter, Prêt, En cours, En révision, Bloqué et Terminé. Un excès de colonnes masque le travail immobilisé au lieu de le clarifier."
+          ],
+          "bullets": [
+            "Tableau de travail : responsable, volet de travail, priorité, état, date cible et risque.",
+            "Tableau de bord de l’équipe : regroupé par état et filtré sur le travail actif.",
+            "Vue de la direction : jalons, blocages et dates cibles, sans bruit lié à la mise en œuvre."
+          ]
+        },
+        {
+          "heading": "Rendre explicites l’autorité et l’accès",
+          "body": [
+            "L’appartenance à une organisation ne signifie pas que tout le monde dispose du même accès. Attribuez le rôle le plus limité qui permet à chaque personne d’accomplir son travail et séparez les dépôts lorsque les limites d’information diffèrent. Une personne chargée de la révision peut recommander un changement ; la personne désignée pour décider reste responsable de l’approbation.",
+            "L’équipe GitHub Docs fournit un exemple réel issu de la pratique : le travail de contenu lié, la révision, la publication, les étiquettes, l’automatisation et différentes vues de Project servent à la fois les rédacteurs et les responsables."
+          ],
+          "bullets": [
+            "Consignez qui peut proposer, réviser, approuver et publier.",
+            "Réexaminez l’accès des collaborateurs lorsque le projet ou l’équipe change.",
+            "Publiez une note de clôture et archivez le travail terminé lorsque cela convient."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "Construire un centre de pilotage de lancement pour quatre personnes",
+        "brief": "Modélisez un événement fictif ou le lancement d’un produit avec une seule source de vérité et aucun dossier sensible.",
+        "steps": [
+          "Ajoutez au README une charte de projet d’une page.",
+          "Créez trois issues, une sous-issue et une dépendance.",
+          "Créez un Project avec des champs d’état, de responsable, de priorité, de volet de travail, de date cible et de risque.",
+          "Construisez un tableau de travail, un tableau de bord d’état et une vue filtrée des éléments à risque.",
+          "Soumettez une modification de règle ou de texte public au moyen d’une pull request, puis déplacez l’élément lié après la fusion."
+        ],
+        "evidence": [
+          "Une charte qui nomme le périmètre, le responsable, l’autorité, la source de vérité et la définition de l’achèvement.",
+          "Trois vues de Project liées, construites à partir des mêmes éléments.",
+          "Une note qui identifie un document à conserver hors de GitHub et en explique la raison."
+        ],
+        "safety": "Utilisez des noms et des données fictifs. Ne vous exercez jamais avec de vrais contrats, coordonnées de clients, données d’employés, notes, lieux, identifiants ou informations commerciales non publiées."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi est-il risqué de copier l’état du Project dans une feuille de calcul hebdomadaire distincte ?",
+        "answer": "Deux sources d’état modifiables finissent par diverger. Si la direction a besoin d’une autre présentation, créez une vue filtrée ou un rapport généré à partir des éléments faisant autorité, au lieu de maintenir manuellement une vérité concurrente."
+      },
+      "takeaway": "GitHub aide le travail administratif lorsqu’il rend les décisions, la responsabilité, la révision et l’état traçables, et non lorsqu’il devient un espace de stockage incontrôlé."
+    },
+    "forks-conflicts": {
+      "kicker": "Leçon 7 · Contribution",
+      "title": "Contribuer au-delà des limites et résoudre les conflits délibérément",
+      "summary": "Sachez quand créer une branche, quand créer un fork et comment résoudre des changements concurrents sans écarter l’intention de l’un ou l’autre auteur.",
+      "objective": "Choisissez une branche ou un fork selon les autorisations, interprétez un conflit de fusion et produisez un état final révisé qui préserve le sens recherché.",
+      "sections": [
+        {
+          "heading": "Créer une branche dans un dépôt partagé ; créer un fork au-delà d’une limite de propriété",
+          "body": [
+            "Utilisez une branche lorsque vous disposez de l’accès approprié pour collaborer directement dans le dépôt. Un fork est un dépôt distinct relié à un dépôt en amont ; il est courant lorsqu’un contributeur externe ne peut pas ou ne doit pas écrire de branches dans l’original.",
+            "La visibilité et les autorisations d’un fork suivent les règles de GitHub et les politiques de l’organisation. Ne supposez jamais que la création d’un fork à partir d’un dépôt privé ou interne vous donne le droit d’en redistribuer le contenu."
+          ],
+          "bullets": [
+            "Branche : même dépôt, paramètres et autorisations partagés.",
+            "Fork : dépôt distinct relié à un dépôt en amont.",
+            "Clone : copie locale utilisée pour travailler depuis votre ordinateur."
+          ]
+        },
+        {
+          "heading": "Un conflit est une décision que Git ne peut pas prendre en toute sécurité",
+          "body": [
+            "Un conflit de fusion survient lorsque Git ne peut pas combiner automatiquement des changements concurrents, souvent parce que les deux branches ont modifié les mêmes lignes ou que l’une a modifié un fichier supprimé par l’autre. Ce n’est pas une erreur à masquer ; c’est une invitation à déterminer l’intention humaine.",
+            "GitHub peut résoudre dans l’éditeur web les conflits simples portant sur des lignes concurrentes. Les conflits plus complexes doivent être résolus en local. Lisez les deux versions, retirez les marqueurs de conflit, rédigez le résultat combiné voulu, testez-le ou prévisualisez-le, puis seulement marquez le conflit comme résolu."
+          ],
+          "bullets": [
+            "Ne choisissez pas notre version ou leur version sans comprendre les deux.",
+            "Interrogez les auteurs lorsque le sens recherché n’est pas clair.",
+            "Examinez l’intégralité du diff résolu, pas seulement le bloc en conflit."
+          ]
+        },
+        {
+          "heading": "Choisir un historique de fusion utile aux futurs lecteurs",
+          "body": [
+            "Un commit de fusion préserve la structure des commits de la branche, une fusion squash condense la proposition en un seul commit et une fusion rebase rejoue les commits dans un historique linéaire lorsqu’elle est activée. L’équipe doit choisir une stratégie cohérente adaptée à sa manière d’examiner et d’annuler le travail.",
+            "Après la fusion, confirmez l’état de l’issue liée, supprimez la branche de travail lorsque cela ne présente aucun risque et mettez à jour le fork avant de commencer un travail sans rapport."
+          ],
+          "code": {
+            "label": "Marqueurs de conflit à remplacer par le contenu final",
+            "language": "text",
+            "value": "<<<<<<< current branch\nAudience: project managers\n=======\nAudience: first-time GitHub collaborators\n>>>>>>> incoming branch"
+          }
+        }
+      ],
+      "practice": {
+        "title": "Résoudre un conflit intentionnel dans le README",
+        "brief": "Créez deux modifications concurrentes de la ligne décrivant le public et résolvez-les comme une décision éditoriale, et non comme une simple pression mécanique sur un bouton.",
+        "steps": [
+          "Créez deux branches à partir de la même base et modifiez différemment la même phrase du README.",
+          "Fusionnez la première proposition, puis ouvrez la deuxième pull request et identifiez le conflit.",
+          "Lisez les deux sens recherchés et rédigez une phrase finale adaptée au public choisi.",
+          "Retirez chaque marqueur de conflit, prévisualisez le README, créez le commit de résolution et réexaminez le diff."
+        ],
+        "evidence": [
+          "Une pull request ayant rencontré un conflit visible.",
+          "Une phrase finale accompagnée d’une justification éditoriale en une phrase.",
+          "Un diff résolu propre, sans marqueur de conflit."
+        ],
+        "safety": "Utilisez uniquement le README jetable du cours. Ne vous exercez pas à réécrire l’historique, à effectuer des poussées forcées ou à résoudre des conflits dans un dépôt contenant le travail actif d’autres personnes."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi ne faut-il pas sélectionner automatiquement un côté entier d’un conflit ?",
+        "answer": "Chaque côté peut contenir une intention valable. La résolution du conflit crée l’état final voulu, qui peut combiner ou réécrire les deux versions, ou choisir délibérément entre elles après en avoir compris l’objectif."
+      },
+      "takeaway": "Un fork gère une limite de propriété ; un conflit révèle une limite d’intention. Les deux exigent un raisonnement explicite sur les personnes et les autorisations."
+    },
+    "notifications-governance": {
+      "kicker": "Leçon 8 · Responsabilité",
+      "title": "Maîtriser l’attention, les accès et la réponse aux incidents",
+      "summary": "Adoptez de bonnes habitudes de notification, attribuez des rôles selon le moindre privilège et connaissez la première réaction à avoir lorsqu’un contenu sensible entre dans l’historique.",
+      "objective": "Configurez des abonnements ciblés, expliquez les rôles des dépôts d’organisation et exécutez un plan de première réponse sûr face à un identifiant fictif divulgué.",
+      "sections": [
+        {
+          "heading": "S’abonner au travail, pas au bruit",
+          "body": [
+            "Les notifications proviennent de la participation, des mentions, des attributions, des révisions et des abonnements aux dépôts. Tout surveiller rend le travail urgent impossible à distinguer de l’activité ambiante. Configurez une surveillance personnalisée pour les événements dont vous êtes responsable et désabonnez-vous des conversations dont vous n’avez plus besoin de suivre les mises à jour.",
+            "Triez la boîte de réception : agissez, enregistrez pour plus tard, marquez comme terminé ou désabonnez-vous. Un indicateur bleu est un signal d’attention, pas une mesure de productivité."
+          ],
+          "bullets": [
+            "Participation : vous avez pris part au fil ou y avez été mentionné.",
+            "Surveillance : vous avez choisi de recevoir certaines activités du dépôt.",
+            "Enregistrée : vous avez délibérément reporté une notification pour agir plus tard."
+          ]
+        },
+        {
+          "heading": "Donner à chaque personne l’accès minimal nécessaire à son rôle",
+          "body": [
+            "Les dépôts d’organisation peuvent attribuer des rôles dotés de capacités différentes. Écriture, maintenance, triage et administration ne sont pas interchangeables. Séparez la proposition, la révision, l’approbation et l’administration lorsque le risque du projet le justifie.",
+            "Réexaminez les accès lorsqu’un apprenant, un prestataire, un employé, un collaborateur ou un projet sort du périmètre. Une visibilité privée sans révision des accès accumule une exposition silencieuse."
+          ],
+          "bullets": [
+            "Accordez un accès pour une tâche actuelle et un rôle responsable.",
+            "Utilisez les règles du dépôt pour imposer les révisions et les contrôles requis.",
+            "Retirez les accès obsolètes et consignez les privilèges exceptionnels."
+          ]
+        },
+        {
+          "heading": "Réagir aux secrets exposés dans le bon ordre",
+          "body": [
+            "Si un mot de passe, un jeton ou une clé est inclus dans un commit, supposez qu’il a pu être copié. Révoquez ou renouvelez d’abord l’identifiant, puis évaluez l’exposition, informez la personne responsable, retirez les données du contenu actuel et suivez les recommandations de GitHub pour corriger l’historique lorsque cela se justifie.",
+            "La réécriture de l’historique est perturbatrice et ne peut pas effacer les copies déjà récupérées ailleurs. La prévention au moyen de l’analyse des secrets, de `.gitignore`, d’autorisations minimales et d’une révision avant le commit est plus sûre que le nettoyage."
+          ],
+          "code": {
+            "label": "Ordre de réponse à un incident fictif",
+            "language": "text",
+            "value": "1. Revoke or rotate the credential\n2. Notify the accountable owner\n3. Assess logs, forks, clones, and downstream systems\n4. Remove the visible secret and follow remediation guidance\n5. Record cause and prevention without reproducing the secret"
+          }
+        }
+      ],
+      "practice": {
+        "title": "Audit de l’attention et des accès",
+        "brief": "Configurez le dépôt du laboratoire afin que les notifications et les autorisations correspondent à vos responsabilités réelles.",
+        "steps": [
+          "Définissez un niveau de surveillance personnalisé pour les issues et les pull requests du dépôt du laboratoire.",
+          "Enregistrez une notification d’exercice, marquez-en une comme terminée et désabonnez-vous d’un fil jetable.",
+          "Rédigez une matrice de rôles pour le propriétaire, le contributeur, la personne chargée de la révision et la personne qui consulte le projet.",
+          "Ordonnez les étapes de réponse à l’exposition d’un jeton fictif et expliquez pourquoi son renouvellement vient en premier."
+        ],
+        "evidence": [
+          "Une règle de notification écrite qui indique ce que vous surveillez et pourquoi.",
+          "Une matrice de moindre privilège comportant quatre rôles.",
+          "Une séquence de réponse à un secret qui ne contient aucun identifiant réel."
+        ],
+        "safety": "Ne créez et n’incluez jamais de véritable jeton dans un commit pour un exercice. Utilisez l’espace réservé littéral `EXAMPLE_REVOKED_TOKEN` uniquement dans une note locale privée si un exemple est nécessaire."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi renouveler un identifiant inclus dans un commit avant de réécrire l’historique ?",
+        "answer": "L’identifiant peut déjà avoir été copié ; seuls sa révocation ou son renouvellement empêchent donc son utilisation future. La réécriture de l’historique est plus lente, perturbatrice et ne peut atteindre chaque clone, fork, journal ou cache."
+      },
+      "takeaway": "Une collaboration saine protège à la fois l’attention, ressource rare, et les accès puissants. Abonnez-vous avec discernement, accordez le minimum et révoquez immédiatement les secrets exposés."
+    },
+    "software-automation": {
+      "kicker": "Leçon 9 · Génie logiciel",
+      "title": "Passer d’un changement révisé à une version testée",
+      "summary": "Choisissez le bon environnement de travail, faites vérifier par l’automatisation une affirmation définie et conditionnez un état logiciel accepté sous forme de release.",
+      "objective": "Choisissez le navigateur, Desktop, Codespaces ou la CLI pour une tâche d’ingénierie, lisez un workflow et distinguez les preuves automatisées du jugement humain.",
+      "sections": [
+        {
+          "heading": "Choisir une interface selon le coût de la tâche",
+          "body": [
+            "Utilisez GitHub.com pour les petites modifications d’un seul fichier. Appuyez sur `.` dans un dépôt pour ouvrir github.dev lorsque plusieurs fichiers nécessitent un éditeur léger dans le navigateur. Utilisez GitHub Desktop pour disposer d’une interface visuelle de Git en local, Codespaces pour un environnement de développement hébergé avec terminal et dépendances, ou la CLI et un éditeur lorsque vous avez besoin d’un contrôle et d’une automatisation maximaux.",
+            "L’outil change, mais pas le contrat de collaboration : issue, branche ciblée, commits significatifs, pull request, contrôles, révision, fusion et release."
+          ],
+          "bullets": [
+            "Navigateur : rapide, simple, sans configuration locale.",
+            "Desktop ou éditeur : fichiers locaux, prévisualisations, tests et travail hors ligne.",
+            "Codespaces ou CLI : environnements reproductibles, outils complexes et automatisation."
+          ]
+        },
+        {
+          "heading": "Un contrôle vert ne prouve que le contrôle configuré",
+          "body": [
+            "GitHub Actions exécute les workflows stockés sous `.github/workflows`. Une pull request logicielle peut installer les dépendances, vérifier le style, tester, construire et publier un état. S’il n’existe aucun test d’accessibilité, de sécurité ou de navigateur, un workflow vert ne dit rien sur ces propriétés.",
+            "Considérez le code d’une pull request comme non fiable. Limitez au minimum les autorisations de `GITHUB_TOKEN` et n’exposez pas de secrets à du code non fiable. Épinglez les actions tierces à un SHA de commit complet et vérifié, examinez leur source et leur éditeur, puis utilisez un processus maîtrisé tel que Dependabot pour proposer et réviser les mises à jour de SHA. Vérifiez de nouveau les exemples officiels actuels de workflows au lieu de copier un YAML obsolète."
+          ],
+          "code": {
+            "label": "Contrôle Node.js minimal en lecture seule",
+            "language": "yaml",
+            "value": "name: checks\non: [push, pull_request]\npermissions:\n  contents: read\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n      - run: npm ci\n      - run: npm test"
+          }
+        },
+        {
+          "heading": "Publier un état accepté pour les utilisateurs",
+          "body": [
+            "Une release regroupe un point nommé de l’historique autour d’une étiquette Git. Rédigez les notes de publication pour l’utilisateur : ce qui a changé, pourquoi cela compte, comment l’obtenir, les limites connues et toute étape de migration. Ne faites pas des messages de commit bruts votre seule explication.",
+            "Le témoignage de pratique de Sotheby’s montre la valeur d’un retour immédiat de l’intégration continue dans un véritable flux de travail, mais la syntaxe actuelle et les décisions de sécurité doivent toujours provenir de la documentation GitHub en vigueur."
+          ],
+          "bullets": [
+            "L’issue définit le résultat observable du bogue ou de la fonctionnalité.",
+            "Les contrôles testent des conditions explicites ; la révision évalue le raisonnement et l’adéquation.",
+            "La release communique le changement accepté aux utilisateurs en aval."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "Un défaut, une pull request, un plan de release",
+        "brief": "Utilisez un minuscule dépôt de code jetable ou analysez le workflow fourni sans exécuter de code non fiable.",
+        "steps": [
+          "Rédigez une issue comprenant la reproduction, le comportement attendu et les critères d’acceptation d’un petit défaut fictif.",
+          "Choisissez GitHub.com, Desktop, Codespaces ou la CLI et justifiez l’interface.",
+          "Ajoutez ou examinez un workflow qui teste une condition explicite avec des autorisations minimales.",
+          "Ouvrez une pull request qui lie l’issue et indiquez ce que le contrôle vert ne prouve pas.",
+          "Rédigez les notes de publication de `v0.1.0` après la fusion acceptée."
+        ],
+        "evidence": [
+          "Une décision d’interface reliée aux exigences de la tâche.",
+          "Une explication du workflow qui nomme le déclencheur, les autorisations, l’environnement d’exécution, les étapes et la limite des preuves.",
+          "Des notes de publication destinées aux utilisateurs qui indiquent une limite connue."
+        ],
+        "safety": "N’exécutez pas le workflow d’un fork inconnu avec des secrets ou des autorisations en écriture. Utilisez un dépôt jetable et les versions officielles actuelles des actions."
+      },
+      "checkpoint": {
+        "prompt": "Le workflow de test est vert. La pull request a-t-elle été prouvée correcte ?",
+        "answer": "Non. Elle a réussi les contrôles configurés. Les personnes chargées de la révision doivent encore évaluer l’adéquation aux exigences, les tests manquants, la sécurité, l’accessibilité, la maintenabilité et les effets involontaires."
+      },
+      "takeaway": "L’automatisation fournit des preuves répétables, elle ne délègue pas le jugement. Nommez ce que chaque contrôle prouve et ce qui nécessite encore une révision."
+    },
+    "research-reproducibility": {
+      "kicker": "Leçon 10 · Recherche",
+      "title": "Rendre une étude traçable et citable",
+      "summary": "Reliez la question de recherche, la limite des données, la méthode, l’environnement, le résultat, l’affirmation, les métadonnées de citation et la version publiée sans confondre gestion de versions et validité.",
+      "objective": "Concevez un dépôt de recherche respectueux de la vie privée, retracez une analyse de l’issue à la release et créez des métadonnées de citation valides pour une version exacte.",
+      "sections": [
+        {
+          "heading": "Considérer l’issue comme un registre d’expérience, et non comme un substitut au cahier de laboratoire",
+          "body": [
+            "Une issue de recherche peut consigner la justification, la question, les entrées prévues, la méthode, les résultats attendus, les décisions, le dépannage et les critères d’achèvement. L’étude de cas de laboratoire publiée en 2025 dans PLOS Biology documente cette utilisation effective de GitHub Issues et d’une structure de projet en texte brut dans de véritables travaux de recherche.",
+            "GitHub n’est pas un espace approprié pour les données sensibles relatives aux participants, les données cliniques, propriétaires, identifiantes ou sous embargo. Conservez les entrées brutes sous une forme immuable, ne stockez que de petites données publiques, synthétiques ou autorisées et créez, lorsque nécessaire, un lien vers un dépôt de données régi."
+          ],
+          "bullets": [
+            "Question : quelle affirmation l’analyse éclairera-t-elle ?",
+            "Trace : quelles données, quel script, quel environnement, quel résultat et quel commit l’ont produite ?",
+            "Limite : quelles données ou métadonnées doivent rester hors de GitHub ?"
+          ]
+        },
+        {
+          "heading": "Rendre l’environnement et la citation lisibles par une machine",
+          "body": [
+            "Incluez dans les commits les scripts, la documentation, un fichier de dépendances ou de verrouillage et un petit contrôle de reproductibilité. La réussite d’une nouvelle exécution ne valide ni le plan de recherche ni l’inférence statistique ; elle montre que la procédure configurée s’est exécutée comme prévu.",
+            "Ajoutez `CITATION.cff` à la racine du dépôt sur la branche par défaut. GitHub peut alors afficher Citer ce dépôt et proposer les formats APA et BibTeX. Utilisez `preferred-citation` lorsque le dépôt doit orienter les utilisateurs vers un article associé."
+          ],
+          "code": {
+            "label": "Exemple fictif minimal de CITATION.cff",
+            "language": "yaml",
+            "value": "cff-version: 1.2.0\nmessage: \"If you use this teaching example, cite the release.\"\ntitle: \"Reproducible mini-study\"\ntype: software\nauthors:\n  - family-names: \"Learner\"\n    given-names: \"Alex\"\nversion: 0.1.0\ndate-released: 2026-08-23"
+          }
+        },
+        {
+          "heading": "Publier l’état exact ; archiver dans le bon but",
+          "body": [
+            "Créez une release étiquetée pour le code et la documentation exacts utilisés dans le résultat communiqué. Pour un dépôt public, Zenodo peut archiver les releases et attribuer un DOI. Chaque service possède ses propres exigences de compte, de métadonnées, de licence et de dépôt ; vérifiez-les donc avant la publication.",
+            "L’URL d’une branche par défaut peut changer. Un SHA de commit complet identifie un état Git exact. Lorsque les releases immuables sont activées, la publication verrouille l’étiquette et les ressources de la release, mais son titre et ses notes restent modifiables et la release elle-même peut être supprimée. Après la suppression de la release, l’étiquette peut être supprimée, mais son nom ne peut pas être réutilisé. Le DOI d’une version peut identifier une release archivée par un service externe. Le mode d’archivage de GitHub rend un dépôt achevé accessible en lecture seule, mais il ne remplace pas les obligations de sauvegarde institutionnelle, de gouvernance des données ou d’archivage disciplinaire."
+          ],
+          "bullets": [
+            "Citez la release exacte utilisée pour un résultat.",
+            "Documentez la licence, la provenance des données, l’environnement et les limites.",
+            "Conservez les données sensibles et les données volumineuses régies dans un système externe approprié."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "De la question à une mini-étude citable",
+        "brief": "Utilisez un très petit jeu de données sous licence ouverte ou synthétique et rendez un résultat traçable sans prétendre que la reproductibilité prouve la validité.",
+        "steps": [
+          "Ouvrez une issue avec la question, la politique de données, la méthode prévue, le résultat et les critères d’achèvement.",
+          "Ajoutez sur une branche un petit script ou notebook d’analyse, un fichier de dépendances et un tableau ou une figure générés.",
+          "Ajoutez un test de bon fonctionnement ou un contrôle de rendu et expliquez exactement ce qu’il vérifie.",
+          "Examinez la correspondance entre la question, l’entrée, la méthode, le résultat et l’affirmation écrite.",
+          "Ajoutez la licence et `CITATION.cff`, puis créez une release versionnée. Considérez le dépôt dans Zenodo comme une extension facultative réservée aux dépôts publics."
+        ],
+        "evidence": [
+          "Une trace reliant l’issue, le commit et le résultat pour un résultat donné.",
+          "Une déclaration de limite des données qui nomme ce qui n’est pas stocké dans GitHub.",
+          "Un panneau Citer ce dépôt rendu ou un fichier CFF validé comportant des métadonnées fictives ou publiques et consenties."
+        ],
+        "safety": "Utilisez uniquement des données synthétiques, correctement désidentifiées avec l’autorité requise, ou sous licence ouverte. Ne téléversez jamais pour ce laboratoire de données relatives aux participants, aux patients, aux étudiants ou aux lieux, ni d’identifiants, de données sous embargo ou de données propriétaires."
+      },
+      "checkpoint": {
+        "prompt": "Une analyse publiée s’exécute de nouveau avec succès. Cela établit-il que sa conclusion est scientifiquement valide ?",
+        "answer": "Non. Cela étaye la reproductibilité informatique de la procédure configurée. Le plan de recherche, la mesure, les hypothèses, les choix d’analyse, l’incertitude et l’inférence nécessitent toujours une évaluation disciplinaire et méthodologique."
+      },
+      "takeaway": "GitHub peut rendre un processus de recherche inspectable et versionné ; il ne peut pas transformer un plan invalide en preuve valide."
+    },
+    "writing-publishing": {
+      "kicker": "Leçon 11 · Rédaction et publication",
+      "title": "Réviser la prose avec autant de soin que le code",
+      "summary": "Faites du texte brut la source faisant autorité, utilisez les pull requests pour le raisonnement éditorial et publiez une production stable issue d’une version révisée.",
+      "objective": "Structurez un dépôt de rédaction collaborative, effectuez une révision éditoriale par pull request et reliez la source révisée à un résultat publié.",
+      "sections": [
+        {
+          "heading": "Conserver une source modifiable adaptée aux diffs",
+          "body": [
+            "Utilisez Markdown, Quarto ou un autre format de texte brut comme source faisant autorité lorsque le flux de publication le permet. Le HTML, le PDF ou le DOCX généré constitue un résultat, et non un second document maître à modifier manuellement après le rendu.",
+            "L’étude de cas Manubot évaluée par les pairs décrit 36 auteurs appartenant à 20 institutions qui utilisent GitHub, des pull requests thématiques, la révision et l’intégration continue. Le guide d’utilisation de Manubot associé recommande une phrase par ligne source afin que les diffs de prose fassent apparaître les changements de phrase plutôt que de signaler un paragraphe entier."
+          ],
+          "bullets": [
+            "Issue : public, thèse, plan, norme de preuve, responsables et limite de mots.",
+            "Branche : un objectif éditorial, tel que les preuves, les méthodes ou la révision rédactionnelle.",
+            "Pull request : effet visé sur le lecteur, affirmations modifiées, citations modifiées et prévisualisation rendue."
+          ]
+        },
+        {
+          "heading": "Réviser séparément les affirmations, les preuves, la formulation et l’attribution",
+          "body": [
+            "Les commentaires sur les lignes et les suggestions rendent visibles les révisions exactes de la prose. La personne chargée de la révision doit distinguer l’exactitude factuelle, l’appui des preuves, la structure de l’argument, la clarté pour le lecteur, le style, les citations et la paternité. La réussite d’un rendu prouve uniquement que le système de publication a construit la production.",
+            "Appliquez une modification suggérée et refusez-en une autre en donnant une raison. La conversation fait alors partie de la trace de décision au lieu de disparaître dans une pièce jointe à un courriel."
+          ],
+          "bullets": [
+            "Révision de fond : l’affirmation est-elle exacte et étayée ?",
+            "Révision éditoriale : l’argument est-il cohérent pour le public visé ?",
+            "Révision de production : la production générée s’affiche-t-elle correctement et respecte-t-elle les exigences de format ?"
+          ]
+        },
+        {
+          "heading": "Publier un résultat stable et attribuable",
+          "body": [
+            "Après la révision et la fusion, générez la production web ou documentaire au moyen d’un processus répétable. GitHub Pages peut publier un site adossé à un dépôt, tandis qu’une release peut regrouper un PDF stable, un dossier pédagogique, un rapport ou une autre production approuvée autour d’une étiquette exacte.",
+            "Avant la publication, vérifiez les brouillons confidentiels, les commentaires des personnes chargées de la révision, les figures protégées par le droit d’auteur, les informations personnelles et la configuration secrète. Les Pages publiques et les ressources des releases sont des canaux de diffusion, pas des prévisualisations privées."
+          ],
+          "code": {
+            "label": "Preuves de révision éditoriale dans une pull request",
+            "language": "markdown",
+            "value": "## Reader outcome\nClarify why the recommendation follows from the evidence.\n\n## Claims changed\n- Narrowed the conclusion to the measured population.\n- Added the missing source for the baseline.\n\n## Validation\nRendered HTML and PDF; checked citations and links."
+          }
+        }
+      ],
+      "practice": {
+        "title": "Deux auteurs, une note de synthèse révisée",
+        "brief": "Rédigez et révisez une courte note fictive de politique ou de projet en reliant la source à la production publiée.",
+        "steps": [
+          "Ouvrez une issue avec le public, la thèse, un plan en deux sections, la norme de preuve et les responsables.",
+          "Rédigez chaque section sur une branche ciblée, à raison d’une phrase par ligne source.",
+          "Ouvrez une pull request avec le résultat visé pour le lecteur, les affirmations et citations modifiées, ainsi que les preuves de prévisualisation.",
+          "Laissez deux commentaires de fond et une suggestion ; appliquez une suggestion et refusez un commentaire en donnant une raison.",
+          "Effectuez le rendu de la note et préparez une release contenant le résultat stable."
+        ],
+        "evidence": [
+          "Un diff de prose que la personne chargée de la révision peut interpréter phrase par phrase.",
+          "Des commentaires distincts sur l’appui des affirmations, la clarté pour le lecteur et la qualité de production.",
+          "Un brouillon de release qui renvoie à la version source révisée."
+        ],
+        "safety": "Utilisez du contenu fictif ou vos propres éléments publiables. Ne téléversez aucune révision confidentielle, aucun travail client non publié, aucune figure protégée par le droit d’auteur sans autorisation, ni aucune information personnelle."
+      },
+      "checkpoint": {
+        "prompt": "Le PDF a été rendu sans erreur. Qu’est-ce qui n’a pas encore été établi ?",
+        "answer": "Le rendu n’établit pas l’exactitude des affirmations, la suffisance des preuves, la justesse des citations, la clarté de la formulation, l’équité de l’attribution ni l’autorisation de publier. Ces éléments exigent une révision explicite."
+      },
+      "takeaway": "Une pull request de rédaction examine la relation entre les preuves, l’affirmation, la formulation, le lecteur et la production, pas seulement la capacité à construire un document."
+    },
+    "teaching-capstone": {
+      "kicker": "Leçon 12 · Enseignement et synthèse",
+      "title": "Enseigner un flux de travail durable, puis le démontrer dans le projet final",
+      "summary": "Utilisez GitHub Skills et des travaux fondés sur des modèles, tenez compte du retrait de Classroom en août 2026, protégez les apprenants et intégrez l’ensemble du cours dans un système de collaboration unique.",
+      "objective": "Concevez un parcours pédagogique actuel et respectueux de la vie privée, puis réalisez un dépôt dont l’issue, la branche, les commits, la pull request, le projet, l’automatisation, la production contextuelle et la release forment une chaîne vérifiable.",
+      "sections": [
+        {
+          "heading": "Enseigner les éléments fondamentaux durables avant l’administration de la plateforme",
+          "body": [
+            "Faites débuter les novices dans le navigateur avec GitHub Skills : dépôt, branche, commit, pull request, révision, fusion, Markdown et résolution de conflits. Un dépôt modèle peut distribuer la même structure de départ tout en permettant à chaque apprenant de travailler dans un dépôt distinct doté d’un historique sans rapport.",
+            "Gardez le premier exercice court et orienté vers un résultat. N’exigez pas l’utilisation d’un terminal avant que les apprenants comprennent les objets qu’ils manipulent. Les contrôles automatisés doivent fournir un retour rapide, tandis que la révision humaine évalue le raisonnement, la communication et l’apprentissage."
+          ],
+          "bullets": [
+            "Exercice individuel : dépôts officiels GitHub Skills.",
+            "Point de départ réutilisable : dépôt modèle avec README, grille d’évaluation, fichiers et contrôles minimaux.",
+            "Flux de travail de l’enseignant : outils actuellement pris en charge ou activement maintenus, vérifiés immédiatement avant l’enseignement."
+          ]
+        },
+        {
+          "heading": "Ne pas inscrire une nouvelle classe dans l’application GitHub Classroom en cours de retrait",
+          "body": [
+            "GitHub a cessé les nouvelles inscriptions à Classroom le 26 mai 2026 et désactivera l’application le 28 août 2026. Exportez les données requises propres à Classroom avant le 28 août ; selon GitHub, certaines données deviendront alors inaccessibles et leur suppression définitive est prévue le 4 septembre 2026. Les comptes, organisations et dépôts GitHub existants demeurent.",
+            "GitHub a cité Codio et le projet open source Classroom 50 comme possibilités de transition. Classroom 50 documente les modèles, la distribution des travaux, la notation automatique par GitHub Actions, les pull requests de retour, les listes d’étudiants et l’exportation des scores, mais il s’agit d’un projet distinct en développement actif. Dans l’instantané de source utilisé ici, son Quickstart nécessite une organisation GitHub avec Team ou Enterprise. Avant toute adoption, vérifiez sa release actuelle, son état de sécurité, les exigences liées à l’organisation, l’admissibilité dans le cadre éducatif et l’approbation de l’établissement."
+          ],
+          "bullets": [
+            "Exportez les données requises propres à Classroom avant le 28 août 2026 ; n’attendez pas la date de suppression définitive du 4 septembre.",
+            "Testez l’automatisation des travaux avec une très petite liste fictive et des autorisations minimales.",
+            "Conservez les notes officielles et les dossiers des étudiants dans le système autorisé de l’établissement."
+          ]
+        },
+        {
+          "heading": "Réaliser une chaîne qu’une autre personne peut auditer",
+          "body": [
+            "Le projet final ne consiste pas en douze captures d’écran sans lien. Il s’agit d’un seul dépôt où une personne peut suivre le parcours depuis la charte et la limite de sécurité jusqu’à l’issue, la branche, les commits, la pull request, la révision, l’état du Project, les preuves propres au contexte, l’automatisation, la fusion et la release.",
+            "Choisissez un contexte : logiciel, recherche, rédaction, travail administratif ou enseignement. Appliquez la boucle GitHub commune tout en conservant la définition d’une révision valide propre à ce contexte. Dans la recherche, la personne chargée de la révision s’intéresse à la trace entre données et affirmation ; dans le travail administratif, la personne qui approuve examine l’autorité et la faisabilité ; l’enseignant associe les preuves automatisées aux critères humains d’apprentissage."
+          ],
+          "code": {
+            "label": "Chaîne d’audit du projet final",
+            "language": "text",
+            "value": "Charter and safety boundary\n  -> actionable issue\n  -> focused branch and commits\n  -> pull request and contextual review\n  -> checks with stated limits\n  -> accepted merge\n  -> project closeout\n  -> tagged release"
+          }
+        }
+      ],
+      "practice": {
+        "title": "Tester un flux de travail sûr pour un devoir",
+        "brief": "Créez un mini-devoir fondé sur un modèle ou examinez les outils actuels sans inscrire de véritables étudiants ni exposer de dossiers.",
+        "steps": [
+          "Suivez l’activité officielle Introduction to GitHub ou représentez sa séquence dépôt, branche, commit, pull request et fusion.",
+          "Transformez un dépôt jetable en modèle comprenant des instructions claires, une grille d’évaluation, un fichier de départ et un contrôle inoffensif.",
+          "Lisez l’avis de retrait de GitHub Classroom et la discussion actuelle sur la transition.",
+          "Si vous évaluez Classroom 50, utilisez uniquement son Quickstart actuel et une liste pilote fictive ; ne le déployez pas auprès de véritables étudiants dans le cadre de ce cours.",
+          "Rédigez un critère de retour humain que le contrôle automatisé ne peut pas évaluer."
+        ],
+        "evidence": [
+          "Un dépôt modèle ne contenant aucune donnée étudiante ou institutionnelle.",
+          "Une note de migration datée qui ne recommande pas de nouvelles inscriptions à GitHub Classroom.",
+          "Un critère automatisé et un critère distinct d’apprentissage évalué par une personne."
+        ],
+        "safety": "Ne publiez jamais les noms, travaux remis, notes ou commentaires des étudiants, ni des jetons ou des secrets d’organisation. Obtenez l’approbation de l’établissement avant d’adopter une plateforme externe de gestion des devoirs."
+      },
+      "checkpoint": {
+        "prompt": "Pourquoi un score de notation automatique ne peut-il pas constituer à lui seul l’évaluation de l’apprentissage ?",
+        "answer": "Les contrôles automatisés mesurent uniquement les conditions observables codées dans le workflow. Ils ne saisissent généralement pas le raisonnement, le jugement de conception, l’attribution, la collaboration, l’explication, la réflexion ou la qualité propre au contexte."
+      },
+      "takeaway": "Enseignez les éléments fondamentaux durables de GitHub, vérifiez les outils pédagogiques susceptibles de changer au moment de leur utilisation et rendez le jugement humain visible aux côtés de l’automatisation."
+    }
+  },
+  "quiz": {
+    "q01": {
+      "question": "Quelle affirmation distingue le mieux Git de GitHub ?",
+      "options": [
+        "GitHub enregistre l’historique des fichiers ; Git héberge uniquement les conversations des issues.",
+        "Git enregistre l’historique des versions ; GitHub héberge les dépôts et ajoute des services de collaboration.",
+        "Git et GitHub sont deux noms de la même application dans le navigateur.",
+        "Git est requis uniquement pour les dépôts publics, tandis que GitHub l’est uniquement pour les dépôts privés."
+      ],
+      "explanation": "Git est le système de gestion de versions. GitHub héberge les dépôts Git et y ajoute l’identité, les autorisations, les issues, les pull requests, la révision, les Projects, les releases et l’automatisation."
+    },
+    "q02": {
+      "question": "Un véritable jeton d’accès a été inclus accidentellement dans un commit. Quelle est la première réaction correcte ?",
+      "options": [
+        "Renommer le dépôt.",
+        "Supprimer la ligne dans un commit ultérieur et ne rien faire d’autre.",
+        "Révoquer ou renouveler le jeton, puis évaluer l’exposition et corriger l’historique.",
+        "Rendre le dépôt privé et supposer que toutes les copies antérieures ont disparu."
+      ],
+      "explanation": "L’identifiant peut déjà exister dans l’historique, des clones, des forks, des journaux ou des caches. La révocation ou le renouvellement empêche son utilisation future ; le nettoyage vient ensuite."
+    },
+    "q03": {
+      "question": "Quand faut-il choisir la visibilité du dépôt ?",
+      "options": [
+        "Avant le téléversement, en fonction du public, des autorisations et du risque lié aux informations.",
+        "Une fois le projet terminé, car la visibilité n’a aucun effet sur l’exposition.",
+        "Uniquement à l’ouverture de la première pull request.",
+        "Automatiquement en public dès qu’aucun code source n’est présent."
+      ],
+      "explanation": "La visibilité est une décision de gouvernance à prendre avant que le contenu n’entre dans le dépôt. Les fichiers qui ne contiennent pas de code peuvent être tout aussi sensibles que le code."
+    },
+    "q04": {
+      "question": "Quelle est la raison la plus importante d’utiliser la prévisualisation Markdown avant d’inclure un README dans un commit ?",
+      "options": [
+        "La prévisualisation chiffre le README.",
+        "La prévisualisation crée automatiquement une nouvelle branche.",
+        "La prévisualisation prouve l’exactitude de chaque affirmation factuelle.",
+        "La prévisualisation montre comment seront rendus la structure, les liens, les listes, les tableaux et les blocs de code."
+      ],
+      "explanation": "La prévisualisation révèle les problèmes de rendu. Elle ne valide ni les affirmations, ni les autorisations, ni la confidentialité."
+    },
+    "q05": {
+      "question": "Pourquoi les travaux sans rapport doivent-ils utiliser des branches distinctes ?",
+      "options": [
+        "GitHub limite chaque branche à un seul type de fichier.",
+        "Des branches distinctes permettent de cibler la révision, les tests, la responsabilité et le retour en arrière.",
+        "Un dépôt ne peut fusionner qu’une seule branche au cours de son existence.",
+        "Les branches sont privées, même dans les dépôts publics."
+      ],
+      "explanation": "Des branches ciblées rendent chaque proposition cohérente et réduisent le nombre de risques qu’une personne chargée de la révision doit examiner simultanément."
+    },
+    "q06": {
+      "question": "Quel message de commit décrit le mieux un résultat ?",
+      "options": [
+        "modifications",
+        "Mettre à jour le README",
+        "Ajouter le public et les critères de réussite",
+        "final final v2"
+      ],
+      "explanation": "Un message utile explique le résultat cohérent du commit ; il rend l’historique compréhensible sans devoir ouvrir chaque diff."
+    },
+    "q07": {
+      "question": "Que doit rendre visible la description d’une pull request ?",
+      "options": [
+        "Le problème, le changement prévu, la validation, le risque et le travail lié.",
+        "Uniquement le bouton de fusion préféré de l’auteur.",
+        "Toutes les commandes Git que l’auteur a exécutées au cours de sa vie.",
+        "Uniquement les noms des fichiers modifiés."
+      ],
+      "explanation": "La personne chargée de la révision a besoin de l’objectif, du périmètre, des preuves, des incertitudes et de la traçabilité, et non d’une répétition de la liste des fichiers."
+    },
+    "q08": {
+      "question": "Une personne chargée de la révision sélectionne Demander des modifications. Quand la fusion est-elle techniquement bloquée ?",
+      "options": [
+        "Toujours, quel que soit le dépôt ou le forfait.",
+        "Uniquement si cette personne ouvre également une issue.",
+        "Uniquement pour les pull requests de documentation.",
+        "Lorsqu’Exiger une pull request s’applique et qu’un collaborateur admissible soumet la demande, sous réserve de l’autorité configurée pour annuler la révision ou contourner la règle."
+      ],
+      "explanation": "Dans les autres cas, Demander des modifications est seulement informatif. Lorsque l’option Exiger une pull request est activée, une demande provenant d’un collaborateur disposant d’un accès en écriture, administrateur ou propriétaire bloque la fusion jusqu’à l’approbation de ce collaborateur, sauf si une annulation ou un contournement autorisé s’applique."
+    },
+    "q09": {
+      "question": "Où une proposition ouverte sur l’orientation future de la communauté doit-elle commencer ?",
+      "options": [
+        "Dans un message de commit sans rapport.",
+        "Comme ressource d’une release.",
+        "Dans une Discussion, puis dans une issue si elle devient un travail donnant lieu à une action.",
+        "Dans un secret du dépôt."
+      ],
+      "explanation": "Les Discussions favorisent l’exploration et les échanges communautaires. Une action décidée doit être consignée comme travail responsabilisé dans une issue."
+    },
+    "q10": {
+      "question": "Quelle description d’issue permet le mieux d’agir ?",
+      "options": [
+        "README mauvais",
+        "Le contexte, le résultat souhaité, les critères d’acceptation et un responsable lorsqu’il est connu.",
+        "Une transcription de chaque réunion sans aucun résumé.",
+        "Une liste d’idées de fonctionnalités sans rapport et de notes personnelles."
+      ],
+      "explanation": "Une issue doit rendre le travail et sa condition d’achèvement compréhensibles, tandis que les commentaires conservent les échanges et les mises à jour."
+    },
+    "q11": {
+      "question": "Quelle est la meilleure relation entre les vues tableau, tableau de bord et feuille de route d’un Project ?",
+      "options": [
+        "Ce sont des vues des éléments et champs partagés d’un même Project ; les filtres peuvent afficher des sous-ensembles différents.",
+        "Chacune doit être tenue comme une copie manuelle distincte de l’état.",
+        "Seul le tableau de bord peut contenir des issues.",
+        "Une feuille de route est toujours publique, même lorsque le projet est privé."
+      ],
+      "explanation": "Un Project fournit des éléments et des champs partagés. Chaque vue peut employer une disposition, des filtres, un regroupement et un tri adaptés à son public sans créer une copie parallèle de l’état."
+    },
+    "q12": {
+      "question": "Quel document administratif doit le plus clairement rester hors d’un dépôt de travail ordinaire ?",
+      "options": [
+        "Une charte de projet fictive dans un README.",
+        "Un modèle d’issue en Markdown.",
+        "Une liste de contrôle pour la communication publique.",
+        "L’original signé d’un contrat client confidentiel soumis à une politique de conservation des documents."
+      ],
+      "explanation": "La politique de conservation des documents mentionnée dans le scénario détermine que le système d’enregistrement autorisé constitue la source de vérité ; cette conclusion vient du scénario, et non de la documentation GitHub. Séparément, les recommandations de GitHub sur les données sensibles justifient de garder les éléments confidentiels hors de l’historique du dépôt. Un dépôt de travail ne peut créer un lien vers le document soumis à cette gouvernance que si la politique l’autorise."
+    },
+    "q13": {
+      "question": "Quand un fork est-il généralement approprié ?",
+      "options": [
+        "Chaque fois qu’un collaborateur souhaite renommer une branche.",
+        "Lorsqu’une contribution franchit une limite de propriété du dépôt ou d’autorisation en écriture.",
+        "Uniquement lorsque le dépôt d’origine ne contient aucun commit.",
+        "Pour rendre automatiquement public un contenu privé."
+      ],
+      "explanation": "Un fork est un dépôt distinct relié à un dépôt en amont ; il permet de contribuer sans accès direct aux branches de l’original."
+    },
+    "q14": {
+      "question": "GitHub affiche des marqueurs de conflit autour de deux phrases décrivant le public. Que devez-vous faire ?",
+      "options": [
+        "Effectuer un commit avec les marqueurs afin que la personne chargée de la révision choisisse plus tard.",
+        "Supprimer le fichier entier.",
+        "Comprendre les deux intentions, rédiger le texte final voulu, retirer les marqueurs, prévisualiser et réviser le diff résolu.",
+        "Toujours sélectionner la phrase la plus récente sans la lire."
+      ],
+      "explanation": "Un conflit correspond à une décision d’intention que Git ne peut pas prendre en toute sécurité. Résolvez le sens, pas seulement la syntaxe."
+    },
+    "q15": {
+      "question": "Quelle habitude de notification protège le mieux l’attention ?",
+      "options": [
+        "Surveiller uniquement les types d’événements pertinents, effectuer un tri délibéré et se désabonner lorsque la responsabilité prend fin.",
+        "Surveiller indéfiniment chaque dépôt pour chaque événement.",
+        "Désactiver toutes les notifications, y compris les demandes directes de révision.",
+        "Utiliser le nombre d’éléments non lus comme unique mesure de performance."
+      ],
+      "explanation": "Des abonnements ciblés et un tri délibéré gardent visible le travail dont vous êtes responsable sans conférer la même urgence à chaque événement."
+    },
+    "q16": {
+      "question": "Pourquoi la réécriture de l’historique ne peut-elle pas garantir que des données sensibles ont disparu de partout ?",
+      "options": [
+        "Git ne stocke pas les versions antérieures.",
+        "Seuls les propriétaires du dépôt peuvent lire les fichiers actuels.",
+        "Les dépôts privés n’ont jamais de clones.",
+        "Des copies peuvent déjà exister dans des clones, des forks, des caches, des journaux ou des systèmes en aval."
+      ],
+      "explanation": "La réécriture modifie l’historique accessible du dépôt, mais elle ne peut pas rappeler les copies déjà distribuées ailleurs."
+    },
+    "q17": {
+      "question": "Quel environnement convient le mieux à la correction rapide du README, limitée à un seul fichier et sans outil local ?",
+      "options": [
+        "Un environnement d’exécution auto-hébergé complet.",
+        "Une GitHub App personnalisée.",
+        "GitHub.com dans le navigateur.",
+        "Un outil de migration de base de données."
+      ],
+      "explanation": "Le navigateur présente le coût de configuration le plus faible pour les changements petits et simples. Passez à d’autres environnements lorsque les besoins de la tâche le justifient."
+    },
+    "q18": {
+      "question": "Qu’établit un contrôle GitHub Actions vert ?",
+      "options": [
+        "Le logiciel ne comporte aucun défaut d’aucune sorte.",
+        "GitHub a signalé la réussite de l’exécution selon la logique configurée du workflow.",
+        "Toutes les personnes chargées de la révision ont approuvé la pull request.",
+        "Aucun secret ne peut exister nulle part dans l’historique."
+      ],
+      "explanation": "Le résultat constitue une preuve portant uniquement sur l’issue de l’exécution configurée. Les contrôles ignorés ou absents, le comportement continue-on-error et le jugement humain restent en dehors de son périmètre."
+    },
+    "q19": {
+      "question": "Que se passe-t-il lorsqu’un fichier `CITATION.cff` valide est placé à la racine du dépôt sur la branche par défaut ?",
+      "options": [
+        "GitHub peut afficher Citer ce dépôt et proposer des informations de citation mises en forme.",
+        "GitHub prouve automatiquement la validité de la recherche.",
+        "Chaque fichier du dépôt reçoit un nouveau titulaire du droit d’auteur.",
+        "Le dépôt devient privé."
+      ],
+      "explanation": "Les métadonnées de citation aident les utilisateurs à citer le travail. Elles ne valident pas la méthodologie, n’accordent pas de licence et ne modifient pas la visibilité."
+    },
+    "q20": {
+      "question": "Quelle référence identifie le plus précisément l’état d’analyse utilisé pour un résultat ?",
+      "options": [
+        "La page de profil du propriétaire du dépôt.",
+        "La page la plus récente de la branche par défaut, sans date.",
+        "Une capture d’écran de la liste des fichiers.",
+        "Un SHA de commit complet, une release GitHub immuable ou une archive de la release exacte adossée à un DOI."
+      ],
+      "explanation": "Un SHA de commit complet identifie un état Git exact ; une release immuable verrouille son étiquette et ses ressources ; le DOI d’une version peut identifier un dépôt préservé. Un nom de branche ou une release ordinaire modifiable offre une référence plus faible."
+    },
+    "q21": {
+      "question": "Pourquoi un projet de rédaction pourrait-il conserver une phrase par ligne source ?",
+      "options": [
+        "Cela empêche toutes les erreurs de grammaire.",
+        "Cela facilite l’interprétation des diffs de prose et de la révision phrase par phrase.",
+        "Cela chiffre le texte non publié.",
+        "Cela garantit qu’un PDF respectera les règles d’une revue."
+      ],
+      "explanation": "Le flux de travail Manubot documenté utilise cette convention pour rendre les changements textuels plus clairs dans les diffs Git et lors de la révision."
+    },
+    "q22": {
+      "question": "Que doit identifier la release d’un projet de rédaction ?",
+      "options": [
+        "Uniquement le nombre de commits du dépôt.",
+        "Les adresses électroniques privées utilisées pendant la rédaction.",
+        "Le résultat stable, la version source, les changements visibles pour le public et les limites connues.",
+        "Chaque phrase rejetée de chaque brouillon."
+      ],
+      "explanation": "Une release relie un état source approuvé au résultat utilisable par les lecteurs et explique ce que représente cette version."
+    },
+    "q23": {
+      "question": "Que doit faire un nouveau cours concernant l’application GitHub Classroom à la fin du mois d’août 2026 ?",
+      "options": [
+        "Ne pas inscrire de nouvelle classe ; enseigner les éléments fondamentaux durables et suivre les recommandations actuelles de GitHub pour la transition.",
+        "Exiger que chaque apprenant crée un nouveau compte Classroom après le 28 août.",
+        "Ignorer l’avis de retrait parce que les dépôts existants seront supprimés.",
+        "Publier les notes des étudiants dans un dépôt modèle public."
+      ],
+      "explanation": "Les nouvelles inscriptions ont pris fin en mai 2026. Exportez les données propres à Classroom avant sa désactivation le 28 août 2026 ; la suppression définitive de certaines de ces données est prévue le 4 septembre. Les comptes, organisations et dépôts GitHub demeurent."
+    },
+    "q24": {
+      "question": "Quel dispositif d’évaluation pédagogique est le plus solide ?",
+      "options": [
+        "Utiliser uniquement un score de notation automatique pour chaque objectif d’apprentissage.",
+        "Accorder aux workflows des étudiants de vastes autorisations en écriture et des secrets de production.",
+        "Publier tous les retours afin que les pairs puissent comparer leurs notes.",
+        "Associer des contrôles automatisés dotés d’autorisations minimales à des critères humains portant sur le raisonnement, la conception, l’attribution et la réflexion."
+      ],
+      "explanation": "L’automatisation peut tester des conditions observables codées ; les enseignants ont toujours besoin d’un jugement humain pour les qualités d’apprentissage qu’elle ne représente pas."
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "Menu global Créer de GitHub, avec l’action Nouveau dépôt encadrée.",
+      "caption": "Commencez un dépôt depuis le menu global Créer. Interface vérifiée le 24 août 2026."
+    },
+    "fig-02": {
+      "alt": "Formulaire de création d’un dépôt avec hello saisi dans le champ Repository name.",
+      "caption": "Utilisez un nom de dépôt court, descriptif et compatible avec une URL."
+    },
+    "fig-03": {
+      "alt": "Éditeur de fichiers GitHub ouvert sur .github/CODEOWNERS, avec l’onglet Preview encadré.",
+      "caption": "Ouvrez Preview avant de valider les modifications ; GitHub peut y afficher le rendu des contenus pris en charge."
+    },
+    "fig-04": {
+      "alt": "Schéma montrant une branche de fonctionnalité qui diverge de main, passe par un commit, une pull request et une discussion, puis revient par fusion.",
+      "caption": "Une branche isole une proposition jusqu’à sa révision et sa fusion."
+    },
+    "fig-05": {
+      "alt": "Sélecteur de branche du dépôt montrant main comme branche actuelle.",
+      "caption": "Confirmez la branche actuelle avant toute modification."
+    },
+    "fig-06": {
+      "alt": "Diff du README où les lignes supprimées apparaissent en rouge et les lignes ajoutées en vert.",
+      "caption": "Le diff constitue la preuve de ce qu’un commit modifie réellement."
+    },
+    "fig-07": {
+      "alt": "Navigation d’une pull request avec l’onglet Fichiers modifiés encadré.",
+      "caption": "Examinez chaque fichier modifié avant d’approuver une proposition."
+    },
+    "fig-08": {
+      "alt": "Éditeur vide d’un commentaire de révision de pull request, avec le bouton d’ajout d’une suggestion encadré.",
+      "caption": "Une suggestion fournit à l’auteur un correctif directement applicable."
+    },
+    "fig-09": {
+      "alt": "Vue Files changed d’une pull request, avec le bouton fermé Review changes encadré.",
+      "caption": "La décision de révision communique l’état de préparation ; les règles du dépôt déterminent si elle s’applique comme verrou."
+    },
+    "fig-10": {
+      "alt": "Navigation du dépôt avec l’onglet Issues encadré.",
+      "caption": "Les issues rendent visibles le travail donnant lieu à une action et son état."
+    },
+    "fig-11": {
+      "alt": "Page Discussions d’un véritable dépôt GitHub répertoriant des conversations ouvertes sur le projet.",
+      "caption": "Les Discussions favorisent les questions, les propositions, les annonces et l’orientation de la communauté."
+    },
+    "fig-12": {
+      "alt": "Tableau GitHub Project montrant des issues en lignes, avec les colonnes Assignees, Status, Labels et Notes.",
+      "caption": "Une vue sous forme de tableau permet une planification et un tri détaillés."
+    },
+    "fig-13": {
+      "alt": "Tableau de bord d’un GitHub Project où le travail est réparti entre les colonnes Aucun état, À faire, En cours et Terminé.",
+      "caption": "Un tableau de bord rend visible le flux des issues et des pull requests liées."
+    },
+    "fig-14": {
+      "alt": "Icône de la boîte de réception des notifications GitHub avec un indicateur bleu de contenu non lu.",
+      "caption": "Un indicateur de contenu non lu signifie qu’une activité suivie nécessite un tri délibéré."
+    },
+    "fig-15": {
+      "alt": "Configuration de l’authentification à deux facteurs GitHub montrant l’option permettant de saisir une clé de configuration de l’application d’authentification.",
+      "caption": "Configurez l’authentification à deux facteurs et conservez les codes de récupération en lieu sûr hors du dépôt."
+    },
+    "fig-16": {
+      "alt": "Avertissement dans une pull request indiquant que la branche comporte des conflits, avec le bouton Résoudre les conflits de fusion visible.",
+      "caption": "GitHub bloque la fusion automatique jusqu’à la résolution des changements concurrents."
+    },
+    "fig-17": {
+      "alt": "Page d’un dépôt où le lien des releases est mis en évidence à côté de la liste des fichiers.",
+      "caption": "Une release regroupe pour un public un point nommé de l’historique du dépôt."
+    },
+    "fig-18": {
+      "alt": "Barre latérale d’un dépôt où Citer ce dépôt est développé pour afficher les options de citation APA et BibTeX.",
+      "caption": "Un fichier CITATION.cff valide, placé à la racine du dépôt sur la branche par défaut, permet aux utilisateurs d’exporter la citation demandée."
+    },
+    "fig-19": {
+      "alt": "Navigation du dépôt avec l’onglet Actions encadré.",
+      "caption": "Actions est le point d’entrée vers les exécutions de workflows et leurs preuves."
+    },
+    "fig-20": {
+      "alt": "Page GitHub Actions où un workflow est sélectionné dans la barre latérale et les exécutions récentes sont répertoriées.",
+      "caption": "Avant de vous fier à un état, lisez quel workflow s’est exécuté, pour quel événement et quel commit."
+    },
+    "fig-21": {
+      "alt": "Onglet Paramètres du dépôt mis en évidence au-dessus de la barre de navigation du dépôt.",
+      "caption": "Les administrateurs du dépôt peuvent marquer depuis Paramètres un dépôt préparé comme modèle réutilisable."
+    }
+  },
+  "capstone": {
+    "title": "Construire un dépôt prêt pour la collaboration",
+    "summary": "Créez une chaîne vérifiable allant de l’objectif et de la limite de sécurité jusqu’au travail accepté et publié. Choisissez comme contexte le logiciel, la recherche, la rédaction, le travail administratif ou l’enseignement.",
+    "scenario": "Une nouvelle personne qui collabore doit pouvoir comprendre pourquoi le travail existe, ce qui peut entrer dans le dépôt, ce qui est actuellement proposé, comment cela a été contrôlé et révisé, qui l’a accepté et quelle version publiée elle doit utiliser.",
+    "steps": [
+      "Choisissez un contexte et définissez ce que signifie une révision valide dans ce contexte.",
+      "Réalisez dans le même dépôt les huit productions servant de preuves.",
+      "Suivez chaque lien de l’issue à la pull request, puis à la fusion et à la release, comme si vous étiez un auditeur externe.",
+      "Retirez ou rendez fictif tout élément personnel, confidentiel, propriétaire, relatif à un étudiant ou à un participant, ou constituant un identifiant.",
+      "Vérifiez chaque production ci-dessous, puis consignez l’achèvement du projet final dans ce navigateur."
+    ],
+    "artifacts": [
+      {
+        "id": "boundary",
+        "title": "Charte et limite de sécurité",
+        "description": "Le README nomme l’objectif, le public, l’autorité, la définition de l’achèvement, la décision de visibilité et les données exclues."
+      },
+      {
+        "id": "issue",
+        "title": "Issue donnant lieu à une action",
+        "description": "L’issue consigne le contexte, le résultat, les critères d’acceptation, le responsable ou le rôle, ainsi que la norme de révision propre au contexte."
+      },
+      {
+        "id": "history",
+        "title": "Branche ciblée et commits",
+        "description": "Une branche contient au moins deux commits cohérents dont les diffs correspondent aux messages."
+      },
+      {
+        "id": "review",
+        "title": "Pull request et révision",
+        "description": "La pull request lie l’issue, indique les preuves et le risque, et contient des retours contextuels de fond ainsi qu’une réponse de l’auteur."
+      },
+      {
+        "id": "project",
+        "title": "Registre du Project",
+        "description": "Le travail lié apparaît dans une vue de Project utile, avec un état responsabilisé et sans source manuelle concurrente pour l’état."
+      },
+      {
+        "id": "checks",
+        "title": "Contrôles assortis de limites",
+        "description": "Un contrôle manuel ou automatisé est répétable, et la pull request indique ce qu’il établit et ce qu’il n’établit pas."
+      },
+      {
+        "id": "context",
+        "title": "Production contextuelle",
+        "description": "La production logicielle, de recherche, de rédaction, administrative ou pédagogique respecte les limites propres à ce contexte en matière de confidentialité, de preuve et de révision."
+      },
+      {
+        "id": "release",
+        "title": "Fusion acceptée et release",
+        "description": "L’état fusionné clôt ou met à jour l’issue, l’état du Project est actuel et une release étiquetée explique le résultat stable ainsi que ses limites."
+      }
+    ],
+    "completion": "L’achèvement constitue un auto-audit local, et non un titre GitHub ou une certification externe. Exportez le récapitulatif uniquement lorsque vous pouvez ouvrir chaque production du dépôt."
+  }
+}

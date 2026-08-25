@@ -2,11 +2,12 @@
 
 import { useSyncExternalStore } from "react";
 import { useI18n } from "./I18nProvider";
+import Icon from "./Icon";
 
 /**
  * Light and dark.
  *
- * The button used to be a single ◐ labelled "Theme", which says what it is
+ * The button used to be a single ambiguous glyph labelled "Theme", which says what it is
  * about but not what pressing it does. It now shows the theme you would get
  * and says so — the only version that reads correctly whether the current
  * theme came from a saved choice or from the operating system.
@@ -34,7 +35,7 @@ function isDark(): boolean {
 }
 
 /* The server cannot know, and must not guess: rendering "dark" to a reader in
-   light mode would flip the glyph on hydration. Null renders the neutral ◐. */
+   light mode would flip the icon on hydration. Null renders the neutral system icon. */
 function onServer(): null { return null; }
 
 export default function ThemeToggle() {
@@ -59,7 +60,7 @@ export default function ThemeToggle() {
         for (const fn of watchers) fn();
       }}
     >
-      <span aria-hidden="true">{dark === null ? "◐" : dark ? "☀" : "☾"}</span>
+      <Icon name={dark === null ? "system" : dark ? "sun" : "moon"} />
     </button>
   );
 }

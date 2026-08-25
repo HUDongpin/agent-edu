@@ -1,0 +1,985 @@
+{
+  "meta": {
+    "title": "How to Use Codex",
+    "kicker": "Course 2",
+    "summary": "Learn to turn a clear task into a safe, reviewable code change across the Codex app, CLI, IDE, and cloud.",
+    "audience": "For learners who can navigate files and run basic commands. No professional software experience is required.",
+    "duration": "About 9 to 11 hours, including a 130-minute capstone",
+    "sourceNote": "The course is grounded in current OpenAI documentation and selected, high-star repositories, verified on 2026-08-24. Repository stars are a dated popularity signal, not evidence of correctness or safety.",
+    "figureNote": "UI figures are published only after a real Codex capture passes version, privacy, and caption checks. A capture-required card is intentional, not a simulated screenshot.",
+    "startCta": "Start the course",
+    "resumeCta": "Continue learning"
+  },
+  "ui": {
+    "lessons": "Lessons",
+    "minutes": "min",
+    "objectives": "Learning objective",
+    "evidence": "Evidence to keep",
+    "practice": "Practice",
+    "checkpoint": "Checkpoint",
+    "sources": "Sources",
+    "quiz": "Knowledge check",
+    "previous": "Previous lesson",
+    "next": "Next lesson",
+    "capturePending": "Real UI capture required",
+    "optionalAdvanced": "Optional advanced material",
+    "progress": "Progress",
+    "courseProgress": "Course progress",
+    "completed": "Completed",
+    "markComplete": "Mark complete",
+    "markedComplete": "Marked complete",
+    "resetProgress": "Reset progress",
+    "question": "Question",
+    "of": "of",
+    "checkAnswer": "Check answer",
+    "checkAnswers": "Check answers",
+    "correct": "Correct",
+    "incorrect": "Not yet",
+    "tryAgain": "Try again",
+    "score": "Score",
+    "quizPassed": "Knowledge check passed",
+    "quizNeedsReview": "Review the lesson and try again",
+    "capstoneArtifacts": "Required artifacts",
+    "capstoneReceipt": "Capstone receipt",
+    "artifactReady": "Artifact ready",
+    "rubric": "Rubric",
+    "rubricComplete": "Rubric complete",
+    "passingScore": "Passing score",
+    "weight": "Weight",
+    "status": "Status",
+    "notStarted": "Not started",
+    "printReceipt": "Print receipt",
+    "browserStorageNote": "Progress is stored only in this browser.",
+    "backToCourse": "Back to course",
+    "allLessons": "All lessons",
+    "recordCompletion": "Record completion",
+    "finalQuizTitle": "Final knowledge check",
+    "finalQuizIntro": "Answer 12 questions, three from each unit. You need 10 correct answers to pass; your best score is saved in this browser.",
+    "beginQuiz": "Begin quiz",
+    "nextQuestion": "Next question",
+    "retryQuiz": "Retry quiz",
+    "bestScore": "Best score",
+    "passRequirement": "10 of 12 correct required",
+    "source": "Source",
+    "sourceVerifiedOn": "Verified on",
+    "stars": "GitHub stars",
+    "license": "License",
+    "storageUnavailable": "Browser storage is unavailable. The course remains usable, but progress and completion will not be saved after this session.",
+    "receiptInstructions": "Paste the structured receipt produced by the capstone verifier. The course will check its schema, fixture version, fixture hash, and all required checks.",
+    "receiptSchemaLabel": "Receipt schema",
+    "fixtureVersionLabel": "Fixture version",
+    "fixtureHashLabel": "Fixture SHA-256",
+    "requiredChecksLabel": "Required verification checks",
+    "pasteReceipt": "Paste receipt JSON",
+    "verifyReceipt": "Verify receipt",
+    "receiptValid": "Receipt verified",
+    "receiptInvalidJson": "This is not valid JSON.",
+    "receiptWrongSchema": "The receipt uses the wrong schema.",
+    "receiptWrongVersion": "The receipt fixture version is not supported.",
+    "receiptWrongHash": "The receipt does not match the required starter fixture.",
+    "receiptIncomplete": "The receipt is missing required passing checks.",
+    "downloadStarter": "Download starter project",
+    "completionSummary": "Completion summary",
+    "exportSummary": "Export summary",
+    "finishQuiz": "Finish quiz",
+    "questionProgressTemplate": "Question {current} of {total}",
+    "scoreSummaryTemplate": "Score: {score} of {total}",
+    "bestScoreTemplate": "Best score: {score} of {total}",
+    "resetConfirm": "Reset all saved course progress?",
+    "resetDone": "Course progress reset.",
+    "capstonePath": "Capstone path"
+  },
+  "units": {
+    "unit-1": {
+      "title": "Safe first result",
+      "summary": "Build a reliable mental model, write a bounded task contract, choose permissions deliberately, and plan from repository evidence."
+    },
+    "unit-2": {
+      "title": "Implement with evidence",
+      "summary": "Guide implementation, debug from root causes, test fresh behavior, and review the exact diff before accepting a result."
+    },
+    "unit-3": {
+      "title": "Master every surface",
+      "summary": "Choose the CLI, IDE, app, or cloud for the job and parallelize only work that is truly independent."
+    },
+    "unit-4": {
+      "title": "Production-safe capstone",
+      "summary": "Complete one bounded change and submit a reviewable packet that proves scope, safety, behavior, and limitations."
+    }
+  },
+  "lessons": {
+    "meet-codex": {
+      "kicker": "Lesson 1",
+      "title": "Meet Codex and its working surfaces",
+      "summary": "Codex can inspect a project, explain what it finds, edit files, run commands, and report evidence across the ChatGPT desktop app, CLI, IDE, and cloud. You choose the surface, context, authority, and acceptance decision.",
+      "objective": "Compare the four Codex surfaces, distinguish ChatGPT sign-in from API-funded access, open the synthetic project, and choose the right surface for a bounded task.",
+      "sections": [
+        {
+          "heading": "Attach the context the task actually needs",
+        "body": "In the ChatGPT desktop app, choose Codex, then open the intended folder or project for repository work. A self-contained chat can start without a project, but it does not automatically gain repository context you did not attach. In the CLI, the working directory anchors file and instruction discovery. In the IDE, the open workspace, file, and selection provide precise context. In cloud, the selected repository revision and configured environment define the starting state. Use a separate chat for each distinct outcome so the goal, evidence, and review history remain coherent."
+        },
+        {
+          "heading": "Choose the surface and sign-in model",
+          "body": "Use the desktop app for project-level chats, visual review, worktrees, Goals, and scheduled tasks; the CLI when commands and terminal output dominate; the IDE when open-file or selected-code context matters; and cloud when a prepared repository task can run independently. Local work in the desktop app, CLI, and IDE supports either ChatGPT sign-in or an API key. ChatGPT sign-in uses subscription access and workspace policies. API-key sign-in uses API billing and API-organization data controls. Codex cloud requires ChatGPT sign-in, and some subscription or cloud features are unavailable with API-key-only access. Never paste an API key into the conversation."
+        },
+        {
+          "heading": "Keep human responsibility visible",
+          "body": "The surface does not change the responsibility model. You define the outcome, attach the right context, select permissions, and judge the evidence. Treat progress messages as a live work log, not proof by themselves, and treat the final answer as a handoff. Before accepting a change, inspect the actual diff and fresh verification output. Permission to edit code does not automatically authorize a commit, push, pull request, deployment, deletion, message, or other external action. Codex can execute the bounded work while you retain product intent and consequential decisions."
+        }
+      ],
+      "practice": {
+        "title": "Choose a surface for six scenarios",
+        "brief": "Classify six common tasks, justify each surface, then open the disposable aicourse-codex-demo without changing it.",
+        "steps": [
+          "Choose desktop, CLI, IDE, or cloud for: selected-function diagnosis, command-heavy test triage, visual multi-file review, an independent prepared task, read-only orientation, and a schema-bound automation job.",
+          "For each choice, name the required context, feedback loop, sign-in or billing model, and why another surface would be less efficient.",
+          "In the ChatGPT desktop app with Codex selected, open aicourse-codex-demo and confirm its project name and read-only boundary before sending any task."
+        ],
+        "evidence": [
+          "A six-row surface decision table with one evidence-based justification per scenario.",
+          "A note confirming the synthetic project, chosen sign-in model, and that no file changed."
+        ],
+        "safety": "Use a public sample or disposable repository with no secrets. Do not grant write access for this exercise."
+      },
+      "checkpoint": {
+        "prompt": "What is the practical difference between ChatGPT sign-in and API-key sign-in for Codex?",
+        "answer": "ChatGPT sign-in uses subscription access and workspace controls and is required for Codex cloud. API-key sign-in uses API billing and API-organization controls and may not provide subscription or cloud features."
+      },
+      "takeaway": "Choose the surface from the context and feedback loop, then attach only the workspace and authority the task needs."
+    },
+    "task-contracts": {
+      "kicker": "Lesson 2",
+      "title": "Write a task contract Codex can finish",
+      "summary": "The fastest prompt is not the shortest prompt. It is the smallest complete contract that removes consequential ambiguity before implementation begins.",
+    "objective": "Use this course's six-part task-contract template: Goal, Context, Constraints, Non-goals, Acceptance Criteria, and Verification.",
+      "sections": [
+        {
+          "heading": "Specify the observable outcome",
+          "body": "Lead with what should be different for a user or maintainer when the task is complete. Then name the relevant location and current behavior. A strong request might ask for a form to preserve valid values after one field fails validation, rather than asking to improve the form. Observable outcomes give Codex a stopping condition and give you something to test. Include examples when an edge case is easy to misunderstand. If a screenshot, issue, or log provides context, explain which part is authoritative. More context is not automatically better. The goal is to supply the few facts that change implementation decisions and to exclude unrelated history that can distract the task."
+        },
+        {
+          "heading": "Name constraints and non-goals",
+          "body": "Constraints protect architecture, compatibility, security, and scope. State files or interfaces that must remain stable, dependencies that may not be added, supported platforms, and whether commits or external writes are excluded. A non-goal is equally useful because it closes an attractive but unwanted branch of work. For example, you may want a keyboard-accessible dialog fix without redesigning the visual system. Avoid vague demands such as make it production-ready. Translate them into checks: no new runtime dependency, existing public types remain compatible, focus returns to the trigger, and the relevant tests pass. If a constraint conflicts with the outcome, ask Codex to stop and surface the conflict instead of silently choosing."
+        },
+        {
+          "heading": "Define acceptance and verification separately",
+          "body": "Acceptance criteria describe the behavior you need. Verification describes how Codex should produce credible evidence for that behavior. A test command can be part of verification, but passing it is not the whole acceptance story. Ask for focused checks that exercise the change, broader checks proportional to risk, and a diff review. Also require disclosure when a check cannot run. This prevents a missing dependency or unavailable service from turning into an unsupported claim. End the contract with the desired handoff: changed files, results, limitations, and any decision you still need to make. The contract is a collaboration device, so revise it when inspection reveals that the original assumption was wrong."
+        }
+      ],
+      "practice": {
+        "title": "Turn a vague request into a bounded contract",
+        "brief": "Repair three ambiguous requests, then submit one six-part contract before asking Codex to change code.",
+        "steps": [
+          "For three vague requests, identify the missing decision that would most affect scope, architecture, safety, or acceptance.",
+          "Rewrite one request with six labeled fields: Goal, Context, Constraints, Non-goals, Acceptance Criteria, and Verification.",
+          "Ask Codex to surface only consequential ambiguities, revise the contract, and include the exact handoff evidence you expect."
+        ],
+        "evidence": [
+          "Three short ambiguity diagnoses and one final contract with all six fields labeled.",
+          "A note showing which consequential ambiguity was removed and how acceptance became observable."
+        ],
+        "safety": "Keep commits, pushes, deployments, data changes, and external messages outside the contract unless you deliberately authorize them."
+      },
+      "checkpoint": {
+        "prompt": "Why is test the feature an incomplete verification instruction?",
+        "answer": "It does not identify the behavior, command, expected result, risk coverage, or what Codex should report if the test cannot run."
+      },
+      "takeaway": "A good task contract is brief enough to scan and complete enough to make success observable."
+    },
+    "environments-permissions": {
+      "kicker": "Lesson 3",
+      "title": "Choose environments and permissions deliberately",
+      "summary": "Codex is most trustworthy when its technical permissions match the task contract. Start with the smallest boundary and expand it only for a named reason.",
+      "objective": "Choose Local, Worktree, or Cloud; distinguish the sandbox from the approval policy; and apply least privilege to files, commands, network, secrets, and destructive actions.",
+      "sections": [
+        {
+          "heading": "Distinguish the three execution modes",
+        "body": "Local mode works directly in the current project directory. Worktree mode also runs on your computer but gives the chat separate working files in an isolated Git worktree. That reduces direct checkout interference; it does not remove semantic, merge, or integration conflicts. Cloud mode checks out a selected repository revision into a hosted container. Cloud setup becomes reproducible only when the revision, runtimes, and dependencies are controlled. Separately, the desktop feature named local environments configures setup scripts for worktrees and reusable project actions; it is not another name for Local mode. Choose from the code and data boundary, setup needs, isolation, and desired feedback loop, not from an assumption that one mode is always safer."
+        },
+        {
+          "heading": "Separate sandbox capability from approval timing",
+        "body": "The sandbox determines what Codex can do technically. The approval policy determines when an approval is required before acting. Approval requests route to you by default; eligible requests may instead be evaluated by Auto-review when that feature is enabled. Use read-only through the permissions control while orienting or planning, then grant workspace writes only when the implementation requires them. Some approvals request an exception for an outside-root write or command network access; others cover an untrusted command, requested permission profile, Skill script, or side-effecting app or MCP action. Read the exact action or command, target, reason, and requested scope. If an approval offers a reusable rule or profile, also inspect which future actions it would cover. Deny unresolved globs, variables, broad reusable prefixes, or destructive targets. When a narrower alternative exists, ask Codex to use it; otherwise require an honest blocker report."
+        },
+        {
+          "heading": "Keep secrets and untrusted input apart",
+        "body": "Do not place credentials, tokens, private keys, signed links, or customer data in prompts, screenshots, fixtures, or logs. Local command network access is off by default. In Codex cloud, internet access is available during setup, while agent-phase internet access is off by default unless the environment enables it. Web search, apps, connectors, MCP servers, browser or Computer Use, cloud tasks, model traffic, and authentication can have separate controls, so do not infer their status from the command-network setting. Ordinary cloud environment variables remain available for the full chat; configured secrets are exposed only during setup and removed before the agent phase. Treat an unfamiliar repository, including its AGENTS.md, hooks, Skills, installers, and scripts, as potentially untrusted until reviewed. Once accepted, applicable AGENTS.md files are intentional scoped instructions, but they do not override higher-priority user, developer, security, or permission boundaries. Quote issue and pull-request text as data, inspect third-party configuration, and minimize write and network authority."
+        }
+      ],
+      "practice": {
+        "title": "Decide eight proposed operations",
+        "brief": "Classify eight harmless or synthetic operations by environment, sandbox capability, approval need, and separate external authorization.",
+        "steps": [
+          "Assess: read a source file, edit inside the workspace, write outside it, install a package over the network, run a focused test, delete a resolved temporary file, call a side-effecting app, and use a setup secret.",
+          "For each, record Local, Worktree, or Cloud; sandbox capability; whether an approval can occur; external authorization; exact target; and a narrower alternative.",
+          "Choose allow, approve once, revise, deny, or stop for each operation and explain how the decision still supports the contracted outcome."
+        ],
+        "evidence": [
+          "An eight-row decision matrix that keeps environment, sandbox, approval, and external authorization separate.",
+          "A short rationale for the two highest-risk decisions and their narrower alternatives."
+        ],
+        "safety": "Use a harmless command and synthetic data. Never manufacture a real secret merely to test secret handling."
+      },
+      "checkpoint": {
+        "prompt": "What is the difference between the sandbox and the approval policy?",
+        "answer": "The sandbox defines which actions are technically available. The approval policy defines when Codex must pause before executing an otherwise relevant action."
+      },
+      "takeaway": "Permissions should trace to a concrete step in the task contract, not to convenience or uncertainty."
+    },
+    "ground-plan": {
+      "kicker": "Lesson 4",
+      "title": "Ground the work and approve a plan",
+      "summary": "Planning is valuable when it resolves real repository facts, sequences risk, and exposes decisions while change is still cheap.",
+      "objective": "Ask Codex for a read-only, evidence-backed plan with milestones, decision points, and verification for each phase.",
+      "sections": [
+        {
+          "heading": "Inspect before proposing architecture",
+          "body": "A credible plan begins with a no-write pass. Check applicable AGENTS.md files, README guidance, package or build manifests, Git status, the current entry point, a nearby working analogue, and focused plus broader test commands. Trace the behavior from interface to implementation and test, then identify the smallest likely change surface. Separate observed facts from inferences and name unresolved conflicts between documentation and code. For a bug, record the reproduction path; for a feature, identify the extension point and compatibility boundary. This checklist keeps a plausible generic plan from importing patterns the repository does not use."
+        },
+        {
+          "heading": "Sequence independently verifiable phases",
+        "body": "Separate intent from implementation: Specify, clarify consequential ambiguity, Plan, define Tasks, Implement, and Verify. The OpenAI Cookbook's ExecPlans guidance recommends milestones that can be checked independently. Current Spec Kit independently corroborates separating Specify, Plan, Tasks, Implement, and Converge; its Clarify command is optional before planning, so do not misstate the course sequence as its literal workflow. Each phase needs one outcome, bounded files, explicit non-goals, focused verification, dependencies, and a stop condition. A list of activities is not a plan until its order and evidence make completion reviewable."
+        },
+        {
+          "heading": "Pause for consequential choices",
+          "body": "Codex can make routine implementation decisions inside an approved plan, but choices that alter product behavior, public interfaces, data, cost, security, or scope deserve explicit human input. Ask it to present the smallest useful choice with tradeoffs and a recommendation. Do not request confirmation for every line; that creates noise and shifts attention away from meaningful decisions. Conversely, do not hide an unresolved product question inside code. Approve the plan only after checking that it addresses the task contract, respects local instructions, names validation, and excludes unauthorized external actions. If new evidence invalidates the plan during implementation, update the plan and explain why rather than following a stale sequence."
+        }
+      ],
+      "practice": {
+        "title": "Repair an overbroad plan",
+        "brief": "Audit a deliberately overbroad plan for the aicourse-codex-demo Incomplete filter and replace it without entering write mode.",
+        "steps": [
+          "Flag every unsupported assumption, unrelated refactor, missing non-goal, unsafe action, missing repository check, and phase that cannot be verified independently.",
+          "Inspect AGENTS.md, README files, manifests, Git status, CourseList.tsx, lib/courses.ts, the supplied CourseList test, route entry points, and a nearby working filter pattern.",
+          "Produce a two-to-four-phase replacement with outcome, owned files, non-goals, focused check, dependency, and stop condition for every phase."
+        ],
+        "evidence": [
+          "An annotated defect list for the overbroad plan with repository evidence.",
+          "The safer replacement plan plus an explicit approval or revision decision."
+        ],
+        "safety": "State that no files, dependencies, branches, commits, or external systems may change during planning."
+      },
+      "checkpoint": {
+        "prompt": "What makes a plan repository-grounded rather than merely plausible?",
+        "answer": "Its steps and assumptions trace to inspected instructions, code paths, tests, and current behavior in the actual workspace."
+      },
+      "takeaway": "Approve a plan when its evidence, phases, decisions, and checks make the next action predictable."
+    },
+    "implement-steer": {
+      "kicker": "Lesson 5",
+      "title": "Implement, observe, and steer",
+      "summary": "Use bounded phases for ordinary work and Goal mode for long-running outcomes, then steer the same task with evidence while its permission boundary remains unchanged.",
+      "objective": "Create a measurable Goal, execute independently testable phases, issue two precise steering corrections, and stop cleanly when blocked.",
+      "sections": [
+        {
+          "heading": "Turn unclear long work into a measurable Goal",
+        "body": "When the outcome is still unclear, use /plan to surface constraints and convert the result into measurable completion criteria. Then start /goal in the ChatGPT desktop app, Codex CLI, or IDE. The Goal text becomes both the first prompt and the completion criteria, so include the outcome, constraints, and verification. In the desktop app, the Goal progress row lets you pause, resume, edit, or clear it. In the CLI, use the documented /goal commands and continue in the same session to steer it. In the IDE extension, start with /goal and continue in the same chat to add context, adjust constraints, or request a status recap. Starting a Goal does not grant broader access; the existing sandbox and approval policy still apply. For multi-hour work, maintain a living ExecPlan so another reviewer can recover the state from durable milestones."
+        },
+        {
+          "heading": "Authorize and steer one testable phase at a time",
+          "body": "Give every phase a compact contract: Outcome / owned files / non-goals / focused verification / stop before. A risky phase should return an early diff and test result before more code accumulates. Require progress updates that make each action traceable to that phase. Steer in the same task by citing new evidence and preserving what is already validated. For example: keep the correct desktop layout, change only mobile focus order, then preserve that repair while rerunning the keyboard flow and one regression check. If a correction changes the intended outcome, risk, or authority, create a new task contract instead of silently stretching the current one."
+        },
+        {
+          "heading": "Recognize a real blocker",
+          "body": "A missing optional tool is not automatically a blocker. First inspect local alternatives, narrower checks, or a repeatable manual path. A real blocker prevents credible progress inside the authorized scope, such as a required credential, unresolved product choice, or reproducible environment failure with no safe fallback. Pause the Goal or phase, preserve the reviewable state, and report the exact condition, attempts, unchanged files, skipped checks, and smallest needed input. Do not accept invented success to maintain momentum. Partial work remains useful only when its status and limitations are explicit."
+        }
+      ],
+      "practice": {
+        "title": "Steer twice without restarting",
+        "brief": "Run a tiny two-phase edit in a disposable project and issue two precise, evidence-based corrections in the same task.",
+        "steps": [
+          "Write the first phase as Outcome / owned files / non-goals / focused verification / stop before, then authorize only that phase.",
+        "After inspecting its diff, send a correction that preserves one validated behavior while changing one observed defect; then send a second correction that narrows the next focused check without removing any final acceptance or regression checks.",
+          "Ask Codex to complete the bounded task and trace both follow-ups to the resulting diff and fresh check output."
+        ],
+        "evidence": [
+          "The phase contract, first diff, and focused verification result.",
+          "Both steering messages plus a final note tracing each one to code or test evidence."
+        ],
+        "safety": "Use a reversible, local-only edit. Do not authorize commits, pushes, package publication, or deployment."
+      },
+      "checkpoint": {
+        "prompt": "Does starting /goal expand Codex's permissions?",
+        "answer": "No. Goal mode retains the same sandbox and approval policy and pauses when the task needs a decision or additional authority."
+      },
+      "takeaway": "Steer by citing observed evidence and preserving validated work, not by restarting with a vague rejection."
+    },
+    "debug-test": {
+      "kicker": "Lesson 6",
+      "title": "Debug from evidence and test the fix",
+      "summary": "Reliable debugging moves from reproduction to root cause to a minimal fix, then proves the result with a focused test and proportionate broader checks.",
+      "objective": "Guide Codex through reproduction, root-cause analysis, expected failure, minimal correction, and fresh verification.",
+      "sections": [
+        {
+          "heading": "Reproduce before explaining",
+          "body": "Start with the smallest reliable reproduction and read the complete failure. Record the input, environment, command or interaction, actual result, and expected result. Before editing, inspect recent changes and find a nearby working analogue. Write one falsifiable hypothesis in the form: I think X causes the failure because Y. Test the smallest single variable that could disprove it; if disproved, discard it before forming another. Trace value or control flow until the triggering condition, faulty assumption, and observed symptom connect. When reproduction differs by environment, compare version, seed, time, permissions, and data instead of editing speculative code."
+        },
+        {
+          "heading": "Run red, green, then refactor",
+          "body": "Encode the defect as a focused test before changing production code. Run it and confirm that it fails for the expected reason, not because of a typo or broken fixture. Make the smallest change that turns that same check green. Only after green may you perform behavior-preserving cleanup, and every cleanup step must keep the focused test green. Do not combine the causal fix with unrelated refactoring. If automated testing is impossible, use a repeatable manual check with captured inputs and outputs: observe the failure, change one causal area, repeat the same check, then make only evidence-preserving cleanup."
+        },
+        {
+          "heading": "Verify fresh behavior, then widen",
+          "body": "Run the focused check after the fix and keep its actual output. Then choose broader checks based on what could have regressed: neighboring unit tests, type checking, linting, build, integration tests, or a targeted user flow. Do not claim a command passed because it passed earlier or because the code looks correct. Verification must be fresh and tied to the current workspace. Read the diff after tests pass; a green test can coexist with accidental files, weakened assertions, or unnecessary changes. If a broad check fails for a pre-existing reason, separate that evidence from failures caused by your change and explain how you distinguished them. Never delete or disable a meaningful test just to obtain green output."
+        }
+      ],
+      "practice": {
+        "title": "Complete a red-green-refactor cycle",
+        "brief": "Use the seeded CourseList incomplete-filter defect in a disposable aicourse-codex-demo and add or preserve its focused regression test.",
+        "steps": [
+          "Reproduce the filter failure, inspect recent code and a working filter analogue, then state one falsifiable root-cause hypothesis.",
+          "Run the focused CourseList test and confirm the expected red failure before changing CourseList.tsx or lib/courses.ts.",
+          "Apply the smallest fix, obtain green, perform only needed behavior-preserving cleanup, rerun the focused test, run one broader check, and inspect the diff."
+        ],
+        "evidence": [
+          "The expected red output, working analogue, and one-hypothesis root-cause statement.",
+          "Fresh green output after any cleanup, one broader result, and a note confirming the diff stayed focused."
+        ],
+        "safety": "Use a synthetic failure. Do not experiment against production data, a live service, or a repository with uncommitted valuable work."
+      },
+      "checkpoint": {
+        "prompt": "Why must you observe the new test failing before implementing the fix?",
+        "answer": "It shows that the test actually detects the defect and fails for the intended reason, making the later passing result meaningful."
+      },
+      "takeaway": "A credible fix has a reproducible symptom, a causal explanation, a minimal change, and fresh evidence."
+    },
+    "review-diff": {
+      "kicker": "Lesson 7",
+      "title": "Review the diff and the evidence",
+      "summary": "Review is where you decide whether the implementation matches the contract, not merely whether Codex completed a sequence of commands.",
+    "objective": "Select the correct review scope, use /review in the current surface, use desktop inline comments and stage or revert controls deliberately, verify repairs, and produce an honest handoff.",
+      "sections": [
+        {
+          "heading": "Review the correct repository scope",
+        "body": "The desktop review pane reflects the repository state, not only Codex's edits. Start with the complete changed-file list and choose Unstaged, Staged, Commit, Branch, or Last turn according to the acceptance claim. In the CLI, run /review and choose uncommitted changes, a base branch, an exact commit, or custom review instructions. In the IDE extension, /review offers Review against a base branch or Review uncommitted changes. In either surface, Codex reports prioritized findings without changing the working tree. If /review is missing, verify that the open project is inside a Git repository. Every changed file should trace to the plan; investigate unexpected lockfiles, generated artifacts, deleted tests, route edits, broad formatting, or security configuration before reading individual hunks in context."
+        },
+        {
+          "heading": "Turn findings into bounded repairs",
+        "body": "Useful findings name a concrete behavior, location, trigger, and impact. In the desktop review pane, leave line-specific comments for defects, ask Codex to address only those comments, and inspect the repair diff before accepting it. Use the desktop stage and revert controls only after resolving the exact target. For a more independent pass, configure Detached review in the desktop app or set the IDE extension's chatgpt.reviewDelivery to detached; the CLI reports its review in the current session. You can also start a fresh reviewer pass with the original contract and current diff. Multiple confident summaries are not proof; compare every finding with the artifact and rerun focused verification after repair. A style preference without a project rule is not a defect, while a green suite does not excuse a visible product or security error it never tested."
+        },
+        {
+          "heading": "Map evidence to acceptance and hand off",
+          "body": "For each acceptance criterion, record the verifying test, command, inspection, or manual flow and its actual result. Read logs for skips, warnings, cached output, or a command that ran in the wrong package. Label any unavailable check as not run and explain what remains uncertain. Then lead the handoff with the outcome, changed areas, fresh verification, risks, and remaining human decisions. If the repository was already dirty, separate task changes from preserved user work. Avoid production-ready, secure, or fully tested claims unless the evidence supports that exact scope."
+        }
+      ],
+      "practice": {
+        "title": "Find and verify seeded review defects",
+        "brief": "Review a prepared CourseList diff containing a mouse-only control, wrong count, accidental route edit, or weakened test, then verify a bounded repair.",
+        "steps": [
+        "Choose the correct scope for the current surface, run /review, inspect every changed file, and rank each seeded defect by concrete impact.",
+        "In the desktop review pane, leave at least one inline comment, request only the bounded repairs, inspect the new diff, and deliberately stage accepted changes or revert rejected changes in the disposable repository.",
+          "Rerun the focused tests, update an acceptance matrix, and write a handoff with limitations and still-unauthorized actions."
+        ],
+        "evidence": [
+          "The scoped /review result, ranked defects, inline comment, and reviewed repair diff.",
+          "Fresh verification, the completed acceptance matrix, and the final handoff."
+        ],
+      "safety": "Use a disposable local Git repository. Do not merge, commit, push, or deploy merely because the review is favorable."
+      },
+      "checkpoint": {
+        "prompt": "What is wrong with writing all tests pass when one relevant suite could not start?",
+        "answer": "It collapses a known evidence gap into a success claim. Report which checks passed, which did not run, and what remains uncertain."
+      },
+      "takeaway": "Accept the change only when the diff, evidence, and limitations all match the original contract."
+    },
+    "agents-skills": {
+      "kicker": "Lesson 8",
+      "title": "Use AGENTS.md, skills, and subagents well",
+      "summary": "Durable instructions, reusable workflows, and parallel agents solve different problems. Use each only when its boundary is explicit and inspectable.",
+      "objective": "Apply AGENTS.md discovery and precedence, design an instruction-first Skill, reject unsafe third-party configuration, and brief an independent subagent.",
+      "sections": [
+        {
+          "heading": "Apply AGENTS.md discovery and precedence",
+        "body": "Use AGENTS.md for durable build commands, architecture boundaries, naming rules, generated files, and required review steps. At global scope and in each project directory, Codex checks AGENTS.override.md before AGENTS.md; project directories then check any configured fallback filenames. It includes at most one non-empty instruction file per directory, walks from the project root toward the current working directory, and combines files root first so closer guidance appears later and can override earlier guidance. Discovery occurs when the run starts, and the combined default size limit is 32 KiB. Keep files concise, specific, and verifiable; create a nested file only when that subtree needs narrower guidance. Review instructions in an unfamiliar repository before allowing privileged work."
+        },
+        {
+          "heading": "Create a skill after repetition is real",
+          "body": "A Skill packages one proven repeatable job with a clear trigger, inputs, outputs, decision rules, and validation. Keep the main SKILL.md concise and progressively disclose references or assets only when needed. Prefer an instruction-only Skill. Add or reuse a tested script only when deterministic behavior, fragile command sequencing, or external tooling makes prose insufficient, and inspect the script before execution. Treat third-party Skills, plugins, hooks, MCP servers, and installers as executable supply-chain code: review network and write behavior, audit an exact release or commit, test project-scoped without secrets, and never pipe a moving main-branch download into a privileged shell."
+        },
+        {
+          "heading": "Delegate only independent work",
+        "body": "A subagent is useful when a bounded subtask can progress independently, such as researching one API, reviewing a separate module, or running a distinct test audit. Current Codex releases enable subagent workflows by default; request delegation explicitly when you want it. Each subagent performs its own model and tool work, so parallel workflows use more tokens. Subagents inherit the parent sandbox or permission mode; choose that boundary before delegating and review approval requests in their originating agent thread. Give each subagent the relevant context, owned file scope, expected output, and a prohibition on overlapping edits. Parallelism is counterproductive when agents depend on the same unresolved decision or modify the same files. The coordinating agent must integrate the results, resolve contradictions, and rerun verification on the combined state. Do not mistake multiple confident reports for independent proof. For beginner work, one agent with a good plan is usually enough. Subagents become valuable when decomposition is obvious and the cost of coordination is lower than the time saved."
+        }
+      ],
+      "practice": {
+        "title": "Write scoped instructions and reject an unsafe installer",
+        "brief": "Create one bounded AGENTS.md rule, audit an inert unsafe Skill installer excerpt, and draft an independent subagent handoff.",
+        "steps": [
+          "Write a concise root or nested AGENTS.md rule with its scope, authoritative command, observable validation, and the precedence result you expect.",
+          "Reject an inert installer that downloads a moving branch, pipes it to a shell, requests secrets, adds a hook, or enables network writes; state the exact release or commit and secret-free audit needed instead.",
+          "Draft one subagent brief with independent scope, complete context, no overlapping writable files, expected return contract, and integration verification."
+        ],
+        "evidence": [
+          "The scoped AGENTS.md rule plus an explanation of which instruction wins in a root-to-leaf conflict.",
+          "The rejected installer audit and the non-overlapping subagent brief."
+        ],
+      "safety": "Use a disposable repository. Do not install or execute a third-party skill for this exercise. Inspect before adoption and pin a reviewed version when practical."
+      },
+      "checkpoint": {
+        "prompt": "When is a nested AGENTS.md appropriate?",
+        "answer": "When a specific subtree has durable instructions that differ from or refine the repository-wide rules, and the scope boundary is clear."
+      },
+      "takeaway": "Use AGENTS.md for durable local rules, skills for proven repeatable workflows, and subagents for truly independent work."
+    },
+    "cli": {
+      "kicker": "Lesson 9",
+      "title": "Work fluently in the Codex CLI",
+      "summary": "The CLI puts the same evidence-first loop in your terminal, where the current directory, command output, and automation boundaries are especially visible.",
+      "objective": "Install and authenticate the CLI, inspect and control a session, resume work, run /review, and use codex exec with the correct structured-output contract.",
+      "sections": [
+        {
+          "heading": "Install, authenticate, and confirm context",
+          "body": "Install the current CLI using the official platform instructions; the npm path is npm install -g @openai/codex. From the intended repository root, run codex. Use codex login for browser-based ChatGPT authentication, codex login status to inspect the active mode, or printenv OPENAI_API_KEY | codex login --with-api-key for usage-based API access. Never paste the key into the chat or logs. ChatGPT sign-in uses subscription and workspace controls; API-key sign-in uses API billing and API-organization controls, and Codex cloud still requires ChatGPT sign-in. Before work, confirm the directory, Git status, and applicable AGENTS.md instructions."
+        },
+        {
+          "heading": "Control and resume the interactive session",
+          "body": "Use /status to verify the active model, approval policy, writable roots, and session context; /permissions to choose the needed boundary; /model to change model; /init to scaffold AGENTS.md; /diff to inspect changes; and /review to review uncommitted work, a base branch, a commit, or custom criteria. Begin read-only for orientation, then approve one bounded edit. Use /resume from the command menu or codex resume --last to continue the latest session for the current directory; add --all only when you deliberately need a wider session list. Inspect shell substitutions, globs, variables, and resolved targets before broad or destructive commands."
+        },
+        {
+          "heading": "Reserve codex exec for defined automation",
+          "body": "OpenAI's non-interactive guide describes the unconfigured default as read-only, while the current command reference says an omitted --sandbox inherits the active configuration. Automation must therefore not assume read-only when the flag is omitted. For a read-only inspection or review, pass --sandbox read-only explicitly. codex exec --json \"Inspect the test command without editing\" emits a JSON Lines event stream, not one final JSON object. When a downstream consumer needs a final schema-bound result, use codex exec \"...\" --output-schema ./schema.json -o ./result.json and reject a nonzero exit, missing file, or schema mismatch. Add --sandbox workspace-write only for a task whose bounded edit is explicit. Use codex exec resume --last only when resuming the intended automation session. Start the workflow interactively, observe its permissions and failures, then automate the stable contract."
+        }
+      ],
+      "practice": {
+        "title": "Review read-only, then approve one edit",
+        "brief": "Use a disposable repository for an interactive orientation and review, one explicitly approved edit, and focused verification.",
+        "steps": [
+          "From the verified repository root, run /status, select read-only through /permissions, use /init only if a scaffold is actually needed, and request a repository map with path evidence.",
+          "Run /review on the intended scope, then authorize one workspace edit and inspect /diff before accepting it.",
+          "Run the focused verification and separately demonstrate either codex exec --json JSONL output or a schema-constrained final result without exposing credentials."
+        ],
+        "evidence": [
+          "The /status, permission, /review, and /diff evidence for the interactive task.",
+          "Fresh focused verification plus the JSONL or schema-bound output and its explicit failure rule."
+        ],
+        "safety": "Keep the review and non-interactive demonstration local. Authorize only the one bounded workspace edit, inspect every command before approval, and use no credentials."
+      },
+      "checkpoint": {
+        "prompt": "Why should a new workflow begin interactively before moving to codex exec?",
+        "answer": "Interactive runs expose ambiguities, permission needs, failure modes, and the useful output contract before automation removes the clarification loop."
+      },
+      "takeaway": "Choose interactive CLI work for discovery and steering; choose codex exec only for a stable, bounded contract."
+    },
+    "ide": {
+      "kicker": "Lesson 10",
+      "title": "Use Codex inside the IDE",
+      "summary": "The IDE surface is strongest when the open file, selected code, recent chat, checkpoint, and inline diff are the context you actually need.",
+      "objective": "Attach documented editor context, create Git checkpoints, make and review a focused change, recover safely, and delegate a bounded task to cloud.",
+      "sections": [
+        {
+          "heading": "Attach less, but attach precisely",
+          "body": "The open file, selected code, and recent chat can make an IDE request precise. Tell Codex which context is authoritative and why, and review or deliberately attach that context in the IDE composer. Use /ide-context only when you intend to turn automatic IDE context on or off; it is a setting toggle, not an inspection command. Select the failing function and its caller rather than attaching an unexplained directory. Still require applicable repository instructions and tests before editing because the visible file may not contain the full contract. If behavior crosses a type, service, route, or component boundary, ask for that trace. Precise selection reduces search cost but does not replace repository-level acceptance and verification."
+        },
+        {
+          "heading": "Checkpoint, review, and recover",
+        "body": "Create a Git checkpoint before the task so you can distinguish the baseline from Codex's work, then create another checkpoint after a reviewed result when appropriate. Inspect inline diffs beside the source and reject unrelated formatting or cleanup. Use /review for the intended supported scope (uncommitted changes or a base branch), run the focused test, then run the broader command required by the contract. If the change is wrong, revert only the resolved hunk or restore from the known checkpoint rather than discarding unrelated user work. An inline diff can look correct while runtime behavior, generated files, or lockfiles are wrong, so always inspect the complete changed-file set."
+        },
+        {
+          "heading": "Delegate a bounded task to cloud",
+          "body": "When a prepared repository task can run independently, use /cloud and choose the intended /cloud-environment from the IDE. Restate the base revision, outcome, constraints, verification, and still-unauthorized external actions. Return to the editor when the cloud task finishes, compare its result with your checkpoint, and review the complete diff before applying or accepting anything. Use /local or /worktree when local context or isolated local edits are more appropriate. Never let two surfaces write the same checkout concurrently; one owner edits while other work stays read-only or isolated."
+        }
+      ],
+      "practice": {
+        "title": "Make one editor-grounded correction",
+        "brief": "Use a disposable project with a small function and an existing test.",
+        "steps": [
+          "Create a baseline Git checkpoint, select only the relevant function, and describe the observable behavior, repository constraint, and acceptance check.",
+          "Ask Codex to inspect the caller and test, make the smallest inline correction, and review only the resulting diff with /review.",
+          "Run the focused and repository-level checks, practice a safe revert or checkpoint comparison, then outline a bounded /cloud delegation without starting an overlapping writer."
+        ],
+        "evidence": [
+          "The baseline checkpoint and accepted inline diff with an explanation for every changed file.",
+          "Fresh verification, recovery evidence, and the bounded cloud handoff contract."
+        ],
+        "safety": "Disable automatic deployment or publication hooks and keep only one active writer for the selected files."
+      },
+      "checkpoint": {
+        "prompt": "What risk comes from attaching only the currently selected function?",
+        "answer": "The selection may hide repository instructions, callers, tests, public contracts, or cross-file effects that determine the correct change."
+      },
+      "takeaway": "Use editor context to increase precision, then restore repository context before accepting the change."
+    },
+    "cloud-parallel": {
+      "kicker": "Lesson 11",
+      "title": "Use desktop, cloud, worktrees, and parallel work",
+      "summary": "Projects, the integrated terminal, Goals, cloud tasks, worktrees, subagents, and scheduled tasks increase leverage only when each has a bounded owner and reviewable result.",
+      "objective": "Prepare reproducible cloud work, hand off isolated worktrees, review subagents, operate Goals and scheduled tasks, and identify what may run concurrently.",
+      "sections": [
+        {
+          "heading": "Make local and cloud state explicit",
+          "body": "Use projects and separate chats to keep related files and distinct outcomes organized. Each desktop chat has an integrated terminal scoped to its project or worktree; ChatGPT can read the current output, so run focused tests there without treating visible output as automatic success. A cloud task starts from a selected repository revision and configured setup, not invisible laptop state. Pin runtimes and dependencies when reproducibility matters. Cloud secrets exist only during setup and are removed before the agent phase; agent-phase internet is off by default unless configured. If the task depends on an uncommitted file or manual service, make it reproducible or keep it local."
+        },
+        {
+          "heading": "Isolate writers and review every parallel result",
+        "body": "A Worktree chat isolates files on your computer and can hand off between Local and Worktree, but separate branches may still make incompatible assumptions. Give every cloud task or subagent a stable base revision, complete context, disjoint owned scope, explicit return contract, and focused validation. Use /agent in the CLI to inspect or switch subagent threads. Start /goal for a long measurable outcome; use the desktop progress row or same-session CLI and IDE steering appropriate to that surface. Goal mode does not expand permissions. Read-heavy exploration, tests, and triage are safer first subagent uses than overlapping write-heavy work. The coordinator reviews each result and runs fresh checks on the integrated state."
+        },
+        {
+          "heading": "Schedule only a manually proven prompt",
+          "body": "In the ChatGPT desktop app, a scheduled task can run in a local project or dedicated background worktree; the machine must stay on, the app must keep running, and the project must remain available. A web scheduled task can use uploaded or connected context but cannot directly keep an arbitrary local folder or worktree. Before scheduling, run the prompt manually and review its first few outputs. State the action, what counts as important, output destination, cadence, default sandbox needs, and when to stop or ask for input. Scheduled tasks run unattended, so choose the narrowest access and review early runs before trusting repetition."
+        }
+      ],
+      "practice": {
+        "title": "Decompose a multi-part request safely",
+        "brief": "Plan, but do not run, a multi-part request across a Goal, two independent agents or worktrees, integration, and one possible scheduled follow-up.",
+        "steps": [
+          "Define the measurable /goal outcome and shared base revision, then mark every dependency or unresolved interface decision that must remain sequential.",
+          "Give two truly independent lanes disjoint files or responsibilities, complete context, explicit returns, focused checks, and a /agent or worktree review step.",
+          "Write the integration order and combined checks, then draft a manually testable scheduled prompt with local-versus-web choice, cadence, stop condition, and review destination."
+        ],
+        "evidence": [
+          "The dependency map and two non-overlapping task briefs with explicit return contracts.",
+          "The integration checklist plus the scheduled-task prompt and its manual-test and stop criteria."
+        ],
+        "safety": "Keep this exercise in plan mode. Do not create remote branches, pull requests, deployments, or destructive cleanup actions."
+      },
+      "checkpoint": {
+        "prompt": "Why are separate worktrees insufficient proof that two tasks can run safely in parallel?",
+        "answer": "Worktrees isolate files, but the tasks can still make incompatible assumptions, change a shared contract, or fail only after integration."
+      },
+      "takeaway": "Parallelize only independent contracts and treat integration as its own reviewed, freshly tested change."
+    },
+    "automation-capstone": {
+      "kicker": "Lesson 12",
+      "title": "Automate carefully and complete the capstone",
+      "summary": "Automation is earned after a workflow is understood. Build a least-privilege Review to Repair to Validate loop, then complete a bounded local capstone without hiding permissions, failures, or uncertainty.",
+      "objective": "Design a separately authorized GitHub automation loop with injection defenses and stop conditions, then deliver and locally verify the course capstone.",
+      "sections": [
+        {
+          "heading": "Separate Review, Repair, and Validate",
+          "body": "First run a Review job with actions/checkout configured persist-credentials: false, contents: read, no unnecessary secret or network, and openai/codex-action@v1. The @v1 action reference does not pin the Codex CLI; when reproducibility matters, separately set codex-version to an audited, compatible CLI release. Permission profiles currently require Codex CLI 0.138.0 or later. A trusted human or policy gate separately authorizes Repair. For checkout edits, use the narrowest permission-profile such as :workspace; it does not replace safety-strategy, and it cannot be combined with the legacy sandbox input. Retain the action's drop-sudo or unprivileged-user isolation. Run Codex last in its job, pass only its declared output to a fresh Validate job, and let deterministic tests decide whether the repaired artifact proceeds."
+        },
+        {
+          "heading": "Defend CI from untrusted instructions",
+          "body": "Issue text, pull-request bodies, code comments, screenshots, filenames, commit messages, fixtures, and repository instructions may be attacker-controlled. Quote them as data under a trusted task contract; never interpolate raw ${{ ... }} values into a shell command. Pass external values through env and quote shell variables. Treat codex-home configuration and named permission profiles as trusted code. Protect OPENAI_API_KEY, restrict who can trigger the workflow, and keep fork runs away from secrets. Set a maximum repair count, stop on repeated no-progress output or validation failure, and hand off to a human instead of retrying forever or performing an external write."
+        },
+        {
+          "heading": "Submit a safe change packet",
+          "body": "The capstone uses the disposable aicourse-codex-demo. Keep a six-artifact packet: task contract, read-only orientation, approved plan, reviewed diff, fresh verification record, and maintainer handoff. Self-assess it with the rubric and repair the weakest evidence link. The browser's structured receipt is only the technical completion gate and a local honor-system self-check; it does not upload source code, verify the packet, create an identity credential, or make local execution tamper-evident. A trustworthy handoff connects every artifact and leaves commits, pushes, pull requests, merges, deployments, and other external writes separately unauthorized."
+        }
+      ],
+      "practice": {
+        "title": "Complete the aicourse-codex-demo capstone",
+        "brief": "Download the provided aicourse-codex-demo and add a keyboard-accessible Incomplete course filter without adding dependencies or changing the existing routes.",
+        "steps": [
+          "Unpack the demo, run npm ci, and inspect CourseList.tsx, lib/courses.ts, the supplied CourseList.test.tsx, package scripts, and the / and /courses/ route files before editing.",
+          "Run npm test to observe the seeded Incomplete-filter failures, then implement the smallest coherent keyboard-accessible changes in CourseList.tsx and lib/courses.ts. Keep the supplied CourseList.test.tsx unchanged; add a separate test file only if you strengthen coverage.",
+          "Run npm test, npm run lint, npm run build, and npm run course:verify; review the complete diff and hand off the generated course-receipt.json with any remaining limitations."
+        ],
+        "evidence": [
+          "A reviewed diff centered on CourseList.tsx and lib/courses.ts, with the supplied CourseList.test.tsx unchanged and the Incomplete filter's keyboard behavior and route preservation traced to evidence.",
+          "The generated course-receipt.json plus fresh npm test, lint, build, and course:verify results, with every unrun or failed check stated."
+        ],
+        "safety": "Work only inside the downloaded demo. Add no dependencies, preserve / and /courses/, use no real credentials or private data, and do not push, merge, deploy, or write to external systems."
+      },
+      "checkpoint": {
+        "prompt": "When must an automated Review to Repair to Validate loop stop and ask for a human?",
+        "answer": "At its defined attempt limit, after repeated no-progress output, when validation fails without a bounded repair, or whenever broader authority or an external action would be required."
+      },
+      "takeaway": "A world-class Codex workflow is not the most autonomous one; it is the one whose scope, actions, evidence, and remaining decisions are clear."
+    }
+  },
+  "quiz": {
+    "q01": {
+      "question": "What is the best first Codex task in an unfamiliar repository?",
+      "options": [
+        "Upgrade every dependency",
+        "Create a read-only map of entry points, instructions, tests, and risks",
+        "Ask Codex to commit a cleanup",
+        "Run the longest test suite immediately"
+      ],
+      "explanation": "Read-only orientation creates shared, checkable context without mutating a workspace you do not yet understand."
+    },
+    "q02": {
+      "question": "Who decides whether Codex's completed work should be accepted?",
+      "options": [
+        "The most recent progress message",
+        "The repository's package manager",
+        "The user or responsible reviewer after checking evidence",
+        "The first passing test"
+      ],
+      "explanation": "Codex can execute and report, but the user retains product intent, authorization, and acceptance responsibility."
+    },
+    "q03": {
+      "question": "Which request has the clearest observable outcome?",
+      "options": [
+        "Improve the dashboard",
+        "Make the code cleaner",
+        "Fix all accessibility issues",
+        "When email validation fails, preserve the valid name field and focus the email error"
+      ],
+      "explanation": "The final option identifies a trigger and behavior that can be reproduced and tested."
+    },
+    "q04": {
+      "question": "What belongs in a complete task contract?",
+      "options": [
+        "Goal, context, constraints, non-goals, acceptance criteria, and verification",
+        "Only a long description of the desired code",
+        "A request to use best practices without defining them",
+        "Permission to perform any action that seems useful"
+      ],
+      "explanation": "These six labeled fields give Codex a bounded target and give the reviewer observable acceptance evidence."
+    },
+    "q05": {
+      "question": "How should you handle a permission request?",
+      "options": [
+        "Approve every request from a trusted product",
+        "Reject all requests regardless of the task",
+        "Check the exact action, reason, target, and narrower alternatives",
+        "Approve broad access now to avoid future interruptions"
+      ],
+      "explanation": "The sandbox and approval policy are separate controls. Any approval should still be justified by the exact current action, target, risk, and narrower alternative."
+    },
+    "q06": {
+      "question": "Which statement about Local, Worktree, and Cloud modes is correct?",
+      "options": [
+        "Cloud automatically contains every uncommitted local file",
+        "Choose among them based on data, setup, isolation, and feedback-loop needs",
+        "Local execution never needs permission review",
+        "Cloud execution is always more secure"
+      ],
+      "explanation": "Local works in the current directory, Worktree isolates local files, and Cloud runs remotely; the right mode depends on the task's code, data, setup, isolation, and interaction needs."
+    },
+    "q07": {
+      "question": "What should Codex do before proposing a repository-specific plan?",
+      "options": [
+        "Inspect applicable instructions, current code paths, tests, and behavior",
+        "Choose the newest architecture pattern online",
+        "Create a branch and begin refactoring",
+        "Ask for approval on every line of code"
+      ],
+      "explanation": "Repository evidence distinguishes a grounded plan from a plausible but generic plan."
+    },
+    "q08": {
+      "question": "When is a phase boundary useful?",
+      "options": [
+        "Whenever it makes the plan longer",
+        "Only after all code is complete",
+        "When two agents want the same files",
+        "When the phase produces an independently reviewable and verifiable result"
+      ],
+      "explanation": "Independently verifiable phases create safe points for review, steering, stopping, and sometimes parallel work."
+    },
+    "q09": {
+      "question": "What is the strongest steering message after a partial result?",
+      "options": [
+        "Try again",
+        "Keep the validated layout; revise only mobile focus order and rerun the keyboard test",
+        "Rewrite everything with a different framework",
+        "Do whatever you think is best"
+      ],
+      "explanation": "Evidence-based steering preserves correct work and defines the exact new boundary and check."
+    },
+    "q10": {
+      "question": "What happens to permissions when you start /goal?",
+      "options": [
+        "Goal mode automatically grants full access",
+        "Goal mode disables all approvals until completion",
+        "The existing sandbox and approval policy remain in force, and the Goal pauses when it needs a decision",
+        "The Goal can deploy automatically because completion criteria were defined"
+      ],
+      "explanation": "Goal mode persists an objective and completion criteria; it does not broaden the task's sandbox, approvals, or external authority."
+    },
+    "q11": {
+      "question": "What is the first goal of debugging?",
+      "options": [
+        "Reproduce the symptom reliably and trace its cause",
+        "Refactor the suspicious module",
+        "Increase logging everywhere",
+        "Disable the failing test"
+      ],
+      "explanation": "Reproduction and causal tracing prevent speculative edits and provide a stable verification path."
+    },
+    "q12": {
+      "question": "What makes a passing regression test credible?",
+      "options": [
+        "It was written after the implementation and never failed",
+        "It uses the same internal algorithm as the fix",
+        "It replaces all broader checks",
+        "It first failed for the expected defect, then passed after the minimal fix"
+      ],
+      "explanation": "The observed red state proves the test can detect the defect; the later green state is then meaningful evidence."
+    },
+    "q13": {
+      "question": "What should you inspect first during change review?",
+      "options": [
+        "Only the final summary",
+        "Only whether the build is green",
+        "The complete changed-file list and whether each file traces to the plan",
+        "The number of lines added"
+      ],
+      "explanation": "The changed-file list quickly exposes unexpected artifacts, deletions, lockfiles, and scope expansion."
+    },
+    "q14": {
+      "question": "How should a handoff report a relevant test suite that could not start?",
+      "options": [
+        "All tests passed",
+        "Name it as not run, explain why, and state what remains uncertain",
+        "Omit it so the result looks concise",
+        "Mark it passed if smaller tests succeeded"
+      ],
+      "explanation": "A precise evidence gap is more useful and trustworthy than an unsupported completion claim."
+    },
+    "q15": {
+      "question": "What is a good use of AGENTS.md?",
+      "options": [
+        "Store a complete conversation history",
+        "Override the user's security boundary",
+        "Paste temporary instructions for one task",
+        "Record concise, durable repository commands, boundaries, and validation rules"
+      ],
+      "explanation": "AGENTS.md is most effective for stable, scoped guidance that applies across tasks."
+    },
+    "q16": {
+      "question": "When should you use a subagent or build a skill?",
+      "options": [
+        "Use a subagent for independent bounded work; build a skill for a proven repeatable workflow",
+        "Use both for every one-file edit",
+        "Use a skill to avoid inspecting third-party scripts",
+        "Use parallel agents on the same files to increase confidence"
+      ],
+      "explanation": "Subagents address independent concurrency, while skills package stable workflow knowledge."
+    },
+    "q17": {
+      "question": "What should you verify before starting the Codex CLI?",
+      "options": [
+        "The terminal font",
+        "The working directory, repository state, and applicable instructions",
+        "That every network permission is enabled",
+        "That the repository has no tests"
+      ],
+      "explanation": "The current directory establishes a major part of the CLI task's file and instruction context."
+    },
+    "q18": {
+      "question": "Which task is best suited to codex exec?",
+      "options": [
+        "An ambiguous architecture discussion",
+        "A task that needs frequent product choices",
+        "A stable, bounded job with defined permissions, failures, validation, and structured output",
+        "A first attempt at an unknown production migration"
+      ],
+      "explanation": "Non-interactive execution works when the clarification loop has already been converted into an explicit contract."
+    },
+    "q19": {
+      "question": "What is the main advantage of the IDE surface?",
+      "options": [
+        "Precise context from selected code, open files, recent chats, and inline diffs",
+        "Automatic proof that runtime behavior is correct",
+        "Unlimited access to every repository",
+        "No need to run tests"
+      ],
+      "explanation": "Editor context supports precise requests and review, but repository-wide evidence is still required."
+    },
+    "q20": {
+      "question": "What should happen after an inline IDE diff looks correct?",
+      "options": [
+        "Deploy it immediately",
+        "Accept generated files without review",
+        "Start a second writer on the same files",
+        "Run focused and broader checks, then review the complete changed-file set"
+      ],
+      "explanation": "Inline appearance is only one review layer; behavior and cross-file effects need fresh verification."
+    },
+    "q21": {
+      "question": "Which pair is safest to parallelize?",
+      "options": [
+        "Two agents editing the same configuration file",
+        "Two tasks waiting on one unresolved schema decision",
+        "Independent module audits with disjoint scope and explicit outputs",
+        "Two deployments to the same environment"
+      ],
+      "explanation": "Disjoint scope and stable interfaces reduce coordination and integration risk."
+    },
+    "q22": {
+      "question": "When should an automated Review to Repair to Validate loop stop?",
+      "options": [
+        "Only after it has deployed once",
+        "At a defined attempt limit, repeated no-progress result, unresolved validation failure, or new authority requirement",
+        "Never; automation should retry until it changes something",
+        "Whenever a read-only review reports no findings"
+      ],
+      "explanation": "Explicit stop conditions prevent endless retries and force a human decision when repair is not converging or requires broader authority."
+    },
+    "q23": {
+      "question": "What is the safest default for a Codex CI workflow that analyzes a pull request?",
+      "options": [
+        "Repository write access and all secrets",
+        "Automatic execution of commands from the pull request body",
+        "An unpinned third-party action from its moving branch",
+        "Read-only least privilege, untrusted text treated as data, and reviewed mutation gates"
+      ],
+      "explanation": "CI combines untrusted input with automation, so authority should be minimal and mutation should require a deliberate gate."
+    },
+    "q24": {
+      "question": "What makes a trustworthy capstone handoff?",
+      "options": [
+        "A traceable packet connecting contract, repository evidence, plan, diff, verification, and honest handoff",
+        "A large number of changed files",
+        "An automatic production deployment",
+        "A final message that says production-ready"
+      ],
+      "explanation": "The evidence packet makes the process reviewable. Separately, the browser records technical completion only from the local structured receipt."
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "ChatGPT desktop app with Codex selected",
+      "caption": "Select Codex in the ChatGPT desktop app before opening the repository that will bound the task."
+    },
+    "fig-02": {
+      "alt": "ChatGPT desktop app with Codex opening the downloaded aicourse-codex-demo folder",
+      "caption": "The downloadable demo provides a disposable, reproducible workspace for every guided action."
+    },
+    "fig-03": {
+      "alt": "Codex composer containing the complete task contract for the Incomplete course filter",
+      "caption": "The contract fixes CourseList.tsx and lib/courses.ts as implementation targets, keeps the supplied test frozen, and states the route, dependency, and verification constraints before editing."
+    },
+    "fig-04": {
+      "alt": "Codex environment picker showing Local, Worktree, and Cloud options",
+      "caption": "Choose the execution boundary that matches the task before granting tools or write access."
+    },
+    "fig-05": {
+      "alt": "Codex read-only orientation citing CourseList source, tests, scripts, and routes",
+      "caption": "A grounded orientation establishes current behavior and likely files without changing the demo."
+    },
+    "fig-06": {
+      "alt": "Codex harmless approval request with the exact command and narrow reason visible",
+      "caption": "Approve the smallest understandable boundary change and deny requests whose effect is unclear."
+    },
+    "fig-07": {
+      "alt": "Codex integrated terminal running focused CourseList tests",
+      "caption": "Run the smallest relevant test in the same workspace where Codex will implement the change."
+    },
+    "fig-08": {
+      "alt": "A mid-task message steers Codex toward the keyboard-accessible Incomplete filter",
+      "caption": "Steering from observed evidence preserves valid work while correcting the active path."
+    },
+    "fig-09": {
+      "alt": "CourseList focused test failing before the change and passing afterward",
+      "caption": "A red-then-green result ties the implementation to a reproducible regression check."
+    },
+    "fig-10": {
+      "alt": "Codex changed-file list and diff for CourseList.tsx and lib/courses.ts, with the supplied test unchanged",
+      "caption": "Review the complete changed-file set before accepting a bounded implementation."
+    },
+    "fig-11": {
+      "alt": "Inline Codex review beside a slash-review command scoped to the current changes",
+      "caption": "State review scope explicitly so findings stay tied to the relevant diff and acceptance behavior."
+    },
+    "fig-12": {
+      "alt": "Codex evidence handoff listing changes, commands, route checks, and limitations",
+      "caption": "A useful handoff separates fresh evidence, unrun checks, remaining risk, and human decisions."
+    },
+    "fig-13": {
+      "alt": "Codex CLI /status output showing version 0.149.0-alpha.4, the selected model, the synthetic /private/tmp/aicourse-codex-demo working directory, and Read Only permissions",
+      "caption": "Use /status to verify the active model, working directory, and permission mode before starting repository work."
+    },
+    "fig-14": {
+      "alt": "Codex CLI showing the selected model and the /permissions menu with Ask for approval selected",
+      "caption": "Make permission and model choices visible instead of relying on hidden defaults."
+    },
+    "fig-15": {
+      "alt": "Codex CLI /review preset menu with options to review against a base branch, review uncommitted changes, review a commit, or enter custom review instructions",
+      "caption": "Choose the narrowest review preset that matches the artifact you need examined; this menu does not show a completed review."
+    },
+    "fig-16": {
+      "alt": "Codex IDE extension reviewing selected CourseList source as context and explaining the accessible Incomplete-filter addition",
+      "caption": "Selected code supplies precise local context while the repository remains the source of truth."
+    },
+    "fig-17": {
+      "alt": "Codex IDE diff showing Incomplete-filter edits across two files beside Review and Undo controls; the handoff notes that no tests were run",
+      "caption": "Inspect the edit where it was made, then connect the checkpoint to fresh verification."
+    },
+    "fig-18": {
+      "alt": "Codex IDE delegates the bounded demo task to the cloud",
+      "caption": "An IDE-to-cloud handoff should carry the repository, task contract, constraints, and verification expectations."
+    },
+    "fig-19": {
+      "alt": "Codex cloud setup, bounded task, and execution logs for aicourse-codex-demo",
+      "caption": "Cloud work is reviewable when environment setup, task scope, and logs remain connected."
+    },
+    "fig-20": {
+      "alt": "Codex worktree controls and handoff with branch and integration state visible",
+      "caption": "Worktrees isolate file changes, but integration still needs an explicit owner and fresh verification."
+    },
+    "fig-21": {
+      "alt": "Two Codex subagents working on independent non-overlapping repository questions",
+      "caption": "Parallelize only independent investigations, inspect each agent thread, and rerun integration checks."
+    },
+    "fig-22": {
+      "alt": "Codex CLI Skills picker showing the systematic-debugging result and the visible Filesystem Only and Plugins source filters",
+      "caption": "This plugin-provided Skill is shown only as an audit example: inspect its name, purpose, and source before use; Course 2 neither depends on nor recommends it."
+    },
+    "fig-23": {
+      "alt": "ChatGPT scheduled task configuration with cadence, local project or worktree, durable prompt, and model controls",
+      "caption": "Schedule only a manually tested prompt with explicit sandbox needs, stop criteria, output, and review destination."
+    },
+    "fig-24": {
+      "alt": "Least-privilege Codex GitHub Action and its resulting pull request evidence",
+      "caption": "Separate read-only Review, authorized Repair, and fresh Validate jobs while treating pull request input as untrusted."
+    }
+  },
+  "capstone": {
+    "title": "Safe change packet",
+    "summary": "Complete one reproducible bug fix or bounded feature, self-assess its evidence packet, and generate a local technical receipt for the browser completion gate.",
+    "scenario": "Download and unpack aicourse-codex-demo. CourseList.tsx and lib/courses.ts together need a keyboard-accessible Incomplete course filter covered by the supplied CourseList.test.tsx. Codex may inspect, plan, edit, and verify inside that demo only. Keep the supplied test unchanged, add no dependencies, and preserve both / and /courses/. Commits, pushes, pull requests, deployments, real secrets, private data, and external writes remain outside scope.",
+    "instructions": [
+      "Contract: add an Incomplete course filter that uses native keyboard-operable controls, add no dependencies, preserve / and /courses/, and keep all external actions unauthorized.",
+      "Orient: after npm ci, inspect CourseList.tsx, lib/courses.ts, the supplied CourseList.test.tsx, package scripts, existing filters, and both route entry points without changing files.",
+      "Plan: connect the missing behavior to the focused test, name the smallest changes in CourseList.tsx and lib/courses.ts, keep the supplied test unchanged, and set npm test, lint, build, route preservation, keyboard behavior, and no-new-dependencies as gates.",
+      "Implement: run npm test to capture the expected failure, then make the smallest coherent changes in CourseList.tsx and lib/courses.ts for the Incomplete filter. Do not edit the supplied CourseList.test.tsx; put any additional coverage in a new test file.",
+      "Verify: run npm test, npm run lint, and npm run build, confirming the / and /courses/ routes still work and no dependency files changed unexpectedly.",
+      "Review: inspect every changed file and confirm the filter label, native button behavior, pressed state, incomplete-course logic, scope, and safety constraints against the diff.",
+      "Handoff: run npm run course:verify, retain the generated course-receipt.json, and report the outcome, changed files, command evidence, limitations, and decisions still reserved for a human."
+    ],
+    "artifacts": {
+      "task-contract": {
+        "title": "Task contract",
+        "description": "The bounded outcome, context, constraints, acceptance checks, verification, and authorization."
+      },
+      "orientation-note": {
+        "title": "Orientation note",
+        "description": "Read-only repository facts with file anchors, current behavior, tests, risks, and labeled uncertainty."
+      },
+      "approved-plan": {
+        "title": "Approved plan",
+        "description": "Ordered phases with outputs, affected areas, evidence, decisions, and stop conditions."
+      },
+      "reviewed-diff": {
+        "title": "Reviewed diff",
+        "description": "The complete changed-file set with a scope rationale and review findings."
+      },
+      "verification-record": {
+        "title": "Verification record",
+        "description": "Fresh failure and success evidence, broader checks, actual outputs, and explicitly unrun checks."
+      },
+      "handoff": {
+        "title": "Maintainer handoff",
+        "description": "A concise outcome, change summary, verification, limitations, and remaining human decisions."
+      }
+    },
+    "rubric": {
+      "scope": {
+        "title": "Scope and contract, 20 points",
+        "description": "The outcome is observable, non-goals are explicit, and every changed file traces to the approved task."
+      },
+      "safety": {
+        "title": "Environment and safety, 20 points",
+        "description": "Permissions are minimal, secrets and untrusted input are controlled, and external or destructive actions stay unauthorized."
+      },
+      "implementation": {
+        "title": "Implementation quality, 20 points",
+        "description": "The change is repository-grounded, focused, compatible with local rules, and free of unrelated rewrites."
+      },
+      "verification": {
+        "title": "Verification quality, 25 points",
+        "description": "Fresh evidence covers acceptance and relevant regression risk, with honest treatment of failures and gaps."
+      },
+      "handoff": {
+        "title": "Review and handoff, 15 points",
+        "description": "The diff is reviewed and another maintainer can understand results, limitations, and next decisions."
+      }
+    },
+    "pass": "Pass at 80 points or above, with no critical safety violation or fabricated verification claim.",
+    "retry": "If you score below 80, repair the weakest evidence link and resubmit the same bounded task rather than expanding scope.",
+    "completion": "Self-assess the packet until a reviewer can reproduce the reasoning without guessing. The browser records technical capstone completion only after a valid local receipt; it does not inspect or certify the packet."
+  }
+}

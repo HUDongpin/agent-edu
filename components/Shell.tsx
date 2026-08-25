@@ -5,18 +5,8 @@ import ThemeToggle from "./ThemeToggle";
 import MobileNav from "./MobileNav";
 import NavLinks from "./NavLinks";
 import { I18nProvider } from "./I18nProvider";
-import { LOCALES, coverage, translator, type Messages } from "@/lib/i18n";
+import { translator, type Messages } from "@/lib/i18n";
 import type { ReactNode } from "react";
-
-async function coverageMap(): Promise<Record<string, number>> {
-  const en = (await import("@/messages/en.json")).default as Messages;
-  const out: Record<string, number> = {};
-  for (const l of LOCALES) {
-    const own = (await import(`@/messages/${l.code}.json`)).default as Messages;
-    out[l.code] = coverage(own, en);
-  }
-  return out;
-}
 
 export default async function Shell({
   locale,
@@ -28,14 +18,11 @@ export default async function Shell({
   children: ReactNode;
 }) {
   const t = translator(messages);
-  const cov = await coverageMap();
   const p = (path: string) => `/${locale}${path}`;
 
   const nav = [
-    { href: p("/"), key: "nav.home" },
     { href: p("/courses/"), key: "nav.courses" },
-    { href: p("/handbook/"), key: "nav.handbook" },
-    { href: p("/lab/"), key: "nav.lab" },
+    { href: p("/#paths"), key: "nav.paths" },
     { href: p("/about/"), key: "nav.about" },
   ];
 
@@ -61,7 +48,7 @@ export default async function Shell({
           </MobileNav>
 
           <div className="topacts">
-            <LanguageMenu coverage={cov} />
+            <LanguageMenu />
             <ThemeToggle />
           </div>
         </div>
@@ -77,11 +64,30 @@ export default async function Shell({
             <p className="muted">{t("foot.licence")}</p>
           </div>
           <div>
-            <h2>{t("home.pathTitle")}</h2>
+            <h2>{t("foot.explore")}</h2>
             <ul>
               <li><Link href={p("/courses/")}>{t("nav.courses")}</Link></li>
-              <li><Link href={p("/about/")}>{t("nav.about")}</Link></li>
-              <li><Link href={p("/teach/")}>{t("nav.teach")}</Link></li>
+              <li><Link href={p("/#paths")}>{t("nav.paths")}</Link></li>
+              <li><Link href={p("/courses/#agentic-engineering")}>{t("c.agentic.title")}</Link></li>
+              <li><Link href={p("/codex/")}>{t("c.codex.title")}</Link></li>
+              <li><Link href={p("/claude/")}>{t("c.claude.title")}</Link></li>
+              <li><Link href={p("/cursor/")}>{t("c.cursor.title")}</Link></li>
+              <li><Link href={p("/grok/")}>{t("c.grok.title")}</Link></li>
+              <li><Link href={p("/github/")}>{t("c.github.title")}</Link></li>
+              <li><Link href={p("/prompts/")}>{t("c.prompts.title")}</Link></li>
+              <li><Link href={p("/software-engineering/")}>{t("c.softwareEngineering.title")}</Link></li>
+              <li><Link href={p("/rag/")}>{t("c.rag.title")}</Link></li>
+              <li><Link href={p("/mcp/")}>{t("c.mcp.title")}</Link></li>
+              <li><Link href={p("/make-money-with-codex/")}>{t("c.make-money-with-codex.title")}</Link></li>
+              <li><Link href={p("/claude-income/")}>{t("c.claude-income.title")}</Link></li>
+              <li><Link href={p("/ai-tutor/")}>{t("c.ai-tutor.title")}</Link></li>
+              <li><Link href={p("/product-management/")}>{t("c.product-management.title")}</Link></li>
+              <li><Link href={p("/agent-orchestration/")}>{t("c.agent-orchestration.title")}</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h2>{t("foot.learn")}</h2>
+            <ul>
               <li><Link href={p("/handbook/")}>{t("track.1.title")}</Link></li>
               <li><Link href={p("/lab/")}>{t("track.2.title")}</Link></li>
               <li>
@@ -89,20 +95,20 @@ export default async function Shell({
                   {t("track.3.title")}
                 </Link>
               </li>
+              <li><Link href={p("/teach/")}>{t("nav.teach")}</Link></li>
             </ul>
           </div>
           <div>
-            <h2>{t("nav.lang")}</h2>
-            <p className="muted">{t("note.langHelp")}</p>
-            <p>
+            <h2>{t("foot.openTitle")}</h2>
+            <ul>
+              <li><Link href={p("/about/")}>{t("nav.about")}</Link></li>
+              <li>
               <a href="https://github.com/HUDongpin/agent-edu/tree/main/messages" rel="noopener">
                 {t("foot.translate")}
               </a>
-            </p>
-          </div>
-          <div>
-            <h2>{t("foot.source")}</h2>
-            <p><a href="https://github.com/HUDongpin/agent-edu" rel="noopener">github.com/HUDongpin/agent-edu</a></p>
+              </li>
+              <li><a href="https://github.com/HUDongpin/agent-edu" rel="noopener">{t("foot.source")}</a></li>
+            </ul>
             <p className="muted">
               {t("foot.built")} <a href="https://github.com/HUDongpin" rel="noopener">HU Dongpin</a>
             </p>

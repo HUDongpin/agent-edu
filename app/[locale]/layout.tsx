@@ -5,6 +5,8 @@ import { LOCALE_CODES, getMessages, metaFor, translator } from "@/lib/i18n";
 import { SITE, seoFor } from "@/lib/seo";
 import type { ReactNode } from "react";
 
+const isVercelDeployment = process.env.NODE_ENV === "production" && process.env.VERCEL === "1";
+
 export function generateStaticParams() {
   return LOCALE_CODES.map((locale) => ({ locale }));
 }
@@ -46,7 +48,7 @@ export default async function LocaleLayout({
   const meta = metaFor(locale);
 
   return (
-    <html lang={locale} dir={meta.dir} suppressHydrationWarning>
+    <html lang={locale} dir={meta.dir} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light dark" />
         {/* Applied before paint so a dark-mode reader never sees a white flash. */}
@@ -64,9 +66,10 @@ export default async function LocaleLayout({
         </Shell>
         {/* Anonymous page-view counts, no cookies and no cross-site profile.
             It is still analytics, so the copy says so rather than claiming
-            "no tracking" — see home.free / home.a1 / lab.keyNote. On hosts
-            other than Vercel the endpoint 404s and nothing is collected. */}
-        <Analytics />
+            "no tracking" — see home.free / home.a1 / lab.keyNote. Vercel
+            supplies both the deployment marker and the analytics endpoint;
+            local and non-Vercel static hosts therefore inject no script. */}
+        {isVercelDeployment ? <Analytics /> : null}
       </body>
     </html>
   );

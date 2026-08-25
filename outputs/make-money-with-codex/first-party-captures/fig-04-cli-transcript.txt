@@ -1,0 +1,30 @@
+Capture date: 2026-08-23
+Product: OpenAI Codex CLI v0.149.0-alpha.4
+Workspace: /tmp/course11-codex-demo
+Model shown by CLI: gpt-5.6-sol
+Approval policy shown by CLI: never
+Sandbox shown by CLI: read-only
+Capture method: bundled Codex CLI, ephemeral session, exact synthetic inputs
+Sanitisation: transport warnings, plugin warnings, token count, and the ephemeral session ID were omitted from the published rendering. The substantive headings and response text below are unchanged.
+
+## Scope
+
+README defines a synthetic delivery-status dashboard with three milestones, explicit acceptance checks, and no customer data, credentials, or external services.
+
+## Risks
+
+All five acceptance checkboxes remain unchecked. The inspected files provide no evidence of a completed dashboard, required empty/loading/error states, full keyboard accessibility, passing automated checks, or a handoff covering risks, rollback, and next review.
+
+## Verification
+
+Provide evidence for each checkbox:
+
+- Dashboard contents traced to the written brief.
+- Screenshots or tests for empty, loading, and error states.
+- Keyboard-only navigation results for every control.
+- Automated check output with passing status.
+- Handoff documentation naming risks, rollback steps, and next review.
+
+## Decision
+
+Revise until every acceptance checkbox has explicit, reviewable evidence.

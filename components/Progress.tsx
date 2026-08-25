@@ -1,71 +1,157 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import {
-  readLearningState,
-  readLearningStateOnServer,
-  resetLearningState,
-  selectHandbookProgress,
-  selectLabProgress,
-  subscribeLearningState,
-} from "@/lib/progress";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "./I18nProvider";
+import { TOP_LEVEL_COURSES } from "@/lib/courses";
+import { resetAllCourseProgress } from "./codex/progress-store";
+import { resetClaudeProgressAfterGlobalReset } from "./claude/progress-store";
+import { resetCursorProgressAfterGlobalReset } from "./cursor/progress-store";
+import { resetGrokProgress } from "./grok/progress-store";
 
-type Item = { label: string; done: boolean; note: string };
+const PROGRESS_KEY = "ae.progress";
+const SECTIONS_KEY = "tch.seen";
+
+type CourseProgress = {
+  id: (typeof TOP_LEVEL_COURSES)[number]["id"];
+  percent: number;
+};
 
 /**
- * Progress lives in localStorage and nowhere else — no account, nothing sent
- * anywhere. Rendered client-side because a static export has no per-reader
- * server state, which is exactly the property we wanted to keep.
+ * A private, course-level return state. Progress is read from this browser and
+ * never sent to the site, so the statically exported page remains account-free.
  */
 export default function Progress({ locale }: { locale: string }) {
   const { t } = useI18n();
-  const state = useSyncExternalStore(
-    subscribeLearningState,
-    readLearningState,
-    readLearningStateOnServer,
-  );
-  const handbook = selectHandbookProgress(state);
-  const lab = selectLabProgress(state);
-  const items: Item[] = [
-    {
-      label: t("track.1.title"),
-      done: handbook.completed,
-      note: `${handbook.exploredSections} ${t("ui.of")} ${handbook.totalSections}`,
-    },
-    {
-      label: t("track.2.title"),
-      done: lab.completed,
-      note: `${lab.completedCount} ${t("ui.of")} ${lab.totalSteps}`,
-    },
-  ];
-  const started = handbook.status !== "not-started" || lab.status !== "not-started";
+  const [courses, setCourses] = useState<CourseProgress[] | null>(null);
 
-  if (!started) return <div className="progwrap"><div className="muted">{t("home.progNone")}</div></div>;
+  const read = useCallback((): CourseProgress[] => {
+    let sectionsSeen = 0;
 
-  const done = items.filter((i) => i.done).length;
+    try {
+      sectionsSeen = (localStorage.getItem(SECTIONS_KEY) || "")
+        .split(",")
+        .filter(Boolean).length;
+    } catch {
+      // Storage can be unavailable in private browsing. Learning still works.
+    }
+
+    const records = new Map<string, Record<string, unknown>>();
+    const progressFor = (storageKey: string): Record<string, unknown> => {
+      const cached = records.get(storageKey);
+      if (cached) return cached;
+      let record: Record<string, unknown> = {};
+      try {
+        const stored: unknown = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        if (stored && typeof stored === "object" && !Array.isArray(stored)) {
+          record = stored as Record<string, unknown>;
+        }
+      } catch {
+        // Treat malformed or unavailable browser data as zero progress.
+      }
+      records.set(storageKey, record);
+      return record;
+    };
+
+    return TOP_LEVEL_COURSES.map((course) => ({
+      id: course.id,
+      percent: course.progress(
+        progressFor(course.progressStorageKey ?? PROGRESS_KEY),
+        sectionsSeen,
+      ),
+    }));
+  }, []);
+
+  useEffect(() => {
+    const refresh = () => setCourses(read());
+    refresh();
+    const progressEvents = new Set(
+      TOP_LEVEL_COURSES
+        .map((course) => course.progressEvent)
+        .filter((event): event is string => Boolean(event)),
+    );
+    window.addEventListener("focus", refresh);
+    window.addEventListener("storage", refresh);
+    for (const event of progressEvents) window.addEventListener(event, refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("storage", refresh);
+      for (const event of progressEvents) window.removeEventListener(event, refresh);
+    };
+  }, [read, locale]);
+
+  const active = courses?.filter((course) => course.percent > 0) ?? [];
+
+  if (!courses) {
+    return <div className="progwrap progress-empty" aria-hidden="true" />;
+  }
+
+  if (!active.length) {
+    return (
+      <div className="progwrap progress-empty">
+        <div>
+          <strong>{t("home.progNoneTitle")}</strong>
+          <p>{t("home.progNone")}</p>
+        </div>
+        <Link className="btn primary" href={`/${locale}/courses/`}>
+          {t("home.progBrowse")}<span className="arrow" aria-hidden="true">→</span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="progwrap" data-locale={locale}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <strong>{done} {t("ui.of")} {items.length}</strong>
-        <button
-          className="iconbtn"
-          type="button"
-          onClick={() => resetLearningState("all")}
-        >
-          {t("home.progReset")}
-        </button>
+    <div className="progwrap">
+      <div className="progress-course-list">
+        {active.map((course) => {
+          const definition = TOP_LEVEL_COURSES.find((item) => item.id === course.id)!;
+          const title = t(`c.${course.id}.title`);
+          const href = course.id === "agentic"
+            ? `/${locale}/handbook/`
+            : `/${locale}${definition.href}`;
+          const label = course.percent >= 100 ? t("cat.review") : t("cat.resume");
+
+          return (
+            <article className="progress-course" key={course.id}>
+              <div className="progress-course-heading">
+                <strong>{title}</strong>
+                <span>{course.percent}%</span>
+              </div>
+              <div
+                className="progbar"
+                role="progressbar"
+                aria-label={`${title}: ${t("cat.progress")}`}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={course.percent}
+              >
+                <span style={{ width: `${course.percent}%` }} />
+              </div>
+              <Link className="text-link" href={href}>
+                {label}<span aria-hidden="true">→</span>
+              </Link>
+            </article>
+          );
+        })}
       </div>
-      <div className="progbar"><span style={{ width: `${(done / items.length) * 100}%` }} /></div>
-      <ul className="proglist">
-        {items.map((i) => (
-          <li key={i.label} className={i.done ? "done" : ""}>
-            <span className="tick">{i.done ? "✓" : "○"}</span>
-            <span>{i.label}{i.note ? `  ${i.note}` : ""}</span>
-          </li>
-        ))}
-      </ul>
+      <button
+        className="iconbtn progress-reset"
+        type="button"
+        onClick={async () => {
+          resetAllCourseProgress();
+          resetClaudeProgressAfterGlobalReset();
+          await resetCursorProgressAfterGlobalReset();
+          resetGrokProgress();
+          try {
+            localStorage.removeItem(SECTIONS_KEY);
+          } catch {
+            // Keep the control harmless when storage is unavailable.
+          }
+          setCourses(read());
+        }}
+      >
+        {t("home.progReset")}
+      </button>
     </div>
   );
 }

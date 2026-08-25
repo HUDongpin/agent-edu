@@ -1,0 +1,742 @@
+{
+  "meta": {
+    "title": "How to Use Cursor",
+    "kicker": "Course 4",
+    "summary": "Master Cursor through 14 evidence-led lessons that connect authentic interface practice with safe workflows for engineering, research, writing, office work, and teaching.",
+    "audience": "For beginners through advanced practitioners who can navigate files. Coding experience helps in the software studio but is not required for the research, writing, office, or teaching studios.",
+    "duration": "About 13 hours 20 minutes, including a 90-minute capstone",
+    "sourceNote": "Product behaviour was checked against first-party Cursor sources on 23 August 2026; authentic UI figures identify their documented version and freshness. Audited GitHub repositories illustrate practitioner workflows; they do not prove productivity gains or guarantee correct outputs.",
+    "figureNote": "All 14 figures are first-party Cursor UI or product media stored locally for limited educational commentary. Each is date-stamped and marked current, dated, or historical. aicourse.top is independent and is not endorsed by Cursor; publication rights require review before any public release or redistribution.",
+    "startCta": "Start the course",
+    "resumeCta": "Continue learning"
+  },
+  "ui": {
+    "lessons": "Lessons",
+    "minutes": "min",
+    "objectives": "Learning objective",
+    "evidence": "Evidence to keep",
+    "practice": "Practice",
+    "checkpoint": "Checkpoint",
+    "sources": "Sources",
+    "quiz": "Knowledge check",
+    "previous": "Previous lesson",
+    "next": "Next lesson",
+    "capturePending": "Authentic UI figure pending",
+    "openFullSize": "Open the full-size figure",
+    "figureCurrent": "Current official UI",
+    "figureDated": "Dated official UI",
+    "figureHistorical": "Historical interface",
+    "figureAttribution": "© Anysphere, Inc. Official Cursor media used for educational commentary; no affiliation or endorsement.",
+    "optionalAdvanced": "Optional advanced material",
+    "progress": "Progress",
+    "courseProgress": "Course progress",
+    "completed": "Completed",
+    "markComplete": "Mark complete",
+    "markedComplete": "Marked complete",
+    "resetProgress": "Reset progress",
+    "question": "Question",
+    "of": "of",
+    "checkAnswer": "Check answer",
+    "checkAnswers": "Check answers",
+    "correct": "Correct",
+    "incorrect": "Not yet",
+    "tryAgain": "Try again",
+    "score": "Score",
+    "quizPassed": "Knowledge check passed",
+    "quizNeedsReview": "Review the lesson and try again",
+    "capstoneArtifacts": "Required artifacts",
+    "capstoneReceipt": "Capstone self-check receipt",
+    "artifactReady": "Artifact ready",
+    "rubric": "Rubric",
+    "learnerSelfAssessment": "Learner self-assessment. aicourse.top does not review this evidence or attest completion.",
+    "rubricComplete": "Rubric complete",
+    "passingScore": "Passing score",
+    "weight": "Weight",
+    "status": "Status",
+    "notStarted": "Not started",
+    "printReceipt": "Print receipt",
+    "browserStorageNote": "Progress is stored only in this browser.",
+    "backToCourse": "Back to course",
+    "allLessons": "All lessons",
+    "recordCompletion": "Record completion",
+    "finalQuizTitle": "Final knowledge check",
+    "finalQuizIntro": "Answer 12 questions, three from each unit. You need 10 correct answers to pass; your best score is saved in this browser.",
+    "beginQuiz": "Begin quiz",
+    "nextQuestion": "Next question",
+    "retryQuiz": "Retry quiz",
+    "bestScore": "Best score",
+    "passRequirement": "10 of 12 correct required",
+    "source": "Source",
+    "storageUnavailable": "Browser storage is unavailable. The course remains usable, but progress and completion will not be saved after this session.",
+    "receiptInstructions": "Download the ZIP and its checksum together. The archive SHA-256 verifies the download; the separate receipt fixture SHA-256 binds the self-check record to course-fixture.json. The course checks the record's schema and declared results, but cannot prove that commands ran or replace review of the evidence packet.",
+    "receiptSchemaLabel": "Receipt schema",
+    "fixtureVersionLabel": "Fixture version",
+    "archiveHashLabel": "Download archive SHA-256",
+    "fixtureHashLabel": "Receipt fixture SHA-256",
+    "downloadChecksum": "Download checksum",
+    "requiredChecksLabel": "Declared verification checks",
+    "pasteReceipt": "Paste receipt JSON",
+    "verifyReceipt": "Check receipt format",
+    "receiptValid": "Receipt format verified",
+    "receiptInvalidJson": "This is not valid JSON.",
+    "receiptWrongSchema": "The receipt uses the wrong schema.",
+    "receiptWrongVersion": "The receipt fixture version is not supported.",
+    "receiptWrongHash": "The receipt's fixtureSha256 does not match the required course-fixture.json manifest.",
+    "receiptIncomplete": "The receipt is missing required passing checks.",
+    "savedCompletionMismatch": "Saved completion does not match this published capstone contract. Re-check the current fixture and receipt.",
+    "downloadStarter": "Download starter project",
+    "completionSummary": "Completion summary",
+    "exportSummary": "Export summary",
+    "finishQuiz": "Finish quiz",
+    "questionProgressTemplate": "Question {current} of {total}",
+    "scoreSummaryTemplate": "Score: {score} of {total}",
+    "bestScoreTemplate": "Best score: {score} of {total}",
+    "resetConfirm": "Reset all saved course progress?",
+    "resetDone": "Course progress reset.",
+    "capstonePath": "Capstone path"
+  },
+  "units": {
+    "unit-1": {
+      "title": "Control the interface",
+      "summary": "Set a safe data boundary, distinguish Tab, Inline Edit, Agent, Agents Window, and Editor, then write a task contract that another person can review."
+    },
+    "unit-2": {
+      "title": "Run an evidence loop",
+      "summary": "Plan before consequential work, steer from observed evidence, test and review changes, customise repeatable procedures, and isolate parallel execution."
+    },
+    "unit-3": {
+      "title": "Work across contexts",
+      "summary": "Apply the same source-to-artifact discipline to software engineering, research, long-form writing, product work, meetings, and plain-text office data."
+    },
+    "unit-4": {
+      "title": "Teach, assess, and complete the capstone",
+      "summary": "Design productive-struggle tutoring, protect learner agency and data, then complete a bounded capstone with a machine-checkable self-assessment receipt and a human-reviewed evidence packet."
+    }
+  },
+  "lessons": {
+    "orient-privacy": {
+      "kicker": "Lesson 1",
+      "title": "Orient Cursor and set the data boundary",
+      "summary": "Start in a disposable workspace, identify the Agents Window and Editor, and decide what data and authority Cursor may use before asking it to act.",
+      "objective": "Open a safe workspace and document the interface, privacy, ignore-file, execution, and version-control boundaries that govern a first task.",
+      "sections": [
+        {
+          "heading": "Learn the two supported surfaces",
+          "body": "Install and sign in from Cursor's official Quickstart, then open a synthetic folder. Cursor 3 supports an agent-first Agents Window and the classic Editor. The Agents Window organises local, worktree, cloud, and SSH agents; the Editor remains useful for direct code navigation, Tab, Inline Edit, and precise diff inspection. Open Agents Window from the command palette, then use the current Open IDE command to return to the Editor. Record the displayed version because interface locations change. This course's executable interface practice targets Cursor Desktop 3.17. Cursor CLI is a separate terminal surface with its own installation, modes, sandbox, and approval controls; follow its current documentation before transferring Desktop procedures. First identify the visible surface, selected repository, local or cloud run, and active model or mode."
+        },
+        {
+          "heading": "Privacy Mode is not local-only mode",
+          "body": "Cursor states that Privacy Mode prevents customer data from being used for model training under its published controls, but prompts and necessary code context are still processed. The current policy also documents possible retention when abuse detectors trigger and separately designated or administrator-enabled non-ZDR models. Indexing may retain embeddings and repository metadata. Keep secrets, private student work, identifiable interviews, and customer records outside the practice workspace. Use .cursorignore as defence in depth, but do not treat it alone as a complete terminal or MCP boundary. Cursor's hardening guidance pairs it with sandboxing, approvals, and file permissions. A safe start combines synthetic data, a narrow folder, version control, current privacy settings, and a clear understanding of which external providers or integrations may receive context."
+        },
+        {
+          "heading": "Match execution authority to the task",
+          "body": "Current local Run Modes are Auto-review, Allowlist, and Run Everything. Auto-review is the safest useful default for most people, yet Cursor explicitly says its classifier is not a security boundary. Ordinary workspace edits may save immediately even when terminal commands still require approval. Keep Git active, inspect the changed-file list, and read each command before allowing it. Cloud Agents use a different VM and network security model, so local approval rules do not transfer automatically. Begin with read-only orientation and increase authority only when a named acceptance step needs it."
+        }
+      ],
+      "practice": {
+        "title": "Write a safe-start card",
+        "brief": "Open a new synthetic folder and create a one-page record of the exact Cursor surface, version, data boundary, and execution boundary you will use.",
+        "steps": [
+          "Open Agents Window through the command palette, use Open IDE to return to the Editor once, and record the version plus whether the workspace is local, worktree, cloud, or SSH.",
+          "Review Privacy Mode, .cursorignore, and the current Run Mode; write one sentence describing what each control does not guarantee.",
+          "Initialise or confirm Git, ask Agent for a read-only map of the folder, and verify that no file changed."
+        ],
+        "evidence": [
+          "A safe-start card with surface, version, environment, privacy, ignore, Run Mode, and Git status.",
+          "A before-and-after status showing that the orientation request caused no workspace change."
+        ],
+        "safety": "Use only synthetic files. Do not paste real credentials to test whether an ignore rule works."
+      },
+      "checkpoint": {
+        "prompt": "Does Privacy Mode mean that prompts and code never leave your computer?",
+        "answer": "No. It controls training use under Cursor's published terms, while requests and necessary context are still processed. Treat sensitive data and tool access separately."
+      },
+      "takeaway": "Before asking what Cursor can do, decide what it may see, where it may run, and how you can recover."
+    },
+    "tab-inline-edit": {
+      "kicker": "Lesson 2",
+      "title": "Use Tab and Inline Edit without surrendering judgement",
+      "summary": "Treat Tab as next-action prediction and Inline Edit as a selected micro-change, then accept only suggestions you can explain and verify.",
+      "objective": "Complete a small edit by distinguishing automatic prediction from an explicit selected edit and reviewing each resulting change.",
+      "sections": [
+        {
+          "heading": "Tab predicts a next action",
+          "body": "Cursor describes Tab as next-action prediction rather than ordinary word completion. It can suggest multiple lines, refactors, or a jump to another location. A muted suggestion is still only a proposal. Read the entire ghost text and the surrounding function before pressing Tab. If the suggestion changes behaviour you do not understand, reject it or reduce the edit. Tab works best when your current code, names, nearby types, and recent actions make the intended continuation obvious. It is not a substitute for a task contract, repository rules, or tests."
+        },
+        {
+          "heading": "Inline Edit narrows an explicit request",
+          "body": "Select the smallest coherent region and open Inline Edit with Cmd or Ctrl plus K. State the transformation and the invariant that must remain true. The selection defines the target scope of the requested edit; it is not an access or security boundary, and you should not assume that unselected nearby code is provided as context. Review the proposed replacement line by line. User Rules are not applied to Inline Edit, so repeat any essential constraint in the request. If the task spans files, changes architecture, or needs repository exploration, move to Agent rather than stretching a micro-edit surface beyond its strength."
+        },
+        {
+          "heading": "Run the micro-loop",
+          "body": "Use a four-step loop: predict, inspect, accept or reject, then verify. For prose, verification might be a terminology scan and source comparison. For code, run the closest focused check and review the diff. Learn the cost of rejection by deliberately declining one plausible but incorrect suggestion. This trains you to see Cursor as an instrument under continuous supervision. Fast acceptance matters less than preserving intent, style, and behaviour. If several small edits begin to share an assumption, pause and write that assumption into a task contract before continuing."
+        }
+      ],
+      "practice": {
+        "title": "Compare prediction and instruction",
+        "brief": "In a disposable file, use Tab once and Inline Edit once to make two tiny, independently reviewable changes.",
+        "steps": [
+          "Start a simple function or paragraph, wait for a Tab suggestion, and write down why you accepted or rejected the complete suggestion.",
+          "Select one coherent region, invoke Inline Edit, and request a transformation plus one invariant that must stay unchanged.",
+          "Review the diff, run a focused check or source comparison, and revert either change if its evidence is weak."
+        ],
+        "evidence": [
+          "A two-row decision record for the Tab and Inline Edit suggestions.",
+          "The reviewed diff plus the focused check used to keep or revert each change."
+        ],
+        "safety": "Keep the exercise in one disposable file and exclude network, package installation, commits, and external writes."
+      },
+      "checkpoint": {
+        "prompt": "When should a selected Inline Edit become an Agent task?",
+        "answer": "When it needs repository search, multiple files, architectural decisions, terminal work, or acceptance evidence beyond one local transformation."
+      },
+      "takeaway": "Use the smallest Cursor surface that matches the decision, then verify the result rather than the fluency of the suggestion."
+    },
+    "agent-interface": {
+      "kicker": "Lesson 3",
+      "title": "Read Agent, tools, context, and checkpoints",
+      "summary": "Understand what Agent can search, read, edit, and run, then inspect the evidence behind its answer instead of treating the conversation as proof.",
+      "objective": "Use Agent for a read-focused investigation, inspect attached and discovered context, and distinguish a checkpoint from durable version control.",
+      "sections": [
+        {
+          "heading": "Agent is instructions plus tools plus model",
+          "body": "Open Agent with Cmd or Ctrl plus I. Agent can search files and the web, read code and images, edit files, execute shell commands, use a browser, and ask clarifying questions. Tool availability does not imply authority to use every tool. Progress messages show a trace of work, while repository files, diffs, terminal output, and test results provide the evidence you review. In Agents Window, keep the selected repository and run location visible. In the Editor, use precise local context, but remember that the open file is not the whole system."
+        },
+        {
+          "heading": "Let Agent search, attach what you know",
+          "body": "Current Cursor increasingly discovers context dynamically. If you know the decisive file, terminal, chat, Git diff, or Browser page, attach it explicitly with the relevant context control. If you do not know the files, state the outcome and let Agent search. Inspect the context ring to see how system instructions, rules, Skills, MCP descriptions, subagents, summaries, and conversation history consume context. More context can bury the signal. Ask Agent to cite paths, commands, and observed behaviour, and label any inference that still needs checking."
+        },
+        {
+          "heading": "Use side chats and checkpoints for the right purpose",
+          "body": "A read-focused side chat can investigate a tangent without derailing the main task, then be referenced back into the primary conversation. A checkpoint can preview or restore Agent changes from the timeline. Neither replaces Git. Checkpoints are local convenience snapshots and may not capture the durable collaboration, history, or recovery guarantees you expect from version control. Before a consequential task, create or confirm a clean Git boundary. After a restore, inspect status and tests rather than assuming the entire environment returned to a known state."
+        }
+      ],
+      "practice": {
+        "title": "Build an evidence-backed workspace map",
+        "brief": "Ask Agent to explain an unfamiliar synthetic project without editing it, then audit its context and claims.",
+        "steps": [
+          "Ask Agent to locate entry points, local instructions, focused checks, and two risk areas, citing the exact repository paths behind each observation.",
+          "Open the context ring or context list and identify which items were attached, discovered, summarised, or merely inferred.",
+          "Verify two file claims yourself and record why a checkpoint would not replace Git for the next task."
+        ],
+        "evidence": [
+          "A repository map that separates observed facts, citations, and unresolved inferences.",
+          "A context audit naming what Agent used and what you independently verified."
+        ],
+        "safety": "Require read-only work and check Git status before and after. Do not attach unrelated private terminals or chats."
+      },
+      "checkpoint": {
+        "prompt": "What does a polished Agent answer prove by itself?",
+        "answer": "Only what the answer claims. You still need to inspect cited files, tool results, diffs, checks, and remaining uncertainty."
+      },
+      "takeaway": "Agent is powerful because it can gather evidence; your job is to keep that evidence visible and contestable."
+    },
+    "task-contracts": {
+      "kicker": "Lesson 4",
+      "title": "Write a task contract Cursor can finish",
+      "summary": "Translate a broad intention into an observable outcome, authoritative context, constraints, non-goals, checks, and a clear handoff.",
+      "objective": "Write a bounded task request whose acceptance behaviour and verification evidence can be reviewed independently.",
+      "sections": [
+        {
+          "heading": "Start with the observable outcome",
+          "body": "Describe what should be different for a user, reader, analyst, teacher, or maintainer when the task is complete. Add the current behaviour and the authoritative source location. A request to improve a dashboard is vague; a request to preserve valid values after one field fails validation is observable. For research, specify the question, dataset snapshot, and required provenance. For writing, name the source set, audience, voice constraints, and claims that must remain unaltered. Context earns its place only when it changes a decision."
+        },
+        {
+          "heading": "Make constraints and non-goals explicit",
+          "body": "Name protected files, formats, dependencies, routes, citations, data boundaries, and external actions that must not change. Write non-goals to close tempting branches. Ask Cursor to stop and surface a conflict rather than silently choose between the outcome and a constraint. Translate phrases such as production-ready or high quality into reviewable behaviour: no new runtime dependency, a cited source for each substantive claim, keyboard operation, a stable schema, or an unchanged public interface. Keep commits, pushes, deployments, messages, and external records outside scope unless they are intentionally authorised."
+        },
+        {
+          "heading": "Separate acceptance from verification",
+          "body": "Acceptance criteria describe the behaviour you need. Verification describes how credible evidence will be produced. A test may support acceptance, but a passing command alone cannot prove usability, source integrity, or scope. Request focused checks, broader checks proportional to risk, a complete diff or artifact review, and honest disclosure for anything that cannot run. End with the handoff format: changed files or artifacts, command results, provenance, limitations, and decisions still reserved for a human. Ask only clarifying questions whose answers could materially change the implementation."
+        }
+      ],
+      "practice": {
+        "title": "Turn a vague request into a five-part contract",
+        "brief": "Rewrite one engineering, research, writing, office, or teaching request before Agent changes anything.",
+        "steps": [
+          "Write one labelled sentence each for outcome, authoritative context, constraints and non-goals, acceptance behaviour, and verification.",
+          "Add the exact handoff evidence and list every external or irreversible action that remains unauthorised.",
+          "Ask Agent for only materially consequential clarifications, revise the contract, and save it beside the project."
+        ],
+        "evidence": [
+          "The final five-part task contract with an explicit authority boundary.",
+          "A short decision note showing one ambiguity removed or explaining why none was consequential."
+        ],
+        "safety": "Draft the contract in read-only mode. Do not let the request to clarify become permission to implement."
+      },
+      "checkpoint": {
+        "prompt": "Why is 'test the result' an incomplete verification instruction?",
+        "answer": "It does not identify the behaviour, command or comparison, expected evidence, risk coverage, or what must be reported when a check cannot run."
+      },
+      "takeaway": "The best prompt is the smallest complete contract that makes success and authority visible."
+    },
+    "plan-execute-steer": {
+      "kicker": "Lesson 5",
+      "title": "Plan, execute, and steer from evidence",
+      "summary": "Use Plan Mode when ambiguity or risk warrants it, approve an evidence-backed plan, and steer without discarding validated work.",
+      "objective": "Create and approve an editable plan whose phases, evidence, decisions, and stop conditions trace to repository or source facts.",
+      "sections": [
+        {
+          "heading": "Choose Plan Mode for consequential work",
+          "body": "Plan Mode is valuable for multifile changes, architecture, ambiguous requirements, sensitive data transformations, and complex documents. It researches the workspace, asks clarifying questions, drafts an editable plan, and waits before building. That pause is the product. A plan does not guarantee correctness; it exposes assumptions while revision is cheap. Ask for cited repository or source evidence, the smallest affected area, dependencies between phases, and risks. Save the plan to the workspace when it should be reviewed or versioned with collaborators."
+        },
+        {
+          "heading": "Approve independently verifiable phases",
+          "body": "Each phase should name its output, affected files or artifacts, verification, and rollback concern. A software plan might reproduce a defect, add a focused failing test, make the minimal fix, then run broader checks. A research plan might register a hypothesis, validate data, run an analysis, and preserve results plus limitations. A writing plan might separate evidence extraction, outline, draft, style review, and integrity review. Reject generic plans that propose fashionable architecture without inspecting the current project. Approve only after protected boundaries and unrun external actions are explicit."
+        },
+        {
+          "heading": "Steer by preserving what passed",
+          "body": "When progress diverges, reference the observed result: keep the validated schema, revise only the mobile focus order, and rerun the keyboard test. This is stronger than asking to try again. Pause when a new dependency, external side effect, private dataset, or architectural choice appears. Update the contract and plan rather than allowing hidden scope growth. If Agent is blocked, require the exact blocker, attempts made, unchanged state, and smallest input or authority needed. Steering is not failure; it is how human intent remains active during execution."
+        }
+      ],
+      "practice": {
+        "title": "Approve one grounded plan",
+        "brief": "Use Plan Mode on a bounded task, but stop before Build until every phase is traceable and reviewable.",
+        "steps": [
+          "Provide the task contract and ask Plan Mode to inspect applicable instructions, current behaviour, likely files or artifacts, and verification commands.",
+          "Edit the plan so each phase has an output, evidence check, dependency, and stop condition; save it in the workspace.",
+          "Approve Build for one phase, inspect the result, and send one steering message that preserves verified work."
+        ],
+        "evidence": [
+          "The saved plan with repository or source anchors and explicit approval boundary.",
+          "A steering note tied to an observed diff, artifact, or check result."
+        ],
+        "safety": "Use a disposable project and authorise only the first planned phase. Keep commits, pushes, deployments, and external messages out of scope."
+      },
+      "checkpoint": {
+        "prompt": "What is the most important output of Plan Mode?",
+        "answer": "A reviewable decision surface: grounded assumptions, phases, checks, risks, and a deliberate pause before consequential execution."
+      },
+      "takeaway": "A strong plan shortens rework because it makes assumptions and evidence reviewable before they harden into changes."
+    },
+    "test-review-recover": {
+      "kicker": "Lesson 6",
+      "title": "Test, review, and recover without false confidence",
+      "summary": "Reproduce before fixing, observe a check fail and pass, inspect every changed artifact, and use checkpoints only as a complement to Git.",
+      "objective": "Complete a red-to-green evidence loop and produce a review note that distinguishes passing checks, unrun checks, and remaining risk.",
+      "sections": [
+        {
+          "heading": "Reproduce and isolate before editing",
+          "body": "A plausible fix is not a diagnosis. Capture the symptom with exact inputs, environment, expected behaviour, and actual behaviour. Reduce it to the smallest reliable case. Ask Debug Mode or Agent to propose competing hypotheses and the evidence that would distinguish them. Instrument only where necessary. For non-code work, reproduction means preserving the source input and showing the repeatable error in a calculation, citation, transformation, or document rule. Do not delete the failing evidence once a theory emerges. It is the anchor for the eventual claim that the issue was fixed."
+        },
+        {
+          "heading": "Observe red, then green, then broader checks",
+          "body": "A regression check is most credible when you see it fail for the intended reason before implementation and pass after the smallest coherent change. Then run broader checks proportional to the risk, such as type checking, lint, build, route checks, schema validation, source comparison, or rendered-output inspection. Record the actual command and result. If a check cannot start, label it not run and explain what remains uncertain. Never convert a blocked or missing check into a pass because another command succeeded."
+        },
+        {
+          "heading": "Review scope and recovery paths",
+          "body": "Start review with the complete changed-file or artifact list. Trace each item to the approved plan and inspect unexpected lockfiles, generated output, deletions, or formatting churn. Local Agent Review can surface findings, but you still triage them against acceptance criteria and evidence. Checkpoints can restore Agent changes, yet Git remains the durable collaboration and recovery boundary. Before restore, record useful evidence; after restore, inspect status and rerun checks. A final handoff should separate what passed, what was inspected manually, what was not run, and what a human must still decide."
+        }
+      ],
+      "practice": {
+        "title": "Run a red-green-review loop",
+        "brief": "Fix one seeded defect in a disposable project and preserve the full evidence chain.",
+        "steps": [
+          "Reproduce the defect and run the smallest relevant check, confirming that it fails for the expected reason before any implementation edit.",
+          "Ask Agent for the smallest root-cause fix, run the focused check again, then run one broader repository check.",
+          "Review every changed file, use Agent Review for a second pass, and write a handoff separating evidence, gaps, and remaining risk."
+        ],
+        "evidence": [
+          "The exact failing and passing outputs plus one broader check result.",
+          "A complete diff-review note with any unrun checks and unresolved findings."
+        ],
+        "safety": "Keep a clean Git boundary and avoid destructive recovery commands. Do not claim a check ran unless its fresh output is retained."
+      },
+      "checkpoint": {
+        "prompt": "Why is a test that only ever passed after the fix weaker evidence?",
+        "answer": "You have not shown that the test can detect the original defect. An observed failing state ties the check to the behaviour being repaired."
+      },
+      "takeaway": "Confidence comes from reproducible failure, minimal change, fresh checks, and honest review, not from a fluent explanation."
+    },
+    "rules-skills-mcp": {
+      "kicker": "Lesson 7",
+      "title": "Choose Rules, AGENTS.md, Skills, Commands, Hooks, and MCP",
+      "summary": "Turn repeated lessons into focused, versioned guidance while treating executable customisations and external tools as trust boundaries.",
+      "objective": "Select the correct customisation surface for one repeated workflow and audit its scope, activation, provenance, and permissions.",
+      "sections": [
+        {
+          "heading": "Use the narrowest durable instruction",
+          "body": "Project Rules are .mdc files in .cursor/rules. Current activation choices are Always Apply, Apply Intelligently, Apply to Specific Files, and Apply Manually. Plain .md files in that folder are ignored. A root AGENTS.md provides readable cross-tool project guidance; nested AGENTS.md files combine with parents and take precedence for their subtree. Keep instructions focused, concrete, composable, and generally under 500 lines. Add a rule only after a repeated failure reveals durable knowledge. Rules guide Agent, not every Cursor surface; they do not govern Tab, and User Rules are not applied to Inline Edit."
+        },
+        {
+          "heading": "Package procedures as inspected Skills",
+          "body": "Skills implement the open Agent Skills format and can live under .cursor/skills or .agents/skills. Use one for a repeatable procedure with clear inputs, steps, checks, and outputs. Commands still exist, so do not claim they were removed. A Cursor Plugin can bundle Rules, Skills, agents, Commands, MCP, and Hooks. Treat installation as a supply-chain change: inspect every bundled component and its requested installation scope before enabling it, then pin the version and test it in a disposable workspace. Third-party Skills are executable instructions: inspect their files, licence, scripts, network assumptions, and requested tools; pin an immutable revision; test in a disposable workspace; then decide whether to adopt or rewrite. A popularity count is not a security review. Keep temporary task instructions in the conversation rather than fossilising them into global rules."
+        },
+        {
+          "heading": "Treat MCP and Hooks as authority",
+          "body": "MCP connects Agent to external tools and data, while Hooks observe supported lifecycle events. Rules and prompt-based Hooks are evaluated by a model and cannot make deterministic deny decisions. Only command-based pre-action Hooks can deterministically allow or deny supported actions. Hook failures are fail-open by default; for security-critical command Hooks, set failClosed to true in hooks.json and test the failure path. Hooks cover only documented events and remain one layer of a wider security boundary. Limit credentials, domains, writes, and scope; begin with read-only discovery; make external side effects human-confirmed. Test untrusted repository text and ambiguous targets, document shutdown and rollback, and distinguish reading an external system from changing it."
+        }
+      ],
+      "practice": {
+        "title": "Build one focused project rule",
+        "brief": "Encode one repeated verification mistake as a small .mdc rule or AGENTS.md instruction, then compare whether a Skill would be more appropriate.",
+        "steps": [
+          "Describe the repeated failure, affected scope, correct command or check, and activation condition in fewer than 20 lines.",
+          "Place it in a disposable repository, confirm its activation metadata, and test one matching plus one non-matching task.",
+          "Audit a third-party Skill or MCP configuration for source, pinned revision, licence, scripts, permissions, and external side effects."
+        ],
+        "evidence": [
+          "The focused rule or AGENTS.md diff with matching and non-matching observations.",
+          "A trust checklist explaining whether the inspected Skill or MCP configuration should be adopted, rewritten, or rejected."
+        ],
+        "safety": "Do not install unpinned third-party instructions or connect a real external account during this exercise."
+      },
+      "checkpoint": {
+        "prompt": "Why should every temporary prompt not become a Project Rule?",
+        "answer": "Rules consume context and persist across tasks. Only durable, scoped, repeated knowledge belongs there; procedures may fit Skills, while one-off needs belong in the task contract."
+      },
+      "takeaway": "Customisation is valuable when it makes recurring evidence easier to produce without silently expanding authority."
+    },
+    "cloud-parallel": {
+      "kicker": "Lesson 8",
+      "title": "Use local, worktree, and Cloud Agents deliberately",
+      "summary": "Parallelise only independent work, prepare complete environments, and make integration plus security ownership explicit.",
+      "objective": "Design a two-agent workflow with disjoint scope, isolated branches or worktrees, explicit outputs, and a single integration owner.",
+      "sections": [
+        {
+          "heading": "Choose the environment from task needs",
+          "body": "A local agent uses your current machine and repository. A worktree isolates a branch while retaining local tools. A Cloud Agent runs in an isolated VM and can continue without your laptop online. Cloud success depends on a complete environment: cloned repositories, dependencies, startup commands, network access, and secrets delivered through approved mechanisms. Local Run Modes do not govern Cloud Agents. Before handoff, confirm where uncommitted local work lives, what data enters the VM, which external domains are reachable, and how results return."
+        },
+        {
+          "heading": "Parallelise questions, not uncertainty",
+          "body": "Good parallel tasks have disjoint files or evidence sets, stable interfaces, explicit outputs, and no unresolved shared decision. Cursor Subagents use separate context windows, but they share the parent checkout by default: context isolation is not file isolation. Use readonly Subagents for independent audits, or request isolated project copies before overlapping edits. readonly restricts local file changes and shell mutation, but it does not remove inherited write-capable MCP tools or other external tools. Audit inherited tools and credentials, and use an isolated, least-privilege environment for any external system. Two writers editing the same file, two agents depending on an unsettled schema, or concurrent production mutations are unsafe by default. The Agents Window makes runs visible, but visibility does not remove coordination cost. Assign one integration owner to compare results, resolve conflicts, and decide what enters the combined state."
+        },
+        {
+          "heading": "Verify integration on the combined state",
+          "body": "Separate branches can each pass while their combination fails. Review each handoff for assumptions, changed files, checks, and unresolved risks. Integrate deliberately, then run fresh checks on the combined state. Cloud Builds expose environment status, logs, revision, and setup history; use those as evidence, not as a guarantee. Prefer OIDC or short-lived credentials where supported, restrict outbound access, and keep external writes gated. Do not assume that local Hooks run the same way in Cloud Agents; verify which Hooks the actual environment supports and configures. Automations can, by default, create pull requests, use persistent memory, and use computer tools. Start with a synthetic repository, no production credentials, restricted network and tool access, and a mandatory human-review gate; enable one capability at a time and only after a dry run."
+        }
+      ],
+      "practice": {
+        "title": "Design a safe parallel handoff",
+        "brief": "Split one investigation into two independent read-only assignments, then produce an integration plan without merging or deploying.",
+        "steps": [
+          "Write two task cards with disjoint scope, explicit evidence outputs, environment choice, and a named shared assumption that is already settled.",
+          "Run or simulate each task in a separate local worktree or Cloud Agent and retain its branch, files, commands, and limitations.",
+          "As integration owner, compare both handoffs and write the exact combined-state checks required before any merge."
+        ],
+        "evidence": [
+          "Two independent task cards and handoffs with non-overlapping scope.",
+          "An integration checklist covering assumptions, conflicts, combined checks, and the final human decision."
+        ],
+        "safety": "Keep both assignments read-only or limited to disposable branches. Do not expose real secrets or generalise local approvals to cloud execution."
+      },
+      "checkpoint": {
+        "prompt": "What must happen after two isolated branches pass their own checks?",
+        "answer": "A named owner must review their assumptions and combined diff, integrate deliberately, and run fresh checks on the combined state."
+      },
+      "takeaway": "Isolation prevents overwrites; only explicit integration ownership and combined verification manage interaction risk."
+    },
+    "software-studio": {
+      "kicker": "Lesson 9",
+      "title": "Software studio: deliver one bounded feature",
+      "summary": "Combine codebase orientation, a task contract, Plan Mode, a red-green check, Browser evidence, and a reviewable engineering handoff.",
+      "objective": "Ship a small feature in a disposable repository while preserving scope, accessibility, deterministic checks, and human approval of external actions.",
+      "sections": [
+        {
+          "heading": "Trace the existing extension point",
+          "body": "Ask Agent to locate applicable instructions, the current route or entry point, nearby patterns, tests, and the smallest extension boundary. Write acceptance behaviour before choosing an implementation. GitHub practitioner evidence from mature teams shows version-controlled branch, test, documentation, review, and CI expectations, but each repository's policy remains local. Do not paste a foreign rule set into your project. Adapt the observable gate: changed files trace to the plan, tests cover behaviour, documentation changes when users need them, and external PR creation remains a human-confirmed step."
+        },
+        {
+          "heading": "Close the behaviour loop",
+          "body": "Capture a failing focused test or a reproducible baseline, implement the smallest coherent change, then run focused and broader checks. Use Browser when visual or interactive behaviour matters, keep its actions manually approved by default, and navigate only to a local origin you have verified. If an enterprise administrator has enabled Browser Origin Allowlist, restrict it to that origin; the allowlist is a best-effort layer and is not available by default. Browser cookies and web storage persist per workspace. For course practice, use a synthetic account in a dedicated disposable workspace, then clear Browser state when the exercise ends. Treat screenshots as complementary evidence. A browser pass cannot replace unit, integration, type, lint, or build checks; a green test cannot prove keyboard order or visual clipping. Review the complete diff, including generated files and dependency changes. Reject unrelated cleanup even when it looks helpful."
+        },
+        {
+          "heading": "Prepare a draft-quality handoff",
+          "body": "Summarise the user-visible outcome, changed files, acceptance evidence, commands, Browser observations, and remaining limitations. If a pull request is in scope, generate a draft first and review its title, description, test steps, screenshots, and manual actions before allowing external creation. A community rule that once used manual activation may behave differently under current Cursor rule semantics, so migrate old workflows to a current Skill, Command, or truly manual rule. The final decision to commit, push, merge, or deploy remains explicit."
+        }
+      ],
+      "practice": {
+        "title": "Implement one accessible filter",
+        "brief": "Use the provided capstone-style demo or another disposable project to add one keyboard-operable filter without new dependencies.",
+        "steps": [
+          "Orient the repository, write acceptance for mouse and keyboard behaviour, and approve a plan limited to the source plus focused test files.",
+          "Observe the focused test fail, implement the smallest change, and run test, type or lint, and build checks available in the project.",
+          "Use Browser with manual approval on a verified local origin; if the enterprise Browser Origin Allowlist is available, add only that origin. Inspect the full diff and prepare a draft handoff without pushing, merging, or deploying."
+        ],
+        "evidence": [
+          "The red-green test output plus Browser notes for the keyboard and visual behaviour.",
+          "A reviewed changed-file list and draft handoff with every unrun check disclosed."
+        ],
+        "safety": "Use a disposable repository and local origin. Keep dependency installation, external PR creation, push, merge, and deploy outside scope."
+      },
+      "checkpoint": {
+        "prompt": "Why does a visually correct Browser result not complete software verification?",
+        "answer": "It may miss logic, type, regression, build, accessibility, and cross-route failures. Pair visual evidence with deterministic project checks and diff review."
+      },
+      "takeaway": "A strong engineering result links user behaviour to repository evidence, a minimal diff, fresh checks, and a reviewable handoff."
+    },
+    "research-studio": {
+      "kicker": "Lesson 10",
+      "title": "Research studio: preserve provenance and negative results",
+      "summary": "Use Cursor as an artifact-oriented research partner while keeping hypotheses, source evidence, data lineage, checks, results, and decisions separable.",
+      "objective": "Run a small reproducible analysis whose claim ledger and files let another researcher distinguish source fact, computation, interpretation, and uncertainty.",
+      "sections": [
+        {
+          "heading": "Register the question and source boundary",
+          "body": "Begin with a research question, expected evidence, dataset or corpus snapshot, inclusion rules, and claims Cursor must not infer. Ask Agent to search the workspace and cite exact files, rows, pages, or URLs. Create a claim ledger with fields for claim, source, location, status, and uncertainty. Browser search can locate material, but primary sources and lawful access remain the evidence boundary. Do not let an attractive narrative determine which observations are retained. Separate research design, data preparation, analysis, and interpretation before execution."
+        },
+        {
+          "heading": "Make the filesystem the durable memory",
+          "body": "A verified Cursor practitioner workflow for empirical research uses experiment folders, scripts, data snapshots, sanity checks, leakage gates, run metadata, results, and explicit decisions. This does not prove that its domain conclusions are correct; it demonstrates a reviewable architecture. Store inputs, parameters, environment details, commands, logs, outputs, and failure notes in named artifacts rather than relying on a long chat. Preserve negative findings and abandoned hypotheses. Ask Cursor to write derived data separately from source data and to stop when a required source or validation gate is missing."
+        },
+        {
+          "heading": "Verify computations and claims independently",
+          "body": "Run sanity checks before analysis: schema, missingness, duplicates, ranges, leakage, and small hand-calculated cases. Record code revision and randomness controls. Compare key outputs with an independent method when feasible. Then map each written claim back to a result and source. Label inference as inference and limitations as limitations. Cursor can help generate code and prose, but neither a clean run nor a fluent explanation establishes validity. Keep the human decision about methods, interpretation, ethics, and publication visible."
+        }
+      ],
+      "practice": {
+        "title": "Run a tiny artifact-first study",
+        "brief": "Use a synthetic CSV to test one preregistered descriptive hypothesis and retain every input, check, output, and decision.",
+        "steps": [
+          "Create a question, hypothesis, data dictionary, synthetic dataset snapshot, and claim ledger before asking Cursor to analyse anything.",
+          "Ask Agent to write and run schema, missingness, duplicate, range, and one hand-checkable calculation before the main analysis.",
+          "Save the script, environment, log, result table, negative findings, interpretation, limitations, and final decision in separate artifacts."
+        ],
+        "evidence": [
+          "A reproducible experiment folder with immutable synthetic input, commands, checks, outputs, and revision metadata.",
+          "A claim ledger distinguishing source facts, computed results, interpretation, uncertainty, and unsupported claims."
+        ],
+        "safety": "Use synthetic data only. Do not claim causal, medical, financial, or educational validity from this training analysis."
+      },
+      "checkpoint": {
+        "prompt": "What does a successful script execution prove?",
+        "answer": "That the recorded computation ran in that environment. It does not by itself prove sound design, clean data, valid interpretation, or a true claim."
+      },
+      "takeaway": "Research trust comes from durable artifacts and contestable claims, not from keeping more context inside one conversation."
+    },
+    "writing-studio": {
+      "kicker": "Lesson 11",
+      "title": "Writing studio: separate evidence, voice, and integrity",
+      "summary": "Build long-form writing through a source ledger, outline, draft, style pass, integrity pass, and publication gate instead of one opaque generation prompt.",
+      "objective": "Produce a sourced document whose factual claims, authorial choices, style edits, and unresolved verification gaps remain visible.",
+      "sections": [
+        {
+          "heading": "Create a source ledger before drafting",
+          "body": "Define audience, purpose, length, voice, required structure, prohibited claims, and citation style. Extract evidence into a ledger with source, exact location, supported proposition, quotation limits, and uncertainty. Ask Cursor to mark missing evidence rather than fill gaps. Then create an outline that cites the ledger items supporting each section. This protects against the common failure where fluent prose outruns the sources. Repository Rules may encode stable style and citation requirements, but task-specific argument choices belong in the current contract."
+        },
+        {
+          "heading": "Separate drafting, style, and integrity roles",
+          "body": "Production documentation evidence shows a concrete implementation of distinct stages: routing and outlining, drafting, style checks, integrity checks, and build or link validation. Adapt the pattern instead of copying a large organisation-specific rule set. A style pass checks clarity, terminology, tone, headings, and repetition. An integrity pass checks every substantive claim against authoritative evidence and labels it verified, unverified, or contradicted. One agent may draft and another may review a frozen artifact, but avoid concurrent writers editing the same text."
+        },
+        {
+          "heading": "Keep the author responsible",
+          "body": "Cursor can suggest structure and wording, but the author decides the argument, interpretation, disclosure, and final publication. Review revisions as a diff so subtle changes to meaning remain visible. Preserve citation anchors and quotation limits. Run link, format, terminology, and rendered-output checks where relevant. If a source cannot be accessed or a claim cannot be verified, keep the gap visible. A useful handoff names source coverage, unresolved claims, style choices, and sections that still require subject-matter review."
+        }
+      ],
+      "practice": {
+        "title": "Draft a 500-word evidence brief",
+        "brief": "Write from three supplied public sources using separate evidence, outline, drafting, style, and integrity artifacts.",
+        "steps": [
+          "Build a claim ledger from exact source locations, then create an outline that maps every planned substantive claim to ledger evidence.",
+          "Ask Cursor to draft from the approved outline while preserving voice constraints and inserting an explicit verification marker for any gap.",
+          "Run separate style and integrity reviews, inspect the diff, validate links or citations, and accept only edits whose meaning you understand."
+        ],
+        "evidence": [
+          "The source ledger, mapped outline, and draft with no unsupported substantive claim presented as fact.",
+          "Separate style and integrity reports plus a final diff and unresolved-evidence list."
+        ],
+        "safety": "Use public sources, respect quotation limits, and do not ask Cursor to imitate a living author's distinctive style."
+      },
+      "checkpoint": {
+        "prompt": "Why should style review and integrity review be separate?",
+        "answer": "Smooth prose can still be false, and accurate prose can still be unclear. Separate gates make both kinds of judgement visible and harder to trade away."
+      },
+      "takeaway": "Let Cursor accelerate revision, while the source ledger and authorial review keep evidence and meaning under human control."
+    },
+    "office-studio": {
+      "kicker": "Lesson 12",
+      "title": "Office studio: turn files into reviewable decisions",
+      "summary": "Use folder-first context, synthetic plain-text data, schemas, and approval gates for meetings, product documents, email drafts, and office workflows.",
+      "objective": "Create an office-work packet that preserves raw evidence, separates synthesis from recommendation, validates structured data, and keeps external writes human-confirmed.",
+      "sections": [
+        {
+          "heading": "Make the workspace an inspectable case file",
+          "body": "Create folders for raw inputs, working notes, synthesis, decisions, and final artifacts. Use synthetic meeting notes, interviews, contacts, or project records in plain text, Markdown, or CSV so changes remain diffable. A verified Cursor product-management repository demonstrates interview-to-synthesis-to-opportunity and PRD workflows; a plain-text CRM demonstrates schemas, versioned data, and validation. These are practitioner patterns, not proof of better decisions. Retain raw evidence and do not let a summary overwrite the source."
+        },
+        {
+          "heading": "Separate source, synthesis, recommendation, and action",
+          "body": "Ask Cursor to extract facts and quotations first, then synthesise themes with evidence links, then draft recommendations with assumptions and alternatives. A meeting packet might contain raw notes, decisions, owners, deadlines, open questions, and a draft follow-up. A product packet might contain research evidence, opportunities, options, a PRD, and decision criteria. Run schema and consistency checks on CSV or structured Markdown. Mark uncertainty and contested interpretations. Do not use real personal data in practice, and do not treat a generated score or priority as an objective fact."
+        },
+        {
+          "heading": "Keep integrations optional and gated",
+          "body": "Cursor announced Google Workspace Plugins for Drive, Gmail, and Calendar in August 2026, but availability and entitlement can change. The core workflow should work from exported or local files without the integration. If a connected tool is available, distinguish reading approved context from sending mail, changing calendars, or writing external records. Preview every external action, confirm recipients and targets, and preserve a local audit artifact. A Skill may package the sequence, but inspect and pin it before use. Never let convenience turn an analysis request into an unauthorised message or record change."
+        }
+      ],
+      "practice": {
+        "title": "Prepare a synthetic meeting-to-decision packet",
+        "brief": "Turn supplied fictional meeting notes and contacts into a validated, reviewable packet without connecting an external account.",
+        "steps": [
+          "Store raw notes and synthetic contacts separately; define schemas for decisions, owners, due dates, open questions, and evidence links.",
+          "Ask Cursor to extract facts, synthesise themes, and draft recommendations into separate files, preserving citations back to the raw notes.",
+          "Validate the schema, inspect the diff, and draft but do not send a follow-up email or calendar plan."
+        ],
+        "evidence": [
+          "A folder packet with immutable raw notes, structured extraction, synthesis, recommendations, and decision record.",
+          "Schema-check output plus an unsent, human-reviewed follow-up draft with synthetic recipients."
+        ],
+        "safety": "Use synthetic names and content. Do not connect Gmail, Drive, Calendar, CRM, or another external system for this exercise."
+      },
+      "checkpoint": {
+        "prompt": "Why should a recommendation file be separate from extracted meeting facts?",
+        "answer": "It lets reviewers distinguish what the source actually said from Cursor's synthesis, assumptions, priorities, and proposed action."
+      },
+      "takeaway": "Office work becomes safer when evidence, interpretation, decision, and external action remain separate and reviewable."
+    },
+    "teaching-studio": {
+      "kicker": "Lesson 13",
+      "title": "Teaching studio: coach without taking over",
+      "summary": "Design a Cursor tutoring workflow that preserves productive struggle, gives one actionable hint at a time, and verifies learning without completing the learner's work.",
+      "objective": "Create and test a teaching Skill or task contract with progressive hints, read-only verification, privacy protection, and a learner-owned final artifact.",
+      "sections": [
+        {
+          "heading": "Protect learner agency",
+          "body": "A verified teaching Skill for Cursor constrains the tutor to one learner action per turn, progressive hints, and read-only verification. The learner runs commands and writes the final work. Adapt this pattern to your subject and level. Begin by eliciting the learner's goal, prior attempt, and explanation. Offer the smallest hint that unlocks the next step instead of providing a complete solution. Ask for prediction before execution and reflection after feedback. A polished answer is not evidence that the learner understands it."
+        },
+        {
+          "heading": "Verify learning, not task completion alone",
+          "body": "Define observable learning evidence: explain a concept in new words, predict an outcome, correct an error, compare alternatives, or transfer the principle to a fresh example. The tutor may inspect a synthetic workspace and run read-only checks, but it should not silently repair the artifact. Use a rubric that separates process, explanation, final behaviour, and uncertainty. For teaching code, tests can verify behaviour while oral or written reasoning verifies understanding. For writing or research, require source tracing and justification, not only a polished product."
+        },
+        {
+          "heading": "Audit the teaching environment",
+          "body": "Use synthetic or consented learner data and avoid placing student identities, grades, disability information, or private submissions in the workspace. Inspect and pin third-party teaching Skills before installation. State the command and write gates clearly. Give the learner a visible way to ask for a stronger hint or stop the tutor. Record which feedback came from Cursor and which decisions remained the learner's. Current Cursor product and student programmes do not establish educational effectiveness, so evaluate the workflow locally and avoid causal claims."
+        }
+      ],
+      "practice": {
+        "title": "Run a three-turn productive-struggle lesson",
+        "brief": "Create a tutoring contract for a synthetic learner task and test it without letting Cursor complete the final answer.",
+        "steps": [
+          "Define the learning objective, prerequisite, three hint levels, one-action-per-turn rule, read-only verification, and learner-controlled stop or escalation options.",
+          "Have a partner or simulated learner attempt the task; require a prediction, provide one hint, and ask the learner to perform the next action.",
+          "Use a transfer question and rubric to verify understanding, then inspect the conversation for any moment Cursor took over the work."
+        ],
+        "evidence": [
+          "The tutoring contract or inspected Skill with provenance, revision, tool gates, and progressive-hint design.",
+          "A three-turn transcript plus rubric evidence showing learner action, feedback, transfer, and remaining misconception."
+        ],
+        "safety": "Use a fictional learner and synthetic task. Do not process real grades or submissions, and do not install an unpinned third-party Skill."
+      },
+      "checkpoint": {
+        "prompt": "What is the strongest sign that a Cursor tutor supported learning rather than merely finishing the task?",
+        "answer": "The learner can explain, perform, and transfer the target idea after progressively supported actions, while the final work remains learner-owned."
+      },
+      "takeaway": "A good teaching agent makes the next learner action possible without making the learner unnecessary."
+    },
+    "workflow-capstone": {
+      "kicker": "Lesson 14",
+      "title": "Capstone: demonstrate a complete Cursor workflow",
+      "summary": "Complete one bounded change in a reproducible fixture and submit a packet connecting contract, orientation, plan, diff, checks, review, and honest handoff.",
+      "objective": "Produce a machine-checkable self-assessment receipt and human-readable evidence packet that another maintainer can reproduce without guessing.",
+      "sections": [
+        {
+          "heading": "Freeze scope before execution",
+          "body": "Download the provided starter ZIP and verify it against the published archive SHA-256. The internal course-fixture.json has a separate SHA-256 used by the self-check receipt; do not compare the ZIP to that value. The task is intentionally small: add a keyboard-accessible Incomplete course filter, preserve both existing routes, add no dependencies, and keep every external action unauthorised. Ask Cursor to orient the fixture before editing. Approve a plan that names the focused test, smallest implementation area, broader checks, Browser observation, and complete diff review. A capstone demonstrates control, not novelty or code volume."
+        },
+        {
+          "heading": "Build the evidence chain",
+          "body": "Run the focused test to capture the expected failing state. Implement the smallest coherent change, then run test, lint, build, route, keyboard, and dependency checks. Review every changed file and keep Browser actions manually approved on the verified local origin. If your organisation provides the enterprise Browser Origin Allowlist, limit it to that origin as an additional best-effort control. If a check cannot run, repair the environment or report the gap; never alter the verifier or receipt to manufacture success. The artifacts must trace forward: task contract to orientation, plan to diff, acceptance criteria to checks, and checks to handoff."
+        },
+        {
+          "heading": "Submit evidence, not a completion claim",
+          "body": "Run the fixture verifier to produce a structured self-check receipt bound to the published fixture version and hash. The receipt records declared check results; because the checker runs locally and is not signed, it is not proof that commands ran, an identity credential, or a substitute for reviewing the artifacts. Paste it into the course checker, then prepare the human packet: task contract, orientation note, approved plan, reviewed diff, verification record, and maintainer handoff. State what Cursor could not verify, what remains unrun, and which human decisions remain. Do not push, merge, deploy, or change an external system. The capstone is complete when another person can reproduce the reasoning and decide the next action."
+        }
+      ],
+      "practice": {
+        "title": "Complete the Cursor workflow fixture",
+        "brief": "Add the Incomplete filter to the downloaded demo and generate a structurally valid self-check receipt without changing the verifier or dependency set.",
+        "steps": [
+          "Verify the archive hash, install from the lockfile, inspect the source, focused test, scripts, and both route files, then save the contract, orientation, and approved plan.",
+          "Capture the focused failure, implement the accessible filter, run every required check, use Browser on the local route, and review the complete diff.",
+          "Run the fixture verifier, retain course-receipt.json, paste it below, and prepare a handoff with results, limitations, and unauthorised next actions."
+        ],
+        "evidence": [
+          "A reviewed packet containing contract, orientation, plan, diff, fresh checks, Browser note, and limitations.",
+          "A structurally valid course-receipt.json matching the published schema, fixture version, fixture hash, and declared required checks, paired with the underlying evidence packet."
+        ],
+        "safety": "Work only inside the downloaded fixture. Do not add dependencies, alter the verifier, use real data, or push, merge, deploy, delete, or contact an external system."
+      },
+      "checkpoint": {
+        "prompt": "What makes the capstone trustworthy?",
+        "answer": "A reproducible chain from bounded intent through observed evidence to a hash-bound self-check receipt and honest handoff, with the receipt's non-attestation limit explicit and external decisions still reserved for a human."
+      },
+      "takeaway": "Mastery is the ability to make Cursor's scope, context, actions, evidence, and limitations reviewable from start to finish."
+    }
+  },
+  "quiz": {
+    "q01": { "question": "What is the safest first request in an unfamiliar Cursor workspace?", "options": { "a": "Ask Agent to modernise the whole project", "b": "Request a read-only map of instructions, entry points, checks, and risks", "c": "Enable Run Everything so setup is faster", "d": "Start a Cloud Agent with every secret" }, "explanation": "Read-only orientation creates checkable context without mutating a workspace you do not yet understand." },
+    "q02": { "question": "Which statement about Privacy Mode is accurate?", "options": { "a": "It guarantees that no request leaves the device", "b": "It makes .cursorignore a complete terminal boundary", "c": "It controls training use under Cursor's published terms, while requests still need processing", "d": "It removes the need to use synthetic data" }, "explanation": "Privacy Mode addresses stated data-use controls; it is not a local-only execution guarantee or complete access boundary." },
+    "q03": { "question": "How should you treat a Cursor Tab suggestion?", "options": { "a": "As a proposal to inspect completely before accepting", "b": "As verified code because it appeared automatically", "c": "As a Project Rule", "d": "As a replacement for focused checks" }, "explanation": "Tab predicts a next action. The learner remains responsible for acceptance, review, and verification." },
+    "q04": { "question": "When is Inline Edit the right surface?", "options": { "a": "When a task needs broad repository research", "b": "When a deployment requires approval", "c": "When several agents must coordinate", "d": "When one selected region needs a small, explicit transformation" }, "explanation": "Selection gives Inline Edit a useful micro-change boundary; broader work belongs in Agent." },
+    "q05": { "question": "What is the best evidence behind an Agent explanation?", "options": { "a": "Its confident tone", "b": "The length of the conversation", "c": "Cited files, tool results, diffs, and checks you can inspect", "d": "The model name" }, "explanation": "Inspectable repository and tool evidence supports a claim; conversational polish does not." },
+    "q06": { "question": "How should checkpoints be used?", "options": { "a": "As a replacement for Git history", "b": "As local convenience snapshots alongside a clean Git boundary", "c": "As proof that tests passed", "d": "As a cloud security control" }, "explanation": "Cursor checkpoints help restore Agent changes locally, but they are separate from durable version control." },
+    "q07": { "question": "Which item is missing from an otherwise complete task contract?", "options": { "a": "A request to use the newest architecture", "b": "A long model catalogue", "c": "Permission to do anything useful", "d": "Observable acceptance behaviour and how it will be verified" }, "explanation": "A contract needs independent acceptance and verification so success is reviewable." },
+    "q08": { "question": "What should happen when a constraint conflicts with the requested outcome?", "options": { "a": "Cursor should stop and surface the conflict for a decision", "b": "Cursor should silently drop the constraint", "c": "The broadest interpretation should win", "d": "The task should deploy both alternatives" }, "explanation": "Consequential ambiguity should become an explicit human decision rather than a hidden implementation choice." },
+    "q09": { "question": "When is Plan Mode most useful?", "options": { "a": "For accepting one obvious Tab completion", "b": "For ambiguous, multifile, architectural, or consequential work", "c": "Only after implementation", "d": "As a guarantee that the plan is correct" }, "explanation": "Plan Mode provides research, clarification, an editable plan, and a pause before complex execution." },
+    "q10": { "question": "Which steering message is strongest?", "options": { "a": "Try again", "b": "Rewrite everything", "c": "Keep the passing schema change; revise only focus order and rerun the keyboard check", "d": "Do whatever seems best" }, "explanation": "Evidence-based steering preserves validated work and names the exact new boundary plus check." },
+    "q11": { "question": "What is the first goal of debugging?", "options": { "a": "Reproduce the symptom and gather evidence that distinguishes causes", "b": "Refactor the suspicious module", "c": "Add logging everywhere", "d": "Disable the failing check" }, "explanation": "A reliable reproduction and competing hypotheses prevent speculative edits." },
+    "q12": { "question": "What should a handoff say about a required check that could not start?", "options": { "a": "Passed because smaller tests passed", "b": "Omit it", "c": "Probably safe", "d": "Not run, with the exact blocker and remaining uncertainty" }, "explanation": "An honest evidence gap is more useful than an unsupported completion claim." },
+    "q13": { "question": "Which file is a valid current Project Rule?", "options": { "a": ".cursor/accessibility.mdc", "b": ".cursor/rules/accessibility.mdc", "c": ".cursor/rules/notes.md", "d": "rules.txt" }, "explanation": "Current Project Rules are .mdc files in .cursor/rules; a plain .md file in that directory is ignored." },
+    "q14": { "question": "What is the safest way to adopt a third-party Skill?", "options": { "a": "Install the moving main branch", "b": "Trust its star count", "c": "Inspect source and permissions, pin a revision, then test in a disposable workspace", "d": "Paste it into a global Rule without review" }, "explanation": "Skills are executable instructions and require provenance, permission, revision, and behaviour review." },
+    "q15": { "question": "Which setup gives parallel editing tasks the clearest file-isolation boundary?", "options": { "a": "Two default subagents editing the same parent checkout", "b": "Two readonly subagents asked to modify files", "c": "Two chat tabs editing the same file", "d": "Disjoint tasks in isolated project copies or isolated Cloud Agent VMs" }, "explanation": "Subagents share the parent checkout by default. Isolated project copies or Cloud Agent VMs give editing tasks separate filesystems, while disjoint scope still reduces coordination risk." },
+    "q16": { "question": "What must happen after isolated branches pass separately?", "options": { "a": "Review and verify the combined state after deliberate integration", "b": "Assume combined success", "c": "Deploy whichever finished first", "d": "Delete the evidence" }, "explanation": "Isolation prevents overwrites but cannot prove compatibility after integration." },
+    "q17": { "question": "What should a software feature plan identify first?", "options": { "a": "The newest online framework", "b": "A deployment target", "c": "The existing extension point, acceptance behaviour, tests, and smallest affected area", "d": "A complete rewrite" }, "explanation": "Repository evidence and observable behaviour ground the implementation in the actual project." },
+    "q18": { "question": "What is the role of Browser evidence?", "options": { "a": "Replace every deterministic check", "b": "Complement focused and broader checks for visual or interactive behaviour", "c": "Prove all accessibility requirements", "d": "Authorise external origins automatically" }, "explanation": "Browser inspection is valuable evidence, but it does not replace logic, type, build, regression, and full accessibility checks." },
+    "q19": { "question": "Which research workflow is most reproducible?", "options": { "a": "A frozen question, source and data snapshots, checks, scripts, run metadata, outputs, limitations, and decisions", "b": "One long chat with no saved files", "c": "A polished summary without code", "d": "Only positive results" }, "explanation": "Durable artifacts let another researcher inspect the full path from input and method to result and interpretation." },
+    "q20": { "question": "How should negative or null findings be handled?", "options": { "a": "Delete them before drafting", "b": "Ask Cursor to make them significant", "c": "Treat them as failures of the interface", "d": "Preserve them with run metadata, interpretation, and limitations" }, "explanation": "Negative findings are part of the evidence record and protect against narrative-driven selection." },
+    "q21": { "question": "Why should style and integrity reviews be separate?", "options": { "a": "To make the workflow longer", "b": "Because clear prose can be false and accurate prose can be unclear", "c": "Because citations never need checking", "d": "To let two agents edit the same file concurrently" }, "explanation": "Separate gates preserve both communication quality and factual support." },
+    "q22": { "question": "What should Cursor do when a source cannot support a planned claim?", "options": { "a": "Infer the missing detail", "b": "Cite a different-looking URL", "c": "Mark the claim unverified and keep the evidence gap visible", "d": "Remove the source ledger" }, "explanation": "Visible uncertainty is preferable to a fluent unsupported statement." },
+    "q23": { "question": "When may an office workflow send an email or change a calendar?", "options": { "a": "Whenever an integration is installed", "b": "After a model says it is safe", "c": "When the draft looks polished", "d": "Only when the external action, exact target, and approval are explicitly in scope" }, "explanation": "Reading context and mutating an external system are distinct authority boundaries." },
+    "q24": { "question": "What is the best office-work artifact structure?", "options": { "a": "Separate raw evidence, extraction, synthesis, recommendation, decision, and external action", "b": "Overwrite raw notes with the summary", "c": "Store everything in one prompt", "d": "Use real personal data for realism" }, "explanation": "Separated artifacts make source facts, interpretation, decisions, and side effects independently reviewable." },
+    "q25": { "question": "What best demonstrates productive struggle in Cursor tutoring?", "options": { "a": "Cursor completes the final work quickly", "b": "The learner copies a complete solution", "c": "The learner acts, explains, and transfers the idea after progressive hints", "d": "The tutor runs every command" }, "explanation": "Learning evidence comes from learner-owned action, reasoning, and transfer, not task completion by the agent." },
+    "q26": { "question": "What should a teaching Skill do by default?", "options": { "a": "Reveal the full answer immediately", "b": "Offer one appropriate next action and verify read-only while the learner performs the work", "c": "Record real grades", "d": "Override the learner's stop request" }, "explanation": "One-action turns and read-only verification preserve learner agency and make understanding observable." },
+    "q27": { "question": "What makes the capstone evidence chain complete?", "options": { "a": "Contract, orientation, approved plan, reviewed diff, fresh verification, receipt, and honest handoff", "b": "A large diff", "c": "An automatic deployment", "d": "A completion claim" }, "explanation": "The packet connects bounded intent to inspectable evidence and leaves external decisions human-controlled." },
+    "q28": { "question": "What should you do if the fixture verifier cannot produce a passing receipt?", "options": { "a": "Edit the receipt manually", "b": "Change the expected hash", "c": "Mark checks true based on confidence", "d": "Repair the real task or report the exact evidence gap without claiming completion" }, "explanation": "The receipt records declared checks but does not replace their evidence. Never alter it to manufacture a success claim." }
+  },
+  "figures": {
+    "fig-01": { "alt": "Cursor command palette over the Editor with Open Agents Window selected", "caption": "Open the agent-first Agents Window from Cursor's command palette. This figure appears in the current Agents Window documentation; Desktop 3.17 was the latest release when the source was checked." },
+    "fig-02": { "alt": "Cursor code editor showing a muted multi-line Tab prediction", "caption": "Read the complete predicted change before pressing Tab. This is a current first-party product visual rather than an operating-system screenshot." },
+    "fig-03": { "alt": "Cursor Agents Window conversation beside an inspected source file", "caption": "Keep Agent's summary and the repository evidence visible together so each claim remains checkable." },
+    "fig-04": { "alt": "Current Cursor prompt composer with a goal command and Plan New Idea control", "caption": "Turn an ambitious intention into a bounded task contract before granting tools. The figure comes from Cursor's 19 August 2026 changelog." },
+    "fig-05": { "alt": "Cursor Plan Mode showing a prepared implementation plan and Build button", "caption": "Review and edit the plan before selecting Build. The interaction remains current, but this October 2025 interface is labelled historical." },
+    "fig-06": { "alt": "Cursor Editor with multiple agent tabs and side-by-side diffs", "caption": "Cursor 3.0 made parallel agent tabs and diff review visible; each result still needs one integration owner and fresh checks." },
+    "fig-07": { "alt": "Cursor Team Rules page showing a focused React and GraphQL rule", "caption": "A focused rule packages durable guidance; Skills and MCP serve different procedural and tool boundaries." },
+    "fig-08": { "alt": "Cursor follow-up control with Local and Cloud execution choices", "caption": "Choose the run environment deliberately. This Cursor 3.7 figure shows a local-to-cloud handoff control." },
+    "fig-09": { "alt": "Cursor enterprise MCP settings with Browser Origin Allowlist and Add Origin control", "caption": "This optional enterprise-admin control restricts automatic Browser navigation and MCP tool execution to configured origins, but Cursor documents it as best-effort. Most learners should keep Browser actions manually approved and use only a verified local origin." },
+    "fig-10": { "alt": "Cursor Agentic Search panel locating relevant repository files beside an official instructor", "caption": "Search before claiming. This still comes from Cursor Learn and is labelled as historical interface media." },
+    "fig-11": { "alt": "Cursor prepared plan with current state, approach, implementation steps, and checks", "caption": "This historical interface media shows the durable principle: writing becomes reviewable when evidence review, outline, draft, style, and integrity are distinct planned stages." },
+    "fig-12": { "alt": "Cursor prompt composer with a pinned custom mode or Skill selected", "caption": "Inspect and pin a workflow Skill before it operates on office files or connected tools. This UI is from the 19 August 2026 changelog." },
+    "fig-13": { "alt": "Cursor repository picker listing recent local projects, multiple folders, This Computer, and Cloud", "caption": "Open a synthetic teaching workspace and keep local versus cloud sources explicit. This picker is from Cursor 3.11." },
+    "fig-14": { "alt": "Cursor Cloud Builds dashboard showing a failed build, active commit, snapshot ID, environment revision, build list, and detail and action links", "caption": "This still shows status and revision information, not log or check contents; open the details and review the logs and checks separately before accepting the handoff." }
+  },
+  "capstone": {
+    "title": "Reviewable Cursor workflow packet",
+    "summary": "Complete one reproducible feature in the supplied fixture and demonstrate, through reviewable evidence, that the result is scoped, accessible, tested, and ready for a human decision.",
+    "scenario": "Download and unpack aicourse-cursor-demo. Its CourseList.tsx needs a keyboard-accessible Incomplete course filter covered by CourseList.test.tsx. Cursor may inspect, plan, edit, and verify inside that fixture only. Add no dependencies and preserve both / and /courses/. Commits, pushes, pull requests, deployments, real secrets, private data, and external writes remain outside scope.",
+    "instructions": [
+      "Contract: add an Incomplete filter using native keyboard-operable controls, add no dependencies, preserve / and /courses/, and keep all external actions unauthorised.",
+      "Orient: verify the downloaded ZIP with the archive checksum, confirm the separate receipt fixture hash through the supplied verifier, install from the lockfile, and inspect CourseList.tsx, CourseList.test.tsx, package scripts, existing filters, and both route entry points without editing.",
+      "Plan: connect the missing behaviour to the focused test, name the smallest source and test changes, and set tests, lint, build, routes, keyboard behaviour, and dependency integrity as gates.",
+      "Implement: capture the expected focused failure, then make the smallest coherent CourseList.tsx and CourseList.test.tsx change for the Incomplete filter.",
+      "Verify: run every required command, inspect / and /courses/ with manually approved Browser actions on the verified local origin, and record actual output plus every unrun check. Use the enterprise Browser Origin Allowlist only if your organisation provides it.",
+      "Review: inspect every changed file and confirm label, native control behaviour, pressed state, incomplete-course logic, scope, and safety constraints against the diff.",
+      "Handoff: run the fixture verifier, retain course-receipt.json, and report outcome, changed files, evidence, limitations, and decisions still reserved for a human."
+    ],
+    "artifacts": {
+      "task-contract": { "title": "Task contract", "description": "The bounded outcome, authoritative context, constraints, non-goals, acceptance behaviour, verification, and authority boundary." },
+      "orientation-note": { "title": "Orientation note", "description": "Read-only repository facts with file anchors, current behaviour, checks, risks, and labelled uncertainty." },
+      "approved-plan": { "title": "Approved plan", "description": "Ordered phases with outputs, affected areas, evidence, decisions, and stop conditions." },
+      "reviewed-diff": { "title": "Reviewed diff", "description": "The complete changed-file set with a scope rationale, accessibility inspection, and review findings." },
+      "verification-record": { "title": "Verification record", "description": "Fresh failure and success evidence, broader checks, actual outputs, Browser notes, and explicitly unrun checks." },
+      "handoff": { "title": "Maintainer handoff", "description": "A concise outcome, change summary, verification, limitations, and remaining human decisions." }
+    },
+    "rubric": {
+      "scope": { "title": "Scope and contract, 20 points", "description": "The outcome is observable, non-goals are explicit, and every changed file traces to the approved task." },
+      "safety": { "title": "Environment and safety, 20 points", "description": "Permissions are minimal, synthetic data is used, and external or destructive actions remain unauthorised." },
+      "implementation": { "title": "Implementation quality, 20 points", "description": "The change is repository-grounded, focused, accessible, compatible with local instructions, and free of unrelated rewrites." },
+      "verification": { "title": "Verification quality, 25 points", "description": "Fresh evidence covers acceptance and regression risk, with honest treatment of failures, gaps, and Browser limitations." },
+      "handoff": { "title": "Review and handoff, 15 points", "description": "The complete diff is reviewed and another maintainer can reproduce results, limitations, and next decisions." }
+    },
+    "pass": "Pass at 80 points or above, with no critical safety violation or fabricated verification claim.",
+    "retry": "If you score below 80, repair the weakest evidence link and resubmit the same bounded task instead of expanding scope.",
+    "completion": "You are finished when the receipt format verifies, its underlying evidence is present, and another reviewer can reproduce the reasoning without guessing."
+  }
+}

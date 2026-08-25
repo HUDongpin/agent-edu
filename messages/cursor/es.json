@@ -1,0 +1,1069 @@
+{
+  "meta": {
+    "title": "Cómo utilizar Cursor",
+    "kicker": "Curso 4",
+    "summary": "Domine Cursor mediante 14 lecciones basadas en evidencia que combinan la práctica auténtica de la interfaz con flujos de trabajo seguros para desarrollo, investigación, redacción, tareas de oficina y enseñanza.",
+    "audience": "Para personas principiantes y profesionales con experiencia que sepan navegar por archivos. La experiencia en programación resulta útil en el estudio de software, pero no es necesaria en los estudios de investigación, redacción, oficina o enseñanza.",
+    "duration": "Aproximadamente 13 horas y 20 minutos, incluido un proyecto final de 90 minutos",
+    "sourceNote": "El comportamiento del producto se verificó el 23 de agosto de 2026 mediante fuentes oficiales de Cursor; las imágenes auténticas de la interfaz indican su versión documentada y su vigencia. Los repositorios de GitHub auditados ilustran flujos de trabajo profesionales; no demuestran aumentos de productividad ni garantizan resultados correctos.",
+    "figureNote": "Las 14 figuras muestran interfaces oficiales de Cursor o materiales de producto conservados localmente con fines limitados de enseñanza y comentario. Cada figura está fechada y marcada como actual, fechada o histórica. aicourse.top es independiente y no está afiliado ni respaldado por Cursor; los derechos de publicación deben revisarse antes de cualquier publicación pública o redistribución.",
+    "startCta": "Iniciar el curso",
+    "resumeCta": "Continuar aprendiendo"
+  },
+  "ui": {
+    "lessons": "Lecciones",
+    "minutes": "mín.",
+    "objectives": "Objetivo de aprendizaje",
+    "evidence": "Evidencia que debe conservarse",
+    "practice": "Práctica",
+    "checkpoint": "Punto de control",
+    "sources": "Fuentes",
+    "quiz": "Comprobación de conocimientos",
+    "previous": "Lección anterior",
+    "next": "Lección siguiente",
+    "capturePending": "Figura de UI auténtica pendiente",
+    "openFullSize": "Abrir la figura en tamaño completo",
+    "figureCurrent": "UI oficial actual",
+    "figureDated": "UI oficial fechada",
+    "figureHistorical": "Interfaz histórica",
+    "figureAttribution": "© Anysphere, Inc. Medios oficiales de Cursor utilizados para comentarios educativos; sin afiliación ni respaldo.",
+    "optionalAdvanced": "Material avanzado opcional",
+    "progress": "Progreso",
+    "courseProgress": "Progreso del curso",
+    "completed": "Completado",
+    "markComplete": "Marcar como completado",
+    "markedComplete": "Marcado como completado",
+    "resetProgress": "Restablecer progreso",
+    "question": "Pregunta",
+    "of": "de",
+    "checkAnswer": "Comprobar la respuesta",
+    "checkAnswers": "Comprobar las respuestas",
+    "correct": "Correcto",
+    "incorrect": "Todavía no",
+    "tryAgain": "Vuelva a intentarlo",
+    "score": "Puntuación",
+    "quizPassed": "Comprobación de conocimientos superada",
+    "quizNeedsReview": "Revise la lección y vuelva a intentarlo",
+    "capstoneArtifacts": "Artefactos requeridos",
+    "capstoneReceipt": "Comprobante de autoverificación del proyecto final",
+    "artifactReady": "Artefacto listo",
+    "rubric": "Rúbrica",
+    "learnerSelfAssessment": "Autoevaluación del estudiante. aicourse.top no revisa estas evidencias ni certifica la finalización.",
+    "rubricComplete": "Rúbrica completa",
+    "passingScore": "Puntuación mínima",
+    "weight": "Peso",
+    "status": "Estado",
+    "notStarted": "No iniciado",
+    "printReceipt": "Imprimir comprobante",
+    "browserStorageNote": "El progreso se almacena sólo en este navegador.",
+    "backToCourse": "Volver al curso",
+    "allLessons": "Todas las lecciones",
+    "recordCompletion": "Registrar la finalización",
+    "finalQuizTitle": "Comprobación final de conocimientos",
+    "finalQuizIntro": "Responda 12 preguntas, tres de cada unidad. Necesita 10 respuestas correctas para aprobar; su mejor puntuación se guarda en este navegador.",
+    "beginQuiz": "Comenzar el cuestionario",
+    "nextQuestion": "Siguiente pregunta",
+    "retryQuiz": "Reintentar el cuestionario",
+    "bestScore": "Mejor puntuación",
+    "passRequirement": "Se requieren 10 respuestas correctas de 12",
+    "source": "Fuente",
+    "storageUnavailable": "El almacenamiento de Browser no está disponible. El curso sigue siendo utilizable, pero el progreso y la finalización no se guardarán después de esta sesión.",
+    "receiptInstructions": "Descargue conjuntamente el archivo ZIP y su archivo de suma de comprobación. El SHA-256 del ZIP verifica la descarga; el SHA-256 independiente del archivo interno de prueba vincula el comprobante de autoverificación a course-fixture.json. El curso comprueba el esquema y los resultados declarados del comprobante, pero no puede demostrar que se hayan ejecutado los comandos ni sustituir la revisión del paquete de evidencia.",
+    "receiptSchemaLabel": "Esquema del comprobante",
+    "fixtureVersionLabel": "Versión del proyecto de prueba",
+    "archiveHashLabel": "SHA-256 del archivo ZIP descargado",
+    "fixtureHashLabel": "SHA-256 del archivo interno de prueba",
+    "downloadChecksum": "Descargar la suma de comprobación",
+    "requiredChecksLabel": "Verificaciones declaradas",
+    "pasteReceipt": "Pegar comprobante JSON",
+    "verifyReceipt": "Comprobar el formato del comprobante",
+    "receiptValid": "Formato del comprobante verificado",
+    "receiptInvalidJson": "Esto no es JSON válido.",
+    "receiptWrongSchema": "El comprobante utiliza un esquema incorrecto.",
+    "receiptWrongVersion": "La versión del proyecto de prueba indicada en el comprobante no es compatible.",
+    "receiptWrongHash": "El valor fixtureSha256 del comprobante no coincide con el manifiesto course-fixture.json requerido.",
+    "receiptIncomplete": "El comprobante no declara aprobadas todas las verificaciones obligatorias.",
+    "savedCompletionMismatch": "La finalización guardada no coincide con este contrato de proyecto final publicado. Vuelva a comprobar el proyecto de prueba y el comprobante actuales.",
+    "downloadStarter": "Descargar proyecto inicial",
+    "completionSummary": "Resumen de finalización",
+    "exportSummary": "Exportar el resumen",
+    "finishQuiz": "Terminar el cuestionario",
+    "questionProgressTemplate": "Pregunta {current} de {total}",
+    "scoreSummaryTemplate": "Puntuación: {score} de {total}",
+    "bestScoreTemplate": "Mejor puntuación: {score} de {total}",
+    "resetConfirm": "¿Restablecer todo el progreso del curso guardado?",
+    "resetDone": "Progreso del curso restablecido.",
+    "capstonePath": "Ruta del proyecto final"
+  },
+  "units": {
+    "unit-1": {
+      "title": "Domine la interfaz",
+      "summary": "Establezca un límite de datos seguro, distinga Tab, Inline Edit, Agent, Agents Window y Editor, luego escriba un contrato de tarea que otra persona pueda revisar."
+    },
+    "unit-2": {
+      "title": "Ejecutar un bucle de evidencia",
+      "summary": "Planifique el trabajo importante antes de ejecutarlo, guíese por evidencia observada, pruebe y revise los cambios, adapte procedimientos repetibles y aísle la ejecución paralela."
+    },
+    "unit-3": {
+      "title": "Trabaje en distintos contextos",
+      "summary": "Aplique la misma disciplina, del origen al artefacto, a la ingeniería de software, la investigación, la redacción extensa, el trabajo de producto, las reuniones y los datos de oficina en texto plano."
+    },
+    "unit-4": {
+      "title": "Enseñe, evalúe y complete el proyecto final",
+      "summary": "Diseñe una tutoría basada en el esfuerzo productivo, proteja la autonomía y los datos del estudiante y complete después un proyecto final claramente delimitado con un comprobante de autoevaluación verificable automáticamente y un paquete de evidencia revisado por una persona."
+    }
+  },
+  "lessons": {
+    "orient-privacy": {
+      "kicker": "Lección 1",
+      "title": "Familiarícese con Cursor y establezca el límite de los datos",
+      "summary": "Comience en un espacio de trabajo temporal, identifique Agents Window y Editor, y decida qué datos y permisos puede usar Cursor antes de pedirle que actúe.",
+      "objective": "Abra un espacio de trabajo seguro y documente los límites relacionados con la interfaz, la privacidad, los archivos excluidos, la ejecución y el control de versiones que rigen una primera tarea.",
+      "sections": [
+        {
+          "heading": "Conozca las dos interfaces disponibles",
+          "body": "Instale Cursor e inicie sesión siguiendo el Quickstart oficial; después, abra una carpeta que contenga solo datos sintéticos. Cursor 3 ofrece Agents Window, una vista centrada en los agentes, y el Editor clásico. Agents Window organiza agentes locales, worktree, cloud y SSH; el Editor sigue siendo útil para navegar directamente por el código, usar Tab e Inline Edit y revisar diffs con precisión. Seleccione Open Agents Window en la paleta de comandos y utilice después el comando actual Open IDE para volver al Editor. Anote la versión mostrada, porque la ubicación de los elementos de la interfaz cambia. Las prácticas ejecutables de este curso se dirigen a Cursor Desktop 3.17. Cursor CLI es una interfaz de terminal independiente, con su propia instalación, modos, sandbox y controles de aprobación; consulte la documentación actual de la CLI antes de trasladar procedimientos de Desktop. Identifique primero la interfaz visible, el repositorio seleccionado, si la ejecución es local o cloud y el modelo o modo activo."
+        },
+        {
+          "heading": "Privacy Mode no es un modo exclusivamente local",
+          "body": "Cursor afirma que Privacy Mode impide que los datos del cliente se utilicen para entrenar modelos según sus controles publicados; aun así, se procesan los prompts y el contexto de código necesario. La política actual también documenta una posible retención cuando se activan los detectores de abuso y para los modelos non-ZDR designados por separado o habilitados por un administrador. La indexación puede conservar embeddings y metadatos del repositorio. Mantenga fuera del espacio de práctica los secretos, el trabajo privado de estudiantes, las entrevistas identificables y los registros de clientes. Use .cursorignore como parte de una defensa en profundidad, pero no lo considere por sí solo un límite completo para el terminal o MCP. Las recomendaciones de seguridad de Cursor lo combinan con sandboxing, aprobaciones y permisos de archivos. Un comienzo seguro combina datos sintéticos, una carpeta claramente delimitada, control de versiones, ajustes de privacidad actuales y claridad sobre qué proveedores o integraciones externos pueden recibir contexto."
+        },
+        {
+          "heading": "Haga coincidir la autoridad de ejecución con la tarea",
+          "body": "Los Run Modes locales actuales son Auto-review, Allowlist y Run Everything. Auto-review es la opción predeterminada más segura y práctica para la mayoría de las personas; aun así, Cursor aclara que su clasificador no constituye un límite de seguridad. Las ediciones ordinarias del espacio de trabajo pueden guardarse de inmediato, aunque los comandos del terminal sigan requiriendo aprobación. Mantenga Git activo, inspeccione la lista de archivos modificados y lea cada comando antes de permitirlo. Los Cloud Agents utilizan un modelo distinto de seguridad para la VM y la red, por lo que las reglas de aprobación locales no se transfieren automáticamente. Comience con una orientación de solo lectura y amplíe la autoridad únicamente cuando lo exija un paso de aceptación claramente definido."
+        }
+      ],
+      "practice": {
+        "title": "Elabore un mapa para un inicio seguro",
+        "brief": "Abra una carpeta nueva que contenga datos sintéticos y registre en una página la interfaz exacta de Cursor, la versión y los límites de datos y ejecución que utilizará.",
+        "steps": [
+          "Seleccione Open Agents Window en la paleta de comandos, vuelva una vez al Editor con Open IDE y anote la versión y el modo de ejecución del espacio de trabajo: local, worktree, cloud o SSH.",
+          "Revise Privacy Mode, .cursorignore y el modo de ejecución actual; escriba una oración que describa lo que no garantiza cada control.",
+          "Inicialice o confirme Git, solicite a Agent un mapa de solo lectura de la carpeta y verifique que ningún archivo haya cambiado."
+        ],
+        "evidence": [
+          "Una tarjeta de inicio seguro con la interfaz, la versión, el entorno, la privacidad, las reglas de exclusión, el modo de ejecución y el estado de Git.",
+          "Un estado de antes y después que muestra que la solicitud de orientación no provocó ningún cambio en el espacio de trabajo."
+        ],
+        "safety": "Utilice únicamente archivos sintéticos. No pegue credenciales reales para comprobar si funciona una regla de exclusión."
+      },
+      "checkpoint": {
+        "prompt": "¿Privacy Mode significa que las indicaciones y el código nunca salen de su computadora?",
+        "answer": "No. Privacy Mode regula el uso para el entrenamiento de modelos según los términos publicados por Cursor; las solicitudes y el contexto necesario siguen procesándose. Trate por separado los datos confidenciales y el acceso a herramientas."
+      },
+      "takeaway": "Antes de preguntar qué puede hacer Cursor, decida qué puede ver, dónde puede ejecutarse y cómo volver a un estado seguro."
+    },
+    "tab-inline-edit": {
+      "kicker": "Lección 2",
+      "title": "Utilice Tab y Inline Edit sin renunciar al juicio",
+      "summary": "Trate a Tab como una predicción de la siguiente acción y a Inline Edit como un microcambio seleccionado, luego acepte solo sugerencias que pueda explicar y verificar.",
+      "objective": "Complete una pequeña edición distinguiendo la predicción automática de una edición seleccionada de forma explícita y revise cada cambio resultante.",
+      "sections": [
+        {
+          "heading": "Tab predice una próxima acción",
+          "body": "Cursor describe Tab como una predicción de la siguiente acción, no como una simple compleción de palabras. Puede sugerir varias líneas, refactorizaciones o un salto a otra ubicación. Una sugerencia en texto fantasma sigue siendo solo una propuesta. Lea todo el texto fantasma y la función circundante antes de presionar Tab. Si la sugerencia cambia un comportamiento que no comprende, rechácela o reduzca la edición. Tab funciona mejor cuando el código actual, los nombres, los tipos cercanos y las acciones recientes hacen evidente la continuación prevista. No sustituye un contrato de tarea, las reglas del repositorio ni las pruebas."
+        },
+        {
+          "heading": "Inline Edit delimita una solicitud explícita",
+          "body": "Seleccione la región coherente más pequeña y abra Inline Edit con Cmd o Ctrl más K. Indique la transformación y el invariante que debe mantenerse. La selección define el ámbito objetivo de la edición solicitada; no es un límite de acceso ni de seguridad, y no debe suponer que el código cercano no seleccionado se aporte como contexto. Revise línea por línea la sustitución propuesta. User Rules no se aplican a Inline Edit; por tanto, repita en la solicitud cualquier restricción esencial. Si la tarea abarca varios archivos, modifica la arquitectura o requiere explorar el repositorio, pase a Agent en lugar de exigir a una interfaz de microedición más de lo que puede ofrecer."
+        },
+        {
+          "heading": "Ejecute el microbucle",
+          "body": "Utilice un ciclo de cuatro pasos: predecir, inspeccionar, aceptar o rechazar y, después, verificar. En el caso de la prosa, la verificación podría consistir en un análisis terminológico y una comparación de las fuentes. Para el código, ejecute la verificación focalizada más cercana y revise el diff. Aprenda a rechazar sugerencias mediante el rechazo deliberado de una propuesta plausible pero incorrecta. Esto le ayudará a tratar Cursor como un instrumento sometido a supervisión continua. La aceptación rápida importa menos que preservar la intención, el estilo y el comportamiento. Si varias ediciones pequeñas comienzan a compartir un supuesto, haga una pausa y escríbalo en un contrato de tarea antes de continuar."
+        }
+      ],
+      "practice": {
+        "title": "Compare la predicción y la instrucción",
+        "brief": "En un archivo temporal, use Tab una vez y Inline Edit una vez para realizar dos pequeños cambios que se pueden revisar de forma independiente.",
+        "steps": [
+          "Inicie una función o párrafo simple, espere una sugerencia de Tab y escriba por qué aceptó o rechazó la sugerencia completa.",
+          "Seleccione una región coherente, invoque Inline Edit y solicite una transformación más un invariante que debe permanecer sin cambios.",
+          "Revise el diff, ejecute una verificación específica o una comparación de fuentes y revierta cualquiera de los cambios si la evidencia es débil."
+        ],
+        "evidence": [
+          "Un registro de decisión de dos filas para las sugerencias Tab y Inline Edit.",
+          "El diff revisado y la verificación focalizada utilizada para conservar o revertir cada cambio."
+        ],
+        "safety": "Mantenga el ejercicio en un archivo temporal y excluya la red, la instalación de paquetes, las confirmaciones y las escrituras externas."
+      },
+      "checkpoint": {
+        "prompt": "¿Cuándo debería un Inline Edit seleccionado convertirse en una tarea Agent?",
+        "answer": "Cuando la tarea exige buscar en el repositorio, trabajar con varios archivos, tomar decisiones de arquitectura, usar el terminal o reunir evidencia de aceptación que excede una transformación local."
+      },
+      "takeaway": "Utilice la superficie Cursor más pequeña que coincida con la decisión, luego verifique el resultado en lugar de la fluidez de la sugerencia."
+    },
+    "agent-interface": {
+      "kicker": "Lección 3",
+      "title": "Comprenda Agent, las herramientas, el contexto y los checkpoints",
+      "summary": "Comprenda qué puede buscar, leer, editar y ejecutar Agent, luego inspeccione la evidencia detrás de su respuesta en lugar de tratar la conversación como prueba.",
+      "objective": "Utilice Agent para una investigación centrada en la lectura, inspeccione el contexto adjunto y descubierto y distinga un punto de control del control de versiones duradero.",
+      "sections": [
+        {
+          "heading": "Agent combina instrucciones, herramientas y modelo",
+          "body": "Abra Agent con Cmd o Ctrl más I. Agent puede buscar archivos y en la web, leer código e imágenes, editar archivos, ejecutar comandos de shell, usar un navegador y hacer preguntas aclaratorias. La disponibilidad de las herramientas no implica autoridad para utilizar cada una de ellas. Los mensajes de progreso muestran el rastro del trabajo, mientras que los archivos del repositorio, los diffs, la salida del terminal y los resultados de las pruebas proporcionan la evidencia que usted revisa. En Agents Window, mantenga visibles el repositorio seleccionado y la ubicación de ejecución. En el Editor, utilice un contexto local preciso, pero recuerde que el archivo abierto no representa todo el sistema."
+        },
+        {
+          "heading": "Deje que Agent busque y adjunte lo que usted ya conoce",
+          "body": "Actualmente, Cursor descubre el contexto de forma cada vez más dinámica. Si conoce el archivo, el terminal, el chat, el diff de Git o la página de Browser que resulta decisiva, adjunte ese elemento explícitamente con el control de contexto correspondiente. Si no conoce los archivos, indique el resultado y deje que Agent busque. Inspeccione el anillo de contexto para ver cómo las instrucciones del sistema, las reglas, las descripciones de Skills y MCP, los subagentes, los resúmenes y el historial de la conversación consumen contexto. Un exceso de contexto puede ocultar la señal. Pida a Agent que cite rutas, comandos y comportamientos observados, y que etiquete cualquier inferencia que aún deba verificarse."
+        },
+        {
+          "heading": "Utilice chats secundarios y puntos de control para el propósito correcto",
+          "body": "Un chat paralelo centrado en la lectura puede investigar una cuestión secundaria sin descarrilar la tarea principal y citarse después en la conversación principal. Un punto de control puede previsualizar o restaurar los cambios de Agent desde la línea de tiempo. Ninguno reemplaza a Git. Los puntos de control son instantáneas locales prácticas y quizá no ofrezcan las garantías duraderas de colaboración, historial o recuperación que espera del control de versiones. Antes de una tarea importante, cree o confirme un límite Git limpio. Después de una restauración, inspeccione el estado y las pruebas en lugar de suponer que todo el entorno volvió a un estado conocido."
+        }
+      ],
+      "practice": {
+        "title": "Cree un mapa del espacio de trabajo respaldado por evidencia",
+        "brief": "Pídale a Agent que explique un proyecto sintético desconocido sin editarlo, luego audite su contexto y sus afirmaciones.",
+        "steps": [
+          "Pídale a Agent que ubique puntos de entrada, instrucciones locales, controles enfocados y dos áreas de riesgo, citando las rutas exactas del repositorio detrás de cada observación.",
+          "Abra el anillo de contexto o la lista de contexto e identifique qué elementos se adjuntaron, descubrieron, resumieron o simplemente infirieron.",
+          "Verifique usted mismo dos afirmaciones de archivos y registre por qué un punto de control no reemplazaría a Git para la siguiente tarea."
+        ],
+        "evidence": [
+          "Un mapa de repositorio que separa hechos observados, citas e inferencias no resueltas.",
+          "Una auditoría de contexto que nombra lo que utilizó Agent y lo que usted verificó de forma independiente."
+        ],
+        "safety": "Exija trabajo de solo lectura y verifique el estado de Git antes y después. No adjunte terminales ni chats privados que no estén relacionados con la tarea."
+      },
+      "checkpoint": {
+        "prompt": "¿Qué prueba por sí sola una respuesta pulida de Agent?",
+        "answer": "Solo lo que afirma la respuesta. Aún debe inspeccionar los archivos citados, los resultados de las herramientas, los diffs, las comprobaciones y la incertidumbre restante."
+      },
+      "takeaway": "Agent es poderoso porque puede reunir pruebas; su trabajo es mantener esa evidencia visible y discutible."
+    },
+    "task-contracts": {
+      "kicker": "Lección 4",
+      "title": "Escriba un contrato de tarea que Cursor pueda completar",
+      "summary": "Traducir una intención amplia en un resultado observable, un contexto autorizado, limitaciones, no objetivos, controles y un traspaso claro.",
+      "objective": "Escriba una solicitud de tarea delimitada cuyo comportamiento de aceptación y cuya evidencia de verificación se puedan revisar de forma independiente.",
+      "sections": [
+        {
+          "heading": "Comience con el resultado observable",
+          "body": "Describa qué debería ser diferente para un usuario, lector, analista, docente o responsable de mantenimiento cuando se complete la tarea. Añada el comportamiento actual y la ubicación que actúa como fuente de autoridad. Pedir que se mejore un panel es vago; pedir que se conserven los valores válidos cuando falla la validación de un campo describe un comportamiento observable. Para la investigación, especifique la pregunta, la instantánea del conjunto de datos y la procedencia requerida. Para la redacción, indique el conjunto de fuentes, la audiencia, las restricciones de voz y las afirmaciones que deben permanecer inalteradas. Incluya un elemento de contexto solo cuando cambie una decisión."
+        },
+        {
+          "heading": "Haga explícitas las restricciones y los objetivos excluidos",
+          "body": "Indique los archivos, formatos, dependencias, rutas, citas, límites de datos y acciones externas protegidas que no deben cambiar. Formule objetivos excluidos para cerrar posibles desvíos atractivos. Pida a Cursor que se detenga y saque a la luz cualquier conflicto en lugar de elegir en silencio entre el resultado y una restricción. Traduzca expresiones como listo para producción o alta calidad en comportamientos revisables: ninguna dependencia de ejecución nueva, una fuente citada para cada afirmación sustancial, funcionamiento mediante teclado, un esquema estable o una interfaz pública sin cambios. Mantenga los commits, los push, los deployments, los mensajes y los registros externos fuera del alcance, salvo que se autoricen expresamente."
+        },
+        {
+          "heading": "Separe la aceptación de la verificación",
+          "body": "Los criterios de aceptación describen el comportamiento que necesita. La verificación describe cómo se producirán evidencias creíbles. Una prueba puede respaldar la aceptación, pero que un comando termine con éxito no puede demostrar por sí solo la usabilidad, la integridad de las fuentes ni el respeto del alcance. Solicite verificaciones focalizadas, verificaciones más amplias proporcionales al riesgo, una revisión completa de los diffs o artefactos y la indicación sincera de toda comprobación imposible de ejecutar. Termine con el formato del traspaso: archivos o artefactos modificados, resultados de comandos, procedencia, limitaciones y decisiones aún reservadas a una persona. Haga únicamente preguntas aclaratorias cuyas respuestas puedan cambiar sustancialmente la implementación."
+        }
+      ],
+      "practice": {
+        "title": "Convierta una solicitud vaga en un contrato de cinco partes",
+        "brief": "Vuelva a escribir una solicitud de ingeniería, investigación, redacción, oficina o enseñanza antes de que Agent cambie algo.",
+        "steps": [
+          "Escriba una oración etiquetada para cada resultado, contexto autorizado, restricciones y no objetivos, comportamiento de aceptación y verificación.",
+          "Agregue la evidencia exacta de la transferencia y enumere cada acción externa o irreversible que sigue sin estar autorizada.",
+          "Solicite a Agent solo aclaraciones de importancia material, revise el contrato y guárdelo junto al proyecto."
+        ],
+        "evidence": [
+          "El contrato de tarea final de cinco partes con un límite de autoridad explícito.",
+          "Una breve nota de decisión que muestra una ambigüedad eliminada o explica por qué ninguna tuvo consecuencias."
+        ],
+        "safety": "Redacte el contrato en modo de solo lectura. No permita que la solicitud de aclaración se convierta en un permiso para implementar."
+      },
+      "checkpoint": {
+        "prompt": "¿Por qué \"probar el resultado\" es una instrucción de verificación incompleta?",
+        "answer": "No identifica el comportamiento, el comando o la comparación, la evidencia esperada, la cobertura de riesgos o lo que se debe informar cuando no se puede ejecutar una verificación."
+      },
+      "takeaway": "El mejor mensaje es el contrato completo más pequeño que haga visible el éxito y la autoridad."
+    },
+    "plan-execute-steer": {
+      "kicker": "Lección 5",
+      "title": "Planifique, ejecute y reoriente a partir de la evidencia",
+      "summary": "Utilice Plan Mode cuando la ambigüedad o el riesgo lo justifiquen, apruebe un plan respaldado por evidencia y conduzca sin descartar el trabajo validado.",
+      "objective": "Cree y apruebe un plan editable cuyas fases, evidencias, decisiones y condiciones de parada se basen en hechos del repositorio o de las fuentes.",
+      "sections": [
+        {
+          "heading": "Elija Plan Mode para un trabajo importante",
+          "body": "Plan Mode resulta útil para cambios que abarcan varios archivos, decisiones de arquitectura, requisitos ambiguos, transformaciones de datos confidenciales y documentos complejos. Investiga el espacio de trabajo, plantea preguntas aclaratorias, redacta un plan editable y espera antes de implementar. Esa pausa es parte esencial de la herramienta. Un plan no garantiza la corrección; expone los supuestos cuando revisarlos todavía resulta barato. Solicite evidencia citada del repositorio o de las fuentes, la zona afectada más pequeña, las dependencias entre fases y los riesgos. Guarde el plan en el espacio de trabajo cuando deba revisarse o mantenerse bajo control de versiones con otras personas."
+        },
+        {
+          "heading": "Apruebe fases verificables de forma independiente",
+          "body": "Cada fase debe indicar su resultado, los archivos o artefactos afectados, la verificación y las necesidades de reversión. Un plan de software puede reproducir un defecto, añadir una prueba focalizada que falle, aplicar la corrección mínima y ejecutar después comprobaciones más amplias. Un plan de investigación puede registrar una hipótesis, validar los datos, realizar un análisis y conservar los resultados y las limitaciones. Un plan de redacción puede separar la extracción de evidencia, el esquema, el borrador, la revisión de estilo y la revisión de integridad. Rechace los planes genéricos que propongan una arquitectura de moda sin inspeccionar el proyecto actual. Apruebe el plan solo cuando los límites protegidos y las acciones externas no ejecutadas estén explícitos."
+        },
+        {
+          "heading": "Reoriente la ejecución sin descartar el trabajo validado",
+          "body": "Cuando la ejecución se aparte del plan, remítase al resultado observado: conserve el cambio de esquema validado, revise solo el orden de foco en dispositivos móviles y vuelva a ejecutar la prueba de teclado. Esta indicación es más precisa que limitarse a pedir otro intento. Haga una pausa cuando aparezcan una nueva dependencia, un efecto secundario externo, un conjunto de datos privado o una decisión de arquitectura. Actualice el contrato y el plan en lugar de permitir que el alcance crezca sin quedar registrado. Si Agent está bloqueado, solicite el motivo exacto del bloqueo, los intentos realizados, el estado que permanece sin cambios y la entrada o autorización mínima que aún necesita. Reorientar la ejecución no es un fracaso; así se mantiene activa la intención humana."
+        }
+      ],
+      "practice": {
+        "title": "Apruebe un plan fundamentado",
+        "brief": "Utilice Plan Mode en una tarea delimitada, pero deténgase antes de Build hasta que cada fase sea rastreable y revisable.",
+        "steps": [
+          "Proporcione el contrato de tarea y solicite a Plan Mode que inspeccione las instrucciones aplicables, el comportamiento actual, los archivos o artefactos probables y los comandos de verificación.",
+          "Edite el plan para que cada fase tenga una salida, una verificación de evidencia, una dependencia y una condición de parada; guárdelo en el espacio de trabajo.",
+          "Apruebe la compilación para una fase, inspeccione el resultado y envíe un mensaje directivo que preserve el trabajo verificado."
+        ],
+        "evidence": [
+          "El plan guardado con anclajes de repositorio o fuente y límite de aprobación explícito.",
+          "Una nota de orientación vinculada a un diff observado, un artefacto o un resultado de verificación."
+        ],
+        "safety": "Utilice un proyecto temporal y autorice solo la primera fase planificada. Mantenga los commits, los push, los deployments y los mensajes externos fuera del alcance."
+      },
+      "checkpoint": {
+        "prompt": "¿Cuál es el resultado más importante de Plan Mode?",
+        "answer": "Una base de decisión revisable: supuestos fundamentados, fases, controles, riesgos y una pausa deliberada antes de una ejecución de alto impacto."
+      },
+      "takeaway": "Un plan sólido acorta el retrabajo porque hace que los supuestos y la evidencia sean revisables antes de que se conviertan en cambios."
+    },
+    "test-review-recover": {
+      "kicker": "Lección 6",
+      "title": "Pruebe, revise y restaure sin una falsa sensación de seguridad",
+      "summary": "Reproduzca antes de corregirlo, observe que una verificación falla y se aprueba, inspeccione cada artefacto modificado y use puntos de control solo como complemento de Git.",
+      "objective": "Complete un ciclo de evidencia de rojo a verde y produzca una nota de revisión que distinga los controles aprobados, los controles no ejecutados y el riesgo restante.",
+      "sections": [
+        {
+          "heading": "Reproduzca y aísle antes de editar",
+          "body": "Una solución plausible no es un diagnóstico. Registre el síntoma con las entradas exactas, el entorno, el comportamiento esperado y el comportamiento real. Redúzcalo al caso fiable más pequeño. Pida a Debug Mode o Agent que propongan hipótesis contrapuestas y la evidencia que permitiría distinguirlas. Añada instrumentación solo cuando sea necesario. Para trabajos sin código, reproducir significa conservar la entrada original y mostrar el error repetible en un cálculo, una cita, una transformación o una regla de documento. No elimine la evidencia del fallo cuando surja una teoría. Esa evidencia sustenta la posible afirmación posterior de que el problema quedó resuelto."
+        },
+        {
+          "heading": "Observe primero el fallo, después el éxito y, por último, controles más amplios",
+          "body": "Una comprobación de regresión resulta más creíble cuando se observa que falla por el motivo previsto antes de la implementación y que se supera después del cambio coherente más pequeño. Ejecute después comprobaciones más amplias y proporcionales al riesgo, como comprobación de tipos, lint, build, rutas, validación del esquema, comparación de fuentes o inspección de la salida renderizada. Registre el comando real y el resultado. Si una comprobación no puede iniciarse, márquela como no ejecutada y explique qué sigue siendo incierto. Nunca presente como aprobada una comprobación bloqueada o ausente porque otro comando se haya ejecutado correctamente."
+        },
+        {
+          "heading": "Revise el alcance y las rutas de recuperación",
+          "body": "Inicie la revisión con la lista completa de archivos o artefactos modificados. Relacione cada elemento con el plan aprobado e inspeccione archivos de bloqueo inesperados, resultados generados, eliminaciones y cambios de formato. El Agent Review local puede sacar a la luz hallazgos, pero usted debe evaluarlos según los criterios de aceptación y la evidencia. Los puntos de control pueden restaurar los cambios de Agent, pero Git sigue siendo el límite duradero para la colaboración y la recuperación. Antes de restaurar, conserve la evidencia útil; después de la restauración, inspeccione el estado y vuelva a ejecutar las comprobaciones. El traspaso final debe separar lo que pasó, lo que se inspeccionó manualmente, lo que no se ejecutó y lo que una persona aún debe decidir."
+        }
+      ],
+      "practice": {
+        "title": "Ejecute un bucle de revisión rojo-verde",
+        "brief": "Corrija un defecto inicial en un proyecto temporal y conserve la cadena de evidencia completa.",
+        "steps": [
+          "Reproduzca el defecto y ejecute la verificación más pequeña relevante, confirmando que falla por el motivo esperado antes de cualquier edición de implementación.",
+          "Pídale a Agent la solución más pequeña a la causa raíz, ejecute la verificación enfocada nuevamente y luego ejecute una verificación más amplia del repositorio.",
+          "Revise cada archivo modificado, utilice Agent Review para una segunda pasada y escriba un informe que separe las pruebas, las lagunas y los riesgos restantes."
+        ],
+        "evidence": [
+          "Los resultados exactos de fallo y éxito, junto con el resultado de una verificación más amplia.",
+          "Una nota completa de revisión de diffs con las comprobaciones no realizadas y los hallazgos no resueltos."
+        ],
+        "safety": "Mantenga un límite de Git limpio y evite comandos de recuperación destructivos. No afirme que se ejecutó una comprobación a menos que conserve su resultado reciente."
+      },
+      "checkpoint": {
+        "prompt": "¿Por qué una prueba que solo pasó después de la corrección es una evidencia más débil?",
+        "answer": "No ha demostrado que la prueba pueda detectar el defecto original. Un estado fallido observado vincula la comprobación con el comportamiento que se está reparando."
+      },
+      "takeaway": "La confianza proviene de fallas reproducibles, cambios mínimos, controles nuevos y revisiones honestas, no de una explicación fluida."
+    },
+    "rules-skills-mcp": {
+      "kicker": "Lección 7",
+      "title": "Elija Reglas, AGENTS.md, Skills, Comandos, Hooks y MCP",
+      "summary": "Convierta las lecciones repetidas en orientación enfocada y versionada mientras trata las personalizaciones ejecutables y las herramientas externas como límites de confianza.",
+      "objective": "Seleccione la superficie de personalización correcta para un flujo de trabajo repetido y audite su alcance, activación, procedencia y permisos.",
+      "sections": [
+        {
+          "heading": "Utilice la instrucción duradera más específica",
+      "body": "Las Project Rules son archivos .mdc situados en .cursor/rules. Las opciones de activación actuales son Always Apply, Apply Intelligently, Apply to Specific Files y Apply Manually. Los archivos .md simples de esa carpeta se ignoran. Un archivo AGENTS.md en la raíz proporciona instrucciones de proyecto legibles entre distintas herramientas; los archivos AGENTS.md anidados se combinan con los de sus niveles superiores y prevalecen en su subárbol. Mantenga las instrucciones centradas, concretas, componibles y, por regla general, por debajo de 500 líneas. Añada una regla solo cuando un fallo repetido revele conocimiento duradero. Las reglas orientan a Agent, no a todas las interfaces de Cursor: no rigen Tab, y User Rules no se aplican a Inline Edit."
+        },
+        {
+          "heading": "Agrupe los procedimientos como Skills verificados",
+          "body": "La función Skills implementa el formato abierto Agent Skills y puede ubicarse en .cursor/skills o .agents/skills. Use un Skill para definir un procedimiento repetible con entradas, pasos, verificaciones y salidas claras. Los comandos siguen existiendo; no afirme que se han eliminado. Un Plugin de Cursor puede incluir Rules, Skills, agents, Commands, MCP y Hooks. Trate su instalación como un cambio en la cadena de suministro: inspeccione cada componente incluido y el alcance de instalación solicitado antes de habilitarlo; después, fije la versión y pruébela en un espacio de trabajo desechable. Los Skills de terceros son instrucciones ejecutables: inspeccione sus archivos, licencias, scripts, supuestos de red y herramientas solicitadas; fije una revisión inmutable; pruébela en un espacio de trabajo temporal; decida después si conviene adoptarla o reescribirla. Un indicador de popularidad no equivale a una auditoría de seguridad. Mantenga las instrucciones temporales de la tarea en la conversación, en lugar de convertirlas en reglas globales."
+        },
+        {
+          "heading": "Tenga en cuenta la autoridad concedida a MCP y los Hooks",
+      "body": "MCP conecta Agent con herramientas y datos externos, mientras que los Hooks observan los eventos compatibles del ciclo de vida. Las Rules y los Hooks basados en prompts son evaluados por un modelo y no pueden tomar decisiones de denegación deterministas. Solo los Hooks de preacción basados en comandos pueden permitir o denegar de forma determinista las acciones compatibles. Los fallos de los Hooks dejan continuar la acción de forma predeterminada; para los Hooks de comandos críticos para la seguridad, establezca failClosed en true dentro de hooks.json y pruebe la ruta de fallo. Los Hooks solo abarcan los eventos documentados y constituyen una capa de un límite de seguridad más amplio. Limite las credenciales, los dominios, las escrituras y el alcance; comience con una exploración de solo lectura; someta los efectos externos a confirmación humana. Pruebe texto no confiable del repositorio y objetivos ambiguos, documente el apagado y la reversión, y distinga entre leer un sistema externo y modificarlo."
+        }
+      ],
+      "practice": {
+        "title": "Cree una regla de proyecto enfocada",
+        "brief": "Codifique un error de verificación repetido como una pequeña regla .mdc o una instrucción AGENTS.md; determine después si sería más apropiado un Skill.",
+        "steps": [
+          "Describa la falla repetida, el alcance afectado, el comando o verificación correcto y la condición de activación en menos de 20 líneas.",
+          "Colóquelo en un repositorio temporal, confirme sus metadatos de activación y pruebe una tarea que coincida y una que no coincida.",
+          "Audite una configuración de Skill o MCP de terceros para determinar el origen, la revisión fijada, la licencia, los scripts, los permisos y los efectos secundarios externos."
+        ],
+        "evidence": [
+          "El diff de la regla focalizada o del archivo AGENTS.md, con observaciones coincidentes y no coincidentes.",
+          "Una lista de verificación de confianza que explica si la configuración Skill o MCP inspeccionada debe adoptarse, reescribirse o rechazarse."
+        ],
+        "safety": "No instale instrucciones de terceros no fijadas ni conecte una cuenta externa real durante este ejercicio."
+      },
+      "checkpoint": {
+        "prompt": "¿Por qué una instrucción temporal no debería convertirse siempre en una Project Rule?",
+        "answer": "Las reglas consumen contexto y persisten entre tareas. Solo deben incluir conocimiento duradero, de alcance preciso y necesario de forma recurrente; los procedimientos pueden encajar mejor en Skills, mientras que las necesidades puntuales corresponden al contrato de tarea."
+      },
+      "takeaway": "La personalización es valiosa cuando facilita la producción de evidencia recurrente sin expandir silenciosamente la autoridad."
+    },
+    "cloud-parallel": {
+      "kicker": "Lección 8",
+      "title": "Utilice de forma deliberada agentes locales, worktrees y Cloud Agents",
+      "summary": "Paralice solo trabajos independientes, prepare entornos completos y asigne de forma explícita las responsabilidades de integración y seguridad.",
+      "objective": "Diseñe un flujo de trabajo de dos agentes con ámbitos separados, ramas o worktrees aislados, resultados explícitos y una única persona responsable de la integración.",
+      "sections": [
+        {
+          "heading": "Elija el entorno según las necesidades de la tarea",
+          "body": "Un agente local utiliza su máquina y repositorio actuales. Un worktree aísla una rama y conserva las herramientas locales. Un Cloud Agent se ejecuta en una VM aislada y puede continuar aunque su portátil esté desconectado. El éxito en cloud depende de un entorno completo: repositorios clonados, dependencias, comandos de inicio, acceso a la red y secretos suministrados mediante mecanismos aprobados. Los Run Modes locales no rigen Cloud Agents. Antes del traspaso, confirme dónde se encuentra el trabajo local sin commit, qué datos entran en la VM, a qué dominios externos se puede acceder y cómo se devuelven los resultados."
+        },
+        {
+          "heading": "Paralelice las preguntas, no la incertidumbre",
+          "body": "Las buenas tareas paralelas abarcan archivos o conjuntos de evidencia separados, tienen interfaces estables, producen resultados explícitos y no dejan decisiones compartidas sin resolver. Los Subagents de Cursor utilizan ventanas de contexto independientes, pero comparten de forma predeterminada el checkout del agente principal: aislar el contexto no aísla los archivos. Use Subagents en modo readonly para auditorías independientes, o solicite copias aisladas del proyecto antes de realizar ediciones que puedan solaparse. readonly restringe los cambios en archivos locales y las modificaciones mediante shell, pero no elimina las herramientas MCP heredadas ni otras herramientas externas con capacidad de escritura. Revise las herramientas y credenciales heredadas y utilice un entorno aislado con privilegios mínimos para cualquier sistema externo. Dos agentes escribiendo en el mismo archivo, dos agentes que dependan de un esquema aún no acordado o varias modificaciones simultáneas de un sistema de producción son situaciones peligrosas de forma predeterminada. Agents Window hace visibles las ejecuciones, pero la visibilidad no elimina el coste de coordinación. Designe a una única persona responsable de la integración para comparar resultados, resolver conflictos y decidir qué entra en el estado combinado."
+        },
+        {
+          "heading": "Verifique la integración en el estado combinado",
+          "body": "Cada rama puede superar sus propias comprobaciones y, aun así, fallar al combinarse con las demás. Revise cada traspaso para detectar supuestos, archivos modificados, comprobaciones realizadas y riesgos sin resolver. Integre de forma deliberada y vuelva a verificar el estado combinado. Cloud Builds muestra el estado del entorno, los registros, las revisiones y el historial de configuración; utilice estos elementos como evidencia, no como garantía. Prefiera OIDC o credenciales de corta duración cuando sean compatibles, restrinja el acceso saliente y mantenga las escrituras externas sujetas a aprobación. No presuponga que los Hooks locales se ejecutarán de la misma manera en Cloud Agents; compruebe qué Hooks admite y configura el entorno real. Las Automations pueden, de forma predeterminada, crear pull requests, utilizar memoria persistente y usar herramientas de control del ordenador. Empiece con un repositorio sintético, sin credenciales de producción, con la red y las herramientas restringidas y una revisión humana obligatoria; habilite una capacidad cada vez y solo después de una simulación."
+        }
+      ],
+      "practice": {
+        "title": "Diseñe un traspaso paralelo seguro",
+        "brief": "Divida una investigación en dos tareas independientes de solo lectura y produzca después un plan de integración sin fusionar ni desplegar.",
+        "steps": [
+          "Escriba dos tarjetas de tareas con ámbitos disjuntos, resultados de evidencia explícitos, una elección de entorno y un supuesto compartido claramente nombrado que ya esté resuelto.",
+          "Ejecute o simule cada tarea en un worktree o Cloud Agent local independiente y conserve su rama, archivos, comandos y limitaciones.",
+          "Como responsable de la integración, compare ambos traspasos y anote las comprobaciones exactas del estado combinado necesarias antes de cualquier fusión."
+        ],
+        "evidence": [
+          "Dos tarjetas de tareas y dos traspasos independientes, con ámbitos que no se superponen.",
+          "Una lista de verificación de integración que cubre suposiciones, conflictos, verificaciones combinadas y la decisión humana final."
+        ],
+        "safety": "Mantenga ambas asignaciones como de solo lectura o limitadas a ramas desechables. No exponga secretos reales ni generalice las aprobaciones locales para la ejecución en la nube."
+      },
+      "checkpoint": {
+        "prompt": "¿Qué debe suceder después de que dos ramas aisladas pasen sus propios controles?",
+        "answer": "Una persona responsable designada debe revisar los supuestos y los diffs combinados, integrar de forma deliberada y volver a comprobar el estado combinado."
+      },
+      "takeaway": "El aislamiento evita las sobrescrituras; solo una responsabilidad de integración claramente asignada y la verificación del estado combinado permiten gestionar el riesgo de interacción."
+    },
+    "software-studio": {
+      "kicker": "Lección 9",
+      "title": "Estudio de software: implemente una función acotada",
+      "summary": "Combine la orientación del código base, un contrato de tarea, Plan Mode, una comprobación de rojo a verde, evidencia de Browser y un traspaso de ingeniería revisable.",
+      "objective": "Implemente una pequeña función en un repositorio temporal y preserve el alcance, la accesibilidad, las comprobaciones deterministas y la aprobación humana de las acciones externas.",
+      "sections": [
+        {
+          "heading": "Localice el punto de extensión existente",
+          "body": "Pida a Agent que localice las instrucciones aplicables, la ruta o el punto de entrada actual, los patrones cercanos, las pruebas y el límite de extensión más pequeño. Defina el comportamiento de aceptación antes de elegir una implementación. Las prácticas de equipos experimentados observadas en GitHub muestran expectativas versionadas para ramas, pruebas, documentación, revisión y CI, pero la política de cada repositorio sigue siendo local. No copie en su proyecto un conjunto de reglas ajeno a su contexto. Adapte el criterio observable: los archivos modificados se vinculan con el plan, las pruebas cubren el comportamiento, la documentación cambia cuando los usuarios la necesitan y la creación de pull requests externos sigue sujeta a confirmación humana."
+        },
+        {
+          "heading": "Cierre el ciclo de comportamiento",
+          "body": "Capture el fallo de una prueba focalizada o establezca una referencia reproducible, implemente el cambio coherente más pequeño y ejecute después comprobaciones focalizadas y más amplias. Utilice Browser cuando el comportamiento visual o interactivo sea importante, mantenga de forma predeterminada la aprobación manual de sus acciones y navegue solo a un origen local que haya verificado. Si un administrador empresarial ha habilitado Browser Origin Allowlist, restríngala a ese origen; esta allowlist es una capa de protección de tipo best-effort y no está disponible de forma predeterminada. Las cookies y el almacenamiento web de Browser persisten por espacio de trabajo. Para las prácticas del curso, use una cuenta sintética en un espacio de trabajo específico y desechable, y borre el estado de Browser cuando termine el ejercicio. Trate las capturas de pantalla como evidencia complementaria. Un recorrido con Browser no reemplaza las pruebas unitarias y de integración ni las comprobaciones de tipos, lint o build; una prueba superada no demuestra el orden del teclado ni descarta el recorte visual. Revise el diff completo, incluidos los archivos generados y los cambios de dependencias. Rechace cualquier limpieza ajena a la tarea, aunque parezca útil."
+        },
+        {
+          "heading": "Prepare un traspaso listo para revisión",
+          "body": "Resuma el resultado visible para el usuario, los archivos modificados, la evidencia de aceptación, los comandos, las observaciones de Browser y las limitaciones restantes. Si una pull request está dentro del alcance, genere primero un borrador y revise su título, descripción, pasos de prueba, capturas de pantalla y acciones manuales antes de permitir su creación externa. Una regla comunitaria que antes usaba activación manual puede comportarse de manera diferente con la semántica actual de las reglas de Cursor; por tanto, migre los flujos de trabajo antiguos a un Skill, una Command o una regla actual realmente manual. La decisión final de crear un commit, hacer push, fusionar o desplegar debe seguir siendo explícita."
+        }
+      ],
+      "practice": {
+        "title": "Implemente un filtro accesible",
+        "brief": "Utilice la demostración proporcionada, similar a la del proyecto final, u otro proyecto temporal para añadir un filtro operable mediante teclado sin dependencias nuevas.",
+        "steps": [
+          "Oriente el repositorio, escriba la aceptación del comportamiento del mouse y el teclado y apruebe un plan limitado a la fuente más los archivos de prueba específicos.",
+          "Observe que la prueba enfocada falla, implemente el cambio más pequeño y ejecute pruebas, tipos o lints y verificaciones de compilación disponibles en el proyecto.",
+          "Utilice Browser con aprobación manual en un origen local verificado; si su empresa ofrece Browser Origin Allowlist, añada únicamente ese origen. Inspeccione el diff completo y prepare un borrador de traspaso sin hacer push, merge ni deployment."
+        ],
+        "evidence": [
+          "Los resultados de prueba rojo-verde, acompañados de notas Browser sobre el teclado y el comportamiento visual.",
+          "Una lista revisada de archivos modificados y un borrador de traspaso que indique cada verificación no realizada."
+        ],
+        "safety": "Utilice un repositorio temporal y un origen local. Mantenga la instalación de dependencias, la creación de pull requests externas, los push, los merge y los deployments fuera del alcance."
+      },
+      "checkpoint": {
+        "prompt": "¿Por qué un resultado de Browser visualmente correcto no completa la verificación del software?",
+        "answer": "Es posible que pase por alto fallos de lógica, tipos, regresión, build, accesibilidad o entre rutas. Combine la evidencia visual con comprobaciones deterministas del proyecto y la revisión de los diffs."
+      },
+      "takeaway": "Un resultado de ingeniería sólido vincula el comportamiento del usuario con la evidencia del repositorio, un diff mínimo, comprobaciones nuevas y un traspaso revisable."
+    },
+    "research-studio": {
+      "kicker": "Lección 10",
+      "title": "Estudio de investigación: preserve la procedencia y los resultados negativos",
+      "summary": "Utilice Cursor como socio de investigación orientado a artefactos mientras mantiene separables las hipótesis, las fuentes de evidencia, el linaje de datos, las comprobaciones, los resultados y las decisiones.",
+      "objective": "Ejecute un pequeño análisis reproducible cuyo registro de afirmaciones y archivos permitan a otro investigador distinguir los hechos extraídos de las fuentes, los cálculos, la interpretación y la incertidumbre.",
+      "sections": [
+        {
+          "heading": "Registre la pregunta y el límite de las fuentes",
+          "body": "Comience con una pregunta de investigación, la evidencia esperada, un conjunto de datos o una instantánea del corpus, reglas de inclusión y afirmaciones que Cursor no debe inferir. Pídale a Agent que busque en el espacio de trabajo y cite archivos, filas, páginas o URL exactos. Cree un registro de afirmaciones con campos para afirmación, fuente, ubicación, estado e incertidumbre. La búsqueda con Browser puede localizar material, pero las fuentes primarias y el acceso legal siguen siendo el límite de la evidencia. No permita que una narrativa atractiva determine qué observaciones se conservan. Separe el diseño de la investigación, la preparación, el análisis y la interpretación de los datos antes de la ejecución."
+        },
+        {
+          "heading": "Haga del sistema de archivos una memoria duradera",
+          "body": "Un flujo de trabajo de investigación empírica usado con Cursor y auditado en la práctica incluye carpetas de experimentos, scripts, instantáneas de datos, comprobaciones de integridad, controles de fugas, metadatos de ejecución, resultados y decisiones explícitas. Esto no prueba que sus conclusiones sobre el dominio sean correctas; solo muestra una arquitectura revisable. Almacene entradas, parámetros, detalles del entorno, comandos, registros, salidas y notas de error en artefactos con nombre en lugar de depender de una conversación larga. Conserve los hallazgos negativos y las hipótesis abandonadas. Pida a Cursor que escriba los datos derivados por separado de los datos de origen y que se detenga cuando falte una fuente requerida o un control de validación."
+        },
+        {
+          "heading": "Verifique los cálculos y las afirmaciones de forma independiente",
+          "body": "Realice comprobaciones de integridad antes del análisis: esquema, valores ausentes, duplicados, rangos, fugas y pequeños casos calculados manualmente. Registre la revisión del código y las semillas de los generadores aleatorios. Compare los resultados clave con un método independiente cuando sea posible. Después, relacione cada afirmación escrita con un resultado y una fuente. Etiquete claramente las inferencias y las limitaciones. Cursor puede ayudar a generar código y prosa, pero ni una ejecución limpia ni una explicación fluida establecen la validez. Mantenga visible la decisión humana sobre los métodos, la interpretación, la ética y la publicación."
+        }
+      ],
+      "practice": {
+        "title": "Realice un pequeño estudio centrado en los artefactos",
+        "brief": "Utilice un CSV sintético para probar una hipótesis descriptiva previamente registrada y conservar cada entrada, verificación, salida y decisión.",
+        "steps": [
+          "Cree una pregunta, una hipótesis, un diccionario de datos, una instantánea del conjunto de datos sintéticos y un registro de afirmaciones antes de pedirle a Cursor que analice cualquier cosa.",
+          "Pídale a Agent que escriba y ejecute esquemas, faltantes, duplicados, rangos y cálculos verificables manualmente antes del análisis principal.",
+          "Guarde el script, el entorno, el registro, la tabla de resultados, los hallazgos negativos, la interpretación, las limitaciones y la decisión final en artefactos separados."
+        ],
+        "evidence": [
+          "Una carpeta de experimentos reproducible con entradas sintéticas inmutables, comandos, comprobaciones, salidas y metadatos de revisión.",
+          "Un registro de afirmaciones que distingue los hechos extraídos de las fuentes, los resultados calculados, la interpretación, la incertidumbre y las afirmaciones no respaldadas."
+        ],
+        "safety": "Utilice únicamente datos sintéticos. No atribuya validez causal, médica, financiera ni educativa a este ejercicio de análisis."
+      },
+      "checkpoint": {
+        "prompt": "¿Qué prueba una ejecución exitosa de un script?",
+        "answer": "Que el cálculo registrado se ejecutó en ese entorno. Por sí solo no prueba un diseño sólido, datos limpios, una interpretación válida o una afirmación verdadera."
+      },
+      "takeaway": "La confianza en la investigación proviene de artefactos duraderos y afirmaciones discutibles, no de mantener más contexto dentro de una conversación."
+    },
+    "writing-studio": {
+      "kicker": "Lección 11",
+      "title": "Estudio de redacción: separe evidencia, voz e integridad",
+      "summary": "Produzca textos extensos mediante un registro de fuentes, un esquema, un borrador, una revisión de estilo, una revisión de integridad y un control de publicación, en lugar de recurrir a un prompt de generación opaco.",
+      "objective": "Produzca un documento fundamentado en fuentes cuyas afirmaciones fácticas, decisiones de autoría, ediciones de estilo y lagunas de verificación no resueltas sigan siendo visibles.",
+      "sections": [
+        {
+          "heading": "Cree un registro de fuentes antes de redactar",
+          "body": "Defina la audiencia, el propósito, la extensión, la voz, la estructura requerida, las afirmaciones prohibidas y el estilo de cita. Extraiga la evidencia en un registro que indique la fuente, la ubicación exacta, la afirmación respaldada, los límites de cita y la incertidumbre. Pida a Cursor que señale la evidencia ausente en lugar de rellenar los vacíos. Cree después un esquema que cite los elementos del registro que respaldan cada sección. Así se evita el fallo habitual de permitir que una prosa fluida exceda lo que sostienen las fuentes. Las reglas del repositorio pueden codificar requisitos estables de estilo y citación, pero las decisiones argumentales propias de la tarea corresponden al contrato actual."
+        },
+        {
+          "heading": "Separe la redacción, el estilo y la integridad",
+          "body": "La documentación de producción ofrece un ejemplo concreto de etapas separadas: planificación y esquema, redacción, controles de estilo, controles de integridad y validación del build o de los enlaces. Adapte este patrón en lugar de copiar un conjunto extenso de reglas propias de otra organización. Una revisión de estilo comprueba la claridad, la terminología, el tono, los títulos y las repeticiones. Una revisión de integridad compara cada afirmación sustancial con evidencia autorizada y la etiqueta como verificada, no verificada o contradicha. Un agente puede redactar y otro revisar un artefacto congelado, pero evite que varias personas escriban simultáneamente en el mismo texto."
+        },
+        {
+          "heading": "Mantenga al autor como responsable",
+          "body": "Cursor puede sugerir la estructura y la redacción, pero el autor decide el argumento, la interpretación, la divulgación y la publicación final. Examine las revisiones como un diff para mantener visibles los cambios sutiles de significado. Preserve los anclajes y los límites de las citas. Ejecute comprobaciones de enlaces, formato, terminología y resultados renderizados cuando corresponda. Si no puede accederse a una fuente o verificarse una afirmación, mantenga visible la brecha. Un traspaso útil indica la cobertura de fuentes, las afirmaciones sin resolver, las decisiones de estilo y las secciones que aún requieren revisión experta."
+        }
+      ],
+      "practice": {
+        "title": "Redacte un informe de 500 palabras basado en evidencia",
+        "brief": "Redacte a partir de las tres fuentes públicas proporcionadas y mantenga separados los artefactos de evidencia, esquema, borrador, estilo e integridad.",
+        "steps": [
+          "Cree un registro de afirmaciones a partir de las ubicaciones de origen exactas y luego cree un esquema que asigne cada afirmación sustantiva planificada a la evidencia del registro.",
+          "Pídale a Cursor que redacte a partir del esquema aprobado preservando las restricciones de voz e insertando un marcador de verificación explícito para cualquier espacio vacío.",
+          "Realice revisiones de estilo e integridad por separado, inspeccione los diffs, valide enlaces o citas y acepte solo ediciones cuyo significado comprenda."
+        ],
+        "evidence": [
+          "El registro de fuentes, el esquema vinculado y el borrador, sin presentar como hecho ninguna afirmación sustancial que carezca de fundamento.",
+          "Informes de estilo e integridad separados, además de una lista final de diffs y pruebas no resueltas."
+        ],
+        "safety": "Utilice fuentes públicas, respete los límites de citas y no le pida a Cursor que imite el estilo distintivo de un autor vivo."
+      },
+      "checkpoint": {
+        "prompt": "¿Por qué la revisión de estilo y la revisión de integridad deberían estar separadas?",
+        "answer": "Una prosa fluida puede ser falsa y una prosa precisa puede seguir siendo confusa. Los controles separados hacen visibles ambos tipos de juicio y evitan que uno desplace al otro."
+      },
+      "takeaway": "Deje que Cursor acelere la revisión, mientras que el registro de fuentes y la revisión del autor mantienen la evidencia y el significado bajo control humano."
+    },
+    "office-studio": {
+      "kicker": "Lección 12",
+      "title": "Office Studio: convierta archivos en decisiones revisables",
+      "summary": "Utilice contexto de carpeta primero, datos sintéticos de texto sin formato, esquemas y controles de aprobación para reuniones, documentos de productos, borradores de correo electrónico y flujos de trabajo de oficina.",
+      "objective": "Cree una carpeta de trabajo de oficina que conserve la evidencia bruta, separe la síntesis de las recomendaciones, valide los datos estructurados y someta las escrituras externas a confirmación humana.",
+      "sections": [
+        {
+          "heading": "Haga del espacio de trabajo un expediente inspeccionable",
+          "body": "Cree carpetas para las entradas brutas, las notas de trabajo, la síntesis, las decisiones y los artefactos finales. Utilice notas de reuniones, entrevistas, contactos o registros de proyectos sintéticos en texto plano, Markdown o CSV para que los cambios puedan compararse mediante diffs. Un repositorio verificado de Cursor para la gestión de productos ilustra workflows que van de la entrevista a la síntesis, la oportunidad y el PRD; un CRM en texto plano ilustra esquemas, datos versionados y validación. Son prácticas profesionales, no pruebas de que produzcan mejores decisiones. Conserve la evidencia bruta y no permita que un resumen sobrescriba la fuente."
+        },
+        {
+          "heading": "Separe fuente, síntesis, recomendación y acción",
+          "body": "Pida a Cursor que primero extraiga hechos y citas, después sintetice los temas con enlaces a la evidencia y, por último, redacte recomendaciones con supuestos y alternativas. Un paquete de reunión puede contener notas sin procesar, decisiones, responsables, plazos, preguntas abiertas y un borrador de seguimiento. Un paquete de producto puede contener evidencia de investigación, oportunidades, opciones, un PRD y criterios de decisión. Ejecute comprobaciones de esquema y coherencia en CSV o Markdown estructurado. Marque la incertidumbre y las interpretaciones controvertidas. No utilice datos personales reales en la práctica ni trate una puntuación o prioridad generadas como hechos objetivos."
+        },
+        {
+          "heading": "Mantenga las integraciones opcionales y sujetas a aprobación",
+          "body": "Cursor anunció los complementos Google Workspace para Drive, Gmail y Calendar en agosto de 2026, pero la disponibilidad y los permisos pueden cambiar. El flujo de trabajo principal debe funcionar con archivos locales o exportados, sin la integración. Si dispone de una herramienta conectada, distinga la lectura de un contexto aprobado del envío de correos, la modificación de calendarios o la escritura en sistemas externos. Previsualice cada acción externa, confirme los destinatarios y los destinos, y conserve un artefacto de auditoría local. Un Skill puede agrupar la secuencia, pero inspecciónelo y fije su revisión antes de utilizarlo. Nunca permita que la comodidad convierta una solicitud de análisis en un mensaje no autorizado o en la modificación de un registro externo."
+        }
+      ],
+      "practice": {
+        "title": "Prepare un paquete sintético de reunión para tomar decisiones",
+        "brief": "Convierta las notas y los contactos ficticios de reuniones proporcionados en un expediente validado y revisable sin conectar una cuenta externa.",
+        "steps": [
+          "Guarde por separado las notas brutas sin editar y los contactos sintéticos; defina esquemas para las decisiones, las personas responsables, las fechas límite, las preguntas abiertas y los enlaces a la evidencia.",
+          "Pida a Cursor que extraiga hechos, sintetice temas y redacte recomendaciones en archivos separados, conservando en cada cita un enlace a las notas brutas.",
+          "Valide el esquema, inspeccione el diff y prepare un borrador de seguimiento, pero no envíe el correo ni cree un evento de calendario."
+        ],
+        "evidence": [
+          "Un expediente con notas sin procesar inmutables, extracción estructurada, síntesis, recomendaciones y registro de decisiones.",
+          "La salida de verificación del esquema, junto con un borrador de seguimiento no enviado, revisado por una persona y dirigido a destinatarios sintéticos."
+        ],
+        "safety": "Utilice nombres y contenidos sintéticos. No conecte Gmail, Drive, Calendar, CRM u otro sistema externo para este ejercicio."
+      },
+      "checkpoint": {
+        "prompt": "¿Por qué un archivo de recomendación debería estar separado de los datos extraídos de la reunión?",
+        "answer": "Permite a los revisores distinguir lo que realmente dijo la fuente de la síntesis, las suposiciones, las prioridades y las acciones propuestas de Cursor."
+      },
+      "takeaway": "El trabajo de oficina se vuelve más seguro cuando la evidencia, la interpretación, la decisión y la acción externa permanecen separadas y revisables."
+    },
+    "teaching-studio": {
+      "kicker": "Lección 13",
+      "title": "Estudio de enseñanza: acompañe sin asumir el control",
+      "summary": "Diseñe con Cursor un flujo de tutoría que preserve el esfuerzo productivo, ofrezca una sola pista práctica cada vez y verifique el aprendizaje sin resolver el trabajo del estudiante.",
+      "objective": "Cree y pruebe un Skill de enseñanza o un contrato de tarea con pistas progresivas, verificación de solo lectura, protección de la privacidad y un artefacto final que pertenezca al alumno.",
+      "sections": [
+        {
+          "heading": "Proteja la autonomía del estudiante",
+          "body": "Un Skill de enseñanza para Cursor cuyo código se ha auditado limita al tutor a una acción del alumno por turno, pistas progresivas y verificación de solo lectura. El alumno ejecuta los comandos y realiza el trabajo final. Adapte este patrón a su materia y nivel. Comience por pedir al alumno su objetivo, su intento previo y su explicación. Ofrezca la pista más pequeña que permita abordar el siguiente paso, en lugar de proporcionar una solución completa. Pida una predicción antes de la ejecución y una reflexión después de recibir comentarios. Una respuesta pulida no demuestra que el alumno la comprenda."
+        },
+        {
+          "heading": "Verifique el aprendizaje, no solo la finalización de la tarea",
+          "body": "Defina evidencia de aprendizaje observable: explicar un concepto con palabras nuevas, predecir un resultado, corregir un error, comparar alternativas o transferir el principio a un ejemplo distinto. El tutor puede inspeccionar un espacio de trabajo sintético y ejecutar comprobaciones de solo lectura, pero no debe reparar el artefacto en silencio. Utilice una rúbrica que separe el proceso, la explicación, el comportamiento final y la incertidumbre. Al enseñar código, las pruebas pueden verificar el comportamiento, mientras que el razonamiento oral o escrito verifica la comprensión. Para la escritura o la investigación, exija trazabilidad y justificación de las fuentes, no solo un producto pulido."
+        },
+        {
+          "heading": "Audite el entorno de enseñanza",
+          "body": "Utilice datos sintéticos o datos de estudiantes proporcionados con consentimiento y evite colocar identidades, calificaciones, información sobre discapacidad o entregas privadas del alumnado en el espacio de trabajo. Inspeccione y fije la revisión de los Skills de enseñanza de terceros antes de instalarlos. Defina con claridad los límites para ejecutar comandos y escribir. Ofrezca al alumno una forma visible de pedir una pista más explícita o de detener al tutor. Registre qué comentarios procedieron de Cursor y qué decisiones quedaron en manos del alumno. Los productos actuales de Cursor y los programas para estudiantes no demuestran eficacia educativa; por tanto, evalúe el flujo de trabajo localmente y evite afirmaciones causales."
+        }
+      ],
+      "practice": {
+        "title": "Ejecute una lección de esfuerzo productivo de tres turnos",
+        "brief": "Cree un contrato de tutoría para una tarea de aprendizaje sintética y pruébelo sin dejar que Cursor complete la respuesta final.",
+        "steps": [
+          "Defina el objetivo de aprendizaje, el requisito previo, tres niveles de pistas, la regla de una acción por turno, la verificación de solo lectura y las opciones de parada o escalamiento controladas por el alumno.",
+          "Pida a un compañero o a un alumno simulado que intente la tarea; exija una predicción, proporcione una pista y pida al alumno que realice la siguiente acción.",
+          "Utilice una pregunta de transferencia y una rúbrica para verificar la comprensión, luego inspeccione la conversación en busca de cualquier momento en que Cursor se haya hecho cargo del trabajo."
+        ],
+        "evidence": [
+          "El contrato de tutoría o el Skill inspeccionado, con procedencia, revisión, límites de herramientas y una estrategia de pistas progresivas.",
+          "Una transcripción de tres turnos y evidencia según la rúbrica que muestre la acción del alumno, la retroalimentación, la transferencia y los conceptos erróneos restantes."
+        ],
+        "safety": "Utilice un alumno ficticio y una tarea sintética. No procese calificaciones o envíos reales, y no instale un Skill de terceros no fijado."
+      },
+      "checkpoint": {
+        "prompt": "¿Cuál es la señal más fuerte de que un tutor de Cursor apoyó el aprendizaje en lugar de simplemente terminar la tarea?",
+        "answer": "El alumno puede explicar, aplicar y transferir la idea objetivo después de acciones con apoyos graduales, mientras que el trabajo final sigue siendo suyo."
+      },
+      "takeaway": "Un buen agente docente hace posible la siguiente acción del estudiante sin actuar en su lugar."
+    },
+    "workflow-capstone": {
+      "kicker": "Lección 14",
+      "title": "Proyecto final: demostrar un flujo de trabajo completo de Cursor",
+      "summary": "Realice un cambio claramente delimitado en un proyecto de prueba reproducible y entregue un paquete que conecte contrato de tarea, orientación, plan, diff, verificaciones, revisión y traspaso transparente.",
+      "objective": "Genere un comprobante de autoevaluación verificable automáticamente y un paquete de evidencia legible por una persona, de modo que otro responsable de mantenimiento pueda reproducir el razonamiento sin tener que adivinar pasos.",
+      "sections": [
+        {
+          "heading": "Fije el alcance antes de ejecutar",
+          "body": "Descargue el archivo ZIP inicial proporcionado y verifíquelo mediante el SHA-256 publicado para ese archivo. El archivo interno course-fixture.json tiene un SHA-256 independiente que utiliza el comprobante de autoverificación; no compare el ZIP con ese valor. La tarea es deliberadamente pequeña: añadir un filtro de cursos «Incompletos» accesible mediante teclado, conservar las dos rutas existentes, no añadir dependencias y no autorizar ninguna acción externa. Pida a Cursor que se oriente en el proyecto de prueba antes de editar. Apruebe un plan que nombre la prueba focalizada, la zona de implementación más pequeña, verificaciones más amplias, observación con Browser y revisión completa del diff. Un proyecto final demuestra control del proceso, no novedad ni volumen de código."
+        },
+        {
+          "heading": "Construya la cadena de evidencia",
+          "body": "Ejecute la prueba focalizada para capturar el estado de fallo esperado. Implemente el cambio coherente más pequeño y después ejecute pruebas, lint, build y verificaciones de rutas, teclado y dependencias. Revise cada archivo modificado y mantenga la aprobación manual de las acciones de Browser en el origen local verificado. Si su organización ofrece Browser Origin Allowlist para empresas, limítela a ese origen como control best-effort adicional. Si una verificación no puede ejecutarse, repare el entorno o documente la brecha; nunca altere el verificador ni el comprobante para fabricar un éxito. Los artefactos deben formar una cadena trazable: del contrato de tarea a la orientación, del plan al diff, de los criterios de aceptación a las verificaciones y de estas al traspaso."
+        },
+        {
+          "heading": "Entregue evidencia, no una mera afirmación de finalización",
+          "body": "Ejecute el verificador del proyecto de prueba para generar un comprobante estructurado de autoverificación vinculado a la versión publicada del proyecto de prueba y al hash del archivo interno de prueba. El comprobante registra los resultados declarados de las verificaciones. Como el verificador se ejecuta de forma local y el comprobante no está firmado, este no demuestra que se hayan ejecutado los comandos, no acredita la identidad ni sustituye la revisión de los artefactos. Péguelo en el verificador del curso y prepare después el paquete para revisión humana: contrato de tarea, nota de orientación, plan aprobado, diff revisado, registro de verificación y traspaso al responsable de mantenimiento. Indique qué no pudo verificar Cursor, qué quedó sin ejecutar y qué decisiones siguen reservadas a una persona. No haga push, merge o deployment ni cambie un sistema externo. El proyecto final concluye cuando otra persona puede reproducir el razonamiento y decidir la siguiente acción."
+        }
+      ],
+      "practice": {
+        "title": "Complete el proyecto de prueba de Cursor",
+        "brief": "Añada el filtro «Incompletos» a la demostración descargada y genere un comprobante de autoverificación estructuralmente válido sin modificar el verificador ni el conjunto de dependencias.",
+        "steps": [
+        "Verifique el hash del archivo ZIP, instale las dependencias a partir del archivo de bloqueo, examine el código fuente, la prueba focalizada, los scripts y los dos archivos de ruta, y guarde el contrato, la orientación y el plan aprobado.",
+          "Capture el fallo focalizado, implemente el filtro accesible, ejecute todas las verificaciones requeridas, use Browser en la ruta local y revise el diff completo.",
+          "Ejecute el verificador del proyecto de prueba, conserve course-receipt.json, pegue su contenido a continuación y prepare un traspaso con resultados, limitaciones y las siguientes acciones que continúan sin autorización."
+        ],
+        "evidence": [
+          "Un paquete revisado con contrato, orientación, plan, diff, resultados nuevos de verificación, nota Browser y limitaciones.",
+          "Un archivo course-receipt.json estructuralmente válido que corresponda al esquema publicado, a la versión del proyecto de prueba, al hash del archivo interno de prueba y a las verificaciones obligatorias declaradas, acompañado por el paquete de evidencia subyacente."
+        ],
+        "safety": "Trabaje únicamente dentro del proyecto de prueba descargado. No añada dependencias, no altere el verificador, no use datos reales y no haga push, merge, deployment, borrados ni contactos con sistemas externos."
+      },
+      "checkpoint": {
+        "prompt": "¿Qué hace confiable el proyecto final?",
+        "answer": "Una cadena reproducible desde una intención claramente delimitada, pasando por evidencia observada, hasta un comprobante de autoverificación vinculado al hash y un traspaso transparente, que deje explícito que el comprobante no acredita la ejecución y mantenga las decisiones externas reservadas a una persona."
+      },
+      "takeaway": "El dominio consiste en hacer revisables, de principio a fin, el alcance, el contexto, las acciones, la evidencia y las limitaciones de Cursor."
+    }
+  },
+  "quiz": {
+    "q01": {
+      "question": "¿Cuál es la primera solicitud más segura en un espacio de trabajo de Cursor desconocido?",
+      "options": {
+        "a": "Pedir a Agent que modernice todo el proyecto",
+        "b": "Solicitar un mapa de solo lectura de instrucciones, puntos de entrada, controles y riesgos",
+        "c": "Habilitar Run Everything para acelerar la configuración",
+        "d": "Iniciar un Cloud Agent con todos los secretos"
+      },
+      "explanation": "La orientación de solo lectura crea un contexto verificable sin alterar un espacio de trabajo que aún no comprende."
+    },
+    "q02": {
+      "question": "¿Qué afirmación sobre Privacy Mode es correcta?",
+      "options": {
+        "a": "Garantiza que ninguna solicitud sale del dispositivo",
+        "b": "Convierte .cursorignore en un límite completo para el terminal",
+        "c": "Controla el uso para el entrenamiento de modelos según los términos publicados por Cursor, aunque las solicitudes todavía deben procesarse",
+        "d": "Elimina la necesidad de utilizar datos sintéticos"
+      },
+      "explanation": "Privacy Mode aborda los controles de uso de datos establecidos; no es una garantía de ejecución únicamente local ni un límite de acceso completo."
+    },
+    "q03": {
+      "question": "¿Cómo se debe tratar una sugerencia de Cursor Tab?",
+      "options": {
+        "a": "Como una propuesta que debe inspeccionarse por completo antes de aceptarla",
+        "b": "Como código verificado porque apareció automáticamente",
+        "c": "Como Project Rule",
+        "d": "Como sustituto de los controles específicos"
+      },
+      "explanation": "Tab predice una próxima acción. El alumno sigue siendo responsable de la aceptación, revisión y verificación."
+    },
+    "q04": {
+      "question": "¿Cuándo es Inline Edit la interfaz adecuada?",
+      "options": {
+        "a": "Cuando una tarea necesita una investigación amplia del repositorio",
+        "b": "Cuando un despliegue requiere aprobación",
+        "c": "Cuando varios agentes deben coordinarse",
+        "d": "Cuando una región seleccionada necesita una transformación pequeña y explícita"
+      },
+      "explanation": "La selección proporciona a Inline Edit un límite útil para un cambio pequeño; los trabajos más amplios corresponden a Agent."
+    },
+    "q05": {
+      "question": "¿Cuál es la mejor evidencia que respalda una explicación de Agent?",
+      "options": {
+        "a": "Su tono seguro",
+        "b": "La duración de la conversación",
+        "c": "Archivos citados, resultados de herramientas, diffs y comprobaciones que puede inspeccionar",
+        "d": "El nombre del modelo"
+      },
+      "explanation": "La evidencia verificable del repositorio y de las herramientas respalda una afirmación; un diálogo bien redactado no."
+    },
+    "q06": {
+      "question": "¿Cómo se deben utilizar los puntos de control?",
+      "options": {
+        "a": "Como sustituto del historial de Git",
+        "b": "Como instantáneas locales prácticas que complementan un límite limpio de Git",
+        "c": "Como prueba de que se superaron las verificaciones",
+        "d": "Como control de seguridad en la nube"
+      },
+      "explanation": "Los puntos de control de Cursor ayudan a restaurar los cambios de Agent localmente, pero están separados del control de versiones duradero."
+    },
+    "q07": {
+      "question": "¿Qué elemento falta en un contrato de tarea que de otro modo estaría completo?",
+      "options": {
+        "a": "Una solicitud para utilizar la arquitectura más nueva",
+        "b": "Un largo catálogo de modelos",
+        "c": "Permiso para hacer cualquier cosa que parezca útil",
+        "d": "Comportamiento de aceptación observable y cómo se verificará"
+      },
+      "explanation": "Un contrato necesita criterios independientes de aceptación y verificación para que el resultado pueda revisarse."
+    },
+    "q08": {
+      "question": "¿Qué debería suceder cuando una restricción entra en conflicto con el resultado solicitado?",
+      "options": {
+        "a": "Cursor debería detenerse y sacar a la luz el conflicto para tomar una decisión",
+        "b": "Cursor debería eliminar silenciosamente la restricción",
+        "c": "La interpretación más amplia debería ganar",
+        "d": "La tarea debe implementar ambas alternativas"
+      },
+      "explanation": "La ambigüedad resultante debería convertirse en una decisión humana explícita y no en una opción de implementación oculta."
+    },
+    "q09": {
+      "question": "¿Cuándo es más útil Plan Mode?",
+      "options": {
+        "a": "Para aceptar una compleción evidente de Tab",
+        "b": "Para trabajos ambiguos, de varios archivos, arquitectónicos o con consecuencias",
+        "c": "Sólo después de la implementación",
+        "d": "Como garantía de que el plan es correcto"
+      },
+      "explanation": "Plan Mode proporciona investigación, aclaraciones, un plan editable y una pausa antes de una ejecución compleja."
+    },
+    "q10": {
+      "question": "¿Qué mensaje de reorientación es más preciso?",
+      "options": {
+        "a": "Vuelva a intentarlo",
+        "b": "Reescríbalo todo",
+        "c": "Mantenga el cambio de esquema validado; revise solo el orden de foco y vuelva a ejecutar la verificación del teclado",
+        "d": "Haga lo que parezca mejor"
+      },
+      "explanation": "La reorientación basada en evidencia preserva el trabajo validado e indica con precisión el nuevo límite y la comprobación necesaria."
+    },
+    "q11": {
+      "question": "¿Cuál es el primer objetivo de la depuración?",
+      "options": {
+        "a": "Reproducir el síntoma y reunir evidencia que distinga las causas",
+        "b": "Refactorizar el módulo sospechoso",
+        "c": "Añadir registros en todas partes",
+        "d": "Deshabilitar la comprobación fallida"
+      },
+      "explanation": "Una reproducción fiable y hipótesis contrapuestas impiden ediciones especulativas."
+    },
+    "q12": {
+      "question": "¿Qué debería indicar un traspaso sobre una verificación requerida que no pudo iniciarse?",
+      "options": {
+        "a": "Marcarla como aprobada porque se aprobaron pruebas más pequeñas",
+        "b": "Omitirla",
+        "c": "Probablemente sea segura",
+        "d": "No ejecutada, con el motivo exacto del bloqueo y la incertidumbre restante"
+      },
+      "explanation": "Una brecha de evidencia honesta es más útil que una afirmación de finalización sin fundamento."
+    },
+    "q13": {
+    "question": "¿Qué archivo es una Project Rule actual válida?",
+      "options": {
+        "a": ".cursor/accessibility.mdc",
+        "b": ".cursor/rules/accessibility.mdc",
+        "c": ".cursor/rules/notes.md",
+        "d": "rules.txt"
+      },
+      "explanation": "Las Project Rules actuales son archivos .mdc dentro de .cursor/rules; se ignora un archivo .md simple situado en ese directorio."
+    },
+    "q14": {
+      "question": "¿Cuál es la forma más segura de adoptar un Skill de terceros?",
+      "options": {
+        "a": "Instalar la rama main, que sigue cambiando",
+        "b": "Confiar en su número de estrellas",
+        "c": "Inspeccionar el código fuente y los permisos, fijar una revisión y probarlo después en un espacio de trabajo temporal",
+        "d": "Pegarlo en una regla global sin revisarlo"
+      },
+      "explanation": "Los Skills son instrucciones ejecutables y requieren procedencia, permisos, una revisión fijada y una evaluación de su comportamiento."
+    },
+    "q15": {
+      "question": "¿Qué configuración ofrece a las tareas de edición paralelas el límite más claro de aislamiento de archivos?",
+      "options": {
+        "a": "Dos Subagents predeterminados que editan el mismo checkout del agente principal",
+        "b": "Dos Subagents readonly a los que se pide modificar archivos",
+        "c": "Dos pestañas de chat que editan el mismo archivo",
+        "d": "Tareas separadas en copias aisladas del proyecto o en VM aisladas de Cloud Agent"
+      },
+      "explanation": "De forma predeterminada, los Subagents comparten el checkout del agente principal. Las copias aisladas del proyecto o las VM de Cloud Agent ofrecen sistemas de archivos independientes para las tareas de edición, mientras que los ámbitos separados siguen reduciendo el riesgo de coordinación."
+    },
+    "q16": {
+      "question": "¿Qué debe hacerse después de que las ramas aisladas superen sus comprobaciones por separado?",
+      "options": {
+        "a": "Revisar y verificar el estado combinado después de una integración deliberada",
+        "b": "Asumir el éxito combinado",
+        "c": "Desplegar la rama que haya terminado primero",
+        "d": "Eliminar la evidencia"
+      },
+      "explanation": "El aislamiento evita las sobrescrituras, pero no puede demostrar la compatibilidad después de la integración."
+    },
+    "q17": {
+      "question": "¿Qué debería identificar primero el plan de una funcionalidad de software?",
+      "options": {
+        "a": "El marco en línea más nuevo",
+        "b": "Un destino de despliegue",
+        "c": "El punto de extensión existente, el comportamiento de aceptación, las pruebas y el área afectada más pequeña",
+        "d": "Una reescritura completa"
+      },
+      "explanation": "La evidencia del repositorio y el comportamiento observable fundamentan la implementación en el proyecto real."
+    },
+    "q18": {
+      "question": "¿Cuál es el papel de la evidencia obtenida con Browser?",
+      "options": {
+        "a": "Reemplazar cada control determinista",
+        "b": "Complementar los controles específicos y más amplios del comportamiento visual o interactivo",
+        "c": "Demostrar todos los requisitos de accesibilidad",
+        "d": "Autorizar automáticamente orígenes externos"
+      },
+      "explanation": "La inspección con Browser aporta evidencia valiosa, pero no sustituye las comprobaciones de lógica, tipos, build y regresión ni una evaluación completa de la accesibilidad."
+    },
+    "q19": {
+      "question": "¿Qué flujo de trabajo de investigación es más reproducible?",
+      "options": {
+        "a": "Una pregunta fijada, instantáneas de fuentes y datos, comprobaciones, scripts, metadatos de ejecución, resultados, limitaciones y decisiones",
+        "b": "Una larga conversación sin archivos guardados",
+        "c": "Un resumen pulido sin código",
+        "d": "Solo resultados positivos"
+      },
+      "explanation": "Los artefactos duraderos permiten que otro investigador inspeccione el recorrido completo desde los datos de entrada y el método hasta el resultado y la interpretación."
+    },
+    "q20": {
+      "question": "¿Cómo se deben manejar los hallazgos negativos o nulos?",
+      "options": {
+        "a": "Eliminarlos antes de redactar",
+        "b": "Pedir a Cursor que los haga significativos",
+        "c": "Tratarlos como fallos de la interfaz",
+        "d": "Conservarlos con metadatos de ejecución, interpretación y limitaciones"
+      },
+      "explanation": "Los hallazgos negativos forman parte del registro de evidencia y protegen contra la selección narrativa."
+    },
+    "q21": {
+      "question": "¿Por qué las revisiones de estilo y de integridad deberían estar separadas?",
+      "options": {
+        "a": "Para alargar el flujo de trabajo",
+        "b": "Porque la prosa clara puede ser falsa y la prosa precisa puede ser confusa",
+        "c": "Porque las citas nunca necesitan ser revisadas",
+        "d": "Para permitir que dos agentes editen el mismo archivo simultáneamente"
+      },
+      "explanation": "Los controles separados preservan tanto la calidad de la comunicación como el respaldo factual."
+    },
+    "q22": {
+      "question": "¿Qué debería hacer Cursor cuando una fuente no puede respaldar una afirmación prevista?",
+      "options": {
+        "a": "Inferir el detalle que falta",
+        "b": "Citar otra URL que parezca adecuada",
+        "c": "Marcar la afirmación como no verificada y mantener visible la brecha de evidencia",
+        "d": "Eliminar el registro de fuentes"
+      },
+      "explanation": "Es preferible una incertidumbre visible a una declaración fluida y sin fundamento."
+    },
+    "q23": {
+      "question": "¿Cuándo puede un flujo de trabajo de oficina enviar un correo electrónico o modificar un calendario?",
+      "options": {
+        "a": "Siempre que haya una integración instalada",
+        "b": "Después de que un modelo diga que la acción es segura",
+        "c": "Cuando el borrador parece pulido",
+        "d": "Solo cuando la acción externa, el destino exacto y la aprobación estén explícitamente dentro del alcance"
+      },
+      "explanation": "Leer el contexto y modificar un sistema externo requieren niveles de autorización distintos."
+    },
+    "q24": {
+      "question": "¿Cuál es la mejor estructura de artefactos para el trabajo de oficina?",
+      "options": {
+        "a": "Separar evidencia bruta, extracción, síntesis, recomendación, decisión y acción externa",
+        "b": "Sobrescribir notas sin procesar con el resumen",
+        "c": "Almacenar todo en un solo prompt",
+        "d": "Utilizar datos personales reales para lograr realismo"
+      },
+      "explanation": "Los artefactos separados permiten revisar de forma independiente los hechos extraídos de las fuentes, la interpretación, las decisiones y los efectos secundarios."
+    },
+    "q25": {
+      "question": "¿Qué demuestra mejor el esfuerzo productivo en la tutoría con Cursor?",
+      "options": {
+        "a": "Cursor completa el trabajo final rápidamente",
+        "b": "El alumno copia una solución completa",
+        "c": "El alumno actúa, explica y transfiere la idea después de pistas progresivas",
+        "d": "El tutor ejecuta todos los comandos"
+      },
+      "explanation": "La evidencia del aprendizaje proviene de la acción, el razonamiento y la transferencia del alumno, no de la finalización de la tarea por parte del agente."
+    },
+    "q26": {
+      "question": "¿Qué debe hacer de forma predeterminada un Skill de enseñanza?",
+      "options": {
+        "a": "Revelar inmediatamente la respuesta completa",
+        "b": "Ofrecer una siguiente acción adecuada y verificar en modo solo lectura mientras el alumno realiza el trabajo",
+        "c": "Registrar calificaciones reales",
+        "d": "Ignorar la solicitud de parada del alumno"
+      },
+      "explanation": "Los turnos limitados a una sola acción y la verificación de solo lectura preservan la autonomía del alumno y hacen observable su comprensión."
+    },
+    "q27": {
+      "question": "¿Qué hace que la cadena de evidencia del proyecto final sea completa?",
+      "options": {
+        "a": "Contrato, orientación, plan aprobado, diff revisado, comprobaciones recientes, comprobante de autoverificación y traspaso transparente",
+        "b": "Un diff de gran tamaño",
+        "c": "Un despliegue automático",
+        "d": "Una afirmación de finalización"
+      },
+      "explanation": "El paquete conecta la intención acotada con evidencia revisable y mantiene las decisiones externas bajo control humano."
+    },
+    "q28": {
+      "question": "¿Qué debe hacer si el verificador del proyecto de prueba no puede generar un comprobante que declare aprobadas todas las verificaciones?",
+      "options": {
+        "a": "Editar el comprobante manualmente",
+        "b": "Cambiar el hash esperado",
+        "c": "Marcar verificaciones como aprobadas solo por confianza",
+        "d": "Reparar la tarea real o informar de la brecha de evidencia exacta sin afirmar que se ha completado"
+      },
+      "explanation": "El comprobante registra las verificaciones declaradas, pero no sustituye su evidencia. Nunca lo modifique para fabricar una afirmación de éxito."
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "Paleta de comandos de Cursor sobre el Editor con Open Agents Window seleccionado",
+      "caption": "Abra Agents Window, la vista centrada en agentes, desde la paleta de comandos de Cursor. Esta figura aparece en la documentación actual de Agents Window; Cursor Desktop 3.17 era la versión de Desktop más reciente cuando se comprobó."
+    },
+    "fig-02": {
+      "alt": "Editor de código Cursor que muestra una predicción Tab de varias líneas atenuada",
+      "caption": "Lea el cambio previsto completo antes de presionar Tab. Esta es una imagen actual del producto oficial en lugar de una captura de pantalla del sistema operativo."
+    },
+    "fig-03": {
+      "alt": "Conversación de Cursor en Agents Window junto a un archivo fuente inspeccionado",
+      "caption": "Mantenga juntos el resumen de Agent y la evidencia del repositorio para que cada afirmación siga siendo verificable."
+    },
+    "fig-04": {
+      "alt": "Compositor de prompts actual de Cursor con un comando de objetivo y el control Plan New Idea",
+      "caption": "Convierta una intención ambiciosa en un contrato de tarea acotada antes de otorgar herramientas. La imagen procede del registro de cambios de Cursor del 19 de agosto de 2026."
+    },
+    "fig-05": {
+      "alt": "Cursor Plan Mode con un plan de implementación preparado y el botón Build",
+      "caption": "Revise y edite el plan antes de seleccionar Build. La interacción sigue siendo actual, pero esta interfaz de octubre de 2025 está etiquetada como histórica."
+    },
+    "fig-06": {
+      "alt": "Cursor Editor con múltiples pestañas de agentes y diffs en paralelo",
+      "caption": "Cursor 3.0 hizo visibles las pestañas de Agent en paralelo y la revisión de diffs; cada resultado sigue necesitando una persona responsable de la integración y comprobaciones nuevas."
+    },
+    "fig-07": {
+      "alt": "Página Team Rules de Cursor que muestra una regla focalizada para React y GraphQL",
+      "caption": "Una regla específica reúne directrices duraderas; Skills y MCP cubren límites distintos para procedimientos y herramientas."
+    },
+    "fig-08": {
+      "alt": "Control de seguimiento de Cursor con las opciones de ejecución Local y Cloud",
+      "caption": "Elija deliberadamente el entorno de ejecución. Esta figura de Cursor 3.7 muestra un control de transferencia de local a nube."
+    },
+    "fig-09": {
+      "alt": "Configuración empresarial de MCP en Cursor con Browser Origin Allowlist y el control Add Origin",
+      "caption": "Este control opcional, gestionado por un administrador empresarial, restringe la navegación automática de Browser y la ejecución de herramientas MCP a los orígenes configurados, pero Cursor lo describe como un mecanismo best-effort. La mayoría de los estudiantes deben mantener la aprobación manual de las acciones de Browser y utilizar solo un origen local verificado."
+    },
+    "fig-10": {
+      "alt": "Panel Cursor Agentic Search que localiza archivos relevantes del repositorio junto a un instructor oficial",
+      "caption": "Busque antes de formular una afirmación. Esta imagen procede de Cursor Learn y está identificada como material de una interfaz histórica."
+    },
+    "fig-11": {
+      "alt": "Cursor preparó un plan con el estado actual, el enfoque, los pasos de implementación y los controles.",
+      "caption": "Este material de una interfaz histórica muestra un principio duradero: la redacción se vuelve revisable cuando la revisión de evidencia, el esquema, el borrador, el estilo y la integridad son fases distintas y planificadas."
+    },
+    "fig-12": {
+      "alt": "Compositor de prompts de Cursor con un Custom Mode fijado o un Skill seleccionado",
+      "caption": "Inspeccione y fije un Skill de flujo de trabajo antes de permitir que actúe sobre archivos de oficina o herramientas conectadas. Esta interfaz procede del registro de cambios del 19 de agosto de 2026."
+    },
+    "fig-13": {
+      "alt": "Selector de repositorio Cursor que enumera proyectos locales recientes, varias carpetas y las opciones This Computer y Cloud",
+      "caption": "Abra un espacio de trabajo de enseñanza sintético y mantenga explícitas las fuentes locales frente a las de la nube. Este selector es de Cursor 3.11."
+    },
+    "fig-14": {
+      "alt": "Panel de Cursor Cloud Builds que muestra una compilación fallida, el commit activo, el ID de la instantánea, la revisión del entorno, la lista de compilaciones y enlaces de detalles y acciones",
+      "caption": "Esta captura muestra estados y revisiones, no el contenido de los registros ni de las comprobaciones; abra los detalles y revise los registros y las comprobaciones por separado antes de aceptar la entrega."
+    }
+  },
+  "capstone": {
+    "title": "Paquete revisable de un flujo de trabajo de Cursor",
+    "summary": "Implemente en el proyecto de prueba proporcionado una función reproducible y claramente delimitada, y muestre mediante evidencia revisable que el resultado está acotado, es accesible, se ha probado y está listo para una decisión humana.",
+    "scenario": "Descargue y descomprima aicourse-cursor-demo. El archivo CourseList.tsx necesita un filtro de cursos «Incompletos» accesible mediante teclado y cubierto por CourseList.test.tsx. Cursor solo puede inspeccionar, planificar, editar y verificar dentro de este proyecto de prueba. No añada dependencias y conserve tanto / como /courses/. Los commits, pushs, pull requests, deployments, secretos reales, datos privados y escrituras externas quedan fuera del alcance.",
+    "instructions": [
+      "Contrato: añada un filtro «Incompletos» mediante controles nativos utilizables con teclado, no añada dependencias, conserve / y /courses/ y mantenga sin autorización todas las acciones externas.",
+      "Orientación: verifique el archivo ZIP descargado con su suma de comprobación, confirme mediante el verificador proporcionado el hash independiente del archivo interno de prueba, instale las dependencias a partir del archivo de bloqueo y examine CourseList.tsx, CourseList.test.tsx, los scripts del paquete, los filtros existentes y los dos puntos de entrada de ruta sin editar.",
+      "Plan: conecte el comportamiento ausente con la prueba focalizada, indique los cambios mínimos en código fuente y prueba, y establezca como controles las pruebas, lint, build, rutas, comportamiento del teclado e integridad de dependencias.",
+      "Implementación: capture el fallo focalizado esperado y después realice el cambio coherente más pequeño en CourseList.tsx y CourseList.test.tsx para el filtro «Incompletos».",
+      "Verificación: ejecute todos los comandos requeridos, examine / y /courses/ con acciones de Browser aprobadas manualmente en el origen local verificado y registre la salida real junto con cada verificación no ejecutada. Utilice Browser Origin Allowlist para empresas solo si su organización la ofrece.",
+      "Revisión: inspeccione cada archivo modificado y contraste con el diff la etiqueta, el comportamiento del control nativo, el estado pulsado, la lógica de cursos incompletos, el alcance y las restricciones de seguridad.",
+      "Traspaso: ejecute el verificador del proyecto de prueba, conserve course-receipt.json e informe del resultado, los archivos modificados, la evidencia, las limitaciones y las decisiones que siguen reservadas a una persona."
+    ],
+    "artifacts": {
+      "task-contract": {
+        "title": "Contrato de tarea",
+        "description": "Resultado delimitado, contexto de referencia, restricciones, objetivos excluidos, comportamiento de aceptación, verificación y límite de autoridad."
+      },
+      "orientation-note": {
+        "title": "Nota de orientación",
+        "description": "Datos del repositorio de solo lectura con anclajes de archivos, comportamiento actual, comprobaciones, riesgos e incertidumbre etiquetada."
+      },
+      "approved-plan": {
+        "title": "Plan aprobado",
+        "description": "Fases ordenadas con resultados, áreas afectadas, evidencia, decisiones y condiciones de parada."
+      },
+      "reviewed-diff": {
+        "title": "Diff revisado",
+        "description": "Conjunto completo de archivos modificados, con justificación del alcance, inspección de accesibilidad y conclusiones de la revisión."
+      },
+      "verification-record": {
+        "title": "Registro de verificación",
+        "description": "Evidencia nueva de fallo y éxito, verificaciones más amplias, salidas reales, notas Browser y verificaciones explícitamente no ejecutadas."
+      },
+      "handoff": {
+        "title": "Traspaso al responsable de mantenimiento",
+        "description": "Resultado conciso, resumen de cambios, verificaciones, limitaciones y decisiones humanas pendientes."
+      }
+    },
+    "rubric": {
+      "scope": {
+        "title": "Alcance y contrato, 20 puntos",
+        "description": "El resultado es observable, los objetivos excluidos son explícitos y cada archivo modificado se remonta a la tarea aprobada."
+      },
+      "safety": {
+        "title": "Entorno y seguridad, 20 puntos",
+        "description": "Los permisos son mínimos, se utilizan datos sintéticos y las acciones externas o destructivas siguen sin estar autorizadas."
+      },
+      "implementation": {
+        "title": "Calidad de implementación, 20 puntos",
+        "description": "El cambio está basado en el repositorio, está enfocado, es accesible, compatible con instrucciones locales y está libre de reescrituras no relacionadas."
+      },
+      "verification": {
+        "title": "Calidad de verificación, 25 puntos",
+        "description": "La nueva evidencia cubre el riesgo de aceptación y regresión, con un tratamiento honesto de los fracasos, las brechas y las limitaciones de Browser."
+      },
+      "handoff": {
+        "title": "Revisión y entrega, 15 puntos",
+        "description": "Se revisa el diff completo y otro responsable de mantenimiento puede reproducir los resultados, las limitaciones y las siguientes decisiones."
+      }
+    },
+    "pass": "La aprobación exige al menos 80 puntos, sin violaciones críticas de seguridad ni afirmaciones de verificación inventadas.",
+    "retry": "Si obtiene una puntuación inferior a 80, repare el vínculo de evidencia más débil y vuelva a enviar la misma tarea limitada en lugar de ampliar el alcance.",
+    "completion": "Habrá terminado cuando se verifique el formato del comprobante, esté presente la evidencia subyacente y otra persona responsable de la revisión pueda reproducir el razonamiento sin adivinar pasos."
+  }
+}

@@ -25,13 +25,23 @@ const eslintConfig = defineConfig([
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
+    "output/**",
+    ".playwright-cli/**",
+    "playwright-report/**",
+    "test-results/**",
+    ".claude/**",
     "build/**",
     "next-env.d.ts",
     // Not active site source. Course stages have their own checker and are
     // type-checked by the production build.
-    ".claude/**",
     "legacy/**",
     "course/**",
+    "examples/**/.next/**",
+    "examples/**/out/**",
+    "examples/**/node_modules/**",
+    "examples/**/next-env.d.ts",
+    // Generated third-party bundles; authored video-pilot scripts stay linted.
+    "video-pilot/**/assets/vendor/**",
   ]),
 ]);
 
