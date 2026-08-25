@@ -3,7 +3,8 @@
   --ci-surface: #ffffff;
   --ci-ink: #191b20;
   --ci-muted: #5d5d62;
-  --ci-faint: #77777d;
+  /* Small metadata must stay AA against paper, card, and shell backgrounds. */
+  --ci-faint: #68686e;
   --ci-line: #d9d3ca;
   --ci-line-strong: #bdb4a8;
   --ci-accent: #a33f2f;

@@ -1,4 +1,4 @@
-import type { APIRequestContext, Page } from "@playwright/test";
+import type { APIRequestContext, Locator, Page } from "@playwright/test";
 import axe from "axe-core";
 import {
   AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
@@ -595,6 +595,25 @@ async function expectNoHorizontalOverflow(page: Page) {
     return Math.max(root.scrollWidth, document.body.scrollWidth) - root.clientWidth;
   }), { message: "the product surface must not overflow the viewport horizontally" })
     .toBeLessThanOrEqual(1);
+}
+
+async function expectIntersectsVisualViewport(target: Locator) {
+  await target.evaluate((element) => {
+    element.scrollIntoView({ block: "center", inline: "center" });
+  });
+  await expect.poll(() => target.evaluate((element) => {
+    const viewport = window.visualViewport;
+    if (!viewport) return false;
+    const bounds = element.getBoundingClientRect();
+    const viewportRight = viewport.offsetLeft + viewport.width;
+    const viewportBottom = viewport.offsetTop + viewport.height;
+    return bounds.width > 0
+      && bounds.height > 0
+      && bounds.right > viewport.offsetLeft
+      && bounds.left < viewportRight
+      && bounds.bottom > viewport.offsetTop
+      && bounds.top < viewportBottom;
+  }), { message: "the control must intersect the 200% visual viewport" }).toBe(true);
 }
 
 async function expectPrimaryHeadingFocused(page: Page) {
@@ -1503,17 +1522,19 @@ test("Chromium 200% page zoom keeps the primary learning journey operable", asyn
 
   const start = primaryJourneyLinks(page);
   await expect(start).toHaveCount(1);
-  await start.scrollIntoViewIfNeeded();
-  await expect(start).toBeVisible();
-  await start.click();
+  await expectIntersectsVisualViewport(start);
+  await start.focus();
+  await expect(start).toBeFocused();
+  await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/en\/grok\/map-grok\/$/);
   await expectPrimaryHeadingFocused(page);
 
   const next = page.locator('[data-course-lesson-nav] a[rel="next"]');
   await expect(next).toHaveAttribute("href", "/en/grok/read-interface/");
-  await next.scrollIntoViewIfNeeded();
-  await expect(next).toBeVisible();
-  await next.click();
+  await expectIntersectsVisualViewport(next);
+  await next.focus();
+  await expect(next).toBeFocused();
+  await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/en\/grok\/read-interface\/$/);
   await expectPrimaryHeadingFocused(page);
 });

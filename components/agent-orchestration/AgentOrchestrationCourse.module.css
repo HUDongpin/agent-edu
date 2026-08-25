@@ -6,7 +6,8 @@
   --ao-green-soft: var(--green-soft);
   --ao-red: var(--red);
   --ao-red-soft: var(--red-soft);
-  --ao-gold: var(--gold-mark);
+  /* Use the readable gold for text; --gold-mark remains available for decoration. */
+  --ao-gold: var(--gold);
   --ao-violet: var(--violet);
   --ao-night: #101926;
   --ao-night-2: #19263a;

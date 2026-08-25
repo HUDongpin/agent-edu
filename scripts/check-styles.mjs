@@ -161,6 +161,39 @@ function blockFor(masked, source, headerPattern) {
   return null;
 }
 
+function hexCustomProperty(source, property) {
+  const match = source.match(new RegExp(`--${property}\\s*:\\s*(#[0-9a-f]{6})\\s*;`, "i"));
+  return match?.[1] ?? null;
+}
+
+function relativeLuminance(hex) {
+  const channels = hex.slice(1).match(/.{2}/g).map((channel) => Number.parseInt(channel, 16) / 255);
+  const linear = channels.map((channel) => (
+    channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+  ));
+  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+}
+
+function contrastRatio(first, second) {
+  const firstLuminance = relativeLuminance(first);
+  const secondLuminance = relativeLuminance(second);
+  return (Math.max(firstLuminance, secondLuminance) + 0.05)
+    / (Math.min(firstLuminance, secondLuminance) + 0.05);
+}
+
+function requireTextContrast(issues, label, foreground, backgrounds, minimum = 4.5) {
+  if (!foreground || backgrounds.some((background) => !background)) {
+    issues.push(`${label}: unable to resolve the declared contrast tokens`);
+    return;
+  }
+  for (const background of backgrounds) {
+    const ratio = contrastRatio(foreground, background);
+    if (ratio < minimum) {
+      issues.push(`${label}: ${foreground} on ${background} is ${ratio.toFixed(3)}:1; expected at least ${minimum}:1`);
+    }
+  }
+}
+
 function runScannerSelfTest() {
   scanDelimiters(
     'a[data-label="}"]{content:"[not syntax]";transform:translate(calc(1px + 2px));/* } ] */}',
@@ -179,6 +212,7 @@ runScannerSelfTest();
 
 const issues = [];
 const files = trackedCssFiles();
+const sources = new Map();
 let importCount = 0;
 let globalsMasked = "";
 let globalsSource = "";
@@ -188,6 +222,7 @@ if (!files.includes(GLOBALS)) issues.push("app/globals.css is not part of the tr
 for (const path of files) {
   const label = repoPath(path);
   const source = readFileSync(path, "utf8");
+  sources.set(label, source);
   try {
     const masked = scanDelimiters(source, label);
     if (path === GLOBALS) {
@@ -207,6 +242,38 @@ for (const path of files) {
     } else if (!existsSync(imported.target) || !lstatSync(imported.target).isFile()) {
       issues.push(`${label}: unresolved local @import: ${imported.specifier}`);
     }
+  }
+}
+
+const claudeIncomeCss = sources.get("components/claude-income/ClaudeIncomeCourse.module.css");
+const agentOrchestrationCss = sources.get("components/agent-orchestration/AgentOrchestrationCourse.module.css");
+if (claudeIncomeCss && globalsSource) {
+  requireTextContrast(
+    issues,
+    "Claude Income light-theme metadata",
+    hexCustomProperty(claudeIncomeCss, "ci-faint"),
+    [
+      hexCustomProperty(claudeIncomeCss, "ci-paper"),
+      hexCustomProperty(claudeIncomeCss, "ci-surface"),
+      hexCustomProperty(globalsSource, "bg"),
+      hexCustomProperty(globalsSource, "bg-2"),
+    ],
+  );
+}
+if (agentOrchestrationCss && globalsSource) {
+  if (!/--ao-gold\s*:\s*var\(--gold\)\s*;/i.test(agentOrchestrationCss)) {
+    issues.push("Agent Orchestration text gold must resolve through the contrast-safe --gold token");
+  } else {
+    requireTextContrast(
+      issues,
+      "Agent Orchestration light-theme gold metadata",
+      hexCustomProperty(globalsSource, "gold"),
+      [
+        hexCustomProperty(globalsSource, "bg"),
+        hexCustomProperty(globalsSource, "bg-2"),
+        hexCustomProperty(globalsSource, "card"),
+      ],
+    );
   }
 }
 
