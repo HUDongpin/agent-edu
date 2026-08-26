@@ -425,7 +425,9 @@ test.describe("How to Use Grok course", () => {
   });
 
   test("catalogue, homepage, and My Learning share exact Course 5 progress", async ({ page }) => {
-    await page.addInitScript(({ key }) => {
+    await page.addInitScript(({ key, guardKey }) => {
+      if (window.sessionStorage.getItem(guardKey) === "1") return;
+      window.sessionStorage.setItem(guardKey, "1");
       window.localStorage.setItem(key, JSON.stringify({
         schemaVersion: 1,
         lessons: { "map-grok": true },
@@ -434,7 +436,7 @@ test.describe("How to Use Grok course", () => {
         capstoneChecks: [false, false, false, false, false, false, false],
         capstoneReady: false,
       }));
-    }, { key: PROGRESS_KEY });
+    }, { key: PROGRESS_KEY, guardKey: `${PROGRESS_KEY}.e2e-seeded` });
 
     const catalogueResponse = await page.goto("/en/courses/");
     expect(catalogueResponse?.status()).toBe(200);
