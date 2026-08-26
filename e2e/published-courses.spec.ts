@@ -53,6 +53,7 @@ import {
   MAKE_MONEY_PROGRESS_LESSON_SLUGS,
   MAKE_MONEY_PROGRESS_SCHEMA,
 } from "../lib/progress-topology";
+import { withIsolatedRoutePage } from "../tests/published-course-test-helpers";
 import releaseSurface from "../config/course-release-surface.json" with { type: "json" };
 import { expect, test } from "./fixtures";
 
@@ -1195,27 +1196,34 @@ for (const course of publishedCourses) {
   });
 
   test(`${course.id}: dashboard has no critical or serious axe findings`, async ({ page }) => {
-    const response = await page.goto(localizedPath("en", course.routes[0]));
-    expect(response?.status(), `${course.id}: English dashboard`).toBe(200);
-    await expect(page.locator("main h1").first()).toBeVisible();
     for (const theme of ["light", "dark"] as const) {
       // Audit the same stable, persisted theme state a returning learner gets.
-      // WebKit can expose partially propagated custom-property values when a
-      // large document's data-theme attribute is mutated and axe reads it in
-      // that same rendering turn. Loading the saved choice through the real
-      // pre-hydration theme script avoids auditing a transient mixed palette;
-      // any violation in the settled light or dark product state still fails.
-      await page.evaluate(({ storageKey, selectedTheme }) => {
-        localStorage.setItem(storageKey, selectedTheme);
-      }, { storageKey: THEME_STORAGE_KEY, selectedTheme: theme });
-      await page.reload();
-      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-      await expect(page.locator("main h1").first()).toBeVisible();
-      const violations = await criticalOrSeriousAxeViolations(page);
-      expect(
-        violations,
-        `${course.id}: ${theme} critical/serious accessibility findings`,
-      ).toEqual([]);
+      // Loading each saved choice in a fresh document through the real
+      // pre-hydration theme script avoids both a transient mixed palette and
+      // cancellable prefetch work leaking into the next inventory entry.
+      await withIsolatedRoutePage(
+        page,
+        localizedPath("en", course.routes[0]),
+        async (routePage) => {
+          await expect(routePage.locator("html")).toHaveAttribute("data-theme", theme);
+          await expect(routePage.locator("main h1").first()).toBeVisible();
+          const violations = await criticalOrSeriousAxeViolations(routePage);
+          expect(
+            violations,
+            `${course.id}: ${theme} critical/serious accessibility findings`,
+          ).toEqual([]);
+        },
+        {
+          setup: async (routePage) => {
+            await routePage.addInitScript(
+              ({ storageKey, selectedTheme }) => {
+                localStorage.setItem(storageKey, selectedTheme);
+              },
+              { storageKey: THEME_STORAGE_KEY, selectedTheme: theme },
+            );
+          },
+        },
+      );
     }
   });
 
@@ -1258,10 +1266,19 @@ test("blocked courses remain 404 in English and a non-English shell locale", asy
     const dashboard = course.routes[0];
     for (const locale of ["en", "ar"] as const) {
       await test.step(`${course.id}: ${locale}`, async () => {
-        const response = await page.goto(localizedPath(locale, dashboard));
-        expect(response, `${course.id}: 404 document response`).not.toBeNull();
-        expect(response!.status(), `${course.id} must not have a public ${locale} route`).toBe(404);
-        await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/i);
+        await withIsolatedRoutePage(
+          page,
+          localizedPath(locale, dashboard),
+          async (routePage, response) => {
+            expect(
+              response.status(),
+              `${course.id} must not have a public ${locale} route`,
+            ).toBe(404);
+            await expect(routePage.locator('meta[name="robots"]'))
+              .toHaveAttribute("content", /noindex/i);
+          },
+          { expectedStatus: 404 },
+        );
       });
     }
   }
@@ -1277,12 +1294,17 @@ test("courses never emit fallback pages for unsupported content locales", async 
     checked += 1;
 
     await test.step(`${course.id}: ${unsupportedLocale}`, async () => {
-      const response = await page.goto(localizedPath(unsupportedLocale, course.routes[0]));
-      expect(response, `${course.id}: unsupported-locale document response`).not.toBeNull();
-      expect(
-        response!.status(),
-        `${course.id} must not masquerade English content as ${unsupportedLocale}`,
-      ).toBe(404);
+      await withIsolatedRoutePage(
+        page,
+        localizedPath(unsupportedLocale, course.routes[0]),
+        async (_routePage, response) => {
+          expect(
+            response.status(),
+            `${course.id} must not masquerade English content as ${unsupportedLocale}`,
+          ).toBe(404);
+        },
+        { expectedStatus: 404 },
+      );
     });
   }
   expect(checked, "the matrix must include at least one honest unsupported-locale 404")
@@ -1295,29 +1317,30 @@ test("home, catalog, and footer expose published links but no blocked hrefs", as
   );
 
   for (const path of ["/en/", "/en/courses/"] as const) {
-    const response = await page.goto(path);
-    expect(response?.status(), `${path} must be published`).toBe(200);
-    const localPaths = await page.locator("a[href]").evaluateAll((links) =>
-      links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
-    );
-    for (const segment of blockedSegments) {
-      expect(
-        localPaths.every((href) => !href.includes(segment)),
-        `${path} must not link to blocked route ${segment}`,
-      ).toBe(true);
-    }
-  }
+    await withIsolatedRoutePage(page, path, async (routePage) => {
+      const localPaths = await routePage.locator("a[href]").evaluateAll((links) =>
+        links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
+      );
+      for (const segment of blockedSegments) {
+        expect(
+          localPaths.every((href) => !href.includes(segment)),
+          `${path} must not link to blocked route ${segment}`,
+        ).toBe(true);
+      }
 
-  const catalogHrefs = new Set(await page.locator('main a[href]').evaluateAll((links) =>
-    links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
-  ));
-  const footerHrefs = new Set(await page.locator('footer a[href]').evaluateAll((links) =>
-    links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
-  ));
-  for (const course of publishedCourses) {
-    const href = localizedPath("en", course.routes[0]);
-    expect(catalogHrefs, `catalog link for ${course.id}`).toContain(href);
-    expect(footerHrefs, `footer link for ${course.id}`).toContain(href);
+      if (path !== "/en/courses/") return;
+      const catalogHrefs = new Set(await routePage.locator('main a[href]').evaluateAll((links) =>
+        links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
+      ));
+      const footerHrefs = new Set(await routePage.locator('footer a[href]').evaluateAll((links) =>
+        links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
+      ));
+      for (const course of publishedCourses) {
+        const href = localizedPath("en", course.routes[0]);
+        expect(catalogHrefs, `catalog link for ${course.id}`).toContain(href);
+        expect(footerHrefs, `footer link for ${course.id}`).toContain(href);
+      }
+    });
   }
 });
 
@@ -1341,33 +1364,37 @@ test("blocked and roadmap courses stay localized, visible, non-linkable, and rea
 
   for (const [locale, soonLabel] of Object.entries(soonLabels)) {
     await test.step(locale, async () => {
-      const response = await page.goto(`/${locale}/courses/`);
-      expect(response?.status()).toBe(200);
-      await expect(page.locator("html")).toHaveAttribute("lang", locale);
-      await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+      await withIsolatedRoutePage(page, `/${locale}/courses/`, async (routePage) => {
+        await expect(routePage.locator("html")).toHaveAttribute("lang", locale);
+        await expect(routePage.locator("html"))
+          .toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
 
-      const section = page.locator(
-        'section[aria-labelledby="catalog-coming-soon-courses-title"]',
-      );
-      await expect(section.getByRole("heading", { name: soonLabel, exact: true })).toBeVisible();
-      const cards = section.locator("li.catalog-course-card-upcoming");
-      await expect(cards).toHaveCount(upcomingCourses.length);
-      expect(await cards.evaluateAll((items) => items.map((item) => item.getAttribute("data-course-id"))))
-        .toEqual(upcomingCourses.map((course) => course.id));
-
-      for (const course of upcomingCourses) {
-        const card = section.locator(
-          `li.catalog-course-card-upcoming[data-course-id="${course.id}"]`,
+        const section = routePage.locator(
+          'section[aria-labelledby="catalog-coming-soon-courses-title"]',
         );
-        await expect(card).toHaveCount(1);
-        await expect(card.locator('[aria-disabled="true"]')).toHaveCount(1);
-        await expect(card.locator("a[href]")).toHaveCount(0);
-        await expect(card.locator(".catalog-course-status")).toHaveText(soonLabel);
-        const text = await card.innerText();
-        for (const blocker of ("blockers" in course ? course.blockers : []) ?? []) {
-          expect(text).not.toContain(blocker);
+        await expect(section.getByRole("heading", { name: soonLabel, exact: true })).toBeVisible();
+        const cards = section.locator("li.catalog-course-card-upcoming");
+        await expect(cards).toHaveCount(upcomingCourses.length);
+        expect(
+          await cards.evaluateAll((items) => (
+            items.map((item) => item.getAttribute("data-course-id"))
+          )),
+        ).toEqual(upcomingCourses.map((course) => course.id));
+
+        for (const course of upcomingCourses) {
+          const card = section.locator(
+            `li.catalog-course-card-upcoming[data-course-id="${course.id}"]`,
+          );
+          await expect(card).toHaveCount(1);
+          await expect(card.locator('[aria-disabled="true"]')).toHaveCount(1);
+          await expect(card.locator("a[href]")).toHaveCount(0);
+          await expect(card.locator(".catalog-course-status")).toHaveText(soonLabel);
+          const text = await card.innerText();
+          for (const blocker of ("blockers" in course ? course.blockers : []) ?? []) {
+            expect(text).not.toContain(blocker);
+          }
         }
-      }
+      });
     });
   }
 });
@@ -1410,15 +1437,15 @@ test("home, catalog, and footer contain no extra internal page routes", async ({
 
   for (const surface of surfaces) {
     await test.step(surface.label, async () => {
-      const response = await page.goto(surface.path);
-      expect(response?.status()).toBe(200);
-      const links = await internalPageLinks(page, surface.selector);
-      expect(links.length, `${surface.label} must expose at least one internal page link`)
-        .toBeGreaterThan(0);
-      expect(
-        links.filter((link) => !expectedPaths.has(link.pathname)),
-        `${surface.label} must not disclose a typo, blocked route, or other unregistered page`,
-      ).toEqual([]);
+      await withIsolatedRoutePage(page, surface.path, async (routePage) => {
+        const links = await internalPageLinks(routePage, surface.selector);
+        expect(links.length, `${surface.label} must expose at least one internal page link`)
+          .toBeGreaterThan(0);
+        expect(
+          links.filter((link) => !expectedPaths.has(link.pathname)),
+          `${surface.label} must not disclose a typo, blocked route, or other unregistered page`,
+        ).toEqual([]);
+      });
     });
   }
 });
@@ -1964,24 +1991,23 @@ for (const locale of ["ar", "zh-Hans"] as const) {
 test("the home hero is a bounded grid and all release widths avoid horizontal overflow", async ({ page }) => {
   for (const width of [320, 390, 768, 979, 980, 1440] as const) {
     await test.step(`${width}px`, async () => {
-      await page.setViewportSize({ width, height: 1000 });
-      const response = await page.goto("/en/");
-      expect(response?.status()).toBe(200);
-      await expectNoHorizontalOverflow(page);
+      await withIsolatedRoutePage(page, "/en/", async (routePage) => {
+        await expectNoHorizontalOverflow(routePage);
 
-      if (width !== 1440) return;
-      const hero = page.locator(".platform-hero");
-      expect(await hero.evaluate((element) => getComputedStyle(element).display)).toBe("grid");
-      const cta = await hero.locator('a[href="/en/courses/"]').boundingBox();
-      const artwork = await hero.locator(".platform-hero-art").boundingBox();
-      expect(cta, "the primary hero CTA must have layout geometry").not.toBeNull();
-      expect(artwork, "the hero artwork must have layout geometry").not.toBeNull();
-      expect(cta!.y + cta!.height, "the hero CTA must be inside the first screen")
-        .toBeLessThanOrEqual(1000);
-      expect(artwork!.y + artwork!.height, "the hero artwork must be inside the first screen")
-        .toBeLessThanOrEqual(1000);
-      expect((await hero.boundingBox())!.height, "the CSS nesting regression must stay fixed")
-        .toBeLessThan(900);
+        if (width !== 1440) return;
+        const hero = routePage.locator(".platform-hero");
+        expect(await hero.evaluate((element) => getComputedStyle(element).display)).toBe("grid");
+        const cta = await hero.locator('a[href="/en/courses/"]').boundingBox();
+        const artwork = await hero.locator(".platform-hero-art").boundingBox();
+        expect(cta, "the primary hero CTA must have layout geometry").not.toBeNull();
+        expect(artwork, "the hero artwork must have layout geometry").not.toBeNull();
+        expect(cta!.y + cta!.height, "the hero CTA must be inside the first screen")
+          .toBeLessThanOrEqual(1000);
+        expect(artwork!.y + artwork!.height, "the hero artwork must be inside the first screen")
+          .toBeLessThanOrEqual(1000);
+        expect((await hero.boundingBox())!.height, "the CSS nesting regression must stay fixed")
+          .toBeLessThan(900);
+      }, { viewport: { width, height: 1000 } });
     });
   }
 });

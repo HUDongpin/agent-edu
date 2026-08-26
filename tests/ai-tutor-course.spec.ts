@@ -8,6 +8,7 @@ import {
   AI_TUTOR_PROGRESS_VERSION_KEY,
   aiTutorModuleProgressKey,
 } from "../lib/ai-tutor";
+import { withIsolatedRoutePage } from "./published-course-test-helpers";
 
 const DASHBOARD = "/en/ai-tutor/";
 const SITE = "https://aicourse.top";
@@ -58,22 +59,21 @@ test.describe("Course 13 public curriculum and routes", () => {
   });
 
   test("dashboard and every module route render with an English canonical", async ({ page }) => {
-    const dashboardResponse = await page.goto(DASHBOARD);
-    expect(dashboardResponse?.status()).toBe(200);
-    await expect(page.locator('link[rel="canonical"]'))
-      .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
-
-    for (const slug of AI_TUTOR_MODULE_SLUGS) {
-      const route = `/en/ai-tutor/${slug}/`;
-      const response = await page.goto(route);
-      expect(response?.status(), slug).toBe(200);
-      const moduleRoot = page.getByTestId(`ai-tutor-module-${slug}`);
-      await expect(moduleRoot).toBeVisible();
-      await expect(moduleRoot).toHaveAttribute("lang", "en");
-      await expect(moduleRoot).toHaveAttribute("dir", "ltr");
-      await expect(moduleRoot.getByRole("heading", { level: 1 })).toBeVisible();
-      await expect(page.locator('link[rel="canonical"]'))
-        .toHaveAttribute("href", `${SITE}${route}`);
+    for (const [route, testId] of [
+      [DASHBOARD, "ai-tutor-course-dashboard"],
+      ...AI_TUTOR_MODULE_SLUGS.map((slug) => (
+        [`/en/ai-tutor/${slug}/`, `ai-tutor-module-${slug}`] as const
+      )),
+    ] as const) {
+      await withIsolatedRoutePage(page, route, async (routePage) => {
+        const root = routePage.getByTestId(testId);
+        await expect(root).toBeVisible();
+        await expect(root).toHaveAttribute("lang", "en");
+        await expect(root).toHaveAttribute("dir", "ltr");
+        await expect(root.getByRole("heading", { level: 1 })).toBeVisible();
+        await expect(routePage.locator('link[rel="canonical"]'))
+          .toHaveAttribute("href", `${SITE}${route}`);
+      });
     }
   });
 
@@ -83,27 +83,29 @@ test.describe("Course 13 public curriculum and routes", () => {
   });
 
   test("English metadata is truthful and unsupported course locales fail closed", async ({ page }) => {
-    await page.goto(DASHBOARD);
-    await expect(page.getByTestId("ai-tutor-course-dashboard").getByText(
-      /Course 13 is currently taught in English/,
-    )).toHaveCount(0);
-    await expect(page.locator('link[rel="canonical"]'))
-      .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
-    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(2);
-    await expect(page.locator('link[rel="alternate"][hreflang="en"]'))
-      .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
-    await expect(page.locator('link[rel="alternate"][hreflang="x-default"]'))
-      .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
+    await withIsolatedRoutePage(page, DASHBOARD, async (routePage) => {
+      await expect(routePage.getByTestId("ai-tutor-course-dashboard").getByText(
+        /Course 13 is currently taught in English/,
+      )).toHaveCount(0);
+      await expect(routePage.locator('link[rel="canonical"]'))
+        .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
+      await expect(routePage.locator('link[rel="alternate"][hreflang]')).toHaveCount(2);
+      await expect(routePage.locator('link[rel="alternate"][hreflang="en"]'))
+        .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
+      await expect(routePage.locator('link[rel="alternate"][hreflang="x-default"]'))
+        .toHaveAttribute("href", `${SITE}${DASHBOARD}`);
+    });
 
     for (const route of ["/fr/ai-tutor/", "/fr/ai-tutor/objectives-concept-map/"]) {
-      const response = await page.goto(route);
-      expect(response?.status(), route).toBe(404);
-      await expect(page.getByTestId("ai-tutor-course-dashboard")).toHaveCount(0);
+      await withIsolatedRoutePage(page, route, async (routePage) => {
+        await expect(routePage.getByTestId("ai-tutor-course-dashboard")).toHaveCount(0);
+      }, { expectedStatus: 404 });
     }
 
-    await page.goto("/fr/courses/");
-    await expect(page.locator('main a[href="/en/ai-tutor/?fromLocale=fr"]'))
-      .toBeVisible();
+    await withIsolatedRoutePage(page, "/fr/courses/", async (routePage) => {
+      await expect(routePage.locator('main a[href="/en/ai-tutor/?fromLocale=fr"]'))
+        .toBeVisible();
+    });
   });
 });
 
@@ -190,13 +192,12 @@ test.describe("Course 13 private progress", () => {
 });
 
 test("dashboard and a representative module do not overflow at 390px", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
   for (const route of [
     DASHBOARD,
     `/en/ai-tutor/${AI_TUTOR_COURSE_MANIFEST.modules.at(-1)!.slug}/`,
   ]) {
-    const response = await page.goto(route);
-    expect(response?.status(), route).toBe(200);
-    await expectNoHorizontalOverflow(page);
+    await withIsolatedRoutePage(page, route, async (routePage) => {
+      await expectNoHorizontalOverflow(routePage);
+    }, { viewport: { width: 390, height: 844 } });
   }
 });

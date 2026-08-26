@@ -12,7 +12,10 @@ import {
   isNextLinkPrefetchRequest,
   renderedDocumentLinkTargets,
 } from "./next-prefetch-test-helpers";
-import { publishedSitemapUrls } from "./published-course-test-helpers";
+import {
+  publishedSitemapUrls,
+  withIsolatedRoutePage,
+} from "./published-course-test-helpers";
 import { PLAYWRIGHT_TEST_ORIGIN } from "./playwright-test-url";
 
 const DASHBOARD = "/en/mcp/";
@@ -266,11 +269,12 @@ test.describe("Course 10 localized route contract", () => {
   test("all nine dashboards use localized content and Arabic owns the RTL surface", async ({ page }) => {
     const titles = new Map<string, string>();
     for (const locale of MCP_LOCALES) {
-      await page.goto(`/${locale}/mcp/`);
-      const dashboard = page.getByTestId("mcp-course-dashboard");
-      await expect(dashboard).toHaveAttribute("lang", locale);
-      await expect(dashboard).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-      titles.set(locale, (await dashboard.locator("h1").innerText()).trim());
+      await withIsolatedRoutePage(page, `/${locale}/mcp/`, async (routePage) => {
+        const dashboard = routePage.getByTestId("mcp-course-dashboard");
+        await expect(dashboard).toHaveAttribute("lang", locale);
+        await expect(dashboard).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+        titles.set(locale, (await dashboard.locator("h1").innerText()).trim());
+      });
     }
     const englishTitle = titles.get("en");
     expect(englishTitle).toBeTruthy();
@@ -279,15 +283,16 @@ test.describe("Course 10 localized route contract", () => {
     }
     expect(titles.get("ar")).toMatch(/[\u0600-\u06ff]/);
 
-    await page.goto("/ar/mcp/host-integrations/");
-    const lesson = page.getByTestId("mcp-lesson-host-integrations");
-    await expect(lesson).toHaveAttribute("lang", "ar");
-    await expect(lesson).toHaveAttribute("dir", "rtl");
-    for (const figureId of ["gemini-cli-mcp-inventory", "codex-cli-mcp-configuration"]) {
-      const figure = page.getByTestId(`mcp-figure-${figureId}`);
-      await expect(figure.locator("a[dir=\"ltr\"]")).toHaveCount(1);
-      expect(await figure.locator("a[dir=\"ltr\"]").evaluate((node) => getComputedStyle(node).direction)).toBe("ltr");
-    }
+    await withIsolatedRoutePage(page, "/ar/mcp/host-integrations/", async (routePage) => {
+      const lesson = routePage.getByTestId("mcp-lesson-host-integrations");
+      await expect(lesson).toHaveAttribute("lang", "ar");
+      await expect(lesson).toHaveAttribute("dir", "rtl");
+      for (const figureId of ["gemini-cli-mcp-inventory", "codex-cli-mcp-configuration"]) {
+        const figure = routePage.getByTestId(`mcp-figure-${figureId}`);
+        await expect(figure.locator("a[dir=\"ltr\"]")).toHaveCount(1);
+        expect(await figure.locator("a[dir=\"ltr\"]").evaluate((node) => getComputedStyle(node).direction)).toBe("ltr");
+      }
+    });
   });
 
   test("@browser-smoke dashboard and a real host figure render in each engine", async ({ page, browserName }) => {
@@ -583,13 +588,13 @@ test.describe.serial("Course 10 private progress, assessment, and capstone", () 
 test.describe("Course 10 accessibility and responsive delivery", () => {
   test("dashboard, interacted assessment, all labs, capstone, and Arabic host evidence pass axe", async ({ page }) => {
     test.setTimeout(120_000);
-    await page.goto(DASHBOARD);
-    await runAxe(page, DASHBOARD);
-
-    const assessment = page.locator("#assessment");
-    await assessment.getByRole("button", { name: /Begin assessment/i }).click();
-    await answerAssessment(page, 0);
-    await runAxe(page, "submitted MCP assessment");
+    await withIsolatedRoutePage(page, DASHBOARD, async (routePage) => {
+      await runAxe(routePage, DASHBOARD);
+      const assessment = routePage.locator("#assessment");
+      await assessment.getByRole("button", { name: /Begin assessment/i }).click();
+      await answerAssessment(routePage, 0);
+      await runAxe(routePage, "submitted MCP assessment");
+    });
 
     for (const path of [
       "/en/mcp/architecture-trust/",
@@ -599,14 +604,14 @@ test.describe("Course 10 accessibility and responsive delivery", () => {
       "/en/mcp/apps-tasks-capstone/",
       "/ar/mcp/host-integrations/",
     ]) {
-      await page.goto(path);
-      await runAxe(page, path);
+      await withIsolatedRoutePage(page, path, async (routePage) => {
+        await runAxe(routePage, path);
+      });
     }
   });
 
   for (const width of [320, 390, 768, 1440]) {
     test(`dashboard, interactive code, host figures, capstone, and RTL fit ${width}px`, async ({ page }) => {
-      await page.setViewportSize({ width, height: 900 });
       for (const path of [
         DASHBOARD,
         "/en/mcp/tools/",
@@ -614,18 +619,24 @@ test.describe("Course 10 accessibility and responsive delivery", () => {
         "/en/mcp/apps-tasks-capstone/",
         "/ar/mcp/host-integrations/",
       ]) {
-        await page.goto(path);
-        await waitForStableDocument(page);
-        await expectNoPageOverflow(page, path);
-        const figures = page.locator('[data-testid^="mcp-figure-"] img');
-        for (let index = 0; index < await figures.count(); index += 1) {
-          const bounds = await figures.nth(index).evaluate((node) => {
-            const rectangle = node.getBoundingClientRect();
-            return { left: rectangle.left, right: rectangle.right };
-          });
-          expect(bounds.left, `${path} figure ${index} left`).toBeGreaterThanOrEqual(-1);
-          expect(bounds.right, `${path} figure ${index} right`).toBeLessThanOrEqual(width + 1);
-        }
+        let runtime!: RuntimeAudit;
+        await withIsolatedRoutePage(page, path, async (routePage) => {
+          await waitForStableDocument(routePage);
+          await expectNoPageOverflow(routePage, path);
+          const figures = routePage.locator('[data-testid^="mcp-figure-"] img');
+          for (let index = 0; index < await figures.count(); index += 1) {
+            const bounds = await figures.nth(index).evaluate((node) => {
+              const rectangle = node.getBoundingClientRect();
+              return { left: rectangle.left, right: rectangle.right };
+            });
+            expect(bounds.left, `${path} figure ${index} left`).toBeGreaterThanOrEqual(-1);
+            expect(bounds.right, `${path} figure ${index} right`).toBeLessThanOrEqual(width + 1);
+          }
+          assertRuntimeClean(runtime, path, await renderedDocumentLinkTargets(routePage));
+        }, {
+          setup: async (routePage) => { runtime = watchRuntime(routePage); },
+          viewport: { width, height: 900 },
+        });
       }
     });
   }
@@ -658,28 +669,29 @@ test.describe("Course 10 metadata and static publication inventory", () => {
       ["ar", "", "Course"],
     ] as const) {
       const path = suffix ? `/${locale}/mcp/${suffix}/` : `/${locale}/mcp/`;
-      await page.goto(path);
-      const canonical = `https://aicourse.top${path}`;
-      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", canonical);
-      const alternates = page.locator('link[rel="alternate"][hreflang]');
-      await expect(alternates).toHaveCount(EXPECTED_HREFLANGS.length);
-      const hreflangs = (await alternates.evaluateAll((links) => links.map((link) => link.getAttribute("hreflang") || ""))).sort();
-      expect(hreflangs).toEqual(EXPECTED_HREFLANGS);
-      for (const alternateLocale of MCP_LOCALES) {
-        await expect(page.locator(`link[rel="alternate"][hreflang="${alternateLocale}"]`)).toHaveAttribute(
+      await withIsolatedRoutePage(page, path, async (routePage) => {
+        const canonical = `https://aicourse.top${path}`;
+        await expect(routePage.locator('link[rel="canonical"]')).toHaveAttribute("href", canonical);
+        const alternates = routePage.locator('link[rel="alternate"][hreflang]');
+        await expect(alternates).toHaveCount(EXPECTED_HREFLANGS.length);
+        const hreflangs = (await alternates.evaluateAll((links) => links.map((link) => link.getAttribute("hreflang") || ""))).sort();
+        expect(hreflangs).toEqual(EXPECTED_HREFLANGS);
+        for (const alternateLocale of MCP_LOCALES) {
+          await expect(routePage.locator(`link[rel="alternate"][hreflang="${alternateLocale}"]`)).toHaveAttribute(
+            "href",
+            `https://aicourse.top/${alternateLocale}/mcp/${suffix ? `${suffix}/` : ""}`,
+          );
+        }
+        await expect(routePage.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
           "href",
-          `https://aicourse.top/${alternateLocale}/mcp/${suffix ? `${suffix}/` : ""}`,
+          `https://aicourse.top/en/mcp/${suffix ? `${suffix}/` : ""}`,
         );
-      }
-      await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
-        "href",
-        `https://aicourse.top/en/mcp/${suffix ? `${suffix}/` : ""}`,
-      );
-      const jsonLd = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((text) => JSON.parse(text));
-      const serialized = JSON.stringify(jsonLd);
-      expect(serialized).toContain(`\"@type\":\"${expectedType}\"`);
-      expect(serialized).toContain(`\"inLanguage\":\"${locale}\"`);
-      expect(serialized).toContain(canonical);
+        const jsonLd = (await routePage.locator('script[type="application/ld+json"]').allTextContents()).map((text) => JSON.parse(text));
+        const serialized = JSON.stringify(jsonLd);
+        expect(serialized).toContain(`\"@type\":\"${expectedType}\"`);
+        expect(serialized).toContain(`\"inLanguage\":\"${locale}\"`);
+        expect(serialized).toContain(canonical);
+      });
     }
   });
 

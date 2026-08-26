@@ -21,7 +21,10 @@ import {
   type SoftwareEngineeringMediaRecord,
   type SoftwareEngineeringQuestionId,
 } from "../lib/software-engineering";
-import { publishedSitemapUrls } from "./published-course-test-helpers";
+import {
+  publishedSitemapUrls,
+  withIsolatedRoutePage,
+} from "./published-course-test-helpers";
 
 const DASHBOARD = "/en/software-engineering/";
 
@@ -331,34 +334,38 @@ test.describe("authentic media and immutable provenance", () => {
 test.describe("localization, metadata, and discovery", () => {
   test("only the real English dashboard materializes and localized catalogues point to it", async ({ page }) => {
     test.setTimeout(90_000);
-    let response = await page.goto(DASHBOARD);
-    expect(response?.status()).toBe(200);
-    await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    const dashboard = page.getByTestId("software-engineering-course-dashboard");
-    const heading = dashboard.getByRole("heading", {
-      level: 1,
-      name: english.meta.title,
+    await withIsolatedRoutePage(page, DASHBOARD, async (routePage) => {
+      await expect(routePage.locator("html")).toHaveAttribute("lang", "en");
+      const dashboard = routePage.getByTestId("software-engineering-course-dashboard");
+      const heading = dashboard.getByRole("heading", {
+        level: 1,
+        name: english.meta.title,
+      });
+      await expect(heading).toBeVisible();
+      await expect(heading.locator("xpath=ancestor::header[1]"))
+        .toHaveAttribute("lang", "en");
+      await expect(heading.locator("xpath=ancestor::header[1]"))
+        .toHaveAttribute("dir", "ltr");
+      await expect(dashboard.locator(
+        'section[aria-labelledby="software-engineering-curriculum-title"] ol > li span[lang="en"][dir="ltr"]',
+      )).toHaveCount(18);
     });
-    await expect(heading).toBeVisible();
-    await expect(heading.locator("xpath=ancestor::header[1]"))
-      .toHaveAttribute("lang", "en");
-    await expect(heading.locator("xpath=ancestor::header[1]"))
-      .toHaveAttribute("dir", "ltr");
-    await expect(dashboard.locator(
-      'section[aria-labelledby="software-engineering-curriculum-title"] ol > li span[lang="en"][dir="ltr"]',
-    )).toHaveCount(18);
 
     for (const locale of SOFTWARE_ENGINEERING_LOCALES.filter((candidate) => candidate !== "en")) {
       for (const suffix of ["", "agent-evaluation/"]) {
-        response = await page.goto(`/${locale}/software-engineering/${suffix}`);
-        expect(response?.status(), `${locale}/${suffix || "dashboard"}`).toBe(404);
-        await expect(page.getByTestId("software-engineering-course-dashboard")).toHaveCount(0);
+        const route = `/${locale}/software-engineering/${suffix}`;
+        await withIsolatedRoutePage(page, route, async (routePage) => {
+          await expect(routePage.getByTestId("software-engineering-course-dashboard"))
+            .toHaveCount(0);
+        }, { expectedStatus: 404 });
       }
     }
 
-    await page.goto("/ar/courses/");
-    await expect(page.locator('main a[href="/en/software-engineering/?fromLocale=ar"]'))
-      .toBeVisible();
+    await withIsolatedRoutePage(page, "/ar/courses/", async (routePage) => {
+      await expect(routePage.locator(
+        'main a[href="/en/software-engineering/?fromLocale=ar"]',
+      )).toBeVisible();
+    });
   });
 
   test("the Arabic catalogue remains RTL and declares the English course language", async ({ page }) => {
@@ -372,51 +379,56 @@ test.describe("localization, metadata, and discovery", () => {
   });
 
   test("dashboard and lesson metadata are canonical, reciprocal, and honestly English", async ({ page }) => {
-    await page.goto(DASHBOARD);
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/en/software-engineering/",
-    );
-    await expect(page.locator('link[rel="alternate"][hreflang]'))
-      .toHaveCount(2);
-    await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/en/software-engineering/",
-    );
+    await withIsolatedRoutePage(page, DASHBOARD, async (routePage) => {
+      await expect(routePage.locator('link[rel="canonical"]')).toHaveAttribute(
+        "href",
+        "https://aicourse.top/en/software-engineering/",
+      );
+      await expect(routePage.locator('link[rel="alternate"][hreflang]'))
+        .toHaveCount(2);
+      await expect(routePage.locator('link[rel="alternate"][hreflang="x-default"]'))
+        .toHaveAttribute("href", "https://aicourse.top/en/software-engineering/");
 
-    let nodes = await readJsonLdNodes(page);
-    const course = nodes.find((node) => node["@type"] === "Course");
-    expect(course).toBeTruthy();
-    expect(course?.courseCode).toBe("8");
-    expect(course?.inLanguage).toBe("en");
-    expect(course?.hasPart).toHaveLength(18);
-    expect(course?.teaches).toHaveLength(18);
-    expect(nodes.some((node) => node["@type"] === "BreadcrumbList")).toBe(true);
+      const nodes = await readJsonLdNodes(routePage);
+      const course = nodes.find((node) => node["@type"] === "Course");
+      expect(course).toBeTruthy();
+      expect(course?.courseCode).toBe("8");
+      expect(course?.inLanguage).toBe("en");
+      expect(course?.hasPart).toHaveLength(18);
+      expect(course?.teaches).toHaveLength(18);
+      expect(nodes.some((node) => node["@type"] === "BreadcrumbList")).toBe(true);
+    });
 
-    await page.goto("/en/software-engineering/agent-evaluation/");
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/en/software-engineering/agent-evaluation/",
-    );
-    await expect(page.locator('link[rel="alternate"][hreflang]'))
-      .toHaveCount(2);
-    await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/en/software-engineering/agent-evaluation/",
-    );
-    await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/en/software-engineering/agent-evaluation/",
-    );
+    await withIsolatedRoutePage(
+      page,
+      "/en/software-engineering/agent-evaluation/",
+      async (routePage) => {
+        await expect(routePage.locator('link[rel="canonical"]')).toHaveAttribute(
+          "href",
+          "https://aicourse.top/en/software-engineering/agent-evaluation/",
+        );
+        await expect(routePage.locator('link[rel="alternate"][hreflang]'))
+          .toHaveCount(2);
+        await expect(routePage.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
+          "href",
+          "https://aicourse.top/en/software-engineering/agent-evaluation/",
+        );
+        await expect(routePage.locator('link[rel="alternate"][hreflang="x-default"]'))
+          .toHaveAttribute(
+            "href",
+            "https://aicourse.top/en/software-engineering/agent-evaluation/",
+          );
 
-    nodes = await readJsonLdNodes(page);
-    const lesson = nodes.find((node) => node["@type"] === "LearningResource");
-    expect(lesson).toBeTruthy();
-    expect(lesson?.inLanguage).toBe("en");
-    expect(lesson?.educationalAlignment).toBeInstanceOf(Array);
-    expect(lesson?.educationalAlignment).not.toHaveLength(0);
-    expect((lesson?.isPartOf as JsonLdNode | undefined)?.courseCode).toBe("8");
-    expect(nodes.some((node) => node["@type"] === "BreadcrumbList")).toBe(true);
+        const nodes = await readJsonLdNodes(routePage);
+        const lesson = nodes.find((node) => node["@type"] === "LearningResource");
+        expect(lesson).toBeTruthy();
+        expect(lesson?.inLanguage).toBe("en");
+        expect(lesson?.educationalAlignment).toBeInstanceOf(Array);
+        expect(lesson?.educationalAlignment).not.toHaveLength(0);
+        expect((lesson?.isPartOf as JsonLdNode | undefined)?.courseCode).toBe("8");
+        expect(nodes.some((node) => node["@type"] === "BreadcrumbList")).toBe(true);
+      },
+    );
   });
 
   test("catalog places Course 8 after Course 7 and filters it as intermediate-to-advanced", async ({ page }) => {
@@ -767,42 +779,52 @@ test.describe("no-JavaScript and responsive publication", () => {
   });
 
   test("dashboard and lesson entry motion respect reduced-motion preferences", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto(DASHBOARD);
-    const dashboard = page.getByTestId("software-engineering-course-dashboard");
-    const heroParts = dashboard.locator("header").first().locator(":scope > div");
-    await expect(heroParts).toHaveCount(2);
-    for (const index of [0, 1]) {
-      expect(await heroParts.nth(index).evaluate((element) => getComputedStyle(element).animationName))
-        .toBe("none");
-    }
+    const setupReducedMotion = (routePage: Page) => routePage.emulateMedia({
+      reducedMotion: "reduce",
+    });
+    await withIsolatedRoutePage(page, DASHBOARD, async (routePage) => {
+      const dashboard = routePage.getByTestId("software-engineering-course-dashboard");
+      const heroParts = dashboard.locator("header").first().locator(":scope > div");
+      await expect(heroParts).toHaveCount(2);
+      for (const index of [0, 1]) {
+        expect(await heroParts.nth(index).evaluate(
+          (element) => getComputedStyle(element).animationName,
+        )).toBe("none");
+      }
+    }, { setup: setupReducedMotion });
 
-    await page.goto("/en/software-engineering/agentic-engineering-system/");
-    const lessonHero = page
-      .getByTestId("software-engineering-lesson-agentic-engineering-system")
-      .locator("header")
-      .first();
-    expect(await lessonHero.evaluate((element) => getComputedStyle(element).animationName))
-      .toBe("none");
+    await withIsolatedRoutePage(
+      page,
+      "/en/software-engineering/agentic-engineering-system/",
+      async (routePage) => {
+        const lessonHero = routePage
+          .getByTestId("software-engineering-lesson-agentic-engineering-system")
+          .locator("header")
+          .first();
+        expect(await lessonHero.evaluate((element) => getComputedStyle(element).animationName))
+          .toBe("none");
+      },
+      { setup: setupReducedMotion },
+    );
   });
 
   for (const width of [390, 768, 1440]) {
     test(`dashboard and representative English lessons do not overflow at ${width}px`, async ({ page }) => {
       test.setTimeout(90_000);
-      await page.setViewportSize({ width, height: 900 });
       for (const path of [
         DASHBOARD,
         "/en/software-engineering/security-privacy-supply-chain/",
         "/en/software-engineering/agent-evaluation/",
       ]) {
-        await page.goto(path);
-        await page.evaluate(async () => { await document.fonts.ready; });
-        const dimensions = await page.evaluate(() => ({
-          clientWidth: document.documentElement.clientWidth,
-          scrollWidth: document.documentElement.scrollWidth,
-        }));
-        expect(dimensions.scrollWidth, `${path} at ${width}px`)
-          .toBeLessThanOrEqual(dimensions.clientWidth + 1);
+        await withIsolatedRoutePage(page, path, async (routePage) => {
+          await routePage.evaluate(async () => { await document.fonts.ready; });
+          const dimensions = await routePage.evaluate(() => ({
+            clientWidth: document.documentElement.clientWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+          }));
+          expect(dimensions.scrollWidth, `${path} at ${width}px`)
+            .toBeLessThanOrEqual(dimensions.clientWidth + 1);
+        }, { viewport: { width, height: 900 } });
       }
     });
   }

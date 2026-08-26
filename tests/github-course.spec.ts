@@ -7,7 +7,10 @@ import {
   GITHUB_LOCALES,
   GITHUB_QUIZ,
 } from "../lib/github";
-import { publishedSitemapUrls } from "./published-course-test-helpers";
+import {
+  publishedSitemapUrls,
+  withIsolatedRoutePage,
+} from "./published-course-test-helpers";
 
 const dashboard = "/en/github/";
 const correctIndex: ReadonlyMap<string, number> = new Map(
@@ -435,19 +438,19 @@ test.describe("Course 6 responsive and static delivery", () => {
     test(`dashboard and RTL lesson do not overflow at ${width}px`, async ({
       page,
     }) => {
-      await page.setViewportSize({ width, height: 900 });
       for (const path of [
         dashboard,
         "/en/github/projects-office-work/",
         "/ar/github/research-reproducibility/",
       ]) {
-        await page.goto(path);
-        const overflow = await page.evaluate(
-          () =>
-            document.documentElement.scrollWidth -
-            document.documentElement.clientWidth,
-        );
-        expect(overflow).toBeLessThanOrEqual(1);
+        await withIsolatedRoutePage(page, path, async (routePage) => {
+          const overflow = await routePage.evaluate(
+            () =>
+              document.documentElement.scrollWidth -
+              document.documentElement.clientWidth,
+          );
+          expect(overflow).toBeLessThanOrEqual(1);
+        }, { viewport: { width, height: 900 } });
       }
     });
   }

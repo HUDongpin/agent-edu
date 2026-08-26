@@ -7,6 +7,7 @@ import {
   GROK_PROGRESS_STORAGE_KEY,
   grokProgressPercent,
 } from "../lib/grok/progress";
+import { withIsolatedRoutePage } from "./published-course-test-helpers";
 
 type TestLesson = {
   readonly slug: string;
@@ -547,32 +548,36 @@ test.describe("How to Use Grok course", () => {
 
   for (const locale of ["en", "de", "ar"] as const) {
     test(`${locale} standalone lesson and dashboard links expose 44px touch targets`, async ({ page }) => {
-      await page.setViewportSize({ width: 390, height: 844 });
-      const lessonResponse = await page.goto(`/${locale}/grok/map-grok/`);
-      expect(lessonResponse?.status(), locale).toBe(200);
-      const lesson = page.getByTestId("grok-lesson-map-grok");
-      await expectMinimumTouchTarget(
-        lesson.locator(`nav a[href="/${locale}/grok/"]`).first(),
-        `${locale} breadcrumb link`,
-      );
+      const viewport = { width: 390, height: 844 };
+      await withIsolatedRoutePage(page, `/${locale}/grok/map-grok/`, async (routePage) => {
+        const lesson = routePage.getByTestId("grok-lesson-map-grok");
+        await expectMinimumTouchTarget(
+          lesson.locator(`nav a[href="/${locale}/grok/"]`).first(),
+          `${locale} breadcrumb link`,
+        );
 
-      const figure = page.getByTestId("grok-figure-fig-01");
-      await figure.locator("summary").click();
-      await expectMinimumTouchTarget(
-        figure.locator('details > a[target="_blank"]'),
-        `${locale} figure-source link`,
-      );
-      await expectMinimumTouchTarget(
-        lesson.locator('section[aria-labelledby="grok-sources-title"] article > a[target="_blank"]'),
-        `${locale} source-card links`,
-      );
+        const figure = routePage.getByTestId("grok-figure-fig-01");
+        await figure.locator("summary").click();
+        await expectMinimumTouchTarget(
+          figure.locator('details > a[target="_blank"]'),
+          `${locale} figure-source link`,
+        );
+        await expectMinimumTouchTarget(
+          lesson.locator(
+            'section[aria-labelledby="grok-sources-title"] article > a[target="_blank"]',
+          ),
+          `${locale} source-card links`,
+        );
+      }, { viewport });
 
-      const dashboardResponse = await page.goto(`/${locale}/grok/`);
-      expect(dashboardResponse?.status(), locale).toBe(200);
-      await expectMinimumTouchTarget(
-        page.getByTestId("grok-course-dashboard").locator(`a[href="/${locale}/courses/"]`),
-        `${locale} catalogue-back link`,
-      );
+      await withIsolatedRoutePage(page, `/${locale}/grok/`, async (routePage) => {
+        await expectMinimumTouchTarget(
+          routePage
+            .getByTestId("grok-course-dashboard")
+            .locator(`a[href="/${locale}/courses/"]`),
+          `${locale} catalogue-back link`,
+        );
+      }, { viewport });
     });
   }
 
@@ -772,23 +777,29 @@ test.describe("How to Use Grok course", () => {
   });
 
   test("storage denial disables the capstone checklist and explains the limitation in place", async ({ page }) => {
-    await page.addInitScript(() => {
-      Object.defineProperty(Storage.prototype, "setItem", {
-        configurable: true,
-        value: () => { throw new DOMException("denied"); },
+    const denyStorage = async (routePage: Page) => {
+      await routePage.addInitScript(() => {
+        Object.defineProperty(Storage.prototype, "setItem", {
+          configurable: true,
+          value: () => { throw new DOMException("denied"); },
+        });
       });
-    });
-    await page.goto("/en/grok/capstone/");
-    const checklist = page.getByTestId("grok-capstone-checklist");
-    await expect(checklist.getByText("Browser storage is unavailable.", { exact: false })).toBeVisible();
-    const checkboxes = checklist.locator('input[type="checkbox"]');
-    await expect(checkboxes).toHaveCount(7);
-    for (const checkbox of await checkboxes.all()) await expect(checkbox).toBeDisabled();
+    };
+    await withIsolatedRoutePage(page, "/en/grok/capstone/", async (routePage) => {
+      const checklist = routePage.getByTestId("grok-capstone-checklist");
+      await expect(checklist.getByText("Browser storage is unavailable.", { exact: false }))
+        .toBeVisible();
+      const checkboxes = checklist.locator('input[type="checkbox"]');
+      await expect(checkboxes).toHaveCount(7);
+      for (const checkbox of await checkboxes.all()) await expect(checkbox).toBeDisabled();
+    }, { setup: denyStorage });
 
-    await page.goto(DASHBOARD);
-    const quiz = page.getByTestId("grok-final-quiz");
-    await expect(quiz.getByText("Browser storage is unavailable.", { exact: false })).toBeVisible();
-    await expect(quiz.getByRole("button", { name: "Begin knowledge check" })).toBeEnabled();
+    await withIsolatedRoutePage(page, DASHBOARD, async (routePage) => {
+      const quiz = routePage.getByTestId("grok-final-quiz");
+      await expect(quiz.getByText("Browser storage is unavailable.", { exact: false }))
+        .toBeVisible();
+      await expect(quiz.getByRole("button", { name: "Begin knowledge check" })).toBeEnabled();
+    }, { setup: denyStorage });
   });
 
   test("quiz fails at eleven and passes at the exact twelve-of-fourteen boundary", async ({ page }) => {
@@ -869,38 +880,42 @@ test.describe("How to Use Grok course", () => {
     ];
 
     for (const path of paths) {
-      await page.goto(path);
-      await page.locator("main").waitFor();
-      await page.evaluate(async () => {
-        await document.fonts.ready;
-      });
+      await withIsolatedRoutePage(page, path, async (routePage) => {
+        await routePage.locator("main").waitFor();
+        await routePage.evaluate(async () => {
+          await document.fonts.ready;
+        });
 
-      if (path === DASHBOARD) {
-        const quiz = page.getByTestId("grok-final-quiz");
-        await quiz.getByRole("button", { name: "Begin knowledge check" }).click();
-        await quiz.locator('input[type="radio"]').first().check();
-        await quiz.getByRole("button", { name: "Check answer" }).click();
-      } else if (path.includes("task-contracts")) {
-        await page.getByLabel("Goal", { exact: true }).fill("Produce an evidence table");
-      } else if (path.includes("capstone")) {
-        for (const checkbox of await page.getByTestId("grok-capstone-checklist").locator('input[type="checkbox"]').all()) {
-          await checkbox.check();
+        if (path === DASHBOARD) {
+          const quiz = routePage.getByTestId("grok-final-quiz");
+          await quiz.getByRole("button", { name: "Begin knowledge check" }).click();
+          await quiz.locator('input[type="radio"]').first().check();
+          await quiz.getByRole("button", { name: "Check answer" }).click();
+        } else if (path.includes("task-contracts")) {
+          await routePage.getByLabel("Goal", { exact: true }).fill("Produce an evidence table");
+        } else if (path.includes("capstone")) {
+          for (const checkbox of await routePage
+            .getByTestId("grok-capstone-checklist")
+            .locator('input[type="checkbox"]')
+            .all()) {
+            await checkbox.check();
+          }
         }
-      }
 
-      expect(await getAxeViolations(page), path).toEqual([]);
+        expect(await getAxeViolations(routePage), path).toEqual([]);
+      });
     }
   });
 
   for (const width of [390, 768, 1440]) {
     test(`dashboard and representative RTL lesson do not overflow at ${width}px`, async ({ page }) => {
-      await page.setViewportSize({ width, height: 900 });
       for (const path of [DASHBOARD, "/ar/grok/files-data/"]) {
-        await page.goto(path);
-        const overflow = await page.evaluate(() => (
-          document.documentElement.scrollWidth - document.documentElement.clientWidth
-        ));
-        expect(overflow, path).toBeLessThanOrEqual(1);
+        await withIsolatedRoutePage(page, path, async (routePage) => {
+          const overflow = await routePage.evaluate(() => (
+            document.documentElement.scrollWidth - document.documentElement.clientWidth
+          ));
+          expect(overflow, path).toBeLessThanOrEqual(1);
+        }, { viewport: { width, height: 900 } });
       }
     });
   }

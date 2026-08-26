@@ -18,6 +18,7 @@ import {
   type ClaudeIncomeQuizQuestion,
   type ClaudeIncomeUnitId,
 } from "../lib/claude-income";
+import { withIsolatedRoutePage } from "./published-course-test-helpers";
 
 const DASHBOARD = "/en/claude-income/";
 const SITE = "https://aicourse.top";
@@ -486,13 +487,14 @@ test.describe("Course 12 routes, evidence rendering, and media boundaries", () =
   }
 
   test("unknown lesson and unknown locale fail closed", async ({ page }) => {
-    let response = await page.goto("/en/claude-income/not-a-course-lesson/");
-    expect(response?.status()).toBe(404);
-    await expect(page.locator(COURSE_ROOT)).toHaveCount(0);
-
-    response = await page.goto("/zz/claude-income/");
-    expect(response?.status()).toBe(404);
-    await expect(page.locator(COURSE_ROOT)).toHaveCount(0);
+    for (const route of [
+      "/en/claude-income/not-a-course-lesson/",
+      "/zz/claude-income/",
+    ]) {
+      await withIsolatedRoutePage(page, route, async (routePage) => {
+        await expect(routePage.locator(COURSE_ROOT)).toHaveCount(0);
+      }, { expectedStatus: 404 });
+    }
   });
 });
 
@@ -500,35 +502,41 @@ test.describe("Course 12 language and search metadata boundaries", () => {
   test("only real English course routes publish while shell locales remain available in the catalogue", async ({ page }) => {
     test.setTimeout(90_000);
     expect(CLAUDE_INCOME_LOCALES).toHaveLength(9);
-    let response = await page.goto(DASHBOARD);
-    expect(response?.status()).toBe(200);
-    const dashboard = page.getByTestId("claude-income-dashboard");
-    await expect(dashboard).toHaveAttribute("lang", "en");
-    await expect(dashboard).toHaveAttribute("dir", "ltr");
-    await expect(dashboard.getByRole("heading", { level: 1 })).toHaveText(
-      CLAUDE_INCOME_COURSE.title,
-    );
+    await withIsolatedRoutePage(page, DASHBOARD, async (routePage) => {
+      const dashboard = routePage.getByTestId("claude-income-dashboard");
+      await expect(dashboard).toHaveAttribute("lang", "en");
+      await expect(dashboard).toHaveAttribute("dir", "ltr");
+      await expect(dashboard.getByRole("heading", { level: 1 })).toHaveText(
+        CLAUDE_INCOME_COURSE.title,
+      );
+    });
 
-    response = await page.goto("/en/claude-income/choose-a-money-path/");
-    expect(response?.status()).toBe(200);
-    const lesson = page.getByTestId("claude-income-lesson-choose-a-money-path");
-    await expect(lesson).toHaveAttribute("lang", "en");
-    await expect(lesson).toHaveAttribute("dir", "ltr");
-    await expect(lesson.getByRole("heading", { level: 1 })).toHaveText(
-      CLAUDE_INCOME_COURSE.lessons[0].title,
+    await withIsolatedRoutePage(
+      page,
+      "/en/claude-income/choose-a-money-path/",
+      async (routePage) => {
+        const lesson = routePage.getByTestId("claude-income-lesson-choose-a-money-path");
+        await expect(lesson).toHaveAttribute("lang", "en");
+        await expect(lesson).toHaveAttribute("dir", "ltr");
+        await expect(lesson.getByRole("heading", { level: 1 })).toHaveText(
+          CLAUDE_INCOME_COURSE.lessons[0].title,
+        );
+      },
     );
 
     for (const locale of CLAUDE_INCOME_LOCALES.filter((candidate) => candidate !== "en")) {
       for (const suffix of ["", "choose-a-money-path/"]) {
-        response = await page.goto(`/${locale}/claude-income/${suffix}`);
-        expect(response?.status(), `${locale}/${suffix || "dashboard"}`).toBe(404);
-        await expect(page.locator(COURSE_ROOT)).toHaveCount(0);
+        const route = `/${locale}/claude-income/${suffix}`;
+        await withIsolatedRoutePage(page, route, async (routePage) => {
+          await expect(routePage.locator(COURSE_ROOT)).toHaveCount(0);
+        }, { expectedStatus: 404 });
       }
     }
 
-    await page.goto("/fr/courses/");
-    await expect(page.locator('main a[href="/en/claude-income/?fromLocale=fr"]'))
-      .toBeVisible();
+    await withIsolatedRoutePage(page, "/fr/courses/", async (routePage) => {
+      await expect(routePage.locator('main a[href="/en/claude-income/?fromLocale=fr"]'))
+        .toBeVisible();
+    });
   });
 
   test("dashboard metadata publishes only the real English canonical and hreflang", async ({ page }) => {
@@ -801,16 +809,11 @@ test.describe("Course 12 resilient rendering and accessibility basics", () => {
     await expect(prompt.locator("pre code")).toHaveText(originalPrompt ?? "");
   });
 
-  test("dashboard and a figure-rich capstone have no horizontal overflow at 390, 768, or 1440 pixels", async ({ context }) => {
+  test("dashboard and a figure-rich capstone have no horizontal overflow at 390, 768, or 1440 pixels", async ({ page }) => {
     test.setTimeout(90_000);
     for (const width of [390, 768, 1440]) {
       for (const route of [DASHBOARD, "/en/claude-income/capstone-seven-day-demand-test/"]) {
-        const routePage = await context.newPage();
-        try {
-          await routePage.setViewportSize({ width, height: 900 });
-          const response = await routePage.goto(route);
-          expect(response, `${width}px ${route}: document response`).not.toBeNull();
-          expect(response!.status(), `${width}px ${route}`).toBe(200);
+        await withIsolatedRoutePage(page, route, async (routePage) => {
           await expect(routePage.locator(COURSE_ROOT)).toBeVisible();
           const measurements = await routePage.evaluate(() => ({
             innerWidth: window.innerWidth,
@@ -827,9 +830,7 @@ test.describe("Course 12 resilient rendering and accessibility basics", () => {
             const box = await image.boundingBox();
             if (box) expect(box.width, `${width}px image at ${route}`).toBeLessThanOrEqual(width);
           }
-        } finally {
-          await routePage.close();
-        }
+        }, { viewport: { width, height: 900 } });
       }
     }
   });

@@ -11,7 +11,10 @@ import {
   type RagCourseCopy,
   type RagLessonSlug,
 } from "../lib/rag/types";
-import { publishedSitemapUrls } from "./published-course-test-helpers";
+import {
+  publishedSitemapUrls,
+  withIsolatedRoutePage,
+} from "./published-course-test-helpers";
 import {
   documentUrl,
   isNextLinkPrefetchRequest,
@@ -793,88 +796,92 @@ test.describe("locale boundaries, SEO, accessibility, and responsive rendering",
     test.setTimeout(180_000);
     for (const locale of RAG_LOCALES) {
       const localizedCopy = ragCopyByLocale[locale];
-      const response = await page.goto(`/${locale}/rag/`);
-      expect(response?.status(), locale).toBe(200);
-      await expect(page.locator("html")).toHaveAttribute("lang", locale);
-      await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-      const course = page.getByTestId("rag-course-dashboard");
-      await expect(course).toHaveAttribute("lang", locale);
-      await expect(course).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-      expect(await course.evaluate((element) => getComputedStyle(element).direction))
-        .toBe(locale === "ar" ? "rtl" : "ltr");
-      await expect(course.getByRole("heading", { level: 1, name: localizedCopy.meta.title })).toBeVisible();
-      const catalogLabel = course.getByTestId("rag-catalog-label");
-      await expect(catalogLabel).toHaveAttribute("lang", locale);
-      await expect(catalogLabel).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-      await expect(catalogLabel).toHaveText(catalogLabelByLocale[locale]);
+      await withIsolatedRoutePage(page, `/${locale}/rag/`, async (routePage) => {
+        await expect(routePage.locator("html")).toHaveAttribute("lang", locale);
+        await expect(routePage.locator("html"))
+          .toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+        const course = routePage.getByTestId("rag-course-dashboard");
+        await expect(course).toHaveAttribute("lang", locale);
+        await expect(course).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+        expect(await course.evaluate((element) => getComputedStyle(element).direction))
+          .toBe(locale === "ar" ? "rtl" : "ltr");
+        await expect(course.getByRole("heading", { level: 1, name: localizedCopy.meta.title }))
+          .toBeVisible();
+        const catalogLabel = course.getByTestId("rag-catalog-label");
+        await expect(catalogLabel).toHaveAttribute("lang", locale);
+        await expect(catalogLabel).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+        await expect(catalogLabel).toHaveText(catalogLabelByLocale[locale]);
+      });
     }
 
-    await page.goto("/ar/rag/ground-and-cite/");
-    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-    const lesson = page.getByTestId("rag-lesson-ground-and-cite");
-    await expect(lesson).toHaveAttribute("lang", "ar");
-    await expect(lesson).toHaveAttribute("dir", "rtl");
-    expect(await lesson.evaluate((element) => getComputedStyle(element).direction)).toBe("rtl");
-    await expect(lesson.getByRole("heading", {
-      level: 1,
-      name: ragCopyByLocale.ar.lessons["ground-and-cite"].title,
-    })).toBeVisible();
+    await withIsolatedRoutePage(page, "/ar/rag/ground-and-cite/", async (routePage) => {
+      await expect(routePage.locator("html")).toHaveAttribute("dir", "rtl");
+      const lesson = routePage.getByTestId("rag-lesson-ground-and-cite");
+      await expect(lesson).toHaveAttribute("lang", "ar");
+      await expect(lesson).toHaveAttribute("dir", "rtl");
+      expect(await lesson.evaluate((element) => getComputedStyle(element).direction)).toBe("rtl");
+      await expect(lesson.getByRole("heading", {
+        level: 1,
+        name: ragCopyByLocale.ar.lessons["ground-and-cite"].title,
+      })).toBeVisible();
+    });
   });
 
   test("Course 9 emits self-canonical locale alternates and localized JSON-LD", async ({ page }) => {
-    await page.goto(DASHBOARD);
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/en/rag/",
-    );
-    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(RAG_LOCALES.length + 1);
-    for (const locale of RAG_LOCALES) {
-      await expect(page.locator(`link[rel="alternate"][hreflang="${locale}"]`)).toHaveAttribute(
+    await withIsolatedRoutePage(page, DASHBOARD, async (routePage) => {
+      await expect(routePage.locator('link[rel="canonical"]')).toHaveAttribute(
         "href",
-        `https://aicourse.top/${locale}/rag/`,
+        "https://aicourse.top/en/rag/",
       );
-    }
-    await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/en/rag/",
-    );
+      await expect(routePage.locator('link[rel="alternate"][hreflang]'))
+        .toHaveCount(RAG_LOCALES.length + 1);
+      for (const locale of RAG_LOCALES) {
+        await expect(
+          routePage.locator(`link[rel="alternate"][hreflang="${locale}"]`),
+        ).toHaveAttribute("href", `https://aicourse.top/${locale}/rag/`);
+      }
+      await expect(routePage.locator('link[rel="alternate"][hreflang="x-default"]'))
+        .toHaveAttribute("href", "https://aicourse.top/en/rag/");
 
-    let nodes = await readJsonLdNodes(page);
-    const course = nodes.find((node) => node["@type"] === "Course");
-    expect(course).toBeTruthy();
-    expect(course?.inLanguage).toBe("en");
-    expect(course?.url).toBe("https://aicourse.top/en/rag/");
-    expect(course?.hasPart).toHaveLength(RAG_LESSON_SLUGS.length);
-    expect((course?.hasPart as JsonLdNode[]).every((part) => (
-      typeof part.url === "string" && part.url.startsWith("https://aicourse.top/en/rag/")
-    ))).toBe(true);
-    expect((course?.hasCourseInstance as JsonLdNode)?.courseWorkload).toBe("PT780M");
-    const breadcrumb = nodes.find((node) => node["@type"] === "BreadcrumbList");
-    expect(breadcrumb).toBeTruthy();
-    expect(((breadcrumb?.itemListElement as JsonLdNode[])[0]).name).toBe(ragCopy.ui.catalogName);
+      const nodes = await readJsonLdNodes(routePage);
+      const course = nodes.find((node) => node["@type"] === "Course");
+      expect(course).toBeTruthy();
+      expect(course?.inLanguage).toBe("en");
+      expect(course?.url).toBe("https://aicourse.top/en/rag/");
+      expect(course?.hasPart).toHaveLength(RAG_LESSON_SLUGS.length);
+      expect((course?.hasPart as JsonLdNode[]).every((part) => (
+        typeof part.url === "string" && part.url.startsWith("https://aicourse.top/en/rag/")
+      ))).toBe(true);
+      expect((course?.hasCourseInstance as JsonLdNode)?.courseWorkload).toBe("PT780M");
+      const breadcrumb = nodes.find((node) => node["@type"] === "BreadcrumbList");
+      expect(breadcrumb).toBeTruthy();
+      expect(((breadcrumb?.itemListElement as JsonLdNode[])[0]).name)
+        .toBe(ragCopy.ui.catalogName);
+    });
 
-    await page.goto("/ar/rag/ground-and-cite/");
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/ar/rag/ground-and-cite/",
-    );
-    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(RAG_LOCALES.length + 1);
-    await expect(page.locator('link[rel="alternate"][hreflang="ar"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/ar/rag/ground-and-cite/",
-    );
-    await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
-      "href",
-      "https://aicourse.top/en/rag/ground-and-cite/",
-    );
-    nodes = await readJsonLdNodes(page);
-    const learningResource = nodes.find((node) => node["@type"] === "LearningResource");
-    expect(learningResource).toBeTruthy();
-    expect(learningResource?.inLanguage).toBe("ar");
-    expect(learningResource?.url).toBe("https://aicourse.top/ar/rag/ground-and-cite/");
-    expect(learningResource?.timeRequired).toBe("PT65M");
-    expect((learningResource?.isPartOf as JsonLdNode)?.url).toBe("https://aicourse.top/ar/rag/");
-    expect(nodes.some((node) => node["@type"] === "BreadcrumbList")).toBe(true);
+    await withIsolatedRoutePage(page, "/ar/rag/ground-and-cite/", async (routePage) => {
+      await expect(routePage.locator('link[rel="canonical"]')).toHaveAttribute(
+        "href",
+        "https://aicourse.top/ar/rag/ground-and-cite/",
+      );
+      await expect(routePage.locator('link[rel="alternate"][hreflang]'))
+        .toHaveCount(RAG_LOCALES.length + 1);
+      await expect(routePage.locator('link[rel="alternate"][hreflang="ar"]')).toHaveAttribute(
+        "href",
+        "https://aicourse.top/ar/rag/ground-and-cite/",
+      );
+      await expect(routePage.locator('link[rel="alternate"][hreflang="x-default"]'))
+        .toHaveAttribute("href", "https://aicourse.top/en/rag/ground-and-cite/");
+      const nodes = await readJsonLdNodes(routePage);
+      const learningResource = nodes.find((node) => node["@type"] === "LearningResource");
+      expect(learningResource).toBeTruthy();
+      expect(learningResource?.inLanguage).toBe("ar");
+      expect(learningResource?.url).toBe("https://aicourse.top/ar/rag/ground-and-cite/");
+      expect(learningResource?.timeRequired).toBe("PT65M");
+      expect((learningResource?.isPartOf as JsonLdNode)?.url)
+        .toBe("https://aicourse.top/ar/rag/");
+      expect(nodes.some((node) => node["@type"] === "BreadcrumbList")).toBe(true);
+    });
   });
 
   test("sitemap publishes the dashboard and twelve lessons in all nine locales", async ({ request }) => {
@@ -940,20 +947,20 @@ test.describe("locale boundaries, SEO, accessibility, and responsive rendering",
   for (const width of [390, 768]) {
     test(`dashboard, lab, and Arabic capstone do not overflow at ${width}px`, async ({ page }) => {
       test.setTimeout(60_000);
-      await page.setViewportSize({ width, height: 900 });
       for (const path of [
         DASHBOARD,
         "/en/rag/retrieval-engineering/",
         "/ar/rag/production-capstone/",
       ]) {
-        await page.goto(path);
-        await page.evaluate(async () => { await document.fonts.ready; });
-        const dimensions = await page.evaluate(() => ({
-          client: document.documentElement.clientWidth,
-          scroll: document.documentElement.scrollWidth,
-        }));
-        expect(dimensions.scroll, `${path} at ${width}px`)
-          .toBeLessThanOrEqual(dimensions.client + 1);
+        await withIsolatedRoutePage(page, path, async (routePage) => {
+          await routePage.evaluate(async () => { await document.fonts.ready; });
+          const dimensions = await routePage.evaluate(() => ({
+            client: document.documentElement.clientWidth,
+            scroll: document.documentElement.scrollWidth,
+          }));
+          expect(dimensions.scroll, `${path} at ${width}px`)
+            .toBeLessThanOrEqual(dimensions.client + 1);
+        }, { viewport: { width, height: 900 } });
       }
     });
   }

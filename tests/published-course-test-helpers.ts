@@ -1,7 +1,46 @@
-import { expect, type APIRequestContext } from "@playwright/test";
+import {
+  expect,
+  type APIRequestContext,
+  type Page,
+  type Response,
+  type ViewportSize,
+} from "@playwright/test";
 
 const SITE = "https://aicourse.top";
 const MAX_SITEMAP_BYTES = 500 * 1024;
+
+type IsolatedRoutePageOptions = {
+  expectedStatus?: number;
+  setup?: (page: Page) => Promise<void>;
+  viewport?: ViewportSize;
+};
+
+/**
+ * Exercise an independent document contract in a fresh Page while retaining
+ * the parent Page's protected BrowserContext. Next.js route prefetch work can
+ * outlive a document; reusing one Page for unrelated inventory entries makes
+ * WebKit occasionally cancel the next top-level navigation. A fresh Page keeps
+ * those lifecycles separate without bypassing the shared Provider and curated
+ * evidence fixtures.
+ */
+export async function withIsolatedRoutePage<T>(
+  parentPage: Page,
+  path: string,
+  assertion: (routePage: Page, response: Response) => Promise<T>,
+  options: IsolatedRoutePageOptions = {},
+): Promise<T> {
+  const routePage = await parentPage.context().newPage();
+  try {
+    if (options.viewport) await routePage.setViewportSize(options.viewport);
+    if (options.setup) await options.setup(routePage);
+    const response = await routePage.goto(path);
+    expect(response, `${path}: document response`).not.toBeNull();
+    expect(response!.status(), `${path}: document status`).toBe(options.expectedStatus ?? 200);
+    return await assertion(routePage, response!);
+  } finally {
+    if (!routePage.isClosed()) await routePage.close();
+  }
+}
 
 function decodeXmlText(value: string): string {
   return value
