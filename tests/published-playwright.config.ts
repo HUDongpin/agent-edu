@@ -24,7 +24,12 @@ export default defineConfig({
   testMatch: [...publishedTestFiles],
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
-  retries: 0,
+  /* One WebKit `page.goto` internal error anywhere in 1,066 tests fails a
+     30-minute serial run of three engines. The crashing test differs every
+     time — github+prompts one run, mcp+rag the next — which is a browser
+     crash, not a product failure. Retry in CI and let Playwright report the
+     test as flaky instead of failing the job. */
+  retries: process.env.CI ? 2 : 0,
   workers: 1,
   globalSetup: "../scripts/prepare-browser-evidence.mjs",
   expect: { timeout: 10_000 },
