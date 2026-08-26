@@ -226,11 +226,18 @@ test.describe("How to Use Grok course", () => {
         const figure = figures.nth(index);
         await expect(figure).toHaveAttribute("data-figure-status", "available");
         await expect(figure).toHaveAttribute("data-capture-sha256", /^[a-f0-9]{64}$/);
-        await expect(figure.getByRole("img")).toBeVisible();
-        const imageEvidence = await figure.getByRole("img").evaluate(async (node: HTMLImageElement) => {
+        const image = figure.getByRole("img");
+        await expect(image).toBeVisible();
+        await image.scrollIntoViewIfNeeded();
+        await expect.poll(() => image.evaluate((node: HTMLImageElement) => (
+          node.complete && node.currentSrc.length > 0 && node.naturalWidth > 0
+        ))).toBe(true);
+        const imageEvidence = await image.evaluate(async (node: HTMLImageElement) => {
           const response = await fetch(node.currentSrc);
           const bitmap = await createImageBitmap(await response.blob());
           const evidence = {
+            responseStatus: response.status,
+            contentType: response.headers.get("content-type"),
             currentPath: new URL(node.currentSrc).pathname,
             naturalWidth: node.naturalWidth,
             naturalHeight: node.naturalHeight,
@@ -240,6 +247,8 @@ test.describe("How to Use Grok course", () => {
           bitmap.close();
           return evidence;
         });
+        expect(imageEvidence.responseStatus).toBe(200);
+        expect(imageEvidence.contentType).toContain("image/webp");
         expect(imageEvidence.currentPath).toMatch(
           /^\/courses\/grok\/figures\/fig-\d{2}-[a-z0-9-]+-(?:1120|2240|mobile)\.webp$/,
         );
@@ -253,6 +262,10 @@ test.describe("How to Use Grok course", () => {
           (candidate) => figureRecord!.srcSet[candidate] === imageEvidence.currentPath,
         );
         expect(variant, imageEvidence.currentPath).toBeDefined();
+        expect(imageEvidence.naturalWidth / imageEvidence.naturalHeight).toBeCloseTo(
+          figureRecord!.derivatives[variant!].width / figureRecord!.derivatives[variant!].height,
+          2,
+        );
         expect(imageEvidence.decodedWidth).toBe(figureRecord!.derivatives[variant!].width);
         expect(imageEvidence.decodedHeight).toBe(figureRecord!.derivatives[variant!].height);
         await expect(figure.getByText("Figure provenance")).toBeVisible();
