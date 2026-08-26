@@ -9,6 +9,19 @@ function readText(root, path) {
   return readFileSync(resolve(root, path), "utf8");
 }
 
+export function vercelReleaseBuildCommandErrors(source) {
+  let config;
+  try {
+    config = JSON.parse(source);
+  } catch (error) {
+    return [`vercel.json: invalid JSON (${error.message})`];
+  }
+  if (config?.buildCommand !== "npm run build:release") {
+    return ["vercel.json: production builds must use the release-gated build command"];
+  }
+  return [];
+}
+
 /**
  * Validate the registry-derived publication wiring shared by every course gate.
  *

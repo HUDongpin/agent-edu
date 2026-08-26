@@ -19,7 +19,10 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
-import { publishedReleaseIntegrationErrors } from "./lib/published-release-contract.mjs";
+import {
+  publishedReleaseIntegrationErrors,
+  vercelReleaseBuildCommandErrors,
+} from "./lib/published-release-contract.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RELEASE = process.argv.includes("--release");
@@ -985,9 +988,7 @@ for (const error of publishedReleaseIntegrationErrors(
   "npm run make-money-with-codex:check:release",
   ["make-money-with-codex/", ...lessonContract.map((slug) => `make-money-with-codex/${slug}/`)],
 )) fail(error);
-if (!vercelText.includes('"buildCommand": "npm run build:release"')) {
-  fail("vercel.json: production builds must use the release-gated build command");
-}
+for (const error of vercelReleaseBuildCommandErrors(vercelText)) fail(error);
 const progressStoreText = readText("components/make-money-with-codex/progress-store.ts");
 for (const token of [
   "MAKE_MONEY_WITH_CODEX_COURSE_VERSION",

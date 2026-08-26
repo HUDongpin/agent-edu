@@ -12,6 +12,7 @@ import {
 } from "../scripts/check-routes.mjs";
 import { expectedSitemapUrlCount } from "../scripts/generate-sitemaps.mjs";
 import { contentFindings, pathFindings } from "../scripts/check-secrets.mjs";
+import { vercelReleaseBuildCommandErrors } from "../scripts/lib/published-release-contract.mjs";
 
 test("the locale contract is nine unique languages with Arabic as the only RTL locale", () => {
   assert.equal(LOCALE_CODES.length, 9);
@@ -185,6 +186,21 @@ test("the Vercel upload keeps the secret scanner required by build:release", () 
       `${requiredReleaseFixture} must remain in the Vercel source upload for build:release`,
     );
   }
+});
+
+test("the Vercel release command gate survives config normalization and fails closed", () => {
+  assert.deepEqual(
+    vercelReleaseBuildCommandErrors('{"outputDirectory":"out","buildCommand":"npm run build:release"}'),
+    [],
+  );
+  assert.deepEqual(
+    vercelReleaseBuildCommandErrors('{"buildCommand":"npm run build"}'),
+    ["vercel.json: production builds must use the release-gated build command"],
+  );
+  assert.match(vercelReleaseBuildCommandErrors("not-json")[0], /^vercel\.json: invalid JSON/);
+
+  const i18nAudit = readFileSync("scripts/check-i18n-release.mjs", "utf8");
+  assert.match(i18nAudit, /stdio:\s*\["ignore", "pipe", "ignore"\]/);
 });
 
 test("the Agentic release gate is independently closed over Handbook, Lab, content and static resources", () => {

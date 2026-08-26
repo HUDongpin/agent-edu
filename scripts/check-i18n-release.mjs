@@ -72,7 +72,12 @@ function walk(directory, predicate = () => true) {
 
 function git(args, fallback = "") {
   try {
-    return execFileSync("git", args, { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }).trim();
+    return execFileSync("git", args, {
+      cwd: ROOT,
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
   } catch {
     return fallback;
   }
