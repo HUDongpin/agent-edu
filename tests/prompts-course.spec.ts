@@ -233,12 +233,32 @@ test.describe("original raster and semantic teaching figures", () => {
       await expect(image).toHaveAttribute("height", String(raster.height));
       await image.scrollIntoViewIfNeeded();
       await expect.poll(() => image.evaluate((node: HTMLImageElement) => (
-        new URL(node.currentSrc).pathname
-      ))).toBe(raster.webpPath);
-      await expect.poll(() => image.evaluate((node: HTMLImageElement) => ({
-        width: node.naturalWidth,
-        height: node.naturalHeight,
-      }))).toEqual({ width: raster.webpWidth, height: raster.webpHeight });
+        node.complete && node.currentSrc.length > 0 && node.naturalWidth > 0
+      ))).toBe(true);
+      const evidence = await image.evaluate(async (node: HTMLImageElement) => {
+        const response = await fetch(node.currentSrc);
+        const bitmap = await createImageBitmap(await response.blob());
+        const result = {
+          currentPath: new URL(node.currentSrc).pathname,
+          responseStatus: response.status,
+          contentType: response.headers.get("content-type"),
+          naturalWidth: node.naturalWidth,
+          naturalHeight: node.naturalHeight,
+          decodedWidth: bitmap.width,
+          decodedHeight: bitmap.height,
+        };
+        bitmap.close();
+        return result;
+      });
+      expect(evidence.currentPath).toBe(raster.webpPath);
+      expect(evidence.responseStatus).toBe(200);
+      expect(evidence.contentType).toContain("image/webp");
+      expect(evidence.naturalWidth / evidence.naturalHeight).toBeCloseTo(
+        raster.webpWidth / raster.webpHeight,
+        2,
+      );
+      expect(evidence.decodedWidth).toBe(raster.webpWidth);
+      expect(evidence.decodedHeight).toBe(raster.webpHeight);
       await expect(figure.getByText("Text shown in the image", { exact: true })).toBeVisible();
       await expect(figure.locator("figcaption")).not.toBeEmpty();
     });
@@ -267,12 +287,26 @@ test.describe("original raster and semantic teaching figures", () => {
     });
   }
 
-  test("a real prompt copies exactly to the clipboard", async ({ context, page }) => {
+  test("the copy action writes the exact real prompt", async ({ browserName, context, page }) => {
+    if (browserName !== "chromium") {
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, "clipboard", {
+          configurable: true,
+          value: {
+            writeText: async (text: string) => {
+              (window as typeof window & { __promptClipboardText?: string }).__promptClipboardText = text;
+            },
+          },
+        });
+      });
+    }
     await page.goto("/en/prompts/six-part-prompt/");
-    await context.grantPermissions(
-      ["clipboard-read", "clipboard-write"],
-      { origin: new URL(page.url()).origin },
-    );
+    if (browserName === "chromium") {
+      await context.grantPermissions(
+        ["clipboard-read", "clipboard-write"],
+        { origin: new URL(page.url()).origin },
+      );
+    }
 
     const studio = page.locator('section[aria-labelledby="real-prompt-title"]');
     const expectedPrompt = await studio.locator("pre code").textContent();
@@ -280,7 +314,13 @@ test.describe("original raster and semantic teaching figures", () => {
     const copyButton = studio.locator("button");
     await copyButton.click();
     await expect(copyButton).toContainText("Copied");
-    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(expectedPrompt);
+    if (browserName === "chromium") {
+      await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(expectedPrompt);
+    } else {
+      await expect.poll(() => page.evaluate(() => (
+        (window as typeof window & { __promptClipboardText?: string }).__promptClipboardText
+      ))).toBe(expectedPrompt);
+    }
   });
 });
 
