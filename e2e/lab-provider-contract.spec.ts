@@ -36,7 +36,7 @@ type Scenario = {
   name: string;
   respond(route: Route, controls: { releaseTimeout: Promise<void> }): Promise<void>;
   expectedMessage: RegExp;
-  expectedDetail?: RegExp;
+  providerBodyText?: string;
   billing: "known" | "provider-rejected" | "unknown";
   sessionKey: "deleted" | "retained";
   useClock?: boolean;
@@ -262,7 +262,7 @@ const scenarios: Scenario[] = [
     name: "401 deletes the rejected key",
     respond: jsonError(401, `Rejected ${SENTINEL}`),
     expectedMessage: /key was not accepted/i,
-    expectedDetail: /Rejected \[redacted\]/,
+    providerBodyText: `Rejected ${SENTINEL}`,
     billing: "provider-rejected",
     sessionKey: "deleted",
   },
@@ -270,7 +270,7 @@ const scenarios: Scenario[] = [
     name: "403 rejects but retains the key",
     respond: jsonError(403, `Rejected ${SENTINEL}`),
     expectedMessage: /key was not accepted/i,
-    expectedDetail: /Rejected \[redacted\]/,
+    providerBodyText: `Rejected ${SENTINEL}`,
     billing: "provider-rejected",
     sessionKey: "retained",
   },
@@ -278,6 +278,7 @@ const scenarios: Scenario[] = [
     name: "402 reports exhausted credit",
     respond: jsonError(402, "Insufficient balance"),
     expectedMessage: /no credit left/i,
+    providerBodyText: "Insufficient balance",
     billing: "provider-rejected",
     sessionKey: "retained",
   },
@@ -285,6 +286,7 @@ const scenarios: Scenario[] = [
     name: "429 reports a busy provider",
     respond: jsonError(429, "Rate limit reached"),
     expectedMessage: /busy right now/i,
+    providerBodyText: "Rate limit reached",
     billing: "provider-rejected",
     sessionKey: "retained",
   },
@@ -292,6 +294,7 @@ const scenarios: Scenario[] = [
     name: `${status} reports a busy provider`,
     respond: jsonError(status, `Provider error ${status}`),
     expectedMessage: /busy right now/i,
+    providerBodyText: `Provider error ${status}`,
     billing: "provider-rejected",
     sessionKey: "retained",
   })),
@@ -305,7 +308,7 @@ const scenarios: Scenario[] = [
       });
     },
     expectedMessage: /provider answered.*invalid content/i,
-    expectedDetail: /non-JSON response/i,
+    providerBodyText: "upstream error page",
     billing: "unknown",
     sessionKey: "retained",
   },
@@ -315,7 +318,6 @@ const scenarios: Scenario[] = [
       await route.fulfill({ status: 200, contentType: "application/json", body: "" });
     },
     expectedMessage: /provider answered.*empty/i,
-    expectedDetail: /empty answer/i,
     billing: "unknown",
     sessionKey: "retained",
   },
@@ -329,7 +331,7 @@ const scenarios: Scenario[] = [
       });
     },
     expectedMessage: /provider answered.*truncated/i,
-    expectedDetail: /truncated at the output limit/i,
+    providerBodyText: "A partial answer",
     billing: "known",
     sessionKey: "retained",
   },
@@ -339,7 +341,6 @@ const scenarios: Scenario[] = [
       await route.abort("connectionfailed");
     },
     expectedMessage: /could not be reached/i,
-    expectedDetail: /could not be reached/i,
     billing: "unknown",
     sessionKey: "retained",
   },
@@ -350,7 +351,6 @@ const scenarios: Scenario[] = [
       await route.abort("timedout").catch(() => undefined);
     },
     expectedMessage: /could not be reached/i,
-    expectedDetail: /timed out/i,
     billing: "unknown",
     sessionKey: "retained",
     useClock: true,
@@ -404,7 +404,11 @@ for (const scenario of scenarios) {
 
     const alert = page.locator('.fail[role="alert"]');
     await expectText(alert, scenario.expectedMessage);
-    if (scenario.expectedDetail) await expectText(alert, scenario.expectedDetail);
+    // Provider-controlled bodies and internal diagnostics are not UI copy.
+    // The learner gets the localized, actionable category above and no raw
+    // detail carrier, even when the response body looks harmless.
+    await expect(alert.locator(".faildetail")).toHaveCount(0);
+    if (scenario.providerBodyText) await expectNoText(alert, scenario.providerBodyText);
     await expect.poll(() => firstCallCompleted(page)).toBe(false);
     await assertBilling(page, scenario.billing);
     await assertExactProviderTraffic(audit);
