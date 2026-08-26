@@ -99,3 +99,10 @@ test("teacher duration radios own three real tabpanels while print keeps every p
   assert.match(source, /plans\.map\(\(plan\)\s*=>\s*renderTimeline\(plan\)\)/);
   assert.match(styles, /\.selectedOnly\s+\.plan\[hidden\]\s*{\s*display:\s*none;/);
 });
+
+test("shared course catalogue breadcrumb keeps a 44px logical touch target", () => {
+  const styles = readFileSync("app/globals.css", "utf8");
+  const rule = styles.match(/\.shared-course-breadcrumb\s+a\s*{([^}]*)}/)?.[1] ?? "";
+  assert.match(rule, /min-block-size:\s*44px/);
+  assert.match(rule, /min-inline-size:\s*44px/);
+});

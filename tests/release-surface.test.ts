@@ -336,6 +336,10 @@ test("course collection JSON-LD enumerates only published registry entries", () 
   const source = readFileSync("app/[locale]/courses/page.tsx", "utf8");
   assert.match(source, /PUBLISHED_CATALOG_COURSES\.map/);
   assert.doesNotMatch(source, /\bTOP_LEVEL_COURSES\.map/);
+  assert.match(source, /name:[^\n]+t\(course\.titleKey\)/);
+  assert.match(source, /description:[^\n]+t\(course\.blurbKey\)/);
+  assert.match(source, /educationalLevel:\s*t\(course\.levelKey\)/);
+  assert.doesNotMatch(source, /t\(`c\.\$\{course\.id\}\.(?:title|blurb|level)`\)/);
   assert.match(source, /courseHrefFor\(course\.id, locale\)/);
   assert.match(source, /contentLocaleForCourse\(course\.id, locale\)/);
 });

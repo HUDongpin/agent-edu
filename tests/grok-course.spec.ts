@@ -452,13 +452,22 @@ test.describe("How to Use Grok course", () => {
           item: { name: string; url: string; inLanguage: string; hasPart: readonly unknown[] };
         }[];
       } | undefined;
-    const grokListItem = catalogueJsonLd?.itemListElement.find((item) => item.position === 5);
+    const grokListItem = catalogueJsonLd?.itemListElement.find(
+      (item) => item.item.url === "https://aicourse.top/en/grok/",
+    );
     expect(grokListItem?.item).toMatchObject({
       name: "How to Use Grok",
       url: "https://aicourse.top/en/grok/",
       inLanguage: "en",
     });
     expect(grokListItem?.item.hasPart).toHaveLength(14);
+    const softwareEngineeringListItem = catalogueJsonLd?.itemListElement.find(
+      (item) => item.item.url === "https://aicourse.top/en/software-engineering/",
+    );
+    expect(softwareEngineeringListItem?.item).toMatchObject({
+      name: "Software Engineering with Agentic AI",
+      inLanguage: "en",
+    });
 
     const homeResponse = await page.goto("/en/");
     expect(homeResponse?.status()).toBe(200);

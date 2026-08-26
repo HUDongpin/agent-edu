@@ -218,12 +218,12 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
       position: index + 1,
       item: {
         "@type": "Course",
-        name: course.id === "mcp" ? mcpCourse.title : t(`c.${course.id}.title`),
-        description: course.id === "mcp" ? mcpCourse.summary : t(`c.${course.id}.blurb`),
+        name: course.id === "mcp" ? mcpCourse.title : t(course.titleKey),
+        description: course.id === "mcp" ? mcpCourse.summary : t(course.blurbKey),
         url: `${SITE}${courseHrefFor(course.id, locale)}`,
         provider: { "@id": `${SITE}/#org` },
         inLanguage: contentLocaleForCourse(course.id, locale),
-        educationalLevel: t(`c.${course.id}.level`),
+        educationalLevel: t(course.levelKey),
         isAccessibleForFree: true,
         ...(partsByCourse[course.id]?.length ? { hasPart: partsByCourse[course.id] } : {}),
         offers: {
