@@ -306,7 +306,9 @@
   outline-offset: 3px;
 }
 
-.focusTarget:focus-visible {
+/* Programmatic focus on recovery/status targets is not focus-visible in every
+   engine (notably Firefox), but it must still be perceivable to the learner. */
+.focusTarget:focus {
   outline: 2px solid var(--prompt-accent);
   outline-offset: 3px;
 }
