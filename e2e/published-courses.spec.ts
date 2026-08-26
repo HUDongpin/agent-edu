@@ -1144,6 +1144,83 @@ test("home, catalog, and footer expose published links but no blocked hrefs", as
   }
 });
 
+test("blocked and roadmap courses stay localized, visible, non-linkable, and reason-free", async ({ page }) => {
+  const upcomingCourses = releaseSurface.courses.filter(
+    (course) => course.state === "blocked" || course.state === "roadmap",
+  );
+  const soonLabels = {
+    en: "Coming soon",
+    ar: "قريبًا",
+    "zh-Hans": "即将推出",
+  } as const;
+
+  expect(
+    upcomingCourses
+      .filter((course) => course.state === "blocked")
+      .map((course) => course.id)
+      .sort(),
+  ).toEqual([...EXPECTED_BLOCKED_IDS].sort());
+  expect(upcomingCourses.filter((course) => course.state === "roadmap")).toHaveLength(2);
+
+  for (const [locale, soonLabel] of Object.entries(soonLabels)) {
+    await test.step(locale, async () => {
+      const response = await page.goto(`/${locale}/courses/`);
+      expect(response?.status()).toBe(200);
+      await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+
+      const section = page.locator(
+        'section[aria-labelledby="catalog-coming-soon-courses-title"]',
+      );
+      await expect(section.getByRole("heading", { name: soonLabel, exact: true })).toBeVisible();
+      const cards = section.locator("li.catalog-course-card-upcoming");
+      await expect(cards).toHaveCount(upcomingCourses.length);
+      expect(await cards.evaluateAll((items) => items.map((item) => item.getAttribute("data-course-id"))))
+        .toEqual(upcomingCourses.map((course) => course.id));
+
+      for (const course of upcomingCourses) {
+        const card = section.locator(
+          `li.catalog-course-card-upcoming[data-course-id="${course.id}"]`,
+        );
+        await expect(card).toHaveCount(1);
+        await expect(card.locator('[aria-disabled="true"]')).toHaveCount(1);
+        await expect(card.locator("a[href]")).toHaveCount(0);
+        await expect(card.locator(".catalog-course-status")).toHaveText(soonLabel);
+        const text = await card.innerText();
+        for (const blocker of ("blockers" in course ? course.blockers : []) ?? []) {
+          expect(text).not.toContain(blocker);
+        }
+      }
+    });
+  }
+});
+
+test("catalog loading and empty-filter states are distinct and recoverable", async ({ page, request }) => {
+  const staticResponse = await request.get("/en/courses/");
+  expect(staticResponse.status()).toBe(200);
+  const staticMarkup = await staticResponse.text();
+  expect(staticMarkup).toContain("catalog-progress-pending");
+  expect(staticMarkup).toContain('role="status"');
+  expect(staticMarkup).toContain("Working…");
+  expect(staticMarkup).not.toContain("catalog-empty");
+
+  await page.goto("/en/courses/");
+  await expect(page.locator(".catalog-progress-pending")).toHaveCount(0);
+
+  const query = "no-course-can-match-this-audit-sentinel";
+  await page.locator(".catalog-search-input").fill(query);
+  const empty = page.locator(".catalog-empty");
+  await expect(empty).toBeVisible();
+  await expect(empty).toContainText("No course matches those filters.");
+  await expect(page.locator(".catalog-result-count")).toHaveText("0 courses");
+  await expect(page.locator("li.catalog-course-card")).toHaveCount(0);
+
+  await empty.locator(".catalog-empty-reset").click();
+  await expect(empty).toHaveCount(0);
+  await expect(page.locator("li.catalog-course-card")).toHaveCount(releaseSurface.courses.length);
+  await expect(page.locator(".catalog-search-input")).toHaveValue("");
+});
+
 test("home, catalog, and footer contain no extra internal page routes", async ({ page }) => {
   const expectedPaths = new Set(
     [...expectedPublishedUrls()].map((url) => new URL(url).pathname),

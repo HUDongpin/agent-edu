@@ -7,6 +7,8 @@ import { courseLocaleParams } from "@/lib/release-surface";
 import { SITE, seoFor, urlFor } from "@/lib/seo";
 import type { Metadata } from "next";
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return courseLocaleParams("agentic");
 }

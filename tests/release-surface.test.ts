@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 import robots from "../app/robots";
 import sitemap from "../app/sitemap";
@@ -231,7 +231,21 @@ test("registry sync keeps blocked implementations private and can generate publi
         continue;
       }
       assert.equal(existsSync(page), true, page);
-      assert.match(readFileSync(page, "utf8"), new RegExp(`courseLocaleParams\\(\"${surface.id}\"\\)`));
+      const source = readFileSync(page, "utf8");
+      assert.match(source, new RegExp(`courseLocaleParams\\(\"${surface.id}\"\\)`));
+      assert.match(source, /export\s+const\s+dynamicParams\s*=\s*false\s*;/, page);
+
+      const routeDirectory = `app/[locale]/${root}`;
+      for (const entry of readdirSync(routeDirectory, { withFileTypes: true })) {
+        if (!entry.isDirectory() || !/^\[[^\]]+\]$/.test(entry.name)) continue;
+        const child = `${routeDirectory}/${entry.name}/page.tsx`;
+        assert.equal(existsSync(child), true, child);
+        assert.match(
+          readFileSync(child, "utf8"),
+          /export\s+const\s+dynamicParams\s*=\s*false\s*;/,
+          child,
+        );
+      }
     }
   }
   const checker = readFileSync("scripts/check-release-surface.mjs", "utf8");

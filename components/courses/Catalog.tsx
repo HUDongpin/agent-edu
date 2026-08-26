@@ -301,7 +301,7 @@ function CourseCard({
 
   if (!available) {
     return (
-      <li id={anchorId} className={cardClass}>
+      <li id={anchorId} className={cardClass} data-course-id={course.id}>
         <div className="cinner catalog-course-disabled" aria-disabled="true">
           {body}
         </div>
@@ -311,7 +311,11 @@ function CourseCard({
 
   if (isAgentic) {
     return (
-      <li id={anchorId} className={`${cardClass} catalog-course-card-agentic`}>
+      <li
+        id={anchorId}
+        className={`${cardClass} catalog-course-card-agentic`}
+        data-course-id={course.id}
+      >
         <div className="cinner catalog-agentic-shell">
           {body}
           <nav className="course-modules catalog-agentic-modules" aria-label={t("cat.modules")}>
@@ -362,7 +366,7 @@ function CourseCard({
 
   const href = course.targetHref ?? "#";
   return (
-    <li id={anchorId} className={cardClass}>
+    <li id={anchorId} className={cardClass} data-course-id={course.id}>
       {course.external ? (
         <a className="cinner" href={href} target="_blank" rel="noopener noreferrer">
           {body}

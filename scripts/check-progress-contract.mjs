@@ -9,6 +9,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { progressRegistryIntegrationErrors } from "./lib/progress-registry-contract.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const COMPONENTS = join(ROOT, "components");
@@ -22,6 +23,7 @@ const RECENCY_TRACKER = join(COMPONENTS, "ProgressRecencyTracker.tsx");
 const SHELL = join(COMPONENTS, "Shell.tsx");
 const PUBLIC_PROGRESS_CONTRACT = join(ROOT, "lib", "public-progress-contract.ts");
 const PROGRESS_STORAGE_CONTRACT = join(ROOT, "lib", "progress-storage-contract.ts");
+const RELEASE_REGISTRY = join(ROOT, "config", "course-release-surface.json");
 
 // Migration ratchet: all learner-facing progress surfaces use the registered
 // adapters. Twelve legacy shared-key owners remain until their physical stores
@@ -71,15 +73,12 @@ globalThis.window = contractWindow;
 globalThis.localStorage = contractLocalStorage;
 globalThis.sessionStorage = contractSessionStorage;
 
-const { CATALOG_COURSES, TOP_LEVEL_COURSES } = await import("../lib/courses.ts");
-const { LEARNING_PROGRESS_EVENT } = await import("../lib/progress.ts");
-const { PUBLIC_PUBLISHED_COURSE_SURFACES } = await import("../lib/public-release-surface.ts");
+const releaseContract = JSON.parse(readFileSync(RELEASE_REGISTRY, "utf8"));
 const {
   createAllProgressAdapters,
   createPublishedProgressAdapters,
   validatePublishedProgressAdapterRegistry,
 } = await import("../components/progress-adapters.ts");
-const { PROGRESS_ADAPTER_COURSE_IDS } = await import("../lib/public-progress-contract.ts");
 const { PROGRESS_OWNED_STORAGE_KEYS } = await import("../lib/progress-storage-contract.ts");
 const { PROGRESS_RESET_REGISTRY } = await import("../components/progress-reset.ts");
 
@@ -105,27 +104,13 @@ const files = [
  * 1 — every progress adapter has a same-tab repaint event
  * ------------------------------------------------------------------ */
 const eventForCourse = new Map();
-for (const course of TOP_LEVEL_COURSES) {
-  if (typeof course.progress !== "function") continue;
-  const event = course.progressEvent
-    ?? (course.id === "agentic" ? LEARNING_PROGRESS_EVENT : undefined);
-  if (!event) {
-    fail(`TOP_LEVEL_COURSES: "${course.id}" reports progress without a progressEvent.`);
-  } else {
-    eventForCourse.set(course.id, event);
-  }
-}
-
-for (const course of CATALOG_COURSES) {
-  if (typeof course.progress !== "function") continue;
-  const event = course.progressEvent ?? eventForCourse.get(course.id);
-  if (!event) {
-    fail(`CATALOG_COURSES: "${course.id}" reports progress without any owning event.`);
-  }
+for (const course of releaseContract.courses.filter((entry) => entry.progress !== null)) {
+  const event = course.progress?.event;
+  if (typeof event === "string" && event.trim()) eventForCourse.set(course.id, event);
 }
 
 const declaredEvents = new Set(eventForCourse.values());
-notes.push(`${eventForCourse.size} top-level progress adapters resolve to ${declaredEvents.size} events`);
+notes.push(`${eventForCourse.size} registry progress contracts resolve to ${declaredEvents.size} events`);
 
 /* ------------------------------------------------------------------ *
  * 2 — every event has exactly one dispatching module
@@ -345,28 +330,15 @@ for (const reason of ["unavailable", "quota", "corrupt"]) {
   }
 }
 for (const error of validatePublishedProgressAdapterRegistry(publishedAdapters)) fail(error);
-const expectedPublishedIds = PUBLIC_PUBLISHED_COURSE_SURFACES
-  .map((surface) => surface.id)
-  .sort();
-const actualPublishedIds = publishedAdapters.map((adapter) => adapter.courseId).sort();
-if (JSON.stringify(actualPublishedIds) !== JSON.stringify(expectedPublishedIds)) {
-  fail(`published progress registry ids differ: got ${actualPublishedIds.join(", ")}; `
-    + `expected ${expectedPublishedIds.join(", ")} from the public registry projection.`);
-}
-const expectedAdapterIds = [...PROGRESS_ADAPTER_COURSE_IDS].sort();
-const actualAdapterIds = allAdapters.map((adapter) => adapter.courseId).sort();
-if (JSON.stringify(actualAdapterIds) !== JSON.stringify(expectedAdapterIds)) {
-  fail(`implemented progress adapter ids differ: got ${actualAdapterIds.join(", ")}; `
-    + `expected ${expectedAdapterIds.join(", ")}.`);
-}
+for (const error of progressRegistryIntegrationErrors(
+  releaseContract,
+  allAdapters,
+  publishedAdapters,
+)) fail(error);
 if (new Set(allAdapters.map((adapter) => adapter.progressEvent)).size !== allAdapters.length) {
   fail("implemented progress adapters must own unique same-tab events.");
 }
 for (const adapter of allAdapters) {
-  if (eventForCourse.get(adapter.courseId) !== adapter.progressEvent) {
-    fail(`${adapter.courseId}: adapter event ${adapter.progressEvent} differs from course contract `
-      + `${eventForCourse.get(adapter.courseId) ?? "missing"}.`);
-  }
   if (typeof adapter.readSummary !== "function") fail(`${adapter.courseId}: readSummary missing.`);
   if (typeof adapter.resetAfterGlobalReset !== "function") {
     fail(`${adapter.courseId}: resetAfterGlobalReset missing.`);

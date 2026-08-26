@@ -1,15 +1,14 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { PUBLISHED_TOP_LEVEL_COURSES } from "../lib/courses";
 import {
   PUBLIC_COURSE_SURFACES,
   type PublicCourseSurface,
 } from "../lib/public-release-surface";
 import {
-  PROGRESS_ADAPTER_COURSE_IDS,
   PUBLISHED_PROGRESS_COURSE_IDS,
 } from "../lib/public-progress-contract";
+import { progressRegistryIntegrationErrors } from "../scripts/lib/progress-registry-contract.mjs";
 import { projectPublicCourseSurface } from "../scripts/sync-course-public-surface.mjs";
 import { GROK_LESSON_SLUGS } from "../lib/grok";
 import { GITHUB_LESSON_SLUGS } from "../lib/github";
@@ -134,12 +133,20 @@ const EXPECTED_FIRST_HREFS = {
   "agent-orchestration": "/en/agent-orchestration/workflow-agent-boundary/",
 } as const;
 
+function readReleaseContract() {
+  return JSON.parse(readFileSync("config/course-release-surface.json", "utf8"));
+}
+
 test("published progress adapters exactly match the twelve public courses", () => {
   const adapters = createPublishedProgressAdapters("en");
+  const releaseContract = readReleaseContract();
   assert.deepEqual(validatePublishedProgressAdapterRegistry(adapters), []);
   assert.deepEqual(
     adapters.map((adapter) => adapter.courseId).sort(),
-    PUBLISHED_TOP_LEVEL_COURSES.map((course) => course.id).sort(),
+    releaseContract.courses
+      .filter((course: { state: string }) => course.state === "published")
+      .map((course: { id: string }) => course.id)
+      .sort(),
   );
   assert.equal(new Set(adapters.map((adapter) => adapter.progressEvent)).size, 12);
   assert.ok(adapters.every((adapter) => adapter.storageKeys.length > 0));
@@ -154,9 +161,46 @@ test("published progress adapters exactly match the twelve public courses", () =
   ));
 });
 
+test("registry-owned adapter state, events, and primary storage keys fail closed", () => {
+  const releaseContract = readReleaseContract();
+  const allAdapters = createAllProgressAdapters("en");
+  const publishedAdapters = createPublishedProgressAdapters("en");
+  assert.deepEqual(
+    progressRegistryIntegrationErrors(releaseContract, allAdapters, publishedAdapters),
+    [],
+  );
+
+  const eventDrift = structuredClone(releaseContract);
+  eventDrift.courses.find((course: { id: string }) => course.id === "grok")
+    .progress.event = "grok:unregistered-progress";
+  assert.match(
+    progressRegistryIntegrationErrors(eventDrift, allAdapters, publishedAdapters).join("\n"),
+    /grok: adapter event aicourse:grok-progress differs from registry event grok:unregistered-progress/,
+  );
+
+  const storageDrift = structuredClone(releaseContract);
+  storageDrift.courses.find((course: { id: string }) => course.id === "grok")
+    .progress.storageKey = "grok.unregistered.progress";
+  assert.match(
+    progressRegistryIntegrationErrors(storageDrift, allAdapters, publishedAdapters).join("\n"),
+    /grok: adapter storageKeys do not include registry primary key grok\.unregistered\.progress/,
+  );
+
+  const stateDrift = structuredClone(releaseContract);
+  stateDrift.courses.find((course: { id: string }) => course.id === "codex").state = "published";
+  assert.match(
+    progressRegistryIntegrationErrors(stateDrift, allAdapters, publishedAdapters).join("\n"),
+    /published progress adapter ids differ from the release registry; missing: codex/,
+  );
+});
+
 test("blocked progress adapters stay dormant until the generated registry publishes them", async () => {
+  const releaseContract = readReleaseContract();
   const currentAdapters = createPublishedProgressAdapters("en");
   const allAdapters = createAllProgressAdapters("en");
+  const expectedAdapterIds = releaseContract.courses
+    .filter((course: { progress: unknown }) => course.progress !== null)
+    .map((course: { id: string }) => course.id);
   const currentIds = new Set(currentAdapters.map((adapter) => adapter.courseId));
   const dormantIds = allAdapters
     .map((adapter) => adapter.courseId)
@@ -166,16 +210,13 @@ test("blocked progress adapters stay dormant until the generated registry publis
   assert.deepEqual(PUBLISHED_PROGRESS_COURSE_IDS, currentAdapters.map((adapter) => adapter.courseId));
   assert.deepEqual(
     allAdapters.map((adapter) => adapter.courseId),
-    PROGRESS_ADAPTER_COURSE_IDS,
+    expectedAdapterIds,
   );
   assert.deepEqual(dormantIds, ["codex", "claude", "cursor"]);
   assert.ok(PUBLIC_COURSE_SURFACES
     .filter((surface) => dormantIds.includes(surface.id as never))
     .every((surface) => surface.state === "blocked" && surface.progressEvent === null));
 
-  const releaseContract = JSON.parse(
-    readFileSync("config/course-release-surface.json", "utf8"),
-  );
   for (const course of releaseContract.courses) {
     if (dormantIds.includes(course.id)) course.state = "published";
   }
@@ -188,7 +229,7 @@ test("blocked progress adapters stay dormant until the generated registry publis
   ), []);
   assert.deepEqual(
     futureAdapters.map((adapter) => adapter.courseId),
-    PROGRESS_ADAPTER_COURSE_IDS,
+    expectedAdapterIds,
     "a registry state flip activates all three adapters without adapter code changes",
   );
 
