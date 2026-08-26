@@ -73,6 +73,17 @@ test("every published learning outcome has evidence, practice and assessment cov
   }
 });
 
+test("generated quiz questions conservatively label course-authored synthesis", () => {
+  for (const definition of COURSE_KIT_DEFINITIONS) {
+    assert.ok(definition.quiz.questions.every(
+      (question) => question.evidenceMode === "instructional-synthesis",
+    ));
+    assert.ok(definition.capstone.artifacts.every(
+      (artifact) => artifact.evidenceMode === "instructional-synthesis",
+    ));
+  }
+});
+
 test("seven shell locales fall back to English LTR without pretending to be translations", () => {
   for (const locale of ["es", "fr", "de", "zh-Hant", "ja", "ko", "ar"] as const) {
     const resolution = resolveCourseKitLocale(locale);
@@ -91,7 +102,7 @@ test("structured evidence receipts fail closed and require a named human review"
     artifactPath: "outputs/backtest-evaluation.json",
     sha256: "a".repeat(64),
     validator: {
-      command: "python3 local-replay-lab.py --self-test",
+      command: "python3 fixture-contract-self-test.py --self-test",
       status: "pass",
       checkedOn: "2026-08-26",
     },

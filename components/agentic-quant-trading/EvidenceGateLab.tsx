@@ -24,13 +24,17 @@ const EMPTY_GATES: GateState = {
 
 const FIXTURE_SHA256 = {
   "market-regime-synthetic-v1.csv":
-    "fd3890e80bdb140dae988a98fa3a26f44e3eb5e3abaebfbd8e53ea7c2244aaac",
+    "e36633cae9b1683149037ef87460d81008af95cae07ab30338b11474b6d41f0e",
   "news-signals-synthetic-v1.json":
-    "ec7749936666bf987d470a61bc50fda37a82f4046a6293204805d1f44e392294",
+    "795dd19a8f9781c1c7d1f62a56011e465e038772161adb4e3ac30815670701f1",
   "risk-policy.template.json":
-    "bf013a6b0267b7c9a20b3b564018e28eab2ff2184e0787d8a9d78a0b2a200506",
-  "local-replay-lab.py":
-    "b9e595bf13582486806b33e31a993f69f92f6fcad0c78b7eef94ed9117f2c7f8",
+    "043235aabc48e388134d593b88297860c9ebf1220dd0c6c2f7385864fd1a8f5f",
+  "fixture-contract-self-test.py":
+    "ef4f7451c42a6d794b3e3a3097a2a372d658c8c014da33e14da4d66e70ccf3dd",
+  "LICENSE.txt":
+    "2a24b39b930cf5c7cce0abb47db1752414ff30ae44f2f3359769a4c9d37f67a5",
+  "provenance.v1.json":
+    "d8e5cbf5c8158d03c28912ce4c67519a1e3ceaff4082e5847c0232863dab2304",
 } as const;
 
 type LabFileName = keyof typeof FIXTURE_SHA256;
@@ -41,39 +45,29 @@ const LAB_FILES = (Object.entries(FIXTURE_SHA256) as [LabFileName, string][]).ma
   href: `/courses/agentic-quant-trading/${name}`,
 }));
 
-const FORMULA = {
-  id: "aicourse.synthetic-evidence-decay",
-  version: "1.0.0",
-  expressions: {
-    sharpe_like_score:
-      "max(0.10, 2.34 - 0.51*chronological - 0.37*point_in_time - 0.28*costs)",
-    maximum_drawdown_percent:
-      "-(8.1 + 2.6*chronological + 1.8*point_in_time + 1.1*costs)",
-    annual_turnover: "6.8 if costs else 9.4",
-  },
-} as const;
-
 const COPY = {
   en: {
     eyebrow: "Interactive evidence gate",
-    title: "Make an attractive backtest harder to believe",
+    title: "Separate audit claims from executable evidence",
     intro:
-      "Select the claims an auditor would investigate. The figures are deliberately fictional and only demonstrate how evidence controls can deflate an optimistic result; they are not a strategy, forecast, signal, or investment recommendation.",
+      "Select the claims an auditor would investigate. This page records claim status only: it does not execute a strategy, change a performance result, produce a signal, or make an investment recommendation.",
     claimNoticeTitle: "Claims, not verification",
     claimNotice:
       "Every switch is an unverified learner claim. This screen does not execute the fixtures or prove that a control exists. Use the bundled offline self-test, inspect its assertions, then ask a named human to review the evidence.",
-    packTitle: "Download the auditable local replay pack",
+    packTitle: "Download the bounded fixture-contract pack",
     packIntro:
-      "Four original, publication-eligible files reproduce the local teaching boundary. Download them, verify the displayed SHA-256 values, inspect the script, then run the self-test with networking disabled.",
+      "Download all six publication-eligible pack files into the same local directory, including the MIT licence. The provenance manifest supplies the expected hashes consumed by the self-test, which checks synthetic identity, bar-date ordering, declared timestamp ordering, and selected policy fields. It does not execute a strategy, intent, order lifecycle, fill, cost model, P&L calculation, risk calculation, kill switch, or reconciliation.",
     packFileDescriptions: {
-      "market-regime-synthetic-v1.csv": "Synthetic market-regime tape",
+      "market-regime-synthetic-v1.csv": "Synthetic OHLCV tape with an observation cutoff plus four availability/decision clocks; regime labels are evaluation-only",
       "news-signals-synthetic-v1.json": "Synthetic timestamped news signals",
-      "risk-policy.template.json": "Executable deterministic risk policy",
-      "local-replay-lab.py": "Standard-library-only replay and seven assertions",
+      "risk-policy.template.json": "Declarative local boundary and synthetic-threshold template",
+      "fixture-contract-self-test.py": "Standard-library-only contract self-test; no strategy or execution path",
+      "LICENSE.txt": "MIT licence and copyright notice that must remain with redistributed copies",
+      "provenance.v1.json": "Required provenance manifest and expected hashes consumed by the self-test",
     },
     download: "Download",
     selfTest: "Offline self-test",
-    expectedResult: "Expected: status=pass, 7/7 assertions, network_calls=0.",
+    expectedResult: "Expected: status=pass, 7/7 bounded assertions, network_client_code_present=false, network_isolation_verified=false.",
     legend: "Unverified evidence and boundary claims",
     gates: {
       "chronological-split": {
@@ -82,11 +76,11 @@ const COPY = {
       },
       "point-in-time-data": {
         title: "Point-in-time data claimed",
-        detail: "Every feature carries known_at and effective_at timestamps.",
+        detail: "Every input declares available_at, ingested_at, known_at, and decision_at; actual learner code still needs independent verification.",
       },
       "costs-and-slippage": {
         title: "Costs and slippage claimed",
-        detail: "Fees, spread, latency, and adverse fills are charged to the replay.",
+        detail: "Fees, spread, latency, and adverse fills would need an order/fill fixture; the bundled self-test does not validate this claim.",
       },
       "named-human-review": {
         title: "Named human review claimed",
@@ -105,21 +99,14 @@ const COPY = {
     completeDetail:
       "All five unverified claims are selected. The artifact is eligible for named human review only.",
     claimsSelected: "claims selected",
-    tableCaption: "Fictional teaching metrics before and after the selected claims",
-    tableRegionLabel: "Scrollable table of fictional teaching metrics",
-    tableKeyboardHint: "On a narrow screen, focus this table and scroll horizontally to inspect every column.",
-    scenario: "Scenario",
-    score: "Sharpe-like score",
-    drawdown: "Maximum drawdown",
-    turnover: "Annual turnover",
-    verdict: "Evidence verdict",
-    optimistic: "Optimistic notebook",
-    reviewed: "Claim-adjusted illustration",
-    inadmissible: "Not admissible as evidence",
-    incompleteVerdict: "Unverified and incomplete",
-    reviewEligible: "Eligible for human review",
+    metricsRegionLabel: "Performance metrics not-computable notice",
+    metricsTitle: "Performance metrics: NOT COMPUTABLE",
+    metricsReason:
+      "This pack contains no strategy-return, benchmark or risk-free return, position, order, fill, fee, slippage, or portfolio-equity series. Sharpe ratio, maximum drawdown, turnover, and net-of-cost performance therefore cannot be calculated.",
+    metricsInputsTitle: "Missing inputs",
+    metricsInputs: ["Strategy and benchmark return series", "Positions, orders, and fills", "Fees, slippage, and portfolio equity"],
     synthetic: "Synthetic fixture SYN-A · no real asset · no market connection",
-    formulaNotice: "Illustrative formula aicourse.synthetic-evidence-decay · version 1.0.0",
+    selfTestBoundary: "The self-test verifies declared fixture fields only; it is not a no-look-ahead strategy proof or OS-level network-isolation attestation.",
     disclaimerTitle: "Boundary",
     disclaimer:
       "Illustrative only. Checklist completion and self-test success are not performance evidence, replay permission, investment advice, or authorisation for market action.",
@@ -127,29 +114,29 @@ const COPY = {
     copied: "Illustrative receipt copied",
     copyFailed: "Clipboard unavailable; the receipt was not copied",
     reset: "Reset claims",
-    metricSummary: (score: string, drawdown: string, turnover: string) =>
-      `Illustrative claim-adjusted metrics: Sharpe-like score ${score}; maximum drawdown ${drawdown} percent; annual turnover ${turnover} times.`,
   },
   "zh-Hans": {
     eyebrow: "交互式证据闸门",
-    title: "让一份漂亮的回测更难被轻信",
+    title: "把审计主张与可执行证据分开",
     intro:
-      "请选择审计者需要核查的主张。所有数值均为刻意设计的虚构示例，只用来说明证据控制如何压低过度乐观的结果；它们不是策略、预测、信号或投资建议。",
+      "请选择审计者需要核查的主张。本页面只登记主张状态：不会执行策略、改变绩效结果、产生信号或给出投资建议。",
     claimNoticeTitle: "这里只记录主张，不完成验证",
     claimNotice:
       "每个开关都只是学习者尚未验证的自述。本页面不会执行夹具，也不能证明控制真实存在。请先运行随附的离线自测、检查逐项断言，再交由具名人员审核证据。",
-    packTitle: "下载可审计的本地回放包",
+    packTitle: "下载有边界的 fixture 契约包",
     packIntro:
-      "四个原创且可发布的文件共同复现本地教学边界。下载后先核对页面所列 SHA-256、检查脚本，再在断网条件下运行自测。",
+      "请把六个可发布的打包文件全部下载到同一个本地目录，其中包括 MIT 许可证。provenance 清单提供自测读取的预期哈希；自测只检查合成身份、bar 日期顺序、已声明的时间先后与部分政策字段，不执行策略、意图、订单生命周期、成交、成本、盈亏、风险计算、紧急停止或对账。",
     packFileDescriptions: {
-      "market-regime-synthetic-v1.csv": "合成市场状态时间带",
+      "market-regime-synthetic-v1.csv": "带观测截止点及四个可得性/决策时钟的合成 OHLCV；状态标签仅供事后评估",
       "news-signals-synthetic-v1.json": "带时间戳的合成新闻信号",
-      "risk-policy.template.json": "可执行的确定性风险政策",
-      "local-replay-lab.py": "仅用 Python 标准库的回放程序与七项断言",
+      "risk-policy.template.json": "声明式本地边界与合成阈值模板",
+      "fixture-contract-self-test.py": "仅用 Python 标准库的契约自测；没有策略或执行路径",
+      "LICENSE.txt": "再分发副本必须保留的 MIT 许可证与版权声明",
+      "provenance.v1.json": "自测必需的来源清单与预期哈希",
     },
     download: "下载",
     selfTest: "离线自测",
-    expectedResult: "预期：status=pass、7/7 项断言通过、network_calls=0。",
+    expectedResult: "预期：status=pass、7/7 项有边界断言通过、network_client_code_present=false、network_isolation_verified=false。",
     legend: "尚未验证的证据与边界主张",
     gates: {
       "chronological-split": {
@@ -158,11 +145,11 @@ const COPY = {
       },
       "point-in-time-data": {
         title: "声称使用时点一致数据",
-        detail: "每项特征都携带 known_at 与 effective_at 时间戳。",
+        detail: "每项输入都声明 available_at、ingested_at、known_at 与 decision_at；学习者代码是否遵守仍须独立核验。",
       },
       "costs-and-slippage": {
         title: "声称计入成本与滑点",
-        detail: "回放必须计入手续费、价差、延迟和不利成交。",
+        detail: "手续费、价差、延迟与不利成交需要订单/成交 fixture；随附自测不会验证此主张。",
       },
       "named-human-review": {
         title: "声称已安排具名人员审核",
@@ -179,21 +166,14 @@ const COPY = {
     incompleteDetail: "仍有一项或多项学习者主张未被选择。",
     completeDetail: "五项未验证主张均已选择；此材料仅可进入具名人员审核。",
     claimsSelected: "项主张已选择",
-    tableCaption: "选择不同主张前后的虚构教学指标",
-    tableRegionLabel: "可横向滚动的虚构教学指标表",
-    tableKeyboardHint: "在窄屏上，请聚焦此表格后横向滚动，以查看所有列。",
-    scenario: "情境",
-    score: "类 Sharpe 分数",
-    drawdown: "最大回撤",
-    turnover: "年化换手",
-    verdict: "证据判定",
-    optimistic: "乐观笔记本",
-    reviewed: "按主张调整的示例",
-    inadmissible: "不可作为证据采信",
-    incompleteVerdict: "未验证且未完成",
-    reviewEligible: "可进入人工审核",
+    metricsRegionLabel: "绩效指标不可计算说明",
+    metricsTitle: "绩效指标：不可计算",
+    metricsReason:
+      "当前包没有策略收益、基准或无风险收益、头寸、订单、成交、费用、滑点或组合净值序列，因此不能计算 Sharpe Ratio、最大回撤、换手率或成本后表现。",
+    metricsInputsTitle: "缺少的输入",
+    metricsInputs: ["策略与基准收益序列", "头寸、订单与成交", "费用、滑点与组合净值"],
     synthetic: "合成样本 SYN-A · 无真实资产 · 不连接市场",
-    formulaNotice: "说明性公式 aicourse.synthetic-evidence-decay · 版本 1.0.0",
+    selfTestBoundary: "自测只核验已声明的 fixture 字段，不证明策略无前视，也不证明操作系统级网络隔离。",
     disclaimerTitle: "边界声明",
     disclaimer:
       "仅供说明。完成检查表或通过自测，都不是绩效证据、回放许可、投资建议，也不授权任何市场操作。",
@@ -201,14 +181,8 @@ const COPY = {
     copied: "说明性收据已复制",
     copyFailed: "剪贴板不可用，未能复制收据",
     reset: "重置主张",
-    metricSummary: (score: string, drawdown: string, turnover: string) =>
-      `按主张调整后的说明性指标：类 Sharpe 分数 ${score}；最大回撤 ${drawdown}%；年化换手 ${turnover} 倍。`,
   },
 } as const;
-
-function formatScore(value: number): string {
-  return value.toFixed(2);
-}
 
 export function EvidenceGateLab({ locale }: { readonly locale: string }) {
   const labels = locale === "zh-Hans" ? COPY["zh-Hans"] : COPY.en;
@@ -218,22 +192,8 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
 
   const result = useMemo(() => {
     const count = GATE_IDS.filter((id) => gates[id]).length;
-    const evidencePenalty =
-      (gates["chronological-split"] ? 0.51 : 0) +
-      (gates["point-in-time-data"] ? 0.37 : 0) +
-      (gates["costs-and-slippage"] ? 0.28 : 0);
-    const drawdownPenalty =
-      (gates["chronological-split"] ? 2.6 : 0) +
-      (gates["point-in-time-data"] ? 1.8 : 0) +
-      (gates["costs-and-slippage"] ? 1.1 : 0);
     const allClaimsChecked = count === GATE_IDS.length;
-    return {
-      count,
-      allClaimsChecked,
-      adjustedScore: Math.max(0.1, 2.34 - evidencePenalty),
-      adjustedDrawdown: -(8.1 + drawdownPenalty),
-      adjustedTurnover: gates["costs-and-slippage"] ? 6.8 : 9.4,
-    };
+    return { count, allClaimsChecked };
   }, [gates]);
 
   const toggle = (id: GateId) => {
@@ -264,15 +224,24 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
       authorises_replay: false,
       authorises_market_action: false,
       fixture_sha256: FIXTURE_SHA256,
-      formula: FORMULA,
       assertions,
       failure_reasons: assertions.map((assertion) => assertion.failure_reason),
-      illustrative_metrics: {
-        sharpe_like_score: Number(formatScore(result.adjustedScore)),
-        maximum_drawdown_percent: Number(result.adjustedDrawdown.toFixed(1)),
-        annual_turnover: Number(result.adjustedTurnover.toFixed(1)),
+      performance_metrics: {
+        status: "not-computable",
+        reason: labels.metricsReason,
+        missing_inputs: labels.metricsInputs,
       },
-      execution_boundary: "bundled-local-synthetic-fixtures-only",
+      execution_boundary: {
+        mode: "local-synthetic-replay",
+        declared_only: true,
+        runtime_enforcement_verified: false,
+        network_isolation_verified: false,
+        network_allowed: false,
+        external_accounts_allowed: false,
+        credentials_allowed: false,
+        remote_endpoints_allowed: false,
+        market_action_allowed: false,
+      },
       disclaimer:
         "Illustrative only; checklist completion is not verification, performance evidence, investment advice, replay permission, or authorisation for market action.",
     };
@@ -284,10 +253,6 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
       setCopyState("failed");
     }
   };
-
-  const scoreText = formatScore(result.adjustedScore);
-  const drawdownText = result.adjustedDrawdown.toFixed(1);
-  const turnoverText = result.adjustedTurnover.toFixed(1);
 
   return (
     <section className={styles.lab} aria-labelledby={`${rootId}-title`}>
@@ -347,55 +312,23 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
             </b>
           </div>
 
-          <p className={styles.srOnly} aria-live="polite" aria-atomic="true">
-            {labels.metricSummary(scoreText, drawdownText, turnoverText)}
-          </p>
-
-          <p className={styles.tableHint} id={`${rootId}-table-hint`}>
-            {labels.tableKeyboardHint}
-          </p>
           <div
             className={styles.tableWrap}
             role="region"
             tabIndex={0}
-            aria-label={labels.tableRegionLabel}
-            aria-describedby={`${rootId}-table-hint`}
+            aria-label={labels.metricsRegionLabel}
           >
-            <table>
-              <caption>{labels.tableCaption}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">{labels.scenario}</th>
-                  <th scope="col">{labels.score}</th>
-                  <th scope="col">{labels.drawdown}</th>
-                  <th scope="col">{labels.turnover}</th>
-                  <th scope="col">{labels.verdict}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">{labels.optimistic}</th>
-                  <td>2.34</td>
-                  <td>−8.1%</td>
-                  <td>9.4×</td>
-                  <td>× {labels.inadmissible}</td>
-                </tr>
-                <tr>
-                  <th scope="row">{labels.reviewed}</th>
-                  <td>{scoreText}</td>
-                  <td>{drawdownText}%</td>
-                  <td>{turnoverText}×</td>
-                  <td>
-                    {result.allClaimsChecked
-                      ? `✓ ${labels.reviewEligible}`
-                      : `× ${labels.incompleteVerdict}`}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div>
+              <strong>{labels.metricsTitle}</strong>
+              <p>{labels.metricsReason}</p>
+              <h3>{labels.metricsInputsTitle}</h3>
+              <ul>
+                {labels.metricsInputs.map((input) => <li key={input}>{input}</li>)}
+              </ul>
+            </div>
           </div>
           <p className={styles.fixture}>{labels.synthetic}</p>
-          <p className={styles.fixture}>{labels.formulaNotice}</p>
+          <p className={styles.fixture}>{labels.selfTestBoundary}</p>
           <div className={styles.disclaimer} role="note">
             <strong>{labels.disclaimerTitle}</strong>
             <p>{labels.disclaimer}</p>
@@ -445,7 +378,7 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
             </li>
           ))}
         </ul>
-        <pre tabIndex={0}><code>python3 local-replay-lab.py --self-test</code></pre>
+        <pre tabIndex={0}><code>python3 fixture-contract-self-test.py --self-test</code></pre>
         <p className={styles.expectedResult}>{labels.expectedResult}</p>
       </aside>
     </section>

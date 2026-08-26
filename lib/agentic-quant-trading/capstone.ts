@@ -7,7 +7,7 @@ import {
 import type { AgenticQuantTradingSourceId } from "./sources";
 
 export const AGENTIC_QUANT_TRADING_CAPSTONE_VERSION =
-  "2026.08.26-capstone-v1";
+  "2026.08.26-capstone-v3-protected-approval";
 
 export const AGENTIC_QUANT_TRADING_CAPSTONE_ARTIFACTS = [
   {
@@ -26,21 +26,21 @@ export const AGENTIC_QUANT_TRADING_CAPSTONE_ARTIFACTS = [
   },
   {
     id: "data-signal-lineage",
-    sourceIds: ["github-openbb", "github-qlib", "github-fingpt", "x-openbb-workspace-mcp-2026"],
+    sourceIds: ["github-openbb", "github-qlib", "github-fingpt"],
     copy: {
       en: {
         title: "Point-in-time data and signal lineage",
-        description: "Source and licence register, event-availability-ingestion clocks, calendar, universe, revisions, adjustments, immutable snapshot hashes, feature and label contracts, text spans, prompt and model versions, confidence, abstentions, and temporal-invariance tests.",
+        description: "Source and licence register; event_at, available_at, ingested_at, known_at, and decision_at rules; calendar, universe, revisions, adjustments, immutable snapshot hashes, feature and label contracts, text spans, prompt and model versions, confidence, abstentions, and temporal-invariance tests.",
       },
       zhHans: {
         title: "时点一致数据与信号血缘",
-        description: "来源与许可登记、事件—可得—摄取时钟、日历、资产池、修订、复权、不可变快照哈希、特征与标签契约、文本片段、提示和模型版本、置信度、弃权与时间不变性测试。",
+        description: "来源与许可登记；event_at、available_at、ingested_at、known_at 与 decision_at 规则；日历、资产池、修订、复权、不可变快照哈希、特征与标签契约、文本片段、提示和模型版本、置信度、弃权与时间不变性测试。",
       },
     },
   },
   {
     id: "agent-experiment-ledger",
-    sourceIds: ["github-rd-agent", "github-tradingagents", "x-didier-openbb-codex-2026", "x-openbb-excel-to-agents-2025"],
+    sourceIds: ["github-rd-agent", "github-tradingagents"],
     copy: {
       en: {
         title: "Agent graph and experiment ledger",
@@ -54,21 +54,21 @@ export const AGENTIC_QUANT_TRADING_CAPSTONE_ARTIFACTS = [
   },
   {
     id: "backtest-evaluation",
-    sourceIds: ["github-backtesting-py", "github-vectorbt", "paper-backtest-overfitting", "github-qlib"],
+    sourceIds: ["github-backtesting-py", "github-vectorbt", "paper-backtest-overfitting", "paper-deflated-sharpe-ratio", "paper-financial-cross-validation-comparison", "github-qlib"],
     copy: {
       en: {
-        title: "Causal backtest and evaluation pack",
-        description: "Event-order specification, point-in-time constituents, fills, costs, accounting invariants, leaked-feature fixture, vectorized-event parity, temporal folds, purge and embargo, baselines, ablations, search count, multiplicity control, uncertainty, regimes, sensitivities, and untouched-test result.",
+        title: "Time-ordered backtest and evaluation pack",
+        description: "No-look-ahead event-order specification, point-in-time constituents, fills, costs, accounting invariants, leaked-feature fixture, vectorized-event parity, label intervals, conditional purge and embargo, baselines, ablations, complete raw trial ledger, declared DSR estimator or complete PBO matrix when used, multiplicity control, uncertainty, regimes, sensitivities, and untouched-test result. The pack makes no causal claim.",
       },
       zhHans: {
-        title: "因果回测与评估包",
-        description: "事件顺序、时点成分、成交、成本、会计不变量、泄漏特征 fixture、向量化—事件驱动一致性、时间折、purge 与 embargo、基线、消融、搜索次数、多重比较控制、不确定性、市场状态、敏感性与未触碰测试结果。",
+        title: "按时间顺序的回测与评估包",
+        description: "无前视事件顺序、时点成分、成交、成本、会计不变量、泄漏特征 fixture、向量化—事件驱动一致性、标签区间、条件化的 purge 与 embargo、基线、消融、完整原始试验台账、使用时声明的 DSR 估计器或完整 PBO 矩阵、多重比较控制、不确定性、市场状态、敏感性与未触碰测试结果；不作因果声明。",
       },
     },
   },
   {
     id: "claim-debate-audit",
-    sourceIds: ["github-tradingagents", "github-rd-agent", "x-ai4finance-finrlx-2026"],
+    sourceIds: ["github-tradingagents", "github-rd-agent"],
     copy: {
       en: {
         title: "Claim, debate, and verification audit",
@@ -82,43 +82,43 @@ export const AGENTIC_QUANT_TRADING_CAPSTONE_ARTIFACTS = [
   },
   {
     id: "risk-gates",
-    sourceIds: ["github-finrl", "github-freqtrade", "nist-ai-rmf", "finra-algorithmic-trading", "sec-market-access-rule-faq", "x-ai4finance-finrl-deepseek-2025"],
+    sourceIds: ["github-finrl", "github-freqtrade", "nist-ai-rmf", "finra-algorithmic-trading", "sec-market-access-rule-faq"],
     copy: {
       en: {
         title: "Deterministic portfolio-risk gates",
-        description: "Versioned exposure, concentration, liquidity, turnover, leverage, drawdown, loss, stale-input, and scenario policies; pure-function reason codes; exact-boundary, missing-data, duplicate, correlated-shock, and property-test fixtures; authoritative paper-portfolio state; and proof that agents cannot override limits.",
+        description: "Versioned gross and net exposure, concentration, liquidity, turnover, intent-rate, leverage, drawdown, loss, stale-input, and scenario policies; pure-function reason codes; exact-boundary, missing-data, duplicate, rate-burst, correlated-shock, and property-test fixtures; authoritative local synthetic-portfolio state; and proof that agents cannot override limits.",
       },
       zhHans: {
         title: "确定性组合风险门禁",
-        description: "带版本的暴露、集中度、流动性、换手、杠杆、回撤、损失、陈旧输入与情景政策；纯函数原因代码；精确边界、缺失数据、重复、相关冲击与性质测试 fixtures；权威模拟组合状态；以及智能体无法覆盖上限的证明。",
+        description: "带版本的总敞口与净敞口、集中度、流动性、换手、意图速率、杠杆、回撤、损失、陈旧输入与情景政策；纯函数原因代码；精确边界、缺失数据、重复、速率突发、相关冲击与性质测试 fixtures；权威本地合成组合状态；以及智能体无法覆盖上限的证明。",
       },
     },
   },
   {
     id: "paper-execution-reconciliation",
-    sourceIds: ["github-alpaca-py", "github-freqtrade", "x-alpaca-cli-agents-2026"],
+    sourceIds: ["github-alpaca-py", "github-freqtrade"],
     copy: {
       en: {
-        title: "Paper execution and reconciliation journal",
-        description: "Simulator identity proof, typed immutable intent, risk-approved hash, idempotency key, full order state machine, raw and corrected events, synthetic-fill labels, cash-position-fee accounting, three-way reconciliation, discrepancy ownership, and explicit absence of live credentials and endpoints.",
+        title: "Local synthetic execution and reconciliation journal",
+        description: "Local-engine identity proof, typed immutable intent, deterministic risk-approved hash, and a verified single-use named-human approval event from an agent-non-writable append-only channel or a detached signature checked against a pinned public key. Include issuer-proof and revocation checks, exact intent and policy binding, an atomic replay-resistant consumption ledger, forged/revoked/replayed negative tests, idempotency key, full synthetic state machine, raw and corrected events, synthetic-fill labels, declared valuation and lot-accounting policy, cash-position-fee accounting, three-way reconciliation, discrepancy ownership, and explicit absence of network, accounts, credentials, and endpoints.",
       },
       zhHans: {
-        title: "模拟执行与对账日志",
-        description: "模拟器身份、类型化不可变意图、风险批准哈希、幂等键、完整订单状态机、原始与更正事件、合成成交标签、现金—头寸—费用会计、三方对账、差异负责人，以及不存在实盘凭证和端点的明确证明。",
+        title: "本地合成执行与对账日志",
+        description: "本地引擎身份、类型化不可变意图、确定性风险批准哈希，以及来自智能体无写权限追加式通道、或由固定公钥验证分离签名的一次性具名人员批准事件。包括签发证明与撤销检查、精确意图和政策绑定、原子化防重放消费台账、伪造/撤销/重放负例、幂等键、完整合成状态机、原始与更正事件、合成成交标签、已声明的估值与批次会计政策、现金—头寸—费用会计、三方对账、差异负责人，以及不存在网络、账户、凭证和端点的明确证明。",
       },
     },
   },
   {
     id: "operations-release",
-    sourceIds: ["nist-ai-rmf", "github-alpaca-py", "github-openbb", "sec-ai-investment-fraud", "finra-auto-trading-risk", "finra-algorithmic-trading", "sec-market-access-rule-faq"],
+    sourceIds: ["nist-ai-rmf", "github-alpaca-py", "github-openbb", "finra-algorithmic-trading", "sec-market-access-rule-faq"],
     copy: {
       en: {
         title: "Monitoring, incident, replay, and release record",
-        description: "Monitor ownership and thresholds, correlated traces, kill-switch and unauthorized-restart tests, incident timeline, containment, reconciliation, root cause, regression, recovery approval, clean-environment replay, review findings, unresolved limits, non-claims, and signed paper-only safety attestation.",
+        description: "Monitor ownership and thresholds, correlated traces, kill-switch and unauthorized-restart tests, incident timeline, containment, reconciliation, root cause, regression, recovery approval, clean-environment replay, review findings, unresolved limits, non-claims, and signed local-synthetic-only safety attestation. Add a concise executive narrative that maps every material claim to its exact receipt, source locator, owner, and unresolved limitation; unsupported claims must be removed or labelled unverified.",
       },
       zhHans: {
         title: "监控、事故、重放与发布记录",
-        description: "监控负责人和阈值、关联轨迹、紧急停止与未授权重启测试、事故时间线、遏制、对账、根因、回归、恢复批准、洁净环境重放、评审发现、未解决边界、非声明与签署的仅限模拟盘安全证明。",
+        description: "监控负责人和阈值、关联轨迹、紧急停止与未授权重启测试、事故时间线、遏制、对账、根因、回归、恢复批准、洁净环境重放、评审发现、未解决边界、禁止外推项与签署的仅限本地合成安全证明。另附简明的执行摘要，把每项重要主张逐一映射到精确收据、来源定位、负责人和未解决限制；没有支持的主张必须删除或标为尚未验证。",
       },
     },
   },
@@ -135,6 +135,7 @@ export const AGENTIC_QUANT_TRADING_CAPSTONE = {
   artifacts: AGENTIC_QUANT_TRADING_CAPSTONE_ARTIFACTS.map((artifact) => ({
     id: artifact.id,
     sourceIds: artifact.sourceIds,
+    evidenceMode: "instructional-synthesis" as const,
     required: true as const,
   })) as unknown as CourseKitCapstone<
     AgenticQuantTradingCapstoneArtifactId,

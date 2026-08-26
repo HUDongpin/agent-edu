@@ -734,6 +734,19 @@
   gap: 4px;
 }
 
+.artifactItem > label:first-child em {
+  justify-self: start;
+  border: 1px solid var(--gold-line);
+  border-radius: 99px;
+  padding-block: 3px;
+  padding-inline: 8px;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+}
+
 .artifactItem > label:first-child small {
   color: var(--ink-3);
   line-height: 1.5;
