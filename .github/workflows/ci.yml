@@ -5,6 +5,19 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      preview_url:
+        description: Public Vercel Preview origin for the candidate
+        required: false
+        type: string
+      deployment_id:
+        description: Vercel deployment ID paired with the Preview URL
+        required: false
+        type: string
+      commit_sha:
+        description: Exact candidate commit SHA deployed to Preview
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -138,3 +151,41 @@ jobs:
           path: browser-evidence/
           if-no-files-found: error
           retention-days: 3
+
+  preview-verification:
+    name: ${{ inputs.preview_url != '' && 'Vercel Preview' || 'preview-verification-not-requested' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PREVIEW_URL: ${{ inputs.preview_url }}
+      VERCEL_DEPLOYMENT_ID: ${{ inputs.deployment_id }}
+      CANDIDATE_COMMIT_SHA: ${{ inputs.commit_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.x
+          cache: npm
+      - run: corepack enable
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify the registry-derived Preview surface and same-SHA metadata
+        run: >-
+          npm run preview:verify --
+          --url "$PREVIEW_URL"
+          --deployment-id "$VERCEL_DEPLOYMENT_ID"
+          --commit "$CANDIDATE_COMMIT_SHA"
+          --browser-console
+          --output tmp/release/vercel-preview-verification.json
+      - name: Upload sanitized same-SHA Preview evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: vercel-preview-verification
+          path: tmp/release/vercel-preview-verification.json
+          if-no-files-found: error
+          retention-days: 14

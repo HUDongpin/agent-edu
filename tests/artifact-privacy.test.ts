@@ -765,7 +765,7 @@ test("CI uploads browser evidence only after the privacy scanner succeeds", () =
   assert.equal((workflow.match(/run: npm run artifacts:check/g) ?? []).length, 3);
   const pinnedUploadArtifact =
     "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a";
-  assert.equal(workflow.split(pinnedUploadArtifact).length - 1, 4);
+  assert.equal(workflow.split(pinnedUploadArtifact).length - 1, 5);
   assert.equal(
     (
       workflow.match(
@@ -775,7 +775,11 @@ test("CI uploads browser evidence only after the privacy scanner succeeds", () =
     3,
   );
   assert.equal((workflow.match(/path: browser-evidence\//g) ?? []).length, 3);
-  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 4);
+  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 5);
+  assert.match(
+    workflow,
+    /if: \$\{\{ always\(\) \}\}[\s\S]{0,240}name: vercel-preview-verification[\s\S]{0,160}path: tmp\/release\/vercel-preview-verification\.json/,
+  );
   assert.doesNotMatch(workflow, /path:[\s\S]{0,100}(?:test-results|playwright-report)/);
   const contractOffset = workflow.indexOf("run: npm run test:evidence-contract");
   const smokeOffset = workflow.indexOf("run: npm run test:smoke");

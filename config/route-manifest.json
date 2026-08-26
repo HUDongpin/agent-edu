@@ -11,6 +11,7 @@
     "/_not-found"
   ],
   "requiredArtifacts": [
+    "out/.well-known/release.json",
     "out/404.html",
     "out/404/index.html",
     "out/_not-found/index.html",
