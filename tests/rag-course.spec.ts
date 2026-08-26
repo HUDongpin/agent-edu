@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "../e2e/fixtures";
 import { RAG_FIGURES } from "../lib/rag/figures";
 import { RAG_COURSE_MANIFEST } from "../lib/rag/manifest";
 import { RAG_SOURCE_BY_ID } from "../lib/rag/sources";

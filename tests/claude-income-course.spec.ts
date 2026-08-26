@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "../e2e/fixtures";
 import {
   CLAUDE_INCOME_CAPSTONE,
   CLAUDE_INCOME_CONTENT_LANGUAGE,

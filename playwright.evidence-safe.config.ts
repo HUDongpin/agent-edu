@@ -6,8 +6,12 @@ import {
 
 export default defineConfig({
   testDir: "./e2e-contract",
-  testMatch: "intentional-safe-failure.spec.ts",
-  reporter: [["list"]],
+  testMatch: [
+    "intentional-safe-failure.spec.ts",
+    "intentional-reporter-failure.spec.ts",
+  ],
+  globalSetup: "./scripts/prepare-browser-evidence.mjs",
+  reporter: [["./e2e/curated-evidence-reporter.ts"]],
   outputDir: ".playwright-evidence-contract-safe",
   preserveOutput: "never",
   workers: 1,

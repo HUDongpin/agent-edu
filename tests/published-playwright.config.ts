@@ -26,10 +26,11 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
   workers: 1,
+  globalSetup: "../scripts/prepare-browser-evidence.mjs",
   expect: { timeout: 10_000 },
   // Automatic Playwright media can capture learner or Provider state. The
-  // shared e2e fixture emits only its deliberately sanitized failure bundle.
-  reporter: [["list"]],
+  // shared fixture and reporter fallback emit only the closed curated bundle.
+  reporter: [["../e2e/curated-evidence-reporter.ts"]],
   outputDir: "../.playwright-raw",
   preserveOutput: "never",
   use: {

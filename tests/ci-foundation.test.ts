@@ -308,7 +308,22 @@ test("the published-course browser gate uses a closed all-engine spec allowlist"
     "tests/software-engineering-course.spec.ts",
   ];
 
-  for (const spec of requiredSpecs) assert.ok(config.includes(`"${spec}"`), spec);
+  for (const spec of requiredSpecs) {
+    assert.ok(config.includes(`"${spec}"`), spec);
+    const source = readFileSync(spec, "utf8");
+    const fixtureImport = spec.startsWith("e2e/")
+      ? 'from "./fixtures"'
+      : 'from "../e2e/fixtures"';
+    assert.ok(
+      source.includes(fixtureImport),
+      `${spec} must use the curated public-browser fixture`,
+    );
+    assert.doesNotMatch(
+      source,
+      /import\s*\{[^}]*\b(?:expect|test)\b[^}]*\}\s*from\s*"@playwright\/test"/,
+      `${spec} must not bypass curated failure evidence`,
+    );
+  }
   for (const blockedSpec of [
     "tests/codex-course.spec.ts",
     "tests/claude-course.spec.ts",
@@ -324,6 +339,11 @@ test("the published-course browser gate uses a closed all-engine spec allowlist"
   assert.match(config, /video: "off"/);
   assert.match(config, /outputDir: "\.\.\/\.playwright-raw"/);
   assert.match(config, /preserveOutput: "never"/);
+  assert.match(
+    config,
+    /reporter: \[\["\.\.\/e2e\/curated-evidence-reporter\.ts"\]\]/,
+  );
+  assert.doesNotMatch(config, /\["(?:list|html|json|junit|blob|dot|line)"/);
   assert.equal(
     packageJson.scripts["test:published-courses"],
     "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test --config tests/published-playwright.config.ts",

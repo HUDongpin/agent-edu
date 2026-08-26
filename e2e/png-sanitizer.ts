@@ -1,7 +1,8 @@
-import { crc32 } from "node:zlib";
+import { crc32, deflateSync } from "node:zlib";
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const NORMALIZATION_ERROR = "curated screenshot PNG normalization failed";
+const REDACTION_RGBA = Buffer.from([0xe5, 0xe7, 0xeb, 0xff]);
 
 function failNormalization(): never {
   throw new Error(NORMALIZATION_ERROR);
@@ -10,6 +11,37 @@ function failNormalization(): never {
 function isPngChunkType(typeBytes: Buffer) {
   return typeBytes.length === 4 && [...typeBytes].every((byte) =>
     (byte >= 0x41 && byte <= 0x5a) || (byte >= 0x61 && byte <= 0x7a));
+}
+
+function pngChunk(type: "IHDR" | "IDAT" | "IEND", data: Buffer) {
+  const typeBytes = Buffer.from(type, "ascii");
+  const chunk = Buffer.alloc(12 + data.length);
+  chunk.writeUInt32BE(data.length, 0);
+  typeBytes.copy(chunk, 4);
+  data.copy(chunk, 8);
+  chunk.writeUInt32BE(crc32(chunk.subarray(4, 8 + data.length)), 8 + data.length);
+  return chunk;
+}
+
+/**
+ * A browser process can become unavailable while Playwright is unwinding a
+ * failed test. Keep the evidence contract closed in that case by emitting a
+ * deterministic, one-pixel version of the same uniform redaction surface.
+ * No page, console, URL, error, or learner data enters this fallback image.
+ */
+export function createUniformRedactionPng(): Buffer {
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(1, 0);
+  header.writeUInt32BE(1, 4);
+  header[8] = 8;
+  header[9] = 6;
+  const scanline = Buffer.concat([Buffer.from([0]), REDACTION_RGBA]);
+  return Buffer.concat([
+    PNG_SIGNATURE,
+    pngChunk("IHDR", header),
+    pngChunk("IDAT", deflateSync(scanline)),
+    pngChunk("IEND", Buffer.alloc(0)),
+  ]);
 }
 
 /**

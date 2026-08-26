@@ -75,14 +75,16 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - name: Prove safe/private failure evidence contracts
+        id: evidence_contract
         run: npm run test:evidence-contract
-      - run: npm run test:smoke
+      - id: smoke_browser
+        run: npm run test:smoke
       - name: Scan browser failure evidence for private data
         id: artifact_privacy
-        if: ${{ failure() }}
+        if: ${{ failure() && (steps.evidence_contract.outcome == 'failure' || steps.smoke_browser.outcome == 'failure') }}
         run: npm run artifacts:check
       - name: Upload browser failure evidence
-        if: ${{ failure() && steps.artifact_privacy.outcome == 'success' }}
+        if: ${{ failure() && (steps.evidence_contract.outcome == 'failure' || steps.smoke_browser.outcome == 'failure') && steps.artifact_privacy.outcome == 'success' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: smoke-chromium-failure
@@ -105,16 +107,18 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run build
-      - run: npm run test:compat
-      - run: npm run test:resilience
+      - id: compat_browser
+        run: npm run test:compat
+      - id: resilience_browser
+        run: npm run test:resilience
       - name: Verify synthetic lab-vitals harness and schema
         run: npm run --silent vitals:lab -- --samples=1
       - name: Scan compatibility failure evidence for private data
         id: artifact_privacy
-        if: ${{ failure() }}
+        if: ${{ failure() && (steps.compat_browser.outcome == 'failure' || steps.resilience_browser.outcome == 'failure') }}
         run: npm run artifacts:check
       - name: Upload compatibility failure evidence
-        if: ${{ failure() && steps.artifact_privacy.outcome == 'success' }}
+        if: ${{ failure() && (steps.compat_browser.outcome == 'failure' || steps.resilience_browser.outcome == 'failure') && steps.artifact_privacy.outcome == 'success' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: compatibility-failure
@@ -138,13 +142,14 @@ jobs:
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run build
       - name: Run every published-course browser contract
+        id: published_browser
         run: npm run test:published-courses
       - name: Scan published-course failure evidence for private data
         id: artifact_privacy
-        if: ${{ failure() }}
+        if: ${{ failure() && steps.published_browser.outcome == 'failure' }}
         run: npm run artifacts:check
       - name: Upload published-course failure evidence
-        if: ${{ failure() && steps.artifact_privacy.outcome == 'success' }}
+        if: ${{ failure() && steps.published_browser.outcome == 'failure' && steps.artifact_privacy.outcome == 'success' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: published-courses-failure

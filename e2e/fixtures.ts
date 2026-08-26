@@ -1,23 +1,25 @@
-import { createHash } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { expect, test as base } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { PLAYWRIGHT_TEST_ORIGIN } from "../tests/playwright-test-url";
-import { stripPngAncillaryChunks } from "./png-sanitizer";
+import {
+  curatedProject,
+  toCuratedConsoleType,
+  toCuratedRequestMethod,
+  toCuratedResourceType,
+  writeCuratedEvidenceBundle,
+} from "./curated-evidence";
+import type {
+  CuratedConsoleCounts,
+  CuratedOriginClass,
+  CuratedTraceEvent,
+  CuratedTraceEventInput,
+} from "./curated-evidence";
+import {
+  createUniformRedactionPng,
+  stripPngAncillaryChunks,
+} from "./png-sanitizer";
 
-const EVIDENCE_SCHEMA = "agent-edu.curated-browser-evidence.v1";
-const SANITIZER_POLICY = "uniform-redaction-surface-v2";
 const REDACTION_SURFACE_ID = "agent-edu-browser-evidence-redaction-surface";
-
-function sha256(bytes: Buffer | string) {
-  return createHash("sha256").update(bytes).digest("hex");
-}
-
-function writeJson(path: string, value: unknown) {
-  const bytes = Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8");
-  writeFileSync(path, bytes, { mode: 0o600 });
-  return { bytes: bytes.length, sha256: sha256(bytes) };
-}
 
 /**
  * Every browser test starts with the paid Provider blocked. Tests that need a
@@ -26,42 +28,53 @@ function writeJson(path: string, value: unknown) {
  * mock fail closed instead of reaching the live service.
  */
 export const test = base.extend<{ _curatedEvidence: void }>({
-  _curatedEvidence: [async ({ page, browserName }, use, testInfo) => {
+  _curatedEvidence: [async ({ context, page, browserName }, use, testInfo) => {
     let unmockedProviderRequests = 0;
-    await page.route("https://api.deepseek.com/**", (route) => {
+    await context.route("https://api.deepseek.com/**", (route) => {
       unmockedProviderRequests += 1;
       return route.abort("blockedbyclient");
     });
-    const consoleCounts: Record<string, number> = Object.create(null) as Record<string, number>;
+    const consoleCounts: CuratedConsoleCounts = Object.create(null) as CuratedConsoleCounts;
     let pageErrorCount = 0;
-    const trace: Array<Record<string, number | string>> = [];
+    const trace: CuratedTraceEvent[] = [];
     let sequence = 0;
-    const addTrace = (event: Record<string, number | string>) => {
+    const addTrace = (event: CuratedTraceEventInput) => {
       if (trace.length < 500) trace.push({ sequence: ++sequence, ...event });
     };
 
-    page.on("console", (message) => {
-      const type = message.type();
-      consoleCounts[type] = (consoleCounts[type] ?? 0) + 1;
-    });
-    page.on("pageerror", () => { pageErrorCount += 1; });
-    page.on("request", (request) => {
+    const observedPages = new WeakSet<Page>();
+    const observePage = (observedPage: Page) => {
+      if (observedPages.has(observedPage)) return;
+      observedPages.add(observedPage);
+      observedPage.on("console", (message) => {
+        const type = toCuratedConsoleType(message.type());
+        if (!type) return;
+        consoleCounts[type] = (consoleCounts[type] ?? 0) + 1;
+      });
+      observedPage.on("pageerror", () => { pageErrorCount += 1; });
+      observedPage.on("framenavigated", (frame) => {
+        if (frame === observedPage.mainFrame()) addTrace({ event: "main-frame-navigation" });
+      });
+    };
+    observePage(page);
+    context.on("page", observePage);
+    context.on("request", (request) => {
       const origin = new URL(request.url()).origin;
-      const originClass = origin === PLAYWRIGHT_TEST_ORIGIN
+      const originClass: CuratedOriginClass = origin === PLAYWRIGHT_TEST_ORIGIN
         ? "local"
         : origin === "https://api.deepseek.com" ? "provider" : "external";
+      const method = toCuratedRequestMethod(request.method());
+      const resourceType = toCuratedResourceType(request.resourceType());
+      if (!method || !resourceType) return;
       addTrace({
         event: "request",
-        method: request.method(),
-        resourceType: request.resourceType(),
+        method,
+        resourceType,
         originClass,
       });
     });
-    page.on("response", (response) => {
+    context.on("response", (response) => {
       addTrace({ event: "response", status: response.status() });
-    });
-    page.on("framenavigated", (frame) => {
-      if (frame === page.mainFrame()) addTrace({ event: "main-frame-navigation" });
     });
 
     await use();
@@ -76,76 +89,49 @@ export const test = base.extend<{ _curatedEvidence: void }>({
     }
     if (testInfo.status === testInfo.expectedStatus && !providerFailure) return;
 
-    const evidenceId = sha256(testInfo.testId).slice(0, 20);
-    const directory = resolve("browser-evidence", `safe-failure-${evidenceId}`);
-    mkdirSync(directory, { recursive: true, mode: 0o700 });
-
     // Capture only a fixed, text-free surface. The scanner independently
     // decodes every PNG row and requires every pixel to be exactly #e5e7eb,
     // so the manifest label cannot authorize an ordinary page screenshot.
-    await page.evaluate((surfaceId) => {
-      document.getElementById(surfaceId)?.remove();
-      const surface = document.createElement("div");
-      surface.id = surfaceId;
-      surface.setAttribute("aria-hidden", "true");
-      Object.assign(surface.style, {
-        position: "fixed",
-        inset: "0",
-        zIndex: "2147483647",
-        margin: "0",
-        padding: "0",
-        border: "0",
-        outline: "0",
-        background: "rgb(229, 231, 235)",
+    let screenshot: Buffer;
+    try {
+      await page.evaluate((surfaceId) => {
+        document.getElementById(surfaceId)?.remove();
+        const surface = document.createElement("div");
+        surface.id = surfaceId;
+        surface.setAttribute("aria-hidden", "true");
+        Object.assign(surface.style, {
+          position: "fixed",
+          inset: "0",
+          zIndex: "2147483647",
+          margin: "0",
+          padding: "0",
+          border: "0",
+          outline: "0",
+          background: "rgb(229, 231, 235)",
+        });
+        document.documentElement.appendChild(surface);
+      }, REDACTION_SURFACE_ID);
+      const rawScreenshot = await page.locator(`#${REDACTION_SURFACE_ID}`).screenshot({
+        animations: "disabled",
+        caret: "hide",
+        scale: "css",
+        type: "png",
       });
-      document.documentElement.appendChild(surface);
-    }, REDACTION_SURFACE_ID);
-    const rawScreenshot = await page.locator(`#${REDACTION_SURFACE_ID}`).screenshot({
-      animations: "disabled",
-      caret: "hide",
-      scale: "css",
-      type: "png",
-    });
-    const screenshot = stripPngAncillaryChunks(rawScreenshot);
-    const screenshotPath = resolve(directory, "screenshot.png");
-    writeFileSync(screenshotPath, screenshot, { mode: 0o600 });
-    const traceFile = writeJson(resolve(directory, "trace.json"), {
-      schemaVersion: EVIDENCE_SCHEMA,
-      tracePolicy: "structural-metadata-only-no-url-query-header-body-text",
-      screenshots: false,
-      sources: false,
-      attachments: false,
-      events: trace,
-    });
-    const consoleFile = writeJson(resolve(directory, "console.json"), {
-      schemaVersion: EVIDENCE_SCHEMA,
-      consolePolicy: "counts-only-no-console-or-error-text",
-      counts: Object.fromEntries(Object.entries(consoleCounts).sort()),
+      screenshot = stripPngAncillaryChunks(rawScreenshot);
+    } catch {
+      screenshot = createUniformRedactionPng();
+    }
+    const project = curatedProject(testInfo.project.name);
+    if (project.browserName !== browserName) {
+      throw new Error("curated evidence browser project did not match its fixture");
+    }
+    writeCuratedEvidenceBundle({
+      testId: testInfo.testId,
+      ...project,
+      screenshot,
+      trace,
+      consoleCounts,
       pageErrorCount,
-    });
-    const screenshotFile = { bytes: screenshot.length, sha256: sha256(screenshot) };
-    writeJson(resolve(directory, "manifest.json"), {
-      schemaVersion: EVIDENCE_SCHEMA,
-      kind: "curated-safe-browser-failure",
-      provenance: {
-        sanitizerPolicy: SANITIZER_POLICY,
-        fixturePolicy: "public-fixed-safe-smoke-only",
-        testIdSha256: sha256(testInfo.testId),
-        browserName,
-        projectName: testInfo.project.name,
-        commitSha: /^[0-9a-f]{40}$/i.test(process.env.GITHUB_SHA ?? "")
-          ? process.env.GITHUB_SHA
-          : "local-uncommitted",
-      },
-      files: {
-        "console.json": { contentType: "application/json", ...consoleFile },
-        "screenshot.png": {
-          contentType: "image/png",
-          sanitization: SANITIZER_POLICY,
-          ...screenshotFile,
-        },
-        "trace.json": { contentType: "application/json", ...traceFile },
-      },
     });
     if (providerFailure) throw providerFailure;
   }, { auto: true }],

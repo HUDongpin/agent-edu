@@ -1,4 +1,5 @@
-import { expect, test, type Browser, type Page, type Request } from "@playwright/test";
+import type { Browser, Page, Request } from "@playwright/test";
+import { expect, test } from "../e2e/fixtures";
 import axe from "axe-core";
 import { MCP_FINAL_ASSESSMENT, MCP_FINAL_DISPLAY_CORRECT_INDEXES } from "../lib/mcp/assessment";
 import { MCP_LESSONS } from "../lib/mcp/course";

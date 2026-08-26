@@ -7,21 +7,20 @@ const baseURL = externalBaseUrl ?? `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: ".",
   testMatch: "mcp-course.spec.ts",
-  outputDir: "../output/playwright/mcp-results",
+  outputDir: "../.playwright-raw",
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 2 : 0,
+  retries: 0,
   workers: process.env.CI ? 2 : 1,
-  reporter: [
-    ["list"],
-    ["html", { outputFolder: "../output/playwright/mcp-report", open: "never" }],
-  ],
+  globalSetup: "../scripts/prepare-browser-evidence.mjs",
+  reporter: [["../e2e/curated-evidence-reporter.ts"]],
+  preserveOutput: "never",
   expect: { timeout: 10_000 },
   use: {
     baseURL,
-    trace: "retain-on-failure",
-    screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    trace: "off",
+    screenshot: "off",
+    video: "off",
   },
   projects: [
     {
@@ -29,12 +28,12 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: "firefox-smoke",
+      name: "firefox",
       grep: /@browser-smoke/,
       use: { ...devices["Desktop Firefox"] },
     },
     {
-      name: "webkit-smoke",
+      name: "webkit",
       grep: /@browser-smoke/,
       use: { ...devices["Desktop Safari"] },
     },
