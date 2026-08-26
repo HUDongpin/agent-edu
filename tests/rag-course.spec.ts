@@ -11,6 +11,12 @@ import {
   type RagLessonSlug,
 } from "../lib/rag/types";
 import { publishedSitemapUrls } from "./published-course-test-helpers";
+import {
+  documentUrl,
+  isNextLinkPrefetchRequest,
+  renderedDocumentLinkTargets,
+} from "./next-prefetch-test-helpers";
+import { PLAYWRIGHT_TEST_ORIGIN } from "./playwright-test-url";
 
 const ragCopyByLocale = Object.fromEntries(RAG_LOCALES.map((locale) => [
   locale,
@@ -355,9 +361,30 @@ test.describe("deterministic Retrieval Lab", () => {
     await page.waitForLoadState("networkidle");
     await expect(lab).toHaveAttribute("data-rag-hydrated", "true");
 
+    const renderedLinkTargets = await renderedDocumentLinkTargets(page);
     const backgroundCalls: string[] = [];
+    const pageErrors: string[] = [];
+    const requestFailures: string[] = [];
+    const failedResponses: string[] = [];
     page.on("request", (request) => {
-      if (["fetch", "xhr"].includes(request.resourceType())) backgroundCalls.push(request.url());
+      if (!["fetch", "xhr"].includes(request.resourceType())) return;
+      if (isNextLinkPrefetchRequest(
+        request,
+        PLAYWRIGHT_TEST_ORIGIN,
+        renderedLinkTargets,
+      )) return;
+      backgroundCalls.push(`${request.method()} ${request.url()}`);
+    });
+    page.on("pageerror", (error) => pageErrors.push(error.stack || error.message));
+    page.on("requestfailed", (request) => {
+      requestFailures.push(
+        `${request.failure()?.errorText ?? "unknown failure"}: ${request.url()}`,
+      );
+    });
+    page.on("response", (response) => {
+      if (response.status() >= 400) {
+        failedResponses.push(`${response.status()} ${documentUrl(response.url())}`);
+      }
     });
 
     const rows = lab.locator("ol > li");
@@ -409,7 +436,10 @@ test.describe("deterministic Retrieval Lab", () => {
 
     await lab.getByRole("checkbox", { name: new RegExp(ragCopy.lab.rerankLabel) }).uncheck();
     await expect(lab.getByText(ragCopy.lab.rerankOff, { exact: true })).toBeVisible();
-    await expect(backgroundCalls).toEqual([]);
+    await expect(backgroundCalls, "the lab must not make business or external requests").toEqual([]);
+    await expect(pageErrors, "the lab must not raise uncaught page errors").toEqual([]);
+    await expect(requestFailures, "the lab and its same-origin prefetches must not fail requests").toEqual([]);
+    await expect(failedResponses, "the lab and its same-origin prefetches must not return HTTP errors").toEqual([]);
   });
 
   test("a shared lab URL restores every validated control while preserving unrelated query state", async ({ page }) => {

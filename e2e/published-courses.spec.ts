@@ -70,6 +70,8 @@ const THEME_STORAGE_KEY = "ae.theme";
 const LANGUAGE_STORAGE_KEY = "ae.lang";
 const RESET_QUARANTINE_SEED_KEY = "__aicourse_e2e_reset_quarantine_seeded__";
 const RESET_CONFLICT_SEED_KEY = "__aicourse_e2e_reset_conflict_seeded__";
+const LOCALE_RECOVERY_MARKER = "SAFE_LOCALE_BOUNDARY_RENDER_FAILURE";
+const GLOBAL_RECOVERY_MARKER = "SAFE_GLOBAL_BOUNDARY_RENDER_FAILURE";
 const PROTECTED_RESET_KEYS = {
   theme: THEME_STORAGE_KEY,
   language: LANGUAGE_STORAGE_KEY,
@@ -951,6 +953,36 @@ async function readPublishedSitemap(request: APIRequestContext) {
   return { pageUrls, sitemapFiles: visited };
 }
 
+async function expectEnglishRecoverySurface(
+  page: Page,
+  activeTestId: "locale-error" | "global-error",
+  inactiveTestId: "locale-error" | "global-error",
+  safeMarker: string,
+) {
+  const active = page.getByTestId(activeTestId);
+  await expect(active).toHaveCount(1);
+  await expect(active).toBeVisible();
+  await expect(page.getByTestId(inactiveTestId)).toHaveCount(0);
+  await expect(active).toHaveAttribute("role", "alert");
+  await expect(active.getByRole("heading", {
+    level: 1,
+    name: "This page stopped working.",
+  })).toBeVisible();
+  await expect(active.getByRole("button", { name: "Try again" })).toBeVisible();
+  await expect(active.getByRole("link", { name: "Return home" }))
+    .toHaveAttribute("href", "/en/");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+
+  const bodyText = await page.locator("body").innerText();
+  expect(bodyText.trim().length, `${activeTestId}: recovery document must not be blank`)
+    .toBeGreaterThan(0);
+  expect(bodyText, `${activeTestId}: visible DOM must omit the safe failure marker`)
+    .not.toContain(safeMarker);
+  expect(await page.content(), `${activeTestId}: serialized DOM must omit the safe failure marker`)
+    .not.toContain(safeMarker);
+}
+
 test("release registry pins exactly the approved twelve-course surface", () => {
   expect(releaseSurface.schemaVersion).toBe(2);
   expect(publishedCourses.map((course) => course.id).sort()).toEqual(
@@ -970,6 +1002,87 @@ test("release registry pins exactly the approved twelve-course surface", () => {
       `/${normalizedRoute(course.routes[0])}`,
     );
   }
+});
+
+test("locale recovery boundary handles an injected render failure without exposing it", async ({ page }) => {
+  let pageErrorCount = 0;
+  let consoleErrorCount = 0;
+  page.on("pageerror", () => { pageErrorCount += 1; });
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrorCount += 1;
+  });
+
+  await page.addInitScript(({ locale, marker }) => {
+    const NativeNumberFormat = Intl.NumberFormat;
+    const throwingNumberFormat = new Proxy(NativeNumberFormat, {
+      construct(target, args, newTarget) {
+        if (args.length === 1 && args[0] === locale) {
+          throw new Error(marker);
+        }
+        return Reflect.construct(target, args, newTarget);
+      },
+    });
+    Object.defineProperty(Intl, "NumberFormat", {
+      configurable: true,
+      writable: true,
+      value: throwingNumberFormat,
+    });
+  }, { locale: "en", marker: LOCALE_RECOVERY_MARKER });
+
+  // Grok's client-side progress/assessment surface intentionally constructs
+  // this exact formatter during hydration. Keep the injected fault below the
+  // locale layout so it exercises app/[locale]/error.tsx, not global-error.
+  const response = await page.goto("/en/grok/");
+  expect(response?.status()).toBe(200);
+  await expectEnglishRecoverySurface(
+    page,
+    "locale-error",
+    "global-error",
+    LOCALE_RECOVERY_MARKER,
+  );
+  expect(pageErrorCount, "the locale boundary must handle the render failure").toBe(0);
+  expect(
+    consoleErrorCount,
+    "the framework may log the handled fault, but evidence retains only a count",
+  ).toBeGreaterThan(0);
+});
+
+test("global recovery boundary handles an injected layout failure without exposing it", async ({ page }) => {
+  let pageErrorCount = 0;
+  let consoleErrorCount = 0;
+  page.on("pageerror", () => { pageErrorCount += 1; });
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrorCount += 1;
+  });
+
+  await page.addInitScript(({ mediaQuery, marker }) => {
+    const nativeMatchMedia = window.matchMedia.bind(window);
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value(query: string) {
+        if (query === mediaQuery) throw new Error(marker);
+        return nativeMatchMedia(query);
+      },
+    });
+  }, {
+    mediaQuery: "(prefers-color-scheme:dark)",
+    marker: GLOBAL_RECOVERY_MARKER,
+  });
+
+  const response = await page.goto("/en/");
+  expect(response?.status()).toBe(200);
+  await expectEnglishRecoverySurface(
+    page,
+    "global-error",
+    "locale-error",
+    GLOBAL_RECOVERY_MARKER,
+  );
+  expect(pageErrorCount, "the global boundary must handle the layout failure").toBe(0);
+  expect(
+    consoleErrorCount,
+    "the framework may log the handled fault, but evidence retains only a count",
+  ).toBeGreaterThan(0);
 });
 
 for (const contract of FRESH_DASHBOARD_CTA_CONTRACTS) {
@@ -1009,12 +1122,30 @@ for (const course of publishedCourses) {
     await expectMetadataContract(page, course, dashboard);
 
     if (!child) return;
-    const childResponse = await page.goto(localizedPath("en", child));
-    expect(childResponse, `${course.id}: representative child document response`).not.toBeNull();
-    expect(childResponse!.status(), `${course.id}: representative English child route`).toBe(200);
-    await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect(page.locator("main h1").first()).toBeVisible();
-    await expectMetadataContract(page, course, child);
+    // Route publication is a pair of independent document contracts. Loading
+    // the child in its own page prevents the dashboard's cancellable Next Link
+    // prefetches from racing WebKit's second page.goto while preserving the
+    // child's real response, hydration, DOM, and metadata assertions.
+    const childPage = await page.context().newPage();
+    let unmockedChildProviderRequests = 0;
+    await childPage.route("https://api.deepseek.com/**", (route) => {
+      unmockedChildProviderRequests += 1;
+      return route.abort("blockedbyclient");
+    });
+    try {
+      const childResponse = await childPage.goto(localizedPath("en", child));
+      expect(childResponse, `${course.id}: representative child document response`).not.toBeNull();
+      expect(childResponse!.status(), `${course.id}: representative English child route`).toBe(200);
+      await expect(childPage.locator("html")).toHaveAttribute("lang", "en");
+      await expect(childPage.locator("main h1").first()).toBeVisible();
+      await expectMetadataContract(childPage, course, child);
+    } finally {
+      await childPage.close();
+      expect(
+        unmockedChildProviderRequests,
+        `${course.id}: representative child must not contact the live Provider`,
+      ).toBe(0);
+    }
   });
 
   test(`${course.id}: dashboard has no critical or serious axe findings`, async ({ page }) => {

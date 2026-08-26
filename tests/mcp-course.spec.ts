@@ -1,11 +1,18 @@
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Page, type Request } from "@playwright/test";
 import axe from "axe-core";
 import { MCP_FINAL_ASSESSMENT, MCP_FINAL_DISPLAY_CORRECT_INDEXES } from "../lib/mcp/assessment";
 import { MCP_LESSONS } from "../lib/mcp/course";
 import { MCP_EXTENSIONS } from "../lib/mcp/extensions";
 import { MCP_FIGURES } from "../lib/mcp/figures";
 import { MCP_ASSESSMENT_VERSION, MCP_LOCALES } from "../lib/mcp/types";
+import {
+  isExpectedNextPrefetchCancellation,
+  isExpectedWebKitRscPrefetchPageError,
+  isNextLinkPrefetchRequest,
+  renderedDocumentLinkTargets,
+} from "./next-prefetch-test-helpers";
 import { publishedSitemapUrls } from "./published-course-test-helpers";
+import { PLAYWRIGHT_TEST_ORIGIN } from "./playwright-test-url";
 
 const DASHBOARD = "/en/mcp/";
 const LESSON_SLUGS = MCP_LESSONS.map((lesson) => lesson.slug);
@@ -22,9 +29,10 @@ for (const lesson of MCP_LESSONS) {
 
 type RuntimeAudit = {
   readonly consoleErrors: string[];
-  readonly pageErrors: string[];
-  readonly requestFailures: string[];
+  readonly pageErrors: Error[];
+  readonly requestFailures: Array<{ request: Request; reason: string }>;
   readonly failedResponses: string[];
+  readonly nextPrefetchUrls: Set<string>;
 };
 
 function watchRuntime(page: Page): RuntimeAudit {
@@ -33,19 +41,23 @@ function watchRuntime(page: Page): RuntimeAudit {
     pageErrors: [],
     requestFailures: [],
     failedResponses: [],
+    nextPrefetchUrls: new Set(),
   };
 
+  page.on("request", (request) => {
+    if (isNextLinkPrefetchRequest(request, PLAYWRIGHT_TEST_ORIGIN)) {
+      audit.nextPrefetchUrls.add(request.url());
+    }
+  });
   page.on("console", (message) => {
     if (message.type() === "error") {
       audit.consoleErrors.push(`${message.text()} @ ${message.location().url || "inline"}`);
     }
   });
-  page.on("pageerror", (error) => audit.pageErrors.push(error.stack || error.message));
+  page.on("pageerror", (error) => audit.pageErrors.push(error));
   page.on("requestfailed", (request) => {
     const reason = request.failure()?.errorText ?? "unknown failure";
-    if (!reason.includes("ERR_ABORTED") && !reason.includes("NS_BINDING_ABORTED")) {
-      audit.requestFailures.push(`${reason}: ${request.url()}`);
-    }
+    audit.requestFailures.push({ request, reason });
   });
   page.on("response", (response) => {
     if (response.status() >= 400) {
@@ -55,18 +67,29 @@ function watchRuntime(page: Page): RuntimeAudit {
   return audit;
 }
 
-function assertRuntimeClean(audit: RuntimeAudit, label: string) {
-  expect(audit.consoleErrors, `${label}: console errors`).toEqual([]);
-  expect(audit.pageErrors, `${label}: uncaught page errors`).toEqual([]);
-  expect(audit.requestFailures, `${label}: request failures`).toEqual([]);
-  expect(audit.failedResponses, `${label}: HTTP error responses`).toEqual([]);
-}
+function assertRuntimeClean(
+  audit: RuntimeAudit,
+  label: string,
+  renderedLinkTargets: ReadonlySet<string>,
+) {
+  const pageErrors = audit.pageErrors
+    .filter((error) => !isExpectedWebKitRscPrefetchPageError(
+      error,
+      PLAYWRIGHT_TEST_ORIGIN,
+      audit.nextPrefetchUrls,
+    ))
+    .map((error) => error.stack || error.message);
+  const requestFailures = audit.requestFailures
+    .filter(({ request, reason }) => !(
+      isNextLinkPrefetchRequest(request, PLAYWRIGHT_TEST_ORIGIN, renderedLinkTargets)
+      && isExpectedNextPrefetchCancellation(reason)
+    ))
+    .map(({ request, reason }) => `${reason}: ${request.url()}`);
 
-function clearRuntimeAudit(audit: RuntimeAudit) {
-  audit.consoleErrors.length = 0;
-  audit.pageErrors.length = 0;
-  audit.requestFailures.length = 0;
-  audit.failedResponses.length = 0;
+  expect(audit.consoleErrors, `${label}: console errors`).toEqual([]);
+  expect(pageErrors, `${label}: uncaught page errors`).toEqual([]);
+  expect(requestFailures, `${label}: request failures`).toEqual([]);
+  expect(audit.failedResponses, `${label}: HTTP error responses`).toEqual([]);
 }
 
 async function waitForStableDocument(page: Page) {
@@ -177,33 +200,37 @@ test.describe("Course 10 localized route contract", () => {
   });
 
   for (const locale of MCP_LOCALES) {
-    test(`${locale} materializes the dashboard and all 18 lessons`, async ({ page }) => {
+    test(`${locale} materializes the dashboard and all 18 lessons`, async ({ context }) => {
       test.setTimeout(180_000);
-      const runtime = watchRuntime(page);
 
       for (const suffix of ROUTE_SUFFIXES) {
         const path = suffix ? `/${locale}/mcp/${suffix}/` : `/${locale}/mcp/`;
-        const response = await page.goto(path);
-        expect(response?.status(), path).toBe(200);
-        await waitForStableDocument(page);
-        // This test intentionally reuses one page for 19 consecutive route
-        // documents. Let same-origin Next prefetches settle before replacing
-        // the document so WebKit cannot misclassify an expected navigation
-        // cancellation as a CORS page error. Real runtime, response, and
-        // request failures remain recorded and fail below.
-        await page.waitForLoadState("networkidle");
-        await expect(page.locator("html")).toHaveAttribute("lang", locale);
-        await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-        await expect(page.locator("main")).toHaveCount(1);
-        await expect(page.locator("main h1")).toHaveCount(1);
-        if (suffix) {
-          await expect(page.getByTestId(`mcp-lesson-${suffix}`)).toBeVisible();
-        } else {
-          await expect(page.getByTestId("mcp-course-dashboard")).toBeVisible();
+        // Each route gets a fresh document. Replacing one MCP document with
+        // the next used to mix the previous page's cancellable Link prefetches
+        // into the next route's runtime audit on WebKit/Linux. This page-local
+        // audit still fails every console error, uncaught error, request
+        // failure, or HTTP error produced by the route being asserted.
+        const routePage = await context.newPage();
+        const runtime = watchRuntime(routePage);
+        try {
+          const response = await routePage.goto(path);
+          expect(response?.status(), path).toBe(200);
+          await waitForStableDocument(routePage);
+          await routePage.waitForLoadState("networkidle");
+          await expect(routePage.locator("html")).toHaveAttribute("lang", locale);
+          await expect(routePage.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+          await expect(routePage.locator("main")).toHaveCount(1);
+          await expect(routePage.locator("main h1")).toHaveCount(1);
+          if (suffix) {
+            await expect(routePage.getByTestId(`mcp-lesson-${suffix}`)).toBeVisible();
+          } else {
+            await expect(routePage.getByTestId("mcp-course-dashboard")).toBeVisible();
+          }
+          await expectNoPageOverflow(routePage, path);
+          assertRuntimeClean(runtime, path, await renderedDocumentLinkTargets(routePage));
+        } finally {
+          await routePage.close();
         }
-        await expectNoPageOverflow(page, path);
-        assertRuntimeClean(runtime, path);
-        clearRuntimeAudit(runtime);
       }
     });
   }
@@ -237,19 +264,34 @@ test.describe("Course 10 localized route contract", () => {
 
   test("@browser-smoke dashboard and a real host figure render in each engine", async ({ page, browserName }) => {
     const runtime = watchRuntime(page);
-    let response = await page.goto(DASHBOARD);
+    const response = await page.goto(DASHBOARD);
     expect(response?.status(), browserName).toBe(200);
     await expect(page.getByTestId("mcp-course-dashboard")).toBeVisible();
     await page.waitForLoadState("networkidle");
-    assertRuntimeClean(runtime, `${browserName} dashboard smoke`);
-    clearRuntimeAudit(runtime);
-    response = await page.goto("/en/mcp/host-integrations/");
-    expect(response?.status(), browserName).toBe(200);
-    const image = page.getByTestId("mcp-figure-gemini-cli-mcp-inventory").locator("img");
-    await image.scrollIntoViewIfNeeded();
-    await expect(image).toBeVisible();
-    await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true);
-    assertRuntimeClean(runtime, `${browserName} smoke`);
+    assertRuntimeClean(
+      runtime,
+      `${browserName} dashboard smoke`,
+      await renderedDocumentLinkTargets(page),
+    );
+
+    const figurePage = await page.context().newPage();
+    const figureRuntime = watchRuntime(figurePage);
+    try {
+      const figureResponse = await figurePage.goto("/en/mcp/host-integrations/");
+      expect(figureResponse?.status(), browserName).toBe(200);
+      const image = figurePage.getByTestId("mcp-figure-gemini-cli-mcp-inventory").locator("img");
+      await image.scrollIntoViewIfNeeded();
+      await expect(image).toBeVisible();
+      await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true);
+      await figurePage.waitForLoadState("networkidle");
+      assertRuntimeClean(
+        figureRuntime,
+        `${browserName} smoke`,
+        await renderedDocumentLinkTargets(figurePage),
+      );
+    } finally {
+      await figurePage.close();
+    }
   });
 });
 
