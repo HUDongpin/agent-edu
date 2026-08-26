@@ -22,6 +22,7 @@ import {
 } from "@/lib/deepseek";
 import {
   LAB_STEPS,
+  isLearningPersistenceAvailable,
   readLearningState,
   readLearningStateOnServer,
   recordLabStep,
@@ -144,6 +145,15 @@ export default function Lab() {
     subscribeLearningState,
     readLearningState,
     readLearningStateOnServer,
+  );
+  /* Whether those ticks will still be here tomorrow. Every course surface
+     already says so when the answer is no; the Lab was the one that ticked
+     anyway. True on the server, so the notice is a correction rather than a
+     flash of warning on every first paint. */
+  const stored = useSyncExternalStore(
+    subscribeLearningState,
+    isLearningPersistenceAvailable,
+    () => true,
   );
   const done = useMemo(() => {
     const completed = selectLabProgress(learning).completedSteps;
@@ -588,6 +598,7 @@ export default function Lab() {
         <h1>{t("track.2.title")}</h1>
         <p className="lede">{t("track.2.desc")}</p>
         <p className="labmeta">{t("track.2.meta")}</p>
+        {!stored && <p className="langnote" role="status">{t("lab.storageUnavailable")}</p>}
       </section>
 
       {/* The prose here is translated; the café itself is not, and saying so
