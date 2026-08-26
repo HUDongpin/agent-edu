@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, test as base } from "@playwright/test";
 import { PLAYWRIGHT_TEST_ORIGIN } from "../tests/playwright-test-url";
+import { stripPngAncillaryChunks } from "./png-sanitizer";
 
 const EVIDENCE_SCHEMA = "agent-edu.curated-browser-evidence.v1";
 const SANITIZER_POLICY = "uniform-redaction-surface-v2";
@@ -99,11 +100,13 @@ export const test = base.extend<{ _curatedEvidence: void }>({
       });
       document.documentElement.appendChild(surface);
     }, REDACTION_SURFACE_ID);
-    const screenshot = await page.locator(`#${REDACTION_SURFACE_ID}`).screenshot({
+    const rawScreenshot = await page.locator(`#${REDACTION_SURFACE_ID}`).screenshot({
       animations: "disabled",
       caret: "hide",
+      scale: "css",
       type: "png",
     });
+    const screenshot = stripPngAncillaryChunks(rawScreenshot);
     const screenshotPath = resolve(directory, "screenshot.png");
     writeFileSync(screenshotPath, screenshot, { mode: 0o600 });
     const traceFile = writeJson(resolve(directory, "trace.json"), {

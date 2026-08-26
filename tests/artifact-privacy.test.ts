@@ -21,6 +21,7 @@ import {
   scanArtifactRoots,
 } from "../scripts/check-artifacts.mjs";
 import { validatePrivateReporterOutput } from "../scripts/run-private-playwright.mjs";
+import { stripPngAncillaryChunks } from "../e2e/png-sanitizer";
 
 type ZipEntry = {
   name: string;
@@ -133,20 +134,37 @@ function pngChunk(type: string, data: Buffer): Buffer {
   return chunk;
 }
 
-function strictPng(metadata = false, rgba = [0xe5, 0xe7, 0xeb, 0xff]): Buffer {
+function strictPng(
+  metadata: boolean | "webkit" = false,
+  rgba = [0xe5, 0xe7, 0xeb, 0xff],
+  dimensions = { width: 1, height: 1 },
+): Buffer {
   const header = Buffer.alloc(13);
-  header.writeUInt32BE(1, 0);
-  header.writeUInt32BE(1, 4);
+  header.writeUInt32BE(dimensions.width, 0);
+  header.writeUInt32BE(dimensions.height, 4);
   header[8] = 8;
   header[9] = 6;
   const chunks = [pngChunk("IHDR", header)];
   if (metadata) chunks.push(pngChunk("tEXt", Buffer.from("Comment\0private metadata", "utf8")));
+  if (metadata === "webkit") {
+    chunks.splice(1, 1,
+      pngChunk("sRGB", Buffer.from([0])),
+      pngChunk("eXIf", Buffer.alloc(68)),
+    );
+  }
   chunks.push(pngChunk("IDAT", deflateSync(Buffer.from([0, ...rgba]))));
   chunks.push(pngChunk("IEND", Buffer.alloc(0)));
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     ...chunks,
   ]);
+}
+
+function insertBeforeChunk(png: Buffer, target: string, chunk: Buffer) {
+  const typeOffset = png.indexOf(Buffer.from(target, "ascii"));
+  assert.ok(typeOffset >= 4);
+  const chunkOffset = typeOffset - 4;
+  return Buffer.concat([png.subarray(0, chunkOffset), chunk, png.subarray(chunkOffset)]);
 }
 
 function digest(bytes: Buffer): string {
@@ -556,6 +574,62 @@ test("a manifest-bound screenshot must be the uniform redaction surface", async 
   });
 });
 
+test("a device-scaled full-viewport PNG remains outside the curated shape contract", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, {
+      screenshot: strictPng(
+        false,
+        [0xe5, 0xe7, 0xeb, 0xff],
+        { width: 2_560, height: 1_440 },
+      ),
+    });
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "png-shape-unsupported",
+    );
+  });
+});
+
+test("the screenshot producer strips ancillary chunks and rejects malformed PNG envelopes", () => {
+  const webkitPng = strictPng("webkit");
+  assert.deepEqual(stripPngAncillaryChunks(webkitPng), strictPng(false));
+
+  const invalidSignature = Buffer.from(webkitPng);
+  invalidSignature[0] ^= 0xff;
+  assert.throws(
+    () => stripPngAncillaryChunks(invalidSignature),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+
+  const invalidCrc = Buffer.from(webkitPng);
+  const srgbTypeOffset = invalidCrc.indexOf(Buffer.from("sRGB", "ascii"));
+  assert.ok(srgbTypeOffset >= 4);
+  invalidCrc[srgbTypeOffset + 4] ^= 0xff;
+  assert.throws(
+    () => stripPngAncillaryChunks(invalidCrc),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+
+  assert.throws(
+    () => stripPngAncillaryChunks(webkitPng.subarray(0, webkitPng.length - 1)),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+  assert.throws(
+    () => stripPngAncillaryChunks(Buffer.concat([webkitPng, Buffer.from([0])])),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+
+  const unknownCritical = insertBeforeChunk(
+    strictPng(false),
+    "IDAT",
+    pngChunk("ABCD", Buffer.alloc(0)),
+  );
+  assert.throws(
+    () => stripPngAncillaryChunks(unknownCritical),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+});
+
 test("required curated roots and manifests fail closed when missing", async () => {
   await inWorkspace(async ({ workspace, root }) => {
     await assert.rejects(
@@ -601,6 +675,13 @@ test("manifest-bound malformed curated JSON fails with a safe category", async (
 test("manifest-bound PNG metadata and secret text are still blocked", async () => {
   await inWorkspace(async ({ workspace, artifacts, root }) => {
     writeCuratedBundle(artifacts, { metadataPng: true });
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "png-chunk-unsupported",
+    );
+  });
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, { screenshot: strictPng("webkit") });
     await assert.rejects(
       () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
       (error: unknown) => category(error) === "png-chunk-unsupported",
@@ -908,6 +989,8 @@ test("safe failure evidence is curated without raw Playwright outputs", () => {
   assert.match(fixture, /uniform-redaction-surface-v2/);
   assert.match(fixture, /new URL\(request\.url\(\)\)\.origin/);
   assert.match(fixture, /page\.locator\(`#\$\{REDACTION_SURFACE_ID\}`\)\.screenshot/);
+  assert.match(fixture, /scale: "css"/);
+  assert.match(fixture, /stripPngAncillaryChunks\(rawScreenshot\)/);
   assert.match(fixture, /structural-metadata-only-no-url-query-header-body-text/);
   assert.match(fixture, /counts-only-no-console-or-error-text/);
   assert.match(fixture, /screenshots: false/);
