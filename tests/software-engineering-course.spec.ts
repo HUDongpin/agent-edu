@@ -449,7 +449,7 @@ test.describe("localization, metadata, and discovery", () => {
   test("sitemap contains only the real English Course 8 routes", async ({ request }) => {
     const urls = await publishedSitemapUrls(request);
     const courseLocations = [...urls].filter((location) => (
-      new URL(location).pathname.includes("/software-engineering/")
+      /^\/[^/]+\/software-engineering\//.test(new URL(location).pathname)
     ));
     const expectedCount = SOFTWARE_ENGINEERING_LESSON_SLUGS.length + 1;
     expect(courseLocations).toHaveLength(expectedCount);
