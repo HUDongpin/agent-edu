@@ -318,6 +318,12 @@ export function validateCourseKitDefinition(
     if (![0, 1, 2, 3].includes(question.correctIndex)) {
       issues.push({ path: `quiz.questions[${index}].correctIndex`, message: "correctIndex must be 0, 1, 2, or 3." });
     }
+    if (!["source-grounded", "instructional-synthesis", "version-watch"].includes(question.evidenceMode)) {
+      issues.push({
+        path: `quiz.questions[${index}].evidenceMode`,
+        message: "Use a declared evidence relationship for every quiz question.",
+      });
+    }
   });
 
   if (!VERSION_TOKEN.test(capstone.version)) {
@@ -333,6 +339,12 @@ export function validateCourseKitDefinition(
     }
     if (artifact.required !== true) {
       issues.push({ path: `capstone.artifacts[${index}].required`, message: "Every capstone artifact is required." });
+    }
+    if (!["source-grounded", "instructional-synthesis", "version-watch"].includes(artifact.evidenceMode)) {
+      issues.push({
+        path: `capstone.artifacts[${index}].evidenceMode`,
+        message: "Use a declared evidence relationship for every capstone artifact.",
+      });
     }
   });
 

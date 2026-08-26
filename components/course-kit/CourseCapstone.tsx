@@ -106,6 +106,7 @@ export function CourseCapstone({
                     }}
                   />
                   <span>
+                    <em>{labels.evidenceModeLabels[artifact.evidenceMode]}</em>
                     <strong>{artifact.title}</strong>
                     <small>{artifact.description}</small>
                   </span>

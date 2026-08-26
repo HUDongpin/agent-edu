@@ -111,6 +111,7 @@ export interface CourseKitQuizQuestionAuthoringSeed<
   readonly id: QuestionId;
   readonly correctIndex: CourseKitOptionIndex;
   readonly sourceIds: CourseKitNonEmpty<SourceId>;
+  readonly evidenceMode: CourseKitEvidenceMode;
   readonly critical?: boolean;
   readonly copy: CourseKitBilingual<CourseKitQuizQuestionCopyAuthoringSeed>;
 }
@@ -121,6 +122,8 @@ export interface CourseKitCapstoneArtifactAuthoringSeed<
 > {
   readonly id: ArtifactId;
   readonly sourceIds: CourseKitNonEmpty<SourceId>;
+  /** Defaults conservatively to instructional synthesis. */
+  readonly evidenceMode?: CourseKitEvidenceMode;
   readonly copy: CourseKitBilingual<{
     readonly title: string;
     readonly description: string;
@@ -265,6 +268,25 @@ export function buildModuleQuestionBank<
   >[],
   options: {
     readonly criticalQuestionIds?: readonly CourseKitGeneratedQuestionId<ModuleSlug>[];
+    /** Classifies how generated questions relate to their contextual reading list. */
+    readonly questionEvidenceMode?: CourseKitEvidenceMode;
+    /** Optional reviewed distractors avoid treating another module's true artifact as a false answer. */
+    readonly distractors?: CourseKitBilingual<{
+      readonly evidence: readonly [string, string, string];
+      readonly boundary: readonly [string, string, string];
+    }>;
+    /** Optional module-specific reviewed distractors for higher-quality assessment. */
+    readonly distractorsByModule?: Readonly<
+      Partial<
+        Record<
+          ModuleSlug,
+          CourseKitBilingual<{
+            readonly evidence: readonly [string, string, string];
+            readonly boundary: readonly [string, string, string];
+          }>
+        >
+      >
+    >;
   } = {},
 ): CourseKitQuizQuestionAuthoringSeed<
   CourseKitGeneratedQuestionId<ModuleSlug>,
@@ -301,11 +323,14 @@ export function buildModuleQuestionBank<
     const zhArtifact = zhArtifacts[moduleIndex];
     const enTakeaway = enTakeaways[moduleIndex];
     const zhTakeaway = zhTakeaways[moduleIndex];
+    const reviewedDistractors =
+      options.distractorsByModule?.[module.slug] ?? options.distractors;
 
     bank.push({
       id: coreId,
       correctIndex: module.copy.en.checkpoint.correctIndex,
       sourceIds: module.sourceIds,
+      evidenceMode: options.questionEvidenceMode ?? "instructional-synthesis",
       critical: criticalIds.has(coreId),
       copy: {
         en: {
@@ -325,13 +350,15 @@ export function buildModuleQuestionBank<
       id: evidenceId,
       correctIndex: evidenceCorrectIndex,
       sourceIds: module.sourceIds,
+      evidenceMode: options.questionEvidenceMode ?? "instructional-synthesis",
       critical: criticalIds.has(evidenceId),
       copy: {
         en: {
           prompt: `Which artifact gives the most auditable evidence for the objective in “${module.copy.en.title}”?`,
           options: placeCorrectOption(
             enArtifact,
-            selectDistinctDistractors(enArtifacts, moduleIndex, 3) as [string, string, string],
+            reviewedDistractors?.en.evidence ??
+              selectDistinctDistractors(enArtifacts, moduleIndex, 3) as [string, string, string],
             evidenceCorrectIndex,
           ),
           explanation: `The module's stated auditable artifact is: ${enArtifact}`,
@@ -340,7 +367,8 @@ export function buildModuleQuestionBank<
           prompt: `哪一项产物最能为“${module.copy.zhHans.title}”的学习目标提供可审查证据？`,
           options: placeCorrectOption(
             zhArtifact,
-            selectDistinctDistractors(zhArtifacts, moduleIndex, 3) as [string, string, string],
+            reviewedDistractors?.zhHans.evidence ??
+              selectDistinctDistractors(zhArtifacts, moduleIndex, 3) as [string, string, string],
             evidenceCorrectIndex,
           ),
           explanation: `本模块明确要求的可审查产物是：${zhArtifact}`,
@@ -352,13 +380,15 @@ export function buildModuleQuestionBank<
       id: boundaryId,
       correctIndex: boundaryCorrectIndex,
       sourceIds: module.sourceIds,
+      evidenceMode: options.questionEvidenceMode ?? "instructional-synthesis",
       critical: criticalIds.has(boundaryId),
       copy: {
         en: {
           prompt: `Which statement best captures the takeaway or operating boundary in “${module.copy.en.title}”?`,
           options: placeCorrectOption(
             enTakeaway,
-            selectDistinctDistractors(enTakeaways, moduleIndex, 3) as [string, string, string],
+            reviewedDistractors?.en.boundary ??
+              selectDistinctDistractors(enTakeaways, moduleIndex, 3) as [string, string, string],
             boundaryCorrectIndex,
           ),
           explanation: `The module's stated takeaway is: ${enTakeaway}`,
@@ -367,7 +397,8 @@ export function buildModuleQuestionBank<
           prompt: `哪项陈述最准确地概括“${module.copy.zhHans.title}”的核心要点或操作边界？`,
           options: placeCorrectOption(
             zhTakeaway,
-            selectDistinctDistractors(zhTakeaways, moduleIndex, 3) as [string, string, string],
+            reviewedDistractors?.zhHans.boundary ??
+              selectDistinctDistractors(zhTakeaways, moduleIndex, 3) as [string, string, string],
             boundaryCorrectIndex,
           ),
           explanation: `本模块明确给出的核心要点是：${zhTakeaway}`,
@@ -560,6 +591,7 @@ export function buildCourseKitDefinition<
       id: question.id,
       correctIndex: question.correctIndex,
       sourceIds: question.sourceIds,
+      evidenceMode: question.evidenceMode,
       critical: question.critical === true,
     })) as unknown as CourseKitQuiz<QuestionId, SourceId>["questions"],
   };
@@ -569,6 +601,7 @@ export function buildCourseKitDefinition<
     artifacts: seed.capstone.artifacts.map((artifact) => ({
       id: artifact.id,
       sourceIds: artifact.sourceIds,
+      evidenceMode: artifact.evidenceMode ?? "instructional-synthesis",
       required: true as const,
     })) as unknown as CourseKitCapstone<ArtifactId, SourceId>["artifacts"],
   };
