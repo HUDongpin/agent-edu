@@ -232,7 +232,13 @@ test.describe("original raster and semantic teaching figures", () => {
       await expect(image).toHaveAttribute("width", String(raster.width));
       await expect(image).toHaveAttribute("height", String(raster.height));
       await image.scrollIntoViewIfNeeded();
-      await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBe(raster.width);
+      await expect.poll(() => image.evaluate((node: HTMLImageElement) => (
+        new URL(node.currentSrc).pathname
+      ))).toBe(raster.webpPath);
+      await expect.poll(() => image.evaluate((node: HTMLImageElement) => ({
+        width: node.naturalWidth,
+        height: node.naturalHeight,
+      }))).toEqual({ width: raster.webpWidth, height: raster.webpHeight });
       await expect(figure.getByText("Text shown in the image", { exact: true })).toBeVisible();
       await expect(figure.locator("figcaption")).not.toBeEmpty();
     });

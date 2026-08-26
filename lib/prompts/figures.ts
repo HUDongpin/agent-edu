@@ -12,6 +12,8 @@ export const PROMPT_FIGURES = [
     status: "available",
     raster: {
       webpPath: "/courses/prompts/prompt-workbench-v2.webp",
+      webpWidth: 1536,
+      webpHeight: 1024,
       pngPath: "/courses/prompts/prompt-workbench-v2.png",
       width: 1536,
       height: 1024,
@@ -31,6 +33,8 @@ export const PROMPT_FIGURES = [
     status: "available",
     raster: {
       webpPath: "/courses/prompts/evaluation-loop.webp",
+      webpWidth: 1536,
+      webpHeight: 1024,
       pngPath: "/courses/prompts/evaluation-loop.png",
       width: 1280,
       height: 853,

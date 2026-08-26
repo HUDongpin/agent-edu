@@ -251,6 +251,8 @@ export interface PromptCourseCopy {
 
 export type PromptRasterAsset = {
   readonly webpPath: `/${string}.webp`;
+  readonly webpWidth: 1536;
+  readonly webpHeight: 1024;
   readonly pngPath: `/${string}.png`;
   readonly webpSha256: string;
   readonly pngSha256: string;

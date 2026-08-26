@@ -63,6 +63,21 @@ test("Playwright contracts cannot silently reintroduce the default localhost lit
   }
 });
 
+test("the static preview server emits browser-safe media types and keeps unknown files inert", () => {
+  const source = readFileSync("scripts/serve-out.mjs", "utf8");
+  for (const [extension, mediaType] of [
+    [".avif", "image/avif"],
+    [".jpg", "image/jpeg"],
+    [".png", "image/png"],
+    [".webp", "image/webp"],
+    [".woff2", "font/woff2"],
+    [".zip", "application/zip"],
+  ] as const) {
+    assert.match(source, new RegExp(`"${extension.replace(".", "\\.")}":\\s*"${mediaType}"`));
+  }
+  assert.match(source, /TYPES\[extname\(body\)\]\s*\?\?\s*"application\/octet-stream"/);
+});
+
 test("safe smoke follows the current accessible home surface", () => {
   const source = readFileSync("e2e/smoke.spec.ts", "utf8");
   assert.match(source, /"": "\.platform-home #home-title"/);

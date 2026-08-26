@@ -901,6 +901,12 @@ function validateFigures(figures) {
     if (figure.raster.pngPath !== expectedRaster.pngPath) fail(`${label}.raster.pngPath must be ${expectedRaster.pngPath}.`);
     if (figure.raster.webpPath !== expectedRaster.webpPath) fail(`${label}.raster.webpPath must be ${expectedRaster.webpPath}.`);
     if (
+      figure.raster.webpWidth !== expectedRaster.webpWidth
+      || figure.raster.webpHeight !== expectedRaster.webpHeight
+    ) {
+      fail(`${label}.raster WebP dimensions must be ${expectedRaster.webpWidth}x${expectedRaster.webpHeight}.`);
+    }
+    if (
       figure.raster.width !== expectedRaster.pngWidth
       || figure.raster.height !== expectedRaster.pngHeight
     ) {
@@ -920,8 +926,8 @@ function validateFigures(figures) {
     validateRasterFile(
       figure.raster.webpPath,
       figure.raster.webpSha256,
-      expectedRaster.webpWidth,
-      expectedRaster.webpHeight,
+      figure.raster.webpWidth,
+      figure.raster.webpHeight,
     );
   }
 
