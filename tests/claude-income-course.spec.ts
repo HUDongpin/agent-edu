@@ -801,28 +801,34 @@ test.describe("Course 12 resilient rendering and accessibility basics", () => {
     await expect(prompt.locator("pre code")).toHaveText(originalPrompt ?? "");
   });
 
-  test("dashboard and a figure-rich capstone have no horizontal overflow at 390, 768, or 1440 pixels", async ({ page }) => {
+  test("dashboard and a figure-rich capstone have no horizontal overflow at 390, 768, or 1440 pixels", async ({ context }) => {
     test.setTimeout(90_000);
     for (const width of [390, 768, 1440]) {
-      await page.setViewportSize({ width, height: 900 });
       for (const route of [DASHBOARD, "/en/claude-income/capstone-seven-day-demand-test/"]) {
-        const response = await page.goto(route);
-        expect(response?.status(), `${width}px ${route}`).toBe(200);
-        await expect(page.locator(COURSE_ROOT)).toBeVisible();
-        const measurements = await page.evaluate(() => ({
-          innerWidth: window.innerWidth,
-          documentWidth: document.documentElement.scrollWidth,
-          bodyWidth: document.body.scrollWidth,
-        }));
-        expect(measurements.documentWidth, `${width}px document at ${route}`).toBeLessThanOrEqual(
-          measurements.innerWidth + 1,
-        );
-        expect(measurements.bodyWidth, `${width}px body at ${route}`).toBeLessThanOrEqual(
-          measurements.innerWidth + 1,
-        );
-        for (const image of await page.locator(`${COURSE_ROOT} img`).all()) {
-          const box = await image.boundingBox();
-          if (box) expect(box.width, `${width}px image at ${route}`).toBeLessThanOrEqual(width);
+        const routePage = await context.newPage();
+        try {
+          await routePage.setViewportSize({ width, height: 900 });
+          const response = await routePage.goto(route);
+          expect(response, `${width}px ${route}: document response`).not.toBeNull();
+          expect(response!.status(), `${width}px ${route}`).toBe(200);
+          await expect(routePage.locator(COURSE_ROOT)).toBeVisible();
+          const measurements = await routePage.evaluate(() => ({
+            innerWidth: window.innerWidth,
+            documentWidth: document.documentElement.scrollWidth,
+            bodyWidth: document.body.scrollWidth,
+          }));
+          expect(measurements.documentWidth, `${width}px document at ${route}`).toBeLessThanOrEqual(
+            measurements.innerWidth + 1,
+          );
+          expect(measurements.bodyWidth, `${width}px body at ${route}`).toBeLessThanOrEqual(
+            measurements.innerWidth + 1,
+          );
+          for (const image of await routePage.locator(`${COURSE_ROOT} img`).all()) {
+            const box = await image.boundingBox();
+            if (box) expect(box.width, `${width}px image at ${route}`).toBeLessThanOrEqual(width);
+          }
+        } finally {
+          await routePage.close();
         }
       }
     }
