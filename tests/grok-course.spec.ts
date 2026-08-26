@@ -424,7 +424,7 @@ test.describe("How to Use Grok course", () => {
     expect(grokProgressPercent({ schemaVersion: 999, lessons: { "map-grok": true } })).toBe(0);
   });
 
-  test("shared catalogue and homepage read and reset the isolated Course 5 progress", async ({ page }) => {
+  test("catalogue, homepage, and My Learning share exact Course 5 progress", async ({ page }) => {
     await page.addInitScript(({ key }) => {
       window.localStorage.setItem(key, JSON.stringify({
         schemaVersion: 1,
@@ -478,8 +478,15 @@ test.describe("How to Use Grok course", () => {
       `/en/grok/${COURSE_MANIFEST.lessons[1].slug}/`,
     );
 
-    await page.getByRole("button", { name: "Reset progress" }).click();
-    await expect(homeProgress).toHaveCount(0);
+    const learningResponse = await page.goto("/en/learning/");
+    expect(learningResponse?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1, name: "My Learning" })).toBeVisible();
+    page.once("dialog", async (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Clear all progress" }).click();
+    await expect(page.locator(".learning-reset-feedback")).toBeVisible();
+
+    await page.goto("/en/");
+    await expect(page.locator(".progress-course").filter({ hasText: "How to Use Grok" })).toHaveCount(0);
     expect(await page.evaluate((key) => window.localStorage.getItem(key), PROGRESS_KEY)).toBeNull();
   });
 
