@@ -54,10 +54,12 @@ import { SOFTWARE_ENGINEERING_COURSE_MANIFEST } from "./software-engineering/man
 import { isSoftwareEngineeringCapstoneSubmission } from "./software-engineering/capstone";
 import { isSoftwareEngineeringQuizPassed } from "./software-engineering/quiz";
 import {
+  COURSE_RELEASE_SURFACES,
   isPublishedCourse,
   releaseSurfaceFor,
   type CourseId as ReleaseCourseId,
 } from "./release-surface";
+import { registryOrderedCourseRecords } from "./course-collection-contract";
 
 export type Level = "beginner" | "intermediate" | "advanced";
 export type Format = "read" | "interactive" | "code";
@@ -125,11 +127,7 @@ export interface TopLevelCourse {
   progress: (p: Record<string, unknown>, sectionsSeen: number) => number;
 }
 
-export type CatalogCourseId =
-  | TopLevelCourse["id"]
-  | "ai-research"
-  | "ai-teaching"
-  | "responsible-ai";
+export type CatalogCourseId = ReleaseCourseId;
 
 export type CatalogTopic =
   | "ai-systems"
@@ -351,7 +349,7 @@ export function mcpProgress(p: Record<string, unknown>): number {
   return clamp(((lessons + quiz + capstone) / (MCP_LESSONS.length + 2)) * 100);
 }
 
-export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
+const TOP_LEVEL_COURSE_DEFINITIONS: TopLevelCourse[] = [
   {
     id: "agentic",
     displayNumber: 1,
@@ -654,6 +652,16 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
   },
 ];
 
+const IMPLEMENTED_REGISTRY_COURSE_IDS = COURSE_RELEASE_SURFACES
+  .filter((course) => course.state !== "roadmap")
+  .map((course) => course.id);
+
+export const TOP_LEVEL_COURSES: TopLevelCourse[] = registryOrderedCourseRecords(
+  IMPLEMENTED_REGISTRY_COURSE_IDS,
+  TOP_LEVEL_COURSE_DEFINITIONS,
+  "top-level course metadata",
+);
+
 /**
  * The existing learner-facing `available` flag is preserved for compatibility,
  * while the release registry supplies the authoritative published/blocked/
@@ -705,7 +713,7 @@ const agentOrchestrationCourse = TOP_LEVEL_COURSES.find(
  * Keeping those fields unavailable prevents an unfinished route from being
  * presented as a course a learner can start today.
  */
-export const CATALOG_COURSES: readonly CatalogCourse[] = [
+const CATALOG_COURSE_DEFINITIONS: readonly CatalogCourse[] = [
   {
     id: "agentic",
     displayNumber: agenticCourse.displayNumber,
@@ -1015,6 +1023,12 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     hue: "var(--red)",
   },
 ];
+
+export const CATALOG_COURSES: readonly CatalogCourse[] = registryOrderedCourseRecords(
+  COURSE_RELEASE_SURFACES.map((course) => course.id),
+  CATALOG_COURSE_DEFINITIONS,
+  "catalogue course metadata",
+);
 
 /**
  * Display-ready catalogue records joined to the machine-readable release

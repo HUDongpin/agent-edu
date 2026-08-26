@@ -1,4 +1,5 @@
 import rawContract from "@/config/course-release-surface.json";
+import { assertExactCourseIdSet } from "./course-collection-contract";
 
 /**
  * The public course registry has one authoritative lifecycle state:
@@ -91,11 +92,13 @@ function parseContract(value: unknown): CourseReleaseSurfaceContract {
   requireStringArray(value.core.routes, "core.routes");
   if (!Array.isArray(value.courses)) throw new Error("course release surface courses must be an array");
 
+  const registryIds: string[] = [];
   for (const [index, course] of value.courses.entries()) {
     if (!isRecord(course)) throw new Error(`courses[${index}] must be an object`);
     if (!(COURSE_IDS as readonly string[]).includes(String(course.id))) {
       throw new Error(`courses[${index}] has unknown id ${String(course.id)}`);
     }
+    registryIds.push(String(course.id));
     if (
       course.state !== "published"
       && course.state !== "blocked"
@@ -133,6 +136,8 @@ function parseContract(value: unknown): CourseReleaseSurfaceContract {
       requireStringArray(course.blockers, `courses[${index}].blockers`);
     }
   }
+
+  assertExactCourseIdSet(COURSE_IDS, registryIds, "course release registry");
 
   return value as unknown as CourseReleaseSurfaceContract;
 }

@@ -1,4 +1,6 @@
 import rawPublicSurface from "@/config/course-public-surface.json";
+import { assertUniqueCourseIds } from "./course-collection-contract";
+import type { CourseId as RegistryCourseId } from "./release-surface";
 
 /**
  * Client-safe, generated projection of the authoritative release registry.
@@ -6,13 +8,7 @@ import rawPublicSurface from "@/config/course-public-surface.json";
  * `release-surface:check` fails if this projection drifts from the registry.
  */
 
-export const PUBLIC_COURSE_IDS = [
-  "agentic", "codex", "claude", "cursor", "grok", "github", "prompts",
-  "software-engineering", "rag", "mcp", "make-money-with-codex", "claude-income",
-  "ai-tutor", "product-management", "agent-orchestration", "ai-research", "responsible-ai",
-] as const;
-
-export type PublicCourseId = (typeof PUBLIC_COURSE_IDS)[number];
+export type PublicCourseId = RegistryCourseId;
 export type PublicPublicationState = "published" | "blocked" | "roadmap";
 export type PublicContentLocale =
   | "en" | "es" | "fr" | "de" | "zh-Hans" | "zh-Hant" | "ja" | "ko" | "ar";
@@ -40,6 +36,10 @@ const PUBLIC_SURFACE = rawPublicSurface as RawPublicSurface;
 if (PUBLIC_SURFACE.schemaVersion !== 1) throw new Error("public course surface schema must be 1");
 
 export const PUBLIC_COURSE_SURFACES = PUBLIC_SURFACE.courses;
+export const PUBLIC_COURSE_IDS: readonly PublicCourseId[] = PUBLIC_COURSE_SURFACES.map(
+  (course) => course.id,
+);
+assertUniqueCourseIds(PUBLIC_COURSE_IDS, "public course projection");
 const PUBLIC_COURSE_BY_ID = new Map(
   PUBLIC_COURSE_SURFACES.map((course) => [course.id, course] as const),
 );

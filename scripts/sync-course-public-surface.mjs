@@ -15,6 +15,13 @@ export function projectPublicCourseSurface(contract) {
   if (!Array.isArray(contract?.courses)) {
     throw new Error("release registry courses are missing");
   }
+  const courseIds = contract.courses.map((course) => course?.id);
+  const duplicateIds = [...new Set(
+    courseIds.filter((id, index) => courseIds.indexOf(id) !== index),
+  )].sort();
+  if (duplicateIds.length) {
+    throw new Error(`release registry contains duplicate course ids: ${duplicateIds.join(", ")}`);
+  }
   return {
     schemaVersion: 1,
     courses: contract.courses.map((course) => ({
