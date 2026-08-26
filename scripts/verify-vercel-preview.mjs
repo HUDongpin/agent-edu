@@ -19,6 +19,7 @@ const DEPLOYMENT_ID = /^dpl_[A-Za-z0-9]{8,124}$/;
 const MAX_SITEMAP_BYTES = 500 * 1024;
 const MAX_FAILURES = 250;
 const DEFAULT_CONCURRENCY = 12;
+const TRUSTED_OIDC_TOKEN = /^[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}$/;
 
 function localizedPath(locale, route) {
   const page = route.replace(/^\/+|\/+$/g, "");
@@ -140,6 +141,20 @@ export function validatePreviewTarget({ previewUrl, deploymentId, commitSha }, o
     throw new Error("Preview URL must not contain credentials, a path, query, or fragment");
   }
   return { previewOrigin: url.origin, deploymentId, commitSha };
+}
+
+export function validateTrustedOidcToken(value) {
+  if (value === undefined || value === null || value === "") return undefined;
+  if (typeof value !== "string" || !TRUSTED_OIDC_TOKEN.test(value)) {
+    throw new Error("VERCEL_TRUSTED_OIDC_TOKEN has an invalid format");
+  }
+  return value;
+}
+
+export function previewRequestHeaders(trustedOidcToken) {
+  const headers = { "user-agent": "agent-edu-preview-verifier/1" };
+  if (trustedOidcToken) headers["x-vercel-trusted-oidc-idp-token"] = trustedOidcToken;
+  return headers;
 }
 
 function decodeXml(value) {
@@ -282,12 +297,12 @@ function checkPublicConsumer(html, path, plan, report) {
   }
 }
 
-async function fetchResponse(fetchImpl, url, attempts = 3) {
+async function fetchResponse(fetchImpl, url, headers, attempts = 3) {
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
       const response = await fetchImpl(url, {
         redirect: "manual",
-        headers: { "user-agent": "agent-edu-preview-verifier/1" },
+        headers,
       });
       if (![429, 500, 502, 503, 504].includes(response.status) || attempt === attempts) return response;
     } catch (error) {
@@ -310,12 +325,17 @@ async function mapLimit(items, limit, callback) {
   await Promise.all(workers);
 }
 
-async function verifyBrowserConsole(paths, previewOrigin, report, concurrency) {
+async function verifyBrowserConsole(paths, previewOrigin, report, concurrency, trustedOidcToken) {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch();
   try {
     await mapLimit(paths, Math.min(concurrency, 4), async (path) => {
-      const page = await browser.newPage({ serviceWorkers: "block" });
+      const page = await browser.newPage({
+        serviceWorkers: "block",
+        extraHTTPHeaders: trustedOidcToken
+          ? { "x-vercel-trusted-oidc-idp-token": trustedOidcToken }
+          : undefined,
+      });
       let consoleErrors = 0;
       let pageErrors = 0;
       page.on("console", (message) => {
@@ -347,6 +367,8 @@ async function verifyBrowserConsole(paths, previewOrigin, report, concurrency) {
 
 export async function verifyVercelPreview(options) {
   const target = validatePreviewTarget(options, { allowLocalhost: options.allowLocalhost });
+  const trustedOidcToken = validateTrustedOidcToken(options.trustedOidcToken);
+  const requestHeaders = previewRequestHeaders(trustedOidcToken);
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
   const releaseSurface = options.releaseSurface ?? JSON.parse(readFileSync(
     resolve(projectRoot, "config/course-release-surface.json"),
@@ -400,7 +422,11 @@ export async function verifyVercelPreview(options) {
 
   try {
     const metadataPath = "/.well-known/release.json";
-    const metadataResponse = await fetchResponse(fetchImpl, `${target.previewOrigin}${metadataPath}`);
+    const metadataResponse = await fetchResponse(
+      fetchImpl,
+      `${target.previewOrigin}${metadataPath}`,
+      requestHeaders,
+    );
     if (metadataResponse.status !== 200) {
       addFailure(report, "release-metadata-status", metadataPath, metadataResponse.status);
     } else {
@@ -426,7 +452,7 @@ export async function verifyVercelPreview(options) {
     await mapLimit(plan.publicPaths, concurrency, async (path) => {
       let response;
       try {
-        response = await fetchResponse(fetchImpl, `${target.previewOrigin}${path}`);
+        response = await fetchResponse(fetchImpl, `${target.previewOrigin}${path}`, requestHeaders);
       } catch {
         addFailure(report, "public-route-network", path);
         return;
@@ -461,7 +487,7 @@ export async function verifyVercelPreview(options) {
     await mapLimit(plan.negativePaths, concurrency, async (path) => {
       let response;
       try {
-        response = await fetchResponse(fetchImpl, `${target.previewOrigin}${path}`);
+        response = await fetchResponse(fetchImpl, `${target.previewOrigin}${path}`, requestHeaders);
       } catch {
         addFailure(report, "negative-route-network", path);
         return;
@@ -471,7 +497,11 @@ export async function verifyVercelPreview(options) {
       report.checks.negativeRoutes += 1;
     });
 
-    const sitemapResponse = await fetchResponse(fetchImpl, `${target.previewOrigin}/sitemap.xml`);
+    const sitemapResponse = await fetchResponse(
+      fetchImpl,
+      `${target.previewOrigin}/sitemap.xml`,
+      requestHeaders,
+    );
     const sitemapIndex = await sitemapResponse.text();
     if (Buffer.byteLength(sitemapIndex) > MAX_SITEMAP_BYTES) {
       addFailure(report, "sitemap-index-budget", "/sitemap.xml");
@@ -490,7 +520,11 @@ export async function verifyVercelPreview(options) {
         addFailure(report, "sitemap-shard-url", "/sitemap.xml");
         return;
       }
-      const response = await fetchResponse(fetchImpl, `${target.previewOrigin}${parsed.pathname}`);
+      const response = await fetchResponse(
+        fetchImpl,
+        `${target.previewOrigin}${parsed.pathname}`,
+        requestHeaders,
+      );
       if (response.status !== 200) addFailure(report, "sitemap-shard-status", parsed.pathname, response.status);
       const xml = await response.text();
       if (Buffer.byteLength(xml) > MAX_SITEMAP_BYTES) addFailure(report, "sitemap-shard-budget", parsed.pathname);
@@ -503,7 +537,13 @@ export async function verifyVercelPreview(options) {
     report.checks.sitemapUrls = sitemapUrls.length;
 
     if (options.browserConsole === true) {
-      await verifyBrowserConsole([...plan.htmlContracts.keys()], target.previewOrigin, report, concurrency);
+      await verifyBrowserConsole(
+        [...plan.htmlContracts.keys()],
+        target.previewOrigin,
+        report,
+        concurrency,
+        trustedOidcToken,
+      );
     }
   } catch {
     addFailure(report, "verifier-internal", "[sanitized]");
@@ -555,7 +595,10 @@ function parseArguments(argv) {
 const invoked = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
 if (invoked) {
   try {
-    const options = parseArguments(process.argv.slice(2));
+    const options = {
+      ...parseArguments(process.argv.slice(2)),
+      trustedOidcToken: process.env.VERCEL_TRUSTED_OIDC_TOKEN,
+    };
     const report = await verifyVercelPreview(options);
     const output = writePreviewReport(report, options.output);
     console.log(

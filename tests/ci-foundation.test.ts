@@ -203,6 +203,31 @@ test("the Vercel release command gate survives config normalization and fails cl
   assert.match(i18nAudit, /stdio:\s*\["ignore", "pipe", "ignore"\]/);
 });
 
+test("the protected Preview verifier uses one branch-bound short-lived OIDC identity", () => {
+  const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
+  const verifier = readFileSync("scripts/verify-vercel-preview.mjs", "utf8");
+  assert.equal(workflow.match(/id-token:\s*write/g)?.length, 1);
+  assert.match(
+    workflow,
+    /preview-verification:[\s\S]*?permissions:[\s\S]*?id-token:\s*write/,
+  );
+  assert.match(
+    workflow,
+    /actions\/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8/,
+  );
+  assert.match(
+    workflow,
+    /core\.getIDToken\('https:\/\/vercel\.com\/HUDongpin\/agent-edu\/preview-verifier'\)/,
+  );
+  assert.match(
+    workflow,
+    /VERCEL_TRUSTED_OIDC_TOKEN:\s*\$\{\{ steps\.vercel_oidc\.outputs\.token \}\}/,
+  );
+  assert.match(verifier, /x-vercel-trusted-oidc-idp-token/);
+  assert.doesNotMatch(workflow, /VERCEL_AUTOMATION_BYPASS_SECRET/);
+  assert.doesNotMatch(verifier, /x-vercel-protection-bypass/);
+});
+
 test("the Agentic release gate is independently closed over Handbook, Lab, content and static resources", () => {
   const source = readFileSync("scripts/check-agentic-course.mjs", "utf8");
   for (const requiredContract of [

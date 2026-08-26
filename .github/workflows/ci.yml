@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       preview_url:
-        description: Public Vercel Preview origin for the candidate
+        description: Vercel Preview origin for the candidate
         required: false
         type: string
       deployment_id:
@@ -157,6 +157,9 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write
     env:
       PREVIEW_URL: ${{ inputs.preview_url }}
       VERCEL_DEPLOYMENT_ID: ${{ inputs.deployment_id }}
@@ -173,7 +176,17 @@ jobs:
       - run: corepack enable
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Mint a short-lived GitHub OIDC token for the protected Preview
+        id: vercel_oidc
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const token = await core.getIDToken('https://vercel.com/HUDongpin/agent-edu/preview-verifier');
+            core.setSecret(token);
+            core.setOutput('token', token);
       - name: Verify the registry-derived Preview surface and same-SHA metadata
+        env:
+          VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.vercel_oidc.outputs.token }}
         run: >-
           npm run preview:verify --
           --url "$PREVIEW_URL"

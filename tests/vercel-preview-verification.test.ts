@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   buildPreviewPlan,
+  previewRequestHeaders,
+  validateTrustedOidcToken,
   validatePreviewTarget,
 } from "../scripts/verify-vercel-preview.mjs";
 
@@ -48,4 +50,25 @@ test("Preview target validation accepts one clean deployment origin and rejects 
     deploymentId: "bad id",
     commitSha: SHA,
   }), /deployment ID/);
+});
+
+test("Preview OIDC access stays header-only and fails closed on malformed tokens", () => {
+  const token = "header_value.payload_value.signature_value";
+  assert.equal(validateTrustedOidcToken(undefined), undefined);
+  assert.equal(validateTrustedOidcToken(token), token);
+  assert.deepEqual(previewRequestHeaders(undefined), {
+    "user-agent": "agent-edu-preview-verifier/1",
+  });
+  assert.deepEqual(previewRequestHeaders(token), {
+    "user-agent": "agent-edu-preview-verifier/1",
+    "x-vercel-trusted-oidc-idp-token": token,
+  });
+  assert.throws(
+    () => validateTrustedOidcToken("not-a-jwt"),
+    /invalid format/,
+  );
+  assert.throws(
+    () => validateTrustedOidcToken("header.payload.signature\n"),
+    /invalid format/,
+  );
 });
