@@ -566,12 +566,15 @@ test.describe("Course 10 accessibility and responsive delivery", () => {
     await nextLesson.focus();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/en\/mcp\/architecture-trust\/$/);
+    await waitForStableDocument(page);
 
     const check = page.locator('section[aria-labelledby="mcp-knowledge-check-title"]');
     const option = check.locator('input[type="radio"]').first();
     await option.focus();
     await page.keyboard.press("Space");
+    await expect(option).toBeChecked();
     const button = check.locator("button");
+    await expect(button).toBeEnabled();
     await button.focus();
     await page.keyboard.press("Enter");
     await expect(check.locator('[role="status"]')).toBeVisible();
