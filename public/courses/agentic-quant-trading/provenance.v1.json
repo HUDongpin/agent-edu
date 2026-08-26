@@ -3,7 +3,7 @@
   "courseId": "agentic-quant-trading",
   "createdOn": "2026-08-26",
   "rights": {
-    "owner": "aicourse.top project",
+    "owner": "HU Dongpin",
     "basis": "original-project-fixture",
     "publication_eligible": true,
     "containsThirdPartyData": false,
@@ -13,27 +13,33 @@
   "files": [
     {
       "path": "market-regime-synthetic-v1.csv",
-      "sha256": "fd3890e80bdb140dae988a98fa3a26f44e3eb5e3abaebfbd8e53ea7c2244aaac",
+      "sha256": "e36633cae9b1683149037ef87460d81008af95cae07ab30338b11474b6d41f0e",
       "origin": "Original fictional OHLCV series generated for this course",
-      "boundary": "SYN-A is not a real asset; values are not market observations"
+      "boundary": "SYN-A is not a real asset; values are not market observations. The fixture distinguishes observed_through, available_at, ingested_at, known_at, and decision_at. evaluation_regime_label is available only after the evaluation window and evaluation_regime_feature_eligible is always false"
     },
     {
       "path": "news-signals-synthetic-v1.json",
-      "sha256": "ec7749936666bf987d470a61bc50fda37a82f4046a6293204805d1f44e392294",
+      "sha256": "795dd19a8f9781c1c7d1f62a56011e465e038772161adb4e3ac30815670701f1",
       "origin": "Original fictional text events generated for this course",
-      "boundary": "Events and labels are synthetic and cannot validate a forecasting model"
+      "boundary": "Events and labels are synthetic and cannot validate a forecasting model; decision eligibility requires known_at to be at least max(available_at, ingested_at) and no later than decision_at"
     },
     {
       "path": "risk-policy.template.json",
-      "sha256": "bf013a6b0267b7c9a20b3b564018e28eab2ff2184e0787d8a9d78a0b2a200506",
-      "origin": "Original fail-closed local synthetic replay policy generated for this course",
-      "boundary": "The policy defines no network, external account, credential, broker connection, market action, or investment advice"
+      "sha256": "043235aabc48e388134d593b88297860c9ebf1220dd0c6c2f7385864fd1a8f5f",
+      "origin": "Original declarative fail-closed local synthetic policy template generated for this course",
+      "boundary": "The file declares limits plus protected-channel or verified-signature human approval, revocation, and replay-resistant consumption requirements but does not implement or enforce them. It defines no network, external paper or sandbox account, credential, remote endpoint, broker connection, market action, or investment advice"
     },
     {
-      "path": "local-replay-lab.py",
-      "sha256": "b9e595bf13582486806b33e31a993f69f92f6fcad0c78b7eef94ed9117f2c7f8",
-      "origin": "Original standard-library-only deterministic self-test generated for this course",
-      "boundary": "The script reads bundled local synthetic fixtures only, makes zero network calls, and cannot establish performance or authorise market action"
+      "path": "fixture-contract-self-test.py",
+      "sha256": "ef4f7451c42a6d794b3e3a3097a2a372d658c8c014da33e14da4d66e70ccf3dd",
+      "origin": "Original standard-library-only deterministic fixture-contract self-test generated for this course",
+      "boundary": "The script checks bundled local synthetic fixture integrity, a non-empty event collection, timestamp ordering, synthetic identity, unique ascending bar dates, selected policy fields, and whether metric-input capabilities are absent. It does not attest to a train-validation split, has no network-client path, does not verify operating-system network isolation, and does not execute a strategy, order, fill, replay, cost model, risk calculation, P&L, performance metric, approval verification, or reconciliation"
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "2a24b39b930cf5c7cce0abb47db1752414ff30ae44f2f3359769a4c9d37f67a5",
+      "origin": "Repository MIT licence and copyright notice copied verbatim for pack redistribution",
+      "boundary": "This licence covers the original course pack files; linked third-party repositories, papers, services, trademarks, and data retain their own terms"
     }
   ]
 }

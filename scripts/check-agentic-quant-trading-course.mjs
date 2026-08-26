@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -11,7 +12,37 @@ const REQUIRED_FIXTURES = [
   "market-regime-synthetic-v1.csv",
   "news-signals-synthetic-v1.json",
   "risk-policy.template.json",
-  "local-replay-lab.py",
+  "fixture-contract-self-test.py",
+  "LICENSE.txt",
+];
+const REQUIRED_DOWNLOADS = [...REQUIRED_FIXTURES, "provenance.v1.json"];
+const REQUIRED_RESEARCH_SOURCE_IDS = [
+  "paper-backtest-overfitting",
+  "paper-deflated-sharpe-ratio",
+  "paper-financial-cross-validation-comparison",
+  "nist-ai-rmf",
+  "sec-ai-investment-fraud",
+  "finra-auto-trading-risk",
+  "finra-algorithmic-trading",
+  "sec-market-access-rule-faq",
+];
+const REQUIRED_SELF_TEST_ASSERTIONS = [
+  "fixture-integrity",
+  "synthetic-identity",
+  "bar-date-ordering",
+  "timestamp-contract",
+  "decision-input-availability",
+  "declared-boundary-policy-shape",
+  "performance-metrics-not-computable",
+];
+const REQUIRED_APPROVAL_FAIL_CLOSED_ON = [
+  "missing",
+  "expired",
+  "reused",
+  "revoked",
+  "issuer-proof-invalid",
+  "intent-hash-mismatch",
+  "policy-version-mismatch",
 ];
 const REQUIRED_MESSAGE_KEYS = [
   `c.${COURSE_ID}.title`,
@@ -73,6 +104,7 @@ export async function checkAgenticQuantTradingCourse({
   const root = resolve(projectRoot);
   const issues = [];
   const courseModule = await importFresh(join(root, "lib/agentic-quant-trading/index.ts"));
+  const { drawCourseKitQuizQuestions } = await importFresh(join(root, "lib/course-kit/quiz.ts"));
   const {
     AGENTIC_QUANT_TRADING_COURSE: course,
     AGENTIC_QUANT_TRADING_MODULES: authoringModules,
@@ -98,13 +130,37 @@ export async function checkAgenticQuantTradingCourse({
   if (criticalCount < 6 || criticalCount >= course.quiz.drawCount) {
     add(issues, "assessment", "Six or more critical questions are required, fewer than the draw count.");
   }
+  const selectedQuestions = drawCourseKitQuizQuestions(
+    course.quiz.questions,
+    course.quiz.drawCount,
+    `${course.manifest.id}:${course.quiz.version}`,
+  );
+  for (const moduleRecord of course.manifest.modules) {
+    const selectedForModule = selectedQuestions.filter((question) => (
+      question.id.startsWith(`q-${moduleRecord.slug}-`)
+    ));
+    if (selectedForModule.length !== 1) {
+      add(
+        issues,
+        "assessment",
+        `The fixed draw must select exactly one question for ${moduleRecord.slug}; found ${selectedForModule.length}.`,
+      );
+    }
+  }
+  if (selectedQuestions.some((question) => question.evidenceMode !== "instructional-synthesis")) {
+    add(issues, "assessment", "Course-authored quiz questions must declare instructional-synthesis evidence mode.");
+  }
   if (course.capstone.artifacts.length !== 8) add(issues, "capstone", "Exactly eight capstone artifacts are required.");
 
   const counts = sourceCounts(course.sources);
-  if (course.sources.length !== 25) add(issues, "sources", `Exactly 25 source records are required; found ${course.sources.length}.`);
+  if (course.sources.length !== 27) add(issues, "sources", `Exactly 27 source records are required; found ${course.sources.length}.`);
   if (counts.github !== 13) add(issues, "sources", `Exactly 13 GitHub repository records are required; found ${counts.github}.`);
   if (counts.xPosts !== 6) add(issues, "sources", `Exactly six direct X status records are required; found ${counts.xPosts}.`);
-  if (counts.riskAndResearch !== 6) add(issues, "sources", `Exactly six research or official risk records are required; found ${counts.riskAndResearch}.`);
+  if (counts.riskAndResearch !== 8) add(issues, "sources", `Exactly eight research or official risk records are required; found ${counts.riskAndResearch}.`);
+  const sourceIdSet = new Set(course.sources.map((source) => source.id));
+  for (const sourceId of REQUIRED_RESEARCH_SOURCE_IDS) {
+    if (!sourceIdSet.has(sourceId)) add(issues, "sources", `Required primary research or official source is missing: ${sourceId}.`);
+  }
   for (const source of course.sources) {
     if (source.accessedOn !== SNAPSHOT_DATE) add(issues, "sources", `${source.id} must use accessedOn ${SNAPSHOT_DATE}.`);
     if (source.kind === "github-repository") {
@@ -123,6 +179,52 @@ export async function checkAgenticQuantTradingCourse({
         add(issues, "sources", `${source.id} must state an explicit non-inference boundary.`);
       }
     }
+  }
+
+  const socialSourceIds = new Set(
+    course.sources.filter((source) => source.kind === "social-post").map((source) => source.id),
+  );
+  for (const moduleRecord of course.manifest.modules) {
+    if (moduleRecord.sourceIds.some((sourceId) => socialSourceIds.has(sourceId))) {
+      add(issues, "sources", `${moduleRecord.slug} must not inherit X version-watch records at module root.`);
+    }
+  }
+  for (const question of course.quiz.questions) {
+    if (question.sourceIds.some((sourceId) => socialSourceIds.has(sourceId))) {
+      add(issues, "sources", `${question.id} must not use X version-watch records as assessment evidence.`);
+    }
+  }
+  for (const artifact of course.capstone.artifacts) {
+    if (artifact.sourceIds.some((sourceId) => socialSourceIds.has(sourceId))) {
+      add(issues, "sources", `${artifact.id} must not use X version-watch records as capstone evidence.`);
+    }
+  }
+
+  const enModules = Object.values(course.copy.en.modules);
+  const declaredArtifacts = new Set(enModules.map((moduleCopy) => moduleCopy.artifact));
+  const declaredTakeaways = new Set(enModules.map((moduleCopy) => moduleCopy.takeaway));
+  const reviewedDistractorSignatures = new Set();
+  for (const question of course.quiz.questions) {
+    const questionCopy = course.copy.en.quiz.questions[question.id];
+    const competingTruths = question.id.endsWith("-evidence")
+      ? declaredArtifacts
+      : question.id.endsWith("-boundary")
+        ? declaredTakeaways
+        : null;
+    if (!questionCopy || !competingTruths) continue;
+    reviewedDistractorSignatures.add(JSON.stringify(
+      questionCopy.options
+        .filter((_, optionIndex) => optionIndex !== question.correctIndex)
+        .sort(),
+    ));
+    questionCopy.options.forEach((option, optionIndex) => {
+      if (optionIndex !== question.correctIndex && competingTruths.has(option)) {
+        add(issues, "assessment", `${question.id} uses another module's true course statement as a distractor.`);
+      }
+    });
+  }
+  if (reviewedDistractorSignatures.size !== course.manifest.modules.length * 2) {
+    add(issues, "assessment", "Every evidence and boundary question needs a distinct reviewed distractor set.");
   }
 
   const referencedByTeachingSection = new Set();
@@ -162,7 +264,10 @@ export async function checkAgenticQuantTradingCourse({
 
   const copyText = JSON.stringify(course.copy);
   const requiredSafetySignals = [
-    /paper(?: |-)?trading|paper replay|模拟交易|模拟回放/i,
+    /local synthetic|本地合成/i,
+    /no network|network.*(?:forbidden|prohibited)|无网络|禁止网络/i,
+    /no external account|external accounts.*(?:forbidden|prohibited)|无外部账户|禁止.*外部账户/i,
+    /no credential|credentials.*(?:forbidden|prohibited)|无凭证|禁止.*凭证/i,
     /not investment advice|不构成投资建议/i,
     /no live|not live|不得实盘|不授权实盘|不进入实盘/i,
     /human approval|human reviewer|人类审批|人工审批|具名审核/i,
@@ -200,6 +305,11 @@ export async function checkAgenticQuantTradingCourse({
 
   const labPath = join(root, "components/agentic-quant-trading/EvidenceGateLab.tsx");
   const labText = existsSync(labPath) ? readFileSync(labPath, "utf8") : "";
+  for (const name of REQUIRED_DOWNLOADS) {
+    if (!labText.includes(`"${name}"`)) {
+      add(issues, "assets", `Evidence Gate Lab must expose ${name} as a required local download.`);
+    }
+  }
   const forbiddenLabLanguage = [
     /ready for paper replay/i,
     /paper(?: |-)?account/i,
@@ -209,12 +319,25 @@ export async function checkAgenticQuantTradingCourse({
   for (const pattern of forbiddenLabLanguage) {
     if (pattern.test(labText)) add(issues, "safety", `Evidence Gate Lab contains forbidden authority language: ${pattern}.`);
   }
+  for (const pattern of [
+    /sharpe_like_score/i,
+    /illustrative_metrics/i,
+    /adjustedScore/i,
+    /aicourse\.synthetic-evidence-decay/i,
+  ]) {
+    if (pattern.test(labText)) add(issues, "safety", `Evidence Gate Lab contains a fabricated performance construct: ${pattern}.`);
+  }
   for (const required of [
     "illustrative_only: true",
     "eligible_for_human_review",
     "verified: false",
     "failure_reasons",
-    "aicourse.synthetic-evidence-decay",
+    'status: "not-computable"',
+    'mode: "local-synthetic-replay"',
+    "declared_only: true",
+    "runtime_enforcement_verified: false",
+    "network_isolation_verified: false",
+    "network_allowed: false",
   ]) {
     if (!labText.includes(required)) add(issues, "safety", `Evidence Gate Lab is missing ${required}.`);
   }
@@ -225,6 +348,9 @@ export async function checkAgenticQuantTradingCourse({
     add(issues, "assets", `Missing ${FIXTURE_DIRECTORY}/provenance.v1.json.`);
   } else {
     provenance = JSON.parse(readFileSync(provenancePath, "utf8"));
+    if (!labText.includes(sha256(provenancePath))) {
+      add(issues, "assets", "Evidence Gate Lab is not pinned to the provenance manifest hash.");
+    }
     if (provenance.rights?.basis !== "original-project-fixture"
       || provenance.rights?.publication_eligible !== true
       || provenance.rights?.containsThirdPartyData !== false
@@ -253,6 +379,9 @@ export async function checkAgenticQuantTradingCourse({
     const boundary = policy.executionBoundary || {};
     const failClosed = policy.failClosed || {};
     const changeControl = policy.changeControl || {};
+    const approval = policy.intentApproval || {};
+    const issuanceBoundary = approval.issuanceBoundary || {};
+    const intentRate = policy.limits?.maxIntentRate || {};
     const boundaryFalse = [
       "networkAccess",
       "externalAccounts",
@@ -271,20 +400,78 @@ export async function checkAgenticQuantTradingCourse({
       || failClosed.enabled !== true
       || failClosed.defaultDecision !== "deny"
       || failClosed.overrideAllowed !== false
-      || policy.humanReview?.eligibilityIsAuthorisation !== false) {
+      || failClosed.onMissingEvidence !== "deny"
+      || failClosed.onStaleData !== "deny"
+      || failClosed.onAssertionFailure !== "deny"
+      || failClosed.failureReasonsRequired !== true
+      || !Number.isInteger(intentRate.value)
+      || intentRate.value < 1
+      || !Number.isInteger(intentRate.windowSeconds)
+      || intentRate.windowSeconds < 1
+      || intentRate.idempotentRetriesCountAsNew !== false
+      || approval.requiredBeforeSubmittedState !== true
+      || approval.namedHumanRequired !== true
+      || approval.agentMayApprove !== false
+      || approval.singleUse !== true
+      || approval.mustBindExactIntentSha256 !== true
+      || approval.mustBindPolicyVersion !== true
+      || JSON.stringify([...new Set(approval.requiredFields || [])].sort())
+        !== JSON.stringify(["approvalEventId", "approvalId", "approvedAt", "approverId", "expiresAt", "intentSha256", "policyVersion", "proofLocator", "proofType"].sort())
+      || issuanceBoundary.humanControlledChannelRequired !== true
+      || issuanceBoundary.agentWriteAccess !== false
+      || !Array.isArray(issuanceBoundary.acceptedProofTypes)
+      || issuanceBoundary.acceptedProofTypes.length !== 2
+      || JSON.stringify([...new Set(issuanceBoundary.acceptedProofTypes || [])].sort())
+        !== JSON.stringify(["append-only-human-approval-event-with-acl-evidence", "detached-signature-with-pinned-public-key"].sort())
+      || issuanceBoundary.verificationRequiredBeforeConsumption !== true
+      || issuanceBoundary.revocationCheckRequiredBeforeConsumption !== true
+      || issuanceBoundary.consumptionLedgerRequired !== true
+      || !Array.isArray(approval.failClosedOn)
+      || approval.failClosedOn.length !== REQUIRED_APPROVAL_FAIL_CLOSED_ON.length
+      || JSON.stringify([...new Set(approval.failClosedOn || [])].sort())
+        !== JSON.stringify([...REQUIRED_APPROVAL_FAIL_CLOSED_ON].sort())
+      || JSON.stringify(policy.requiredAssertions || []) !== JSON.stringify(REQUIRED_SELF_TEST_ASSERTIONS)
+      || policy.humanReview?.required !== true
+      || policy.humanReview?.eligibilityIsAuthorisation !== false
+      || policy.humanReview?.reviewCannotEnableNetworkOrExternalExecution !== true) {
       add(issues, "safety", "Risk policy must be versioned, human-owned, local-synthetic-only, and fail closed with no account, network, credential, or market-action path.");
     }
   }
-  const replayScriptPath = join(root, FIXTURE_DIRECTORY, "local-replay-lab.py");
-  if (existsSync(replayScriptPath)) {
-    const replayScript = readFileSync(replayScriptPath, "utf8");
-    if (!replayScript.includes("--self-test")
-      || !replayScript.includes('"no-lookahead-leakage"')
-      || !replayScript.includes('"as-of-timestamps"')
-      || !replayScript.includes('"fail-closed-risk-policy"')
-      || /\b(?:requests|urllib|socket|http\.client)\b/.test(replayScript)
-      || /https?:\/\//.test(replayScript)) {
-      add(issues, "safety", "Local replay self-test must expose deterministic as-of, leakage, and risk assertions without network code or URLs.");
+  const selfTestScriptPath = join(root, FIXTURE_DIRECTORY, "fixture-contract-self-test.py");
+  if (existsSync(selfTestScriptPath)) {
+    const selfTestScript = readFileSync(selfTestScriptPath, "utf8");
+    const requiredScriptSignals = [
+      "--self-test",
+      ...REQUIRED_SELF_TEST_ASSERTIONS,
+      '"network_client_code_present": False',
+      '"network_isolation_verified": False',
+      'performance_status = "not-computable"',
+      'performance_status = "capability-present-review-required"',
+    ];
+    if (requiredScriptSignals.some((signal) => !selfTestScript.includes(signal))
+      || /\b(?:requests|urllib|socket|http\.client|aiohttp|httpx|ftplib|websockets|subprocess|os\.system|Popen|curl|wget|open_connection)\b/.test(selfTestScript)
+      || /https?:\/\//.test(selfTestScript)) {
+      add(issues, "safety", "Fixture self-test must expose the seven bounded contract assertions, disclose non-computable metrics and non-attested OS isolation, and contain no network path or URL.");
+    }
+    const selfTest = spawnSync("python3", [selfTestScriptPath, "--self-test"], {
+      cwd: join(root, FIXTURE_DIRECTORY),
+      encoding: "utf8",
+    });
+    try {
+      const receipt = JSON.parse(selfTest.stdout || "{}");
+      const assertionIds = receipt.assertions?.map((assertion) => assertion.id);
+      if (selfTest.status !== 0
+        || receipt.status !== "pass"
+        || receipt.performance_metrics?.status !== "not-computable"
+        || receipt.network_client_code_present !== false
+        || receipt.network_isolation_verified !== false
+        || receipt.authorises_market_action !== false
+        || JSON.stringify(assertionIds) !== JSON.stringify(REQUIRED_SELF_TEST_ASSERTIONS)
+        || receipt.assertions?.some((assertion) => assertion.passed !== true)) {
+        add(issues, "safety", `Fixture self-test did not produce the expected bounded pass receipt: ${selfTest.stderr || selfTest.stdout}`);
+      }
+    } catch (error) {
+      add(issues, "safety", `Fixture self-test did not emit valid JSON: ${error.message}`);
     }
   }
 

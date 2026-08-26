@@ -54,6 +54,12 @@
       "value": 0.2,
       "unit": "gross absolute weight change per synthetic day"
     },
+    "maxIntentRate": {
+      "value": 3,
+      "unit": "new unique synthetic intents per rolling window",
+      "windowSeconds": 60,
+      "idempotentRetriesCountAsNew": false
+    },
     "maxDailyLoss": {
       "value": 0.01,
       "unit": "unitless fractional loss in fictional portfolio value"
@@ -67,13 +73,53 @@
       "unit": "fictional notional unit (FNU)"
     }
   },
+  "intentApproval": {
+    "requiredBeforeSubmittedState": true,
+    "namedHumanRequired": true,
+    "agentMayApprove": false,
+    "singleUse": true,
+    "mustBindExactIntentSha256": true,
+    "mustBindPolicyVersion": true,
+    "issuanceBoundary": {
+      "humanControlledChannelRequired": true,
+      "agentWriteAccess": false,
+      "acceptedProofTypes": [
+        "append-only-human-approval-event-with-acl-evidence",
+        "detached-signature-with-pinned-public-key"
+      ],
+      "verificationRequiredBeforeConsumption": true,
+      "revocationCheckRequiredBeforeConsumption": true,
+      "consumptionLedgerRequired": true
+    },
+    "requiredFields": [
+      "approvalId",
+      "approvalEventId",
+      "approverId",
+      "approvedAt",
+      "expiresAt",
+      "intentSha256",
+      "policyVersion",
+      "proofType",
+      "proofLocator"
+    ],
+    "failClosedOn": [
+      "missing",
+      "expired",
+      "reused",
+      "revoked",
+      "issuer-proof-invalid",
+      "intent-hash-mismatch",
+      "policy-version-mismatch"
+    ]
+  },
   "requiredAssertions": [
-    "chronological-split",
-    "as-of-timestamps",
-    "no-lookahead-leakage",
-    "synthetic-identity",
     "fixture-integrity",
-    "fail-closed-risk-policy"
+    "synthetic-identity",
+    "bar-date-ordering",
+    "timestamp-contract",
+    "decision-input-availability",
+    "declared-boundary-policy-shape",
+    "performance-metrics-not-computable"
   ],
   "failClosed": {
     "enabled": true,
@@ -89,5 +135,5 @@
     "eligibilityIsAuthorisation": false,
     "reviewCannotEnableNetworkOrExternalExecution": true
   },
-  "notice": "Original educational contract for deterministic local replay of bundled synthetic fixtures only. It is illustrative, is not investment advice, and cannot authorise any market action."
+  "notice": "Original educational template declaring the local-synthetic-replay boundary for bundled fixtures. The bundled self-test checks selected schema fields only; it does not execute risk calculations, a replay, an order lifecycle, or performance metrics. It is not investment advice and cannot authorise any market action."
 }

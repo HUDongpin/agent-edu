@@ -61,7 +61,7 @@ async function runAxe(page: Page, label: string) {
   expect(violations, label).toEqual([]);
 }
 
-test("中文桌面课程页、证据闸门与四个本地下载形成完整主路径", async ({ page, request }) => {
+test("中文桌面课程页、证据闸门与六个本地下载形成完整主路径", async ({ page, request }) => {
   const runtimeErrors = collectRuntimeErrors(page);
   const response = await page.goto(DASHBOARD);
   expect(response?.status()).toBe(200);
@@ -88,8 +88,8 @@ test("中文桌面课程页、证据闸门与四个本地下载形成完整主�
   await expect(root.locator('section[aria-labelledby^="phase-agentic-quant-trading-"]'))
     .toHaveCount(4);
 
-  const lab = root.getByRole("region", { name: "可横向滚动的虚构教学指标表" });
-  await expect(root.getByRole("heading", { level: 2, name: "让一份漂亮的回测更难被轻信" }))
+  const lab = root.getByRole("region", { name: "绩效指标不可计算说明" });
+  await expect(root.getByRole("heading", { level: 2, name: "把审计主张与可执行证据分开" }))
     .toBeVisible();
   await expect(lab).toHaveAttribute("tabindex", "0");
   const claims = root
@@ -98,16 +98,18 @@ test("中文桌面课程页、证据闸门与四个本地下载形成完整主�
   await expect(claims).toHaveCount(5);
   for (let index = 0; index < 5; index += 1) await claims.nth(index).check();
   await expect(root.getByRole("status").filter({ hasText: "说明性检查表已完成" })).toBeVisible();
+  await expect(lab.getByText("绩效指标：不可计算", { exact: true })).toBeVisible();
+  await expect(lab).toContainText("Sharpe Ratio、最大回撤、换手率或成本后表现");
 
   const downloads = root.locator('a[download][href^="/courses/agentic-quant-trading/"]');
-  await expect(downloads).toHaveCount(4);
+  await expect(downloads).toHaveCount(6);
   for (const href of await downloads.evaluateAll((links) => (
     links.map((link) => link.getAttribute("href")).filter(Boolean) as string[]
   ))) {
     const asset = await request.get(href);
     expect(asset.status(), href).toBe(200);
   }
-  await expect(root.getByText("预期：status=pass、7/7 项断言通过、network_calls=0。", { exact: true }))
+  await expect(root.getByText("预期：status=pass、7/7 项有边界断言通过、network_client_code_present=false、network_isolation_verified=false。", { exact: true }))
     .toBeVisible();
 
   await runAxe(page, "Course 17 Chinese dashboard");
@@ -127,7 +129,7 @@ test("390px 移动端无页面级横向溢出，证据表保留键盘可滚动�
     page: document.documentElement.scrollWidth,
   }));
   expect(dimensions.page).toBeLessThanOrEqual(dimensions.viewport + 1);
-  await expect(page.getByRole("region", { name: "可横向滚动的虚构教学指标表" }))
+  await expect(page.getByRole("region", { name: "绩效指标不可计算说明" }))
     .toHaveAttribute("tabindex", "0");
 
   await page.screenshot({ path: resolve(SCREENSHOT_DIR, "course17-zh-mobile-390.png"), fullPage: true });
@@ -163,7 +165,7 @@ test("模块完成必须先答对知识检查并提交可审计的人工证据�
     artifactPath: "outputs/course17/module-01.json",
     sha256: "a".repeat(64),
     validator: {
-      command: "python3 local-replay-lab.py --self-test",
+      command: "python3 fixture-contract-self-test.py --self-test",
       status: "pass",
       checkedOn: "2026-08-26",
     },

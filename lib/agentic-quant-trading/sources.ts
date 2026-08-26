@@ -32,7 +32,7 @@ export const AGENTIC_QUANT_TRADING_SOURCE_SEEDS = [
       kind: "github-repository",
       stability: "version-pinned",
       reuseStatus: "licence-noted-no-copy",
-      licence: "AGPL-3.0 software; every upstream data provider has separate terms",
+      licence: "AGPL-3.0 software; upstream provider and data terms may apply separately and must be checked provider by provider",
       supports:
         "A provider-oriented Python, CLI, REST, and agent-facing data access layer that can preserve the selected provider in a research pipeline.",
       boundary:
@@ -91,7 +91,7 @@ export const AGENTIC_QUANT_TRADING_SOURCE_SEEDS = [
       supports:
         "A data-centric agent loop for proposing, implementing, executing, and evaluating factor and model experiments, including the documented fin_quant scenario.",
       boundary:
-        "Microsoft states RD-Agent is not ready-to-use financial advice; automated search expands multiple-testing, code-execution, cost, and data-leakage risk unless sandboxed and human-gated.",
+        "Microsoft states RD-Agent is not ready-to-use financial advice. As a course-level risk analysis, automated search must be treated as expanding the experiment ledger, code-execution surface, cost, and leakage exposure unless independently controlled.",
     },
     zhHans: {
       supports: "支持提出、实现、执行和评估因子与模型实验的数据中心智能体循环，包括 fin_quant 场景。",
@@ -143,7 +143,7 @@ export const AGENTIC_QUANT_TRADING_SOURCE_SEEDS = [
       kind: "github-repository",
       stability: "version-pinned",
       reuseStatus: "licence-noted-no-copy",
-      licence: "MIT repository; base models and datasets retain separate licences",
+      licence: "MIT repository code; every external model and dataset licence must be checked individually",
       supports:
         "Financial sentiment, entity, relation, instruction-tuning, LoRA, and retrieval-augmented NLP examples that can be converted into timestamped candidate features.",
       boundary:
@@ -191,6 +191,7 @@ export const AGENTIC_QUANT_TRADING_SOURCE_SEEDS = [
         "https://github.com/alpacahq/alpaca-py",
         "https://github.com/alpacahq/alpaca-py/releases/tag/v0.44.0",
         "https://github.com/alpacahq/alpaca-py/commit/45d4b389147a32343f5a0bc45674b44c4e6f3d4d",
+        "https://docs.alpaca.markets/us/v1.4.2/docs/paper-trading",
       ],
       accessedOn: ACCESSED_ON,
       revision: "v0.44.0; master@45d4b389147a32343f5a0bc45674b44c4e6f3d4d (2026-08-24)",
@@ -201,11 +202,11 @@ export const AGENTIC_QUANT_TRADING_SOURCE_SEEDS = [
       supports:
         "An official typed API surface that documents external data, order, and account-state contracts; this course uses it only to define an excluded integration boundary.",
       boundary:
-        "An API client is not a strategy or risk system; paper fills do not reproduce live liquidity, queueing, latency, partial fills, outages, eligibility, or fees.",
+        "An API client is not a strategy or risk system. Alpaca's official paper-trading documentation says simulation can differ from live trading, including market impact, latency slippage, queue position, fees, fill assumptions, liquidity assumptions, and data sources.",
     },
     zhHans: {
       supports: "支持识别外部数据、订单与账户状态契约；本课程仅用它界定明确排除的集成边界。",
-      boundary: "API 客户端不是策略或风控系统；纸上成交不复现实盘流动性、排队、延迟、部分成交和故障。",
+      boundary: "API 客户端不是策略或风控系统。Alpaca 官方 paper-trading 文档说明，模拟与实盘可能在市场冲击、延迟滑点、排队位置、费用、成交假设、流动性假设和数据源方面不同。",
     },
   },
   {
@@ -333,11 +334,11 @@ export const AGENTIC_QUANT_TRADING_SOURCE_SEEDS = [
         "https://github.com/QuantConnect/Lean/blob/185c691b89f28bd68e48d53c02147415134975f0/ToolBox/README.md",
       ],
       accessedOn: ACCESSED_ON,
-      revision: "master@185c691b89f28bd68e48d53c02147415134975f0 (2026-08-26)",
+      revision: "master@185c691b89f28bd68e48d53c02147415134975f0 (commit 2026-08-25; snapshot checked 2026-08-26)",
       kind: "github-repository",
       stability: "version-pinned",
       reuseStatus: "licence-noted-no-copy",
-      licence: "Apache-2.0 engine; data, cloud, brokerage, and CLI services have separate terms",
+      licence: "Apache-2.0 engine; applicable data, cloud, brokerage, CLI, and provider terms must be checked separately",
       supports:
         "A professional event-driven reference architecture for research, backtests, modular handlers, order processing, and live jobs across Python and C# algorithms.",
       boundary:
@@ -535,7 +536,7 @@ export const AGENTIC_QUANT_TRADING_SOURCE_SEEDS = [
     },
     zhHans: {
       supports: "仅支持 OpenBB 曾发布把部分表格中心宏观研究流程迁移到智能体基础设施的一方叙事。",
-      boundary: "一方叙事不是受控生产率研究，不支持节省、准确、数据 lineage、投资结果或普遍工作流结论。",
+      boundary: "一方叙事不是受控生产率研究，不支持节省、准确、数据血缘、投资结果或普遍工作流结论。",
     },
   },
   {
@@ -559,11 +560,65 @@ export const AGENTIC_QUANT_TRADING_SOURCE_SEEDS = [
       supports:
         "A primary framework for estimating the probability of backtest overfitting and a combinatorially symmetric cross-validation implementation in investment simulations.",
       boundary:
-        "PBO does not prove a selected strategy is true, causal, profitable, or safe, and its estimate depends on the tested configurations, sample, performance statistic, and exchangeability assumptions.",
+        "PBO diagnoses a selection process; it is not a p-value or false-discovery correction and does not detect look-ahead, bad cost assumptions, or future regime breaks. Its use requires the complete synchronized observation-by-configuration performance matrix, symmetric splits, a declared statistic, and disclosed handling of serial dependence and missing trials.",
     },
     zhHans: {
       supports: "支持估计回测过拟合概率的框架，以及投资模拟中的组合对称交叉验证实现。",
-      boundary: "PBO 不证明策略真实、因果、盈利或安全；估计依赖候选配置、样本、统计量与可交换性假设。",
+      boundary: "PBO 诊断的是选择过程，不是 p 值或错误发现校正，也不会发现前视、错误成本或未来结构断裂。使用时须保存完整同步的观察×配置表现矩阵、对称切分、预先声明的统计量，并披露序列相关与缺失试验处理。",
+    },
+  },
+  {
+    record: {
+      id: "paper-deflated-sharpe-ratio",
+      title: "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality",
+      publisher: "The Journal of Portfolio Management / SSRN",
+      url: "https://doi.org/10.2139/ssrn.2460551",
+      evidenceUrls: [
+        "https://doi.org/10.2139/ssrn.2460551",
+        "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2460551",
+      ],
+      accessedOn: ACCESSED_ON,
+      publishedOn: "2014-07-31",
+      revision: "Journal of Portfolio Management 40(5), 94-107 (2014); SSRN abstract 2460551",
+      kind: "research",
+      stability: "stable-concept",
+      reuseStatus: "link-and-paraphrase-only",
+      licence: "Publisher and author copyright; linked and independently paraphrased only",
+      supports:
+        "A primary method for deflating an observed Sharpe ratio for selection across trials and non-normal returns, using an estimated effective number of independent trials rather than treating every correlated trial as independent.",
+      boundary:
+        "DSR depends on the return series, trial inventory, the chosen effective-trial estimation method, and distributional inputs. It is not a substitute for point-in-time data, realistic execution, an untouched test, or evidence of future profitability.",
+    },
+    zhHans: {
+      supports: "支持针对多次试验选择偏差与非正态收益修正观察到的 Sharpe，并以估计的有效独立试验数处理相关候选。",
+      boundary: "DSR 依赖收益序列、完整试验清单、所选有效试验估计方法与分布输入；它不替代时点一致数据、真实执行、未触碰测试集，也不证明未来盈利。",
+    },
+  },
+  {
+    record: {
+      id: "paper-financial-cross-validation-comparison",
+      title: "Backtest overfitting in the machine learning era: A comparison of out-of-sample testing methods in a synthetic controlled environment",
+      publisher: "Knowledge-Based Systems",
+      url: "https://doi.org/10.1016/j.knosys.2024.112477",
+      evidenceUrls: [
+        "https://doi.org/10.1016/j.knosys.2024.112477",
+        "https://www.sciencedirect.com/science/article/pii/S0950705124011110",
+      ],
+      accessedOn: ACCESSED_ON,
+      publishedOn: "2024-12-03",
+      revision: "Knowledge-Based Systems 305 (2024), article 112477; DOI 10.1016/j.knosys.2024.112477",
+      kind: "research",
+      stability: "stable-concept",
+      reuseStatus: "link-and-paraphrase-only",
+      licence: "Publisher and author copyright; linked and independently paraphrased only",
+      supports:
+        "A controlled comparison of financial out-of-sample validation methods under non-stationarity, autocorrelation, and regime shifts, including walk-forward, purged methods, CPCV, PBO, and DSR evaluation.",
+      boundary:
+        "The reported ranking of validation methods is study-specific to its synthetic designs and historical S&P 500 analysis. It does not establish one universally superior split; label intervals, dependence, sample size, regimes, and computational constraints must be documented for each project.",
+    },
+    zhHans: {
+      supports: "支持在非平稳、自相关与状态切换条件下，对走步、purged 方法、CPCV、PBO 与 DSR 等金融样本外验证方法进行受控比较。",
+      boundary: "论文中的方法排序受其合成设计与历史 S&P 500 分析限定，不证明存在普遍最优切分；每个项目仍须披露标签区间、依赖、样本量、状态与计算约束。",
     },
   },
   {
