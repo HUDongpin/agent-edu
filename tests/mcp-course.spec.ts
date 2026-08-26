@@ -201,16 +201,35 @@ test.describe("Course 10 localized route contract", () => {
   });
 
   for (const locale of MCP_LOCALES) {
-    test(`${locale} materializes the dashboard and all 18 lessons`, async ({ context }) => {
+    test(`${locale} materializes the dashboard and all 18 lessons`, async ({ context, request }) => {
       test.setTimeout(180_000);
 
       for (const suffix of ROUTE_SUFFIXES) {
         const path = suffix ? `/${locale}/mcp/${suffix}/` : `/${locale}/mcp/`;
-        // Each route gets a fresh document. Replacing one MCP document with
-        // the next used to mix the previous page's cancellable Link prefetches
-        // into the next route's runtime audit on WebKit/Linux. This page-local
-        // audit still fails every console error, uncaught error, request
-        // failure, or HTTP error produced by the route being asserted.
+        const response = await request.get(path);
+        expect(response.status(), path).toBe(200);
+        expect(response.headers()["content-type"], path).toContain("text/html");
+        const html = await response.text();
+        expect(html, `${path}: localized document root`).toContain(
+          `<html lang="${locale}" dir="${locale === "ar" ? "rtl" : "ltr"}"`,
+        );
+        expect(html.match(/<main(?:\s|>)/g), `${path}: one static main`).toHaveLength(1);
+        expect(html.match(/<h1(?:\s|>)/g), `${path}: one static heading`).toHaveLength(1);
+        expect(html, `${path}: static route sentinel`).toContain(
+          suffix
+            ? `data-testid="mcp-lesson-${suffix}"`
+            : 'data-testid="mcp-course-dashboard"',
+        );
+      }
+
+      // The exhaustive loop above owns route inventory and static-export
+      // materialization. Exercise representative dashboard and capstone
+      // documents in the real browser as a separate runtime contract. This
+      // avoids turning 171 Link-prefetch graphs into a WebKit connection-pool
+      // stress test while retaining fail-closed console, page, request, HTTP,
+      // localization, layout, and hydration assertions for every locale.
+      for (const suffix of ["", LESSON_SLUGS.at(-1)!]) {
+        const path = suffix ? `/${locale}/mcp/${suffix}/` : `/${locale}/mcp/`;
         const routePage = await context.newPage();
         const runtime = watchRuntime(routePage);
         try {
@@ -224,8 +243,16 @@ test.describe("Course 10 localized route contract", () => {
           await expect(routePage.locator("main h1")).toHaveCount(1);
           if (suffix) {
             await expect(routePage.getByTestId(`mcp-lesson-${suffix}`)).toBeVisible();
+            const completion = routePage.locator(
+              'section[aria-labelledby="mcp-completion-title"] button',
+            );
+            await completion.click();
+            await expect(completion).toHaveAttribute("aria-pressed", "true");
           } else {
             await expect(routePage.getByTestId("mcp-course-dashboard")).toBeVisible();
+            const assessment = routePage.locator("#assessment");
+            await assessment.locator("button").first().click();
+            await expect(assessment.locator("form fieldset")).toHaveCount(MCP_FINAL_ASSESSMENT.length);
           }
           await expectNoPageOverflow(routePage, path);
           assertRuntimeClean(runtime, path, await renderedDocumentLinkTargets(routePage));
