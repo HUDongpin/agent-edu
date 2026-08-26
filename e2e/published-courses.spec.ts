@@ -642,13 +642,6 @@ async function expectSharedDashboardShell(page: Page, courseId: string) {
   await expect(progressRegion).toContainText(/%|\d+\s*\/\s*\d+|milestones?/i);
 }
 
-async function replaceStoredProgress(page: Page, key: string, value: unknown) {
-  await page.evaluate(({ storageKey, progress }) => {
-    localStorage.setItem(storageKey, JSON.stringify(progress));
-  }, { storageKey: key, progress: value });
-  await page.reload();
-}
-
 async function expectNoHorizontalOverflow(page: Page) {
   await page.evaluate(async () => {
     await document.fonts.ready;
@@ -1096,16 +1089,69 @@ for (const contract of FRESH_DASHBOARD_CTA_CONTRACTS) {
 }
 
 for (const contract of STATEFUL_DASHBOARD_CTA_CONTRACTS) {
-  test(`${contract.id}: primary CTA changes from Start to exact Resume to Review`, async ({ page }) => {
-    const response = await page.goto(contract.path);
-    expect(response?.status(), `${contract.id}: fresh dashboard response`).toBe(200);
-    await expectSinglePrimaryJourneyLink(page, contract.fresh);
+  test(`${contract.id}: resolves exact Start, Resume, and Review CTAs from isolated persisted snapshots`, async ({ page }) => {
+    const lifecycles = [
+      { label: "fresh", journey: contract.fresh, serializedProgress: null },
+      {
+        label: "in-progress",
+        journey: contract.inProgress,
+        serializedProgress: JSON.stringify(contract.inProgress.value()),
+      },
+      {
+        label: "completed",
+        journey: contract.completed,
+        serializedProgress: JSON.stringify(contract.completed.value()),
+      },
+    ] as const;
 
-    await replaceStoredProgress(page, contract.storageKey, contract.inProgress.value());
-    await expectSinglePrimaryJourneyLink(page, contract.inProgress);
+    for (const lifecycle of lifecycles) {
+      // Each persisted state is a separate document lifecycle. Reusing one
+      // Page and repeatedly reloading it lets cancellable Next Link prefetches
+      // race WebKit's next navigation, which tests connection timing rather
+      // than the learner-visible progress contract.
+      const statePage = await page.context().newPage();
+      let pageErrorCount = 0;
+      let consoleErrorCount = 0;
+      statePage.on("pageerror", () => { pageErrorCount += 1; });
+      statePage.on("console", (message) => {
+        if (message.type() === "error") consoleErrorCount += 1;
+      });
+      await statePage.addInitScript(({ storageKey, serializedProgress }) => {
+        if (serializedProgress === null) {
+          localStorage.removeItem(storageKey);
+        } else {
+          localStorage.setItem(storageKey, serializedProgress);
+        }
+      }, {
+        storageKey: contract.storageKey,
+        serializedProgress: lifecycle.serializedProgress,
+      });
 
-    await replaceStoredProgress(page, contract.storageKey, contract.completed.value());
-    await expectSinglePrimaryJourneyLink(page, contract.completed);
+      try {
+        const response = await statePage.goto(contract.path);
+        expect(
+          response,
+          `${contract.id}: ${lifecycle.label} dashboard document response`,
+        ).not.toBeNull();
+        expect(
+          response!.status(),
+          `${contract.id}: ${lifecycle.label} dashboard response`,
+        ).toBe(200);
+        await expect(statePage.locator("html")).toHaveAttribute("lang", "en");
+        await expect(statePage.locator("main h1").first()).toBeVisible();
+        await expectSinglePrimaryJourneyLink(statePage, lifecycle.journey);
+        expect(
+          pageErrorCount,
+          `${contract.id}: ${lifecycle.label} dashboard has no page errors`,
+        ).toBe(0);
+        expect(
+          consoleErrorCount,
+          `${contract.id}: ${lifecycle.label} dashboard has no console errors`,
+        ).toBe(0);
+      } finally {
+        if (!statePage.isClosed()) await statePage.close();
+      }
+    }
   });
 }
 
