@@ -104,12 +104,16 @@ test.describe("Course 6 static curriculum and provenance", () => {
         const image = figure.locator("img");
         await expect(image).toBeVisible();
         await expect(image).toHaveAttribute("src", expectedFigure.src);
-        expect(
-          await image.evaluate((node: HTMLImageElement) => node.naturalWidth),
-        ).toBe(expectedFigure.width);
-        expect(
-          await image.evaluate((node: HTMLImageElement) => node.naturalHeight),
-        ).toBe(expectedFigure.height);
+        await image.scrollIntoViewIfNeeded();
+        await expect.poll(() => image.evaluate((node: HTMLImageElement) => ({
+          complete: node.complete,
+          width: node.naturalWidth,
+          height: node.naturalHeight,
+        }))).toEqual({
+          complete: true,
+          width: expectedFigure.width,
+          height: expectedFigure.height,
+        });
         await expect(figure.locator("figcaption")).toContainText(
           "GitHub Docs © GitHub, Inc.",
         );

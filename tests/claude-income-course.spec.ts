@@ -447,9 +447,10 @@ test.describe("Course 12 routes, evidence rendering, and media boundaries", () =
         await expect(image).toHaveAttribute("src", figure.src);
         await expect(image).toHaveAttribute("alt", figure.alt);
         await expect(image).toBeVisible();
+        await image.scrollIntoViewIfNeeded();
         await expect.poll(
-          () => image.evaluate((node: HTMLImageElement) => node.naturalWidth),
-        ).toBeGreaterThan(0);
+          () => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0),
+        ).toBe(true);
         const decoded = await image.evaluate((node: HTMLImageElement) => ({
           currentSrc: node.currentSrc,
           naturalWidth: node.naturalWidth,
