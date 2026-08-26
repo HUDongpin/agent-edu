@@ -431,7 +431,13 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
       </header>
       {!storageAvailable ? <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p> : null}
       {!active ? (
-        <button className={styles.primaryButton} type="button" disabled={!hydrated} onClick={begin}>
+        <button
+          className={styles.primaryButton}
+          type="button"
+          tabIndex={0}
+          disabled={!hydrated}
+          onClick={begin}
+        >
           {labels.beginQuiz}
         </button>
       ) : score !== null ? (
@@ -597,6 +603,7 @@ export function CapstoneChecklist({
             <label className={styles.capstoneItem} key={item}>
               <input
                 type="checkbox"
+                tabIndex={0}
                 name={`rag-capstone-artifact-${index + 1}`}
                 autoComplete="off"
                 checked={Boolean(checked[index]) || recorded}

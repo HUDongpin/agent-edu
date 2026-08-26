@@ -115,7 +115,8 @@ p{margin:0 0 12px;color:var(--ink-2)}
 .skip:focus{position:fixed;inset-block-start:9px;inset-inline-start:9px;z-index:100;
   width:auto;height:auto;clip-path:none;overflow:visible;
   padding:11px 16px;background:var(--card);color:var(--ink);font-weight:650;
-  border:2px solid var(--brand);border-radius:10px;box-shadow:var(--shadow)}
+  border:2px solid var(--brand);border-radius:10px;box-shadow:var(--shadow);
+  outline:2px solid var(--brand);outline-offset:2px}
 
 /* ============================ header ============================ */
 .topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);

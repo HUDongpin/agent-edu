@@ -54,7 +54,7 @@ export default async function Shell({
 
   return (
     <I18nProvider locale={locale} messages={messages}>
-      <a className="skip" href="#main">{t("ui.skip")}</a>
+      <a className="skip" href="#main" tabIndex={0}>{t("ui.skip")}</a>
       <RouteFocus />
       <ProgressRecencyTracker />
 

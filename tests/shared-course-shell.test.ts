@@ -52,6 +52,8 @@ test("every published dashboard mounts the registry-derived shared course shell"
     "local-progress",
   ]) assert.match(shell, new RegExp(field), field);
   assert.match(shell, /PUBLISHED_CATALOG_COURSES\.find/);
+  assert.match(shell, /metaFor\(contentLocale\)\.native/);
+  assert.doesNotMatch(shell, /new\s+Intl\.DisplayNames/);
 });
 
 test("every published dashboard exposes exactly one designated journey CTA implementation", () => {

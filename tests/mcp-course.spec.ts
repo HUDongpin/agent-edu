@@ -186,6 +186,12 @@ test.describe("Course 10 localized route contract", () => {
         const response = await page.goto(path);
         expect(response?.status(), path).toBe(200);
         await waitForStableDocument(page);
+        // This test intentionally reuses one page for 19 consecutive route
+        // documents. Let same-origin Next prefetches settle before replacing
+        // the document so WebKit cannot misclassify an expected navigation
+        // cancellation as a CORS page error. Real runtime, response, and
+        // request failures remain recorded and fail below.
+        await page.waitForLoadState("networkidle");
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
         await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
         await expect(page.locator("main")).toHaveCount(1);

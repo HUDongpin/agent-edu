@@ -76,7 +76,11 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
                     const item = course.lessons.find((candidate) => candidate.slug === slug)!;
                     return (
                       <li key={slug}>
-                        <Link href={hrefFor(slug)} aria-current={slug === lesson.slug ? "page" : undefined}>
+                        <Link
+                          href={hrefFor(slug)}
+                          prefetch={false}
+                          aria-current={slug === lesson.slug ? "page" : undefined}
+                        >
                           <span>{number.format(item.order)}</span>{item.title}
                         </Link>
                       </li>

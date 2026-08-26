@@ -44,7 +44,12 @@ export default function NavLinks({
           ? candidates.some((candidate) => here === candidate)
           : candidates.some((candidate) => here.startsWith(candidate));
         return (
-          <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}>
+          <Link
+            key={n.href}
+            href={n.href}
+            tabIndex={0}
+            aria-current={active ? "page" : undefined}
+          >
             {n.label}
           </Link>
         );

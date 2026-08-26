@@ -8,6 +8,7 @@ import {
   publicContentLocaleForCourse,
   type PublicCourseId,
 } from "@/lib/public-release-surface";
+import { metaFor } from "@/lib/i18n";
 import { useI18n } from "./I18nProvider";
 
 export default function SharedCourseShell({
@@ -27,9 +28,10 @@ export default function SharedCourseShell({
 
   const { course, surface } = release;
   const contentLocale = publicContentLocaleForCourse(courseId, locale) ?? surface.primaryLocale;
-  const languageName = contentLocale
-    ? new Intl.DisplayNames([locale], { type: "language" }).of(contentLocale) ?? contentLocale
-    : "—";
+  // Intl.DisplayNames is not byte-stable across the server's ICU data and
+  // every browser engine (notably "español" versus "Español" in WebKit).
+  // The nine-locale product registry is the deterministic label authority.
+  const languageName = contentLocale ? metaFor(contentLocale).native : "—";
   const number = new Intl.NumberFormat(locale);
 
   return (
