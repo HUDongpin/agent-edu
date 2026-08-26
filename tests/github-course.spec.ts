@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "../e2e/fixtures";
 import {
   GITHUB_FIGURES,
   GITHUB_FINAL_QUIZ,
@@ -136,24 +137,41 @@ test.describe("Course 6 static curriculum and provenance", () => {
   }
 
   test("every locale materializes and Arabic keeps GitHub figures LTR", async ({
-    page,
+    context,
   }) => {
     for (const locale of GITHUB_LOCALES) {
-      const response = await page.goto(`/${locale}/github/`);
-      expect(response?.status(), locale).toBe(200);
-      await expect(page.getByTestId("github-course-dashboard")).toBeVisible();
-      await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      const localePage = await context.newPage();
+      try {
+        const response = await localePage.goto(`/${locale}/github/`);
+        expect(response, `${locale}: dashboard document response`).not.toBeNull();
+        expect(response!.status(), locale).toBe(200);
+        await expect(
+          localePage.getByTestId("github-course-dashboard"),
+        ).toBeVisible();
+        await expect(localePage.locator("html")).toHaveAttribute("lang", locale);
+      } finally {
+        await localePage.close();
+      }
     }
-    await page.goto("/ar/github/pull-requests-reviews/");
-    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-    await expect(
-      page
-        .getByTestId("github-figure-fig-07")
-        .locator('a[aria-describedby="github-fig-07-caption"]'),
-    ).toHaveAttribute("dir", "ltr");
-    await expect(
-      page.getByTestId("github-figure-fig-07").locator("img"),
-    ).toBeVisible();
+    const lessonPage = await context.newPage();
+    try {
+      const response = await lessonPage.goto(
+        "/ar/github/pull-requests-reviews/",
+      );
+      expect(response, "Arabic lesson document response").not.toBeNull();
+      expect(response!.status()).toBe(200);
+      await expect(lessonPage.locator("html")).toHaveAttribute("dir", "rtl");
+      await expect(
+        lessonPage
+          .getByTestId("github-figure-fig-07")
+          .locator('a[aria-describedby="github-fig-07-caption"]'),
+      ).toHaveAttribute("dir", "ltr");
+      await expect(
+        lessonPage.getByTestId("github-figure-fig-07").locator("img"),
+      ).toBeVisible();
+    } finally {
+      await lessonPage.close();
+    }
   });
 
   test("metadata is canonical, reciprocal, and course-specific", async ({

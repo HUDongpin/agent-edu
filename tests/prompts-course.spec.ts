@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "../e2e/fixtures";
 import { PROMPT_FIGURES } from "../lib/prompts/figures";
 import {
   PROMPT_LESSON_SLUGS,
@@ -409,43 +410,80 @@ test.describe("private Course 7 progress and assessment", () => {
     }
   });
 
-  test("practice persists and Course 7 reset preserves unrelated progress", async ({ page }) => {
-    await page.goto(DASHBOARD);
-    await page.evaluate(() => {
-      localStorage.setItem("ae.progress", JSON.stringify({
+  test("practice persists and Course 7 reset preserves unrelated progress", async ({ context }) => {
+    const practicePage = await context.newPage();
+    try {
+      const dashboardResponse = await practicePage.goto(DASHBOARD);
+      expect(dashboardResponse?.status()).toBe(200);
+      await practicePage.evaluate(() => {
+        localStorage.setItem("ae.progress", JSON.stringify({
+          "codex.lesson.meet-codex": true,
+          play0: true,
+          unrelated: "keep me",
+        }));
+      });
+
+      const lessonResponse = await practicePage.goto(
+        "/en/prompts/prompts-are-specifications/",
+      );
+      expect(lessonResponse?.status()).toBe(200);
+      await practicePage
+        .getByRole("button", { name: "I completed the practice" })
+        .click();
+      await expect(
+        practicePage.getByRole("button", { name: "Practice recorded" }),
+      ).toHaveAttribute("aria-disabled", "true");
+      const reloadResponse = await practicePage.reload();
+      expect(reloadResponse?.status()).toBe(200);
+      await expect(
+        practicePage.getByRole("button", { name: "Practice recorded" }),
+      ).toHaveAttribute("aria-disabled", "true");
+
+      const stored = await practicePage.evaluate(
+        () => JSON.parse(localStorage.getItem("ae.progress") || "{}"),
+      );
+      expect(stored["prompts.lesson.prompts-are-specifications.practice"]).toBe(true);
+      expect(stored["codex.lesson.meet-codex"]).toBe(true);
+      expect(stored.play0).toBe(true);
+    } finally {
+      await practicePage.close();
+    }
+
+    const dashboardPage = await context.newPage();
+    try {
+      const response = await dashboardPage.goto(DASHBOARD);
+      expect(response, "resume dashboard document response").not.toBeNull();
+      expect(response!.status()).toBe(200);
+      await expect(
+        dashboardPage
+          .getByTestId("prompts-course-dashboard")
+          .locator("progress"),
+      ).toHaveAttribute("value", "1");
+      dashboardPage.once("dialog", async (dialog) => {
+        expect(dialog.message()).toBe("Reset only your saved Course 7 progress?");
+        await dialog.accept();
+      });
+      await dashboardPage
+        .getByRole("button", { name: "Reset Course 7 progress" })
+        .click();
+      await expect(
+        dashboardPage.getByText("Course 7 progress reset.", { exact: true }),
+      ).toBeVisible();
+
+      const stored = await dashboardPage.evaluate(
+        () => JSON.parse(localStorage.getItem("ae.progress") || "{}"),
+      );
+      expect(
+        Object.keys(stored).filter((key) => key.startsWith("prompts.")),
+      ).toEqual([]);
+      expect(stored).toEqual({
         "codex.lesson.meet-codex": true,
         play0: true,
         unrelated: "keep me",
-      }));
-    });
-
-    await page.goto("/en/prompts/prompts-are-specifications/");
-    await page.getByRole("button", { name: "I completed the practice" }).click();
-    await expect(page.getByRole("button", { name: "Practice recorded" })).toHaveAttribute("aria-disabled", "true");
-    await page.reload();
-    await expect(page.getByRole("button", { name: "Practice recorded" })).toHaveAttribute("aria-disabled", "true");
-
-    let stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
-    expect(stored["prompts.lesson.prompts-are-specifications.practice"]).toBe(true);
-    expect(stored["codex.lesson.meet-codex"]).toBe(true);
-    expect(stored.play0).toBe(true);
-
-    await page.goto(DASHBOARD);
-    await expect(page.getByTestId("prompts-course-dashboard").locator("progress")).toHaveAttribute("value", "1");
-    page.once("dialog", async (dialog) => {
-      expect(dialog.message()).toBe("Reset only your saved Course 7 progress?");
-      await dialog.accept();
-    });
-    await page.getByRole("button", { name: "Reset Course 7 progress" }).click();
-    await expect(page.getByText("Course 7 progress reset.", { exact: true })).toBeVisible();
-
-    stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
-    expect(Object.keys(stored).filter((key) => key.startsWith("prompts."))).toEqual([]);
-    expect(stored).toEqual({
-      "codex.lesson.meet-codex": true,
-      play0: true,
-      unrelated: "keep me",
-    });
+      });
+    } finally {
+      await dashboardPage.close();
+    }
   });
 
   test("storage denial is disclosed while practice remains usable in memory", async ({ page }) => {
