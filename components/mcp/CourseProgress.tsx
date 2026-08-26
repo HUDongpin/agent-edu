@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { MCP_ASSESSMENT_VERSION } from "@/lib/mcp";
 import type { McpUiCopy } from "@/lib/mcp/copy";
-import { formatMcpCopy } from "@/lib/mcp/format";
+import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import type { McpDirection } from "@/lib/mcp/types";
 import { resetMcpProgress } from "./progress-store";
 import { useMcpProgress } from "./useMcpProgress";
@@ -51,7 +51,7 @@ export default function CourseProgress({
     : !quiz
       ? ui.progressTakeAssessment
       : ui.progressOpenCapstone;
-  const number = new Intl.NumberFormat(locale);
+  const number = (value: number) => formatMcpInteger(value, locale);
 
   function performReset() {
     resetMcpProgress();
@@ -74,10 +74,10 @@ export default function CourseProgress({
     <section className={styles.progressPanel} aria-labelledby="mcp-progress-title">
       <div className={styles.progressCopy}>
         <p className={styles.eyebrow}>{ui.progressEyebrow}</p>
-        <h2 id="mcp-progress-title">{formatMcpCopy(ui.progressPercentTemplate, { percent: number.format(percent) })}</h2>
+        <h2 id="mcp-progress-title">{formatMcpCopy(ui.progressPercentTemplate, { percent: number(percent) })}</h2>
         <p>{formatMcpCopy(ui.progressSummaryTemplate, {
-          completed: number.format(completed),
-          total: number.format(lessons.length),
+          completed: number(completed),
+          total: number(lessons.length),
           assessment: quiz ? ui.progressAssessmentPassed : ui.progressAssessmentNotPassed,
           capstone: capstone ? ui.progressCapstoneComplete : ui.progressCapstoneOpen,
         })}</p>

@@ -9,7 +9,7 @@ import {
   type McpAssessmentQuestion,
 } from "@/lib/mcp";
 import type { McpUiCopy } from "@/lib/mcp/copy";
-import { formatMcpCopy } from "@/lib/mcp/format";
+import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import type { McpDirection } from "@/lib/mcp/types";
 import { updateMcpProgress } from "./progress-store";
 import { useMcpProgress } from "./useMcpProgress";
@@ -38,7 +38,7 @@ export default function FinalAssessment({
   const currentVersion = progress["mcp.quiz.version"] === MCP_ASSESSMENT_VERSION;
   const best = currentVersion && typeof progress["mcp.quiz.best"] === "number" ? progress["mcp.quiz.best"] as number : 0;
   const previouslyPassed = currentVersion && progress["mcp.quiz.passed"] === true;
-  const number = new Intl.NumberFormat(locale);
+  const number = (value: number) => formatMcpInteger(value, locale);
 
   useEffect(() => {
     if (submitted) resultRef.current?.focus();
@@ -67,9 +67,9 @@ export default function FinalAssessment({
       <div className={styles.assessmentIntro}>
         <p className={styles.eyebrow}>{ui.assessmentEyebrow}</p>
         <h2 id="mcp-final-title">{ui.assessmentTitle}</h2>
-        <p>{formatMcpCopy(ui.assessmentIntroTemplate, { count: number.format(questions.length), threshold: number.format(threshold) })}</p>
+        <p>{formatMcpCopy(ui.assessmentIntroTemplate, { count: number(questions.length), threshold: number(threshold) })}</p>
         <p>{ui.assessmentBody}</p>
-        {best ? <p className={styles.bestScore}>{formatMcpCopy(ui.assessmentBestTemplate, { best: number.format(best), count: number.format(questions.length) })}</p> : null}
+        {best ? <p className={styles.bestScore}>{formatMcpCopy(ui.assessmentBestTemplate, { best: number(best), count: number(questions.length) })}</p> : null}
         {!open ? (
           <button className={styles.primaryButton} type="button" onClick={() => setOpen(true)}>{ui.assessmentBegin}</button>
         ) : null}
@@ -85,7 +85,7 @@ export default function FinalAssessment({
               return (
                 <li key={question.id}>
                   <fieldset>
-                    <legend><span>{number.format(index + 1)}</span>{question.question}</legend>
+                    <legend><span>{number(index + 1)}</span>{question.question}</legend>
                     <p className={styles.quizOutcome}>{formatMcpCopy(ui.assessmentOutcomeTemplate, { outcome: question.outcome })}</p>
                     {presentedOptions.map(({ text, originalIndex }, displayedIndex) => (
                       <label
@@ -117,7 +117,7 @@ export default function FinalAssessment({
           </ol>
           {!submitted ? (
             <div className={styles.quizSubmit}>
-              <span>{formatMcpCopy(ui.assessmentAnsweredTemplate, { answered: number.format(Object.keys(answers).length), count: number.format(questions.length) })}</span>
+              <span>{formatMcpCopy(ui.assessmentAnsweredTemplate, { answered: number(Object.keys(answers).length), count: number(questions.length) })}</span>
               <button className={styles.primaryButton} type="submit" disabled={Object.keys(answers).length !== questions.length}>
                 {ui.assessmentScore}
               </button>
@@ -125,8 +125,8 @@ export default function FinalAssessment({
           ) : (
             <div ref={resultRef} className={passed ? styles.passPanel : styles.retryPanel} role="status" tabIndex={-1}>
               <p className={styles.eyebrow}>{passed ? ui.assessmentPassed : ui.assessmentReviewRequired}</p>
-              <h3>{number.format(score)}/{number.format(questions.length)}</h3>
-              <p>{passed ? ui.assessmentPassBody : formatMcpCopy(ui.assessmentFailBodyTemplate, { threshold: number.format(threshold) })}</p>
+              <h3>{number(score)}/{number(questions.length)}</h3>
+              <p>{passed ? ui.assessmentPassBody : formatMcpCopy(ui.assessmentFailBodyTemplate, { threshold: number(threshold) })}</p>
               {!passed ? <button className={styles.secondaryButton} type="button" onClick={retry}>{ui.assessmentRetry}</button> : null}
             </div>
           )}

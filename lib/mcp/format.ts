@@ -1,3 +1,5 @@
+export { formatDeterministicInteger as formatMcpInteger } from "../deterministic-format";
+
 export function formatMcpCopy(
   template: string,
   values: Readonly<Record<string, string | number>>,

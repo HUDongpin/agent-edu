@@ -9,6 +9,7 @@ import {
   type PublicCourseId,
 } from "@/lib/public-release-surface";
 import { metaFor } from "@/lib/i18n";
+import { formatDeterministicInteger } from "@/lib/deterministic-format";
 import { useI18n } from "./I18nProvider";
 
 export default function SharedCourseShell({
@@ -28,11 +29,16 @@ export default function SharedCourseShell({
 
   const { course, surface } = release;
   const contentLocale = publicContentLocaleForCourse(courseId, locale) ?? surface.primaryLocale;
+  if (!contentLocale) {
+    throw new Error(`Published course shell requires a content locale: ${courseId}`);
+  }
   // Intl.DisplayNames is not byte-stable across the server's ICU data and
   // every browser engine (notably "español" versus "Español" in WebKit).
   // The nine-locale product registry is the deterministic label authority.
-  const languageName = contentLocale ? metaFor(contentLocale).native : "—";
-  const number = new Intl.NumberFormat(locale);
+  const languageName = metaFor(contentLocale).native;
+  const formattedMinutes = course.minutes === null
+    ? "—"
+    : formatDeterministicInteger(course.minutes, contentLocale);
 
   return (
     <aside
@@ -55,7 +61,7 @@ export default function SharedCourseShell({
         <span data-course-shell-field="status">{t("status.available")}</span>
         <span data-course-shell-field="difficulty">{t(course.levelKey)}</span>
         <span data-course-shell-field="duration">
-          {course.minutes === null ? "—" : `${number.format(course.minutes)} ${t("cat.minutes")}`}
+          {course.minutes === null ? "—" : `${formattedMinutes} ${t("cat.minutes")}`}
         </span>
         <span data-course-shell-field="content-language" lang={contentLocale ?? undefined}>
           {languageName}

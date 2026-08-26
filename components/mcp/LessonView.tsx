@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MCP_LESSON_DISPLAY_CORRECT_INDEXES, type McpCourse, type McpLesson } from "@/lib/mcp";
 import type { McpUiCopy } from "@/lib/mcp/copy";
-import { formatMcpCopy } from "@/lib/mcp/format";
+import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import InteractiveLab from "./InteractiveLab";
 import KnowledgeCheck from "./KnowledgeCheck";
 import LessonCompletion from "./LessonCompletion";
@@ -10,7 +10,7 @@ import styles from "./McpCourse.module.css";
 
 export default function LessonView({ course, lesson }: { course: McpCourse; lesson: McpLesson }) {
   const ui = course.ui as McpUiCopy;
-  const number = new Intl.NumberFormat(course.contentLocale);
+  const number = (value: number) => formatMcpInteger(value, course.contentLocale);
   const arrowForward = course.contentDirection === "rtl" ? "←" : "→";
   const arrowBack = course.contentDirection === "rtl" ? "→" : "←";
   const statusLabel = {
@@ -61,16 +61,16 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
         <span aria-hidden="true">/</span>
         <span>{unit.title}</span>
         <span aria-hidden="true">/</span>
-        <span aria-current="page">{formatMcpCopy(ui.lessonTemplate, { order: number.format(lesson.order) })}</span>
+        <span aria-current="page">{formatMcpCopy(ui.lessonTemplate, { order: number(lesson.order) })}</span>
       </nav>
 
       <div className={styles.lessonLayout}>
         <aside className={styles.lessonRail}>
           <nav aria-label={ui.lessonCourseNavAria}>
-            <div className={styles.railCurrent}><span>{number.format(index + 1)}/{number.format(course.lessons.length)}</span><strong dir="ltr">{course.protocolVersion}</strong></div>
+            <div className={styles.railCurrent}><span>{number(index + 1)}/{number(course.lessons.length)}</span><strong dir="ltr">{course.protocolVersion}</strong></div>
             {course.units.map((courseUnit) => (
               <div className={styles.railUnit} key={courseUnit.id}>
-                <p>{number.format(courseUnit.order)}. {courseUnit.title}</p>
+                <p>{number(courseUnit.order)}. {courseUnit.title}</p>
                 <ol>
                   {courseUnit.lessonSlugs.map((slug) => {
                     const item = course.lessons.find((candidate) => candidate.slug === slug)!;
@@ -81,7 +81,7 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
                           prefetch={false}
                           aria-current={slug === lesson.slug ? "page" : undefined}
                         >
-                          <span>{number.format(item.order)}</span>{item.title}
+                          <span>{number(item.order)}</span>{item.title}
                         </Link>
                       </li>
                     );
@@ -95,7 +95,7 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
         <div className={styles.lessonMain}>
           <article>
             <header className={styles.lessonHero}>
-              <div className={styles.heroBadges}><span>{formatMcpCopy(ui.lessonTemplate, { order: number.format(lesson.order) })}</span><span>{unit.title}</span><span>{formatMcpCopy(ui.lessonMinutesTemplate, { minutes: number.format(lesson.minutes) })}</span><span>{formatMcpCopy(ui.dashboardEvidenceSnapshotTemplate, { date: course.publishedOn })}</span></div>
+              <div className={styles.heroBadges}><span>{formatMcpCopy(ui.lessonTemplate, { order: number(lesson.order) })}</span><span>{unit.title}</span><span>{formatMcpCopy(ui.lessonMinutesTemplate, { minutes: number(lesson.minutes) })}</span><span>{formatMcpCopy(ui.dashboardEvidenceSnapshotTemplate, { date: course.publishedOn })}</span></div>
               <p className={styles.eyebrow} dir="ltr">MCP {course.protocolVersion}</p>
               <h1>{lesson.title}</h1>
               <p className={styles.lessonSummary}>{lesson.summary}</p>

@@ -3,7 +3,7 @@
 import { updateMcpProgress } from "./progress-store";
 import { useMcpProgress } from "./useMcpProgress";
 import type { McpUiCopy } from "@/lib/mcp/copy";
-import { formatMcpCopy } from "@/lib/mcp/format";
+import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import type { McpCapstoneCopy } from "@/lib/mcp/types";
 import styles from "./McpCourse.module.css";
 
@@ -25,6 +25,7 @@ export default function CapstoneChecklist({
   ])) as Record<number, boolean>;
   const count = Object.values(checked).filter(Boolean).length;
   const all = count === deliverables.length;
+  const number = (value: number) => formatMcpInteger(value, locale);
 
   return (
     <section id="capstone" className={styles.capstone} aria-labelledby="mcp-capstone-title">
@@ -43,7 +44,7 @@ export default function CapstoneChecklist({
         </div>
       </div>
       <div className={styles.capstoneChecklist}>
-        <div className={styles.capstoneCount}><strong>{count}/{deliverables.length}</strong><span>{formatMcpCopy(ui.capstoneReadyTemplate, { count, total: deliverables.length })}</span></div>
+        <div className={styles.capstoneCount}><strong>{number(count)}/{number(deliverables.length)}</strong><span>{formatMcpCopy(ui.capstoneReadyTemplate, { count: number(count), total: number(deliverables.length) })}</span></div>
         {deliverables.map((item, index) => (
           <label key={item}>
             <input
@@ -57,7 +58,7 @@ export default function CapstoneChecklist({
                 });
               }}
             />
-            <span>{String(index + 1).padStart(2, "0")}</span>
+            <span>{number(index + 1).padStart(2, number(0))}</span>
             {item}
           </label>
         ))}

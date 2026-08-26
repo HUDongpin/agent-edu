@@ -171,7 +171,18 @@ p{margin:0 0 12px;color:var(--ink-2)}
   font-size:10px;line-height:1;font-weight:750;color:var(--ink-2)}
 
 .navtoggle{display:none}
-@media(max-width:860px){
+/* System-font metrics differ across macOS and Linux. Keep the five desktop
+   destinations inside the header at compact desktop widths before moving to
+   the menu; otherwise longer French labels can push the actions past 1280px. */
+@media(max-width:1320px){
+  .topbar-in{gap:8px}
+  .logo .tagline{display:none}
+  .mainnav{margin-inline-start:4px}
+  .mainnav a{font-size:14px;padding-inline:7px}
+  .topacts{gap:5px}
+  .iconbtn{padding-inline:9px}
+}
+@media(max-width:1120px){
   .mainnav{display:none;position:absolute;inset-block-start:100%;inset-inline:0;
     background:var(--card);border-block-end:1px solid var(--line);flex-direction:column;
     padding:8px;gap:2px;box-shadow:var(--shadow)}
@@ -1389,7 +1400,7 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .mainnav a[aria-current="page"]::after{
   content:"";position:absolute;inset-inline:11px;bottom:2px;height:2px;
   border-radius:2px;background:var(--brand)}
-@media(max-width:860px){
+@media(max-width:1120px){
   .mainnav a[aria-current="page"]::after{inset-inline:11px;bottom:4px}
 }
 

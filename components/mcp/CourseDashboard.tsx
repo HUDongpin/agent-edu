@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { McpCourse } from "@/lib/mcp";
 import type { McpUiCopy } from "@/lib/mcp/copy";
-import { formatMcpCopy } from "@/lib/mcp/format";
+import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import CapstoneChecklist from "./CapstoneChecklist";
 import CourseProgress from "./CourseProgress";
 import FinalAssessment from "./FinalAssessment";
@@ -18,7 +18,7 @@ export default function CourseDashboard({
 }) {
   const minutes = course.lessons.reduce((sum, lesson) => sum + lesson.minutes, 0);
   const ui = course.ui as McpUiCopy;
-  const number = new Intl.NumberFormat(course.contentLocale);
+  const number = (value: number) => formatMcpInteger(value, course.contentLocale);
   const arrowForward = course.contentDirection === "rtl" ? "←" : "→";
   const arrowBack = course.contentDirection === "rtl" ? "→" : "←";
   const statusLabel = {
@@ -56,7 +56,7 @@ export default function CourseDashboard({
       <header className={styles.courseHero}>
         <div className={styles.heroCopy}>
           <div className={styles.heroBadges}>
-            <span>{formatMcpCopy(ui.dashboardCourseTemplate, { sequence: number.format(course.sequence) })}</span>
+            <span>{formatMcpCopy(ui.dashboardCourseTemplate, { sequence: number(course.sequence) })}</span>
             <span dir="ltr">{formatMcpCopy(ui.dashboardProtocolTemplate, { version: course.protocolVersion })}</span>
             <span>{formatMcpCopy(ui.dashboardEvidenceSnapshotTemplate, { date: course.publishedOn })}</span>
           </div>
@@ -69,10 +69,10 @@ export default function CourseDashboard({
         <aside className={styles.courseFacts} aria-label={ui.dashboardCourseFactsAria}>
           <p className={styles.factLead}>{ui.dashboardFactLead}</p>
           <dl>
-            <div><dt>{ui.dashboardLessons}</dt><dd>{number.format(course.lessons.length)}</dd></div>
-            <div><dt>{ui.dashboardStudyTime}</dt><dd>{formatMcpCopy(ui.dashboardStudyTimeTemplate, { hours: number.format(Math.floor(minutes / 60)), minutes: number.format(minutes % 60) })}</dd></div>
-            <div><dt>{ui.dashboardEvidenceFigures}</dt><dd>{number.format(course.figures.length)}</dd></div>
-            <div><dt>{ui.dashboardConceptLedger}</dt><dd>{number.format(course.concepts.length)}</dd></div>
+            <div><dt>{ui.dashboardLessons}</dt><dd>{number(course.lessons.length)}</dd></div>
+            <div><dt>{ui.dashboardStudyTime}</dt><dd>{formatMcpCopy(ui.dashboardStudyTimeTemplate, { hours: number(Math.floor(minutes / 60)), minutes: number(minutes % 60) })}</dd></div>
+            <div><dt>{ui.dashboardEvidenceFigures}</dt><dd>{number(course.figures.length)}</dd></div>
+            <div><dt>{ui.dashboardConceptLedger}</dt><dd>{number(course.concepts.length)}</dd></div>
           </dl>
           <a href="#curriculum" className={styles.inlineLink}>{ui.dashboardInspectCurriculum} ↓</a>
         </aside>
@@ -127,7 +127,7 @@ export default function CourseDashboard({
           {course.units.map((unit) => (
             <section className={styles.unit} key={unit.id} aria-labelledby={`${unit.id}-title`}>
               <div className={styles.unitHeading}>
-                <span>{number.format(unit.order)}</span>
+                <span>{number(unit.order)}</span>
                 <div><h3 id={`${unit.id}-title`}>{unit.title}</h3><p>{unit.summary}</p></div>
               </div>
               <ol>
@@ -136,9 +136,9 @@ export default function CourseDashboard({
                   return (
                     <li key={slug}>
                       <Link href={`/${course.locale}/mcp/${slug}/`}>
-                        <span className={styles.lessonOrder}>{number.format(lesson.order)}</span>
+                        <span className={styles.lessonOrder}>{number(lesson.order)}</span>
                         <span className={styles.lessonCardCopy}><strong>{lesson.title}</strong><small>{lesson.summary}</small></span>
-                        <span className={styles.lessonMinutes}>{formatMcpCopy(ui.dashboardMinutesTemplate, { minutes: number.format(lesson.minutes) })} <b aria-hidden="true">{arrowForward}</b></span>
+                        <span className={styles.lessonMinutes}>{formatMcpCopy(ui.dashboardMinutesTemplate, { minutes: number(lesson.minutes) })} <b aria-hidden="true">{arrowForward}</b></span>
                       </Link>
                     </li>
                   );
@@ -172,7 +172,7 @@ export default function CourseDashboard({
         </div>
         <dl>
           {Object.entries(publisherCounts).map(([publisher, count]) => (
-            <div key={publisher}><dt><bdi>{publisher}</bdi></dt><dd>{formatMcpCopy(ui.dashboardSourcesTemplate, { count: number.format(count) })}</dd></div>
+            <div key={publisher}><dt><bdi>{publisher}</bdi></dt><dd>{formatMcpCopy(ui.dashboardSourcesTemplate, { count: number(count) })}</dd></div>
           ))}
         </dl>
       </section>
@@ -185,7 +185,7 @@ export default function CourseDashboard({
         <ol>
           {course.claims.map((entry) => (
             <li key={entry.id}>
-              <div><Link href={`/${course.locale}/mcp/${entry.lessonSlug}/`}>{formatMcpCopy(ui.dashboardLessonTemplate, { order: number.format(entry.lessonOrder) })}</Link><strong>{entry.claim}</strong></div>
+              <div><Link href={`/${course.locale}/mcp/${entry.lessonSlug}/`}>{formatMcpCopy(ui.dashboardLessonTemplate, { order: number(entry.lessonOrder) })}</Link><strong>{entry.claim}</strong></div>
               <span>
                 {entry.sourceIds.map((sourceId) => {
                   const source = course.sources.find((candidate) => candidate.id === sourceId)!;
