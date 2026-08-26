@@ -25,5 +25,5 @@ export type ResponsibleAiCapstoneArtifactId = (typeof RESPONSIBLE_AI_CAPSTONE_AR
 export const RESPONSIBLE_AI_CAPSTONE = {
   schemaVersion: COURSE_KIT_CAPSTONE_SCHEMA_VERSION,
   version: RESPONSIBLE_AI_CAPSTONE_VERSION,
-  artifacts: RESPONSIBLE_AI_CAPSTONE_ARTIFACTS.map((artifact) => ({ id: artifact.id, sourceIds: artifact.sourceIds, required: true as const })) as unknown as CourseKitCapstone<ResponsibleAiCapstoneArtifactId, ResponsibleAiSourceId>["artifacts"],
+  artifacts: RESPONSIBLE_AI_CAPSTONE_ARTIFACTS.map((artifact) => ({ id: artifact.id, sourceIds: artifact.sourceIds, evidenceMode: "instructional-synthesis" as const, required: true as const })) as unknown as CourseKitCapstone<ResponsibleAiCapstoneArtifactId, ResponsibleAiSourceId>["artifacts"],
 } satisfies CourseKitCapstone<ResponsibleAiCapstoneArtifactId, ResponsibleAiSourceId>;

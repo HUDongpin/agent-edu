@@ -49,6 +49,7 @@ export const RESPONSIBLE_AI_QUIZ = {
     id: question.id,
     correctIndex: question.correctIndex,
     sourceIds: question.sourceIds,
+    evidenceMode: question.evidenceMode,
     critical: question.critical === true,
   })) as unknown as CourseKitQuiz<
     ResponsibleAiQuestionId,

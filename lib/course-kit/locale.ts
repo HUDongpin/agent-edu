@@ -95,6 +95,7 @@ export function materialiseCourseKit(
     id: artifact.id,
     ...copy.capstone.artifacts[artifact.id],
     sourceIds: [...artifact.sourceIds],
+    evidenceMode: artifact.evidenceMode,
   }));
 
   return {

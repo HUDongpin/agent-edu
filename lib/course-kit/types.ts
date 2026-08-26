@@ -10,9 +10,9 @@ export const COURSE_KIT_MANIFEST_SCHEMA_VERSION =
   "course-kit.manifest.v1" as const;
 export const COURSE_KIT_SOURCE_SCHEMA_VERSION = "course-kit.source.v1" as const;
 export const COURSE_KIT_COPY_SCHEMA_VERSION = "course-kit.copy.v1" as const;
-export const COURSE_KIT_QUIZ_SCHEMA_VERSION = "course-kit.quiz.v1" as const;
+export const COURSE_KIT_QUIZ_SCHEMA_VERSION = "course-kit.quiz.v2" as const;
 export const COURSE_KIT_CAPSTONE_SCHEMA_VERSION =
-  "course-kit.capstone.v1" as const;
+  "course-kit.capstone.v2" as const;
 
 export const COURSE_KIT_LOCALES = [
   "en",
@@ -379,6 +379,8 @@ export interface CourseKitQuizQuestion<
   readonly id: QuestionId;
   readonly correctIndex: CourseKitOptionIndex;
   readonly sourceIds: CourseKitNonEmpty<SourceId>;
+  /** Distinguishes direct source support from a course-authored synthesis question. */
+  readonly evidenceMode: CourseKitEvidenceMode;
   /** Every selected critical question must be correct in addition to the score gate. */
   readonly critical?: boolean;
 }
@@ -404,6 +406,8 @@ export interface CourseKitCapstoneArtifact<
 > {
   readonly id: ArtifactId;
   readonly sourceIds: CourseKitNonEmpty<SourceId>;
+  /** The listed sources are context for a course-authored artifact specification. */
+  readonly evidenceMode: CourseKitEvidenceMode;
   readonly required: true;
 }
 
@@ -521,6 +525,7 @@ export interface CourseKitMaterialisedQuizQuestion {
   readonly correctIndex: CourseKitOptionIndex;
   readonly explanation: string;
   readonly sourceIds: readonly string[];
+  readonly evidenceMode: CourseKitEvidenceMode;
   readonly critical: boolean;
 }
 
@@ -529,6 +534,7 @@ export interface CourseKitMaterialisedCapstoneArtifact {
   readonly title: string;
   readonly description: string;
   readonly sourceIds: readonly string[];
+  readonly evidenceMode: CourseKitEvidenceMode;
 }
 
 export interface CourseKitMaterialisedCourse {

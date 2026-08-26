@@ -8,13 +8,14 @@
 
 ## 1. 权威边界
 
-本表与运行时 source registry 一一对应，共 25 条：13 个钉定 GitHub 仓库、6 条直接 X status、6 条论文或官方风险材料。每条记录都保存 canonical URL、证据 URL、访问日、版本、许可说明、`supports` 与 `boundary`；课程正文只能引用注册表中的 source ID。
+本表与运行时 source registry 一一对应，共 27 条：13 个钉定 GitHub 仓库、6 条直接 X status（仅限 version-watch）和 8 条论文或官方风险材料。每条记录都保存 canonical URL、证据 URL、访问日、版本、许可说明、`supports` 与 `boundary`；课程正文只能引用注册表中的 source ID。
 
 - GitHub 仓库必须钉定 40 位 commit SHA；tag 仅作人类可读补充，不能替代 commit。
 - X 只作为“项目在特定日期公开表达过什么”的版本观察信号；任何技术能力必须回到官方仓库、论文或机构材料验证。
 - 监管与标准材料仅提供其声明法域和日期内的风险背景，不构成法律意见、合规认证或交易授权。
-- 课程实验仅为断网、本地、确定性的合成回放：不读取凭证、不连接券商、不访问远端 endpoint、不创建真实或第三方 paper order。
-- 所有结果均为教学演示；不得外推为 alpha、未来收益、生产安全、适当性或“可实盘”。
+- 随课程分发的本地包只包含合成 fixtures、声明式风险政策与确定性的 fixture-contract self-test；它不执行策略、订单、成交、回放、成本、风险、PnL、绩效指标或对账。
+- 本地包没有网络客户端路径，但这不等于证明操作系统已断网；课程边界仍要求本地离线运行，不读取凭证、不连接外部 paper/sandbox/live 账户、不访问远端 endpoint，也不触发任何市场动作。
+- fixture 自检只能产生合同检查回执；不得外推为无前视策略证明、alpha、未来收益、生产安全、适当性、回放授权或“可实盘”。
 
 ## 2. GitHub 主证据（13/13 已钉定）
 
@@ -47,11 +48,13 @@
 
 X 页面可能因登录、地区或反爬限制只返回空壳。若原帖失效，注册表应将它标为不可访问；不得用搜索摘要、镜像或搬运号替代。课程技术主张仍须由交叉来源独立成立。
 
-## 4. 论文、监管与标准证据（6/6）
+## 4. 论文、监管与标准证据（8/8）
 
 | Source ID | 一手来源 | 可支持 | 边界 |
 |---|---|---|---|
 | `paper-backtest-overfitting` | [The Probability of Backtest Overfitting](https://doi.org/10.21314/JCF.2016.322) | 组合对称交叉验证与 PBO，用于揭示从许多候选中挑赢家的风险 | PBO 不证明因果、盈利或安全；结果依赖配置、样本、统计量和假设 |
+| `paper-deflated-sharpe-ratio` | [The Deflated Sharpe Ratio](https://doi.org/10.2139/ssrn.2460551)；[SSRN 原始记录](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2460551) | 针对多次试验选择偏差与非正态收益修正观察到的 Sharpe，并用相关性估计有效独立试验数 | DSR 依赖完整收益序列、完整试验清单、相关结构与分布输入；不替代时点一致数据、现实成本或未触碰测试集，也不证明未来盈利 |
+| `paper-financial-cross-validation-comparison` | [Knowledge-Based Systems 2024, article 112477](https://doi.org/10.1016/j.knosys.2024.112477)；[期刊页面](https://www.sciencedirect.com/science/article/pii/S0950705124011110) | 在非平稳、自相关与状态切换条件下比较走步、purged 方法、CPCV、PBO 与 DSR 等金融样本外验证方法 | 结果受论文的合成设计与历史 S&P 500 分析限定；不证明存在普遍最优切分，项目仍须披露标签区间、依赖、样本量、状态与计算约束 |
 | `finra-auto-trading-risk` | [FINRA：未注册实体自动交易风险](https://www.finra.org/investors/insights/auto-trading-unregistered-entities) | 官方提醒核验 AI、无风险、易用和稳定收益等宣传 | 投资者教育不是法律意见或对所有服务的认定 |
 | `sec-ai-investment-fraud` | [SEC/NASAA/FINRA AI 投资欺诈警示](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-alerts/artificial-intelligence-fraud) | 警惕保证收益、未注册平台、社媒操纵、深伪和单独依赖 AI 信息 | staff alert 无独立法律效力，不判断具体项目合法性、适当性或结果 |
 | `nist-ai-rmf` | [NIST AI RMF 1.0](https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10) | Govern–Map–Measure–Manage，用于记录情境、测试、监测、问责和残余风险 | 自愿通用框架，不是法律、金融认证、券商批准或控制有效性证据 |
@@ -62,22 +65,23 @@ X 页面可能因登录、地区或反爬限制只返回空壳。若原帖失效
 
 | 课程主张 | 主要 source ID | 验收方式 | 对外显示边界 |
 |---|---|---|---|
-| 数据必须保留 provider、版本、时间与权利信息 | `github-openbb`, `github-qlib` | source ledger、checksum、`available_at <= decision_at` fixture | 不声称数据完整或 point-in-time 正确，除非该数据集另有证据 |
+| 数据必须保留 provider、版本、时间与权利信息 | `github-openbb`, `github-qlib` | source ledger、checksum，以及 `event_at` / `available_at` / `ingested_at` / `known_at` / `decision_at` 合同：`known_at >= max(available_at, ingested_at)` 且 `known_at <= decision_at` | 不声称数据完整或 point-in-time 正确，除非该数据集另有证据；事后 `evaluation_regime_label` 始终 `evaluation_regime_feature_eligible=false` |
 | 智能体循环必须保存提案、代码、运行和失败 | `github-rd-agent`, `github-tradingagents` | experiment registry、immutable ID、失败记录、人工升级 | 不把角色共识称作事实或投资委员会批准 |
 | 情绪/NLP 只能形成候选特征 | `github-fingpt` | 逐条来源、事件/可得时间、实体与去重检查 | 不把分类准确率写成价格预测或 alpha |
-| 高频搜索会扩大选择偏差 | `github-vectorbt`, `github-freqtrade`, `paper-backtest-overfitting` | 完整试验次数、locked out-of-sample、PBO/敏感性说明 | 不只展示最佳 Sharpe，不把统计量当策略批准 |
-| 模拟执行不能代表真实成交 | `github-backtesting-py`, `github-alpaca-py`, `github-lean`, `github-backtrader` | 本地 synthetic intent/fill ledger、成本/滑点/拒单 fixture | 不连接账户，不称 paper 等于 live |
-| 风控必须由确定性规则和具名人类控制 | `nist-ai-rmf`, `finra-algorithmic-trading`, `sec-market-access-rule-faq` | default-deny policy、逐单审批、kill-switch、incident receipt | 不是合规认证，不授权任何市场动作 |
-| AI 交易营销不得暗示无风险或保证收益 | `finra-auto-trading-risk`, `sec-ai-investment-fraud` | 课程、目录、SEO 与测试中的 prohibited-claim scan | 只允许“受控研究与本地合成回放” |
+| 高频搜索会扩大选择偏差；金融验证方法须匹配标签区间与依赖结构 | `github-vectorbt`, `github-freqtrade`, `paper-backtest-overfitting`, `paper-deflated-sharpe-ratio`, `paper-financial-cross-validation-comparison` | M7 保存完整试验清单、locked out-of-sample、DSR 有效独立试验估计、PBO/CSCV 完整且同步的 T×N 统计量矩阵，以及所选 CV 方法的适用条件 | PBO 不是 p 值或 FDR；DSR/PBO/CV 都不能修复前视、错误时点、漏成本或结构断裂；不得只展示最佳 Sharpe |
+| 外部执行接口不能代表真实成交，也不属于本地 fixture 包 | `github-backtesting-py`, `github-alpaca-py`, `github-lean`, `github-backtrader` | 课程用接口文档界定排除项；随课程分发的 self-test 只检查 fixture 合同，不生成 order/fill/replay/performance | 不连接外部 paper/sandbox/live 账户，不接收凭证或 endpoint，不称 paper 等于 live |
+| 风控必须由确定性规则和具名人类控制 | `nist-ai-rmf`, `finra-algorithmic-trading`, `sec-market-access-rule-faq` | 课程教学综合要求 default-deny、受保护通道或固定公钥验签的 exact-intent 具名人工批准、撤销与防重放消费、kill-switch 和 incident schema；随课 self-test 只检查声明式政策形状 | 不是上述来源直接规定的统一实现，也不是已部署控制、合规认证或市场动作授权 |
+| AI 交易营销不得暗示无风险或保证收益 | `finra-auto-trading-risk`, `sec-ai-investment-fraud` | 课程、目录、SEO 与测试中的 prohibited-claim scan | 只允许描述“受控研究、本地合成执行/对账规格与 fixture 合同自检”，并明确自检不执行 replay/performance |
 
-运行时定义的 60 个中英双语模块段落均显式携带 source ID；专项发布检查验证 25/25 来源至少被引用一次，X 来源只出现在 12 个标为版本观察的双语段落中。
+运行时定义的 60 个中英双语模块段落均显式携带 source ID；专项发布检查验证 27/27 来源至少被引用一次。6 条 X 来源只允许出现在显式标为 version-watch 的段落中，不进入模块根来源、测验或 capstone 证据链。
 
 ## 6. 实现与发布边界
 
 - 本成果在隔离的功能实现中将 Course 17 `agentic-quant-trading` 接入 CourseKit，并以 Course 16 `responsible-ai` 作为连续编号的前置课程；其他课程定义保持不变。
 - 是否合并该功能实现并纳入生产课程路线，属于单独的产品与发布决策。
 - 本地注册、测试和构建不等于 `aicourse.top` 已部署。只有生产部署、线上 URL、静态资源和 release evidence 全部验证后才能声称发布。
-- 课程下载文件为本地合成 fixture 与确定性回放脚本；文件 SHA-256 和自测输出属于课程证据，不是金融数据、策略表现或市场授权。
+- 课程下载文件为本地合成 fixture、声明式风险政策与 `fixture-contract-self-test.py`；文件 SHA-256 和结构化自测回执属于课程证据，不是策略/order/fill/replay/performance 执行、金融数据、无前视证明或市场授权。
+- 自测脚本没有网络客户端路径，但其 `network_isolation_verified` 明确为 `false`：操作系统级断网仍须由运行环境另行保证。
 
 ## 7. 可复核命令
 
@@ -86,10 +90,10 @@ npm run agentic-quant-trading:check:content-release
 npm run course-kit:check:release
 npm run test:agentic-quant-trading
 npm run test:course-kit
-python3 public/courses/agentic-quant-trading/local-replay-lab.py --self-test
+python3 public/courses/agentic-quant-trading/fixture-contract-self-test.py --self-test
 ```
 
-发布检查至少应证明：12 modules、780 minutes、36 questions、8 capstone criteria、13 个 GitHub commit、6 个 X status、25/25 source closure、4 个本地实验文件 hash，以及结构化人工 evidence receipt 的 fail-closed 行为。
+发布检查至少应证明：12 modules、780 minutes、36 questions、8 capstone criteria、13 个 GitHub commit、6 个仅作 version-watch 的 X status、8 条论文/官方材料、27/27 source closure、6 个同目录本地下载（含自测必需的 provenance 清单与 MIT 许可证）及其 hash，以及 fixture 自检的 7 项结构化断言。自检成功只表示该 fixture 包可进入具名人类复核；它不执行或证明策略、订单、成交、回放、绩效、风险控制或市场动作。
 
 ## 8. 复核触发器
 

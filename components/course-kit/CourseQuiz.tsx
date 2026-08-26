@@ -158,6 +158,9 @@ export function CourseQuiz({
                     {question.critical ? (
                       <em>{labels.criticalQuestion}</em>
                     ) : null}
+                    {question.evidenceMode !== "source-grounded" ? (
+                      <em>{labels.evidenceModeLabels[question.evidenceMode]}</em>
+                    ) : null}
                     <strong>{question.prompt}</strong>
                   </legend>
                   {question.options.map((option, optionIndex) => {
