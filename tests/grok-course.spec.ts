@@ -473,7 +473,10 @@ test.describe("How to Use Grok course", () => {
     expect(homeResponse?.status()).toBe(200);
     const homeProgress = page.locator(".progress-course").filter({ hasText: "How to Use Grok" });
     await expect(homeProgress.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "6");
-    await expect(homeProgress.getByRole("link", { name: /Resume/ })).toHaveAttribute("href", "/en/grok/");
+    await expect(homeProgress.getByRole("link", { name: /Resume/ })).toHaveAttribute(
+      "href",
+      `/en/grok/${COURSE_MANIFEST.lessons[1].slug}/`,
+    );
 
     await page.getByRole("button", { name: "Reset progress" }).click();
     await expect(homeProgress).toHaveCount(0);
