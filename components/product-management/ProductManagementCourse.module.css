@@ -2151,7 +2151,7 @@
   .root *::before,
   .root *::after {
     scroll-behavior: auto !important;
-    transition-duration: 0.001ms !important;
+    transition-duration: 0s !important;
   }
 }
 

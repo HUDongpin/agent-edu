@@ -697,6 +697,14 @@ async function criticalOrSeriousAxeViolations(page: Page): Promise<SeriousAxeVio
   // an opacity-based hero animation is mid-frame reports a transient blended
   // colour that the learner never has to read as a stable state.
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect.poll(() => page.evaluate(() => (
+    document.getAnimations().filter((animation) => (
+      animation.constructor.name === "CSSTransition"
+    )).length
+  )), {
+    message: "theme styles must settle before the accessibility audit",
+    timeout: 2_000,
+  }).toBe(0);
   await page.evaluate(async () => {
     await document.fonts.ready;
     await new Promise<void>((resolve) =>
@@ -1014,9 +1022,18 @@ for (const course of publishedCourses) {
     expect(response?.status(), `${course.id}: English dashboard`).toBe(200);
     await expect(page.locator("main h1").first()).toBeVisible();
     for (const theme of ["light", "dark"] as const) {
-      await page.locator("html").evaluate((root, selectedTheme) => {
-        root.dataset.theme = selectedTheme;
-      }, theme);
+      // Audit the same stable, persisted theme state a returning learner gets.
+      // WebKit can expose partially propagated custom-property values when a
+      // large document's data-theme attribute is mutated and axe reads it in
+      // that same rendering turn. Loading the saved choice through the real
+      // pre-hydration theme script avoids auditing a transient mixed palette;
+      // any violation in the settled light or dark product state still fails.
+      await page.evaluate(({ storageKey, selectedTheme }) => {
+        localStorage.setItem(storageKey, selectedTheme);
+      }, { storageKey: THEME_STORAGE_KEY, selectedTheme: theme });
+      await page.reload();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await expect(page.locator("main h1").first()).toBeVisible();
       const violations = await criticalOrSeriousAxeViolations(page);
       expect(
         violations,

@@ -161,6 +161,38 @@ function blockFor(masked, source, headerPattern) {
   return null;
 }
 
+function blocksFor(masked, source, headerPattern) {
+  const flags = headerPattern.flags.includes("g")
+    ? headerPattern.flags
+    : `${headerPattern.flags}g`;
+  const matcher = new RegExp(headerPattern.source, flags);
+  const blocks = [];
+
+  for (const match of masked.matchAll(matcher)) {
+    const opening = masked.indexOf("{", (match.index ?? 0) + match[0].length);
+    if (opening < 0) continue;
+    let depth = 1;
+    for (let index = opening + 1; index < masked.length; index += 1) {
+      if (masked[index] === "{") depth += 1;
+      else if (masked[index] === "}") depth -= 1;
+      if (depth === 0) {
+        blocks.push(source.slice(opening + 1, index));
+        break;
+      }
+    }
+  }
+
+  return blocks;
+}
+
+function isZeroCssTime(value) {
+  const values = value.split(",").map((part) => (
+    part.replace(/\s*!important\s*$/i, "").trim().toLowerCase()
+  ));
+  return values.length > 0
+    && values.every((part) => /^0(?:\.0+)?(?:ms|s)?$/.test(part));
+}
+
 function hexCustomProperty(source, property) {
   const match = source.match(new RegExp(`--${property}\\s*:\\s*(#[0-9a-f]{6})\\s*;`, "i"));
   return match?.[1] ?? null;
@@ -206,6 +238,9 @@ function runScannerSelfTest() {
     rejected = true;
   }
   if (!rejected) throw new Error("styles:self-test: unbalanced input was accepted");
+  if (!isZeroCssTime("0s !important") || isZeroCssTime(".001ms !important")) {
+    throw new Error("styles:self-test: reduced-motion transition duration guard is unsound");
+  }
 }
 
 runScannerSelfTest();
@@ -213,6 +248,7 @@ runScannerSelfTest();
 const issues = [];
 const files = trackedCssFiles();
 const sources = new Map();
+const maskedSources = new Map();
 let importCount = 0;
 let globalsMasked = "";
 let globalsSource = "";
@@ -225,6 +261,7 @@ for (const path of files) {
   sources.set(label, source);
   try {
     const masked = scanDelimiters(source, label);
+    maskedSources.set(label, masked);
     if (path === GLOBALS) {
       globalsMasked = masked;
       globalsSource = source;
@@ -247,6 +284,30 @@ for (const path of files) {
 
 const claudeIncomeCss = sources.get("components/claude-income/ClaudeIncomeCourse.module.css");
 const agentOrchestrationCss = sources.get("components/agent-orchestration/AgentOrchestrationCourse.module.css");
+if (globalsSource && !/--green-ink\s*:\s*var\(--green\)\s*;/i.test(globalsSource)) {
+  issues.push("app/globals.css: --green-ink must resolve through the contrast-safe --green token");
+}
+
+for (const [label, source] of sources) {
+  const masked = maskedSources.get(label);
+  if (!masked) continue;
+  const reducedMotionBlocks = blocksFor(
+    masked,
+    source,
+    /@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)/i,
+  );
+  for (const block of reducedMotionBlocks) {
+    for (const declaration of block.matchAll(/transition-duration\s*:\s*([^;}]+)/gi)) {
+      const duration = declaration[1].trim();
+      if (!isZeroCssTime(duration)) {
+        issues.push(
+          `${label}: reduced-motion transition-duration must be exactly zero, received ${duration}`,
+        );
+      }
+    }
+  }
+}
+
 if (claudeIncomeCss && globalsSource) {
   requireTextContrast(
     issues,

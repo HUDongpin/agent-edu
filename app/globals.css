@@ -27,7 +27,7 @@
   --logo-a:#1B8ACB;
 
   /* functional palette, shared with the handbook's diagrams */
-  --green:#2F6B4F; --green-soft:#E2F0E8; --green-line:#9CC7B0;
+  --green:#2F6B4F; --green-ink:var(--green); --green-soft:#E2F0E8; --green-line:#9CC7B0;
   --red:#9C3B31;   --red-soft:#FBE7E4;   --red-line:#E2A79F;
   --violet:#5B4A8A;--violet-soft:#ECE7F7;--violet-line:#BCACDE;
   --coral:#B94734; --coral-soft:#FCE9E3; --coral-line:#E7AA9C;
@@ -94,7 +94,7 @@ html{scroll-behavior:smooth;scroll-padding-block-start:calc(var(--topbar-h) + 12
   html{scroll-behavior:auto}
   *,*::before,*::after{
     animation-duration:.001ms!important;animation-iteration-count:1!important;
-    transition-duration:.001ms!important;scroll-behavior:auto!important}
+    transition-duration:0s!important;scroll-behavior:auto!important}
 }
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
   font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;

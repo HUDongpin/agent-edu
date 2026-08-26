@@ -2006,7 +2006,7 @@
   .courseRoot *::before,
   .courseRoot *::after {
     scroll-behavior: auto !important;
-    transition-duration: .001ms !important;
+    transition-duration: 0s !important;
   }
 }
 
