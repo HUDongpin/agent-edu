@@ -147,6 +147,10 @@
   background: var(--paper);
 }
 
+.selectedOnly .plan[hidden] {
+  display: none;
+}
+
 .planHeading {
   display: grid;
   gap: 8px;

@@ -1363,7 +1363,10 @@ test("global reset cancels cleanly, then clears progress but preserves device pr
 
   page.once("dialog", async (dialog) => {
     expect(dialog.type()).toBe("confirm");
-    expect(dialog.message()).toContain("all learning progress");
+    const message = dialog.message();
+    expect(message).toContain("all active learning progress");
+    expect(message).toContain("inactive recovery copy");
+    expect(message).toContain("theme, language, Provider key, and Lab draft");
     await dialog.dismiss();
   });
   await reset.click();

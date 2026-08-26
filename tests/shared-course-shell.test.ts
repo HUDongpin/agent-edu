@@ -91,9 +91,11 @@ test("every published course exposes a shared previous/next lesson navigation ma
 
 test("teacher duration radios own three real tabpanels while print keeps every plan", () => {
   const source = readFileSync("components/teachers/TeacherGuide.tsx", "utf8");
+  const styles = readFileSync("components/teachers/TeacherGuide.module.css", "utf8");
   assert.match(source, /aria-controls=[\s\S]*?-plan-/);
   assert.match(source, /role:\s*"tabpanel"/);
   assert.match(source, /"aria-labelledby":[\s\S]*?-option-/);
   assert.match(source, /hidden:\s*plan\.minutes\s*!==\s*selected/);
   assert.match(source, /plans\.map\(\(plan\)\s*=>\s*renderTimeline\(plan\)\)/);
+  assert.match(styles, /\.selectedOnly\s+\.plan\[hidden\]\s*{\s*display:\s*none;/);
 });
