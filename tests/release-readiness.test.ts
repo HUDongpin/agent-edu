@@ -141,6 +141,9 @@ function passingConfig(): LooseConfig {
   required.rulesetId = "ruleset-fixture";
   required.qualityRequired = true;
   required.smokeChromiumRequired = true;
+  required.compatibilityRequired = true;
+  required.publishedCoursesRequired = true;
+  required.vercelPreviewRequired = true;
   passEvidence(required, "github-ruleset:ruleset-fixture");
   for (const [index, run] of (config.gates.githubReadiness.stableRuns as LooseConfig[]).entries()) {
     const runId = String(1001 + index);
@@ -152,6 +155,9 @@ function passingConfig(): LooseConfig {
     run.workflowSha = WORKFLOW_SHA;
     run.qualityConclusion = "success";
     run.smokeChromiumConclusion = "success";
+    run.compatibilityConclusion = "success";
+    run.publishedCoursesConclusion = "success";
+    run.vercelPreviewConclusion = "success";
     run.completedAt = completedAt;
     passEvidence(run.result, `github-run:${runId}`, completedAt);
   }
