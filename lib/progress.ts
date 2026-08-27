@@ -32,6 +32,9 @@ export const AGENTIC_PROGRESS_KEYS = [
   "play0", "play1", "play2", "play3", "evalBest", "part2",
 ] as const;
 
+/** Course 18 shares this privacy-preserving store and owns this namespace. */
+const AGENTIC_TEACHING_PROGRESS_PREFIX = "agenticTeaching.";
+
 const CORRUPT_BACKUP_KEY = "ae.progress.agentic-corrupt-backup";
 
 let memorySnapshot = "{}";
@@ -145,6 +148,9 @@ export function mark(key: string, value: unknown = true): boolean {
 export function resetAgenticProgress(): boolean {
   const record = readProgress(progressSnapshot());
   for (const key of AGENTIC_PROGRESS_KEYS) delete record[key];
+  for (const key of Object.keys(record)) {
+    if (key.startsWith(AGENTIC_TEACHING_PROGRESS_PREFIX)) delete record[key];
+  }
   /* The reader asked for the record to go, so a record held back as
      unreadable is no longer worth protecting. Re-probe rather than stay
      latched, or the rest of the session silently saves nothing. */

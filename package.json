@@ -14,8 +14,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "npm run handbook:check && npm run widgets:check && npm run progress:check && npm run i18n:check:keys && npm run agent-orchestration:check:release && npm run product-management:check:release && npm run codex:check:release && npm run ai-tutor:check:release && npm run make-money-with-codex:check:release && npm run claude-income:check:release && npm run claude:check:release && npm run cursor:check:release && npm run grok:check:release && npm run github:check:release && npm run rag:check:release && npm run mcp:check:release && npm run prompts:check:release && npm run software-engineering:check:release && next build && npm run agent-orchestration:static-check && npm run mcp:audit:export",
-    "build:release": "npm run handbook:check && npm run widgets:check && npm run progress:check && npm run i18n:check:keys && npm run agent-orchestration:check:release && npm run product-management:check:release && npm run codex:check:release && npm run ai-tutor:check:release && npm run make-money-with-codex:check:release && npm run claude-income:check:release && npm run claude:check:release && npm run cursor:check:release && npm run grok:check:release && npm run github:check:release && npm run rag:check:release && npm run mcp:check:release && npm run prompts:check:release && npm run software-engineering:check:release && next build && npm run agent-orchestration:static-check && npm run mcp:audit:export",
+    "build": "npm run handbook:check && npm run widgets:check && npm run progress:check && npm run i18n:check:keys && npm run ai-teaching:check:release && npm run agent-orchestration:check:release && npm run product-management:check:release && npm run codex:check:release && npm run ai-tutor:check:release && npm run make-money-with-codex:check:release && npm run claude-income:check:release && npm run claude:check:release && npm run cursor:check:release && npm run grok:check:release && npm run github:check:release && npm run rag:check:release && npm run mcp:check:release && npm run prompts:check:release && npm run software-engineering:check:release && next build && npm run ai-teaching:export-manifest && npm run ai-teaching:static-check && npm run test:ai-teaching && npm run agent-orchestration:static-check && npm run mcp:audit:export",
+    "build:release": "npm run handbook:check && npm run widgets:check && npm run progress:check && npm run i18n:check:keys && npm run ai-teaching:check:release && npm run agent-orchestration:check:release && npm run product-management:check:release && npm run codex:check:release && npm run ai-tutor:check:release && npm run make-money-with-codex:check:release && npm run claude-income:check:release && npm run claude:check:release && npm run cursor:check:release && npm run grok:check:release && npm run github:check:release && npm run rag:check:release && npm run mcp:check:release && npm run prompts:check:release && npm run software-engineering:check:release && next build && npm run ai-teaching:export-manifest && npm run ai-teaching:static-check && npm run test:ai-teaching && npm run agent-orchestration:static-check && npm run mcp:audit:export",
     "start": "next start",
     "lint": "eslint",
     "course": "tsx course/check.ts",
@@ -24,6 +24,11 @@
     "handbook:check": "node scripts/extract-handbook.mjs --check && node scripts/check-handbook-i18n.mjs",
     "widgets:check": "node scripts/check-widgets.mjs",
     "progress:check": "node --import tsx scripts/check-progress-contract.mjs",
+    "ai-teaching:check": "node --import tsx scripts/check-ai-teaching-course.mjs && npm run ai-teaching:progress-check",
+    "ai-teaching:check:release": "node --import tsx scripts/check-ai-teaching-course.mjs --release && npm run ai-teaching:progress-check",
+    "ai-teaching:progress-check": "node --import tsx scripts/check-ai-teaching-progress.mjs",
+    "ai-teaching:export-manifest": "node --import tsx scripts/write-ai-teaching-export-manifest.mjs",
+    "ai-teaching:static-check": "node --import tsx scripts/check-ai-teaching-static.mjs",
     "i18n:check": "node scripts/check-i18n-release.mjs",
     "i18n:check:release": "node scripts/check-i18n-release.mjs --release",
     "i18n:check:keys": "node scripts/check-i18n-release.mjs --keys",
@@ -81,7 +86,8 @@
     "test:software-engineering": "playwright test tests/software-engineering-course.spec.ts --workers=1",
     "test:rag": "playwright test tests/rag-course.spec.ts --workers=1",
     "test:claude-income": "playwright test tests/claude-income-course.spec.ts --workers=1",
-    "test:ai-tutor": "playwright test tests/ai-tutor-course.spec.ts --workers=1"
+    "test:ai-tutor": "playwright test tests/ai-tutor-course.spec.ts --workers=1",
+    "test:ai-teaching": "playwright test --config tests/ai-teaching-playwright.config.ts --workers=1"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",

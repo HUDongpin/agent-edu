@@ -25,6 +25,12 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_EVENT,
   agentOrchestrationProgressPercent,
 } from "./agent-orchestration";
+import {
+  AGENTIC_TEACHING_COURSE_MANIFEST,
+  AGENTIC_TEACHING_PROGRESS_EVENT,
+  AGENTIC_TEACHING_TOTAL_MINUTES,
+  agenticTeachingProgressPercent,
+} from "./ai-teaching";
 import { CLAUDE_COURSE_MANIFEST } from "./claude/manifest";
 import { claudeProgressPercent } from "./claude/progress";
 import { CLAUDE_INCOME_COURSE } from "./claude-income/curriculum";
@@ -95,8 +101,9 @@ export interface TopLevelCourse {
     | "claude-income"
     | "ai-tutor"
     | "product-management"
-    | "agent-orchestration";
-  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+    | "agent-orchestration"
+    | "ai-teaching";
+  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 18;
   href: string;
   minutes: number;
   durationMinutes: number;
@@ -112,6 +119,7 @@ export interface TopLevelCourse {
     | "seventeen-equal-milestones"
     | "eleven-equal-milestones"
     | "ten-equal-milestones"
+    | "twelve-equal-milestones"
     | "twenty-equal-milestones";
   /** Browser store supplied to the progress adapter; defaults to `ae.progress`. */
   progressStorageKey?: string;
@@ -123,7 +131,6 @@ export interface TopLevelCourse {
 export type CatalogCourseId =
   | TopLevelCourse["id"]
   | "ai-research"
-  | "ai-teaching"
   | "responsible-ai";
 
 export type CatalogTopic =
@@ -648,6 +655,27 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     progressEvent: AGENT_ORCHESTRATION_PROGRESS_EVENT,
     progress: (p) => agentOrchestrationProgressPercent(p),
   },
+  {
+    id: "ai-teaching",
+    displayNumber: 18,
+    href: "/ai-teaching/",
+    minutes: AGENTIC_TEACHING_TOTAL_MINUTES,
+    durationMinutes: AGENTIC_TEACHING_TOTAL_MINUTES,
+    status: "available",
+    hue: "var(--green)",
+    level: "beginner-to-advanced",
+    moduleIds: AGENTIC_TEACHING_COURSE_MANIFEST.modules.map(
+      (module) => module.slug,
+    ),
+    outcomeKeys: [
+      "c.ai-teaching.blurb",
+      "c.ai-teaching.title",
+      "c.ai-teaching.meta",
+    ],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: AGENTIC_TEACHING_PROGRESS_EVENT,
+    progress: (p) => agenticTeachingProgressPercent(p),
+  },
 ];
 
 const agenticCourse = TOP_LEVEL_COURSES.find((course) => course.id === "agentic")!;
@@ -674,6 +702,9 @@ const productManagementCourse = TOP_LEVEL_COURSES.find(
 )!;
 const agentOrchestrationCourse = TOP_LEVEL_COURSES.find(
   (course) => course.id === "agent-orchestration",
+)!;
+const aiTeachingCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "ai-teaching",
 )!;
 
 /**
@@ -984,6 +1015,25 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     hue: agentOrchestrationCourse.hue,
     progressEvent: agentOrchestrationCourse.progressEvent,
     progress: agentOrchestrationCourse.progress,
+  },
+  {
+    id: "ai-teaching",
+    displayNumber: aiTeachingCourse.displayNumber,
+    href: aiTeachingCourse.href,
+    titleKey: "c.ai-teaching.title",
+    blurbKey: "c.ai-teaching.blurb",
+    metaKey: "c.ai-teaching.meta",
+    topic: "teaching",
+    topicKey: "topic.teaching",
+    level: aiTeachingCourse.level,
+    levelKey: "c.ai-teaching.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: aiTeachingCourse.minutes,
+    status: aiTeachingCourse.status,
+    hue: aiTeachingCourse.hue,
+    progressEvent: aiTeachingCourse.progressEvent,
+    progress: aiTeachingCourse.progress,
   },
   {
     id: "responsible-ai",

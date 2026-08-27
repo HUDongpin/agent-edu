@@ -16,6 +16,7 @@
  */
 import type { Metadata } from "next";
 import { LOCALE_CODES, DEFAULT_LOCALE } from "@/lib/i18n";
+import type { AgenticTeachingModuleSlug } from "@/lib/ai-teaching";
 
 export const SITE = "https://aicourse.top";
 
@@ -247,6 +248,19 @@ export const AGENT_ORCHESTRATION_MODULE_PAGES = [
   "agent-orchestration/production-orchestration-capstone/",
 ] as const;
 
+export const AGENTIC_TEACHING_MODULE_PAGES = [
+  "ai-teaching/agentic-teaching-boundaries/",
+  "ai-teaching/learning-design-task-contracts/",
+  "ai-teaching/teacher-copilot-workflows/",
+  "ai-teaching/tutoring-feedback-agents/",
+  "ai-teaching/multi-agent-inquiry/",
+  "ai-teaching/knowledge-tools-mcp/",
+  "ai-teaching/k12-safeguards/",
+  "ai-teaching/higher-ed-integrity/",
+  "ai-teaching/evals-learning-evidence/",
+  "ai-teaching/pilot-capstone/",
+] as const;
+
 export const PAGES = [
   "",
   "courses/",
@@ -267,6 +281,7 @@ export const PAGES = [
   "ai-tutor/",
   "product-management/",
   "agent-orchestration/",
+  "ai-teaching/",
   ...CODEX_LESSON_PAGES,
   ...CLAUDE_LESSON_PAGES,
   ...CURSOR_LESSON_PAGES,
@@ -281,8 +296,29 @@ export const PAGES = [
   ...AI_TUTOR_MODULE_PAGES,
   ...PRODUCT_MANAGEMENT_MODULE_PAGES,
   ...AGENT_ORCHESTRATION_MODULE_PAGES,
+  ...AGENTIC_TEACHING_MODULE_PAGES,
 ] as const;
 export type Page = (typeof PAGES)[number];
+
+const AGENTIC_TEACHING_PAGE_BY_MODULE = {
+  "agentic-teaching-boundaries": "ai-teaching/agentic-teaching-boundaries/",
+  "learning-design-task-contracts": "ai-teaching/learning-design-task-contracts/",
+  "teacher-copilot-workflows": "ai-teaching/teacher-copilot-workflows/",
+  "tutoring-feedback-agents": "ai-teaching/tutoring-feedback-agents/",
+  "multi-agent-inquiry": "ai-teaching/multi-agent-inquiry/",
+  "knowledge-tools-mcp": "ai-teaching/knowledge-tools-mcp/",
+  "k12-safeguards": "ai-teaching/k12-safeguards/",
+  "higher-ed-integrity": "ai-teaching/higher-ed-integrity/",
+  "evals-learning-evidence": "ai-teaching/evals-learning-evidence/",
+  "pilot-capstone": "ai-teaching/pilot-capstone/",
+} as const satisfies Readonly<Record<AgenticTeachingModuleSlug, Page>>;
+
+/** Resolve only a manifest-approved Course 18 module to its canonical route. */
+export function agenticTeachingModulePage(
+  slug: AgenticTeachingModuleSlug,
+): Page {
+  return AGENTIC_TEACHING_PAGE_BY_MODULE[slug];
+}
 
 export function codexLessonPage(slug: string): Page {
   const page = `codex/${slug}/`;

@@ -16,6 +16,7 @@ import { CLAUDE_INCOME_COURSE } from "@/lib/claude-income";
 import { loadAiTutorCourse } from "@/lib/ai-tutor";
 import { loadProductManagementCourse } from "@/lib/product-management";
 import { loadAgentOrchestrationCourse } from "@/lib/agent-orchestration";
+import { loadAgenticTeachingCourse } from "@/lib/ai-teaching";
 import { SOFTWARE_ENGINEERING_LESSONS } from "@/lib/software-engineering";
 import JsonLd from "@/components/JsonLd";
 import type { Metadata } from "next";
@@ -52,6 +53,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     aiTutorCourse,
     productManagementCourse,
     agentOrchestrationCourse,
+    aiTeachingCourse,
   ] = await Promise.all([
     loadCodexCopy(locale),
     loadClaudeCourse(locale),
@@ -63,6 +65,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     loadAiTutorCourse(locale),
     loadProductManagementCourse(locale),
     loadAgentOrchestrationCourse(locale),
+    loadAgenticTeachingCourse(locale),
   ]);
   const mcpCourse = await loadMcpCourse(locale);
 
@@ -200,6 +203,15 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     timeRequired: `PT${module.minutes}M`,
   }));
 
+  const courseEighteenParts = aiTeachingCourse.modules.map((module) => ({
+    "@type": "LearningResource",
+    position: module.order,
+    name: module.copy.title,
+    url: `${urlFor(aiTeachingCourse.contentLocale)}ai-teaching/${module.slug}/`,
+    inLanguage: aiTeachingCourse.contentLocale,
+    timeRequired: `PT${module.minutes}M`,
+  }));
+
   const partsByCourse = {
     agentic: courseOneParts,
     codex: courseTwoParts,
@@ -216,6 +228,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     "ai-tutor": courseThirteenParts,
     "product-management": courseFourteenParts,
     "agent-orchestration": courseFifteenParts,
+    "ai-teaching": courseEighteenParts,
   } as const;
 
   const list = {
@@ -226,8 +239,16 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
       position: course.displayNumber,
       item: {
         "@type": "Course",
-        name: course.id === "mcp" ? mcpCourse.title : t(`c.${course.id}.title`),
-        description: course.id === "mcp" ? mcpCourse.summary : t(`c.${course.id}.blurb`),
+        name: course.id === "mcp"
+          ? mcpCourse.title
+          : course.id === "ai-teaching"
+          ? aiTeachingCourse.copy.meta.title
+          : t(`c.${course.id}.title`),
+        description: course.id === "mcp"
+          ? mcpCourse.summary
+          : course.id === "ai-teaching"
+          ? aiTeachingCourse.copy.meta.summary
+          : t(`c.${course.id}.blurb`),
         url: course.id === "agentic"
           ? `${urlFor(locale)}courses/#agentic-engineering`
           : course.id === "mcp"
@@ -240,6 +261,8 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
             ? `${urlFor(productManagementCourse.contentLocale)}${course.href.replace(/^\//, "")}`
           : course.id === "agent-orchestration"
             ? `${urlFor(agentOrchestrationCourse.contentLocale)}${course.href.replace(/^\//, "")}`
+          : course.id === "ai-teaching"
+            ? `${urlFor(aiTeachingCourse.contentLocale)}${course.href.replace(/^\//, "")}`
           : course.id === "prompts"
             ? `${urlFor(promptCourse.contentLocale)}${course.href.replace(/^\//, "")}`
           : `${urlFor(locale)}${course.href.replace(/^\//, "")}`,
@@ -259,6 +282,8 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
             ? productManagementCourse.contentLocale
           : course.id === "agent-orchestration"
             ? agentOrchestrationCourse.contentLocale
+          : course.id === "ai-teaching"
+            ? aiTeachingCourse.contentLocale
           : locale,
         educationalLevel: t(`c.${course.id}.level`),
         isAccessibleForFree: true,
