@@ -231,6 +231,61 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
         <circle cx="156" cy="118" r="5" fill="var(--course-cover-accent)" />
       </>
     ),
+    // One parameter synchronizes a unit circle, projection, sine plot, and review pipeline.
+    "math-animation": (
+      <>
+        <rect width="190" height="140" fill="var(--course-cover-bg)" />
+        <circle cx="181" cy="15" r="42" fill="var(--course-cover-accent)" opacity=".13" />
+        <path d="M0 119 C25 108 42 116 59 140" fill="none"
+          stroke="var(--course-cover-accent)" strokeWidth="1.4" opacity=".46" />
+
+        <rect x="17" y="13" width="156" height="114" rx="13"
+          fill="var(--course-cover-surface)" stroke="var(--course-cover-line)" />
+        <path d="M17 35 H173" stroke="var(--course-cover-line)" />
+        <circle cx="28" cy="24" r="2.2" fill="var(--course-cover-accent)" />
+        <circle cx="36" cy="24" r="2.2" fill="var(--course-cover-muted)" opacity=".45" />
+        <circle cx="44" cy="24" r="2.2" fill="var(--course-cover-muted)" opacity=".25" />
+        <rect x="122" y="21" width="38" height="6" rx="3" fill="var(--course-cover-panel)" />
+
+        <rect x="26" y="43" width="138" height="53" rx="8"
+          fill="var(--course-cover-editor)" stroke="var(--course-cover-line)" />
+        <path d="M32 56 H158 M32 69 H158 M32 82 H158 M45 49 V90 M58 49 V90 M71 49 V90 M84 49 V90 M97 49 V90 M110 49 V90 M123 49 V90 M136 49 V90 M149 49 V90"
+          stroke="var(--course-cover-line)" strokeWidth=".55" opacity=".34" />
+
+        <circle cx="56" cy="70" r="18" fill="var(--course-cover-surface)"
+          stroke="var(--course-cover-muted)" strokeWidth="1.2" />
+        <path d="M35 70 H77 M56 49 V91" stroke="var(--course-cover-line)" strokeWidth=".9" />
+        <path d="M56 70 L68.7 57.3" stroke="var(--course-cover-accent)" strokeWidth="1.8"
+          strokeLinecap="round" />
+        <path d="M68.7 57.3 V70" stroke="var(--course-cover-accent)" strokeWidth="1"
+          strokeDasharray="2.5 2.5" />
+        <circle cx="68.7" cy="57.3" r="3.5" fill="var(--course-cover-accent)" />
+
+        <path d="M87 70 H157" stroke="var(--course-cover-line)" strokeWidth="1" />
+        <path d="M87 70 C96 52 105 52 114 70 S132 88 141 70 S150 52 159 70"
+          fill="none" stroke="var(--course-cover-accent)" strokeWidth="1.8"
+          strokeLinecap="round" />
+        <path d="M68.7 57.3 H100.5" stroke="var(--course-cover-accent)" strokeWidth="1"
+          strokeDasharray="3 3" opacity=".72" />
+        <circle cx="100.5" cy="57.3" r="3.2" fill="var(--course-cover-surface)"
+          stroke="var(--course-cover-accent)" strokeWidth="1.6" />
+
+        <path d="M34 109 H155" stroke="var(--course-cover-line)" strokeWidth="1.4"
+          strokeLinecap="round" />
+        <path d="M53 109 H68 M87 109 H102 M121 109 H136" stroke="var(--course-cover-accent)"
+          strokeWidth="1.4" strokeLinecap="round" />
+        <circle cx="42" cy="109" r="7" fill="var(--course-cover-panel)"
+          stroke="var(--course-cover-line)" />
+        <circle cx="76" cy="109" r="7" fill="var(--course-cover-panel)"
+          stroke="var(--course-cover-line)" />
+        <circle cx="110" cy="109" r="7" fill="var(--course-cover-panel)"
+          stroke="var(--course-cover-line)" />
+        <circle cx="144" cy="109" r="7" fill="var(--course-cover-accent)" />
+        <path d="M140.5 109 143 111.5 148 106" fill="none"
+          stroke="var(--course-cover-accent-ink)" strokeWidth="1.3"
+          strokeLinecap="round" strokeLinejoin="round" />
+      </>
+    ),
     // Evidence moves from a scoped brief through verification to a defensible offer.
     "make-money-with-codex": (
       <>
@@ -750,6 +805,7 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
     "ai-teaching": styles.teaching,
     "product-management": styles.claudeIncome,
     "agent-orchestration": styles.engineering,
+    "math-animation": styles.mathAnimation,
     "responsible-ai": styles.responsible,
     "agentic-quant-trading": styles.engineering,
   };
