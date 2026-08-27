@@ -1,0 +1,260 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set": "course-16-mock-publish",
+  "synthetic": true,
+  "license": "CC0-1.0",
+  "network_required": false,
+  "endpoint_notice": "All mock:// locators are inert local labels and must never be sent to a network client.",
+  "scenarios": [
+    {
+      "scenario_id": "PUB-01-V2-SUCCESS",
+      "api_version": "v2",
+      "endpoint": "mock://creator-ops/v2/publications",
+      "initial_state": "not_published",
+      "request": {
+        "request_id": "REQ-201",
+        "operation_id": "OP-201",
+        "idempotency_key": "IDEM-POST-ALPHA-v2",
+        "content_id": "POST-ALPHA",
+        "content_version": "v2",
+        "content_digest": "sha256:0ed7a7a08c3b8a047d48ba2c1a3b16be738f26b4c2846712a9c7a8a126d676cf",
+        "approval_receipt": "APR-201"
+      },
+      "simulated_response": {
+        "http_status": 201,
+        "publication_id": "MOCK-PUB-201",
+        "operation_status": "committed"
+      },
+      "final_state": "published_once",
+      "expected_control": {
+        "decision": "record_success",
+        "action": "Bind publication, content digest, approval, operation, and idempotency key in one receipt."
+      },
+      "expected_receipt": {
+        "receipt_type": "publish",
+        "status": "committed",
+        "required_fields": [
+          "scenario_id",
+          "request_id",
+          "operation_id",
+          "idempotency_key",
+          "content_digest",
+          "approval_receipt",
+          "publication_id",
+          "committed_at"
+        ]
+      },
+      "pass_condition": "One publication is recorded with the approved digest."
+    },
+    {
+      "scenario_id": "PUB-02-V2-DUPLICATE-REPLAY",
+      "api_version": "v2",
+      "endpoint": "mock://creator-ops/v2/publications",
+      "initial_state": "MOCK-PUB-201 already committed",
+      "request": {
+        "request_id": "REQ-202",
+        "operation_id": "OP-202",
+        "idempotency_key": "IDEM-POST-ALPHA-v2",
+        "content_id": "POST-ALPHA",
+        "content_version": "v2",
+        "content_digest": "sha256:0ed7a7a08c3b8a047d48ba2c1a3b16be738f26b4c2846712a9c7a8a126d676cf",
+        "approval_receipt": "APR-201"
+      },
+      "simulated_response": {
+        "http_status": 200,
+        "publication_id": "MOCK-PUB-201",
+        "operation_status": "replayed_original"
+      },
+      "final_state": "published_once",
+      "expected_control": {
+        "decision": "accept_idempotent_replay",
+        "action": "Link the replay to the original publication and create no new publication."
+      },
+      "expected_receipt": {
+        "receipt_type": "publish_replay",
+        "status": "duplicate_suppressed",
+        "required_fields": [
+          "scenario_id",
+          "request_id",
+          "idempotency_key",
+          "content_digest",
+          "original_publication_id",
+          "replay_detected_at"
+        ]
+      },
+      "pass_condition": "The ledger still contains exactly one publication for the key and digest."
+    },
+    {
+      "scenario_id": "PUB-03-TIMEOUT-AFTER-COMMIT",
+      "api_version": "v2",
+      "endpoint": "mock://creator-ops/v2/publications",
+      "initial_state": "not_published",
+      "request": {
+        "request_id": "REQ-203",
+        "operation_id": "OP-203",
+        "idempotency_key": "IDEM-POST-BETA-v1",
+        "content_id": "POST-BETA",
+        "content_version": "v1",
+        "content_digest": "sha256:1d2ed34fde4a6c47dca17368c3c6939037d548f18441dc00b9c397f2e5301ad2",
+        "approval_receipt": "APR-203"
+      },
+      "simulated_response": {
+        "transport_status": "timeout",
+        "response_body": null,
+        "hidden_ledger_state": {
+          "operation_status": "committed",
+          "publication_id": "MOCK-PUB-203"
+        }
+      },
+      "reconciliation": {
+        "lookup": "mock://creator-ops/v2/operations/OP-203",
+        "result": {
+          "operation_status": "committed",
+          "publication_id": "MOCK-PUB-203",
+          "content_digest": "sha256:1d2ed34fde4a6c47dca17368c3c6939037d548f18441dc00b9c397f2e5301ad2"
+        }
+      },
+      "final_state": "published_once",
+      "expected_control": {
+        "decision": "reconcile_before_retry",
+        "action": "Query the local operation ledger, record the committed result, and do not send another publish request."
+      },
+      "expected_receipt": {
+        "receipt_type": "publish_reconciliation",
+        "status": "committed_after_ambiguous_response",
+        "required_fields": [
+          "scenario_id",
+          "request_id",
+          "operation_id",
+          "idempotency_key",
+          "content_digest",
+          "ledger_result",
+          "publication_id",
+          "reconciled_at"
+        ]
+      },
+      "pass_condition": "The timeout produces one reconciliation lookup and zero repeat publish calls."
+    },
+    {
+      "scenario_id": "PUB-04-FAIL-BEFORE-COMMIT",
+      "api_version": "v2",
+      "endpoint": "mock://creator-ops/v2/publications",
+      "initial_state": "not_published",
+      "request": {
+        "request_id": "REQ-204",
+        "operation_id": "OP-204",
+        "idempotency_key": "IDEM-DRAFT-INVALID-v1",
+        "content_id": "DRAFT-INVALID",
+        "content_version": "v1",
+        "content_digest": "sha256:5f462de286a3422e079aec8e2396f631506a85de9878444ba615c4a7f577c7d6",
+        "approval_receipt": null
+      },
+      "simulated_response": {
+        "http_status": 422,
+        "error_code": "approval_receipt_required",
+        "operation_status": "rejected_before_commit"
+      },
+      "final_state": "not_published",
+      "expected_control": {
+        "decision": "block",
+        "action": "Return the draft to the approval gate; do not retry until a valid approval receipt is attached."
+      },
+      "expected_receipt": {
+        "receipt_type": "publish_rejection",
+        "status": "blocked",
+        "required_fields": [
+          "scenario_id",
+          "request_id",
+          "content_digest",
+          "error_code",
+          "decision",
+          "rejected_at"
+        ]
+      },
+      "pass_condition": "No publication exists and the missing approval is explicit in the receipt."
+    },
+    {
+      "scenario_id": "PUB-05-ASSET-MUTATED-AFTER-APPROVAL",
+      "api_version": "v2",
+      "endpoint": "mock://creator-ops/v2/publications",
+      "initial_state": "approved_digest_differs_from_current_digest",
+      "request": {
+        "request_id": "REQ-205",
+        "operation_id": "OP-205",
+        "idempotency_key": "IDEM-POST-GAMMA-v4",
+        "content_id": "POST-GAMMA",
+        "content_version": "v4",
+        "content_digest": "sha256:b808ddcf2b60a0e743c674e0b2c6d98eb341515913829c0b116ef74c9f9cc1d0",
+        "approval_receipt": "APR-205",
+        "approved_content_digest": "sha256:bb4420f50bdf474a5228836ee22a2cb55a026d53f58b70fe556774440587049d"
+      },
+      "simulated_response": {
+        "local_gate_status": "blocked_before_request",
+        "error_code": "approved_digest_mismatch",
+        "network_call_made": false
+      },
+      "final_state": "not_published",
+      "expected_control": {
+        "decision": "invalidate_approval",
+        "action": "Create a new content version and obtain approval for its exact digest before publishing."
+      },
+      "expected_receipt": {
+        "receipt_type": "approval_invalidation",
+        "status": "blocked",
+        "required_fields": [
+          "scenario_id",
+          "content_id",
+          "content_version",
+          "approved_content_digest",
+          "current_content_digest",
+          "approval_receipt",
+          "invalidated_at"
+        ]
+      },
+      "pass_condition": "The digest mismatch is blocked locally and no mock publish call occurs."
+    },
+    {
+      "scenario_id": "PUB-06-V1-AMBIGUOUS-LEGACY",
+      "api_version": "v1",
+      "endpoint": "mock://creator-ops/v1/publications",
+      "initial_state": "unknown_after_timeout",
+      "request": {
+        "request_id": "REQ-206",
+        "idempotency_key": null,
+        "content_id": "POST-DELTA",
+        "content_version": "v1",
+        "content_digest": "sha256:77627d1edb3409c347b56c05c4a5fb46c7fc345df3b8adbad10ffb9ef11d08c1",
+        "approval_receipt": "APR-206"
+      },
+      "simulated_response": {
+        "transport_status": "timeout",
+        "response_body": null,
+        "operation_status": "unknown"
+      },
+      "reconciliation": {
+        "lookup": "mock://creator-ops/v1/local-ledger?request_id=REQ-206",
+        "result": "no_conclusive_match"
+      },
+      "final_state": "manual_review_required",
+      "expected_control": {
+        "decision": "stop_and_escalate",
+        "action": "Disable automatic retry, preserve request evidence, and require manual ledger reconciliation because v1 has no native idempotency guarantee."
+      },
+      "expected_receipt": {
+        "receipt_type": "publish_ambiguity",
+        "status": "manual_review_required",
+        "required_fields": [
+          "scenario_id",
+          "request_id",
+          "api_version",
+          "content_digest",
+          "observed_response",
+          "ledger_search_result",
+          "automatic_retry_disabled",
+          "escalated_at"
+        ]
+      },
+      "pass_condition": "No automatic retry occurs and the unresolved state remains visible until a human resolves it."
+    }
+  ]
+}
