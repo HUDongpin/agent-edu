@@ -18,6 +18,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { inspectReleaseGateWiring } from "./release-gate-wiring.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RELEASE = process.argv.includes("--release");
@@ -1238,14 +1239,19 @@ function validateRoutesAndIntegration() {
   for (const locale of EXPECTED_LOCALES) {
     const root = readJson(`messages/${locale}.json`);
     if (!root) continue;
-    for (const key of ["cat.course9", "c.rag.title", "c.rag.blurb", "c.rag.level", "c.rag.meta", "c.rag.contentLanguage"]) {
+    for (const key of ["cat.course9", "c.rag.title", "c.rag.blurb", "c.rag.level", "c.rag.meta"]) {
       if (typeof root[key] !== "string" || !root[key].trim()) fail(`messages/${locale}.json: missing ${key}`);
     }
   }
 
   const packageJson = readJson("package.json");
   for (const scriptName of ["build", "build:release"]) {
-    if (!String(packageJson?.scripts?.[scriptName] || "").includes("npm run rag:check:release")) {
+    const wiring = inspectReleaseGateWiring(
+      packageJson?.scripts,
+      scriptName,
+      "rag:check:release",
+    );
+    if (!wiring.releaseBeforeBuild) {
       fail(`package.json scripts.${scriptName}: Course 9 release gate must run before next build`);
     }
   }

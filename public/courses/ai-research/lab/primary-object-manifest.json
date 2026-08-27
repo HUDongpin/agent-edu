@@ -1,0 +1,112 @@
+{
+  "schemaId": "aicourse.ai-research.primary-manifest.v1",
+  "manifestVersion": "2026.08.26-primary-v1",
+  "createdOn": "2026-08-26",
+  "generator": {
+    "path": "scripts/generate-ai-research-primary-pdfs.py",
+    "sha256": "fed796e8c2e100c120894f87f05f6c455654853b1aefaba6b247675b4f8d9860",
+    "reportlabVersion": "5.0.1",
+    "networkRequired": false,
+    "determinismBoundary": "The checked-in PDFs were generated with ReportLab invariant mode and embedded Bitstream Vera subsets. Byte reproduction requires the declared generator, ReportLab 5.0.1, and its bundled Vera fonts."
+  },
+  "rights": {
+    "pdfAuthorship": "Every sentence, number, table, locator, and layout decision in the three PDFs was authored for this course and has no real-world referent.",
+    "pdfReuse": "CC0-1.0",
+    "font": "Bitstream Vera subsets embedded by ReportLab",
+    "fontLicencePath": "public/courses/ai-research/BITSTREAM-VERA-LICENSE.txt",
+    "fontLicenceSha256": "3361d054759a2fc686a2c058be82deaf9c2e6fe549be9004d7935a6c1736315d",
+    "privacy": "No real person, account, institution, participant, publication, identifier, or research datum appears in the PDFs."
+  },
+  "objects": [
+    {
+      "recordId": "REC-001",
+      "path": "public/courses/ai-research/primary/REC-001.pdf",
+      "mediaType": "application/pdf",
+      "pages": 9,
+      "sha256": "6b7ade61c5c33784fb48c22b4ec6fa6e2ee235c6c436551743eb41445b66c1ef",
+      "locators": [
+        {
+          "id": "REC-001-method",
+          "page": 4,
+          "locator": "Method - assignment, first paragraph",
+          "expectedText": "Section assignment followed the existing timetable; no random allocation was performed.",
+          "boundary": "The non-random assignment and baseline difference prohibit a causal claim."
+        },
+        {
+          "id": "REC-001-result",
+          "page": 7,
+          "locator": "Table 2, both group rows",
+          "expectedText": "optional explanation n=28 mean=3.4 SD=0.6; suggestion only n=25 mean=3.1 SD=0.7",
+          "boundary": "These are fictional available-case descriptive values; REC-011 in the JSON fixture is a correction challenge that must be checked before final wording."
+        },
+        {
+          "id": "REC-001-limitation",
+          "page": 9,
+          "locator": "Limitations, first paragraph",
+          "expectedText": "The groups differed at baseline and the analysis does not identify a causal effect.",
+          "boundary": "The tiny authored sample cannot establish effectiveness, fairness, generalisation, or policy relevance."
+        }
+      ]
+    },
+    {
+      "recordId": "REC-002",
+      "path": "public/courses/ai-research/primary/REC-002.pdf",
+      "mediaType": "application/pdf",
+      "pages": 11,
+      "sha256": "631a4bd74a026fcce0d16681ebd5a37d206851ed4767473f460dd7c320af371a",
+      "locators": [
+        {
+          "id": "REC-002-method",
+          "page": 5,
+          "locator": "Method - sampling, first paragraph",
+          "expectedText": "Twelve volunteers who had opened at least one explanation were interviewed using a fictional semi-structured guide.",
+          "boundary": "Volunteers were not sampled to estimate prevalence and non-user interviews were unavailable."
+        },
+        {
+          "id": "REC-002-result",
+          "page": 8,
+          "locator": "Findings - Theme 2, first paragraph",
+          "expectedText": "Participants described the explanation as a reason to inspect the suggestion, not as proof that it was correct.",
+          "boundary": "A qualitative theme may not be converted into a frequency, effect estimate, or population claim."
+        },
+        {
+          "id": "REC-002-limitation",
+          "page": 11,
+          "locator": "Limitations, first paragraph",
+          "expectedText": "Volunteer accounts do not establish prevalence, effectiveness, or the experiences of non-users.",
+          "boundary": "The fictional themes cannot be transferred to a real population."
+        }
+      ]
+    },
+    {
+      "recordId": "REC-005",
+      "path": "public/courses/ai-research/primary/REC-005.pdf",
+      "mediaType": "application/pdf",
+      "pages": 13,
+      "sha256": "8a7d06815c40041f97b4a67fd453b7a144e07175609021494dae4448b612043e",
+      "locators": [
+        {
+          "id": "REC-005-method",
+          "page": 6,
+          "locator": "Method - allocation, first paragraph",
+          "expectedText": "A seeded fictional random-number list allocated 80 participant codes equally before the interface opened.",
+          "boundary": "Allocation does not erase attrition, outcome, estimand, or external-validity limits."
+        },
+        {
+          "id": "REC-005-result",
+          "page": 10,
+          "locator": "Table 3, all rows",
+          "expectedText": "optional explanation available=36 mean=3.6 SD=0.5; suggestion only available=38 mean=3.3 SD=0.6; mean difference=0.30; fictional 95% interval=0.05 to 0.55",
+          "boundary": "Six fictional outcomes are missing, and the authored interval does not authorise a real effect or decision threshold."
+        },
+        {
+          "id": "REC-005-limitation",
+          "page": 13,
+          "locator": "Limitations, first paragraph",
+          "expectedText": "Six participant codes lacked the primary outcome; no subgroup effect was preregistered.",
+          "boundary": "No subgroup, mechanism, safety, or deployment claim is authorised."
+        }
+      ]
+    }
+  ]
+}

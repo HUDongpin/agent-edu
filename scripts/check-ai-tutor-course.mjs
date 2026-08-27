@@ -15,6 +15,10 @@
 import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  inspectCoursePlaywrightWiring,
+  inspectReleaseGateWiring,
+} from "./release-gate-wiring.mjs";
 
 import {
   AI_TUTOR_COURSE_MANIFEST,
@@ -310,8 +314,8 @@ function checkReleaseIntegration() {
 
   requireTokens("components/courses/Cover.tsx", [
     "data-course-cover={id}",
-    'id === "ai-tutor" ? "ai-teaching"',
-    '"ai-teaching": styles.teaching',
+    '"ai-tutor": styles.teaching',
+    '"ai-tutor": (',
   ]);
 
   const englishMessages = readJson("messages/en.json");
@@ -344,15 +348,25 @@ function checkReleaseIntegration() {
     ) {
       fail("package.json: ai-tutor:check:release must run this checker with --release through tsx");
     }
-    if (!browserTest.includes("playwright test tests/ai-tutor-course.spec.ts")) {
-      fail("package.json: test:ai-tutor must run the isolated Course 13 Playwright spec");
+    const browserWiring = inspectCoursePlaywrightWiring(browserTest, {
+      courseId: "ai-tutor",
+      specPath: "tests/ai-tutor-course.spec.ts",
+      configPath: "tests/course-playwright.config.ts",
+      port: 3126,
+    });
+    if (!browserWiring.valid) {
+      fail(`package.json: test:ai-tutor Playwright wiring is invalid (${browserWiring.errors.join("; ")})`);
+    }
+    if (!regularFile(absolute("tests/course-playwright.config.ts"))) {
+      fail("tests/course-playwright.config.ts: isolated browser config is required");
     }
 
-    const releaseBuild = String(scripts["build:release"] ?? "");
-    const gate = "npm run ai-tutor:check:release";
-    const gateAt = releaseBuild.indexOf(gate);
-    const buildAt = releaseBuild.lastIndexOf("next build");
-    if (gateAt < 0 || buildAt < 0 || gateAt > buildAt) {
+    const wiring = inspectReleaseGateWiring(
+      scripts,
+      "build:release",
+      "ai-tutor:check:release",
+    );
+    if (!wiring.releaseBeforeBuild) {
       fail("package.json: build:release must run ai-tutor:check:release before next build");
     }
   }

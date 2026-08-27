@@ -3,7 +3,7 @@
 Snapshot date: 23 August 2026  
 Verification timezone: Asia/Taipei  
 Evidence policy: Cursor-owned sources establish product behaviour; revision-pinned GitHub sources support practitioner patterns only  
-Runtime policy: the development/internal-review course uses local figures and does not fetch remote media at runtime; public release is rights-gated
+Runtime policy: the published course uses only local, course-original SVG figures and does not fetch remote media; any future third-party capture is independently rights-gated
 
 ## Claim and reuse rules
 
@@ -84,13 +84,17 @@ All repositories were inspected on 23 August 2026. These records support pattern
 | `github-superpowers` | [`obra/superpowers`, commit `b36e0829c6d0140e93cfef2ca599b1b07d4a7797`](https://github.com/obra/superpowers/blob/b36e0829c6d0140e93cfef2ca599b1b07d4a7797/skills/systematic-debugging/SKILL.md) | MIT; link-only | Root-cause-first debugging, red-green checks, fresh verification; cross-tool corroboration only |
 | `github-agents-md` | [`agentsmd/agents.md`, commit `d1ac7f063d20e70015ed6732664049ae4ba9d74e`](https://github.com/agentsmd/agents.md/blob/d1ac7f063d20e70015ed6732664049ae4ba9d74e/README.md) | MIT; link-only | Readable nested repository context; Cursor documentation governs Cursor activation semantics |
 
-## Figure transformation ledger
+## Superseded third-party capture acquisition record
 
-Every asset was captured or derived on 23 August 2026. `master` is the locally stored PNG used for digest verification. The 1600 and 960 pixel WebP files are responsive delivery derivatives. Transformations consist only of selecting an official still or official video frame, stripping metadata, resizing, and encoding. No UI element was fabricated or redrawn.
+The table below records the 23 August 2026 internal acquisition audit only. It is retained as historical research provenance and does not describe the current runtime or authorize republication. On 26 August 2026, all fourteen screenshot masters and all twenty-eight responsive derivatives were removed from the current course after every lesson, locale, renderer, test, checker, and ledger reference moved to course-original SVGs. Git history remains the recovery mechanism for an internal audit.
 
-Copyright notice used in the course: `© Anysphere, Inc. First-party Cursor UI used for limited educational commentary. aicourse.top is not affiliated with or endorsed by Cursor.` All 14 figures remain `rights-review-required`: their local files are retained for development and internal review, but neither Cursor's public hosting nor the limited-commentary wording is recorded as publication clearance. Public release requires an evidence-bearing publication basis—such as documented permission or another basis approved through qualified rights review—bound to the exact derivatives. This record is an evidence boundary, not legal advice.
+The current publication artifacts are `fig-01-concept.svg` through `fig-14-concept.svg`. They are repository-native abstract diagrams authored from simple geometry, contain no third-party pixels or copied product layout, and are covered by the repository MIT licence. Exact authorship and methods are recorded in `public/courses/cursor/figure-provenance.json`; the publication decision and fail-closed future-capture policy are in `figure-rights.json`; byte integrity is in `figures.sha256`.
 
-Privacy boundary: no figure exposes an API key, token, credential, email address, learner-supplied private content, unrelated application, or private browser tab. The unaltered official media does retain public-demo identifiers in `fig-03` (Draft PR URL), `fig-06` (local path and repository remote), `fig-10` (recognizable official lesson presenter), `fig-11` (local path), and `fig-14` (account name and avatar). Cursor published those pixels on its public pages, but the referenced demo repositories need not themselves be public. The public notice and machine ledger record this boundary for final privacy and publication-rights review.
+Every asset in the historical table was captured or derived on 23 August 2026. At that time, `master` named the locally stored PNG used for digest verification, and the 1600 and 960 pixel WebP files were delivery derivatives. None of those binaries is retained in the current publication package.
+
+The former captures remained `rights-review-required`; no permission or other evidence-bearing republication basis was inferred from public hosting, attribution, or commentary. That fail-closed decision is why they were replaced rather than relabelled as cleared. The current course-original SVGs have a separate `original-authorship-reviewed` status and exact MIT rights record.
+
+Historical privacy note: the acquired captures exposed no secrets or learner-supplied private content, but several retained public-demo identifiers. The current abstract SVGs contain no person, account, repository, path, credential, learner data, logo, avatar, screenshot, external font, remote asset, script, or `foreignObject`.
 
 | Figure | Lesson | Official source page and media | Freshness | Master SHA-256 |
 | --- | --- | --- | --- | --- |

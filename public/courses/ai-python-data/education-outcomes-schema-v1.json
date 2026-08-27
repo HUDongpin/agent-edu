@@ -1,0 +1,20 @@
+{
+  "profile": "tabular-data-package",
+  "name": "education-outcomes-synthetic-v1",
+  "title": "Fictional education outcomes teaching fixture",
+  "description": "A fixed, fully synthetic table created for Course 18. It contains no real learner, school, program, or institution records.",
+  "fixture_version": "ai-python-data-fixture.v1",
+  "missingValues": [""],
+  "primaryKey": ["record_id"],
+  "fields": [
+    { "name": "record_id", "type": "string", "constraints": { "required": true, "unique": true, "pattern": "^R[0-9]{3}$" } },
+    { "name": "learner_code", "type": "string", "constraints": { "required": true, "unique": true, "pattern": "^F[0-9]{3}$" } },
+    { "name": "cohort", "type": "string", "constraints": { "required": true, "enum": ["amber", "blue", "coral"] } },
+    { "name": "period", "type": "string", "constraints": { "required": true, "enum": ["2026-P1", "2026-P2"] } },
+    { "name": "study_minutes", "type": "integer", "constraints": { "minimum": 0, "maximum": 240 } },
+    { "name": "practice_attempts", "type": "integer", "constraints": { "required": true, "minimum": 0, "maximum": 12 } },
+    { "name": "checkpoint_score", "type": "number", "constraints": { "minimum": 0, "maximum": 1 } },
+    { "name": "support_requested", "type": "string", "constraints": { "required": true, "enum": ["yes", "no", "unknown"] } },
+    { "name": "completion_status", "type": "string", "constraints": { "required": true, "enum": ["complete", "incomplete", "withdrawn"] } }
+  ]
+}

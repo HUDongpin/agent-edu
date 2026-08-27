@@ -26,6 +26,42 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import vm from "node:vm";
 import { walkHandbook } from "../lib/handbook/segments.mjs";
+import {
+  courseKitRouteContractIssues,
+  courseKitSeoPages,
+  courseKitSharedContractIssues,
+  coursePolicyForRoute,
+  discoverCourseKitContract,
+  isAllowedFrameworkExportRoute,
+  jsonLdLanguageIssues,
+} from "./i18n-course-kit-contracts.mjs";
+import {
+  discoverClaudeIncomeContract,
+  discoverMakeMoneyWithCodexFallbackContract,
+  discoverMcpContract,
+  discoverPromptsFallbackContract,
+  discoverSoftwareEngineeringFallbackContract,
+  findRawMessageKey,
+  isCourseCloneLeak,
+} from "./i18n-published-course-contracts.mjs";
+import { findSerializedEmptyText } from "./i18n-release-markup.mjs";
+import { renderedLanguageCandidates } from "./i18n-rendered-language.mjs";
+import {
+  MAIN_MESSAGE_DYNAMIC_OWNER_GROUPS,
+  RESERVED_MAIN_MESSAGE_KEYS,
+  validateDynamicMainMessageOwners,
+  validateReservedMainMessageKeys,
+} from "./i18n-main-message-ownership.mjs";
+import {
+  SOURCE_LITERAL_EXPECTATIONS,
+  createSourceLiteralPolicy,
+  sourceLiteralDecision,
+} from "./i18n-source-contracts.mjs";
+import { inspectSvgTextAssetContracts } from "./i18n-svg-text-asset-contracts.mjs";
+import { structuredLiteralDecision } from "./i18n-structured-literal-contracts.mjs";
+import { createReadinessLiteralPolicy } from "./i18n-readiness-literal-policy.mjs";
+import { compareMessageRegistryIds } from "./i18n-message-registry-contracts.mjs";
+import { isI18nSnapshotInput } from "./i18n-input-snapshot.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
@@ -76,11 +112,9 @@ function git(args, fallback = "") {
   }
 }
 
-const ignoredInput = /^(?:node_modules|\.git|\.next|out|output|\.playwright-cli|playwright-report|test-results)(?:\/|$)/;
-
 function trackedInputPaths() {
   const raw = git(["ls-files", "--cached", "--others", "--exclude-standard", "-z"]);
-  return raw.split("\0").filter(Boolean).map(posix).filter((path) => !ignoredInput.test(path)).sort();
+  return raw.split("\0").filter(Boolean).map(posix).filter(isI18nSnapshotInput).sort();
 }
 
 function fileRecord(path) {
@@ -202,6 +236,22 @@ if (!domains.some((domain) => domain.name === "main")) {
 
 const exceptionDocument = safeJson(join(ROOT, "i18n-exceptions.json")) ?? { exceptions: [] };
 const exceptions = Array.isArray(exceptionDocument.exceptions) ? exceptionDocument.exceptions : [];
+const readinessDocument = safeJson(join(ROOT, "config", "release-readiness.json")) ?? {};
+const readinessLiteralPolicy = createReadinessLiteralPolicy(
+  readinessDocument?.localization?.sameAsEnglishAllowlist,
+  { targetLocales },
+);
+for (const issue of readinessLiteralPolicy.issues) {
+  finding({
+    state: "FAIL",
+    domain: "release-readiness",
+    category: "invalid-project-literal-policy",
+    key: issue.path,
+    observed: issue.code,
+    source: "config/release-readiness.json",
+    evidence: issue.message,
+  });
+}
 const exceptionIds = new Set();
 for (const exception of exceptions) {
   const required = ["id", "domain", "reason", "expectedLanguage", "expectedDirection", "approvedBy", "approvedAt"];
@@ -301,6 +351,68 @@ function markerSignature(value) {
   return { bold, italic: (withoutBold.match(/\*/g) ?? []).length };
 }
 
+let promptsFallbackContract = null;
+try {
+  promptsFallbackContract = discoverPromptsFallbackContract(ROOT, locales);
+  finding({
+    domain: "prompts",
+    state: "PASS",
+    category: "english-fallback-domain-contract-discovered",
+    observed: `${promptsFallbackContract.shellLocales.length} shells / ${promptsFallbackContract.contentLocales.join(",")} native content`,
+    source: "lib/prompts/types.ts ↔ lib/prompts/load.ts ↔ app/[locale]/prompts/ ↔ app/sitemap.ts",
+    evidence: "The Prompt course explicitly exports nine localized shells around one English LTR content bundle; metadata and sitemap canonicalize to English.",
+    disposition: "accepted_explicit_fallback",
+  });
+} catch (error) {
+  finding({
+    domain: "prompts",
+    state: "NOT_ASSESSABLE",
+    category: "english-fallback-domain-contract-unreadable",
+    observed: error instanceof Error ? error.message : String(error),
+    source: "lib/prompts/ ↔ app/[locale]/prompts/ ↔ app/sitemap.ts",
+    evidence: "Missing locale files remain blocking unless the complete English fallback contract is statically verifiable.",
+  });
+}
+
+const publishedFallbackSeoContracts = new Map();
+for (const [domain, discover, source, evidence] of [
+  [
+    "make-money-with-codex",
+    discoverMakeMoneyWithCodexFallbackContract,
+    "lib/make-money-with-codex/ ↔ app/[locale]/make-money-with-codex/ ↔ app/sitemap.ts",
+    "Nine localized navigation/title shells wrap English LTR instruction; canonical, hreflang, JSON-LD and sitemap expose English content only.",
+  ],
+  [
+    "software-engineering",
+    discoverSoftwareEngineeringFallbackContract,
+    "lib/software-engineering/ ↔ app/[locale]/software-engineering/ ↔ app/sitemap.ts",
+    "Nine localized shells remain independently canonical and indexable while their instructional body and JSON-LD content language remain explicitly English.",
+  ],
+]) {
+  try {
+    const contract = discover(ROOT, locales);
+    publishedFallbackSeoContracts.set(domain, contract);
+    finding({
+      domain,
+      state: "PASS",
+      category: "published-fallback-seo-contract-discovered",
+      observed: `${contract.shellLocales.length} shells / ${contract.contentLocales.join(",")} content / ${contract.hreflangLocales.length} hreflang locales`,
+      source,
+      evidence,
+      disposition: "accepted_explicit_fallback",
+    });
+  } catch (error) {
+    finding({
+      domain,
+      state: "NOT_ASSESSABLE",
+      category: "published-fallback-seo-contract-unreadable",
+      observed: error instanceof Error ? error.message : String(error),
+      source,
+      evidence: "The audit keeps default strict page-locale expectations unless the complete fallback and SEO contract is statically verifiable.",
+    });
+  }
+}
+
 const matrix = {};
 const reviewRows = Object.fromEntries(targetLocales.map((locale) => [locale, []]));
 const domainData = new Map();
@@ -314,6 +426,44 @@ for (const domain of domains) {
 
   for (const locale of locales) {
     const path = join(domain.directory, `${locale}.json`);
+    const explicitFallback = promptsFallbackContract?.domain === domain.name
+      && !promptsFallbackContract.contentLocales.includes(locale);
+    if (explicitFallback) {
+      if (existsSync(path)) {
+        finding({
+          locale,
+          domain: domain.name,
+          state: "FAIL",
+          category: "unregistered-native-locale-file",
+          source: rel(path),
+          evidence: `The audited course metadata exposes only ${promptsFallbackContract.contentLocales.join(", ")} as native content. Remove the dormant file or update the complete content, metadata, direction, hreflang and sitemap contract together.`,
+        });
+      } else {
+        finding({
+          locale,
+          domain: domain.name,
+          state: "PASS",
+          category: "locale-file-omitted-by-explicit-fallback",
+          source: rel(domain.englishPath),
+          evidence: `${locale} intentionally materializes the ${promptsFallbackContract.fallbackLocale} content bundle under a localized shell.`,
+          disposition: "accepted_explicit_fallback",
+        });
+      }
+      matrix[domain.name][locale] = {
+        status: existsSync(path) ? "FAIL" : "PASS",
+        source: englishFlat.leaves.size,
+        required: englishFlat.leaves.size,
+        provided: existsSync(path) ? 0 : englishFlat.leaves.size,
+        missing: 0,
+        extra: existsSync(path) ? 1 : 0,
+        empty: 0,
+        identical: englishFlat.leaves.size,
+        exceptions: englishFlat.leaves.size,
+        contentLocale: promptsFallbackContract.fallbackLocale,
+        mode: "explicit-fallback",
+      };
+      continue;
+    }
     if (!existsSync(path)) {
       finding({
         locale,
@@ -372,11 +522,40 @@ for (const domain of domains) {
         if (JSON.stringify(wantedMarkers) !== JSON.stringify(observedMarkers)) {
           finding({ locale, domain: domain.name, state: "FAIL", key, category: "format-marker-mismatch", observed: JSON.stringify(observedMarkers), source: rel(path), evidence: `Expected ${JSON.stringify(wantedMarkers)}` });
         }
+        let identityDecision = null;
         if (locale !== defaultLocale && value === sourceValue) {
           identical++;
           const exception = approvedException(domain.name, key);
-          if (exception) allowed++;
-          else finding({
+          const structured = structuredLiteralDecision(domain.name, key, value);
+          const projectPolicy = readinessLiteralPolicy.decision(domain.name, locale, key, sourceValue, value);
+          identityDecision = exception ?? structured ?? projectPolicy;
+          if (identityDecision) {
+            allowed++;
+            if (structured && !exception) finding({
+              locale,
+              domain: domain.name,
+              state: "PASS",
+              key,
+              category: "structured-literal-contract",
+              observed: value,
+              source: rel(path),
+              evidence: structured.reason,
+              disposition: "accepted_schema_literal",
+              reviewer: structured.id,
+            });
+            else if (projectPolicy && !exception) finding({
+              locale,
+              domain: domain.name,
+              state: "PASS",
+              key,
+              category: "project-literal-policy",
+              observed: value,
+              source: rel(path),
+              evidence: projectPolicy.reason,
+              disposition: "accepted_project_policy_literal",
+              reviewer: projectPolicy.id,
+            });
+          } else finding({
             locale,
             domain: domain.name,
             state: "FAIL",
@@ -388,7 +567,16 @@ for (const domain of domains) {
             disposition: "review_required",
           });
         }
-        if (locale !== defaultLocale) reviewRows[locale].push({ domain: domain.name, key, source: sourceValue, target: value, automaticStatus: value === sourceValue ? (approvedException(domain.name, key) ? "approved-exception" : "review-identical") : "provided", exceptionId: approvedException(domain.name, key)?.id ?? "" });
+        if (locale !== defaultLocale) reviewRows[locale].push({
+          domain: domain.name,
+          key,
+          source: sourceValue,
+          target: value,
+          automaticStatus: value === sourceValue
+            ? (identityDecision ? "approved-structured-or-exact-exception" : "review-identical")
+            : "provided",
+          exceptionId: identityDecision?.id ?? "",
+        });
       }
     }
     // Object/array shape is compared separately from leaf keys.
@@ -412,6 +600,18 @@ for (const domain of domains) {
       exceptions: allowed,
     };
   }
+}
+
+for (const issue of readinessLiteralPolicy.finalize()) {
+  finding({
+    state: "FAIL",
+    domain: "release-readiness",
+    category: "stale-project-literal-policy",
+    key: issue.path,
+    observed: issue.code,
+    source: "config/release-readiness.json",
+    evidence: issue.message,
+  });
 }
 
 if (KEYS_ONLY) {
@@ -525,12 +725,144 @@ function discoverCourses() {
       quizzes: pick("_QUIZ_IDS"),
       figures: pick("_FIGURE_IDS"),
       practices: pick("_PRACTICE_IDS"),
+      metadataContract: "inline",
+      validatorPath: join(ROOT, "scripts", `check-${name}-course.mjs`),
+    });
+  }
+  try {
+    const contract = discoverCourseKitContract(ROOT);
+    courses.push(...contract.courses);
+    finding({
+      domain: "course-kit",
+      state: "PASS",
+      category: "course-kit-registry-discovered",
+      observed: `${contract.courses.length} courses / ${contract.courses.reduce((sum, course) => sum + course.modules.length, 0)} modules / ${contract.shellLocales.length} shell locales / ${contract.contentLocales.join(",")}`,
+      source: rel(contract.sources.registryPath),
+      evidence: `Course ids and module routes were statically resolved from the shared registry; locale policy came from ${rel(contract.sources.typesPath)}.`,
+    });
+    if (JSON.stringify(contract.shellLocales) !== JSON.stringify(locales)) {
+      finding({
+        domain: "course-kit",
+        state: "FAIL",
+        category: "course-kit-shell-locale-registry-drift",
+        observed: contract.shellLocales.join(","),
+        source: rel(contract.sources.typesPath),
+        evidence: `Expected the site locale registry in order: ${locales.join(",")}.`,
+      });
+    }
+    if (JSON.stringify(contract.contentLocales) !== JSON.stringify(["en", "zh-Hans"])) {
+      finding({
+        domain: "course-kit",
+        state: "FAIL",
+        category: "course-kit-content-locale-contract-drift",
+        observed: contract.contentLocales.join(","),
+        source: rel(contract.sources.typesPath),
+        evidence: "Courses 16–21 must expose native long-form bundles for en and zh-Hans only; the other seven shells explicitly fall back to English.",
+      });
+    }
+  } catch (error) {
+    finding({
+      domain: "course-kit",
+      state: "NOT_ASSESSABLE",
+      category: "course-kit-registry-discovery-failed",
+      observed: error instanceof Error ? error.message : String(error),
+      source: "lib/course-kit/registry.ts ↔ lib/course-kit/types.ts",
+      evidence: "The i18n audit cannot infer Course 16–21 routes or fallback policy when the shared registry is unreadable.",
+    });
+  }
+  try {
+    const derivedCourses = [
+      discoverClaudeIncomeContract(ROOT, locales),
+      discoverMcpContract(ROOT, locales),
+    ];
+    courses.push(...derivedCourses);
+    finding({
+      domain: "derived-course-contracts",
+      state: "PASS",
+      category: "published-derived-courses-discovered",
+      observed: `${derivedCourses.length} courses / ${derivedCourses.reduce((sum, course) => sum + course.units.length, 0)} lesson families / ${derivedCourses.reduce((sum, course) => sum + course.units.length * course.locales.length, 0)} shell routes`,
+      source: "lib/claude-income/curriculum.ts ↔ lib/mcp/course.ts ↔ app/[locale]/{claude-income,mcp}/",
+      evidence: "Static params, locale/content policy, canonical, hreflang, JSON-LD, sitemap and SEO inputs were resolved from each published course contract.",
+    });
+  } catch (error) {
+    finding({
+      domain: "derived-course-contracts",
+      state: "NOT_ASSESSABLE",
+      category: "published-derived-course-discovery-failed",
+      observed: error instanceof Error ? error.message : String(error),
+      source: "lib/claude-income/ ↔ lib/mcp/ ↔ app/[locale]/{claude-income,mcp}/",
+      evidence: "Claude Income and MCP dynamic routes remain unassessable unless both derived registries and their SEO contracts can be resolved.",
+    });
+  }
+  if (promptsFallbackContract) {
+    const prompts = courses.find((course) => course.name === promptsFallbackContract.domain);
+    if (!prompts) {
+      finding({
+        domain: "prompts",
+        state: "NOT_ASSESSABLE",
+        category: "fallback-course-not-discovered",
+        source: "lib/prompts/types.ts",
+      });
+    } else {
+      prompts.translatedLocales = [...promptsFallbackContract.contentLocales];
+      prompts.contentLocaleMode = promptsFallbackContract.contentLocaleMode;
+      prompts.canonicalLocaleMode = promptsFallbackContract.canonicalLocaleMode;
+      prompts.metadataContract = "prompts-fallback";
+    }
+  }
+  for (const contract of publishedFallbackSeoContracts.values()) {
+    const course = courses.find((candidate) => candidate.name === contract.domain);
+    if (!course) {
+      finding({
+        domain: contract.domain,
+        state: "NOT_ASSESSABLE",
+        category: "fallback-course-not-discovered",
+        source: `lib/${contract.domain}/types.ts`,
+      });
+      continue;
+    }
+    course.translatedLocales = [...contract.hreflangLocales];
+    course.contentLocaleMode = contract.contentLocaleMode;
+    course.canonicalLocaleMode = contract.canonicalLocaleMode;
+    course.metadataContract = "published-fallback";
+  }
+  const duplicateNames = courses
+    .map((course) => course.name)
+    .filter((name, index, values) => values.indexOf(name) !== index);
+  if (duplicateNames.length) {
+    finding({
+      domain: "courses",
+      state: "NOT_ASSESSABLE",
+      category: "duplicate-course-contract-discovered",
+      observed: [...new Set(duplicateNames)].join(","),
+      source: "lib/**/types.ts ↔ lib/course-kit/registry.ts",
     });
   }
   return courses;
 }
 
 const courses = discoverCourses();
+if (courses.some((course) => course.metadataContract === "course-kit")) {
+  try {
+    const sharedCourseKitIssues = courseKitSharedContractIssues(ROOT);
+    for (const issue of sharedCourseKitIssues) finding({
+      domain: "course-kit",
+      state: "FAIL",
+      key: issue,
+      category: "course-kit-shared-fallback-contract-incomplete",
+      source: "components/course-kit/CourseRoute.tsx ↔ lib/course-kit/locale.ts ↔ components/course-kit/{CourseDashboard,ModuleView}.tsx",
+      evidence: "Shared CourseKit metadata, JSON-LD, canonical, language and direction behavior must remain explicit before route-level calls can inherit it.",
+    });
+  } catch (error) {
+    finding({
+      domain: "course-kit",
+      state: "NOT_ASSESSABLE",
+      category: "course-kit-shared-fallback-contract-unreadable",
+      observed: error instanceof Error ? error.message : String(error),
+      source: "components/course-kit/",
+    });
+  }
+}
 for (const course of courses) {
   const routeRoot = join(ROOT, "app", "[locale]", course.name, "page.tsx");
   const routeUnit = join(ROOT, "app", "[locale]", course.name, `[${course.routeParam}]`, "page.tsx");
@@ -548,15 +880,14 @@ for (const course of courses) {
     finding({ domain: course.name, state: "PASS", category: "message-namespace-not-published", source: rel(namespace.englishPath), disposition: "staging_not_published" });
   }
   const compareContract = (field, expected) => {
-    const observed = Object.keys(namespace.english?.[field] ?? {});
-    const missing = expected.filter((id) => !observed.includes(id));
-    const extra = observed.filter((id) => !expected.includes(id));
-    if (missing.length || extra.length) finding({
+    const comparison = compareMessageRegistryIds(namespace.english, field, expected);
+    if (!comparison.applicable) return;
+    if (!comparison.validShape || comparison.missing.length || comparison.extra.length) finding({
       domain: course.name,
       state: "NOT_ASSESSABLE",
       category: "course-contract-drift",
       key: field,
-      observed: `missing=${missing.join(",") || "0"}; extra=${extra.join(",") || "0"}`,
+      observed: `missing=${comparison.missing.join(",") || "0"}; extra=${comparison.extra.join(",") || "0"}; shape=${comparison.validShape ? "object" : "invalid"}`,
       source: `${rel(course.path)} ↔ ${rel(namespace.englishPath)}`,
       evidence: "The canonical English copy does not match the current course type contract.",
     });
@@ -595,7 +926,8 @@ for (const course of courses) {
     for (const locale of declaredLocales) {
       const translated = course.translatedLocales.includes(locale);
       const contentLocale = translated ? locale : defaultLocale;
-      const copyPath = join(dirname(course.path), "copy", `${contentLocale}.ts`);
+      const copyPath = course.copyPaths?.[contentLocale]
+        ?? join(dirname(course.path), "copy", `${contentLocale}.ts`);
       if (!existsSync(copyPath)) {
         finding({ locale, domain: course.name, state: "FAIL", category: "typescript-copy-file-missing", source: rel(copyPath) });
       } else {
@@ -606,7 +938,7 @@ for (const course of courses) {
           category: translated ? "typescript-copy-bundle-discovered" : "intentional-content-fallback-declared",
           source: rel(copyPath),
           evidence: translated
-            ? `Reviewed ${locale} long-form bundle is registered in ${rel(course.loadPath)}.`
+            ? `Declared ${locale} native long-form bundle is registered in ${rel(course.loadPath)}; human approval is audited separately.`
             : `${locale} intentionally serves ${defaultLocale} long-form content and must canonicalize to the ${defaultLocale} sibling.`,
           disposition: translated ? "accepted" : "accepted_explicit_fallback",
         });
@@ -622,16 +954,27 @@ for (const course of courses) {
         identical: translated ? 0 : 1,
         exceptions: translated ? 0 : 1,
         contentLocale,
-        mode: translated ? "reviewed-translation" : "explicit-fallback",
+        mode: translated ? "native-content-bundle" : "explicit-fallback",
       };
     }
     for (const routePath of [routeRoot, routeUnit].filter(existsSync)) {
       const routeSource = readText(routePath);
-      for (const [category, pattern, evidence] of [
-        ["translated-locale-metadata-missing", /availableLocales:\s*[A-Z][A-Z0-9_]*_TRANSLATED_LOCALES/, "Metadata must advertise only reviewed long-form locales."],
-        ["content-canonical-metadata-missing", /canonicalLocale:\s*course\.contentLocale/, "Fallback metadata must canonicalize to the materialized content locale."],
-      ]) {
-        if (!pattern.test(routeSource)) finding({ domain: course.name, state: "FAIL", category, source: rel(routePath), evidence });
+      if (course.metadataContract === "course-kit") {
+        for (const issue of courseKitRouteContractIssues(routeSource)) finding({
+          domain: course.name,
+          state: "FAIL",
+          key: issue,
+          category: "course-kit-route-metadata-contract-missing",
+          source: rel(routePath),
+          evidence: "CourseKit routes must delegate SEO and fallback canonical behavior to the audited shared courseKitMetadata helper.",
+        });
+      } else if (course.metadataContract !== "claude-income") {
+        for (const [category, pattern, evidence] of [
+          ["translated-locale-metadata-missing", /availableLocales:\s*[A-Z][A-Z0-9_]*_TRANSLATED_LOCALES/, "Metadata must advertise only declared native long-form locales."],
+          ["content-canonical-metadata-missing", /canonicalLocale:\s*course\.contentLocale/, "Fallback metadata must canonicalize to the materialized content locale."],
+        ]) {
+          if (!pattern.test(routeSource)) finding({ domain: course.name, state: "FAIL", category, source: rel(routePath), evidence });
+        }
       }
     }
     if (course.name === "agent-orchestration") {
@@ -659,13 +1002,12 @@ for (const course of courses) {
     if (namespace && course.name !== "codex") {
       const englishLeaves = namespace.leaves;
       for (const [key, value] of englishLeaves) {
-      if (typeof value !== "string" || !/\b(?:Codex|Course\s*2)\b/i.test(value)) continue;
-      if (/^(?:sources?|references?|citations?)(?:\.|$)/i.test(key) || /(?:url|publisher|officialSource|sourceTitle)$/i.test(key)) continue;
-      finding({ domain: course.name, locale: "en", state: "FAIL", key, category: "course-clone-leak", observed: value, source: rel(namespace.englishPath), evidence: "Non-reference course copy contains a Codex/Course 2 clone marker." });
+        if (!isCourseCloneLeak(course.name, key, value)) continue;
+        finding({ domain: course.name, locale: "en", state: "FAIL", key, category: "course-clone-leak", observed: value, source: rel(namespace.englishPath), evidence: "Non-reference course copy contains a foreign Codex/Course 2 clone marker rather than a source or this course's declared subject." });
       }
     }
 
-  const checker = join(ROOT, "scripts", `check-${course.name}-course.mjs`);
+  const checker = course.validatorPath ?? join(ROOT, "scripts", `check-${course.name}-course.mjs`);
   if (publishedInSource && !existsSync(checker)) {
     finding({ domain: course.name, state: "NOT_ASSESSABLE", category: "course-validator-missing", source: rel(checker) });
   }
@@ -708,10 +1050,15 @@ if (widgetOutput) {
   }
 }
 for (const course of courses) {
-  const checker = join(ROOT, "scripts", `check-${course.name}-course.mjs`);
+  const checker = course.validatorPath ?? join(ROOT, "scripts", `check-${course.name}-course.mjs`);
   const published = existsSync(join(ROOT, "app", "[locale]", course.name, "page.tsx"))
     || existsSync(join(ROOT, "app", "[locale]", course.name, `[${course.routeParam}]`, "page.tsx"));
-  if (published && existsSync(checker)) runValidator(course.name, process.execPath, ["--import", "tsx", rel(checker), "--release", "--json"]);
+  if (published && existsSync(checker)) {
+    const args = course.metadataContract === "course-kit"
+      ? ["--import", "tsx", rel(checker), "--course", course.name, "--json"]
+      : ["--import", "tsx", rel(checker), "--release", "--json"];
+    runValidator(course.name, process.execPath, args);
+  }
 }
 
 function runQualityGate(domain, command, args) {
@@ -792,6 +1139,27 @@ function literalText(node) {
 
 const reachable = reachableSources();
 const reachableText = reachable.map((path) => readText(path)).join("\n");
+let sourceLiteralPolicy = null;
+try {
+  sourceLiteralPolicy = createSourceLiteralPolicy(ROOT);
+  finding({
+    domain: "source",
+    state: "PASS",
+    category: "source-literal-policy-contracts-valid",
+    source: "scripts/i18n-source-contracts.mjs",
+    evidence: "Five English-content fallback courses and the finite technical-literal contexts passed their route, content-language, direction, canonical and sitemap discovery contracts.",
+  });
+} catch (error) {
+  finding({
+    domain: "source",
+    state: "FAIL",
+    category: "source-literal-policy-contract-invalid",
+    observed: error instanceof Error ? error.message : String(error),
+    source: "scripts/i18n-source-contracts.mjs",
+    evidence: "No source literal is accepted when its governing fallback contract cannot be discovered.",
+  });
+}
+const sourceLiteralCounts = { fallbackJsx: 0, fallbackAttributes: 0, technicalJsx: 0 };
 for (const path of reachable) {
   if (!/^(?:app\/\[locale\]|components\/)/.test(rel(path))) continue;
   const source = readText(path);
@@ -812,15 +1180,106 @@ for (const path of reachable) {
       text = literalText(node.right);
       category = text && naturalLanguage(text) ? "hardcoded-imperative-copy" : null;
     }
-    if (category && text) finding({ domain: "source", state: "FAIL", category, observed: text, source: `${rel(path)}:${lineOf(sourceFile, node)}`, evidence: "Reachable user-visible literal must use a locale dictionary or a narrow approved exception." });
+    if (category && text) {
+      const decision = sourceLiteralPolicy && ["hardcoded-jsx-text", "hardcoded-visible-attribute"].includes(category)
+        ? sourceLiteralDecision(sourceLiteralPolicy, {
+          relativePath: rel(path),
+          sourceFile,
+          node,
+          text,
+        })
+        : null;
+      const technical = decision?.disposition === "accepted_technical_literal";
+      if (decision && (!technical || category === "hardcoded-jsx-text")) {
+        const acceptedCategory = technical
+          ? "accepted-technical-jsx-literal"
+          : category === "hardcoded-jsx-text"
+            ? "accepted-english-fallback-jsx-text"
+            : "accepted-english-fallback-visible-attribute";
+        if (technical) sourceLiteralCounts.technicalJsx += 1;
+        else if (category === "hardcoded-jsx-text") sourceLiteralCounts.fallbackJsx += 1;
+        else sourceLiteralCounts.fallbackAttributes += 1;
+        finding({
+          domain: "source",
+          state: "PASS",
+          category: acceptedCategory,
+          observed: text,
+          source: `${rel(path)}:${lineOf(sourceFile, node)}`,
+          evidence: decision.reason,
+        });
+      } else {
+        finding({ domain: "source", state: "FAIL", category, observed: text, source: `${rel(path)}:${lineOf(sourceFile, node)}`, evidence: "Reachable user-visible literal must use a locale dictionary or a narrow approved exception." });
+      }
+    }
     ts.forEachChild(node, visit);
   }
   visit(sourceFile);
 }
 
+for (const [name, expected] of Object.entries({
+  fallbackJsx: SOURCE_LITERAL_EXPECTATIONS.fallbackJsx,
+  fallbackAttributes: SOURCE_LITERAL_EXPECTATIONS.fallbackAttributes,
+  technicalJsx: SOURCE_LITERAL_EXPECTATIONS.technicalJsx,
+})) {
+  finding({
+    domain: "source",
+    state: sourceLiteralCounts[name] === expected ? "PASS" : "FAIL",
+    category: "accepted-source-literal-inventory",
+    key: name,
+    observed: sourceLiteralCounts[name],
+    expected,
+    source: "scripts/i18n-source-contracts.mjs",
+    evidence: "The accepted inventory is count-pinned so new literals require an explicit, reviewed contract update.",
+  });
+}
+
 const mainMessages = domainData.get("main");
 if (mainMessages) {
   const referenced = new Set();
+  const dynamicOwners = validateDynamicMainMessageOwners();
+  const dynamicMissing = [...dynamicOwners.owners.keys()].filter((key) => !mainMessages.leaves.has(key));
+  const dynamicOwnerFilesMissing = MAIN_MESSAGE_DYNAMIC_OWNER_GROUPS.flatMap((group) =>
+    group.owner.split(" + ").filter((owner) => !existsSync(join(ROOT, owner))),
+  );
+  const dynamicOwnerIssues = [
+    ...dynamicOwners.issues,
+    ...(MAIN_MESSAGE_DYNAMIC_OWNER_GROUPS.length === 5 ? [] : ["Expected exactly five finite dynamic-owner groups."]),
+    ...(dynamicOwners.owners.size === 149 ? [] : [`Expected 149 finite dynamic keys; observed ${dynamicOwners.owners.size}.`]),
+    ...dynamicMissing.map((key) => `Dynamic caller owns missing message key ${key}.`),
+    ...dynamicOwnerFilesMissing.map((owner) => `Dynamic caller owner file is missing: ${owner}.`),
+  ];
+  if (dynamicOwnerIssues.length) {
+    finding({
+      domain: "main",
+      state: "FAIL",
+      category: "finite-dynamic-message-owner-contract-invalid",
+      observed: dynamicOwnerIssues.join(" "),
+      source: "scripts/i18n-main-message-ownership.mjs",
+      evidence: "Dynamic keys are not accepted through a prefix; every finite key must have one named owner and an existing message.",
+    });
+  } else {
+    for (const key of dynamicOwners.owners.keys()) referenced.add(key);
+    finding({
+      domain: "main",
+      state: "PASS",
+      category: "finite-dynamic-message-owners-valid",
+      observed: dynamicOwners.owners.size,
+      expected: 149,
+      source: "scripts/i18n-main-message-ownership.mjs",
+    });
+  }
+  const reserved = validateReservedMainMessageKeys(RESERVED_MAIN_MESSAGE_KEYS);
+  if (reserved.issues.length) {
+    finding({
+      domain: "main",
+      state: "FAIL",
+      category: "reserved-message-owner-contract-invalid",
+      observed: reserved.issues.join(" "),
+      source: "scripts/i18n-main-message-ownership.mjs",
+    });
+  } else {
+    for (const key of reserved.keys) referenced.add(key);
+  }
   for (const match of reachableText.matchAll(/\b(?:t|translator)\s*\(\s*["']([A-Za-z0-9_.-]+)["']/g)) {
     const key = match[1];
     referenced.add(key);
@@ -839,7 +1298,7 @@ const handbookMarkup = join(ROOT, "lib", "handbook", "markup.ts");
 if (existsSync(handbookMarkup)) {
   const source = readText(handbookMarkup);
   const evaluated = vm.runInNewContext(
-    `${source.replace(/^\s*export default MARKUP;\s*$/m, "")}\nMARKUP`,
+    `${source.replace(/^\s*export default [A-Za-z_$][\w$]*;\s*$/m, "")}\nACCESSIBLE_MARKUP`,
     Object.create(null),
     { filename: handbookMarkup },
   );
@@ -866,7 +1325,44 @@ if (/\/docs\/og-card\.png/.test(seoSource)) {
 const publicFiles = walk(join(ROOT, "public"));
 const downloadable = publicFiles.filter((path) => /\.(?:zip|pdf|docx|pptx|xlsx|csv|txt|md)$/i.test(path));
 for (const path of downloadable) finding({ domain: "downloads", state: "NOT_ASSESSABLE", category: "download-learner-copy-review-pending", source: rel(path), evidence: "Public download instructions and embedded learner-facing copy require locale review or a narrow technical-artifact exception." });
+let svgTextAssetContracts = { manifestPath: join(ROOT, "config", "i18n-svg-text-assets.v1.json"), issues: [], decisions: new Map() };
+try {
+  svgTextAssetContracts = inspectSvgTextAssetContracts(ROOT, locales);
+} catch (error) {
+  finding({
+    domain: "seo-media",
+    state: "FAIL",
+    category: "svg-text-asset-contract-unreadable",
+    observed: error instanceof Error ? error.message : String(error),
+    source: rel(svgTextAssetContracts.manifestPath),
+    evidence: "An unreadable exact-asset contract cannot suppress any per-text SVG finding.",
+  });
+}
+for (const contractIssue of svgTextAssetContracts.issues) {
+  finding({
+    domain: "seo-media",
+    state: "FAIL",
+    key: contractIssue.path,
+    category: "svg-text-asset-contract-invalid",
+    observed: contractIssue.message,
+    source: rel(svgTextAssetContracts.manifestPath),
+    evidence: "SVG text exceptions require an exact path, current SHA-256, complete visible-text inventory, exact evidence files, locale behavior, localized alternative and review state.",
+  });
+}
 for (const path of publicFiles.filter((entry) => entry.endsWith(".svg"))) {
+  const exactContract = svgTextAssetContracts.decisions.get(rel(path));
+  if (exactContract) {
+    finding({
+      domain: "seo-media",
+      state: exactContract.state,
+      category: exactContract.category,
+      observed: `${exactContract.naturalLanguageTextCount} natural-language labels / ${exactContract.visibleTextCount} visible text nodes / ${exactContract.classification} / sha256:${exactContract.sha256}`,
+      source: exactContract.path,
+      evidence: exactContract.evidence,
+      disposition: exactContract.disposition,
+    });
+    continue;
+  }
   const source = readText(path);
   for (const match of source.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/gi)) {
     const text = match[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -925,6 +1421,7 @@ function htmlRoute(path) {
 }
 const outHtml = walk(join(ROOT, "out"), (path) => extname(path) === ".html");
 const outRoutes = new Map(outHtml.map((path) => [htmlRoute(path), path]));
+const exportedRouteSet = new Set(outRoutes.keys());
 if (!outHtml.length) {
   finding({ domain: "build", state: "NOT_ASSESSABLE", category: "static-export-missing", source: "out/", evidence: "Run npm run build on the frozen candidate before release audit." });
 } else {
@@ -934,7 +1431,7 @@ if (!outHtml.length) {
   if (newestSource > newestHtml) finding({ domain: "build", state: "NOT_ASSESSABLE", category: "static-export-stale", observed: `source=${new Date(newestSource).toISOString()} out=${new Date(newestHtml).toISOString()}`, source: "out/" });
   for (const route of expectedRoutes) if (!outRoutes.has(route)) finding({ domain: "routes", route, state: "NOT_ASSESSABLE", category: "expected-route-missing-from-export", source: "app routes + course contracts ↔ out/" });
   for (const route of outRoutes.keys()) {
-    if (route === "/404.html" || route === "/404/") continue;
+    if (isAllowedFrameworkExportRoute(route)) continue;
     if (!expectedRoutes.has(route)) finding({ domain: "routes", route, state: "FAIL", category: "unexpected-exported-route", source: "out/" });
   }
 }
@@ -945,7 +1442,14 @@ function extractSeoPages() {
   const match = /export\s+const\s+PAGES\s*=\s*\[([\s\S]*?)\]\s*as\s+const/.exec(source);
   if (!match) return [];
   const pages = [...match[1].matchAll(/["']([^"']*)["']/g)].map((item) => item[1]);
-  for (const spread of match[1].matchAll(/\.\.\.([A-Za-z_$][\w$]*)/g)) pages.push(...(arrays[spread[1]] ?? []));
+  const courseKitRegistryImported = /import\s*\{[^}]*\bCOURSE_KIT_PAGES\b[^}]*\}\s*from\s*["']@\/lib\/course-kit\/registry["']/.test(source);
+  for (const spread of match[1].matchAll(/\.\.\.([A-Za-z_$][\w$]*)/g)) {
+    if (spread[1] === "COURSE_KIT_PAGES" && courseKitRegistryImported) {
+      pages.push(...courseKitSeoPages(courses));
+    } else {
+      pages.push(...(arrays[spread[1]] ?? []));
+    }
+  }
   return [...new Set(pages)];
 }
 const seoPages = extractSeoPages();
@@ -977,25 +1481,11 @@ function tagAttribute(tag, name) {
 
 const configuredSite = /export\s+const\s+SITE\s*=\s*["']([^"']+)/.exec(seoSource)?.[1]?.replace(/\/$/, "") ?? "https://aicourse.top";
 
-function coursePolicyForRoute(route) {
-  const [, routeLocale = "", courseName = ""] = /^\/([^/]+)\/([^/]+)\//.exec(route) ?? [];
-  const course = courseMap.get(courseName);
-  if (!course?.translatedLocales.length) return null;
-  const contentLocale = course.translatedLocales.includes(routeLocale) ? routeLocale : defaultLocale;
-  return {
-    course,
-    routeLocale,
-    contentLocale,
-    canonicalRoute: route.replace(`/${routeLocale}/`, `/${contentLocale}/`),
-    hreflangLocales: course.translatedLocales,
-  };
-}
-
 for (const [route, path] of outRoutes) {
   const locale = route.split("/")[1];
   if (!locales.includes(locale)) continue;
   const html = readText(path);
-  const coursePolicy = coursePolicyForRoute(route);
+  const coursePolicy = coursePolicyForRoute(route, courseMap, defaultLocale);
   const expectedContentLocale = coursePolicy?.contentLocale ?? locale;
   const expectedCanonicalRoute = coursePolicy?.canonicalRoute ?? route;
   const expectedHreflangLocales = coursePolicy?.hreflangLocales ?? locales;
@@ -1021,7 +1511,7 @@ for (const [route, path] of outRoutes) {
     else if (observed !== expected) finding({ locale, domain: "seo", route, state: "FAIL", key: required, category: "hreflang-target-mismatch", observed, source: rel(path), evidence: `Expected ${expected}` });
   }
   if (coursePolicy) {
-    for (const observed of hreflangs.keys()) if (!requiredHreflangs.includes(observed)) finding({ locale, domain: "seo", route, state: "FAIL", key: observed, category: "unreviewed-course-hreflang-advertised", source: rel(path), evidence: `Only reviewed long-form locales may be advertised: ${expectedHreflangLocales.join(", ")}.` });
+    for (const observed of hreflangs.keys()) if (!requiredHreflangs.includes(observed)) finding({ locale, domain: "seo", route, state: "FAIL", key: observed, category: "undeclared-content-locale-hreflang-advertised", source: rel(path), evidence: `Only declared native long-form content locales may be advertised: ${expectedHreflangLocales.join(", ")}. Human approval is audited separately.` });
   }
   const metaTags = [...html.matchAll(/<meta\b[^>]*>/gi)].map((match) => match[0]);
   const metaValue = (attribute, name) => {
@@ -1036,26 +1526,63 @@ for (const [route, path] of outRoutes) {
   for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     try {
       const value = JSON.parse(match[1]);
-      const languages = [];
-      const collect = (item) => {
-        if (!item || typeof item !== "object") return;
-        if (typeof item.inLanguage === "string") languages.push(item.inLanguage);
-        for (const child of Object.values(item)) collect(child);
-      };
-      collect(value);
-      for (const observed of languages) if (observed !== expectedContentLocale) finding({ locale, domain: "seo", route, state: "FAIL", key: "inLanguage", category: "json-ld-language-mismatch", observed, source: rel(path), evidence: `Expected materialized content locale ${expectedContentLocale}` });
+      const languageIssues = jsonLdLanguageIssues(value, {
+        pageRoute: route,
+        pageContentLocale: expectedContentLocale,
+        courseMap,
+        defaultLocale,
+        site: configuredSite,
+        siteLocales: locales,
+        knownRoutes: exportedRouteSet,
+      });
+      for (const issue of languageIssues) finding({
+        locale,
+        domain: "seo",
+        route,
+        state: "FAIL",
+        key: issue.path,
+        category: issue.reason === "language-mismatch"
+          ? "json-ld-language-mismatch"
+          : "json-ld-language-target-unresolved",
+        observed: issue.observed,
+        source: rel(path),
+        evidence: issue.reason === "language-mismatch"
+          ? `Expected materialized content locale ${issue.expected} for ${issue.targetRoute}`
+          : `${issue.reason}; expected ${issue.expected}${issue.targetRoute ? `; target ${issue.targetRoute}` : ""}`,
+      });
     } catch (error) {
       finding({ locale, domain: "seo", route, state: "FAIL", category: "invalid-json-ld", observed: error instanceof Error ? error.message : String(error), source: rel(path) });
     }
   }
   const visible = stripHtml(html);
-  const rawKey = visible.match(/\b(?:ui|nav|course|hb|w)\.[A-Za-z0-9_.-]{2,}\b/)?.[0] ?? "";
+  const rawKey = findRawMessageKey(visible);
   const auditableMarkup = html.replace(/<(script|style|template|svg)\b[\s\S]*?<\/\1>/gi, " ");
-  const serializedEmpty = />\s*(?:<!--[^]*?-->\s*)*(undefined|null)\s*(?:<!--[^]*?-->\s*)*</i.exec(auditableMarkup)?.[1] ?? "";
+  const serializedEmpty = findSerializedEmptyText(auditableMarkup);
   if (rawKey || serializedEmpty) finding({ locale, domain: "rendered-html", route, state: "FAIL", category: "raw-key-or-undefined", observed: rawKey || serializedEmpty, source: rel(path) });
   if (expectedContentLocale !== defaultLocale) {
-    const suspicious = visible.match(/(?:\b[A-Za-z][A-Za-z'-]*\b[\s,.:;!?—–-]*){8,}/g) ?? [];
-    for (const excerpt of suspicious.slice(0, 5)) finding({ locale, domain: "rendered-html", route, state: "FAIL", category: "suspected-english-leak", observed: excerpt.trim().slice(0, 300), source: rel(path), evidence: "Heuristic only: approve a narrow exception or confirm and translate in rendered context.", disposition: "review_required" });
+    const languageCandidates = renderedLanguageCandidates(auditableMarkup, locale, 5);
+    for (const candidate of languageCandidates.english) finding({
+      locale,
+      domain: "rendered-html",
+      route,
+      state: "FAIL",
+      category: "suspected-english-leak",
+      observed: candidate.excerpt.slice(0, 300),
+      source: rel(path),
+      evidence: `English markers ${candidate.englishScore}; target-language markers ${candidate.targetScore}. Explicit lang=en subtrees are audited as declared English evidence rather than translated prose.`,
+      disposition: "review_required",
+    });
+    if (languageCandidates.ambiguous.length) finding({
+      locale,
+      domain: "rendered-html",
+      route,
+      state: "NOT_ASSESSABLE",
+      category: "ambiguous-latin-language-review",
+      observed: languageCandidates.ambiguous.map((candidate) => candidate.excerpt.slice(0, 120)).join(" | ").slice(0, 600),
+      source: rel(path),
+      evidence: "The text is Latin-script but lacks enough English or target-language markers for a safe automatic decision. Native review remains required.",
+      disposition: "review_required",
+    });
   }
 }
 

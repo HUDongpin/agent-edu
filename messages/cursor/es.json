@@ -5,8 +5,8 @@
     "summary": "Domine Cursor mediante 14 lecciones basadas en evidencia que combinan la práctica auténtica de la interfaz con flujos de trabajo seguros para desarrollo, investigación, redacción, tareas de oficina y enseñanza.",
     "audience": "Para personas principiantes y profesionales con experiencia que sepan navegar por archivos. La experiencia en programación resulta útil en el estudio de software, pero no es necesaria en los estudios de investigación, redacción, oficina o enseñanza.",
     "duration": "Aproximadamente 13 horas y 20 minutos, incluido un proyecto final de 90 minutos",
-    "sourceNote": "El comportamiento del producto se verificó el 23 de agosto de 2026 mediante fuentes oficiales de Cursor; las imágenes auténticas de la interfaz indican su versión documentada y su vigencia. Los repositorios de GitHub auditados ilustran flujos de trabajo profesionales; no demuestran aumentos de productividad ni garantizan resultados correctos.",
-    "figureNote": "Las 14 figuras muestran interfaces oficiales de Cursor o materiales de producto conservados localmente con fines limitados de enseñanza y comentario. Cada figura está fechada y marcada como actual, fechada o histórica. aicourse.top es independiente y no está afiliado ni respaldado por Cursor; los derechos de publicación deben revisarse antes de cualquier publicación pública o redistribución.",
+    "sourceNote": "El comportamiento del producto se verificó el 23 de agosto de 2026 mediante fuentes oficiales de Cursor. Los 14 diagramas son abstracciones originales del curso y no representan la interfaz actual; las fuentes oficiales enlazadas siguen siendo la autoridad. Los repositorios de GitHub auditados ilustran flujos de trabajo, pero no demuestran productividad ni garantizan resultados.",
+    "figureNote": "Las 14 figuras son diagramas SVG abstractos y originales del curso, no capturas ni medios de Cursor. La autoría, licencia MIT, procedencia y valores SHA-256 están registrados localmente. Los enlaces oficiales respaldan las afirmaciones, pero no se tratan como licencia de medios.",
     "startCta": "Iniciar el curso",
     "resumeCta": "Continuar aprendiendo"
   },
@@ -26,7 +26,8 @@
     "figureCurrent": "UI oficial actual",
     "figureDated": "UI oficial fechada",
     "figureHistorical": "Interfaz histórica",
-    "figureAttribution": "© Anysphere, Inc. Medios oficiales de Cursor utilizados para comentarios educativos; sin afiliación ni respaldo.",
+    "figureOriginal": "Diagrama abstracto original del curso",
+    "figureAttribution": "SVG original del curso bajo la licencia MIT del repositorio; no reproduce la UI de Cursor ni medios de terceros.",
     "optionalAdvanced": "Material avanzado opcional",
     "progress": "Progreso",
     "courseProgress": "Progreso del curso",
@@ -945,60 +946,60 @@
   },
   "figures": {
     "fig-01": {
-      "alt": "Paleta de comandos de Cursor sobre el Editor con Open Agents Window seleccionado",
-      "caption": "Abra Agents Window, la vista centrada en agentes, desde la paleta de comandos de Cursor. Esta figura aparece en la documentación actual de Agents Window; Cursor Desktop 3.17 era la versión de Desktop más reciente cuando se comprobó."
+      "alt": "Espacio de trabajo anidado abstracto con límites de ejecución y un escudo",
+      "caption": "Mapa conceptual original del curso sobre límites de trabajo, ejecución y privacidad; no es una captura de Cursor ni una reconstrucción de su interfaz."
     },
     "fig-02": {
-      "alt": "Editor de código Cursor que muestra una predicción Tab de varias líneas atenuada",
-      "caption": "Lea el cambio previsto completo antes de presionar Tab. Esta es una imagen actual del producto oficial en lugar de una captura de pantalla del sistema operativo."
+      "alt": "Cambio propuesto abstracto con rutas explícitas para aceptar o rechazar",
+      "caption": "Diagrama original del curso: revise todo el cambio propuesto antes de aceptarlo o rechazarlo."
     },
     "fig-03": {
-      "alt": "Conversación de Cursor en Agents Window junto a un archivo fuente inspeccionado",
-      "caption": "Mantenga juntos el resumen de Agent y la evidencia del repositorio para que cada afirmación siga siendo verificable."
+      "alt": "Tarjeta de afirmación abstracta vinculada a un panel de evidencia inspeccionable",
+      "caption": "Diagrama original del curso que conecta una afirmación del agente con evidencia del repositorio para poder revisarla."
     },
     "fig-04": {
-      "alt": "Compositor de prompts actual de Cursor con un comando de objetivo y el control Plan New Idea",
-      "caption": "Convierta una intención ambiciosa en un contrato de tarea acotada antes de otorgar herramientas. La imagen procede del registro de cambios de Cursor del 19 de agosto de 2026."
+      "alt": "Contrato de tarea en cuatro partes: alcance, entradas, límites y comprobaciones",
+      "caption": "Diagrama original del curso para convertir una intención en un contrato de tarea acotado antes de conceder herramientas."
     },
     "fig-05": {
-      "alt": "Cursor Plan Mode con un plan de implementación preparado y el botón Build",
-      "caption": "Revise y edite el plan antes de seleccionar Build. La interacción sigue siendo actual, pero esta interfaz de octubre de 2025 está etiquetada como histórica."
+      "alt": "Bucle reversible de plan, revisión humana, ejecución y verificación",
+      "caption": "Diagrama original del curso: revise el plan, ejecute dentro de los límites, verifique la evidencia y corrija o recupere."
     },
     "fig-06": {
-      "alt": "Cursor Editor con múltiples pestañas de agentes y diffs en paralelo",
-      "caption": "Cursor 3.0 hizo visibles las pestañas de Agent en paralelo y la revisión de diffs; cada resultado sigue necesitando una persona responsable de la integración y comprobaciones nuevas."
+      "alt": "Tarjetas de trabajo paralelo que convergen en una puerta de revisión e integración",
+      "caption": "Diagrama original del curso: los resultados paralelos aún requieren una persona integradora, revisión de diferencias, comprobaciones nuevas y recuperación."
     },
     "fig-07": {
-      "alt": "Página Team Rules de Cursor que muestra una regla focalizada para React y GraphQL",
-      "caption": "Una regla específica reúne directrices duraderas; Skills y MCP cubren límites distintos para procedimientos y herramientas."
+      "alt": "Tarea gobernada que se ramifica en reglas, habilidades y herramientas externas",
+      "caption": "Diagrama original del curso que separa reglas duraderas, habilidades de procedimiento y límites de herramientas externas."
     },
     "fig-08": {
-      "alt": "Control de seguimiento de Cursor con las opciones de ejecución Local y Cloud",
-      "caption": "Elija deliberadamente el entorno de ejecución. Esta figura de Cursor 3.7 muestra un control de transferencia de local a nube."
+      "alt": "Estación local que entrega una tarea acotada a un entorno de ejecución en la nube",
+      "caption": "Diagrama original del curso que muestra el límite de entorno y el punto de aprobación en una entrega local a nube."
     },
     "fig-09": {
-      "alt": "Configuración empresarial de MCP en Cursor con Browser Origin Allowlist y el control Add Origin",
-      "caption": "Este control opcional, gestionado por un administrador empresarial, restringe la navegación automática de Browser y la ejecución de herramientas MCP a los orígenes configurados, pero Cursor lo describe como un mecanismo best-effort. La mayoría de los estudiantes deben mantener la aprobación manual de las acciones de Browser y utilizar solo un origen local verificado."
+      "alt": "Límite abstracto del navegador con un destino permitido y otro bloqueado",
+      "caption": "Diagrama original del curso: use un origen local verificado, apruebe manualmente las acciones de Browser y no trate una lista permitida como garantía."
     },
     "fig-10": {
-      "alt": "Panel Cursor Agentic Search que localiza archivos relevantes del repositorio junto a un instructor oficial",
-      "caption": "Busque antes de formular una afirmación. Esta imagen procede de Cursor Learn y está identificada como material de una interfaz histórica."
+      "alt": "Lente de búsqueda que conecta fuentes candidatas con una afirmación acotada por evidencia",
+      "caption": "Diagrama original del curso: la búsqueda localiza candidatos y la inspección de fuentes respalda la afirmación; los resultados no son prueba por sí solos."
     },
     "fig-11": {
-      "alt": "Cursor preparó un plan con el estado actual, el enfoque, los pasos de implementación y los controles.",
-      "caption": "Este material de una interfaz histórica muestra un principio duradero: la redacción se vuelve revisable cuando la revisión de evidencia, el esquema, el borrador, el estilo y la integridad son fases distintas y planificadas."
+      "alt": "Proceso de escritura en cinco etapas desde la evidencia hasta la integridad",
+      "caption": "Diagrama original del curso que separa revisión de evidencia, esquema, borrador, revisión de estilo y controles de integridad."
     },
     "fig-12": {
-      "alt": "Compositor de prompts de Cursor con un Custom Mode fijado o un Skill seleccionado",
-      "caption": "Inspeccione y fije un Skill de flujo de trabajo antes de permitir que actúe sobre archivos de oficina o herramientas conectadas. Esta interfaz procede del registro de cambios del 19 de agosto de 2026."
+      "alt": "Documento de oficina aprobado que pasa por una puerta humana antes de herramientas conectadas",
+      "caption": "Diagrama original del curso: inspeccione el flujo y obtenga aprobación humana antes de operar sobre archivos o herramientas conectadas."
     },
     "fig-13": {
-      "alt": "Selector de repositorio Cursor que enumera proyectos locales recientes, varias carpetas y las opciones This Computer y Cloud",
-      "caption": "Abra un espacio de trabajo de enseñanza sintético y mantenga explícitas las fuentes locales frente a las de la nube. Este selector es de Cursor 3.11."
+      "alt": "Espacio de enseñanza sintético rodeado por un límite de datos claro",
+      "caption": "Diagrama original del curso: mantenga el material sintético dentro de un espacio definido y distinga fuentes locales y externas."
     },
     "fig-14": {
-      "alt": "Panel de Cursor Cloud Builds que muestra una compilación fallida, el commit activo, el ID de la instantánea, la revisión del entorno, la lista de compilaciones y enlaces de detalles y acciones",
-      "caption": "Esta captura muestra estados y revisiones, no el contenido de los registros ni de las comprobaciones; abra los detalles y revise los registros y las comprobaciones por separado antes de aceptar la entrega."
+      "alt": "Recibo final que enlaza alcance, implementación, verificación y evidencia de entrega",
+      "caption": "Diagrama original del curso: un estado no es prueba; inspeccione registros, comprobaciones y artefactos enlazados antes de aceptar la entrega."
     }
   },
   "capstone": {

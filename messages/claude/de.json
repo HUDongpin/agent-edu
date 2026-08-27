@@ -6,7 +6,7 @@
     "audience": "Für neugierige Einsteiger und erfahrene Fachkräfte. Der Kernpfad funktioniert ohne kostenpflichtige Funktionen; kostenpflichtige und von Organisationen verwaltete Werkzeuge sind klar als Erweiterungen gekennzeichnet.",
     "duration": "Etwa 12 bis 15 Stunden, einschließlich eines 120-minütigen Portfolio-Abschlussprojekts",
     "sourceNote": "Claude Academy gibt die Lernabfolge vor; das aktuelle Claude Help Centre und die Produktdokumentation liefern Betriebs- und Tarifdetails. Bei Widersprüchen hat die neuere operative Quelle Vorrang. GitHub-Beispiele sind als offizielle Nachweise oder Erfahrungsbelege aus der Praxis gekennzeichnet, niemals als Wirksamkeitsnachweis.",
-    "figureNote": "Jede Abbildung zeigt eine reale, datierte Claude-Oberfläche oder -Ausgabe mit lokalen Dateien, Quellenherkunft, Datenschutzprüfung und geprüftem Hash. Sichtbare Modellnamen und Bedienelemente sind historische Belege, keine Verfügbarkeitszusagen. Unabhängiger Bildungsleitfaden; weder mit Anthropic verbunden noch von Anthropic unterstützt.",
+    "figureNote": "Kurseigene Diagramme sind deutlich gekennzeichnet und keine Screenshots des Claude-Produkts. Die übrigen Screenshots aus lizenzierten Repositories sind datierte Belege mit festgeschriebener Herkunft. Jede lokale Mediendatei hat eine Datenschutzprüfung und einen geprüften Hash. Unabhängiger Bildungsleitfaden; weder mit Anthropic verbunden noch von Anthropic unterstützt.",
     "startCta": "Mit der Übersicht der Arbeitsumgebungen beginnen",
     "resumeCta": "Ihre Claude-Praxis fortsetzen"
   },
@@ -63,6 +63,8 @@
     "source": "Nachweisquelle",
     "sourceVerifiedOn": "Verifiziert",
     "figureObservedOn": "Beobachtet",
+    "figureCreatedOn": "Erstellt",
+    "figureProvenance": "Medienherkunft",
     "stars": "Sterne",
     "license": "Lizenz",
     "storageUnavailable": "Der Browserspeicher ist nicht verfügbar. Der Kurs bleibt nutzbar, der Fortschritt gilt jedoch nur für diese Sitzung.",
@@ -999,44 +1001,44 @@
   },
   "figures": {
     "fig-01": {
-      "alt": "Übersicht von Claude Desktop mit den eigenständigen Modi Chat, Cowork und Code",
-      "caption": "Wählen Sie den Modus nach den Grenzen der Aufgabe. Offizielle Academy-Benutzeroberfläche, abgerufen am 23. August 2026; Bedienelemente und Verfügbarkeit können sich ändern."
+      "alt": "Kurseigenes abstraktes Diagramm, keine Produktoberfläche, zum Vergleich der Arbeitsgrenzen von Chat, Cowork und Code",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Wählen Sie die Arbeitsumgebung nach Grenze, benötigten Werkzeugen und Delegationsgrad."
     },
     "fig-02": {
-      "alt": "Claude Desktop Chat mit Seitenleiste, Gespräch, Antwortsteuerung, Eingabefeld und Modellanzeige",
-      "caption": "Das Eingabefeld ist nur ein Teil des Aufgabenkontexts: Auch Gespräch, Modus, Werkzeuge und sichtbare Grenzen zählen. Die Modellbezeichnungen in dieser datierten Abbildung sind keine Orientierung für aktuelle Tarife."
+      "alt": "Kurseigenes abstraktes Diagramm, keine Produktoberfläche, das Aufgabe, Kontext, Grenzen, Nachweise und Format verbindet",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Eine brauchbare Anfrage macht Ergebnis, Kontext, Grenzen, Nachweise und Ausgabeformat prüfbar."
     },
     "fig-03": {
-      "alt": "Remix-Ansicht von Claude Artifact mit dem Gespräch links und einer interaktiven Darstellung rechts",
-      "caption": "Eine Nachsteuerung kann das vorhandene Artifact bewahren und zugleich eine beobachtbare Eigenschaft ändern. Prüfen Sie das Objekt nach jeder Überarbeitung direkt."
+      "alt": "Kurseigene abstrakte Iterationsschleife, keine Produktoberfläche, von Prüfen über Ändern zu Verifizieren",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Bewahren Sie das Arbeitsobjekt, ändern Sie eine beobachtbare Eigenschaft und prüfen Sie sie nach jeder Überarbeitung."
     },
     "fig-04": {
-      "alt": "Claude-Dialog zum begrenzten Netzwerkzugriff generierter Dateien und dem damit verbundenen Sicherheitsrisiko",
-      "caption": "Lesen Sie vor der Freigabe die genaue Fähigkeit und das Risiko. Eine Dateianforderung und eine Netzwerkberechtigung sind zwei getrennte Entscheidungen."
+      "alt": "Kurseigenes abstraktes Berechtigungstor, keine Produktoberfläche, das Fähigkeit, Folge und Freigabe trennt",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Lesen Sie Fähigkeit und Folge vor der Freigabe; Anfrage und Berechtigung sind getrennte Entscheidungen."
     },
     "fig-05": {
-      "alt": "Vorschau eines von Claude generierten Dokuments mit Download- und Google Drive-Steuerelementen",
-      "caption": "Vorschau, Download und Speichern auf einem externen Laufwerk überschreiten unterschiedliche Grenzen. Prüfen Sie vor dem Teilen die heruntergeladene Datei in ihrem nativen Format."
+      "alt": "Kurseigener abstrakter Dateiprüfablauf, keine Produktoberfläche, der Vorschau, Originaldatei, Prüfung und Teilen trennt",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Vorschau, native Datei, lokale Prüfung und externes Teilen sind verschiedene Grenzen."
     },
     "fig-06": {
       "alt": "Claude Projects mit Speicher, Anweisungen, Dateien, Eingabefeld und einzelnen Project-Chats",
       "caption": "Projects trennt dauerhaften Speicher, Anweisungen, Dateien und Chats. Praxisaufnahme von Chris Blattman, Februar 2026, unter MIT-Lizenz verwendet und als datierter UI-Beleg behandelt."
     },
     "fig-07": {
-      "alt": "Dashboard eines Claude Artifact-Projekts mit Gesprächsbereich, Live-Vorschau, Code-Umschalter und Schaltfläche „Veröffentlichen“",
-      "caption": "Testen Sie das Artifact anhand der Akzeptanzkriterien, bevor Sie die Veröffentlichung als eigene Entscheidung über Zielgruppe und Sichtbarkeit behandeln."
+      "alt": "Kurseigenes abstraktes Artifact-Tor, keine Produktoberfläche, das Akzeptanztests vor die Veröffentlichung setzt",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Testen Sie das Artifact anhand der Akzeptanzkriterien vor der getrennten Entscheidung über Zielgruppe und Sichtbarkeit."
     },
     "fig-08": {
-      "alt": "Literaturübersichts-Roadmap von Claude Academy mit Beitrag, Studiendesign, Ergebnissen, Statistiken und Notizfeld",
-      "caption": "Ungeprüftes Beispiel: Verwenden Sie diese medizinischen oder wissenschaftlichen Aussagen nicht als Beleg. Eine ausgefeilte Forschungsausgabe ist ein Prüfgegenstand, kein Beweis. Öffnen Sie jeden Originalbeitrag und kontrollieren Sie Titel, Studiendesigns, Zahlen, Zitate und die Deckung zwischen Behauptung und Quelle."
+      "alt": "Kurseigenes abstraktes Quellenaudit, keine Produktoberfläche, das einen Fund mit Originalquelle und Prüfbuch verbindet",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Gefundener Text ist ein Wegweiser, kein Beweis: Öffnen Sie die Originalquelle und prüfen Sie Titel, Design, Zahlen, Zitate und Aussagepassung."
     },
     "fig-09": {
-      "alt": "Verzeichnis von Claude Connectors mit Kategorien für Web- und Desktop-Erweiterungen, Werkzeugbeschreibungen und Steuerelementen zum Hinzufügen",
-      "caption": "Eine Verzeichnisbeschreibung benennt eine Fähigkeit, keine pauschale Befugnis. Prüfen Sie vor der Verbindung den Lese- und Schreibumfang sowie geerbte Berechtigungen."
+      "alt": "Kurseigenes abstraktes Werkzeugbereichsdiagramm, keine Produktoberfläche, zu Fähigkeit, Umfang, Datenfluss und Widerruf",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Eine Fähigkeit ist keine pauschale Befugnis; prüfen Sie Umfang, geerbte Rechte, Datenfluss und Widerruf."
     },
     "fig-10": {
-      "alt": "Startseite von Claude Cowork mit Modusauswahl, Projects, geplanten Aufgaben, Live-Artifacts, Anpassung und Aufgaben-Eingabefeld",
-      "caption": "Wählen Sie Cowork, die Projekt- oder Ordnergrenze, den Aufgabentyp und die Genehmigungen bewusst. Modell- und Beta-Bezeichnungen sind lediglich datierte Belege der Benutzeroberfläche."
+      "alt": "Kurseigener abstrakter Delegationsrahmen, keine Produktoberfläche, mit Eingaben, Arbeitsraum, Freigaben, Prüfung und Stoppbedingungen",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Begrenzen Sie delegierte Arbeit ausdrücklich durch Eingaben, Arbeitsraum, Freigaben, Prüfung und Stoppbedingungen."
     },
     "fig-11": {
       "alt": "Anthropics Claude-Code-Terminalbeispiel prüft die CLAUDE.md-Anweisungen eines Repositorys gegen den aktuellen Codebestand",
@@ -1047,16 +1049,16 @@
       "caption": "Ein echter Agentenlauf macht die Ressourcen und Ereignisse hinter der Antwort sichtbar. Offizielle Abbildung aus dem Anthropic-Cookbook, verwendet unter MIT-Lizenz; dies ist Claude Platform und nicht Chat in Claude.ai."
     },
     "fig-13": {
-      "alt": "E-Mail-Schreibassistent von Claude Artifact mit Gespräch, Entwurfssteuerung und interaktivem Schreibformular",
-      "caption": "Nutzen Sie einen Assistenten, um einen Entwurf zu strukturieren und zu prüfen; Fakten, Empfänger, Ton, Freigabe und Versand bleiben unter menschlicher Kontrolle."
+      "alt": "Kurseigenes abstraktes Schreibkontrolldiagramm, keine Produktoberfläche, das Fakten, Zielgruppe, Ton, Freigabe und Versand beim Menschen lässt",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Assistenz strukturiert und kritisiert, während Menschen die Verantwortung für Fakten, Zielgruppe, Freigabe und Versand behalten."
     },
     "fig-14": {
-      "alt": "Sprachtutor von Claude Artifact mit Lernzielen, Fortschrittsanzeigen, Chat-Bereich und Anpassungssteuerung",
-      "caption": "Ein interaktiver Tutor kann Übungen erstellen, doch Lehrkräfte prüfen weiterhin Inhalt, Ziele, Barrierefreiheit und Nachweise für das Denken der Lernenden."
+      "alt": "Kurseigene abstrakte Lernschleife, keine Produktoberfläche, die Ziele, Übung, Lernnachweis und pädagogische Prüfung verbindet",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Erzeugte Übungen bleiben an Lernziele, Barrierefreiheit, Lernnachweise und pädagogische Prüfung gebunden."
     },
     "fig-15": {
-      "alt": "Bestätigungsdialog zur Veröffentlichung eines Claude Artifact mit dem Hinweis, dass es im Web zugänglich sein wird",
-      "caption": "Halten Sie an der Veröffentlichungsgrenze inne. Prüfen Sie vor der Bestätigung das konkrete Artifact, den zugehörigen Kontext, die Zielgruppe, die Links und sensible Inhalte."
+      "alt": "Kurseigene abstrakte Veröffentlichungsgrenze, keine Produktoberfläche, zur Prüfung von Inhalt, Zielgruppe, Datenschutz, Links und Freigabe",
+      "caption": "Kurseigenes Diagramm; kein Claude-Screenshot. Prüfen Sie vor der Veröffentlichung Artifact, Kontext, Zielgruppe, Links, sensible Inhalte und Freigabe."
     }
   },
   "capstone": {

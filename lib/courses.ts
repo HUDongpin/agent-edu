@@ -9,6 +9,8 @@
  */
 
 import { isCodexQuizPassed } from "./codex/quiz";
+import { CODEX_COURSE_MANIFEST } from "./codex/manifest";
+import { LEARNING_PROGRESS_EVENT } from "./progress";
 import {
   AI_TUTOR_COURSE_MANIFEST,
   AI_TUTOR_PROGRESS_EVENT,
@@ -53,12 +55,42 @@ import { RAG_COURSE_MANIFEST } from "./rag/manifest";
 import { SOFTWARE_ENGINEERING_COURSE_MANIFEST } from "./software-engineering/manifest";
 import { isSoftwareEngineeringCapstoneSubmission } from "./software-engineering/capstone";
 import { isSoftwareEngineeringQuizPassed } from "./software-engineering/quiz";
+import {
+  RESPONSIBLE_AI_COURSE,
+  RESPONSIBLE_AI_PROGRESS_EVENT,
+  responsibleAiProgressPercent,
+} from "./responsible-ai";
+import {
+  AI_RESEARCH_COURSE,
+  AI_RESEARCH_PROGRESS_EVENT,
+  aiResearchProgressPercent,
+} from "./ai-research";
+import {
+  AI_PYTHON_DATA_COURSE,
+  AI_PYTHON_DATA_PROGRESS_EVENT,
+  aiPythonDataProgressPercent,
+} from "./ai-python-data";
+import {
+  MACHINE_LEARNING_COURSE,
+  MACHINE_LEARNING_PROGRESS_EVENT,
+  machineLearningProgressPercent,
+} from "./machine-learning";
+import {
+  DEEP_LEARNING_COURSE,
+  DEEP_LEARNING_PROGRESS_EVENT,
+  deepLearningProgressPercent,
+} from "./deep-learning";
+import {
+  PRODUCTION_AI_COURSE,
+  PRODUCTION_AI_PROGRESS_EVENT,
+  productionAiProgressPercent,
+} from "./production-ai";
 
 export type Level = "beginner" | "intermediate" | "advanced";
 export type Format = "read" | "interactive" | "code";
 export type Topic = "foundations" | "prompting" | "agents" | "evaluation" | "safety";
 export type Status = "available" | "soon";
-export type CourseId = "handbook" | "lab" | "build" | "tools" | "cost" | "hitl";
+export type CourseId = "handbook" | "lab" | "build";
 
 export interface CourseModule {
   id: string;
@@ -95,8 +127,16 @@ export interface TopLevelCourse {
     | "claude-income"
     | "ai-tutor"
     | "product-management"
-    | "agent-orchestration";
-  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+    | "agent-orchestration"
+    | "responsible-ai"
+    | "ai-research"
+    | "ai-python-data"
+    | "machine-learning"
+    | "deep-learning"
+    | "production-ai";
+  displayNumber:
+    | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+    | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21;
   href: string;
   minutes: number;
   durationMinutes: number;
@@ -112,19 +152,16 @@ export interface TopLevelCourse {
     | "seventeen-equal-milestones"
     | "eleven-equal-milestones"
     | "ten-equal-milestones"
+    | "twelve-equal-milestones"
     | "twenty-equal-milestones";
   /** Browser store supplied to the progress adapter; defaults to `ae.progress`. */
   progressStorageKey?: string;
   /** Same-tab invalidation event emitted by this course's progress store. */
-  progressEvent?: string;
+  progressEvent: string;
   progress: (p: Record<string, unknown>, sectionsSeen: number) => number;
 }
 
-export type CatalogCourseId =
-  | TopLevelCourse["id"]
-  | "ai-research"
-  | "ai-teaching"
-  | "responsible-ai";
+export type CatalogCourseId = TopLevelCourse["id"];
 
 export type CatalogTopic =
   | "ai-systems"
@@ -149,35 +186,49 @@ export type CatalogProgressAdapter = (
   sectionsSeen: number,
 ) => number;
 
-/** One top-level card in the searchable public course directory. */
-export interface CatalogCourse {
+interface CatalogCourseBase {
   id: CatalogCourseId;
-  /** Public sequence number, when the course has a released curriculum contract. */
-  displayNumber?: TopLevelCourse["displayNumber"];
-  /** Relative to the locale root. Upcoming records deliberately use `#`. */
-  href: string;
   external?: boolean;
   titleKey: string;
   blurbKey: string;
   /** Optional translated curriculum summary, for example lesson count and study time. */
   metaKey?: string;
+  /** Optional translated disclosure for a course whose body may fall back to English. */
+  contentLanguageKey?: string;
   topic: CatalogTopic;
   topicKey: string;
   level: CatalogLevel;
   levelKey: string;
   format: CatalogFormat;
   formatKey: string;
-  /** Null means the curriculum is not released enough to promise a duration. */
-  minutes: number | null;
-  status: Status;
   hue: string;
-  /** Only released courses expose a browser-progress adapter. */
-  progress?: CatalogProgressAdapter;
+}
+
+export interface AvailableCatalogCourse extends CatalogCourseBase {
+  status: "available";
+  displayNumber: TopLevelCourse["displayNumber"];
+  href: string;
+  minutes: number;
+  progress: CatalogProgressAdapter;
   /** Browser store supplied to the progress adapter; defaults to `ae.progress`. */
   progressStorageKey?: string;
   /** Same-tab invalidation event emitted by this course's progress store. */
-  progressEvent?: string;
+  progressEvent: string;
 }
+
+export interface SoonCatalogCourse extends CatalogCourseBase {
+  status: "soon";
+  href: null;
+  minutes: null;
+  /** Roadmap number may be shown, but never makes an unfinished course available. */
+  displayNumber?: TopLevelCourse["displayNumber"];
+  progress?: never;
+  progressStorageKey?: never;
+  progressEvent?: never;
+}
+
+/** One top-level card in the searchable public course directory. */
+export type CatalogCourse = AvailableCatalogCourse | SoonCatalogCourse;
 
 const clamp = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
 const MAKE_MONEY_WITH_CODEX_DURATION_MINUTES = 630;
@@ -208,21 +259,8 @@ export const COURSE_MODULES: CourseModule[] = [
   },
 ];
 
-export const UPCOMING_MODULES: CourseModule[] = [
-  {
-    id: "tools", href: "#", level: "advanced", format: "code", topic: "agents",
-    minutes: 60, status: "soon", hue: "var(--gold-mark)", progress: () => 0,
-  },
-  {
-    id: "cost", href: "#", level: "intermediate", format: "interactive",
-    topic: "evaluation", minutes: 30, status: "soon", hue: "var(--red)",
-    progress: () => 0,
-  },
-  {
-    id: "hitl", href: "#", level: "intermediate", format: "read", topic: "safety",
-    minutes: 35, status: "soon", hue: "var(--brand-2)", progress: () => 0,
-  },
-];
+/** Legacy module previews were merged into MCP, Agent Orchestration, and Course 16. */
+export const UPCOMING_MODULES: CourseModule[] = [];
 
 export const CODEX_LESSON_PROGRESS_KEYS = [
   "meet-codex",
@@ -359,6 +397,7 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     moduleIds: COURSE_MODULES.map((module) => module.id),
     outcomeKeys: ["track.1.title", "home.learn1", "track.3.title"],
     progressStrategy: "module-average",
+    progressEvent: LEARNING_PROGRESS_EVENT,
     progress: (p, seen) => clamp(
       COURSE_MODULES.reduce((sum, module) => sum + module.progress(p, seen), 0) /
       COURSE_MODULES.length,
@@ -373,7 +412,7 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     status: "available",
     hue: "var(--green)",
     level: "beginner-to-advanced",
-    moduleIds: [],
+    moduleIds: CODEX_COURSE_MANIFEST.lessons.map((lesson) => lesson.slug),
     outcomeKeys: ["c.codex.blurb", "c.codex.title"],
     progressStrategy: "fourteen-equal-milestones",
     progressEvent: "codex:progress-change",
@@ -647,6 +686,132 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     progressEvent: AGENT_ORCHESTRATION_PROGRESS_EVENT,
     progress: (p) => agentOrchestrationProgressPercent(p),
   },
+  {
+    id: "responsible-ai",
+    displayNumber: 16,
+    href: "/responsible-ai/",
+    minutes: RESPONSIBLE_AI_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: RESPONSIBLE_AI_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--red)",
+    level: "beginner-to-intermediate",
+    moduleIds: RESPONSIBLE_AI_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: ["c.responsible-ai.blurb", "c.responsible-ai.meta"],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: RESPONSIBLE_AI_PROGRESS_EVENT,
+    progress: (p) => responsibleAiProgressPercent(p),
+  },
+  {
+    id: "ai-research",
+    displayNumber: 17,
+    href: "/ai-research/",
+    minutes: AI_RESEARCH_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: AI_RESEARCH_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--gold-mark)",
+    level: "beginner-to-intermediate",
+    moduleIds: AI_RESEARCH_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: ["c.ai-research.blurb", "c.ai-research.meta"],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: AI_RESEARCH_PROGRESS_EVENT,
+    progress: (p) => aiResearchProgressPercent(p),
+  },
+  {
+    id: "ai-python-data",
+    displayNumber: 18,
+    href: "/ai-python-data/",
+    minutes: AI_PYTHON_DATA_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: AI_PYTHON_DATA_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--teal)",
+    level: "beginner-to-intermediate",
+    moduleIds: AI_PYTHON_DATA_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: ["c.ai-python-data.blurb", "c.ai-python-data.meta"],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: AI_PYTHON_DATA_PROGRESS_EVENT,
+    progress: (p) => aiPythonDataProgressPercent(p),
+  },
+  {
+    id: "machine-learning",
+    displayNumber: 19,
+    href: "/machine-learning/",
+    minutes: MACHINE_LEARNING_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: MACHINE_LEARNING_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--violet)",
+    level: "intermediate-to-advanced",
+    moduleIds: MACHINE_LEARNING_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: ["c.machine-learning.blurb", "c.machine-learning.meta"],
+    progressStrategy: "fourteen-equal-milestones",
+    progressEvent: MACHINE_LEARNING_PROGRESS_EVENT,
+    progress: (p) => machineLearningProgressPercent(p),
+  },
+  {
+    id: "deep-learning",
+    displayNumber: 20,
+    href: "/deep-learning/",
+    minutes: DEEP_LEARNING_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: DEEP_LEARNING_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--brand)",
+    level: "intermediate-to-advanced",
+    moduleIds: DEEP_LEARNING_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: ["c.deep-learning.blurb", "c.deep-learning.meta"],
+    progressStrategy: "fourteen-equal-milestones",
+    progressEvent: DEEP_LEARNING_PROGRESS_EVENT,
+    progress: (p) => deepLearningProgressPercent(p),
+  },
+  {
+    id: "production-ai",
+    displayNumber: 21,
+    href: "/production-ai/",
+    minutes: PRODUCTION_AI_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: PRODUCTION_AI_COURSE.manifest.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--sky)",
+    level: "intermediate-to-advanced",
+    moduleIds: PRODUCTION_AI_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: ["c.production-ai.blurb", "c.production-ai.meta"],
+    progressStrategy: "fourteen-equal-milestones",
+    progressEvent: PRODUCTION_AI_PROGRESS_EVENT,
+    progress: (p) => productionAiProgressPercent(p),
+  },
 ];
 
 const agenticCourse = TOP_LEVEL_COURSES.find((course) => course.id === "agentic")!;
@@ -674,6 +839,12 @@ const productManagementCourse = TOP_LEVEL_COURSES.find(
 const agentOrchestrationCourse = TOP_LEVEL_COURSES.find(
   (course) => course.id === "agent-orchestration",
 )!;
+const responsibleAiCourse = TOP_LEVEL_COURSES.find((course) => course.id === "responsible-ai")!;
+const aiResearchCourse = TOP_LEVEL_COURSES.find((course) => course.id === "ai-research")!;
+const aiPythonDataCourse = TOP_LEVEL_COURSES.find((course) => course.id === "ai-python-data")!;
+const machineLearningCourse = TOP_LEVEL_COURSES.find((course) => course.id === "machine-learning")!;
+const deepLearningCourse = TOP_LEVEL_COURSES.find((course) => course.id === "deep-learning")!;
+const productionAiCourse = TOP_LEVEL_COURSES.find((course) => course.id === "production-ai")!;
 
 /**
  * The broad AI-learning directory.
@@ -698,6 +869,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: agenticCourse.minutes,
     status: agenticCourse.status,
     hue: agenticCourse.hue,
+    progressEvent: agenticCourse.progressEvent,
     progress: agenticCourse.progress,
   },
   {
@@ -779,21 +951,6 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     progress: grokCourse.progress,
   },
   {
-    id: "ai-research",
-    href: "#",
-    titleKey: "c.aiResearch.title",
-    blurbKey: "c.aiResearch.blurb",
-    topic: "research",
-    topicKey: "topic.research",
-    level: "beginner-to-intermediate",
-    levelKey: "c.aiResearch.level",
-    format: "project-based",
-    formatKey: "cat.formatProject",
-    minutes: null,
-    status: "soon",
-    hue: "var(--gold-mark)",
-  },
-  {
     id: "github",
     displayNumber: githubCourse.displayNumber,
     href: githubCourse.href,
@@ -809,6 +966,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: githubCourse.minutes,
     status: githubCourse.status,
     hue: githubCourse.hue,
+    progressEvent: githubCourse.progressEvent,
     progress: githubCourse.progress,
   },
   {
@@ -827,6 +985,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: promptsCourse.minutes,
     status: promptsCourse.status,
     hue: promptsCourse.hue,
+    progressEvent: promptsCourse.progressEvent,
     progress: promptsCourse.progress,
   },
   {
@@ -845,6 +1004,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: softwareEngineeringCourse.minutes,
     status: softwareEngineeringCourse.status,
     hue: softwareEngineeringCourse.hue,
+    progressEvent: softwareEngineeringCourse.progressEvent,
     progress: softwareEngineeringCourse.progress,
   },
   {
@@ -863,6 +1023,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: ragCourse.minutes,
     status: ragCourse.status,
     hue: ragCourse.hue,
+    progressEvent: ragCourse.progressEvent,
     progress: ragCourse.progress,
   },
   {
@@ -881,6 +1042,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: mcpCourse.minutes,
     status: mcpCourse.status,
     hue: mcpCourse.hue,
+    progressEvent: mcpCourse.progressEvent,
     progress: mcpCourse.progress,
   },
   {
@@ -899,6 +1061,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: makeMoneyWithCodexCourse.minutes,
     status: makeMoneyWithCodexCourse.status,
     hue: makeMoneyWithCodexCourse.hue,
+    progressEvent: makeMoneyWithCodexCourse.progressEvent,
     progress: makeMoneyWithCodexCourse.progress,
   },
   {
@@ -917,6 +1080,7 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     minutes: claudeIncomeCourse.minutes,
     status: claudeIncomeCourse.status,
     hue: claudeIncomeCourse.hue,
+    progressEvent: claudeIncomeCourse.progressEvent,
     progress: claudeIncomeCourse.progress,
   },
   {
@@ -978,18 +1142,123 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
   },
   {
     id: "responsible-ai",
-    href: "#",
-    titleKey: "c.responsibleAi.title",
-    blurbKey: "c.responsibleAi.blurb",
+    displayNumber: responsibleAiCourse.displayNumber,
+    href: responsibleAiCourse.href,
+    titleKey: "c.responsible-ai.title",
+    blurbKey: "c.responsible-ai.blurb",
+    metaKey: "c.responsible-ai.meta",
+    contentLanguageKey: "c.responsible-ai.contentLanguage",
     topic: "responsible-ai",
     topicKey: "topic.responsibleAi",
-    level: "beginner-to-intermediate",
-    levelKey: "c.responsibleAi.level",
+    level: responsibleAiCourse.level,
+    levelKey: "c.responsible-ai.level",
     format: "guided",
     formatKey: "cat.formatGuided",
-    minutes: null,
-    status: "soon",
-    hue: "var(--red)",
+    minutes: responsibleAiCourse.minutes,
+    status: responsibleAiCourse.status,
+    hue: responsibleAiCourse.hue,
+    progressEvent: responsibleAiCourse.progressEvent,
+    progress: responsibleAiCourse.progress,
+  },
+  {
+    id: "ai-research",
+    displayNumber: aiResearchCourse.displayNumber,
+    href: aiResearchCourse.href,
+    titleKey: "c.ai-research.title",
+    blurbKey: "c.ai-research.blurb",
+    metaKey: "c.ai-research.meta",
+    contentLanguageKey: "c.ai-research.contentLanguage",
+    topic: "research",
+    topicKey: "topic.research",
+    level: aiResearchCourse.level,
+    levelKey: "c.ai-research.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: aiResearchCourse.minutes,
+    status: aiResearchCourse.status,
+    hue: aiResearchCourse.hue,
+    progressEvent: aiResearchCourse.progressEvent,
+    progress: aiResearchCourse.progress,
+  },
+  {
+    id: "ai-python-data",
+    displayNumber: aiPythonDataCourse.displayNumber,
+    href: aiPythonDataCourse.href,
+    titleKey: "c.ai-python-data.title",
+    blurbKey: "c.ai-python-data.blurb",
+    metaKey: "c.ai-python-data.meta",
+    contentLanguageKey: "c.ai-python-data.contentLanguage",
+    topic: "ai-systems",
+    topicKey: "topic.aiSystems",
+    level: aiPythonDataCourse.level,
+    levelKey: "c.ai-python-data.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: aiPythonDataCourse.minutes,
+    status: aiPythonDataCourse.status,
+    hue: aiPythonDataCourse.hue,
+    progressEvent: aiPythonDataCourse.progressEvent,
+    progress: aiPythonDataCourse.progress,
+  },
+  {
+    id: "machine-learning",
+    displayNumber: machineLearningCourse.displayNumber,
+    href: machineLearningCourse.href,
+    titleKey: "c.machine-learning.title",
+    blurbKey: "c.machine-learning.blurb",
+    metaKey: "c.machine-learning.meta",
+    contentLanguageKey: "c.machine-learning.contentLanguage",
+    topic: "ai-systems",
+    topicKey: "topic.aiSystems",
+    level: machineLearningCourse.level,
+    levelKey: "c.machine-learning.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: machineLearningCourse.minutes,
+    status: machineLearningCourse.status,
+    hue: machineLearningCourse.hue,
+    progressEvent: machineLearningCourse.progressEvent,
+    progress: machineLearningCourse.progress,
+  },
+  {
+    id: "deep-learning",
+    displayNumber: deepLearningCourse.displayNumber,
+    href: deepLearningCourse.href,
+    titleKey: "c.deep-learning.title",
+    blurbKey: "c.deep-learning.blurb",
+    metaKey: "c.deep-learning.meta",
+    contentLanguageKey: "c.deep-learning.contentLanguage",
+    topic: "ai-systems",
+    topicKey: "topic.aiSystems",
+    level: deepLearningCourse.level,
+    levelKey: "c.deep-learning.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: deepLearningCourse.minutes,
+    status: deepLearningCourse.status,
+    hue: deepLearningCourse.hue,
+    progressEvent: deepLearningCourse.progressEvent,
+    progress: deepLearningCourse.progress,
+  },
+  {
+    id: "production-ai",
+    displayNumber: productionAiCourse.displayNumber,
+    href: productionAiCourse.href,
+    titleKey: "c.production-ai.title",
+    blurbKey: "c.production-ai.blurb",
+    metaKey: "c.production-ai.meta",
+    contentLanguageKey: "c.production-ai.contentLanguage",
+    topic: "ai-systems",
+    topicKey: "topic.aiSystems",
+    level: productionAiCourse.level,
+    levelKey: "c.production-ai.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: productionAiCourse.minutes,
+    status: productionAiCourse.status,
+    hue: productionAiCourse.hue,
+    progressEvent: productionAiCourse.progressEvent,
+    progress: productionAiCourse.progress,
   },
 ];
 

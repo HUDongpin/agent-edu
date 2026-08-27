@@ -31,24 +31,6 @@
       },
       {
         "catalog": "site",
-        "key": "ui.optional",
-        "locales": ["de"],
-        "reason": "Optional is the same correctly spelled German UI adjective."
-      },
-      {
-        "catalog": "site",
-        "key": "cat.filterFormat",
-        "locales": ["de", "fr"],
-        "reason": "Format is the same correctly spelled noun in German and French."
-      },
-      {
-        "catalog": "site",
-        "key": "topic.evaluation",
-        "locales": ["de"],
-        "reason": "Evaluation is the same correctly spelled German technical noun."
-      },
-      {
-        "catalog": "site",
         "key": "ab.p.hwang.aff",
         "locales": ["de"],
         "reason": "The official English institution name is retained as a proper name."
@@ -82,12 +64,6 @@
         "key": "nav.menu",
         "locales": ["fr"],
         "reason": "Menu is the same correctly spelled French navigation noun."
-      },
-      {
-        "catalog": "site",
-        "key": "topic.agents",
-        "locales": ["fr"],
-        "reason": "Agents is the same correctly spelled French plural noun."
       },
       {
         "catalog": "handbook",

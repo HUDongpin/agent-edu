@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aicourse.ai-research.capstone.v1",
+  "title": "Course 17 auditable mini-review package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "courseId",
+    "courseVersion",
+    "capstoneVersion",
+    "fixture",
+    "primaryManifest",
+    "artifacts",
+    "screeningFlow",
+    "primaryEvidence",
+    "ragLocatorRejections",
+    "citationAudit",
+    "responsibleAiGate",
+    "aiDisclosure",
+    "reviewer"
+  ],
+  "properties": {
+    "schemaId": { "const": "aicourse.ai-research.capstone.v1" },
+    "courseId": { "const": "ai-research" },
+    "courseVersion": { "const": "2026.08.26-v1" },
+    "capstoneVersion": { "const": "2026.08.26-capstone-v1" },
+    "fixture": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "const": "public/courses/ai-research/mini-review-corpus-synthetic-v1.json" },
+        "sha256": { "const": "5422f89257ff800668e0c6c5db862349d1bcbd11ab932a005fa4bd42b3610ad4" }
+      }
+    },
+    "primaryManifest": {
+      "type": "object",
+      "required": ["path", "schemaId"],
+      "properties": {
+        "path": { "const": "public/courses/ai-research/lab/primary-object-manifest.json" },
+        "schemaId": { "const": "aicourse.ai-research.primary-manifest.v1" }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "required": [
+        "protocol",
+        "search-log",
+        "inclusion-exclusion-ledger",
+        "claim-evidence-matrix",
+        "extraction-sheet",
+        "analysis-reproduction-package",
+        "citation-audit",
+        "ai-disclosure-failure-log"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "protocol": { "$ref": "#/$defs/artifact" },
+        "search-log": { "$ref": "#/$defs/artifact" },
+        "inclusion-exclusion-ledger": { "$ref": "#/$defs/artifact" },
+        "claim-evidence-matrix": { "$ref": "#/$defs/artifact" },
+        "extraction-sheet": { "$ref": "#/$defs/artifact" },
+        "analysis-reproduction-package": { "$ref": "#/$defs/artifact" },
+        "citation-audit": { "$ref": "#/$defs/artifact" },
+        "ai-disclosure-failure-log": { "$ref": "#/$defs/artifact" }
+      }
+    },
+    "screeningFlow": { "type": "object" },
+    "primaryEvidence": { "type": "array", "minItems": 9, "maxItems": 9 },
+    "ragLocatorRejections": { "type": "array", "minItems": 1 },
+    "citationAudit": { "type": "array", "minItems": 3, "maxItems": 3 },
+    "responsibleAiGate": { "type": "object" },
+    "aiDisclosure": { "type": "object" },
+    "reviewer": { "type": "object" }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence", "limitations"],
+      "properties": {
+        "status": { "const": "complete" },
+        "evidence": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "limitations": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}

@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "./I18nProvider";
 import { TOP_LEVEL_COURSES } from "@/lib/courses";
-import { resetAllCourseProgress } from "./codex/progress-store";
-import { resetClaudeProgressAfterGlobalReset } from "./claude/progress-store";
-import { resetCursorProgressAfterGlobalReset } from "./cursor/progress-store";
-import { resetGrokProgress } from "./grok/progress-store";
+import { LEGACY_PROGRESS_KEY } from "@/lib/progress";
+import { resetEveryCourseProgress } from "./progress-reset";
+import { readCourseKitProgress } from "./course-kit/progress-store";
 
-const PROGRESS_KEY = "ae.progress";
+const PROGRESS_KEY = LEGACY_PROGRESS_KEY;
 const SECTIONS_KEY = "tch.seen";
 
 type CourseProgress = {
@@ -41,6 +40,11 @@ export default function Progress({ locale }: { locale: string }) {
       const cached = records.get(storageKey);
       if (cached) return cached;
       let record: Record<string, unknown> = {};
+      if (storageKey === PROGRESS_KEY) {
+        record = readCourseKitProgress();
+        records.set(storageKey, record);
+        return record;
+      }
       try {
         const stored: unknown = JSON.parse(localStorage.getItem(storageKey) || "{}");
         if (stored && typeof stored === "object" && !Array.isArray(stored)) {
@@ -81,6 +85,10 @@ export default function Progress({ locale }: { locale: string }) {
   }, [read, locale]);
 
   const active = courses?.filter((course) => course.percent > 0) ?? [];
+  const resetAllProgress = async () => {
+    await resetEveryCourseProgress();
+    setCourses(read());
+  };
 
   if (!courses) {
     return <div className="progwrap progress-empty" aria-hidden="true" />;
@@ -93,9 +101,18 @@ export default function Progress({ locale }: { locale: string }) {
           <strong>{t("home.progNoneTitle")}</strong>
           <p>{t("home.progNone")}</p>
         </div>
-        <Link className="btn primary" href={`/${locale}/courses/`}>
-          {t("home.progBrowse")}<span className="arrow" aria-hidden="true">→</span>
-        </Link>
+        <div className="progress-empty-actions">
+          <Link className="btn primary" href={`/${locale}/courses/`}>
+            {t("home.progBrowse")}<span className="arrow" aria-hidden="true">→</span>
+          </Link>
+          <button
+            className="iconbtn progress-reset"
+            type="button"
+            onClick={resetAllProgress}
+          >
+            {t("home.progReset")}
+          </button>
+        </div>
       </div>
     );
   }
@@ -137,18 +154,7 @@ export default function Progress({ locale }: { locale: string }) {
       <button
         className="iconbtn progress-reset"
         type="button"
-        onClick={async () => {
-          resetAllCourseProgress();
-          resetClaudeProgressAfterGlobalReset();
-          await resetCursorProgressAfterGlobalReset();
-          resetGrokProgress();
-          try {
-            localStorage.removeItem(SECTIONS_KEY);
-          } catch {
-            // Keep the control harmless when storage is unavailable.
-          }
-          setCourses(read());
-        }}
+        onClick={resetAllProgress}
       >
         {t("home.progReset")}
       </button>

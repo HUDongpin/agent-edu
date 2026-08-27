@@ -1,0 +1,51 @@
+{
+  "schema_version": "aicourse.fixture-provenance.v1",
+  "fixture_version": "ai-research-mini-review-corpus.v1",
+  "notice_version": "ai-research-notice.v1",
+  "created_on": "2026-08-26",
+  "created_by": "aicourse.top course authors",
+  "generation": {
+    "method": "Deterministic hand-authored fictional records created from an original teaching specification; no publication, bibliographic database export, fitted distribution, scraped value, model output, benchmark record, real identifier, or competing-course asset was used.",
+    "generator_version": "ai-research-manual-fixture-spec.v1",
+    "random_seed": "not-applicable-no-random-generator",
+    "network_required": false
+  },
+  "rights": {
+    "authorship_assertion": "The project authors created every byte of the fixture data and metadata except the names of open formats and the linked CC0 legal instrument.",
+    "third_party_inputs": [],
+    "data_dedication": "CC0-1.0",
+    "data_dedication_url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+    "course_code_and_copy": "Not covered by this data dedication; governed by the repository and source-specific terms.",
+    "publication_eligible": true
+  },
+  "resources": [
+    {
+      "path": "mini-review-corpus-synthetic-v1.json",
+      "media_type": "application/json",
+      "sha256": "5422f89257ff800668e0c6c5db862349d1bcbd11ab932a005fa4bd42b3610ad4",
+      "search_receipts": 2,
+      "records": 11,
+      "citation_audit_cases": 3
+    }
+  ],
+  "datasheet": {
+    "purpose": "A small offline corpus for protocol locking, transparent search logging, deduplication, screening, evidence hierarchy, claim-source ledgers, page/table extraction, linked correction handling, citation verification, RAG-as-locator boundaries, quantitative and qualitative boundary setting, reproducibility, uncertainty, and AI disclosure.",
+    "unit_of_observation": "One fictional bibliographic-style record with embedded fictional method, result, limitation, and locator text; local REC identifiers do not denote publications.",
+    "composition": "Eleven fictional records returned by two overlapping fictional search receipts, including one duplicate carrier, one correction, qualitative and quantitative designs, clear exclusions, and three citation-audit cases.",
+    "identifier_policy": "No DOI, PMID, ISBN, trial registration, repository handle, ORCID, journal issue, or real database accession is asserted.",
+    "result_generation": "All participant counts, means, standard deviations, intervals, quotations, page locators, screening hints, and correction values were manually selected for traceable exercises and do not arise from a population, study, publication, model, or causal process.",
+    "maintenance": "Immutable. Any byte change requires a new fixture version, new hash, and new notice/provenance version."
+  },
+  "known_artificialities": [
+    "Search interfaces, queries, hit counts, records, studies, results, pages, tables, quotations, and correction relationships are all authored fiction.",
+    "Screening hints provide a deterministic self-check and are not duplicate independent-review decisions.",
+    "The corpus deliberately contains obvious boundary cases and cannot approximate the ambiguity or coverage of a real evidence base.",
+    "The numeric examples are internally readable but have no sampling distribution, target population, external validity, or substantive meaning."
+  ],
+  "non_claims": [
+    "No record is a publication, source, citation, study registration, dataset, or evidence item and none may be cited as one.",
+    "No claim about real learners, educators, institutions, systems, interventions, outcomes, mechanisms, experiences, disparities, or effectiveness.",
+    "No claim of comprehensive retrieval, independent screening, representativeness, causal identification, statistical inference, evidence certainty, reproducibility of a real study, or fitness for policy.",
+    "No authorisation to pool the values, grade the toy corpus as real evidence, or present any authored result as factual."
+  ]
+}

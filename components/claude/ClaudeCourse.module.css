@@ -621,6 +621,17 @@
   background: var(--bg-2);
 }
 
+.figureOriginal .figureImage {
+  border-color: var(--brand);
+  background: #07111f;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%);
+}
+
+.figureOriginal figcaption {
+  border-inline-start: 3px solid var(--brand);
+  padding-inline-start: 10px;
+}
+
 .figurePending {
   aspect-ratio: 16 / 9;
   min-block-size: 240px;

@@ -1,0 +1,21 @@
+{
+  "fixture_version": "machine-learning-fixture.v1",
+  "users": ["U001", "U002", "U003", "U004", "U005", "U006"],
+  "items": ["I-A", "I-B", "I-C", "I-D", "I-E", "I-F"],
+  "events": [
+    { "user": "U001", "item": "I-A", "occurred_at": "2026-01-02T09:00:00Z", "event": "view", "exposed": true },
+    { "user": "U001", "item": "I-A", "occurred_at": "2026-01-03T09:00:00Z", "event": "complete", "exposed": true },
+    { "user": "U001", "item": "I-C", "occurred_at": "2026-01-08T09:00:00Z", "event": "view", "exposed": true },
+    { "user": "U002", "item": "I-B", "occurred_at": "2026-01-02T10:00:00Z", "event": "view", "exposed": true },
+    { "user": "U002", "item": "I-D", "occurred_at": "2026-01-09T10:00:00Z", "event": "complete", "exposed": true },
+    { "user": "U002", "item": "I-F", "occurred_at": "2026-01-12T10:00:00Z", "event": "view", "exposed": true },
+    { "user": "U003", "item": "I-A", "occurred_at": "2026-01-03T11:00:00Z", "event": "view", "exposed": true },
+    { "user": "U003", "item": "I-E", "occurred_at": "2026-01-10T11:00:00Z", "event": "complete", "exposed": true },
+    { "user": "U004", "item": "I-C", "occurred_at": "2026-01-04T12:00:00Z", "event": "complete", "exposed": true },
+    { "user": "U004", "item": "I-D", "occurred_at": "2026-01-11T12:00:00Z", "event": "view", "exposed": true },
+    { "user": "U005", "item": "I-B", "occurred_at": "2026-01-05T13:00:00Z", "event": "complete", "exposed": true },
+    { "user": "U005", "item": "I-E", "occurred_at": "2026-01-12T13:00:00Z", "event": "view", "exposed": true },
+    { "user": "U006", "item": "I-A", "occurred_at": "2026-01-06T14:00:00Z", "event": "view", "exposed": true },
+    { "user": "U006", "item": "I-F", "occurred_at": "2026-01-13T14:00:00Z", "event": "complete", "exposed": true }
+  ]
+}

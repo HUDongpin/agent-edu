@@ -18,6 +18,7 @@ import {
   isClaudeFigureAuthenticityReleaseReady,
   type ClaudeCourseCopy,
   type ClaudeFigureManifest,
+  type ClaudeFigurePermissionRequired,
   validateClaudeCopy,
   validateClaudeFigureAuthenticity,
   validateClaudeFigureAuthenticityCurrentness,
@@ -89,25 +90,74 @@ async function assertNoJavaScriptFigure(browser: Browser, path: string, figureId
   await context.close();
 }
 
-test.describe("Claude Course 3 routes, evidence, and metadata", () => {
-  test("first-party authenticity remains independent from republication rights", () => {
-    const unverified = CLAUDE_FIGURES.find((figure) => figure.id === "fig-01");
-    const authenticated = CLAUDE_FIGURES.find((figure) => figure.id === "fig-02");
-    expect(unverified?.status).toBe("available");
-    expect(authenticated?.status).toBe("available");
-    expect(unverified && validateClaudeFigureAuthenticity(unverified)).toEqual([]);
-    expect(authenticated && validateClaudeFigureAuthenticity(authenticated)).toEqual([]);
-    expect(unverified && isClaudeFigureAuthenticityReleaseReady(unverified)).toBe(false);
-    expect(authenticated && isClaudeFigureAuthenticityReleaseReady(authenticated)).toBe(true);
-    expect(unverified?.status === "available" ? unverified.rightsStatus : undefined).toBe("permission-required");
-    expect(authenticated?.status === "available" ? authenticated.rightsStatus : undefined).toBe("permission-required");
+function firstPartyScreenshotFixture(): ClaudeFigurePermissionRequired {
+  const licensed = CLAUDE_FIGURES.find((figure) => figure.id === "fig-06");
+  if (!licensed || licensed.status !== "available" || licensed.assetKind !== "interface-screenshot") {
+    throw new Error("Expected retained Figure 06 screenshot fixture.");
+  }
+  return {
+    id: "fig-01",
+    lessonSlug: "choose-your-surface",
+    surface: "desktop",
+    captureIntent: "Test the fail-closed first-party screenshot boundary.",
+    altKey: "figures.fig-01.alt",
+    captionKey: "figures.fig-01.caption",
+    privacyChecklist: licensed.privacyChecklist,
+    status: "available",
+    assetKind: "interface-screenshot",
+    src: licensed.src,
+    srcSet: licensed.srcSet,
+    width: licensed.width,
+    height: licensed.height,
+    observedOn: "2026-08-23",
+    observedUi: "Synthetic validator fixture, not a published figure record",
+    sha256: licensed.sha256,
+    privacyReviewed: true,
+    sourceUrl: "https://academy.claude.com/tutorials/navigating-the-claude-desktop-app",
+    attribution: "Validator-only first-party screenshot fixture.",
+    provenance: "first-party-tutorial",
+    rightsStatus: "permission-required",
+    authenticityReview: {
+      status: "source-provenance-reviewed",
+      reviewedOn: "2026-08-24",
+      sourceAssetUrl: "https://academy.claude.com/assets/example.png",
+      sourceSha256: licensed.sha256,
+      sourceWidth: licensed.width,
+      sourceHeight: licensed.height,
+      transformation: "Validator-only exact-byte fixture.",
+    },
+  };
+}
 
+test.describe("Claude Course 3 routes, evidence, and metadata", () => {
+  test("course-original diagrams close the Academy media debt without weakening the screenshot gate", () => {
+    const originals = CLAUDE_FIGURES.filter(
+      (figure) => figure.status === "available" && figure.assetKind === "original-diagram",
+    );
+    const licensed = CLAUDE_FIGURES.filter(
+      (figure) => figure.status === "available" && figure.assetKind === "interface-screenshot",
+    );
+    expect(originals).toHaveLength(12);
+    expect(licensed.map((figure) => figure.id)).toEqual(["fig-06", "fig-11", "fig-12"]);
+    for (const figure of originals) {
+      expect(figure).toMatchObject({
+        provenance: "course-original",
+        rightsStatus: "course-original",
+        licence: "CC0-1.0",
+        provenancePath: "/courses/claude/figure-provenance.v1.json",
+      });
+      expect(figure.src).toMatch(/-original\.svg$/);
+      expect(validateClaudeFigureRights(figure)).toEqual([]);
+      expect(validateClaudeFigureAuthenticity(figure)).toEqual([]);
+      expect(isClaudeFigureAuthenticityReleaseReady(figure)).toBe(true);
+    }
+
+    const pending = firstPartyScreenshotFixture();
+    expect(validateClaudeFigureRights(pending)).toEqual([]);
+    expect(pending.rightsStatus).toBe("permission-required");
     const futureDated = {
-      ...authenticated,
-      authenticityReview: authenticated?.status === "available"
-        && authenticated.authenticityReview.status === "source-provenance-reviewed"
-        ? { ...authenticated.authenticityReview, reviewedOn: "9999-12-31" }
-        : undefined,
+      ...pending,
+      authenticityReview: { ...pending.authenticityReview, reviewedOn: "9999-12-31" },
     } as ClaudeFigureManifest;
     expect(validateClaudeFigureAuthenticityCurrentness(futureDated, "2026-08-24")).toContain(
       "Authenticity review date cannot be in the future on the release calendar.",
@@ -181,8 +231,7 @@ test.describe("Claude Course 3 routes, evidence, and metadata", () => {
   });
 
   test("written image permission requires a complete, reviewed evidence record", () => {
-    const pendingFigure = CLAUDE_FIGURES.find((figure) => figure.id === "fig-01");
-    expect(pendingFigure?.status).toBe("available");
+    const pendingFigure = firstPartyScreenshotFixture();
 
     const permissionClearance = {
       evidenceReference: "rights-register:claude-academy:2026-001",
@@ -307,7 +356,7 @@ test.describe("Claude Course 3 routes, evidence, and metadata", () => {
   });
 
   for (const [index, slug] of CLAUDE_LESSON_SLUGS.entries()) {
-    test(`English lesson ${slug} renders a local, dated, traceable figure`, async ({ page }) => {
+    test(`English lesson ${slug} renders a local, rights-labelled, traceable figure`, async ({ page }) => {
       const response = await page.goto(`/en/claude/${slug}/`);
       expect(response?.status()).toBe(200);
       await expect(page.getByTestId(`claude-lesson-${slug}`)).toBeVisible();
@@ -315,24 +364,32 @@ test.describe("Claude Course 3 routes, evidence, and metadata", () => {
       await expect(page.locator('section[aria-labelledby="claude-practice-title"] ol > li')).toHaveCount(3);
 
       const figureId = `fig-${String(index + 1).padStart(2, "0")}`;
+      const figureManifest = CLAUDE_FIGURES[index];
       const figure = page.getByTestId(`claude-figure-${figureId}`);
       await expect(figure).toHaveCount(1);
       await expect(figure).toHaveAttribute("data-figure-status", "available");
       await expect(figure).toHaveAttribute("data-capture-sha256", /^[a-f0-9]{64}$/);
       await expect(figure).toHaveAttribute(
         "data-rights-status",
-        /^(permission-required|written-permission-reviewed|repository-licence-reviewed)$/,
+        /^(course-original|permission-required|written-permission-reviewed|repository-licence-reviewed)$/,
       );
+      await expect(figure).toHaveAttribute("data-figure-kind", figureManifest.assetKind);
       const image = figure.locator("img");
       await expect(image).toBeVisible();
-      await expect(image).toHaveAttribute("src", /^\/courses\/claude\/figures\/[^?]+\.png$/);
       expect(await image.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBeGreaterThanOrEqual(562);
-      await expect(figure.locator('source[type="image/webp"]')).toHaveAttribute(
-        "srcset",
-        /^\/courses\/claude\/figures\/[^,]+\.webp \d+w, \/courses\/claude\/figures\/[^,]+\.webp \d+w$/,
-      );
+      if (figureManifest.assetKind === "original-diagram") {
+        await expect(image).toHaveAttribute("src", /^\/courses\/claude\/figures\/[^?]+-original\.svg$/);
+        await expect(figure.locator('source[type="image/webp"]')).toHaveCount(0);
+        await expect(figure.locator('figcaption a[href="/courses/claude/figure-provenance.v1.json"]')).toHaveCount(1);
+      } else {
+        await expect(image).toHaveAttribute("src", /^\/courses\/claude\/figures\/[^?]+\.png$/);
+        await expect(figure.locator('source[type="image/webp"]')).toHaveAttribute(
+          "srcset",
+          /^\/courses\/claude\/figures\/[^,]+\.webp \d+w, \/courses\/claude\/figures\/[^,]+\.webp \d+w$/,
+        );
+        await expect(figure.locator('figcaption a[href^="https://"]')).toHaveCount(1);
+      }
       await expect(figure.locator("figcaption time")).toHaveAttribute("datetime", /^2026-/);
-      await expect(figure.locator('figcaption a[href^="https://"]')).toHaveCount(1);
       await expect(figure.locator("figcaption small > span")).toHaveCount(2);
       await expect(figure.locator("figcaption small > span").nth(1)).not.toHaveText("");
       await expect(page.locator('section[aria-labelledby="claude-sources-title"] li').first()).toBeVisible();
@@ -359,10 +416,10 @@ test.describe("Claude Course 3 routes, evidence, and metadata", () => {
     )).toBeVisible();
   });
 
-  test("labels Figure 08 medical and research claims as an unverified audit example", async ({ page }) => {
+  test("labels Figure 08 as an original locator-to-source audit diagram", async ({ page }) => {
     await page.goto("/en/claude/research-with-citations/");
     await expect(page.getByTestId("claude-figure-fig-08").locator("figcaption")).toContainText(
-      "Unverified example—do not use these medical or research claims as evidence.",
+      "Course-original diagram; not a Claude screenshot. Retrieved text is a locator, not proof",
     );
   });
 
@@ -763,7 +820,7 @@ test.describe.serial("portfolio capstone", () => {
 });
 
 test.describe("accessibility, responsive layout, and static publication surfaces", () => {
-  test("a real figure remains semantic without JavaScript", async ({ browser }) => {
+  test("a course-original figure remains semantic without JavaScript", async ({ browser }) => {
     await assertNoJavaScriptFigure(browser, "/en/claude/choose-your-surface/", "fig-01");
   });
 

@@ -134,7 +134,12 @@ All nine global locale files require natural translations with exact key parity.
 }
 ```
 
-The `--release` checker is intentionally expected to fail until 12 Academy-hosted figures move out of `permission-required` state. Do not weaken or bypass that gate in the shared integration.
+Historical integration note: the original `--release` checker was intentionally
+expected to fail while 12 Academy-hosted figures remained in
+`permission-required` state. As of the 2026-08-26 course-roadmap candidate,
+those 12 assets have been replaced by visibly labelled course-original SVG
+diagrams; three retained repository figures have licence-bound provenance.
+`npm run claude:check:release` now passes without weakening the rights gate.
 
 ## Required shared acceptance
 

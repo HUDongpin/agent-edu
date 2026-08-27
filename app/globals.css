@@ -261,6 +261,30 @@ select{width:auto;max-width:100%;flex:0 1 auto;
 .recovery404-missing{color:var(--ink-3);font-size:13px;line-height:1.35}
 .recovery404-links{display:flex;flex:0 0 auto;gap:10px}
 
+/* Local and root error boundaries share one compact recovery surface. The
+   locale variant sits inside Shell's existing <main>; only global-error adds
+   a document-level <main>, so normal pages never receive nested landmarks. */
+.errorSurface{min-height:clamp(420px,62vh,680px);display:grid;place-items:center;
+  width:min(760px,calc(100% - 32px));margin-inline:auto;padding:48px 0}
+.errorSurface-card{width:100%;padding:clamp(24px,5vw,44px);border:1px solid var(--line);
+  border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow)}
+.errorSurface h1{max-width:24ch;margin:10px 0 14px;font-size:clamp(28px,5vw,46px);
+  line-height:1.12}
+.errorSurface h1:focus{outline:2px solid var(--brand);outline-offset:6px;
+  border-radius:4px}
+.errorSurface-body{max-width:62ch;font-size:clamp(16px,2vw,18px)}
+.errorSurface-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.errorSurface-reference{margin:18px 0 0;color:var(--ink-3);font-size:13px}
+.errorSurface-reference code{direction:ltr;unicode-bidi:isolate;font-family:var(--mono)}
+.globalErrorMain{min-height:100vh;display:grid;place-items:center}
+
+@media(max-width:520px){
+  .errorSurface{width:min(100% - 24px,760px);padding:24px 0}
+  .errorSurface-card{padding:22px 18px}
+  .errorSurface-actions{display:grid}
+  .errorSurface-actions .btn{width:100%}
+}
+
 
 /* ======================= home page ======================= */
 
@@ -1586,7 +1610,7 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
 .labnav{display:flex;align-items:center;gap:12px;margin:26px 0 0;
   padding-block-start:16px;border-block-start:1px solid var(--line)}
-.labcount{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
+.labcount{font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
 .lab .steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;
   margin:24px 0 32px}
 .lab .step{min-height:112px;display:flex;flex-direction:column;gap:5px;padding:15px 16px;
@@ -1690,12 +1714,12 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .hero-promises li{display:flex;align-items:center;gap:7px;font-size:13.5px}
 .hero-promises svg{width:18px;height:18px;flex:0 0 auto;fill:none;stroke:var(--green);
   stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
-.platform-hero-art{margin:0;position:relative;border:1px solid var(--line);border-radius:26px;
+.platform-hero-art{margin:0;position:relative;min-width:0;width:100%;max-width:100%;border:1px solid var(--line);border-radius:26px;
   overflow:hidden;background:#F6F0E6;box-shadow:0 28px 60px -34px rgba(20,32,51,.34);
   transform:rotate(1.25deg)}
 .platform-hero-art::after{content:"";position:absolute;inset:0;border-radius:inherit;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.3);pointer-events:none}
-.platform-hero-art img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}
+.platform-hero-art img{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}
 
 .platform-proof{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid var(--line);
   margin-block:8px 0}
@@ -1805,6 +1829,8 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   gap:22px;background:linear-gradient(135deg,var(--card),var(--brand-soft))}
 .progress-empty strong{font-family:var(--serif);font-size:22px}
 .progress-empty p{font-size:14px;line-height:1.55;margin:5px 0 0;max-width:62ch}
+.progress-empty-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.progress-empty-actions .progress-reset{margin-block-start:0}
 .progress-course-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .progress-course{border:1px solid var(--line);border-radius:13px;padding:18px;background:var(--bg)}
 .progress-course-heading{display:flex;justify-content:space-between;align-items:baseline;gap:14px}
@@ -1877,7 +1903,8 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   .path-card{display:flex;padding:21px}
   .path-card ol{margin:19px 0;border-inline-start:0;border-block:1px solid var(--line);padding:17px 0}
   .progress-empty{align-items:flex-start;flex-direction:column;padding:21px!important}
-  .progress-empty .btn{width:100%}
+  .progress-empty-actions{width:100%;align-items:stretch;flex-direction:column}
+  .progress-empty .btn,.progress-empty-actions .progress-reset{width:100%}
   .progress-course-list{grid-template-columns:1fr}
   .faq-section .faq p{padding-inline:28px 4px}
 }

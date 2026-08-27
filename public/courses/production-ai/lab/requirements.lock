@@ -1,0 +1,3 @@
+# Course 21 canonical dual-service exercise has zero third-party runtime dependencies.
+# Exact tested reference: CPython 3.9.6, standard library only.
+# Networking is restricted to temporary HTTP listeners on 127.0.0.1; no external network is required.

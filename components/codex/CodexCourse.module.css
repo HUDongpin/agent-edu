@@ -741,35 +741,11 @@
   margin: 28px 0 0;
 }
 
-.figurePending,
 .figureImage {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--bg-2);
-}
-
-.figurePending {
-  aspect-ratio: 16 / 9;
-  min-block-size: 240px;
-  display: grid;
-  place-content: center;
-  gap: 12px;
-  padding: 28px;
-  color: var(--ink-2);
-  text-align: center;
-}
-
-.figurePending strong {
-  font-size: 15px;
-}
-
-.figureNumber {
-  color: var(--brand);
-  font-family: var(--mono);
-  font-size: 38px;
-  font-weight: 750;
-  line-height: 1;
 }
 
 .figureImage img {
@@ -804,6 +780,16 @@
   font-family: var(--mono);
   font-size: 10px;
   white-space: nowrap;
+}
+
+.figureOriginalProvenance {
+  display: inline-block;
+  max-inline-size: 360px;
+  color: var(--brand);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: end;
+  white-space: normal;
 }
 
 .figureMarkers {
@@ -1856,10 +1842,6 @@
   .finalQuiz,
   .capstoneSection {
     padding: 18px;
-  }
-
-  .figurePending {
-    min-block-size: 190px;
   }
 
   .lessonPager {

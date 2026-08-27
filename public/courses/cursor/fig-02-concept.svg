@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" data-origin="course-original">
+  <title>Course-original suggestion review and accept-or-reject diagram</title>
+  <rect width="1600" height="900" rx="48" fill="#111827"/>
+  <rect x="180" y="190" width="860" height="520" rx="40" fill="#1e293b" stroke="#475569" stroke-width="6"/>
+  <g fill="#e2e8f0"><rect x="270" y="280" width="430" height="26" rx="13"/><rect x="270" y="350" width="620" height="26" rx="13"/><rect x="270" y="420" width="360" height="26" rx="13"/></g>
+  <g fill="none" stroke="#5eead4" stroke-width="10" stroke-dasharray="18 14"><rect x="250" y="492" width="700" height="130" rx="24"/><path d="M300 535h520M300 580h410"/></g>
+  <path d="M1065 450h145" stroke="#94a3b8" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="1310" cy="360" r="92" fill="#0f766e" stroke="#5eead4" stroke-width="8"/>
+  <path d="m1265 361 30 31 64-76" fill="none" stroke="#f8fafc" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="1310" cy="575" r="92" fill="#7f1d1d" stroke="#fca5a5" stroke-width="8"/>
+  <path d="m1265 530 90 90m0-90-90 90" stroke="#f8fafc" stroke-width="22" stroke-linecap="round"/>
+</svg>

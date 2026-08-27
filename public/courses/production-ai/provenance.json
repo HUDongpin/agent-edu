@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "course-fixture-provenance.v1",
+  "courseId": "production-ai",
+  "version": "2026.08.26-v1",
+  "createdOn": "2026-08-26",
+  "authorship": "Original synthetic educational fixture authored for the Agentic Learning course repository.",
+  "method": "Two fictional service contracts, three fictional policy documents, and twelve deterministic operation events were manually authored. The offline predictive and retrieval-grounded localhost services, active data-drift and retrieval-degradation exercise, monitoring, alert, rollback, ten-artifact schema, validator, template, and destructive tests were authored for this repository. No external dataset, model, vector index, service log, customer record, credential, framework, benchmark, assignment, or generative-model output was used.",
+  "randomness": {
+    "declaredSeed": 20260826,
+    "use": "Identifier for the authored fixture contract; checked-in values and event order are authoritative and require no random generation."
+  },
+  "rights": {
+    "containsPersonalData": false,
+    "containsThirdPartyData": false,
+    "containsRealCredentials": false,
+    "containsRealServiceTelemetry": false,
+    "reuse": "May be used under the repository licence; see NOTICE.md."
+  },
+  "files": [
+    {
+      "path": "fixtures/dual-system-operations-v1.json",
+      "sha256": "b9b7ca41eee3e4eb4d5af572da8904ba7253747d312df15e8c5b0d5a8d9a0cab",
+      "role": "Fixed fictional systems, documents, operations, gold assertions, and claim boundary"
+    },
+    {
+      "path": "fixtures/dual-system-operations-v1.schema.json",
+      "sha256": "627c18674f70eea6915354fd8a444419a7ca2ee0cfd440b8f6392a0610d88028",
+      "role": "JSON Schema 2020-12 structural contract"
+    },
+    {
+      "path": "lab/README.md",
+      "sha256": "3c7b1967f008b146434b480de2f610b481c2997d538e8485f35cdbdc05bf2941",
+      "role": "Offline dual-service run, review, and claim-boundary guide"
+    },
+    {
+      "path": "lab/README.zh-Hans.md",
+      "sha256": "2e32df3fd1f3b05c959ef4cd96f4d6705591f3de0e08d9c3502e83b0ad30ebe9",
+      "role": "Simplified Chinese offline dual-service run, review, and claim-boundary guide; human language review remains pending"
+    },
+    {
+      "path": "lab/capstone.schema.json",
+      "sha256": "065be7b3e0a39fdba20c97b09748ac1df75ceb4f05f0735a4eb5f2d429445002",
+      "role": "Ten-artifact capstone structure and validator binding"
+    },
+    {
+      "path": "lab/environment.lock.json",
+      "sha256": "04cc522828bc66af417412992eb304f5f71a4903d66fc6091fea95563700ee14",
+      "role": "Exact runtime, versions, injections, and terminal-decision lock"
+    },
+    {
+      "path": "lab/requirements.lock",
+      "sha256": "9669573656b629638a1f9aff33fcb1ca06e44575dbef3988c48941b4d58698e9",
+      "role": "Zero third-party dependency and localhost boundary declaration"
+    },
+    {
+      "path": "lab/run_capstone.py",
+      "sha256": "cd63a31aba057b1db623572aa2379e58f8e6bb8f06296c931c6aee0c00172374",
+      "role": "Actual HTTP, active-degradation, alert, rollback, and evidence orchestrator"
+    },
+    {
+      "path": "lab/services.py",
+      "sha256": "c854746dbf4f283eba88d28e66834d95fd8c1e8ddace110d937801700c6f6174",
+      "role": "Local predictive and retrieval-grounded JSON services"
+    },
+    {
+      "path": "lab/submission.template.json",
+      "sha256": "597f9a92397f460765bcd98ee0af6761f597979497e61651f9d32f18ddbf1552",
+      "role": "Incomplete ten-artifact authoring template"
+    },
+    {
+      "path": "lab/test_lab.py",
+      "sha256": "06fce26dc0f08d5513402bbd8a12aa6e9aebe2080d5991ba6276926d2f8b406c",
+      "role": "Clean-run, positive, and six-mutation negative test"
+    },
+    {
+      "path": "lab/validate.py",
+      "sha256": "30111936462a892704f5bafff7c5b1ce91f444e9ac37186a85319007de1f112f",
+      "role": "Course-bound service, degradation, alert, rollback, hash, and authority validator"
+    }
+  ],
+  "verification": {
+    "algorithm": "SHA-256",
+    "command": "shasum -a 256 -c checksums.sha256",
+    "boundary": "A matching digest proves byte identity with this package version; it does not establish service reliability, security, exactly-once behavior, drift absence, cost bounds, compliance, model quality, harm repair, or deployment fitness."
+  }
+}

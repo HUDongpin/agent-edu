@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "aicourse.capstone-submission.v1",
+  "courseId": "ai-python-data",
+  "courseVersion": "2026.08.26-v1",
+  "capstoneVersion": "2026.08.26-capstone-v1",
+  "validatorId": "aicourse.ai-python-data.validator.v1",
+  "generatedOn": "YYYY-MM-DD",
+  "artifacts": [
+    { "artifactId": "environment-receipt", "content": { "pythonVersion": "", "dependencyLockSha256": "", "seed": 18019, "networkRequired": false, "inputs": [] } },
+    { "artifactId": "executable-notebook", "content": { "path": "audit.ipynb", "sha256": "", "codeCellCount": 2, "cleanRun": false, "command": "" } },
+    { "artifactId": "data-dictionary", "content": { "rowGrain": "", "primaryKey": ["record_id"], "rowCount": 0, "fields": [], "syntheticBoundary": "" } },
+    { "artifactId": "cleaning-ledger", "content": { "inputRows": 0, "outputRows": 0, "missingness": {}, "rules": [], "imputationPerformed": false, "unresolved": [] } },
+    { "artifactId": "validation-report", "content": { "validatorId": "aicourse.ai-python-data.validator.v1", "checks": [], "failures": 0, "negativeMutationTested": false } },
+    { "artifactId": "statistical-note", "content": { "sampleSize": 0, "denominator": 0, "seed": 18019, "statistics": {}, "bootstrapInterval": [], "limitations": [] } },
+    { "artifactId": "visual-report", "content": { "path": "", "sha256": "", "denominator": 0, "altText": "", "misleadingAlternativeDiagnosis": "" } },
+    { "artifactId": "provenance-manifest", "content": { "inputs": [], "outputs": [], "transformations": [], "licence": "CC0-1.0 fixture data", "nonClaims": [], "review": {} } }
+  ]
+}

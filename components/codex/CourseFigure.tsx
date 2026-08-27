@@ -7,36 +7,17 @@ type Figure = MaterializedCodexLesson["figures"][number];
 
 export default function CourseFigure({
   figure,
-  pendingLabel,
 }: {
   figure: Figure;
   pendingLabel: string;
 }) {
   const { manifest, copy } = figure;
   const captionId = `${manifest.id}-caption`;
-
-  if (manifest.status === "capture-required") {
-    return (
-      <figure
-        className={styles.courseFigure}
-        data-testid={`codex-figure-${manifest.id}`}
-        data-figure-status={manifest.status}
-      >
-        <div
-          className={styles.figurePending}
-          role="img"
-          aria-label={`${pendingLabel}: ${copy.alt}`}
-          aria-describedby={captionId}
-        >
-          <span className={styles.figureNumber} aria-hidden="true">
-            {manifest.id.replace("fig-", "")}
-          </span>
-          <strong><TechnicalText text={pendingLabel} /></strong>
-        </div>
-        <figcaption id={captionId}><TechnicalText text={copy.caption} /></figcaption>
-      </figure>
-    );
-  }
+  const isOriginalDiagram = manifest.kind === "course-original-diagram";
+  const mobileSource = "mobile" in manifest.srcSet ? manifest.srcSet.mobile : undefined;
+  const imageAlt = isOriginalDiagram
+    ? `${manifest.provenanceLabel}. ${copy.alt}`
+    : copy.alt;
 
   const callouts = (manifest.callouts ?? []).flatMap((callout, index) => {
     const label = copy.callouts?.[callout.labelKey];
@@ -48,7 +29,9 @@ export default function CourseFigure({
       className={styles.courseFigure}
       data-testid={`codex-figure-${manifest.id}`}
       data-figure-status={manifest.status}
-      data-capture-sha256={manifest.sha256}
+      data-figure-kind={manifest.kind}
+      data-capture-sha256={isOriginalDiagram ? undefined : manifest.sha256}
+      data-diagram-sha256={isOriginalDiagram ? manifest.assetSha256.png2240 : undefined}
     >
       <a
         className={styles.figureImage}
@@ -57,8 +40,8 @@ export default function CourseFigure({
         dir="ltr"
       >
         <picture>
-          {manifest.srcSet.mobile ? (
-            <source media="(max-width: 640px)" srcSet={manifest.srcSet.mobile} type="image/webp" />
+          {mobileSource ? (
+            <source media="(max-width: 640px)" srcSet={mobileSource} type="image/webp" />
           ) : null}
           <source
             type="image/webp"
@@ -67,7 +50,7 @@ export default function CourseFigure({
           />
           <Image
             src={manifest.src}
-            alt={copy.alt}
+            alt={imageAlt}
             width={manifest.width}
             height={manifest.height}
             loading={manifest.id === "fig-01" ? "eager" : "lazy"}
@@ -99,10 +82,18 @@ export default function CourseFigure({
           ) : null}
         </div>
         <small dir="ltr">
-          Codex {manifest.codexVersion} / <time dateTime={manifest.capturedOn}>{manifest.capturedOn}</time>
-          {manifest.thirdPartySourceUrl && manifest.thirdPartyLicense ? (
-            <> / <a href={manifest.thirdPartySourceUrl} target="_blank" rel="noopener noreferrer">{manifest.thirdPartyLicense}</a></>
-          ) : null}
+          {isOriginalDiagram ? (
+            <span className={styles.figureOriginalProvenance} lang="en">
+              {manifest.provenanceLabel} / {manifest.rendererVersion}
+            </span>
+          ) : (
+            <>
+              Codex {manifest.codexVersion} / <time dateTime={manifest.capturedOn}>{manifest.capturedOn}</time>
+              {manifest.thirdPartySourceUrl && manifest.thirdPartyLicense ? (
+                <> / <a href={manifest.thirdPartySourceUrl} target="_blank" rel="noopener noreferrer">{manifest.thirdPartyLicense}</a></>
+              ) : null}
+            </>
+          )}
         </small>
       </figcaption>
     </figure>

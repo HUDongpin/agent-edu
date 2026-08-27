@@ -6,7 +6,7 @@
     "audience": "For curious beginners and experienced professionals. The core path works without paid features; paid and organisation-managed tools are clearly marked as extensions.",
     "duration": "About 12 to 15 hours, including a 120-minute portfolio capstone",
     "sourceNote": "Claude Academy supplies the learning sequence; the current Claude Help Centre and product documentation supply operational and plan details. When sources disagree, the newer operational source wins. GitHub examples are labelled as official or practitioner evidence, never as proof of effectiveness.",
-    "figureNote": "Every figure is a real, dated Claude interface or output image with local files, source provenance, privacy review, and an audited hash. Visible model names and controls are historical evidence, not availability promises. Independent educational guide; not affiliated with or endorsed by Anthropic.",
+    "figureNote": "Course-original diagrams are visibly marked and are not Claude product screenshots. The remaining licensed repository screenshots are dated evidence with pinned provenance. Every local asset has a privacy review and audited hash. Independent educational guide; not affiliated with or endorsed by Anthropic.",
     "startCta": "Start with the surface map",
     "resumeCta": "Continue your Claude practice"
   },
@@ -63,6 +63,8 @@
     "source": "Evidence source",
     "sourceVerifiedOn": "Verified",
     "figureObservedOn": "Observed",
+    "figureCreatedOn": "Created",
+    "figureProvenance": "Asset provenance",
     "stars": "Stars",
     "license": "Licence",
     "storageUnavailable": "Browser storage is unavailable. The course remains usable, but progress will last only for this session.",
@@ -849,44 +851,44 @@
   },
   "figures": {
     "fig-01": {
-      "alt": "Claude Desktop overview showing the distinct Chat, Cowork, and Code modes",
-      "caption": "Choose a mode by task boundary. Official Academy interface image accessed 23 August 2026; controls and availability may change."
+      "alt": "Course-original abstract surface map, not product UI, comparing Chat, Cowork, and Code task boundaries",
+      "caption": "Course-original diagram; not a Claude screenshot. Choose a surface by the work boundary, required tools, and level of delegation."
     },
     "fig-02": {
-      "alt": "Claude Desktop Chat with sidebar, conversation, response controls, composer, and model indicator",
-      "caption": "The composer is only one part of the task context: conversation, mode, tools, and visible boundary all matter. Model labels in this dated image are not current-plan guidance."
+      "alt": "Course-original abstract outcome-contract diagram, not product UI, linking task, context, constraints, evidence, and format",
+      "caption": "Course-original diagram; not a Claude screenshot. A useful request makes the outcome, context, constraints, evidence, and output format inspectable."
     },
     "fig-03": {
-      "alt": "Claude Artifact remix view with conversation on the left and an interactive visual on the right",
-      "caption": "A follow-up can preserve the existing Artifact while changing one observable property. Verify the object directly after every revision."
+      "alt": "Course-original abstract iteration loop, not product UI, moving from inspect to change to verify",
+      "caption": "Course-original diagram; not a Claude screenshot. Preserve the working object, change one observable property, and verify it directly after every revision."
     },
     "fig-04": {
-      "alt": "Claude dialog explaining limited network access for generated files and its security risk",
-      "caption": "Read the exact capability and risk before enabling access. A file request and a network permission are two separate decisions."
+      "alt": "Course-original abstract permission gate, not product UI, separating requested capability, consequence, and approval",
+      "caption": "Course-original diagram; not a Claude screenshot. Read the exact capability and consequence before approving; a task request and a permission are separate decisions."
     },
     "fig-05": {
-      "alt": "Claude generated-document preview with Download and Google Drive controls",
-      "caption": "Preview, download, and external-drive save are different boundaries. Inspect the downloaded native file before sharing it."
+      "alt": "Course-original abstract file-verification flow, not product UI, separating preview, native file, inspection, and sharing",
+      "caption": "Course-original diagram; not a Claude screenshot. Preview, native file, local inspection, and external sharing are distinct boundaries."
     },
     "fig-06": {
       "alt": "Claude Projects interface showing memory, instructions, files, composer, and individual project chats",
       "caption": "Projects separate durable memory, instructions, files, and chats. Practitioner capture by Chris Blattman, February 2026, used under MIT and treated as dated UI evidence."
     },
     "fig-07": {
-      "alt": "Claude Artifact project dashboard with conversation pane, live preview, code toggle, and Publish button",
-      "caption": "Test the Artifact against acceptance criteria before treating Publish as a separate audience and exposure decision."
+      "alt": "Course-original abstract artifact gate, not product UI, placing acceptance tests before publication",
+      "caption": "Course-original diagram; not a Claude screenshot. Test the Artifact against acceptance criteria before making a separate audience and exposure decision."
     },
     "fig-08": {
-      "alt": "Claude Academy literature-review roadmap output listing a paper, study design, findings, statistics, and a notes field",
-      "caption": "Unverified example—do not use these medical or research claims as evidence. Polished research output is an audit target, not proof. Open each original paper and verify titles, designs, numbers, quotations, and claim fit."
+      "alt": "Course-original abstract source-audit diagram, not product UI, linking a retrieved claim to the original source and verification ledger",
+      "caption": "Course-original diagram; not a Claude screenshot. Retrieved text is a locator, not proof: open the original source and verify title, design, numbers, quotations, and claim fit."
     },
     "fig-09": {
-      "alt": "Claude Connectors directory showing web and desktop-extension categories, tool descriptions, and add controls",
-      "caption": "A directory description states capability, not blanket authorisation. Inspect read/write scope and inherited permissions before connecting."
+      "alt": "Course-original abstract tool-scope diagram, not product UI, reviewing capability, read and write scope, data movement, and revocation",
+      "caption": "Course-original diagram; not a Claude screenshot. A capability description is not blanket authorisation; inspect scope, inherited permissions, data movement, and revocation first."
     },
     "fig-10": {
-      "alt": "Claude Cowork home showing mode selection, Projects, Scheduled tasks, Live artifacts, Customize, and the task composer",
-      "caption": "Choose Cowork, the project or folder boundary, task type, and approvals deliberately. Model and beta labels are dated interface evidence only."
+      "alt": "Course-original abstract delegation envelope, not product UI, bounding inputs, workspace, approvals, verification, and stop conditions",
+      "caption": "Course-original diagram; not a Claude screenshot. Bound delegated work with explicit inputs, workspace, approvals, verification, and stop conditions."
     },
     "fig-11": {
       "alt": "Anthropic Claude Code terminal example auditing a repository's CLAUDE.md instructions against the current codebase",
@@ -897,16 +899,16 @@
       "caption": "A real agent run exposes resources and events behind the answer. Official Anthropic cookbook image used under MIT; this is Claude Platform, not Claude.ai Chat."
     },
     "fig-13": {
-      "alt": "Claude Artifact email-writing assistant with conversation, draft controls, and an interactive writing form",
-      "caption": "Use an assistant to structure and critique a draft; keep facts, recipients, tone, approval, and sending under human control."
+      "alt": "Course-original abstract writing-control diagram, not product UI, keeping facts, audience, tone, approval, and sending with the human",
+      "caption": "Course-original diagram; not a Claude screenshot. Use assistance to structure and critique a draft while people retain factual, audience, approval, and sending authority."
     },
     "fig-14": {
-      "alt": "Claude Artifact language tutor with learning goals, progress indicators, chat area, and customization control",
-      "caption": "An interactive tutor can create practice, but educators still verify content, goals, accessibility, and evidence of learner thinking."
+      "alt": "Course-original abstract learning loop, not product UI, connecting goals, supported practice, learner evidence, and educator review",
+      "caption": "Course-original diagram; not a Claude screenshot. Generated practice remains accountable to learning goals, accessibility, learner evidence, and educator review."
     },
     "fig-15": {
-      "alt": "Claude Publish artifact confirmation dialog warning that the artifact will be accessible on the web",
-      "caption": "Pause at the publication boundary. Inspect the exact Artifact, related context, audience, links, and sensitive content before confirming."
+      "alt": "Course-original abstract publication boundary, not product UI, checking content, audience, privacy, links, and approval",
+      "caption": "Course-original diagram; not a Claude screenshot. Pause before publication to inspect the exact Artifact, context, audience, links, sensitive content, and approval."
     }
   },
   "capstone": {

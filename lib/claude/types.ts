@@ -272,8 +272,39 @@ export interface ClaudeFigureCaptureRequired extends ClaudeFigureManifestBase {
 
 interface ClaudeFigureAvailableBase extends ClaudeFigureManifestBase {
   readonly status: "available";
-  /** Local PNG master and responsive WebP derivatives. */
   readonly src: string;
+  readonly width: number;
+  readonly height: number;
+  readonly sha256: string;
+  readonly privacyReviewed: true;
+  readonly attribution: string;
+}
+
+export interface ClaudeFigureCourseOriginal extends ClaudeFigureAvailableBase {
+  readonly assetKind: "original-diagram";
+  /** A deterministic, local SVG created specifically for this course. */
+  readonly srcSet?: never;
+  readonly createdOn: string;
+  readonly creationMethod: string;
+  readonly provenance: "course-original";
+  readonly rightsStatus: "course-original";
+  readonly licence: "CC0-1.0";
+  readonly provenancePath: "/courses/claude/figure-provenance.v1.json";
+  readonly observedOn?: never;
+  readonly observedUi?: never;
+  readonly sourceUrl?: never;
+  readonly authenticityReview?: never;
+  readonly permissionClearance?: never;
+  readonly thirdPartySourceUrl?: never;
+  readonly thirdPartyLicense?: never;
+  readonly sourceCommit?: never;
+  readonly sourceSha256?: never;
+  readonly modifications?: never;
+}
+
+interface ClaudeFigureRasterAvailableBase extends ClaudeFigureAvailableBase {
+  readonly assetKind: "interface-screenshot";
+  /** Local PNG master and responsive WebP derivatives. */
   readonly srcSet: {
     readonly webpLarge: string;
     readonly largeWidth: number;
@@ -285,15 +316,10 @@ interface ClaudeFigureAvailableBase extends ClaudeFigureManifestBase {
     readonly mobileWidth?: number;
     readonly mobileSha256?: string;
   };
-  readonly width: number;
-  readonly height: number;
   /** Date the source image or published interface state was observed. */
   readonly observedOn: string;
   readonly observedUi: string;
-  readonly sha256: string;
-  readonly privacyReviewed: true;
   readonly sourceUrl: string;
-  readonly attribution: string;
 }
 
 export interface ClaudeFigurePermissionClearance {
@@ -334,7 +360,7 @@ export type ClaudeFigureAuthenticityReview =
   | ClaudeFigureAuthenticityReviewed
   | ClaudeFigureAuthenticityUnverified;
 
-interface ClaudeFigureFirstPartyAvailableBase extends ClaudeFigureAvailableBase {
+interface ClaudeFigureFirstPartyAvailableBase extends ClaudeFigureRasterAvailableBase {
   readonly provenance: "first-party-tutorial" | "first-party-product-page";
   readonly authenticityReview: ClaudeFigureAuthenticityReview;
   readonly thirdPartySourceUrl?: never;
@@ -354,7 +380,7 @@ export interface ClaudeFigureWrittenPermissionReviewed extends ClaudeFigureFirst
   readonly permissionClearance: ClaudeFigurePermissionClearance;
 }
 
-export interface ClaudeFigureRepositoryLicenceReviewed extends ClaudeFigureAvailableBase {
+export interface ClaudeFigureRepositoryLicenceReviewed extends ClaudeFigureRasterAvailableBase {
   readonly provenance: "licensed-community";
   readonly rightsStatus: "repository-licence-reviewed";
   readonly authenticityReview?: never;
@@ -369,6 +395,7 @@ export interface ClaudeFigureRepositoryLicenceReviewed extends ClaudeFigureAvail
 }
 
 export type ClaudeFigureAvailable =
+  | ClaudeFigureCourseOriginal
   | ClaudeFigurePermissionRequired
   | ClaudeFigureWrittenPermissionReviewed
   | ClaudeFigureRepositoryLicenceReviewed;
@@ -477,6 +504,8 @@ export interface ClaudeCourseCopy {
     readonly source: string;
     readonly sourceVerifiedOn: string;
     readonly figureObservedOn: string;
+    readonly figureCreatedOn: string;
+    readonly figureProvenance: string;
     readonly stars: string;
     readonly license: string;
     readonly storageUnavailable: string;

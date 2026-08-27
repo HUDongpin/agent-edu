@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" data-origin="course-original">
+  <title>Course-original local and cloud execution handoff diagram</title>
+  <rect width="1600" height="900" rx="48" fill="#111827"/>
+  <rect x="150" y="230" width="480" height="430" rx="55" fill="#1e3a8a" stroke="#93c5fd" stroke-width="8"/>
+  <rect x="970" y="230" width="480" height="430" rx="55" fill="#134e4a" stroke="#5eead4" stroke-width="8"/>
+  <rect x="260" y="350" width="260" height="170" rx="25" fill="#dbeafe"/>
+  <path d="M230 560h320" stroke="#dbeafe" stroke-width="24" stroke-linecap="round"/>
+  <path d="M1080 450c0-70 55-126 125-126 57 0 105 36 121 87 70 0 124 48 124 113 0 62-52 112-116 112h-250c-63 0-114-47-114-106 0-43 27-80 66-96 10 7 21 12 34 16" fill="#ccfbf1"/>
+  <path d="M650 445h300" stroke="#f59e0b" stroke-width="22" stroke-linecap="round"/>
+  <path d="m890 390 67 55-67 55" fill="none" stroke="#f59e0b" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="800" cy="445" r="58" fill="#f59e0b"/>
+  <path d="m777 445 16 17 34-41" fill="none" stroke="#111827" stroke-width="12" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 2,
+  "snapshotKind": "working-tree-release-candidate",
+  "generatedOn": "2026-08-26",
+  "headCommit": "59bc97969ee5febb5896c7b357c844810c06d2a5",
+  "worktreeDirty": true,
+  "generator": "scripts/check-course-platform-release.mjs",
+  "localCommand": "npm run course-platform:check",
+  "releaseCommand": "npm run course-platform:check:release -- --json",
+  "localStatus": "pass",
+  "releaseStatus": "fail-closed",
+  "availableCourseCount": 21,
+  "catalogAvailableCount": 21,
+  "localGlobalGates": {
+    "inventory": "pass",
+    "progress": "pass",
+    "releaseCheckerWiring": "pass",
+    "deterministicBuild": "pass",
+    "staticExportInventory": "pass"
+  },
+  "verification": {
+    "unitTests": "347/347 pass",
+    "courseKitBrowserMatrix": "48/48 pass",
+    "codexStaticBrowserMatrix": "45/45 pass",
+    "globalStaticBrowserMatrix": "69/69 pass (59 smoke + 9 cross-browser compatibility + 1 constrained-network resilience)",
+    "formalReleaseRegressionCommands": "22/22 pass; regression-failed = 0",
+    "nextStaticPages": 2507,
+    "localizedCourseRoutes": 2502,
+    "courseKitLocalizedRoutes": 648,
+    "sitemapEntries": 1406,
+    "courseKitStaticAssets": 88,
+    "courseKitExecutableLabs": "6/6 pass",
+    "staticArtifactSha256": "b8811182724af14074ee5df81730a10ca85a4545714a11ddca79786a0e90c478",
+    "i18nArtifactManifestSha256": "199bbad1c42209a92d73d1194dc6d690d3e4e7630b9f22651500bf0ab321f460"
+  },
+  "localizationAudit": {
+    "status": "NOT_ASSESSABLE",
+    "pass": 888,
+    "fail": 150,
+    "notAssessable": 525,
+    "technicalSeoRegressions": {
+      "jsonLdLanguageMismatch": 0,
+      "canonicalMismatch": 0,
+      "hreflangMissing": 0,
+      "routeMissingFromSitemap": 0,
+      "jsonLdLanguageTargetUnresolved": 0
+    },
+    "remainingTopCategories": {
+      "suspectedEnglishLeak": 70,
+      "unapprovedIdenticalToEnglish": 60,
+      "hardcodedJsxText": 0,
+      "messageKeyWithoutCaller": 0,
+      "hardcodedSvgText": 13,
+      "hardcodedVisibleAttribute": 0,
+      "validatorFailed": 7,
+      "regressionFailed": 0,
+      "ambiguousLatinLanguageReview": 455,
+      "browserEvidenceMissing": 1
+    },
+    "evidence": "output/i18n-audit/59bc97969ee5-1daee229e91d3bf0/report.json"
+  },
+  "courses": [
+    { "displayNumber": 1, "id": "agentic", "local": "pass", "release": "pass" },
+    { "displayNumber": 2, "id": "codex", "local": "pass", "release": "blocked-human-localization-review" },
+    { "displayNumber": 3, "id": "claude", "local": "pass", "release": "pass" },
+    { "displayNumber": 4, "id": "cursor", "local": "pass", "release": "pass" },
+    { "displayNumber": 5, "id": "grok", "local": "pass", "release": "pass" },
+    { "displayNumber": 6, "id": "github", "local": "pass", "release": "pass" },
+    { "displayNumber": 7, "id": "prompts", "local": "pass", "release": "pass" },
+    { "displayNumber": 8, "id": "software-engineering", "local": "pass", "release": "pass" },
+    { "displayNumber": 9, "id": "rag", "local": "pass", "release": "pass" },
+    { "displayNumber": 10, "id": "mcp", "local": "pass", "release": "pass" },
+    { "displayNumber": 11, "id": "make-money-with-codex", "local": "pass", "release": "pass" },
+    { "displayNumber": 12, "id": "claude-income", "local": "pass", "release": "pass" },
+    { "displayNumber": 13, "id": "ai-tutor", "local": "pass", "release": "pass" },
+    { "displayNumber": 14, "id": "product-management", "local": "pass", "release": "pass" },
+    { "displayNumber": 15, "id": "agent-orchestration", "local": "pass", "release": "pass" },
+    { "displayNumber": 16, "id": "responsible-ai", "local": "pass", "release": "blocked-human-en-zh-Hans-review" },
+    { "displayNumber": 17, "id": "ai-research", "local": "pass", "release": "blocked-human-en-zh-Hans-review" },
+    { "displayNumber": 18, "id": "ai-python-data", "local": "pass", "release": "blocked-human-en-zh-Hans-review" },
+    { "displayNumber": 19, "id": "machine-learning", "local": "pass", "release": "blocked-human-en-zh-Hans-review" },
+    { "displayNumber": 20, "id": "deep-learning", "local": "pass", "release": "blocked-human-en-zh-Hans-review" },
+    { "displayNumber": 21, "id": "production-ai", "local": "pass", "release": "blocked-human-en-zh-Hans-review" }
+  ],
+  "releaseBlockers": {
+    "courseContent": [
+      "Codex es/fr/de/zh-Hans/zh-Hant/ja/ko/ar updated media-policy copy requires exact-bundle human approval.",
+      "Course 16-21 English and Simplified Chinese bundles require exact-hash human terminology, semantic-fidelity, and technical-accuracy approval."
+    ],
+    "localizationAudit": [
+      "The repository-wide localization audit remains NOT_ASSESSABLE with 150 fail-closed findings and 525 not-assessable findings.",
+      "The remaining FAIL findings are 70 suspected-English checks requiring field-level translation or terminology decisions, 60 unapproved English-identical values requiring native or terminology review, 13 exact SVG assets with unresolved media-language review, and 7 human-review validator failures; none were blanket-waived.",
+      "The 525 NOT_ASSESSABLE findings include 455 ambiguous Latin-script segments, 59 downloadable learner-copy reviews, 8 native-locale reviews, 1 browser-evidence contract, 1 raster-text review, and 1 production audit."
+    ],
+    "productionEvidence": [
+      "The 2026-08-26 09:10-09:15 +08:00 read-only edge snapshot exposes a six-card legacy catalog, while every planned Course 2-21 English entrypoint returns HTTP 404.",
+      "The production sitemap has 63 URLs and no Course 2-21 slug; see outputs/production-course-probe.2026-08-26.json.",
+      "Native reviews for eight non-English site locales remain pending.",
+      "Arabic RTL production matrix remains pending.",
+      "Provider canary, reconciliation, and credential lifecycle evidence remains pending.",
+      "Vercel CSP report-only then enforced response-header evidence remains pending.",
+      "GitHub required-check and three-consecutive-green-run evidence remains pending.",
+      "Rollback target, revert PR, and recovery validation remain pending."
+    ],
+    "freeze": [
+      "The working tree is not an exact clean commit.",
+      "The generated out directory is not bound to an approved frozen release commit."
+    ],
+    "browserEvidence": [
+      "Fresh targeted export suites pass 162/162 checks, but their success outputs do not bind snapshot ID, exact out artifact hash, command/config/spec hashes, browser version, and all 33 required dynamic-state IDs at execution time.",
+      "The exhaustive i18n browser crawler was not run: its current implementation would perform 5014 JS/no-JS route loads yet still unconditionally return NOT_ASSESSABLE for the 33 dynamic states.",
+      "npm run artifacts:check remains fail-closed because no execution-time-bound browser-evidence root exists; no post-hoc PASS record was fabricated."
+    ]
+  },
+  "productionSnapshot": {
+    "status": "not-deployed",
+    "observedAt": "2026-08-26T09:10:00+08:00/2026-08-26T09:15:00+08:00",
+    "catalogCards": 6,
+    "plannedCourseEntrypointsReturning404": 20,
+    "sitemapEntries": 63,
+    "evidence": "outputs/production-course-probe.2026-08-26.json"
+  },
+  "productionLiveClaim": false
+}

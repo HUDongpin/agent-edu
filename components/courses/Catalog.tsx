@@ -17,9 +17,11 @@ import {
   type Level,
   type Status,
 } from "@/lib/courses";
+import { LEGACY_PROGRESS_KEY } from "@/lib/progress";
+import { readCourseKitProgress } from "../course-kit/progress-store";
 
 const ALL = "__all__";
-const DEFAULT_PROGRESS_STORAGE_KEY = "ae.progress";
+const DEFAULT_PROGRESS_STORAGE_KEY = LEGACY_PROGRESS_KEY;
 const CATALOG_RESULTS_IDS = "catalog-course-results catalog-upcoming-course-results";
 
 type ProgressMap = Record<string, number>;
@@ -63,6 +65,11 @@ function useCourseProgress(): ProgressMap {
         const cached = records.get(storageKey);
         if (cached) return cached;
         let record: Record<string, unknown> = {};
+        if (storageKey === DEFAULT_PROGRESS_STORAGE_KEY) {
+          record = readCourseKitProgress();
+          records.set(storageKey, record);
+          return record;
+        }
         try {
           const stored: unknown = JSON.parse(localStorage.getItem(storageKey) || "{}");
           if (stored && typeof stored === "object" && !Array.isArray(stored)) {
@@ -167,6 +174,14 @@ function CourseCard({
   const isAiTutor = course.id === "ai-tutor";
   const isProductManagement = course.id === "product-management";
   const isAgentOrchestration = course.id === "agent-orchestration";
+  const usesReviewedCourseKitCopy = [
+    "responsible-ai",
+    "ai-research",
+    "ai-python-data",
+    "machine-learning",
+    "deep-learning",
+    "production-ai",
+  ].includes(course.id);
   const duration = course.metaKey
     ? t(course.metaKey)
     : course.minutes == null
@@ -190,10 +205,11 @@ function CourseCard({
           <span>{t(course.formatKey)}</span>
           <span aria-hidden="true">·</span>
           <span>{duration}</span>
-          {isClaudeIncome && locale !== "en" ? (
+          {(isClaudeIncome && locale !== "en")
+          || (usesReviewedCourseKitCopy && locale !== "en" && locale !== "zh-Hans") ? (
             <>
               <span aria-hidden="true">·</span>
-              <span>{t("c.claude-income.contentLanguage")}</span>
+              <span>{t(course.contentLanguageKey ?? "c.claude-income.contentLanguage")}</span>
             </>
           ) : null}
         </div>

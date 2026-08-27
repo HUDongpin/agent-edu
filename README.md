@@ -8,7 +8,26 @@
 
 <img src="public/logo-lockup.svg" alt="aicourse.top" width="252">
 
-| Available course | Modules and outcomes | Needs |
+## Course-roadmap status
+
+The course registry in this branch contains the complete local candidate for
+Courses 1–21, including the new Courses 16–21. That is not, by itself, a claim
+that the same files are release-ready or already live at `aicourse.top`:
+
+| Status | Meaning | Current roadmap state |
+|---|---|---|
+| **Locally implemented** | Versioned curriculum, routes, assessment, capstone, progress and evidence contracts exist in the repository. | **Implemented for Courses 1–21.** The deterministic build, static inventory and current local browser matrices pass; this remains a dirty working-tree candidate rather than a frozen release commit. |
+| **Release-ready** | The frozen commit passes `npm run build:release`, including static-export, browser, rights, localization and evidence gates. | **Not yet claimed.** A local `available` entry cannot waive a failing gate. |
+| **Production live** | The exact verified artifact is deployed, and every course and module URL is checked on the current production domain. | **No.** A read-only 2026-08-26 snapshot found the legacy six-card catalogue and HTTP 404 for every planned Course 2–21 English entrypoint. |
+
+The machine-readable registry is the source of truth for candidate routes; the
+[21-course roadmap and inventory](docs/course-roadmap.md) records the fixed
+curriculum, learning paths, retired placeholders and release waves. Public URLs
+below are navigation targets, not proof that the current branch has been
+deployed. The bounded production observation is recorded in
+[`outputs/production-course-probe.2026-08-26.json`](outputs/production-course-probe.2026-08-26.json).
+
+| Representative course route | Modules and outcomes | Needs |
 |---|---|---|
 | **[Agentic Engineering](https://aicourse.top/en/courses/#agentic-engineering)** | [Handbook](https://aicourse.top/en/handbook/), [Lab](https://aicourse.top/en/lab/), and [Build an Agent](course/) | nothing for the handbook; a DeepSeek key for optional live Lab calls; TypeScript for the build |
 | **[How to Use Codex](https://aicourse.top/en/codex/)** | four units, twelve lessons, a 24-question bank, final assessment, and locally verified capstone | Codex for the hands-on workflows; no third-party framework |
@@ -17,7 +36,10 @@
 | **[Retrieval-Augmented Generation](https://aicourse.top/en/rag/)** | four units, twelve lessons in nine languages, a deterministic retrieval lab, five authentic UI figures, one official Anthropic teaching diagram, a source-linked assessment, and a production evidence-packet capstone | no account, API key, vector database, or coding experience for the teaching lab |
 | **[Agent Orchestration](https://aicourse.top/en/agent-orchestration/)** | four phases, fifteen evidence-bounded modules, six deterministic control-room labs, an assessment, and a fifteen-artifact production capstone | no account or API key; software-system design experience helps with the production exercises |
 
-Published courses and the open roadmap—including AI tools, research, teaching, evaluation, and responsible AI—are listed in the [catalogue](https://aicourse.top/en/courses/). Teaching the foundations material? There is a **[90-minute lesson plan](TEACHING.md)**.
+The course directory—including AI tools, research, teaching, evaluation,
+responsible AI and the technical spine—is available at the
+[catalogue route](https://aicourse.top/en/courses/). Teaching the foundations
+material? There is a **[90-minute lesson plan](TEACHING.md)**.
 
 ---
 
@@ -86,7 +108,7 @@ and
 
 The Codex course uses one repeatable operating loop: bound the task, orient to the repository, plan from evidence, implement in testable slices, steer early, verify fresh behavior, and review the actual diff. It applies that loop across the desktop app, CLI, IDE extension, cloud environments, worktrees, subagents, Skills, scheduled tasks, and GitHub automation.
 
-The course is deliberately fail-closed about product media. Every figure record begins as `capture-required`; `npm run codex:check:release` will not pass until a genuine Codex or GitHub surface has local responsive assets, dimensions, a matching SHA-256, version and operating-system metadata, a current source, and recorded privacy review. Generated or reconstructed Codex UI is not accepted.
+The course is deliberately fail-closed about product media. Eighteen concepts use course-original abstract diagrams that are visibly and programmatically labelled as **not product UI**; six interface-dependent lessons retain genuine Codex or GitHub captures with local responsive assets, dimensions, SHA-256, version/OS metadata, current-source binding, rights review, and privacy review. `npm run codex:check:release` rerenders every original diagram in a private temporary directory and compares all output bytes, while refusing unknown rights or unaudited product captures. Original diagrams are never accepted as evidence of an actual interface state. Byte reproducibility is bounded to the declared Sharp 0.35.3, libvips 8.18.3, and font environment; environment drift fails the gate.
 
 The capstone starter lives in [`examples/codex-course-demo/`](examples/codex-course-demo/). It intentionally begins with two failing assertions for the missing keyboard-accessible **Incomplete** filter. After the learner implements the bounded fix, `npm run course:verify` inside the fixture runs tests, lint, build, route preservation, keyboard checks, and a no-new-dependencies check. It writes a receipt only when all six pass. The course browser validates that exact schema, fixture version, fixture hash, and check set, then stores only a completion boolean.
 
@@ -237,7 +259,7 @@ Pick one from the language menu, or link straight to it — each language is its
 
 **Translation release status is currently `NOT READY`.** Locale files or a language-menu entry do not prove that the corresponding pages, widgets, course contracts, media, error states, metadata, or accessibility copy are complete. The local candidate and the deployed site are audited as separate targets; neither may be described as complete until both columns in the same frozen-snapshot report are `PASS`. English product data or screenshots remain LTR only when they have a narrow, recorded exception and localized surrounding explanation.
 
-`messages/handbook/en.json` holds the 540 current strings of article prose, pulled out of the markup by `npm run handbook:extract`; each sibling locale file supplies the translated values. Substitution happens at build time, so the exported page is localized for a reader, crawler and anyone with JavaScript off. A part-finished contribution may use the English fallback during development, but the nine-language release gate rejects unexplained user-visible fallbacks.
+`messages/handbook/en.json` holds the 566 current strings of article prose, pulled out of the markup by `npm run handbook:extract`; each sibling locale file supplies the translated values. Substitution happens at build time, so the exported page is localized for a reader, crawler and anyone with JavaScript off. A part-finished contribution may use the English fallback during development, but the nine-language release gate rejects unexplained user-visible fallbacks.
 
 Keys are `hb.body.<nearest ancestor id>.<nth text node>`, and text broken by an `<em>` or a link arrives in pieces: only text is replaced, never the tags around it, which is what keeps the verified markup and its DOM queries intact. Dynamic readouts use the separate `messages/widgets/*.json` dictionaries and are subject to the same zero-unexplained-fallback release gate.
 
@@ -255,7 +277,12 @@ Reports, per-locale native-review CSVs, screenshots, accessibility snapshots and
 
 ## Contributing a section
 
-New sections are genuinely welcome — *tool design*, *cost engineering* and *human-in-the-loop design* are already named as gaps in the catalogue. Here's the whole recipe.
+New sections are genuinely welcome. Tool design, cost engineering and
+human-in-the-loop design are now assessed capabilities distributed across MCP,
+Agent Orchestration, Responsible AI and Production AI rather than duplicate
+coming-soon modules. Start with the coverage contract in
+[`lib/course-capability-coverage.ts`](lib/course-capability-coverage.ts), then
+follow this recipe.
 
 **1. Claim a colour.** Three tokens in each of the **three** theme blocks in `app/globals.css` — `:root`, the `prefers-color-scheme: dark` block, **and** `:root[data-theme="dark"]`. All three, or your section goes invisible for anyone who toggled the theme by hand. The handbook's own hues are in the second set of blocks, under the `the handbook` banner comment.
 

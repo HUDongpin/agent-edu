@@ -6,6 +6,9 @@ import { PRODUCT_MANAGEMENT_TRANSLATED_LOCALES } from "@/lib/product-management"
 import { AGENT_ORCHESTRATION_TRANSLATED_LOCALES } from "@/lib/agent-orchestration";
 import { RAG_LOCALES } from "@/lib/rag";
 import { MCP_LOCALES } from "@/lib/mcp";
+import { SOFTWARE_ENGINEERING_LOCALES } from "@/lib/software-engineering";
+import { isCourseKitPage } from "@/lib/course-kit/registry";
+import { COURSE_KIT_CONTENT_LOCALES } from "@/lib/course-kit/types";
 
 export const dynamic = "force-static";
 
@@ -36,6 +39,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ? RAG_LOCALES
       : page === "mcp/" || page.startsWith("mcp/")
       ? MCP_LOCALES
+      : page === "software-engineering/" || page.startsWith("software-engineering/")
+      ? SOFTWARE_ENGINEERING_LOCALES
+      : isCourseKitPage(page)
+      ? COURSE_KIT_CONTENT_LOCALES
       : page === "prompts/" || page.startsWith("prompts/")
       || page === "make-money-with-codex/" || page.startsWith("make-money-with-codex/")
       || page === "claude-income/" || page.startsWith("claude-income/")
@@ -45,7 +52,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return availableLocales.map((locale) => ({
       url: urlFor(locale, page),
       lastModified: new Date(
-        page === "rag/" || page.startsWith("rag/")
+        isCourseKitPage(page)
+          ? "2026-08-26"
+        : page === "rag/" || page.startsWith("rag/")
         || page === "mcp/" || page.startsWith("mcp/")
           ? "2026-08-24"
           : "2026-08-23",

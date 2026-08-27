@@ -8,6 +8,8 @@
  */
 
 export const LEARNING_KEY = "ae.learning.v2";
+/** Same-tab notification for the canonical Course 1 learning record. */
+export const LEARNING_PROGRESS_EVENT = "ae:learning-progress";
 export const LEGACY_PROGRESS_KEY = "ae.progress";
 export const LEGACY_SECTION_KEY = "tch.section";
 export const LEGACY_SEEN_KEY = "tch.seen";
@@ -526,6 +528,7 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     cachedToken = `v2\u0000${nextRaw}`;
     cachedState = next;
     notify();
+    getEvents()?.dispatchEvent(new Event(LEARNING_PROGRESS_EVENT));
     return next;
   }
 

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Evidence-led iteration loop</title>
+  <desc id="desc">An original course diagram shows a draft being inspected, compared with an example, revised by one delta, and tested again.</desc>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#315f6e"/></marker></defs>
+  <rect width="1200" height="720" rx="36" fill="#f4efe7"/><rect x="44" y="38" width="1112" height="54" rx="27" fill="#1e3440"/><text x="600" y="72" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-size="20" font-weight="700" letter-spacing="2">ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI</text>
+  <circle cx="600" cy="376" r="202" fill="#fff" stroke="#c9beb0" stroke-width="3" stroke-dasharray="10 10"/>
+  <g font-family="system-ui,sans-serif" text-anchor="middle">
+    <rect x="480" y="132" width="240" height="104" rx="22" fill="#d8ebe5" stroke="#2d7768" stroke-width="3"/><text x="600" y="180" fill="#173d37" font-size="24" font-weight="760">DRAFT</text><text x="600" y="210" fill="#31584f" font-size="16">keep the object</text>
+    <rect x="786" y="324" width="240" height="104" rx="22" fill="#dce5f5" stroke="#4f6fa7" stroke-width="3"/><text x="906" y="372" fill="#294166" font-size="24" font-weight="760">INSPECT</text><text x="906" y="402" fill="#40577b" font-size="16">compare evidence</text>
+    <rect x="480" y="516" width="240" height="104" rx="22" fill="#f8dfc3" stroke="#bd6f36" stroke-width="3"/><text x="600" y="564" fill="#633618" font-size="24" font-weight="760">TEST</text><text x="600" y="594" fill="#72482d" font-size="16">check acceptance</text>
+    <rect x="174" y="324" width="240" height="104" rx="22" fill="#eadff0" stroke="#76528a" stroke-width="3"/><text x="294" y="372" fill="#4e3260" font-size="24" font-weight="760">ONE DELTA</text><text x="294" y="402" fill="#624675" font-size="16">change one property</text>
+  </g>
+  <path d="M720 184 C842 215 891 260 904 313" fill="none" stroke="#315f6e" stroke-width="5" marker-end="url(#arrow)"/><path d="M906 428 C872 497 799 547 732 561" fill="none" stroke="#315f6e" stroke-width="5" marker-end="url(#arrow)"/><path d="M480 568 C401 550 328 497 298 440" fill="none" stroke="#315f6e" stroke-width="5" marker-end="url(#arrow)"/><path d="M294 324 C316 260 389 207 468 187" fill="none" stroke="#315f6e" stroke-width="5" marker-end="url(#arrow)"/>
+  <text x="600" y="368" text-anchor="middle" fill="#1e3440" font-family="system-ui,sans-serif" font-size="28" font-weight="780">PRESERVE</text><text x="600" y="402" text-anchor="middle" fill="#526872" font-family="system-ui,sans-serif" font-size="17">what already works</text>
+</svg>

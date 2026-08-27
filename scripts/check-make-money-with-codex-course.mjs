@@ -19,6 +19,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
+import { inspectReleaseGateWiring } from "./release-gate-wiring.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RELEASE = process.argv.includes("--release");
@@ -991,10 +992,12 @@ try {
   fail(`package.json: cannot parse scripts (${error.message})`);
 }
 for (const scriptName of ["build", "build:release"]) {
-  const buildCommand = packageScripts[scriptName] ?? "";
-  const courseGateIndex = buildCommand.indexOf("npm run make-money-with-codex:check:release");
-  const nextBuildIndex = buildCommand.indexOf("next build");
-  if (courseGateIndex < 0 || nextBuildIndex < 0 || courseGateIndex > nextBuildIndex) {
+  const wiring = inspectReleaseGateWiring(
+    packageScripts,
+    scriptName,
+    "make-money-with-codex:check:release",
+  );
+  if (!wiring.releaseBeforeBuild) {
     fail(`package.json: ${scriptName} must run the strict Course 11 gate before next build, while permitting other release gates between them`);
   }
 }

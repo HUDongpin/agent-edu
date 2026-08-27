@@ -84,23 +84,23 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
           <li>
             <h3>{t("build.cloneTitle")}</h3>
             <p>{t("build.cloneBody")}</p>
-            <pre dir="ltr"><code>{`git clone https://github.com/HUDongpin/agent-edu.git\ncd agent-edu\nnpm ci`}</code></pre>
+            <pre dir="ltr"><code lang="en" dir="ltr">{`git clone https://github.com/HUDongpin/agent-edu.git\ncd agent-edu\nnpm ci`}</code></pre>
           </li>
           <li>
             <h3>{t("build.editTitle")}</h3>
             <p>{t("build.editBody")}</p>
-            <pre dir="ltr"><code>{`export const QUESTION = "What should I notice about an API?";`}</code></pre>
+            <pre dir="ltr"><code lang="en" dir="ltr">{`export const QUESTION = "What should I notice about an API?";`}</code></pre>
           </li>
           <li>
             <h3>{t("build.offlineTitle")}</h3>
             <p>{t("build.offlineBody")}</p>
-            <pre dir="ltr"><code>{`npm run course:offline\nnpx tsx course/stage0-hello/run.ts --offline\nnpx tsx course/check.ts 0 --offline`}</code></pre>
+            <pre dir="ltr"><code lang="en" dir="ltr">{`npm run course:offline\nnpx tsx course/stage0-hello/run.ts --offline\nnpx tsx course/check.ts 0 --offline`}</code></pre>
           </li>
         </ol>
         <div className="card">
           <div className="card-b">
             <h3>{t("build.successTitle")}</h3>
-            <pre dir="ltr"><code>{`PASS  you asked the model something\nPASS  an answer came back\n\n  stage 0 complete.`}</code></pre>
+            <pre dir="ltr"><code lang="en" dir="ltr">{`PASS  you asked the model something\nPASS  an answer came back\n\n  stage 0 complete.`}</code></pre>
           </div>
         </div>
       </section>
@@ -111,17 +111,17 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
           <article className="card"><div className="card-b">
             <h3>{t("build.providerOffline")}</h3>
             <p>{t("build.providerOfflineBody")}</p>
-            <pre dir="ltr"><code>--offline</code></pre>
+            <pre dir="ltr"><code lang="en" dir="ltr">--offline</code></pre>
           </div></article>
           <article className="card"><div className="card-b">
             <h3>DeepSeek</h3>
             <p>{t("build.providerDeepSeekBody")}</p>
-            <pre dir="ltr"><code>export DEEPSEEK_API_KEY=your_key_here</code></pre>
+            <pre dir="ltr"><code lang="en" dir="ltr">export DEEPSEEK_API_KEY=your_key_here</code></pre>
           </div></article>
           <article className="card"><div className="card-b">
             <h3>Claude</h3>
             <p>{t("build.providerClaudeBody")}</p>
-            <pre dir="ltr"><code>{`export ANTHROPIC_API_KEY=your_key_here\nexport CAFE_PROVIDER=anthropic`}</code></pre>
+            <pre dir="ltr"><code lang="en" dir="ltr">{`export ANTHROPIC_API_KEY=your_key_here\nexport CAFE_PROVIDER=anthropic`}</code></pre>
           </div></article>
           <article className="card"><div className="card-b">
             <h3>{t("build.costTitle")}</h3>
@@ -133,7 +133,7 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
       <section className="sect">
         <h2>{t("build.progressTitle")}</h2>
         <p>{t("build.progressBody")}</p>
-        <pre dir="ltr"><code>{`npx tsx course/report.ts\n# reads course/progress.json in this clone`}</code></pre>
+        <pre dir="ltr"><code lang="en" dir="ltr">{`npx tsx course/report.ts\n# reads course/progress.json in this clone`}</code></pre>
       </section>
 
       <section className="sect">

@@ -5,6 +5,7 @@ import JsonLd from "@/components/JsonLd";
 import {
   SOFTWARE_ENGINEERING_COVERAGE,
   SOFTWARE_ENGINEERING_LESSON_SLUGS,
+  SOFTWARE_ENGINEERING_LOCALES,
   SOFTWARE_ENGINEERING_OVERVIEW,
   getSoftwareEngineeringLesson,
   isSoftwareEngineeringLessonSlug,
@@ -41,6 +42,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return seoFor({
     locale,
+    availableLocales: SOFTWARE_ENGINEERING_LOCALES,
+    canonicalLocale: locale,
     page: softwareEngineeringLessonPage(lesson),
     title: `${currentLesson.title} · ${course.copy.meta.title}`,
     description: currentLesson.summary,

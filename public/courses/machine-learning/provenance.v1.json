@@ -1,0 +1,127 @@
+{
+  "schema_version": "aicourse.fixture-provenance.v1",
+  "fixture_version": "machine-learning-fixture.v1",
+  "notice_version": "machine-learning-notice.v2",
+  "created_on": "2026-08-26",
+  "created_by": "aicourse.top course authors",
+  "generation": {
+    "method": "Deterministic hand-authored fictional records created from an original teaching specification; no external data, fitted distribution, scraped values, model output, benchmark rows, or real identifiers were used.",
+    "generator_version": "machine-learning-manual-fixture-spec.v1",
+    "random_seed": "not-applicable-no-random-generator",
+    "network_required": false
+  },
+  "rights": {
+    "authorship_assertion": "The project authors created every byte of the fixture data, metadata, and offline CPU lab payload except the names of open formats, Python, logistic regression, and the linked CC0 legal instrument.",
+    "third_party_inputs": [],
+    "data_dedication": "CC0-1.0",
+    "data_dedication_url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+    "course_code_and_copy": "Not covered by this data dedication; governed by the repository and source-specific terms.",
+    "publication_eligible": true
+  },
+  "resources": [
+    {
+      "path": "student-support-synthetic-v1.csv",
+      "media_type": "text/csv",
+      "sha256": "104c0a1892fcc4c69676043f1dee95c2c825515f8f4a5e61098f2b0df1d1ade9",
+      "rows_excluding_header": 30,
+      "fixed_partitions": { "train": 20, "validation": 5, "holdout": 5 }
+    },
+    {
+      "path": "recommendation-events-synthetic-v1.json",
+      "media_type": "application/json",
+      "sha256": "3935908841ea3a110f57bfcea61aa7f27558287f75f21bbce1144772607845fd",
+      "users": 6,
+      "items": 6,
+      "events": 14
+    },
+    {
+      "path": "student-support-schema-v1.json",
+      "media_type": "application/json",
+      "sha256": "ec3818aaa9ef790451921c523a9798a1ccd0c94e03288ef2beb1efb45f7bd6c8",
+      "fields": 10
+    },
+    {
+      "path": "lab/README.md",
+      "media_type": "text/markdown",
+      "sha256": "6fc7df5a87685ae171325044470ad1c647d2a4ab9c9c2dac92d11b8393b8ab06",
+      "role": "offline run, negative-test, and no-deploy instructions"
+    },
+    {
+      "path": "lab/README.zh-Hans.md",
+      "media_type": "text/markdown; charset=utf-8",
+      "sha256": "dc2d19d3b6f96c5bd053f388ec899fabf8b1d5fa65f23ec8c06d94e56cb5c1da",
+      "role": "Simplified Chinese offline run, negative-test, and no-deploy instructions; human language review remains pending"
+    },
+    {
+      "path": "lab/capstone.schema.json",
+      "media_type": "application/schema+json",
+      "sha256": "1c11a1e6af4bce72eb550418bc325d359279e360dd8623a42c58e9d1c1dd4525",
+      "role": "course, version, validator, and artifact-ID contract"
+    },
+    {
+      "path": "lab/environment.lock.json",
+      "media_type": "application/json",
+      "sha256": "4a80b536b604cc87ab9d709f0a7ab133152424fddeb0f87978cec551fbd45f37",
+      "role": "stdlib CPU runtime and deterministic optimizer lock"
+    },
+    {
+      "path": "lab/requirements.lock",
+      "media_type": "text/plain",
+      "sha256": "307918c750d6f56e54682b3ece77018f69a8bd0d156131cac4dc840132509783",
+      "role": "zero-third-party-runtime dependency declaration"
+    },
+    {
+      "path": "lab/run_pipeline.py",
+      "media_type": "text/x-python",
+      "sha256": "dee2df2f25454b1c4d07e13fd0af12074217adb60aadc76c9d8125754958dc47",
+      "role": "offline split, baseline, logistic, calibration, and subgroup pipeline"
+    },
+    {
+      "path": "lab/submission.template.json",
+      "media_type": "application/json",
+      "sha256": "0d6bc0f6ece094be615e9518abeeeb75a654c345a854481cc59e244d5906a54d",
+      "role": "schema-specific eight-artifact starter template"
+    },
+    {
+      "path": "lab/validate.py",
+      "media_type": "text/x-python",
+      "sha256": "1e8b741c1e5cf40c58a3130db64265f26af5764af5e0a643c49679c57b15b320",
+      "role": "independent fixture, metric, file, and no-deploy validator"
+    }
+  ],
+  "lab_pack": {
+    "version": "machine-learning-lab.v1",
+    "validator_id": "aicourse.machine-learning.validator.v1",
+    "authorship": "Original course code, schemas, templates, and documentation; no external course artifacts or trained models copied.",
+    "runtime": "CPython standard library only on a single CPU process.",
+    "network_required": false,
+    "personal_data": false,
+    "publication_eligible": true
+  },
+  "datasheet": {
+    "purpose": "A small offline fixture for teaching split integrity, baselines, supervised models, feature pipelines, regularization, ensembles, metric contracts, calibration, clustering, anomaly review, recommendation, and model-card assurance.",
+    "unit_of_observation": "For the CSV, one fictional learner code with fictional pre-prediction features and a fictional next-period label. For the JSON, one fictional interaction event after fictional exposure.",
+    "composition": "Thirty CSV rows with frozen train, validation, and holdout partitions; fourteen JSON events across six fictional users and six fictional items.",
+    "sensitive_attributes": "None. Cohort names are arbitrary color words and must not be interpreted as demographic, protected, institutional, geographic, or socioeconomic groups.",
+    "label_generation": "Values and labels were manually selected for inspectable exercises and do not arise from a population, intervention, causal mechanism, or measured construct.",
+    "maintenance": "Immutable. Any byte change requires a new fixture version, new hashes, and a new notice/provenance version."
+  },
+  "known_artificialities": [
+    "The CSV is tiny, uses clean numeric ranges, and contains patterns chosen for hand-checking rather than realistic predictive difficulty.",
+    "The fixed partition is pedagogical evidence isolation, not a statistically justified sample from a target population.",
+    "The cohort field is fictional; subgroup calculations demonstrate mechanics and cannot support fairness conclusions.",
+    "The interaction log records only selected fictional exposures and cannot identify unobserved preference, causal response, online utility, or feedback-loop magnitude.",
+    "No label, score, cluster, anomaly, recommendation, or model card in this course can be connected to a real person."
+  ],
+  "prohibited_feature_use": [
+    "record_id",
+    "learner_code",
+    "partition"
+  ],
+  "non_claims": [
+    "No claim about real learners, institutions, educational programs, interventions, outcomes, disparities, preferences, or effectiveness.",
+    "No claim of representativeness, causal identification, valid feature availability in a real workflow, calibrated population risk, fairness, privacy compliance, legal authorization, security, or production readiness.",
+    "No authorization for prediction, ranking, triage, support allocation, anomaly accusation, profiling, personalization, automated decision-making, or deployment involving real people.",
+    "No claim that a complete model card or passing technical checks constitutes independent assurance or release approval."
+  ]
+}

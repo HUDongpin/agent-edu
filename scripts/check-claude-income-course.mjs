@@ -12,6 +12,7 @@ import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inspectReleaseGateWiring } from "./release-gate-wiring.mjs";
 
 import {
   CLAUDE_INCOME_CAPSTONE,
@@ -360,9 +361,12 @@ function checkRepositoryIntegrationBoundary() {
 
   const packageJson = readJson(resolve(ROOT, "package.json"));
   for (const scriptName of ["build", "build:release"]) {
-    const script = packageJson?.scripts?.[scriptName];
-    const gate = "npm run claude-income:check:release";
-    if (typeof script !== "string" || !script.includes(gate) || script.indexOf(gate) > script.indexOf("next build")) {
+    const wiring = inspectReleaseGateWiring(
+      packageJson?.scripts,
+      scriptName,
+      "claude-income:check:release",
+    );
+    if (!wiring.releaseBeforeBuild) {
       fail(`package.json ${scriptName} must run the Course 12 release gate before next build`);
     }
   }

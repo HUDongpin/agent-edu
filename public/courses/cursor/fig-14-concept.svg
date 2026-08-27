@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" data-origin="course-original">
+  <title>Course-original capstone evidence and handoff graph</title>
+  <rect width="1600" height="900" rx="48" fill="#111827"/>
+  <path d="M330 290 800 455 1270 290M330 610 800 455 1270 610M330 290v320M1270 290v320" fill="none" stroke="#475569" stroke-width="16"/>
+  <g stroke-width="8"><circle cx="330" cy="290" r="105" fill="#1d4ed8" stroke="#93c5fd"/><circle cx="1270" cy="290" r="105" fill="#6d28d9" stroke="#c4b5fd"/><circle cx="330" cy="610" r="105" fill="#b45309" stroke="#fcd34d"/><circle cx="1270" cy="610" r="105" fill="#9f1239" stroke="#fda4af"/></g>
+  <rect x="635" y="290" width="330" height="330" rx="65" fill="#134e4a" stroke="#5eead4" stroke-width="9"/>
+  <path d="M715 385h170M715 455h130M715 525h160" stroke="#f0fdfa" stroke-width="23" stroke-linecap="round"/>
+  <g fill="#f8fafc"><circle cx="330" cy="290" r="26"/><circle cx="1270" cy="290" r="26"/><circle cx="330" cy="610" r="26"/><circle cx="1270" cy="610" r="26"/></g>
+  <circle cx="800" cy="455" r="52" fill="#f59e0b"/>
+  <path d="m778 455 16 17 34-41" fill="none" stroke="#111827" stroke-width="12" stroke-linecap="round"/>
+</svg>

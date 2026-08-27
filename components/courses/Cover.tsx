@@ -561,7 +561,7 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
       </>
     ),
     // A lesson board turns a prompt into guided practice and visible feedback.
-    "ai-teaching": (
+    "ai-tutor": (
       <>
         <rect width="190" height="140" fill="var(--course-cover-bg)" />
         <path d="M0 118 C28 109 40 118 63 140" fill="none" stroke="var(--course-cover-accent)"
@@ -708,18 +708,31 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
     "software-engineering": styles.engineering,
     cursor: styles.cursor,
     "ai-research": styles.research,
-    "ai-teaching": styles.teaching,
+    "ai-tutor": styles.teaching,
+    "ai-python-data": styles.engineering,
+    "machine-learning": styles.teaching,
+    "deep-learning": styles.engineering,
+    "production-ai": styles.engineering,
     "product-management": styles.claudeIncome,
     "agent-orchestration": styles.engineering,
     "responsible-ai": styles.responsible,
   };
-  const motifId = id === "rag" ? "ai-research" : id === "ai-tutor" ? "ai-teaching" : id;
+  const motifId = id === "rag" ? "ai-research" : id;
+  const artworkId = id === "ai-python-data"
+    ? "software-engineering"
+    : id === "machine-learning"
+      ? "ai-tutor"
+      : id === "deep-learning"
+        ? "agent-orchestration"
+      : id === "production-ai"
+          ? "mcp"
+          : motifId;
   const variantClass = variantClasses[motifId] ?? styles.legacy;
   const artwork = id === "grok"
     ? motif.agentic
     : id === "product-management"
       ? motif.claude
-      : motif[motifId] ?? motif.handbook;
+      : motif[artworkId] ?? motif.handbook;
 
   return (
     <div

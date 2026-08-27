@@ -1,10 +1,24 @@
-# Claude interface figures: publication-rights clearance packet
+# Claude course figures: publication-rights resolution and historical audit
 
-Prepared: 2026-08-24  
-Course: **How to Use Claude**, Course 3 on aicourse.top  
-Current state: internal development review only; release gate remains closed
+Prepared: 2026-08-24
+Course: **How to Use Claude**, Course 3 on aicourse.top
+Resolved: 2026-08-26
+Current state: twelve Academy-derived figure sets retired; twelve course-original diagrams substituted; three repository-licensed screenshots retained
 
-This is an operational clearance packet, not legal advice. The source ledger found no general image-redistribution grant on the Claude Academy pages used below. The course therefore records these figures as `permission-required` and fails its release check until a defensible publication basis is documented.
+This is an operational rights record, not legal advice. The source ledger found no general image-redistribution grant on the Claude Academy pages used below. No permission was presumed or manufactured. Instead, Figures 01–05, 07–10, and 13–15 now use course-original abstract SVG diagrams that contain no copied product-interface pixels and are visibly labelled as not product UI. Figures 06, 11, and 12 retain their reviewed repository licences and pinned source records.
+
+The authoritative current asset ledger is `public/courses/claude/figure-provenance.v1.json`; exact served-asset digests are in `public/courses/claude/figure-hashes.sha256`. The former Academy-derived PNG and WebP files are retired and removed from the public tree. Their historic analysis remains below so that the project does not silently rewrite unknown rights as cleared.
+
+## Current disposition
+
+| Figures | Current media | Rights state | Release treatment |
+|---|---|---|---|
+| 01–05, 07–10, 13–15 | Course-original abstract SVG diagrams | `course-original`, CC0-1.0; no Academy pixels or third-party visual assets | Release-eligible after SVG, hash, provenance, privacy, copy, and renderer checks pass |
+| 06 | Chris Blattman Projects screenshot | MIT at pinned commit | Retained with licence notice, source hash, modifications, date, and trademark caveat |
+| 11 | Anthropic official plugin-repository terminal screenshot | Apache-2.0 at pinned commit | Retained with licence, pinned source, transformation record, and trademark caveat |
+| 12 | Anthropic cookbook Platform screenshot | MIT at pinned commit | Retained with licence notice, source hash, modifications, date, and trademark caveat |
+
+The original diagrams are instructional abstractions, not simulations or reconstructions of a current Claude interface. Their localized alt text and captions state that boundary. The separate first-party screenshot validator remains fail-closed: any future Academy or product screenshot still requires both reviewed authenticity provenance and a defensible republication-rights record.
 
 ## Intended use
 
@@ -15,7 +29,7 @@ This is an operational clearance packet, not legal advice. The source ledger fou
 - No use of private user data, credentials, unreleased product information, or false current-availability claims.
 - No implication that Anthropic sponsors, certifies, or endorses the course.
 
-## Academy-hosted figures requiring a decision
+## Retired Academy-hosted figures (historical evidence)
 
 | Figure | Instructional purpose | Academy source |
 |---|---|---|
@@ -32,13 +46,13 @@ This is an operational clearance packet, not legal advice. The source ledger fou
 | 14 | Inspect a language-tutor Artifact while preserving educator control | https://academy.claude.com/tutorials/use-artifacts-to-visualize-and-create-ai-apps-without-ever-writing-a-line-of-code |
 | 15 | Pause at the Artifact publish boundary and review what becomes public | https://academy.claude.com/tutorials/use-artifacts-to-visualize-and-create-ai-apps-without-ever-writing-a-line-of-code |
 
-Figures 06 and 12 have separately recorded MIT-licensed repository sources. Figure 11 now has a separately recorded Apache-2.0-licensed official-repository source. Their attribution and UI/trademark caveat must remain in `public/courses/claude/NOTICE.md`.
+The table documents the sources of the retired files; it does not authorize their reuse. Figures 06 and 12 have separately recorded MIT-licensed repository sources. Figure 11 has a separately recorded Apache-2.0-licensed official-repository source. Their attribution and UI/trademark caveat remain in `public/courses/claude/NOTICE.md`.
 
-## Independent authenticity blocker: Figure 01
+## Retired Figure 01 authenticity blocker (historical evidence)
 
 Authenticity and republication rights are different questions. On 2026-08-24, the current first-party Academy page exposed five PNG assets, but none matched the local Figure 01 montage by dimensions or SHA-256. The manifest currently points only to the mutable page and does not retain an exact source-asset URL, source hash, or a reproducible composite/crop/resize/metadata recipe that produces the served 1274 × 1156 master (`934a5ad5ec3bc7c319278bd04c7d681cf5da3d2d73fe5297ab2634dd3d32dfd2`).
 
-Figure 01 therefore has the independent blocker `CLAUDE-FIG-01-PROVENANCE-UNVERIFIED`. A general permission grant must not clear it. Before release, either retain and review immutable evidence for the exact first-party source bytes and transformation chain, with permission covering the exact source, master, and derivatives, or replace the figure with an approved synthetic self-capture and recompute every asset record.
+The former Figure 01 therefore had the independent blocker `CLAUDE-FIG-01-PROVENANCE-UNVERIFIED`. A general permission grant could not clear it. The blocked binary was retired and replaced by a course-original abstract diagram with a new digest and provenance record; the blocker was not relabelled as approved.
 
 The negative-evidence schedule retained from the live page on 2026-08-24 is:
 
@@ -79,7 +93,7 @@ The 15 PNG masters were OCR-scanned on 2026-08-23 after the metadata-removal pas
 
 These observations do not clear publication rights. If Academy permission is granted, the final privacy reviewer must decide whether Figures 01, 02, and 10 require a minimal crop or redaction under the permission terms, then regenerate derivatives and hashes. If the Academy figures are replaced, use only synthetic account names and paths. Figures 06 and 12 must retain their public-source attribution; any edit requires a new checksum and an updated modification notice.
 
-## Permission-request draft
+## Historical permission-request draft (not sent and not operative)
 
 Subject: Permission request for limited Claude Academy interface excerpts in a free educational course
 
@@ -107,7 +121,7 @@ Thank you. I will keep the figures unpublished until the rights basis is resolve
 Sincerely,  
 [name and contact]
 
-## Preferred replacement path if permission is not granted
+## Historical self-capture alternative (not used)
 
 Use a dedicated Claude account or workspace approved for course production. Do not capture an ordinary personal sidebar or work account.
 

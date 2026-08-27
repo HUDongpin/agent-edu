@@ -380,6 +380,8 @@ export default function FinalQuiz({
                       href={source.url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      lang="en"
+                      dir="ltr"
                     >
                       {source.title}
                     </a>

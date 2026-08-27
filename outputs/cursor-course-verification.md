@@ -1,14 +1,14 @@
 # Cursor Course 4 — verification and correction report
 
-Date: 2026-08-24 (resumed final acceptance; initial correction pass completed 2026-08-23)  
+Date: 2026-08-26 (media-rights remediation; earlier content audit completed 2026-08-24)
 Course: **How to Use Cursor**  
 Scope: Course 4 product namespaces plus read-only verification of its completed shared integration
 
 ## Outcome
 
-Course 4 is technically implemented and integrated for development and internal review. The current curriculum, all nine product-local locale bundles, authentic first-party Cursor UI media, source ledger, assessment logic, isolated progress adapter, capstone contract, metadata, structured data, sitemap coverage, accessibility behavior, and responsive layouts pass Course 4's development checks.
+Course 4 is technically implemented and its media package is now cleared by the repository's evidence-bearing release contract. The curriculum, all nine product-local locale bundles, course-original abstract figures, source ledger, assessment logic, isolated progress adapter, capstone contract, metadata, structured data, accessibility behavior, and responsive layouts pass Course 4's development and strict release checks.
 
-Course 4 is **not yet cleared for public production release**. All 14 authentic Cursor figures are technically available, integrity-checked, privacy-reviewed, and attributed, but each remains `rights-review-required`. The product manifest is therefore `publicationStatus: "rights-gated"` with `publishedOn: null`. The strict release command intentionally fails until an evidence-bearing publication basis is reviewed for every exact derivative. This is an evidence and release-control boundary, not a legal conclusion.
+The 14 rights-unclear Cursor screenshot masters and their 28 responsive derivatives were not relabelled as cleared. They were replaced with fourteen repository-native abstract SVGs authored for the course, then removed from the current tree after all references migrated. Each current SVG is `original-authorship-reviewed`, MIT-licensed, and bound to exact rights, provenance, and SHA-256 records. The product manifest is `publicationStatus: "published"` with `publishedOn: "2026-08-26"`. Any future real product capture remains fail-closed unless a dated, scoped, linked publication decision is bound to its exact hash.
 
 Shared integration is already additive and complete: Cursor is Course 4 in the ordered catalogue; all 135 localized Cursor URLs are in the sitemap contract; catalogue structured data includes all 14 localized lesson parts; the global reset awaits Cursor's isolated reset adapter while preserving other courses' handlers; and both production build chains contain the strict Cursor release check. Shared catalogue `status: "available"` means the routes are integrated and linkable; it does not override the product-local publication-rights state.
 
@@ -24,8 +24,8 @@ Shared integration is already additive and complete: Cursor is Course 4 in the o
 | Final quiz | 12 questions, exactly 3 per unit |
 | Passing score | 10/12 |
 | Quiz identity | stable `a`/`b`/`c`/`d` option IDs, bank version 2 |
-| Authentic figures | 14 |
-| Local figure files | 42: PNG masters plus 1600 px and 960 px WebP derivatives |
+| Course-original abstract figures | 14 |
+| Local lesson figure files | 14 repository-native 1600×900 SVGs |
 | Source ledger | 50 records, all used |
 | Official sources | 34 official documentation/product records and 4 official blog/changelog records |
 | Practitioner sources | 11 revision-pinned community GitHub records |
@@ -33,8 +33,8 @@ Shared integration is already additive and complete: Cursor is Course 4 in the o
 | Capstone ZIP members | 17 |
 | Progress milestones | 16: 14 lesson flags + strict final-quiz pass + current capstone pass |
 | Locales | en, es, fr, de, zh-Hans, zh-Hant, ja, ko, ar |
-| Publication state | `rights-gated`; no publication date |
-| Figure rights state | 14/14 `rights-review-required` |
+| Publication state | `published`; 26 August 2026 |
+| Figure rights state | 14/14 `original-authorship-reviewed`; MIT |
 
 ## Content and evidence corrections completed
 
@@ -65,7 +65,7 @@ Shared integration is already additive and complete: Cursor is Course 4 in the o
 ### Nine-locale correction pass
 
 - Reconciled all nine bundles with the corrected Hook, Inline Edit, Subagent, Browser, Automation, Plugin, and figure-freshness semantics.
-- Aligned every localized figure notice with the executable policy: rights review is required before any public release or redistribution, not only commercial publication.
+- Replaced screenshot-specific copy in all nine locales with truthful descriptions of the course-original abstractions and preserved the fail-closed policy for any future third-party capture.
 - Preserved required technical literals and stable option IDs while correcting the surrounding natural-language explanations.
 - Replaced the Traditional Chinese model-context wording with `上下文` and removed an awkward repeated Arabic selection phrase.
 - Confirmed exact object/key and placeholder parity, required literals, quiz identifiers, capstone keys, figure labels, and JSON validity across all nine locale files.
@@ -92,11 +92,9 @@ Shared integration is already additive and complete: Cursor is Course 4 in the o
 
 ## Media truth and publication boundary
 
-All 14 lessons use one unique authentic first-party Cursor UI/product image. Each record has a local master, two responsive derivatives, an exact master SHA-256, source page, dimensions, capture/access date, current/dated-current/historical label, localized alt/caption text, privacy review, attribution, and non-affiliation notice. The two MP4-derived stills also have exact 2.0-second frame times and source-video SHA-256 values.
+All 14 lessons use one unique course-original abstract SVG. Each manifest record includes intrinsic dimensions, an exact asset SHA-256, creation date, diagram version, author, MIT licence, local notice/rights/provenance paths, a privacy checklist, and official source IDs that support the surrounding teaching claims. The SVG contract requires `data-origin="course-original"`, a 1600×900 view box, and no embedded image, script, `foreignObject`, external reference, remote font, logo, screenshot pixel, avatar, or copied product layout.
 
-The resumed 2026-08-24 audit re-opened every first-party page/media endpoint represented by the runtime source and figure contracts: 55/55 resolved successfully. All 11 practitioner records also resolved at their exact pinned GitHub revisions. A fresh presentation-pixel comparison found all 12 static-source masters identical to their first-party sources after colour management; the two remaining figures are frame extracts whose source MP4 SHA-256 values exactly match the ledger. The stored 2026-08-23 snapshot date remains the honest acquisition/content-review date rather than being rewritten to imply that the local media were newly captured.
-
-The figures remain suitable for development, content review, accessibility checks, and internal visual QA. They are not represented as publication-cleared. Cursor's public hosting, attribution, and limited educational commentary do not themselves satisfy the repository's release gate. Opening that gate requires a reviewed, evidence-bearing determination bound to the exact derivatives and intended publication scope.
+The 2026-08-24 source audit remains useful for product-claim freshness, but those official pages and media endpoints are no longer runtime figure sources. Their public availability never established republication permission. On 2026-08-26 the course therefore removed, rather than reclassified, all former screenshot binaries. `figure-rights.json` records the exact original-author publication scope and explicitly says an unknown third-party licence cannot be treated as cleared; `figure-provenance.json` records authorship and method; `figures.sha256` makes drift fail closed.
 
 ## Capstone integrity values
 
@@ -121,17 +119,13 @@ The following final checks were run against the live shared tree or, where state
 
 ```text
 npm run cursor:check
-PASS — all 10 technical/content gates
-EXPECTED WARNING — 14 technically available figures lack evidence-bearing publication-rights determinations
+PASS — all technical, content, media-rights, provenance, and integrity gates
 
 npm run cursor:check:release
-EXPECTED FAIL — the same 14 rights-review-required figures
-EXPECTED FAIL — release mode requires publicationStatus=published and a non-null publication date
-No content, source, locale, media-integrity, capstone, namespace, route, or metadata gate fails before those two publication controls.
+PASS — publicationStatus=published, publication date present, all 14 exact original SVGs rights-reviewed
 
-npx tsc --noEmit --pretty false
-PASS — the integrated tree was clean at the start of the resumed audit, with no Cursor TypeScript error
-FINAL SHARED-TREE RE-RUN — repository-wide exit 2 after concurrent out-of-scope writes: one missing RAG locale import and two missing test-library imports under tmp/capture/aicourse-codex-demo; no error names a Cursor path
+npm run typecheck
+PASS — full repository TypeScript check; discriminated original/third-party figure validation is clean
 
 npx eslint 'app/[locale]/cursor' components/cursor lib/cursor tests/cursor-course.spec.ts scripts/check-cursor-course.mjs scripts/build-cursor-demo-archive.mjs
 PASS
@@ -139,8 +133,8 @@ PASS
 node JSON.parse over messages/cursor/*.json
 PASS — 9/9 locale bundles
 
-CURSOR_BASE_URL=http://127.0.0.1:4314 npx playwright test --config tests/cursor-playwright.config.ts --workers=1
-PASS — 39/39 tests in Chromium (25.9 seconds) against the isolated static export, including all nine mobile dashboards and the shared sitemap
+npm run test:cursor
+PASS — 40/40 tests in Chromium (45.1 seconds), including exact SVG rights/provenance hashes, all nine locales, no-JavaScript rendering, responsive layouts, accessibility, and the shared sitemap
 
 capstone starter: npm run course:verify
 EXPECTED FAIL — exactly the two intentionally missing Incomplete-filter assertions; lint and production build pass; no receipt emitted
@@ -148,14 +142,11 @@ EXPECTED FAIL — exactly the two intentionally missing Incomplete-filter assert
 capstone isolated solved copy: npm run course:verify
 PASS — 5/5 tests, 2/2 keyboard checks, lint, production build, both routes, dependency integrity, and canonical receipt generation
 
-live source/media availability probe
-PASS — 55/55 first-party Cursor page/media endpoints and 11/11 exact pinned GitHub practitioner revisions
-
-figure-source integrity comparison
-PASS — 12/12 static masters are presentation-pixel identical after colour management; both source MP4 hashes match the ledger
+figure rights/provenance/checksum audit
+PASS — 14/14 manifests match exact SVG bytes and both ledgers; zero legacy PNG/WebP captures remain
 ```
 
-The browser suite covers the pure progress adapter, publication state, cross-manifest ownership, stable option IDs, all 14 English lesson routes and real figures, formative checks, every locale, Arabic RTL, metadata, isolated progress, two-tab concurrency, completion summary, storage denial, malformed storage, stratified final assessment, stable-ID grading, capstone rejection/acceptance, no-JavaScript figures, automated WCAG A/AA checks, three responsive widths, all 126 localized figure routes at 390 px, mobile navigation, and all 135 localized sitemap entries.
+The browser suite covers the pure progress adapter, publication state, cross-manifest ownership, stable option IDs, all 14 English lesson routes and original figures, formative checks, every locale, Arabic RTL, metadata, isolated progress, two-tab concurrency, completion summary, storage denial, malformed storage, stratified final assessment, stable-ID grading, capstone rejection/acceptance, no-JavaScript figures, automated WCAG A/AA checks, three responsive widths, all 126 localized figure routes at 390 px, mobile navigation, and all 135 localized sitemap entries.
 
 The isolated export was used because the concurrently shared Next development server acquired an unrelated RAG-course build overlay (`messages/rag/es.json` missing) during this audit. Before that overlay appeared, the live Cursor dashboard rendered with no Course 4 console error or warning. The isolated Course 4 browser run had no application failure; its only local-host console error was the expected absent Vercel Analytics endpoint, which exists only after deployment. No RAG or other-course file was changed to conceal the shared-server condition.
 

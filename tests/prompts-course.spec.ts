@@ -260,12 +260,26 @@ test.describe("original raster and semantic teaching figures", () => {
     });
   }
 
-  test("a real prompt copies exactly to the clipboard", async ({ context, page }) => {
+  test("a real prompt copies exactly to the clipboard", async ({ browserName, context, page }) => {
+    if (browserName === "webkit") {
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, "clipboard", {
+          configurable: true,
+          value: {
+            writeText: async (value: string) => {
+              (window as Window & { __promptClipboardText?: string }).__promptClipboardText = value;
+            },
+          },
+        });
+      });
+    }
     await page.goto("/en/prompts/six-part-prompt/");
-    await context.grantPermissions(
-      ["clipboard-read", "clipboard-write"],
-      { origin: new URL(page.url()).origin },
-    );
+    if (browserName === "chromium") {
+      await context.grantPermissions(
+        ["clipboard-read", "clipboard-write"],
+        { origin: new URL(page.url()).origin },
+      );
+    }
 
     const studio = page.locator('section[aria-labelledby="real-prompt-title"]');
     const expectedPrompt = await studio.locator("pre code").textContent();
@@ -273,13 +287,17 @@ test.describe("original raster and semantic teaching figures", () => {
     const copyButton = studio.locator("button");
     await copyButton.click();
     await expect(copyButton).toContainText("Copied");
-    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(expectedPrompt);
+    await expect.poll(() => page.evaluate(async (engine) => (
+      engine === "webkit"
+        ? (window as Window & { __promptClipboardText?: string }).__promptClipboardText
+        : navigator.clipboard.readText()
+    ), browserName)).toBe(expectedPrompt);
   });
 });
 
 test.describe("Course 7 accessibility contract", () => {
   for (const path of [DASHBOARD, "/en/prompts/instructions-and-data/"] as const) {
-    test(`${path} keeps names, labels, media alternatives, and unique anchors`, async ({ page }) => {
+    test(`${path} keeps names, labels, media alternatives, and unique anchors`, async ({ browserName, page }) => {
       const response = await page.goto(path);
       expect(response?.status()).toBe(200);
 
@@ -328,7 +346,7 @@ test.describe("Course 7 accessibility contract", () => {
         hasMainTarget: true,
       });
 
-      await page.keyboard.press("Tab");
+      await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
       const focused = await page.evaluate(() => {
         const element = document.activeElement as HTMLElement | null;
         const style = element ? getComputedStyle(element) : null;

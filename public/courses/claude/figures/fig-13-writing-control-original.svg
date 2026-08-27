@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Human-controlled writing pipeline</title>
+  <desc id="desc">An original course diagram shows source facts moving through drafting, critique, verification, approval, and a separate send decision.</desc>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#315f6e"/></marker></defs>
+  <rect width="1200" height="720" rx="36" fill="#f4efe7"/><rect x="44" y="38" width="1112" height="54" rx="27" fill="#1e3440"/><text x="600" y="72" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-size="20" font-weight="700" letter-spacing="2">ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI</text>
+  <text x="600" y="152" text-anchor="middle" fill="#1e3440" font-family="system-ui,sans-serif" font-size="32" font-weight="780">DRAFTING DOES NOT AUTHORISE SENDING</text>
+  <g font-family="system-ui,sans-serif" text-anchor="middle">
+    <circle cx="126" cy="348" r="76" fill="#dce5f5" stroke="#4f6fa7" stroke-width="3"/><text x="126" y="340" fill="#294166" font-size="20" font-weight="750">SOURCE</text><text x="126" y="369" fill="#40577b" font-size="15">facts</text>
+    <circle cx="350" cy="348" r="76" fill="#eadff0" stroke="#76528a" stroke-width="3"/><text x="350" y="340" fill="#4e3260" font-size="20" font-weight="750">DRAFT</text><text x="350" y="369" fill="#624675" font-size="15">structure</text>
+    <circle cx="574" cy="348" r="76" fill="#f8dfc3" stroke="#bd6f36" stroke-width="3"/><text x="574" y="340" fill="#633618" font-size="20" font-weight="750">CRITIQUE</text><text x="574" y="369" fill="#72482d" font-size="15">gaps</text>
+    <circle cx="798" cy="348" r="76" fill="#fff" stroke="#1e3440" stroke-width="4"/><text x="798" y="340" fill="#1e3440" font-size="20" font-weight="750">VERIFY</text><text x="798" y="369" fill="#526872" font-size="15">claims</text>
+    <circle cx="1022" cy="348" r="76" fill="#d8ebe5" stroke="#2d7768" stroke-width="3"/><text x="1022" y="340" fill="#173d37" font-size="20" font-weight="750">APPROVE</text><text x="1022" y="369" fill="#31584f" font-size="15">human</text>
+  </g>
+  <path d="M202 348 H260M426 348 H484M650 348 H708M874 348 H932" stroke="#315f6e" stroke-width="5" marker-end="url(#arrow)"/>
+  <path d="M1022 424 V500" stroke="#315f6e" stroke-width="5" marker-end="url(#arrow)"/>
+  <rect x="890" y="520" width="264" height="100" rx="24" fill="#f3d5d2" stroke="#a74c46" stroke-width="3"/><text x="1022" y="562" text-anchor="middle" fill="#672f2b" font-family="system-ui,sans-serif" font-size="22" font-weight="760">SEND GATE</text><text x="1022" y="592" text-anchor="middle" fill="#7c413c" font-family="system-ui,sans-serif" font-size="15">recipient · tone · attachment</text>
+  <rect x="112" y="520" width="610" height="100" rx="24" fill="#fff" stroke="#c9beb0" stroke-width="2"/><text x="417" y="560" text-anchor="middle" fill="#435761" font-family="system-ui,sans-serif" font-size="19" font-weight="720">REVISION RECEIPT</text><text x="417" y="590" text-anchor="middle" fill="#526872" font-family="system-ui,sans-serif" font-size="15">what changed · who checked · what remains uncertain</text>
+</svg>

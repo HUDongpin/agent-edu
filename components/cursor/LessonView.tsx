@@ -181,7 +181,7 @@ export default function LessonView({
                 {lesson.sources.map((source) => (
                   <li key={source.id}>
                     <a href={source.exactAnchor} target="_blank" rel="noopener noreferrer">
-                      <strong dir="auto">{source.title}</strong>
+                      <strong lang="en" dir="ltr">{source.title}</strong>
                       <span dir="auto">{source.publisher}</span>
                     </a>
                   </li>

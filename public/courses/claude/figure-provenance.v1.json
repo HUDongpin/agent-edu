@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "courseId": "how-to-use-claude",
+  "preparedOn": "2026-08-26",
+  "scope": "Public instructional figures served by Course 3: How to Use Claude",
+  "originalFigurePolicy": {
+    "creationMethod": "Deterministic, hand-authored SVG assembled from geometric primitives and course-authored labels; no source screenshot or third-party visual asset was traced or embedded.",
+    "licence": "CC0-1.0",
+    "requiredVisibleLabel": "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+    "remoteAssets": false,
+    "thirdPartyPixels": false
+  },
+  "originalFigures": [
+    { "id": "fig-01", "path": "figures/fig-01-surface-map-original.svg", "sha256": "b2d2b3c258db48cbacb6f0bef871d110ba41774909b6043d27ed0445d4575d7e", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-02", "path": "figures/fig-02-outcome-contract-original.svg", "sha256": "84d843f884cf21c32966b5a609f3edd7ec4c2772ee35a7531af09b7dce9acd8f", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-03", "path": "figures/fig-03-iteration-loop-original.svg", "sha256": "1dbae1d91d09d68a060c1c52c239d5d915ed504a58df4bfb81531e0c1967cffd", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-04", "path": "figures/fig-04-permission-gate-original.svg", "sha256": "b677c22e11ee9dbbe6566c54ad329787532f289f8aea90491a749526ea90a93e", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-05", "path": "figures/fig-05-file-verification-original.svg", "sha256": "690d659c59f0763499003126312709a4dcf588009ebad6a1a9a76ff2ea2263b2", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-07", "path": "figures/fig-07-artifact-gate-original.svg", "sha256": "6af320bf1960e3c8341273a3cfc1ad7f676d5cac28b814feb8b257f82c3e3e39", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-08", "path": "figures/fig-08-source-audit-original.svg", "sha256": "8a1baaf5e04681af8513949c94591a90056aa1755586a8b714872e7360bf7561", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-09", "path": "figures/fig-09-tool-scope-original.svg", "sha256": "41b2b4a530bc08ccdb69ed86ee3f0c36b7a970f3fbe464c1f01a57fbfe0b0617", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-10", "path": "figures/fig-10-delegation-envelope-original.svg", "sha256": "00448e3d0be7caa90e3ba8c232a84c051d439e844b668d2852693399ecbfe0be", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-13", "path": "figures/fig-13-writing-control-original.svg", "sha256": "f3bec89b8a7459afd1050865ac28eb326a78c745dcf7573f4c8d62e12adf7a2d", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-14", "path": "figures/fig-14-learning-loop-original.svg", "sha256": "123a25efcafa675ab03e52959b6cbbdca6f7143855134e9b7ee196f0fd6751ca", "width": 1200, "height": 720, "createdOn": "2026-08-26" },
+    { "id": "fig-15", "path": "figures/fig-15-publication-boundary-original.svg", "sha256": "67b91a42fb9c0672b62761df412cdfde578b860b53bf6442c2d25c4f14720c31", "width": 1200, "height": 720, "createdOn": "2026-08-26" }
+  ],
+  "licensedScreenshots": [
+    {
+      "id": "fig-06",
+      "masterPath": "figures/fig-06-projects.png",
+      "sourceUrl": "https://github.com/chrisblattman/claudeblattman/blob/12e14d42d5c8af6383019ac27ef91e898e812fc2/docs/images/claude-projects-v1.png",
+      "sourceCommit": "12e14d42d5c8af6383019ac27ef91e898e812fc2",
+      "sourceSha256": "fb7bc7488412a683616d19dfe3635049cbadb11c9fc5b38ca476a96ab8f22772",
+      "licence": "MIT",
+      "licencePath": "licenses/CLAUDEBLATTMAN-MIT.txt",
+      "observedOn": "2026-02-23",
+      "modifications": "Local PNG has metadata removed with no pixel changes; responsive WebPs are resized and compressed."
+    },
+    {
+      "id": "fig-11",
+      "masterPath": "figures/fig-11-code.png",
+      "sourceUrl": "https://github.com/anthropics/claude-plugins-official/blob/340e33aef211d95769d252324854497af871dafe/plugins/claude-md-management/claude-md-improver-example.png",
+      "sourceCommit": "340e33aef211d95769d252324854497af871dafe",
+      "sourceSha256": "a0b12357a8d8f9b1ba16692805344b8c4d03af2cc2eefcb70c68431b4350d1ad",
+      "licence": "Apache-2.0",
+      "licencePath": "licenses/CLAUDE-PLUGINS-OFFICIAL-APACHE-2.0.txt",
+      "observedOn": "2026-08-23",
+      "modifications": "Local PNG has metadata removed with no pixel changes; responsive WebPs are resized and compressed."
+    },
+    {
+      "id": "fig-12",
+      "masterPath": "figures/fig-12-data-analysis-platform.png",
+      "sourceUrl": "https://github.com/anthropics/claude-cookbooks/blob/35f2eec7e44897c537e44441b7dff2f0ecbfb804/managed_agents/example_data/data_analyst_agent/console_session.png",
+      "sourceCommit": "35f2eec7e44897c537e44441b7dff2f0ecbfb804",
+      "sourceSha256": "edcc3b1d266a6bf936545be99d3ac6fd22f9b28bc50fa8906ec39d39e79c5645",
+      "licence": "MIT",
+      "licencePath": "licenses/CLAUDE-COOKBOOKS-MIT.txt",
+      "observedOn": "2026-08-19",
+      "modifications": "Local PNG has metadata removed with no pixel changes; responsive WebPs are resized and compressed."
+    }
+  ],
+  "retiredAcademyFigures": {
+    "ids": ["fig-01", "fig-02", "fig-03", "fig-04", "fig-05", "fig-07", "fig-08", "fig-09", "fig-10", "fig-13", "fig-14", "fig-15"],
+    "disposition": "The prior local PNG and WebP copies were removed from the public tree because no general republication licence or reviewed written permission was established. Their former manifest records were not relabelled as cleared.",
+    "recovery": "The removed tracked files remain recoverable from repository history; they must not be republished without a new rights review."
+  },
+  "trademarkBoundary": "Repository licences apply to the identified files and do not grant general rights in Anthropic trademarks or imply endorsement."
+}

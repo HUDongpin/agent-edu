@@ -1,0 +1,22 @@
+{
+  "schemaId": "aicourse.ai-research.capstone.v1",
+  "courseId": "ai-research",
+  "courseVersion": "2026.08.26-v1",
+  "capstoneVersion": "2026.08.26-capstone-v1",
+  "fixture": {
+    "path": "public/courses/ai-research/mini-review-corpus-synthetic-v1.json",
+    "sha256": "5422f89257ff800668e0c6c5db862349d1bcbd11ab932a005fa4bd42b3610ad4"
+  },
+  "primaryManifest": {
+    "path": "public/courses/ai-research/lab/primary-object-manifest.json",
+    "schemaId": "aicourse.ai-research.primary-manifest.v1"
+  },
+  "artifacts": {},
+  "screeningFlow": {},
+  "primaryEvidence": [],
+  "ragLocatorRejections": [],
+  "citationAudit": [],
+  "responsibleAiGate": { "version": "2026.08.26-v1", "criteria": [] },
+  "aiDisclosure": { "tool": "", "verifiedByHuman": false, "failures": [], "nonClaims": [] },
+  "reviewer": { "role": "", "decision": "draft", "reviewedOn": "" }
+}

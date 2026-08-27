@@ -37,6 +37,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return seoFor({
     locale,
+    availableLocales: SOFTWARE_ENGINEERING_LOCALES,
+    canonicalLocale: locale,
     page: "software-engineering/",
     title: `${course.copy.meta.title} · aicourse.top`,
     description: SOFTWARE_ENGINEERING_OVERVIEW.summary,

@@ -6,7 +6,7 @@
     "audience": "For learners who can navigate files and run basic commands. No professional software experience is required.",
     "duration": "About 9 to 11 hours, including a 130-minute capstone",
     "sourceNote": "The course is grounded in current OpenAI documentation and selected, high-star repositories, verified on 2026-08-24. Repository stars are a dated popularity signal, not evidence of correctness or safety.",
-    "figureNote": "UI figures are published only after a real Codex capture passes version, privacy, and caption checks. A capture-required card is intentional, not a simulated screenshot.",
+    "figureNote": "Course-original diagrams are explicitly labelled as not product UI. Actual interface figures publish only after version, rights, privacy, caption, and byte-integrity checks.",
     "startCta": "Start the course",
     "resumeCta": "Continue learning"
   },

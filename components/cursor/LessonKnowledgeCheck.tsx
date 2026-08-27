@@ -146,7 +146,7 @@ export default function LessonKnowledgeCheck({
                     <ul className={styles.quizSources} aria-label={labels.source}>
                       {question.sources.map((source) => (
                         <li key={source.id}>
-                          <a href={source.url} target="_blank" rel="noopener noreferrer">
+                          <a href={source.url} target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">
                             {source.title}
                           </a>
                         </li>

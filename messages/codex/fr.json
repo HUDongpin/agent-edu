@@ -6,7 +6,7 @@
     "audience": "Pour les personnes qui savent parcourir des fichiers et lancer des commandes simples. Aucune expérience professionnelle du logiciel n'est requise.",
     "duration": "Environ 9 à 11 heures, dont un projet final de 130 minutes",
     "sourceNote": "Le cours repose sur la documentation OpenAI actuelle et une sélection de dépôts très étoilés, vérifiés le 24/08/2026. Le nombre d'étoiles d'un dépôt est un signal de popularité daté, pas une preuve de justesse ni de sécurité.",
-    "figureNote": "Une figure n'est publiée qu'après validation d'une vraie capture Codex pour la version, la confidentialité et la légende. Une carte capture requise est volontaire, pas une fausse interface.",
+    "figureNote": "Les diagrammes originaux du cours sont explicitement signalés comme n'étant pas l'interface du produit. Les figures d'interfaces réelles ne sont publiées qu'après contrôle de la version, des droits, de la confidentialité, de la légende et de l'intégrité des octets.",
     "startCta": "Commencer le cours",
     "resumeCta": "Continuer le cours"
   },

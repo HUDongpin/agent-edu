@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" data-origin="course-original">
+  <title>Course-original evidence-first writing workflow</title>
+  <rect width="1600" height="900" rx="48" fill="#0f172a"/>
+  <path d="M290 465h1020" stroke="#475569" stroke-width="22" stroke-linecap="round"/>
+  <g stroke-width="8">
+    <circle cx="290" cy="465" r="105" fill="#1d4ed8" stroke="#93c5fd"/>
+    <circle cx="545" cy="465" r="105" fill="#6d28d9" stroke="#c4b5fd"/>
+    <circle cx="800" cy="465" r="105" fill="#0f766e" stroke="#5eead4"/>
+    <circle cx="1055" cy="465" r="105" fill="#b45309" stroke="#fcd34d"/>
+    <circle cx="1310" cy="465" r="105" fill="#9f1239" stroke="#fda4af"/>
+  </g>
+  <g stroke="#f8fafc" stroke-width="20" stroke-linecap="round"><path d="M245 430h90M245 480h60M500 430h90M500 480h60M755 430h90M755 480h60M1010 430h90M1010 480h60M1265 430h90M1265 480h60"/></g>
+  <path d="M240 670h1120" stroke="#94a3b8" stroke-width="16" stroke-dasharray="24 20"/>
+  <path d="m1305 635 65 35-65 35" fill="none" stroke="#f59e0b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

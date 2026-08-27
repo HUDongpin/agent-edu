@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" data-origin="course-original">
+  <title>Course-original bounded task contract diagram</title>
+  <rect width="1600" height="900" rx="48" fill="#111827"/>
+  <rect x="170" y="190" width="1260" height="540" rx="48" fill="#1e293b" stroke="#64748b" stroke-width="6"/>
+  <g font-family="system-ui,sans-serif" font-size="56" font-weight="800" text-anchor="middle">
+    <circle cx="360" cy="400" r="120" fill="#2563eb"/><text x="360" y="420" fill="#eff6ff">1</text>
+    <circle cx="650" cy="400" r="120" fill="#7c3aed"/><text x="650" y="420" fill="#f5f3ff">2</text>
+    <circle cx="940" cy="400" r="120" fill="#0f766e"/><text x="940" y="420" fill="#f0fdfa">3</text>
+    <circle cx="1230" cy="400" r="120" fill="#b45309"/><text x="1230" y="420" fill="#fffbeb">4</text>
+  </g>
+  <path d="M480 400h50m240 0h50m240 0h50" stroke="#f8fafc" stroke-width="18" stroke-linecap="round"/>
+  <path d="m505 374 32 26-32 26m290-52 32 26-32 26m290-52 32 26-32 26" fill="none" stroke="#f8fafc" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M320 585h80M610 585h80M900 585h80M1190 585h80" stroke="#94a3b8" stroke-width="22" stroke-linecap="round"/>
+</svg>

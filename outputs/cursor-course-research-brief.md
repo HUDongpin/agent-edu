@@ -112,7 +112,7 @@ Each figure is labelled as one of:
 - `dated-current`: date-stamped media whose taught interaction remains current;
 - `historical-interface`: older chrome used only for a durable workflow principle and disclosed as historical in the learner caption.
 
-Public availability is not a blanket reuse licence. The implementation includes attribution, source-page links, independence and non-endorsement language, a publication-rights warning, and a public `THIRD_PARTY_NOTICES.md` that explicitly excludes the Cursor-owned media derivatives from the repository's MIT licence. The final media use requires an evidence-bearing publication-rights review before any public release or redistribution.
+Public availability is not a blanket reuse licence. For that reason, the 2026-08-26 release remediation removed every former Cursor-owned screenshot master and responsive derivative from the current runtime package. The lessons now use fourteen repository-native, course-original abstract SVG diagrams under the repository MIT licence. `figure-rights.json`, `figure-provenance.json`, and `figures.sha256` bind authorship, publication scope, concept, dimensions, and exact bytes. Official Cursor links support the surrounding claims only and are not treated as media licences.
 
 ## Release and staleness controls
 
@@ -126,7 +126,7 @@ The course uses a dated source snapshot because Cursor is a rolling product. Bef
 6. rerun type checks, locale structure checks, the capstone fixture checks, and browser tests;
 7. review pricing, quotas, model names, and entitlements only if future copy chooses to mention them.
 
-The development validator rejects stale assessed terminology, missing source revisions, orphaned sources, unlicensed community reuse, remote runtime images, mismatched localisation structures, undisclosed historical figures, malformed or metadata-bearing figure files, capstone hash drift, and files outside the Cursor namespace. The release validator additionally fails closed while any first-party figure lacks an evidence-bearing publication-rights determination; all 14 figures are currently `rights-review-required`.
+The development validator rejects stale assessed terminology, missing source revisions, orphaned sources, unlicensed community reuse, remote runtime images, mismatched localisation structures, malformed or externally dependent original SVGs, rights/provenance/hash drift, capstone hash drift, and files outside the Cursor namespace. The release validator accepts the current fourteen exact course-original SVGs because their authorship review and MIT publication scope are recorded. Any future real product capture uses a separate manifest kind and continues to fail closed unless publication clearance is dated, scoped, linked, and bound to the exact asset hash; an unknown licence can never be promoted to cleared.
 
 ## Limitations
 

@@ -307,7 +307,7 @@ export default function FinalQuiz({
               <ul className={styles.quizSources} aria-label={labels.source}>
                 {current.sources.map((source) => (
                   <li key={source.id}>
-                    <a href={source.url} target="_blank" rel="noopener noreferrer"><TechnicalText text={source.title} /></a>
+                    <a href={source.url} target="_blank" rel="noopener noreferrer" lang="en" dir="ltr"><TechnicalText text={source.title} /></a>
                   </li>
                 ))}
               </ul>

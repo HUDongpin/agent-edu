@@ -1,5 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
+const fallbackPort = Number(process.env.AGENT_EDU_TEST_PORT ?? 4173);
+const baseURL = externalBaseUrl ?? `http://127.0.0.1:${fallbackPort}`;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
@@ -13,7 +17,7 @@ export default defineConfig({
   outputDir: ".playwright-raw",
   preserveOutput: "never",
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL,
     screenshot: "off",
     trace: "off",
     video: "off",
@@ -32,10 +36,12 @@ export default defineConfig({
       use: { ...devices["Desktop Safari"] },
     },
   ],
-  webServer: {
-    command: "npm run preview:test",
-    url: "http://127.0.0.1:4173/en/",
-    reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
-  },
+  webServer: externalBaseUrl
+    ? undefined
+    : {
+        command: "npm run preview:test",
+        url: `${baseURL}/en/`,
+        reuseExistingServer: false,
+        timeout: 30_000,
+      },
 });

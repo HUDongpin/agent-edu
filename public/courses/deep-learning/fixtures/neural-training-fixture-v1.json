@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "deep-learning.fixture.v1",
+  "fixtureId": "ae-deep-learning-synthetic-lines-v1",
+  "createdOn": "2026-08-26",
+  "origin": "Original deterministic synthetic educational data; no real people, measurements, or third-party records.",
+  "seed": 20260826,
+  "task": "Classify a 4x4 grid as containing a dominant horizontal or vertical line.",
+  "labels": ["horizontal", "vertical"],
+  "splitPolicy": "Fixed author-declared split; do not reshuffle when reproducing the reference exercise.",
+  "records": [
+    {"sampleId":"dl-001","split":"train","slice":"clean-a","label":"horizontal","pixels":[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]]},
+    {"sampleId":"dl-002","split":"train","slice":"clean-b","label":"vertical","pixels":[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]]},
+    {"sampleId":"dl-003","split":"train","slice":"shifted-a","label":"horizontal","pixels":[[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]]},
+    {"sampleId":"dl-004","split":"train","slice":"shifted-b","label":"vertical","pixels":[[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]]},
+    {"sampleId":"dl-005","split":"train","slice":"noise-a","label":"horizontal","pixels":[[0,0,0,1],[1,1,1,1],[0,0,0,0],[0,0,0,0]]},
+    {"sampleId":"dl-006","split":"train","slice":"noise-b","label":"vertical","pixels":[[0,1,0,0],[0,1,0,0],[0,1,0,1],[0,1,0,0]]},
+    {"sampleId":"dl-007","split":"train","slice":"low-contrast-a","label":"horizontal","pixels":[[0,0,0,0],[0.6,0.6,0.6,0.6],[0,0,0,0],[0,0,0,0]]},
+    {"sampleId":"dl-008","split":"train","slice":"low-contrast-b","label":"vertical","pixels":[[0,0,0.6,0],[0,0,0.6,0],[0,0,0.6,0],[0,0,0.6,0]]},
+    {"sampleId":"dl-009","split":"validation","slice":"noise-a","label":"horizontal","pixels":[[0,0,0,0],[0,0,0,1],[1,1,1,1],[0,0,0,0]]},
+    {"sampleId":"dl-010","split":"validation","slice":"noise-b","label":"vertical","pixels":[[0,1,0,0],[0,1,0,0],[0,1,0,0],[1,1,0,0]]},
+    {"sampleId":"dl-011","split":"test","slice":"low-contrast-a","label":"horizontal","pixels":[[0,0,0,0],[0,0,0,0],[0.55,0.55,0.55,0.55],[0,0,0,0]]},
+    {"sampleId":"dl-012","split":"test","slice":"low-contrast-b","label":"vertical","pixels":[[0,0.55,0,0],[0,0.55,0,0],[0,0.55,0,0],[0,0.55,0,0]]}
+  ],
+  "referenceClaims": {
+    "allowed": [
+      "Verify tensor, gradient, masking, training-loop, slice, and reproducibility mechanics on this fixed tiny fixture.",
+      "Compare declared configurations under matched local conditions."
+    ],
+    "prohibited": [
+      "Claims about real images, people, institutions, protected groups, production accuracy, safety, or deployment readiness.",
+      "Claims that an exact floating-point result must reproduce across hardware, releases, or accelerator backends."
+    ]
+  }
+}

@@ -152,7 +152,7 @@ export default function LessonView({
                 {lesson.sources.map((source) => (
                   <li key={source.id}>
                     <a href={source.exactAnchor} target="_blank" rel="noopener noreferrer">
-                      <strong>{source.title}</strong>
+                      <strong lang="en" dir="ltr">{source.title}</strong>
                       <span>{source.publisher} · <time dateTime={source.accessedOn}>{sourceDate.format(new Date(`${source.accessedOn}T00:00:00Z`))}</time></span>
                       <em data-evidence-label={source.evidenceLabel}>{evidenceLabel(source.evidenceLabel, course.copy.ui)}</em>
                     </a>

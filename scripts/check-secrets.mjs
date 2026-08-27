@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -75,12 +75,37 @@ function trackedFiles() {
   return raw.split("\0").filter(Boolean);
 }
 
+function untrackedFiles() {
+  const raw = execFileSync("git", ["ls-files", "-z", "--others", "--exclude-standard"], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  return raw.split("\0").filter(Boolean);
+}
+
+function candidateBytes(file) {
+  const worktreePath = resolve(file);
+  if (existsSync(worktreePath)) return readFileSync(worktreePath);
+
+  // A tracked file can be deleted in the worktree while its blob still exists
+  // in the index. Inspect that exact blob instead of either crashing or
+  // silently dropping index coverage. Staged deletions are absent from
+  // `git ls-files` and therefore do not reach this branch.
+  return execFileSync("git", ["show", `:${file}`], {
+    cwd: process.cwd(),
+    encoding: null,
+    stdio: ["ignore", "pipe", "pipe"],
+    maxBuffer: 64 * 1024 * 1024,
+  });
+}
+
 export function checkSecrets() {
   const findings = [];
-  const files = trackedFiles();
+  const files = [...new Set([...trackedFiles(), ...untrackedFiles()])];
   for (const file of files) {
     for (const id of pathFindings(file)) findings.push({ file, id });
-    const bytes = readFileSync(resolve(file));
+    const bytes = candidateBytes(file);
     if (bytes.includes(0)) continue;
     for (const finding of contentFindings(bytes.toString("utf8"))) {
       findings.push({ file, ...finding });
@@ -95,7 +120,7 @@ export function checkSecrets() {
     }
     throw new Error(findings.length + " tracked-file finding(s)");
   }
-  console.log("secrets: " + files.length + " tracked files checked; no high-confidence findings");
+  console.log("secrets: " + files.length + " tracked and untracked files checked; no high-confidence findings");
 }
 
 const invoked = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;

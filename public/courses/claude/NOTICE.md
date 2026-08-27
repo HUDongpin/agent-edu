@@ -1,10 +1,14 @@
 # Claude course media notice
 
-This directory contains interface images used by the independent aicourse.top course **How to Use Claude**. The course is not affiliated with or endorsed by Anthropic PBC. Claude and Anthropic are trademarks of Anthropic PBC.
+This directory contains course-original diagrams and separately licensed interface screenshots used by the independent aicourse.top course **How to Use Claude**. The course is not affiliated with or endorsed by Anthropic PBC. Claude and Anthropic are trademarks of Anthropic PBC.
 
-## Official Claude Academy interface images
+## Course-original diagrams
 
-Figures 01–05, 07–10, and 13–15 are limited excerpts of interface images published by Anthropic through Claude Academy. They are reproduced locally for educational identification, criticism, and commentary, with a direct source page and access date recorded in `lib/claude/figures.ts`. No general redistribution licence was found on the source pages. These images are **not** covered by this repository's MIT licence. Do not reuse or redistribute them independently without confirming an applicable legal basis or obtaining permission from Anthropic.
+Figures 01–05, 07–10, and 13–15 are original abstract SVG diagrams authored specifically for this course. They contain course-authored labels and geometric primitives only: no Claude product-interface pixels, Academy imagery, third-party logos, remote image references, or embedded scripts. Every diagram visibly states **“ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI.”**
+
+These twelve diagrams are dedicated under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). Their exact creation record, dimensions, and SHA-256 digests appear in [`figure-provenance.v1.json`](figure-provenance.v1.json) and [`figure-hashes.sha256`](figure-hashes.sha256).
+
+The previous local Academy-derived PNG/WebP files for these figure IDs were removed because no general republication licence or reviewed written permission was established. They were not renamed, relabelled, or treated as cleared. The removal and recovery boundary is recorded in the provenance ledger.
 
 ## Licensed repository images
 
@@ -16,8 +20,9 @@ The repository licences apply to the identified files; they do not grant general
 
 ## Editorial safeguards
 
-- Every image is stored locally and has an audited SHA-256 digest.
-- Captions identify the surface and observation/access date.
-- Model names, plan labels, button positions, and beta labels visible in an image are historical UI evidence, not promises about current availability.
+- Every served figure asset is stored locally and has an audited SHA-256 digest in the public hash manifest.
+- Original diagrams are identified as original in the image, localized alt text, caption, renderer metadata, and provenance ledger.
+- Licensed screenshots retain their pinned repository source, licence, observation date, transformation record, and trademark caveat.
+- Model names, plan labels, button positions, and beta labels visible in licensed screenshots are historical UI evidence, not promises about current availability.
 - Learners receive a text equivalent of the instructional point; no task depends on reading tiny interface text.
-- Images must be refreshed after a material interface change and reviewed at least quarterly.
+- Licensed screenshots must be refreshed after a material interface change and reviewed at least quarterly; original diagrams should be revised when the instructional contract changes.

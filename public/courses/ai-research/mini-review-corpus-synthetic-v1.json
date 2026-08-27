@@ -1,0 +1,317 @@
+{
+  "schema_version": "aicourse.ai-research.fixture.v1",
+  "fixture_version": "ai-research-mini-review-corpus.v1",
+  "created_on": "2026-08-26",
+  "fictionality": {
+    "status": "entirely-fictional",
+    "statement": "Every study, author label, title, abstract, locator, result, search receipt, citation, and date in this fixture was authored for instruction and has no real-world referent.",
+    "third_party_inputs": [],
+    "identifier_policy": "Records use local fixture IDs only; no DOI, ISBN, trial registration, repository identifier, or journal citation is asserted."
+  },
+  "review_protocol": {
+    "review_id": "REVIEW-FICTION-01",
+    "question": "In fictional post-secondary study-planning contexts, what evidence in this toy corpus addresses whether an optional AI explanation changes immediate task revision quality?",
+    "population": "fictional post-secondary learners",
+    "intervention": "an optional AI-generated explanation attached to a study-planning suggestion",
+    "comparator": "the same suggestion without the explanation",
+    "outcome": "immediate rubric-scored revision quality",
+    "eligible_designs": [
+      "randomised comparison",
+      "quasi-experimental comparison with a stated assignment mechanism",
+      "qualitative study of participant interpretation when it does not make an effect claim"
+    ],
+    "exclude": [
+      "school-age-only populations",
+      "systems without an explanation component",
+      "commentary without original observations",
+      "duplicate reports of an already included study unless they add a distinct eligible outcome"
+    ],
+    "primary_outcome_window": "the first revision completed within 48 fictional hours",
+    "analysis_boundary": "The fixture supports workflow practice only. No pooled effect or real educational conclusion is authorised."
+  },
+  "search_receipts": [
+    {
+      "search_id": "SEARCH-01",
+      "database": "Fictional Education Index",
+      "interface_version": "FEI-4.2-fictional",
+      "run_at": "2026-08-20T09:15:00Z",
+      "query": "(artificial intelligence OR AI) AND explanation AND (revision OR study planning) AND student",
+      "filters": ["2021-2026", "article-or-report"],
+      "reported_hits": 8,
+      "exported_local_ids": ["REC-001", "REC-002", "REC-003", "REC-004", "REC-005", "REC-006", "REC-007", "REC-008"]
+    },
+    {
+      "search_id": "SEARCH-02",
+      "database": "Fictional Open Research Register",
+      "interface_version": "FORR-2.0-fictional",
+      "run_at": "2026-08-20T09:42:00Z",
+      "query": "title_abstract:(AI explanation) AND context:(higher education)",
+      "filters": ["none"],
+      "reported_hits": 4,
+      "exported_local_ids": ["REC-006", "REC-009", "REC-010", "REC-011"]
+    }
+  ],
+  "records": [
+    {
+      "record_id": "REC-001",
+      "title": "Optional explanations and first-draft revision in two fictional seminar sections",
+      "author_label": "Fictional Team Alder",
+      "year": 2024,
+      "document_type": "article",
+      "abstract": "Two fictional seminar sections were assigned by timetable rather than random allocation. One section received study suggestions with optional explanations and one received suggestions alone. The report describes a small difference in immediate revision scores and names baseline imbalance as a limitation.",
+      "design": "quasi-experimental comparison",
+      "population": "fictional post-secondary learners",
+      "explanation_component": true,
+      "duplicate_of": null,
+      "screening_hint": "potentially-include",
+      "full_text_extract": {
+        "method_locator": "p. 4, paragraph 2",
+        "method_text": "Section assignment followed the existing timetable; no random allocation was performed.",
+        "result_locator": "p. 7, table 2, revision_quality row",
+        "result_text": "Explanation group: n=28, mean=3.4, SD=0.6; comparison group: n=25, mean=3.1, SD=0.7.",
+        "limitation_locator": "p. 9, paragraph 1",
+        "limitation_text": "The groups differed at baseline and the analysis does not identify a causal effect."
+      }
+    },
+    {
+      "record_id": "REC-002",
+      "title": "Learners interpreting machine explanations during study-plan revision",
+      "author_label": "Fictional Team Birch",
+      "year": 2025,
+      "document_type": "article",
+      "abstract": "A fictional qualitative interview study explores how post-secondary participants interpreted optional AI explanations. It reports uncertainty, perceived usefulness, and reasons for rejecting suggestions, but does not compare revision outcomes.",
+      "design": "qualitative interview study",
+      "population": "fictional post-secondary learners",
+      "explanation_component": true,
+      "duplicate_of": null,
+      "screening_hint": "include-for-qualitative-question-only",
+      "full_text_extract": {
+        "method_locator": "p. 5, sampling subsection",
+        "method_text": "Twelve volunteers who had opened at least one explanation were interviewed using a fictional semi-structured guide.",
+        "result_locator": "p. 8, theme 2",
+        "result_text": "Participants described the explanation as a reason to inspect the suggestion, not as proof that it was correct.",
+        "limitation_locator": "p. 11, final paragraph",
+        "limitation_text": "Volunteer accounts do not establish prevalence, effectiveness, or the experiences of non-users."
+      }
+    },
+    {
+      "record_id": "REC-003",
+      "title": "Automated study reminders in fictional secondary schools",
+      "author_label": "Fictional Team Cedar",
+      "year": 2023,
+      "document_type": "article",
+      "abstract": "A school-age reminder system sends fixed messages. It contains no AI-generated explanation and measures attendance rather than revision quality.",
+      "design": "before-after comparison",
+      "population": "fictional school-age learners",
+      "explanation_component": false,
+      "duplicate_of": null,
+      "screening_hint": "exclude-wrong-population-and-intervention",
+      "full_text_extract": {
+        "method_locator": "p. 3, intervention subsection",
+        "method_text": "The reminders used three fixed templates and did not include generated explanations.",
+        "result_locator": "p. 6, table 1",
+        "result_text": "The reported outcome was weekly attendance.",
+        "limitation_locator": "p. 8, limitations",
+        "limitation_text": "No revision task was observed."
+      }
+    },
+    {
+      "record_id": "REC-004",
+      "title": "Why explainable tutoring will transform learning",
+      "author_label": "Fictional Author Dune",
+      "year": 2022,
+      "document_type": "commentary",
+      "abstract": "A conceptual commentary argues that explanation is promising. It reports no original participants, assignment, observation, or extractable outcome.",
+      "design": "commentary",
+      "population": "not-applicable",
+      "explanation_component": true,
+      "duplicate_of": null,
+      "screening_hint": "exclude-no-original-observations",
+      "full_text_extract": {
+        "method_locator": "p. 2, scope note",
+        "method_text": "This article offers a perspective and reports no empirical study.",
+        "result_locator": "not-present",
+        "result_text": "No result section is present.",
+        "limitation_locator": "p. 5, conclusion",
+        "limitation_text": "The proposed benefits require empirical evaluation."
+      }
+    },
+    {
+      "record_id": "REC-005",
+      "title": "A fictional randomised comparison of explanation access during revision",
+      "author_label": "Fictional Team Elm",
+      "year": 2025,
+      "document_type": "registered-report-result",
+      "abstract": "Fictional participants were randomly assigned to an optional-explanation interface or a suggestion-only interface. The primary outcome and attrition are reported, while no subgroup effect was preregistered.",
+      "design": "randomised comparison",
+      "population": "fictional post-secondary learners",
+      "explanation_component": true,
+      "duplicate_of": null,
+      "screening_hint": "potentially-include",
+      "full_text_extract": {
+        "method_locator": "p. 6, allocation subsection",
+        "method_text": "A seeded fictional random-number list allocated 80 participant codes equally before the interface opened.",
+        "result_locator": "p. 10, table 3, primary outcome",
+        "result_text": "Available cases: explanation n=36, mean=3.6, SD=0.5; comparison n=38, mean=3.3, SD=0.6; mean difference 0.30, fictional 95% interval 0.05 to 0.55.",
+        "limitation_locator": "p. 13, limitations",
+        "limitation_text": "Six participant codes lacked the primary outcome; no subgroup effect was preregistered."
+      }
+    },
+    {
+      "record_id": "REC-006",
+      "title": "A fictional randomised comparison of explanation access during revision: repository copy",
+      "author_label": "Fictional Team Elm",
+      "year": 2025,
+      "document_type": "repository-manuscript",
+      "abstract": "This is an authored duplicate carrier of REC-005 with minor formatting differences and no distinct outcome.",
+      "design": "randomised comparison",
+      "population": "fictional post-secondary learners",
+      "explanation_component": true,
+      "duplicate_of": "REC-005",
+      "screening_hint": "deduplicate-to-rec-005",
+      "full_text_extract": {
+        "method_locator": "repository p. 5",
+        "method_text": "The methods describe the same 80 fictional participant codes as REC-005.",
+        "result_locator": "repository p. 9",
+        "result_text": "The primary values match REC-005.",
+        "limitation_locator": "repository p. 12",
+        "limitation_text": "No additional eligible outcome is reported."
+      }
+    },
+    {
+      "record_id": "REC-007",
+      "title": "Explanations, revision, and confidence in a fictional open workshop",
+      "author_label": "Fictional Team Fir",
+      "year": 2021,
+      "document_type": "conference-report",
+      "abstract": "A one-group workshop measures revision quality before and after learners choose whether to open explanations. The assignment mechanism is not reported and self-selection is unresolved.",
+      "design": "uncontrolled one-group pre-post",
+      "population": "fictional adult workshop participants",
+      "explanation_component": true,
+      "duplicate_of": null,
+      "screening_hint": "exclude-ineligible-design-under-locked-protocol",
+      "full_text_extract": {
+        "method_locator": "p. 2, procedure",
+        "method_text": "All participants could open explanations; exposure was not assigned and the report does not list non-openers.",
+        "result_locator": "p. 4, figure 1 caption",
+        "result_text": "The average fictional revision score increased after the workshop.",
+        "limitation_locator": "not-reported",
+        "limitation_text": "The document contains no labelled limitations section."
+      }
+    },
+    {
+      "record_id": "REC-008",
+      "title": "Protocol for a fictional explanation-and-revision comparison",
+      "author_label": "Fictional Team Grove",
+      "year": 2026,
+      "document_type": "protocol-only",
+      "abstract": "A protocol specifies an eligible randomised comparison, but no recruitment, outcome, or result has occurred.",
+      "design": "planned randomised comparison",
+      "population": "planned fictional post-secondary sample",
+      "explanation_component": true,
+      "duplicate_of": null,
+      "screening_hint": "exclude-from-result-synthesis-retain-in-awaiting-classification-log",
+      "full_text_extract": {
+        "method_locator": "p. 4, planned allocation",
+        "method_text": "The authors plan to randomise 120 fictional participant codes.",
+        "result_locator": "not-present",
+        "result_text": "No results are reported.",
+        "limitation_locator": "p. 7, status",
+        "limitation_text": "Recruitment has not begun."
+      }
+    },
+    {
+      "record_id": "REC-009",
+      "title": "Revision quality after optional explanations: fictional pilot dataset note",
+      "author_label": "Fictional Team Harbor",
+      "year": 2024,
+      "document_type": "data-note",
+      "abstract": "A data note describes columns and missing values but does not state an assignment mechanism or provide a study report that can support an effect claim.",
+      "design": "data documentation",
+      "population": "fictional post-secondary learner codes",
+      "explanation_component": true,
+      "duplicate_of": null,
+      "screening_hint": "exclude-insufficient-study-report",
+      "full_text_extract": {
+        "method_locator": "section 2, field list",
+        "method_text": "The note defines revision_score and explanation_opened but omits exposure assignment and recruitment.",
+        "result_locator": "section 3, missingness",
+        "result_text": "Nine of 50 fictional rows lack revision_score.",
+        "limitation_locator": "section 4, reuse boundary",
+        "limitation_text": "The table is not an analysis and does not identify an effect."
+      }
+    },
+    {
+      "record_id": "REC-010",
+      "title": "Instructor accounts of introducing optional machine explanations",
+      "author_label": "Fictional Team Iris",
+      "year": 2023,
+      "document_type": "qualitative-report",
+      "abstract": "Fictional instructors describe implementation choices. Learner interpretation and revision quality were not observed.",
+      "design": "qualitative focus groups",
+      "population": "fictional instructors",
+      "explanation_component": true,
+      "duplicate_of": null,
+      "screening_hint": "exclude-wrong-population-for-locked-question",
+      "full_text_extract": {
+        "method_locator": "p. 3, participants",
+        "method_text": "Eight fictional instructors joined two focus groups.",
+        "result_locator": "p. 6, theme 1",
+        "result_text": "Instructors described uncertainty about when to show explanations.",
+        "limitation_locator": "p. 9, limitations",
+        "limitation_text": "No learner data or revision tasks were collected."
+      }
+    },
+    {
+      "record_id": "REC-011",
+      "title": "Correction notice for the fictional Alder seminar report",
+      "author_label": "Fictional Team Alder",
+      "year": 2026,
+      "document_type": "correction",
+      "abstract": "The correction changes the comparison-group standard deviation in REC-001 from 0.7 to 0.9 and leaves all other authored values unchanged.",
+      "design": "correction notice",
+      "population": "not-applicable",
+      "explanation_component": true,
+      "duplicate_of": null,
+      "screening_hint": "link-to-rec-001-and-update-extraction",
+      "full_text_extract": {
+        "method_locator": "correction item 1",
+        "method_text": "This notice corrects one fictional table cell.",
+        "result_locator": "correction item 1",
+        "result_text": "REC-001 comparison-group revision_quality SD should read 0.9, not 0.7.",
+        "limitation_locator": "correction item 2",
+        "limitation_text": "No other value or conclusion is changed."
+      }
+    }
+  ],
+  "citation_audit_cases": [
+    {
+      "audit_id": "CITE-01",
+      "draft_claim": "Optional explanations caused a 0.3-point improvement in all post-secondary learners.",
+      "cited_record_ids": ["REC-005"],
+      "problem": "The fixture record reports a single fictional sample, missing outcomes, and a bounded mean difference; it cannot support a universal claim.",
+      "safer_wording": "In one fictional randomised comparison, available-case revision scores were 0.30 points higher in the explanation group; the authored interval was 0.05 to 0.55, and six outcomes were missing."
+    },
+    {
+      "audit_id": "CITE-02",
+      "draft_claim": "Learners generally trust AI explanations.",
+      "cited_record_ids": ["REC-002"],
+      "problem": "A 12-volunteer qualitative fixture can support a theme description, not prevalence or a population frequency.",
+      "safer_wording": "Some fictional volunteers described explanations as prompts to inspect a suggestion rather than as proof of correctness."
+    },
+    {
+      "audit_id": "CITE-03",
+      "draft_claim": "The Alder comparison group's SD was 0.7.",
+      "cited_record_ids": ["REC-001"],
+      "problem": "REC-011 corrects the cell to 0.9; a locator-only workflow that misses linked corrections produces a stale extraction.",
+      "safer_wording": "The linked fictional correction sets the comparison-group SD to 0.9."
+    }
+  ],
+  "known_boundaries": [
+    "This is not a real bibliographic corpus and must not be cited as evidence.",
+    "Screening hints are authored answer-checking aids, not labels produced by independent reviewers.",
+    "Page, table, section, and paragraph locators point only to fictional text embedded in this JSON file.",
+    "The corpus is too small and artificial for a meta-analysis, evidence grade, publication-bias assessment, prevalence statement, causal generalisation, or policy recommendation.",
+    "RAG or search may locate a record, but every claim must be checked against the embedded primary text and its stated boundary."
+  ]
+}

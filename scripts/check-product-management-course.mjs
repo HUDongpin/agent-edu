@@ -11,6 +11,7 @@
 import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inspectReleaseGateWiring } from "./release-gate-wiring.mjs";
 
 import {
   PRODUCT_MANAGEMENT_CONCEPT_DOMAIN_IDS,
@@ -318,11 +319,12 @@ function checkIntegration() {
     if (!String(scripts["product-management:check:release"] ?? "").includes("--release")) {
       fail("package.json: release checker must use --release");
     }
-    const build = String(scripts["build:release"] ?? "");
-    if (
-      build.indexOf("npm run product-management:check:release") < 0
-      || build.indexOf("npm run product-management:check:release") > build.lastIndexOf("next build")
-    ) {
+    const wiring = inspectReleaseGateWiring(
+      scripts,
+      "build:release",
+      "product-management:check:release",
+    );
+    if (!wiring.releaseBeforeBuild) {
       fail("package.json: release build must run Course 14 gate before next build");
     }
   }

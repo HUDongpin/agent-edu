@@ -1,0 +1,3 @@
+# Course 19 canonical pipeline has no third-party runtime dependencies.
+# Use CPython >=3.11,<3.14 as recorded in environment.lock.json.
+# Optional scikit-learn extensions are outside the required capstone run and must reuse the frozen partitions.

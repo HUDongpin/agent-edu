@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "aicourse.python-environment-lock.v1",
+  "courseId": "production-ai",
+  "courseVersion": "2026.08.26-v1",
+  "referenceRuntime": {
+    "implementation": "CPython",
+    "python": "3.9.6",
+    "stdlibOnly": true,
+    "externalNetworkRequired": false,
+    "bindHost": "127.0.0.1",
+    "ports": "ephemeral"
+  },
+  "exercise": {
+    "seed": 20260826,
+    "predictiveCandidate": "classifier-model-bad-alias",
+    "predictiveRollback": "classifier-model-1.0.0",
+    "ragCandidate": "index-contaminated-2.0.0",
+    "ragRollback": "index-clean-1.9.0",
+    "requiredInjections": ["numeric-data-drift-v1", "retrieval-degradation-v1"],
+    "terminalDecision": "no-deploy"
+  },
+  "determinism": {
+    "locale": "C.UTF-8",
+    "timezone": "UTC",
+    "fixtureOrder": "authoritative",
+    "httpTransport": "localhost JSON over ephemeral ports"
+  }
+}

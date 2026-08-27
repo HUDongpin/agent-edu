@@ -1,0 +1,264 @@
+{
+  "schemaId": "aicourse.ai-research.capstone.v1",
+  "courseId": "ai-research",
+  "courseVersion": "2026.08.26-v1",
+  "capstoneVersion": "2026.08.26-capstone-v1",
+  "fixture": {
+    "path": "public/courses/ai-research/mini-review-corpus-synthetic-v1.json",
+    "sha256": "5422f89257ff800668e0c6c5db862349d1bcbd11ab932a005fa4bd42b3610ad4"
+  },
+  "primaryManifest": {
+    "path": "public/courses/ai-research/lab/primary-object-manifest.json",
+    "schemaId": "aicourse.ai-research.primary-manifest.v1"
+  },
+  "artifacts": {
+    "protocol": {
+      "status": "complete",
+      "evidence": [
+        "The question, designs, outcome window, exclusions, analysis boundary, and stopping rule were locked before the fixture records were screened."
+      ],
+      "limitations": [
+        "The protocol applies only to an entirely fictional eleven-record teaching corpus."
+      ]
+    },
+    "search-log": {
+      "status": "complete",
+      "evidence": [
+        "Two fictional search receipts preserve interface version, run time, exact query, filters, reported hits, and exported local IDs."
+      ],
+      "limitations": [
+        "The authored searches do not measure coverage of any real database or literature."
+      ]
+    },
+    "inclusion-exclusion-ledger": {
+      "status": "complete",
+      "evidence": [
+        "All eleven REC identifiers reconcile to three included, five excluded, one duplicate, one awaiting record, and one linked correction."
+      ],
+      "limitations": [
+        "Fixture screening hints are self-check aids and are not independent reviewer decisions."
+      ]
+    },
+    "claim-evidence-matrix": {
+      "status": "complete",
+      "evidence": [
+        "Every retained wording is tied to a locked PDF page or the linked REC-011 correction, with design and uncertainty boundaries preserved."
+      ],
+      "limitations": [
+        "No wording is authorised as a claim about real learners, systems, effects, mechanisms, or policy."
+      ]
+    },
+    "extraction-sheet": {
+      "status": "complete",
+      "evidence": [
+        "Nine method, result, and limitation entries retain PDF path, page, subsection or table, exact authored text, verifier, and boundary."
+      ],
+      "limitations": [
+        "The extraction exercise cannot validate real OCR, publisher layouts, supplements, or inaccessible source files."
+      ]
+    },
+    "analysis-reproduction-package": {
+      "status": "complete",
+      "evidence": [
+        "This standard-library runner reads locked inputs, reconciles flow counts, emits canonical JSON, and is independently checked by the course validator."
+      ],
+      "limitations": [
+        "The values are authored fiction and must not be pooled, tested, or interpreted as observations from a population."
+      ]
+    },
+    "citation-audit": {
+      "status": "complete",
+      "evidence": [
+        "CITE-01 through CITE-03 replace overclaiming or stale wording and preserve the primary locator used for correction."
+      ],
+      "limitations": [
+        "A citation audit confirms support boundaries; it does not certify truth, quality, completeness, or generalisability."
+      ]
+    },
+    "ai-disclosure-failure-log": {
+      "status": "complete",
+      "evidence": [
+        "The package identifies the deterministic tool, human verification boundary, a rejected locator-only RAG output, and explicit non-claims."
+      ],
+      "limitations": [
+        "The reference package does not certify a learner, confer external accreditation, or substitute for independent review."
+      ]
+    }
+  },
+  "screeningFlow": {
+    "total": 11,
+    "included": 3,
+    "excluded": 5,
+    "duplicate": 1,
+    "awaiting": 1,
+    "linkedCorrection": 1
+  },
+  "primaryEvidence": [
+    {
+      "locatorId": "REC-001-method",
+      "recordId": "REC-001",
+      "evidenceKind": "primary-pdf-page",
+      "path": "public/courses/ai-research/primary/REC-001.pdf",
+      "page": 4,
+      "locator": "Method - assignment, first paragraph",
+      "extractedText": "Section assignment followed the existing timetable; no random allocation was performed.",
+      "boundary": "The non-random assignment and baseline difference prohibit a causal claim.",
+      "verified": true,
+      "verifier": "course-authored reference audit"
+    },
+    {
+      "locatorId": "REC-001-result",
+      "recordId": "REC-001",
+      "evidenceKind": "primary-pdf-page",
+      "path": "public/courses/ai-research/primary/REC-001.pdf",
+      "page": 7,
+      "locator": "Table 2, both group rows",
+      "extractedText": "optional explanation n=28 mean=3.4 SD=0.6; suggestion only n=25 mean=3.1 SD=0.7",
+      "boundary": "These are fictional available-case descriptive values; REC-011 in the JSON fixture is a correction challenge that must be checked before final wording.",
+      "verified": true,
+      "verifier": "course-authored reference audit"
+    },
+    {
+      "locatorId": "REC-001-limitation",
+      "recordId": "REC-001",
+      "evidenceKind": "primary-pdf-page",
+      "path": "public/courses/ai-research/primary/REC-001.pdf",
+      "page": 9,
+      "locator": "Limitations, first paragraph",
+      "extractedText": "The groups differed at baseline and the analysis does not identify a causal effect.",
+      "boundary": "The tiny authored sample cannot establish effectiveness, fairness, generalisation, or policy relevance.",
+      "verified": true,
+      "verifier": "course-authored reference audit"
+    },
+    {
+      "locatorId": "REC-002-method",
+      "recordId": "REC-002",
+      "evidenceKind": "primary-pdf-page",
+      "path": "public/courses/ai-research/primary/REC-002.pdf",
+      "page": 5,
+      "locator": "Method - sampling, first paragraph",
+      "extractedText": "Twelve volunteers who had opened at least one explanation were interviewed using a fictional semi-structured guide.",
+      "boundary": "Volunteers were not sampled to estimate prevalence and non-user interviews were unavailable.",
+      "verified": true,
+      "verifier": "course-authored reference audit"
+    },
+    {
+      "locatorId": "REC-002-result",
+      "recordId": "REC-002",
+      "evidenceKind": "primary-pdf-page",
+      "path": "public/courses/ai-research/primary/REC-002.pdf",
+      "page": 8,
+      "locator": "Findings - Theme 2, first paragraph",
+      "extractedText": "Participants described the explanation as a reason to inspect the suggestion, not as proof that it was correct.",
+      "boundary": "A qualitative theme may not be converted into a frequency, effect estimate, or population claim.",
+      "verified": true,
+      "verifier": "course-authored reference audit"
+    },
+    {
+      "locatorId": "REC-002-limitation",
+      "recordId": "REC-002",
+      "evidenceKind": "primary-pdf-page",
+      "path": "public/courses/ai-research/primary/REC-002.pdf",
+      "page": 11,
+      "locator": "Limitations, first paragraph",
+      "extractedText": "Volunteer accounts do not establish prevalence, effectiveness, or the experiences of non-users.",
+      "boundary": "The fictional themes cannot be transferred to a real population.",
+      "verified": true,
+      "verifier": "course-authored reference audit"
+    },
+    {
+      "locatorId": "REC-005-method",
+      "recordId": "REC-005",
+      "evidenceKind": "primary-pdf-page",
+      "path": "public/courses/ai-research/primary/REC-005.pdf",
+      "page": 6,
+      "locator": "Method - allocation, first paragraph",
+      "extractedText": "A seeded fictional random-number list allocated 80 participant codes equally before the interface opened.",
+      "boundary": "Allocation does not erase attrition, outcome, estimand, or external-validity limits.",
+      "verified": true,
+      "verifier": "course-authored reference audit"
+    },
+    {
+      "locatorId": "REC-005-result",
+      "recordId": "REC-005",
+      "evidenceKind": "primary-pdf-page",
+      "path": "public/courses/ai-research/primary/REC-005.pdf",
+      "page": 10,
+      "locator": "Table 3, all rows",
+      "extractedText": "optional explanation available=36 mean=3.6 SD=0.5; suggestion only available=38 mean=3.3 SD=0.6; mean difference=0.30; fictional 95% interval=0.05 to 0.55",
+      "boundary": "Six fictional outcomes are missing, and the authored interval does not authorise a real effect or decision threshold.",
+      "verified": true,
+      "verifier": "course-authored reference audit"
+    },
+    {
+      "locatorId": "REC-005-limitation",
+      "recordId": "REC-005",
+      "evidenceKind": "primary-pdf-page",
+      "path": "public/courses/ai-research/primary/REC-005.pdf",
+      "page": 13,
+      "locator": "Limitations, first paragraph",
+      "extractedText": "Six participant codes lacked the primary outcome; no subgroup effect was preregistered.",
+      "boundary": "No subgroup, mechanism, safety, or deployment claim is authorised.",
+      "verified": true,
+      "verifier": "course-authored reference audit"
+    }
+  ],
+  "ragLocatorRejections": [
+    {
+      "chunkId": "RAG-FICTION-REC005-P10",
+      "evidenceKind": "rag-chunk",
+      "rejected": true,
+      "reason": "The chunk was useful only to locate Table 3; it omitted the missing-outcome and limitation pages and therefore could not support final wording.",
+      "primaryResolution": "REC-005-result"
+    }
+  ],
+  "citationAudit": [
+    {
+      "auditId": "CITE-01",
+      "status": "corrected",
+      "reviewed": true,
+      "primaryLocator": "REC-005.pdf p.10 Table 3 and p.13 Limitations",
+      "saferWording": "In one fictional randomised comparison, available-case revision scores were 0.30 points higher in the explanation group; the authored interval was 0.05 to 0.55, and six outcomes were missing."
+    },
+    {
+      "auditId": "CITE-02",
+      "status": "corrected",
+      "reviewed": true,
+      "primaryLocator": "REC-002.pdf p.8 Theme 2 and p.11 Limitations",
+      "saferWording": "Some fictional volunteers described explanations as prompts to inspect a suggestion rather than as proof of correctness."
+    },
+    {
+      "auditId": "CITE-03",
+      "status": "corrected",
+      "reviewed": true,
+      "primaryLocator": "REC-001.pdf p.7 Table 2 plus mini-review fixture REC-011 linked correction",
+      "saferWording": "The linked fictional correction sets the comparison-group SD to 0.9."
+    }
+  ],
+  "responsibleAiGate": {
+    "version": "2026.08.26-v1",
+    "criteria": [
+      "purpose-risk-stop",
+      "data-rights-minimisation",
+      "subgroups-uncertainty",
+      "human-authority-recourse",
+      "challenge-incident-recovery",
+      "evidence-decision-expiry"
+    ]
+  },
+  "aiDisclosure": {
+    "tool": "Course 17 deterministic standard-library reference runner; no generative model used",
+    "verifiedByHuman": true,
+    "failures": [
+      "A locator-only RAG draft was rejected because it omitted attrition and limitation context."
+    ],
+    "nonClaims": [
+      "This fictional corpus establishes no real prevalence, effect, mechanism, safety, fairness, legal, educational, or policy claim."
+    ]
+  },
+  "reviewer": {
+    "role": "course-authored reference audit",
+    "decision": "accept-with-limitations",
+    "reviewedOn": "2026-08-26"
+  }
+}

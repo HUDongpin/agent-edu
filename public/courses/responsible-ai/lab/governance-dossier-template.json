@@ -1,0 +1,34 @@
+{
+  "schemaId": "aicourse.responsible-ai.capstone.v1",
+  "courseId": "responsible-ai",
+  "courseVersion": "2026.08.26-v1",
+  "capstoneVersion": "2026.08.26-capstone-v1",
+  "fixture": {
+    "path": "public/courses/responsible-ai/governance-case-synthetic-v1.json",
+    "sha256": "289625c9ff824dea69c96048f6e1b8293d94f2d8434f0ef268aaaf271fad1253"
+  },
+  "artifacts": {
+    "impact-assessment": { "owner": "", "status": "draft", "evidence": [], "limitations": [] },
+    "stakeholder-map": { "owner": "", "status": "draft", "evidence": [], "limitations": [] },
+    "risk-register": { "owner": "", "status": "draft", "evidence": [], "limitations": [] },
+    "data-map": { "owner": "", "status": "draft", "evidence": [], "limitations": [] },
+    "subgroup-test": { "owner": "", "status": "draft", "evidence": [], "limitations": [] },
+    "explanation-limitations-card": { "owner": "", "status": "draft", "evidence": [], "limitations": [] },
+    "override-appeal-flow": { "owner": "", "status": "draft", "evidence": [], "limitations": [] },
+    "red-team-incident-log": { "owner": "", "status": "draft", "evidence": [], "limitations": [] },
+    "go-no-go-memo": { "owner": "", "status": "draft", "evidence": [], "limitations": [] }
+  },
+  "responsibleAiGate": {
+    "version": "2026.08.26-v1",
+    "criteria": [
+      "purpose-risk-stop",
+      "data-rights-minimisation",
+      "subgroups-uncertainty",
+      "human-authority-recourse",
+      "challenge-incident-recovery",
+      "evidence-decision-expiry"
+    ]
+  },
+  "decision": "no-deploy",
+  "reviewer": { "role": "", "decision": "accept-with-limitations", "reviewedOn": "2026-08-26" }
+}

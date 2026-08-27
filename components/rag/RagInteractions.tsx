@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { RagCheckpointCopy, RagCourseCopy, RagLessonSlug } from "@/lib/rag";
 import {
   RAG_CAPSTONE_DRAFT_KEY,
@@ -27,6 +28,23 @@ function format(template: string, values: Record<string, number>): string {
   return template.replace(/\{([^}]+)\}/g, (match, key: string) => (
     Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : match
   ));
+}
+
+const REGION_CONTROL_SELECTOR = [
+  "a[href]",
+  "button:not(:disabled)",
+  "input:not(:disabled)",
+  "select:not(:disabled)",
+  "textarea:not(:disabled)",
+  '[tabindex]:not([tabindex="-1"])',
+].join(", ");
+
+function handOffRegionFocus(event: ReactKeyboardEvent<HTMLElement>): void {
+  if (event.key !== "Tab" || event.shiftKey || event.target !== event.currentTarget) return;
+  const firstControl = event.currentTarget.querySelector<HTMLElement>(REGION_CONTROL_SELECTOR);
+  if (!firstControl) return;
+  event.preventDefault();
+  firstControl.focus();
 }
 
 function subscribe(notify: () => void): () => void {
@@ -410,6 +428,7 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
       className={`${styles.finalQuiz} ${styles.focusTarget}`}
       id="rag-final-quiz"
       aria-labelledby="rag-final-quiz-title"
+      onKeyDown={handOffRegionFocus}
       tabIndex={-1}
     >
       <header className={styles.quizHeader}>
@@ -490,7 +509,7 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
               <strong>{answers[current.id] ? labels.correct : labels.incorrect}</strong>
               <p>{current.explanation}</p>
               <a href={current.sourceUrl} target="_blank" rel="noopener noreferrer">
-                {labels.source}: {current.sourceTitle}
+                {labels.source}: <span lang="en" dir="ltr">{current.sourceTitle}</span>
               </a>
               <button className={styles.primaryButton} type="button" onClick={advance}>
                 {index === questions.length - 1 ? labels.finishQuiz : labels.nextQuestion}
@@ -580,6 +599,7 @@ export function CapstoneChecklist({
       className={`${styles.capstone} ${styles.focusTarget}`}
       id="rag-capstone"
       aria-labelledby="rag-capstone-title"
+      onKeyDown={handOffRegionFocus}
       tabIndex={-1}
     >
       <p className={styles.kicker}>{labels.capstone}</p>

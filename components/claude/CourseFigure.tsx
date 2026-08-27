@@ -9,11 +9,15 @@ export default function CourseFigure({
   pendingLabel,
   sourceLabel,
   observedLabel,
+  createdLabel,
+  provenanceLabel,
 }: {
   figure: Figure;
   pendingLabel: string;
   sourceLabel: string;
   observedLabel: string;
+  createdLabel: string;
+  provenanceLabel: string;
 }) {
   const { manifest, copy } = figure;
   const captionId = `${manifest.id}-caption`;
@@ -45,14 +49,16 @@ export default function CourseFigure({
     const label = copy.callouts?.[callout.labelKey];
     return label ? [{ ...callout, label, number: index + 1 }] : [];
   });
+  const isOriginal = manifest.assetKind === "original-diagram";
 
   return (
     <figure
-      className={styles.courseFigure}
+      className={`${styles.courseFigure} ${isOriginal ? styles.figureOriginal : ""}`}
       data-testid={`claude-figure-${manifest.id}`}
       data-figure-status={manifest.status}
       data-capture-sha256={manifest.sha256}
       data-rights-status={manifest.rightsStatus}
+      data-figure-kind={manifest.assetKind}
     >
       <a
         className={styles.figureImage}
@@ -60,15 +66,7 @@ export default function CourseFigure({
         aria-describedby={captionId}
         dir="ltr"
       >
-        <picture>
-          {manifest.srcSet.mobile ? (
-            <source media="(max-width: 640px)" srcSet={manifest.srcSet.mobile} type="image/webp" />
-          ) : null}
-          <source
-            type="image/webp"
-            srcSet={`${manifest.srcSet.webpSmall} ${manifest.srcSet.smallWidth}w, ${manifest.srcSet.webpLarge} ${manifest.srcSet.largeWidth}w`}
-            sizes="(max-width: 760px) calc(100vw - 40px), 760px"
-          />
+        {isOriginal ? (
           <Image
             src={manifest.src}
             alt={copy.alt}
@@ -78,7 +76,27 @@ export default function CourseFigure({
             sizes="(max-width: 760px) calc(100vw - 40px), 760px"
             unoptimized
           />
-        </picture>
+        ) : (
+          <picture>
+            {manifest.srcSet.mobile ? (
+              <source media="(max-width: 640px)" srcSet={manifest.srcSet.mobile} type="image/webp" />
+            ) : null}
+            <source
+              type="image/webp"
+              srcSet={`${manifest.srcSet.webpSmall} ${manifest.srcSet.smallWidth}w, ${manifest.srcSet.webpLarge} ${manifest.srcSet.largeWidth}w`}
+              sizes="(max-width: 760px) calc(100vw - 40px), 760px"
+            />
+            <Image
+              src={manifest.src}
+              alt={copy.alt}
+              width={manifest.width}
+              height={manifest.height}
+              loading="lazy"
+              sizes="(max-width: 760px) calc(100vw - 40px), 760px"
+              unoptimized
+            />
+          </picture>
+        )}
         {callouts.length ? (
           <span className={styles.figureMarkers} aria-hidden="true">
             {callouts.map((callout) => (
@@ -104,9 +122,19 @@ export default function CourseFigure({
         </div>
         <small>
           <span className={styles.figureMeta}>
-            {observedLabel} <time dateTime={manifest.observedOn} dir="ltr">{manifest.observedOn}</time>
-            {" · "}
-            <a href={manifest.sourceUrl} target="_blank" rel="noopener noreferrer">{sourceLabel}</a>
+            {isOriginal ? (
+              <>
+                {createdLabel} <time dateTime={manifest.createdOn} dir="ltr">{manifest.createdOn}</time>
+                {" · "}
+                <a href={manifest.provenancePath}>{provenanceLabel}</a>
+              </>
+            ) : (
+              <>
+                {observedLabel} <time dateTime={manifest.observedOn} dir="ltr">{manifest.observedOn}</time>
+                {" · "}
+                <a href={manifest.sourceUrl} target="_blank" rel="noopener noreferrer">{sourceLabel}</a>
+              </>
+            )}
           </span>
           <span className={styles.figureAttribution} dir="auto">{manifest.attribution}</span>
         </small>

@@ -154,7 +154,7 @@ export default function LessonView({
                           <GithubText text={section.code.label} />
                         </figcaption>
                         <pre dir="ltr">
-                          <code>{section.code.value}</code>
+                          <code lang="en" dir="ltr">{section.code.value}</code>
                         </pre>
                       </figure>
                     ) : null}
@@ -262,7 +262,7 @@ export default function LessonView({
                       rel="noopener noreferrer"
                     >
                       <span className={styles.sourceDetails}>
-                        <strong dir="auto">{source.title}</strong>
+                        <strong lang="en" dir="ltr">{source.title}</strong>
                         <span dir="auto">{source.publisher}</span>
                         <span className={styles.sourceMeta}>
                           <span dir="ltr">{source.accessedOn}</span>

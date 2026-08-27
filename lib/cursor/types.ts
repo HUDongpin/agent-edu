@@ -250,7 +250,7 @@ interface CursorFigureManifestBase {
   readonly id: CursorFigureId;
   readonly lessonSlug: CursorLessonSlug;
   readonly surface: "app" | "docs" | "cloud" | "github" | "web";
-  readonly captureIntent: string;
+  readonly teachingIntent: string;
   readonly altKey: `figures.${CursorFigureId}.alt`;
   readonly captionKey: `figures.${CursorFigureId}.caption`;
   readonly privacyChecklist: readonly string[];
@@ -265,31 +265,43 @@ export interface CursorFigureCallout {
 }
 
 export interface CursorFigureCaptureRequired extends CursorFigureManifestBase {
+  readonly kind: "capture-required";
   readonly status: "capture-required";
 }
 
-export interface CursorFigureAvailable extends CursorFigureManifestBase {
-  /** Local technical availability only; this is not publication clearance. */
+interface CursorFigureAvailableAssetBase extends CursorFigureManifestBase {
   readonly status: "available";
-  /**
-   * No evidence-bearing publication-rights determination is recorded yet.
-   * A future reviewed variant must bind immutable evidence, scope, dates, and
-   * a human reviewer; a bare `cleared` flag is intentionally not supported.
-   */
-  readonly rightsStatus: "rights-review-required";
-  /** Source-resolution PNG master retained as the full-resolution fallback. */
   readonly src: string;
+  readonly width: number;
+  readonly height: number;
+  readonly sha256: string;
+}
+
+/** Repository-native SVG that contains no third-party pixels or UI chrome. */
+export interface CursorOriginalDiagramFigure
+  extends CursorFigureAvailableAssetBase {
+  readonly kind: "course-original-diagram";
+  readonly rightsStatus: "original-authorship-reviewed";
+  readonly createdOn: string;
+  readonly diagramVersion: string;
+  readonly author: "aicourse.top course team";
+  readonly license: "MIT";
+  readonly noticePath: "/courses/cursor/THIRD_PARTY_NOTICES.md";
+  readonly rightsPath: "/courses/cursor/figure-rights.json";
+  readonly provenancePath: "/courses/cursor/figure-provenance.json";
+  readonly evidenceSourceIds: readonly [CursorSourceId, ...CursorSourceId[]];
+}
+
+interface CursorThirdPartyFigureBase extends CursorFigureAvailableAssetBase {
+  readonly kind: "third-party-capture";
   readonly srcSet: {
     readonly webpLarge: string;
     readonly webpSmall: string;
     readonly mobile?: string;
   };
-  readonly width: number;
-  readonly height: number;
   readonly capturedOn: string;
   readonly cursorVersion: string;
   readonly os: string;
-  readonly sha256: string;
   readonly privacyReviewed: true;
   readonly sourceUrl: string;
   readonly sourcePageUrl: string;
@@ -302,11 +314,39 @@ export interface CursorFigureAvailable extends CursorFigureManifestBase {
   readonly visiblePublicDemoIdentifiers?: readonly string[];
   readonly uiFreshness: "current" | "dated-current" | "historical-interface";
   readonly copyrightNotice: string;
-  readonly thirdPartySourceUrl?: string;
-  readonly thirdPartyLicense?: string;
 }
 
-export type CursorFigureManifest = CursorFigureCaptureRequired | CursorFigureAvailable;
+/**
+ * Local availability is not publication permission. This branch deliberately
+ * cannot claim a reviewed or cleared state without the evidence-bearing branch
+ * below.
+ */
+export interface CursorThirdPartyFigureRightsPending
+  extends CursorThirdPartyFigureBase {
+  readonly rightsStatus: "rights-review-required";
+}
+
+export interface CursorThirdPartyFigurePublicationCleared
+  extends CursorThirdPartyFigureBase {
+  readonly rightsStatus: "publication-cleared";
+  readonly rightsEvidence: {
+    readonly reviewedBy: string;
+    readonly reviewedOn: string;
+    readonly basis: string;
+    readonly scope: string;
+    readonly evidenceUrl: string;
+    readonly exactAssetSha256: string;
+  };
+}
+
+export type CursorFigureAvailable =
+  | CursorOriginalDiagramFigure
+  | CursorThirdPartyFigureRightsPending
+  | CursorThirdPartyFigurePublicationCleared;
+
+export type CursorFigureManifest =
+  | CursorFigureCaptureRequired
+  | CursorFigureAvailable;
 
 export interface CursorSectionCopy {
   readonly heading: string;
@@ -373,6 +413,7 @@ export interface CursorCourseCopy {
     readonly figureCurrent: string;
     readonly figureDated: string;
     readonly figureHistorical: string;
+    readonly figureOriginal: string;
     readonly figureAttribution: string;
     readonly optionalAdvanced: string;
     readonly progress: string;

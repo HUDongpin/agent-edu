@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "aicourse.python-environment-lock.v1",
+  "courseId": "ai-python-data",
+  "courseVersion": "2026.08.26-v1",
+  "runtime": {
+    "implementation": "CPython",
+    "python": ">=3.11,<3.14",
+    "dependencies": "stdlib-only",
+    "networkRequired": false
+  },
+  "notebook": {
+    "format": 4,
+    "minor": 5,
+    "kernelLanguage": "python",
+    "executionDirectory": "public/courses/ai-python-data/lab"
+  },
+  "determinism": {
+    "seed": 18019,
+    "locale": "C.UTF-8",
+    "timezone": "UTC"
+  }
+}

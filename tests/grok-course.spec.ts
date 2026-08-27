@@ -226,8 +226,11 @@ test.describe("How to Use Grok course", () => {
         const figure = figures.nth(index);
         await expect(figure).toHaveAttribute("data-figure-status", "available");
         await expect(figure).toHaveAttribute("data-capture-sha256", /^[a-f0-9]{64}$/);
-        await expect(figure.getByRole("img")).toBeVisible();
-        const imageEvidence = await figure.getByRole("img").evaluate(async (node: HTMLImageElement) => {
+        const image = figure.getByRole("img");
+        await expect(image).toBeVisible();
+        await image.scrollIntoViewIfNeeded();
+        await image.evaluate((node: HTMLImageElement) => node.decode());
+        const imageEvidence = await image.evaluate(async (node: HTMLImageElement) => {
           const response = await fetch(node.currentSrc);
           const bitmap = await createImageBitmap(await response.blob());
           const evidence = {

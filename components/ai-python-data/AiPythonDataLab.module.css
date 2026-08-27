@@ -1,0 +1,96 @@
+.panel {
+  margin-block: clamp(2rem, 5vw, 4rem);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, #3b82f6 12%, transparent), transparent 48%),
+    color-mix(in srgb, Canvas 96%, #3b82f6 4%);
+  color: CanvasText;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #2563eb;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel h2,
+.panel h3 {
+  margin-block: 0;
+  text-wrap: balance;
+}
+
+.panel > p:not(.eyebrow) {
+  max-width: 76ch;
+  line-height: 1.7;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 0.9rem;
+  margin-block: 1.25rem;
+}
+
+.card {
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, Canvas 94%, transparent);
+}
+
+.card p,
+.card code {
+  overflow-wrap: anywhere;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 0;
+  list-style: none;
+}
+
+.links a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.command {
+  display: block;
+  margin-block: 0.85rem;
+  padding: 0.85rem;
+  border-radius: 0.65rem;
+  background: #111827;
+  color: #f9fafb;
+  direction: ltr;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+.boundary {
+  margin-block-start: 1rem;
+  padding-inline-start: 1rem;
+  border-inline-start: 4px solid #2563eb;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .eyebrow {
+    color: #93c5fd;
+  }
+}

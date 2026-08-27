@@ -5,8 +5,8 @@
     "summary": "Beherrschen Sie Cursor in 14 evidenzbasierten Lektionen, die authentische Arbeit mit der Benutzeroberfläche und sichere Abläufe für Softwareentwicklung, Forschung, Schreiben, Büroarbeit und Lehre verbinden.",
     "audience": "Für Anfängerinnen und Anfänger ebenso wie für Fortgeschrittene, die sich in Dateien zurechtfinden. Programmiererfahrung ist im Software-Studio hilfreich, für die Studios zu Forschung, Schreiben, Büroarbeit und Lehre jedoch nicht erforderlich.",
     "duration": "Etwa 13 Stunden und 20 Minuten, einschließlich eines 90-minütigen Abschlussprojekts",
-    "sourceNote": "Das Produktverhalten wurde am 23. August 2026 anhand offizieller Quellen von Cursor geprüft; authentische Abbildungen der Benutzeroberfläche nennen ihre dokumentierte Version und Aktualität. Auditierte GitHub-Repositories veranschaulichen Arbeitsabläufe aus der Praxis; sie belegen weder Produktivitätsgewinne noch garantieren sie korrekte Ergebnisse.",
-    "figureNote": "Alle 14 Abbildungen zeigen offizielle Cursor-Benutzeroberflächen oder Produktmedien, die lokal für begrenzte Bildungs- und Kommentierungszwecke gespeichert sind. Jede Abbildung ist datiert und als aktuell, datiert oder historisch gekennzeichnet. aicourse.top ist unabhängig, weder mit Cursor verbunden noch von Cursor empfohlen; die Nutzungsrechte sind vor jeder öffentlichen Veröffentlichung oder Weiterverbreitung zu prüfen.",
+    "sourceNote": "Das Produktverhalten wurde am 23. August 2026 anhand offizieller Cursor-Quellen geprüft. Die 14 Diagramme sind kursinterne Abstraktionen und zeigen keine aktuelle Produktoberfläche; maßgeblich bleiben die verlinkten offiziellen Quellen. Auditierte GitHub-Repositories illustrieren Abläufe, belegen aber weder Produktivitätsgewinne noch korrekte Ergebnisse.",
+    "figureNote": "Alle 14 Abbildungen sind abstrakte, kursintern erstellte SVG-Diagramme und keine Cursor-Screenshots oder Produktmedien. Urheberschaft, MIT-Lizenz, Provenienz und SHA-256-Werte sind lokal dokumentiert. Offizielle Links stützen Aussagen, gelten aber nicht als Medienlizenz.",
     "startCta": "Starten Sie den Kurs",
     "resumeCta": "Lernen Sie weiter"
   },
@@ -26,7 +26,8 @@
     "figureCurrent": "Aktuelle offizielle Benutzeroberfläche",
     "figureDated": "Datierte offizielle Benutzeroberfläche",
     "figureHistorical": "Historische Schnittstelle",
-    "figureAttribution": "© Anysphere, Inc. Offizielle Cursor-Medien, verwendet für pädagogische Kommentare; keine Verbindung oder Empfehlung.",
+    "figureOriginal": "Kurseigenes abstraktes Diagramm",
+    "figureAttribution": "Kurseigenes SVG unter der MIT-Lizenz des Repositories; keine Cursor-Oberfläche oder Drittmedien wiedergegeben.",
     "optionalAdvanced": "Optionales fortgeschrittenes Material",
     "progress": "Fortschritt",
     "courseProgress": "Kursfortschritt",
@@ -945,60 +946,60 @@
   },
   "figures": {
     "fig-01": {
-      "alt": "Befehlspalette von Cursor über dem Editor mit ausgewählter Option Open Agents Window",
-      "caption": "Öffnen Sie das agentenzentrierte Agents Window über die Befehlspalette von Cursor. Diese Abbildung erscheint in der aktuellen Dokumentation zu Agents Window; Cursor Desktop 3.17 war zum Zeitpunkt der Prüfung die neueste Desktop-Version."
+      "alt": "Abstrakter verschachtelter Arbeitsbereich mit Ausführungsgrenzen und Schutzschild",
+      "caption": "Kurseigenes Konzeptbild zu Arbeitsbereich, Ausführung und Datenschutz; kein Cursor-Screenshot und kein Nachbau der Produktoberfläche."
     },
     "fig-02": {
-      "alt": "Cursor-Codeeditor, der eine gedämpfte mehrzeilige Tab-Vorhersage zeigt",
-      "caption": "Lesen Sie die gesamte vorhergesagte Änderung, bevor Sie Tab drücken. Hierbei handelt es sich um ein aktuelles Produktbild aus einer offiziellen Cursor-Quelle und nicht um einen Screenshot des Betriebssystems."
+      "alt": "Abstrakter Änderungsvorschlag mit klaren Annehmen- und Ablehnen-Pfaden",
+      "caption": "Kurseigenes Diagramm: Prüfen Sie den vollständigen Änderungsvorschlag, bevor Sie ihn annehmen oder ablehnen."
     },
     "fig-03": {
-      "alt": "Konversation im Agents Window von Cursor neben einer überprüften Quelldatei",
-      "caption": "Halten Sie die Zusammenfassung von Agent und die Repository-Nachweise gemeinsam sichtbar, damit jede Behauptung überprüfbar bleibt."
+      "alt": "Abstrakte Behauptungskarte mit verknüpftem prüfbarem Nachweisfeld",
+      "caption": "Kurseigenes Diagramm, das eine Agent-Behauptung mit Repository-Nachweisen verbindet und dadurch prüfbar hält."
     },
     "fig-04": {
-      "alt": "Aktueller Prompt-Composer von Cursor mit einem Zielbefehl und der Steuerung Plan New Idea",
-      "caption": "Verwandeln Sie eine ehrgeizige Absicht in einen begrenzten Arbeitsvertrag, bevor Sie Werkzeuge bereitstellen. Die Abbildung stammt aus dem Changelog von Cursor vom 19. August 2026."
+      "alt": "Viergliedriger Aufgabenvertrag aus Umfang, Eingaben, Grenzen und Prüfungen",
+      "caption": "Kurseigenes Diagramm, um eine Absicht vor Werkzeugfreigabe in einen begrenzten Aufgabenvertrag zu überführen."
     },
     "fig-05": {
-      "alt": "Cursor Plan Mode mit einem vorbereiteten Implementierungsplan und der Schaltfläche Build",
-      "caption": "Überprüfen und bearbeiten Sie den Plan, bevor Sie Build auswählen. Die Interaktion ist weiterhin aktuell, diese Benutzeroberfläche vom Oktober 2025 ist jedoch als historisch gekennzeichnet."
+      "alt": "Umkehrbare Schleife aus Plan, menschlicher Prüfung, Ausführung und Verifikation",
+      "caption": "Kurseigenes Diagramm: Plan prüfen, innerhalb der Grenzen ausführen, Nachweise verifizieren und bei Bedarf steuern oder wiederherstellen."
     },
     "fig-06": {
-      "alt": "Editor von Cursor mit mehreren Agent-Registerkarten und nebeneinander liegenden Diffs",
-      "caption": "Cursor 3.0 machte parallele Agent-Registerkarten und die Diff-Prüfung sichtbar; für jedes Ergebnis bleiben eine verantwortliche Person für die Integration und neue Prüfungen erforderlich."
+      "alt": "Parallele Arbeitskarten laufen in einem Prüf- und Integrationstor zusammen",
+      "caption": "Kurseigenes Diagramm: Parallele Ergebnisse benötigen weiter Integrationsverantwortung, Diff-Prüfung, aktuelle Checks und einen Wiederherstellungspfad."
     },
     "fig-07": {
-      "alt": "Cursor Team Rules-Seite mit einer fokussierten React- und GraphQL-Regel",
-      "caption": "Eine gezielte Regel bündelt dauerhafte Leitlinien; Skills und MCP decken unterschiedliche Verfahrens- und Werkzeuggrenzen ab."
+      "alt": "Gesteuerte Aufgabe verzweigt zu Regeln, Skills und externen Werkzeugen",
+      "caption": "Kurseigenes Diagramm trennt dauerhafte Regeln, prozedurale Skills und Grenzen externer Werkzeuge."
     },
     "fig-08": {
-      "alt": "Follow-up-Steuerung von Cursor mit den Ausführungsoptionen Local und Cloud",
-      "caption": "Wählen Sie die Laufumgebung bewusst aus. Diese Cursor 3.7-Abbildung zeigt eine Lokal-zu-Cloud-Übergabesteuerung."
+      "alt": "Lokaler Arbeitsplatz übergibt eine begrenzte Aufgabe an eine Cloud-Umgebung",
+      "caption": "Kurseigenes Diagramm zeigt Umgebungsgrenze und Freigabepunkt bei einer Lokal-zu-Cloud-Übergabe."
     },
     "fig-09": {
-      "alt": "Unternehmensweite MCP-Einstellungen von Cursor mit Browser Origin Allowlist und der Schaltfläche Add Origin",
-      "caption": "Diese optionale, von der Unternehmensadministration verwaltete Funktion beschränkt automatische Browser-Navigation und die Ausführung von MCP-Werkzeugen auf konfigurierte Origins; Cursor bezeichnet sie jedoch als Best-effort-Schutz. Die meisten Lernenden sollten Browser-Aktionen weiterhin manuell genehmigen und ausschließlich eine geprüfte lokale Origin verwenden."
+      "alt": "Abstrakte Browsergrenze mit einem erlaubten und einem blockierten Ziel",
+      "caption": "Kurseigenes Diagramm: Nutzen Sie eine geprüfte lokale Origin, genehmigen Sie Browser-Aktionen manuell und verstehen Sie eine Allowlist nicht als Garantie."
     },
     "fig-10": {
-      "alt": "Das Panel Cursor Agentic Search findet relevante Repository-Dateien neben einem offiziellen Dozenten",
-      "caption": "Recherchieren Sie, bevor Sie eine Behauptung aufstellen. Diese Abbildung stammt aus Cursor Learn und ist als Material einer historischen Benutzeroberfläche gekennzeichnet."
+      "alt": "Suchlinse verbindet mögliche Quellen mit einer evidenzbegrenzten Behauptung",
+      "caption": "Kurseigenes Diagramm: Suche findet Kandidaten, Quellenprüfung stützt die Behauptung; Suchergebnisse allein sind kein Beweis."
     },
     "fig-11": {
-      "alt": "Cursor hat einen Plan mit aktuellem Stand, Vorgehensweise, Umsetzungsschritten und Prüfungen erstellt",
-      "caption": "Dieses Material einer historischen Benutzeroberfläche zeigt ein dauerhaftes Prinzip: Schreiben wird überprüfbar, wenn Evidenzprüfung, Gliederung, Entwurf, Stil und Integrität als getrennte, geplante Phasen behandelt werden."
+      "alt": "Fünfstufiger Schreibprozess von der Evidenzprüfung bis zur Integritätskontrolle",
+      "caption": "Kurseigenes Diagramm trennt Evidenzprüfung, Gliederung, Entwurf, Stilprüfung und Integritätskontrollen."
     },
     "fig-12": {
-      "alt": "Prompt-Composer von Cursor mit angeheftetem Custom Mode oder ausgewähltem Skill",
-      "caption": "Überprüfen und fixieren Sie einen Workflow-Skill, bevor er mit Office-Dateien oder verbundenen Tools ausgeführt wird. Diese Benutzeroberfläche stammt aus dem Changelog vom 19. August 2026."
+      "alt": "Freigegebenes Office-Dokument passiert vor verbundenen Werkzeugen ein menschliches Tor",
+      "caption": "Kurseigenes Diagramm: Prüfen Sie den Workflow und holen Sie menschliche Freigabe ein, bevor er Dateien oder verbundene Werkzeuge nutzt."
     },
     "fig-13": {
-      "alt": "Repository-Auswahl von Cursor mit zuletzt verwendeten lokalen Projekten, mehreren Ordnern sowie den Optionen This Computer und Cloud",
-      "caption": "Öffnen Sie einen Arbeitsbereich für den synthetischen Unterricht und achten Sie darauf, dass lokale und Cloud-Quellen explizit bleiben. Dieser Picker stammt aus Cursor 3.11."
+      "alt": "Synthetischer Lehrarbeitsbereich innerhalb einer klaren Datengrenze",
+      "caption": "Kurseigenes Diagramm: Halten Sie synthetisches Lehrmaterial im definierten Arbeitsbereich und unterscheiden Sie lokale von externen Quellen."
     },
     "fig-14": {
-      "alt": "Cursor Cloud Builds-Dashboard mit fehlgeschlagenem Build, aktivem Commit, Snapshot-ID, Umgebungsrevision, Build-Liste sowie Detail- und Aktionslinks",
-      "caption": "Dieses Standbild zeigt Status- und Revisionsangaben, nicht den Inhalt von Protokollen oder Prüfungen; öffnen Sie die Details und prüfen Sie Protokolle und Prüfungen separat, bevor Sie die Übergabe akzeptieren."
+      "alt": "Abschlussbeleg verbindet Umfang, Umsetzung, Verifikation und Übergabenachweise",
+      "caption": "Kurseigenes Diagramm: Ein Status ist kein Beweis; prüfen Sie verknüpfte Protokolle, Checks und Artefakte vor Annahme der Übergabe."
     }
   },
   "capstone": {

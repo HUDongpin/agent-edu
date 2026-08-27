@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" data-origin="course-original">
+  <title>Course-original workspace and privacy boundary map</title>
+  <rect width="1600" height="900" rx="48" fill="#0f172a"/>
+  <rect x="220" y="190" width="1160" height="560" rx="48" fill="#172554" stroke="#60a5fa" stroke-width="8"/>
+  <rect x="350" y="280" width="900" height="380" rx="40" fill="#0f766e" stroke="#5eead4" stroke-width="8"/>
+  <rect x="560" y="360" width="480" height="220" rx="32" fill="#f8fafc"/>
+  <circle cx="640" cy="430" r="28" fill="#60a5fa"/>
+  <rect x="700" y="402" width="250" height="24" rx="12" fill="#334155"/>
+  <rect x="620" y="480" width="330" height="20" rx="10" fill="#94a3b8"/>
+  <path d="M800 210v60M800 670v60M240 470h90M1270 470h90" stroke="#fbbf24" stroke-width="16" stroke-linecap="round"/>
+  <path d="M800 305l62 30v56c0 64-38 111-62 124-24-13-62-60-62-124v-56z" fill="#f59e0b" stroke="#fef3c7" stroke-width="6"/>
+  <path d="m773 389 18 19 39-47" fill="none" stroke="#111827" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

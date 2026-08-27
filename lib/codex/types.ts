@@ -83,6 +83,36 @@ export const CODEX_FIGURE_IDS = [
   "fig-24",
 ] as const;
 
+export const CODEX_PRODUCT_UI_CAPTURE_FIGURE_IDS = [
+  "fig-13",
+  "fig-14",
+  "fig-15",
+  "fig-16",
+  "fig-17",
+  "fig-22",
+] as const;
+
+export const CODEX_ORIGINAL_DIAGRAM_FIGURE_IDS = [
+  "fig-01",
+  "fig-02",
+  "fig-03",
+  "fig-04",
+  "fig-05",
+  "fig-06",
+  "fig-07",
+  "fig-08",
+  "fig-09",
+  "fig-10",
+  "fig-11",
+  "fig-12",
+  "fig-18",
+  "fig-19",
+  "fig-20",
+  "fig-21",
+  "fig-23",
+  "fig-24",
+] as const;
+
 export const CODEX_PRACTICE_IDS = [
   "practice-meet-codex",
   "practice-task-contracts",
@@ -246,7 +276,6 @@ interface CodexFigureManifestBase {
   readonly id: CodexFigureId;
   readonly lessonSlug: CodexLessonSlug;
   readonly surface: "app" | "cli" | "ide" | "cloud" | "github";
-  readonly captureIntent: string;
   readonly altKey: `figures.${CodexFigureId}.alt`;
   readonly captionKey: `figures.${CodexFigureId}.caption`;
   readonly privacyChecklist: readonly string[];
@@ -258,10 +287,6 @@ export interface CodexFigureCallout {
   readonly labelKey: string;
   readonly xPercent: number;
   readonly yPercent: number;
-}
-
-export interface CodexFigureCaptureRequired extends CodexFigureManifestBase {
-  readonly status: "capture-required";
 }
 
 export const CODEX_FIGURE_AUDIT_SCHEMA = "aicourse.codex.figure-audits.v1" as const;
@@ -315,6 +340,8 @@ export interface CodexFigureAssetHashes {
 
 export interface CodexFigureAvailable extends CodexFigureManifestBase {
   readonly status: "available";
+  readonly kind: "product-ui-capture";
+  readonly captureIntent: string;
   /** Binds this manifest to one approved record in figure-audits.json. */
   readonly auditId: CodexFigureAuditId;
   /** Official OpenAI documentation that supports the UI behavior being taught. */
@@ -344,7 +371,42 @@ export interface CodexFigureAvailable extends CodexFigureManifestBase {
   readonly thirdPartyLicense?: string;
 }
 
-export type CodexFigureManifest = CodexFigureCaptureRequired | CodexFigureAvailable;
+export type CodexProductUiCaptureFigure = CodexFigureAvailable;
+
+export const CODEX_DIAGRAM_RIGHTS_SCHEMA = "aicourse.codex.diagram-rights.v1" as const;
+export const CODEX_ORIGINAL_DIAGRAM_RENDERER_VERSION = "codex-original-diagrams.v1" as const;
+export const CODEX_ORIGINAL_DIAGRAM_LABEL = "COURSE-ORIGINAL ABSTRACT DIAGRAM · NOT PRODUCT UI" as const;
+export const CODEX_ORIGINAL_DIAGRAM_RENDER_ENVIRONMENT = {
+  sharpVersion: "0.35.3",
+  libvipsVersion: "8.18.3",
+  svgTextFontStack: "Arial, Helvetica, sans-serif",
+  reproductionPolicy: "release-rerender-byte-identical",
+} as const;
+
+export type CodexDiagramRightsId = `codex-diagram-rights.${CodexFigureId}.${string}`;
+
+export interface CodexOriginalDiagramFigure extends CodexFigureManifestBase {
+  readonly status: "available";
+  readonly kind: "course-original-diagram";
+  readonly instructionalPurpose: string;
+  readonly rightsRecordId: CodexDiagramRightsId;
+  /** Official sources support the taught behavior, never the course-authored pixels. */
+  readonly officialSupportingSourceIds: readonly [CodexOfficialDocSourceId, ...CodexOfficialDocSourceId[]];
+  readonly src: string;
+  readonly srcSet: {
+    readonly webp2240: string;
+    readonly webp1120: string;
+  };
+  readonly assetSha256: CodexFigureAssetHashes;
+  readonly width: 2240;
+  readonly height: 1260;
+  readonly rendererVersion: typeof CODEX_ORIGINAL_DIAGRAM_RENDERER_VERSION;
+  readonly provenanceLabel: typeof CODEX_ORIGINAL_DIAGRAM_LABEL;
+  readonly privacyClassification: "synthetic-labels-only";
+  readonly nonImpersonationClassification: "abstract-model-not-product-ui";
+}
+
+export type CodexFigureManifest = CodexProductUiCaptureFigure | CodexOriginalDiagramFigure;
 
 export interface CodexFigureAuditRawSource {
   readonly kind: "course-authored-capture" | "third-party-original";
@@ -460,6 +522,72 @@ export interface CodexFigureAuditRecord {
 export interface CodexFigureAuditLedger {
   readonly schema: typeof CODEX_FIGURE_AUDIT_SCHEMA;
   readonly audits: readonly CodexFigureAuditRecord[];
+}
+
+export interface CodexDiagramRightsRecord {
+  readonly id: CodexDiagramRightsId;
+  readonly figureId: (typeof CODEX_ORIGINAL_DIAGRAM_FIGURE_IDS)[number];
+  readonly status: "publishable";
+  readonly binding: {
+    readonly lessonSlug: CodexLessonSlug;
+    readonly surface: CodexFigureManifestBase["surface"];
+  };
+  readonly instructionalPurpose: string;
+  readonly officialSupportingSourceIds: readonly [CodexOfficialDocSourceId, ...CodexOfficialDocSourceId[]];
+  readonly assetSha256: CodexFigureAssetHashes;
+}
+
+export interface CodexDiagramRightsLedger {
+  readonly schema: typeof CODEX_DIAGRAM_RIGHTS_SCHEMA;
+  readonly renderer: {
+    readonly path: "scripts/render-codex-original-diagrams.mjs";
+    readonly version: typeof CODEX_ORIGINAL_DIAGRAM_RENDERER_VERSION;
+    readonly sha256: string;
+    readonly environment: typeof CODEX_ORIGINAL_DIAGRAM_RENDER_ENVIRONMENT;
+  };
+  readonly notice: {
+    readonly path: "public/courses/codex/NOTICE.md";
+    readonly sha256: string;
+  };
+  readonly assetContract: {
+    readonly root: "/courses/codex/figures";
+    readonly pngPathTemplate: "fig-XX-master.png";
+    readonly webp2240PathTemplate: "fig-XX-2240.webp";
+    readonly webp1120PathTemplate: "fig-XX-1120.webp";
+    readonly masterWidth: 2240;
+    readonly masterHeight: 1260;
+    readonly responsiveWidth: 1120;
+    readonly responsiveHeight: 630;
+  };
+  readonly policy: {
+    readonly classification: "course-original-abstract-diagram";
+    readonly authorship: {
+      readonly rightsBasis: "course-original-work";
+      readonly rightsHolder: "HU Dongpin";
+      readonly license: "MIT";
+      readonly licensePath: "LICENSE";
+      readonly licenseSha256: string;
+      readonly thirdPartyPixels: false;
+      readonly thirdPartyAssets: readonly [];
+    };
+    readonly privacy: {
+      readonly dataClass: "synthetic-labels-only";
+      readonly containsPersonalData: false;
+      readonly containsSecrets: false;
+      readonly containsAccountOrRepositoryIdentifiers: false;
+      readonly metadataStripped: true;
+    };
+    readonly nonImpersonation: {
+      readonly depiction: "abstract-process-diagram";
+      readonly productUiCapture: false;
+      readonly simulatedProductUi: false;
+      readonly vendorLogoIncluded: false;
+      readonly tradeDressReproduction: false;
+      readonly visibleLabel: typeof CODEX_ORIGINAL_DIAGRAM_LABEL;
+      readonly labelEmbeddedInPixels: true;
+    };
+  };
+  readonly records: readonly CodexDiagramRightsRecord[];
 }
 
 export interface CodexSectionCopy {

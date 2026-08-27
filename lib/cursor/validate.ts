@@ -403,9 +403,19 @@ export function validateCursorManifests(): readonly CursorValidationIssue[] {
   if (publicationStatus === "published" && publishedOn === null) {
     add("course.publication", "A published course requires a publication date.");
   }
-  for (const figure of CURSOR_FIGURES) {
-    if (figure.status === "available" && String(figure.rightsStatus) !== "rights-review-required") {
-      add(`figures.${figure.id}.rightsStatus`, "A technically available first-party figure requires a recognized evidence-bearing rights state.");
+  if (publishedOn !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(publishedOn) || Number.isNaN(Date.parse(publishedOn)))) {
+    add("course.publishedOn", "Publication date must be a valid YYYY-MM-DD value.");
+  }
+  for (const figure of CURSOR_FIGURES as readonly CursorFigureManifest[]) {
+    if (publicationStatus !== "published") continue;
+    if (figure.status !== "available") {
+      add(`figures.${figure.id}.status`, "A published course cannot contain a pending figure.");
+    } else if (figure.kind === "course-original-diagram") {
+      if (String(figure.rightsStatus) !== "original-authorship-reviewed") {
+        add(`figures.${figure.id}.rightsStatus`, "A course-original figure requires reviewed authorship evidence.");
+      }
+    } else if (figure.rightsStatus !== "publication-cleared") {
+      add(`figures.${figure.id}.rightsStatus`, "A third-party capture requires evidence-bearing publication clearance.");
     }
   }
 
@@ -654,10 +664,11 @@ export function validateCursorManifests(): readonly CursorValidationIssue[] {
     if (actual !== expectedBankCounts[index]) add(`quiz.${unitId}`, `Question bank must contain ${expectedBankCounts[index]} items for this unit.`);
   });
 
-  const captureOnlyFields = [
-    "src", "srcSet", "width", "height", "capturedOn", "cursorVersion", "os",
-    "sha256", "privacyReviewed", "sourceUrl", "sourceAssetSha256", "frameTimeSeconds",
-    "visiblePublicDemoIdentifiers", "thirdPartySourceUrl", "thirdPartyLicense",
+  const availableOnlyFields = [
+    "src", "srcSet", "width", "height", "sha256", "rightsStatus", "createdOn",
+    "capturedOn", "cursorVersion", "os", "privacyReviewed", "sourceUrl",
+    "sourceAssetSha256", "frameTimeSeconds", "visiblePublicDemoIdentifiers",
+    "rightsEvidence", "license", "rightsPath", "provenancePath",
   ];
   for (const figure of CURSOR_FIGURES as readonly CursorFigureManifest[]) {
     for (const callout of figure.callouts ?? []) {
@@ -668,10 +679,50 @@ export function validateCursorManifests(): readonly CursorValidationIssue[] {
     }
     if (figure.status === "capture-required") {
       const fields = Object.keys(figure);
-      const found = captureOnlyFields.find((field) => fields.includes(field));
+      const found = availableOnlyFields.find((field) => fields.includes(field));
       if (found) add(`figures.${figure.id}.${found}`, "Pending figures must not invent capture metadata.");
-      if (!figure.captureIntent.trim()) add(`figures.${figure.id}.captureIntent`, "Pending figures need a concrete capture intent.");
+      if (!figure.teachingIntent.trim()) add(`figures.${figure.id}.teachingIntent`, "Pending figures need a concrete teaching intent.");
       if (!figure.privacyChecklist.length) add(`figures.${figure.id}.privacyChecklist`, "Pending figures need a privacy checklist.");
+      continue;
+    }
+
+    if (!figure.teachingIntent.trim()) {
+      add(`figures.${figure.id}.teachingIntent`, "Available figures need a concrete teaching intent.");
+    }
+    if (!figure.privacyChecklist.length || figure.privacyChecklist.some((item) => !item.trim())) {
+      add(`figures.${figure.id}.privacyChecklist`, "Available figures need a non-empty privacy checklist.");
+    }
+    if (!figure.src.startsWith("/") || /^\/\//.test(figure.src)) {
+      add(`figures.${figure.id}.src`, "Available figures must use a root-relative local asset.");
+    }
+    if (!Number.isInteger(figure.width) || figure.width < 1 || !Number.isInteger(figure.height) || figure.height < 1) {
+      add(`figures.${figure.id}.dimensions`, "Available figures need positive intrinsic dimensions.");
+    }
+    if (!/^[a-f0-9]{64}$/.test(figure.sha256)) {
+      add(`figures.${figure.id}.sha256`, "Available figures need a lowercase SHA-256 digest.");
+    }
+
+    if (figure.kind === "course-original-diagram") {
+      if (!/^\/courses\/cursor\/fig-\d{2}-concept\.svg$/.test(figure.src)) {
+        add(`figures.${figure.id}.src`, "Course-original figures must use the canonical local SVG path.");
+      }
+      if (String(figure.rightsStatus) !== "original-authorship-reviewed") {
+        add(`figures.${figure.id}.rightsStatus`, "Course-original figures require reviewed authorship evidence.");
+      }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(figure.createdOn) || Number.isNaN(Date.parse(figure.createdOn))) {
+        add(`figures.${figure.id}.createdOn`, "Course-original figures need a valid creation date.");
+      }
+      if (!figure.diagramVersion.trim() || figure.author !== "aicourse.top course team" || figure.license !== "MIT") {
+        add(`figures.${figure.id}.authorship`, "Course-original figures need versioned MIT authorship metadata.");
+      }
+      if (figure.noticePath !== "/courses/cursor/THIRD_PARTY_NOTICES.md"
+        || figure.rightsPath !== "/courses/cursor/figure-rights.json"
+        || figure.provenancePath !== "/courses/cursor/figure-provenance.json") {
+        add(`figures.${figure.id}.evidencePaths`, "Course-original figures must link the canonical notice, rights, and provenance records.");
+      }
+      if (!figure.evidenceSourceIds.length || figure.evidenceSourceIds.some((id) => !sourceIds.has(id))) {
+        add(`figures.${figure.id}.evidenceSourceIds`, "Course-original teaching claims require known evidence sources.");
+      }
       continue;
     }
 
@@ -682,19 +733,13 @@ export function validateCursorManifests(): readonly CursorValidationIssue[] {
       ...(figure.srcSet.mobile ? [figure.srcSet.mobile] : []),
     ];
     if (localSources.some((src) => !src.startsWith("/") || /^\/\//.test(src))) {
-      add(`figures.${figure.id}.srcSet`, "Available figures must use root-relative local assets.");
-    }
-    if (!Number.isInteger(figure.width) || figure.width < 1 || !Number.isInteger(figure.height) || figure.height < 1) {
-      add(`figures.${figure.id}.dimensions`, "Available figures need positive intrinsic dimensions.");
+      add(`figures.${figure.id}.srcSet`, "Third-party captures must use root-relative local assets.");
     }
     if (!/^\d{4}-\d{2}-\d{2}/.test(figure.capturedOn) || Number.isNaN(Date.parse(figure.capturedOn))) {
-      add(`figures.${figure.id}.capturedOn`, "Available figures need a valid capture date.");
+      add(`figures.${figure.id}.capturedOn`, "Third-party captures need a valid capture date.");
     }
     if (!figure.cursorVersion.trim() || !figure.os.trim()) {
-      add(`figures.${figure.id}.product`, "Available figures need Cursor version and operating system provenance.");
-    }
-    if (!/^[a-f0-9]{64}$/.test(figure.sha256)) {
-      add(`figures.${figure.id}.sha256`, "Available figures need a lowercase SHA-256 digest.");
+      add(`figures.${figure.id}.product`, "Third-party captures need Cursor version and operating system provenance.");
     }
     if (figure.privacyReviewed !== true) add(`figures.${figure.id}.privacyReviewed`, "Available figures require completed privacy review.");
     if (!/^https:\/\//.test(figure.sourceUrl)) add(`figures.${figure.id}.sourceUrl`, "Available figures need an HTTPS provenance URL.");
@@ -711,6 +756,15 @@ export function validateCursorManifests(): readonly CursorValidationIssue[] {
       add(`figures.${figure.id}.visiblePublicDemoIdentifiers`, "Public demo identifier disclosures cannot be blank.");
     }
     if (!figure.copyrightNotice.trim()) add(`figures.${figure.id}.copyrightNotice`, "Available figures need a copyright and independence notice.");
+    if (figure.rightsStatus === "publication-cleared") {
+      const evidence = figure.rightsEvidence;
+      if (!evidence.reviewedBy.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(evidence.reviewedOn)
+        || Number.isNaN(Date.parse(evidence.reviewedOn)) || !evidence.basis.trim()
+        || !evidence.scope.trim() || !/^https:\/\//.test(evidence.evidenceUrl)
+        || evidence.exactAssetSha256 !== figure.sha256) {
+        add(`figures.${figure.id}.rightsEvidence`, "Publication clearance must be reviewable, dated, scoped, linked, and bound to the exact asset hash.");
+      }
+    }
   }
 
   const rubricWeight = CURSOR_CAPSTONE_RUBRIC.reduce((sum, item) => sum + item.weight, 0);

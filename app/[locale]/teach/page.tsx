@@ -26,6 +26,7 @@ export async function generateMetadata(
 export default async function TeachPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = translator(await getMessages(locale));
+  const formatNumber = new Intl.NumberFormat(locale).format;
   const handbook = `/${locale}/handbook/`;
   const lab = `/${locale}/lab/`;
   const build = `/${locale}/build/`;
@@ -60,9 +61,9 @@ export default async function TeachPage({ params }: { params: Promise<{ locale: 
       <section className="sect">
         <h2>{t("teach.chooseTitle")}</h2>
         <div className="grid2">
-          <article className="card"><div className="card-b"><h3>45 min</h3><p>{t("teach.plan45")}</p></div></article>
-          <article className="card"><div className="card-b"><h3>90 min</h3><p>{t("teach.plan90")}</p></div></article>
-          <article className="card"><div className="card-b"><h3>180 min</h3><p>{t("teach.plan180")}</p></div></article>
+          <article className="card"><div className="card-b"><h3>{formatNumber(45)} {t("ui.minutes")}</h3><p>{t("teach.plan45")}</p></div></article>
+          <article className="card"><div className="card-b"><h3>{formatNumber(90)} {t("ui.minutes")}</h3><p>{t("teach.plan90")}</p></div></article>
+          <article className="card"><div className="card-b"><h3>{formatNumber(180)} {t("ui.minutes")}</h3><p>{t("teach.plan180")}</p></div></article>
         </div>
       </section>
 
@@ -94,10 +95,10 @@ export default async function TeachPage({ params }: { params: Promise<{ locale: 
         <div className="scroll"><table>
           <thead><tr><th>{t("teach.action")}</th><th>{t("teach.calls")}</th><th>{t("teach.output")}</th></tr></thead>
           <tbody>
-            <tr><td>{t("lab.s1.name")}</td><td>1</td><td>250 tokens</td></tr>
-            <tr><td>{t("lab.s3.name")}</td><td>3</td><td>3 × 300 tokens</td></tr>
-            <tr><td>{t("lab.s4.name")}</td><td>20 + 8 = 28</td><td>7,600 tokens</td></tr>
-            <tr><td>{t("teach.journey")}</td><td>60</td><td>16,350 tokens</td></tr>
+            <tr><td>{t("lab.s1.name")}</td><td>{formatNumber(1)}</td><td>{formatNumber(250)} {t("teach.tokenUnit")}</td></tr>
+            <tr><td>{t("lab.s3.name")}</td><td>{formatNumber(3)}</td><td>{formatNumber(3)} × {formatNumber(300)} {t("teach.tokenUnit")}</td></tr>
+            <tr><td>{t("lab.s4.name")}</td><td>{formatNumber(20)} + {formatNumber(8)} = {formatNumber(28)}</td><td>{formatNumber(7600)} {t("teach.tokenUnit")}</td></tr>
+            <tr><td>{t("teach.journey")}</td><td>{formatNumber(60)}</td><td>{formatNumber(16350)} {t("teach.tokenUnit")}</td></tr>
           </tbody>
         </table></div>
         <p className="small">{t("teach.stopBody")}</p>

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "aicourse.capstone-submission.v1",
+  "courseId": "deep-learning",
+  "courseVersion": "2026.08.26-v1",
+  "capstoneVersion": "2026.08.26-capstone-v1",
+  "validatorId": "aicourse.deep-learning.validator.v1",
+  "generatedOn": "2026-08-26",
+  "artifacts": [
+    { "artifactId": "environment-lock", "content": { "runtime": "", "processor": "CPU", "seed": 20260826, "inputHashes": [], "environmentLockSha256": "" } },
+    { "artifactId": "training-log", "content": { "architecture": "16-4-1-tanh-sigmoid", "epochs": 800, "milestones": [], "outputPath": "training-log.json", "outputSha256": "" } },
+    { "artifactId": "cost-energy-record", "content": { "proxyType": "logical-operation-count", "estimatedMultiplyAdds": 0, "physicalEnergyMeasured": false, "limitations": [] } },
+    { "artifactId": "error-slices", "content": { "slices": [], "baseline": {}, "neural": {}, "limitations": [] } },
+    { "artifactId": "ablation", "content": { "change": "disable biases only", "matchedBudget": false, "reference": {}, "ablated": {} } },
+    { "artifactId": "training-card", "content": { "purpose": "", "models": [], "intendedUses": [], "excludedUses": [], "evidenceLinks": [] } },
+    { "artifactId": "limitations", "content": { "knownFailures": [], "untestedConditions": [], "stopConditions": [], "decision": "" } },
+    { "artifactId": "reproducibility-receipt", "content": { "validatorId": "aicourse.deep-learning.validator.v1", "command": "", "outputs": [], "reviewer": {}, "decision": "" } }
+  ]
+}

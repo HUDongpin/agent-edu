@@ -1,8 +1,11 @@
 # Provenance ledger: Course 3 — How to Use Claude
 
-Snapshot date: 2026-08-24  
-Machine-readable source records: `lib/claude/sources.ts`  
-Machine-readable figure records: `lib/claude/figures.ts`  
+Snapshot date: 2026-08-24
+Media resolution date: 2026-08-26
+Machine-readable source records: `lib/claude/sources.ts`
+Machine-readable figure records: `lib/claude/figures.ts`
+Public figure provenance: `public/courses/claude/figure-provenance.v1.json`
+Public figure hashes: `public/courses/claude/figure-hashes.sha256`
 Offline release gate: `scripts/check-claude-course.mjs`
 
 ## Research method
@@ -32,14 +35,14 @@ Claims were accepted only when the exact URL or pinned commit was available. Cur
 |---|---|---|---|
 | `academy-claude-101` | https://academy.claude.com/courses/claude-101 | Beginner scope and core Claude workflows | Paraphrase |
 | `academy-fluency` | https://academy.claude.com/tutorials/getting-good-at-claude-a-research-backed-curriculum | Signature moves, description spectrum, recurring discernment | Paraphrase; no framework text copied |
-| `academy-desktop` | https://academy.claude.com/tutorials/navigating-the-claude-desktop-app | Chat, Cowork, and Code surface selection | Paraphrase plus image excerpts pending permission |
-| `academy-files` | https://academy.claude.com/tutorials/create-and-edit-files-with-claude-to-eliminate-hours-of-busy-work | File creation workflow and native inspection | Paraphrase plus image excerpt pending permission |
+| `academy-desktop` | https://academy.claude.com/tutorials/navigating-the-claude-desktop-app | Chat, Cowork, and Code surface selection | Paraphrase only; no Academy visual asset reused |
+| `academy-files` | https://academy.claude.com/tutorials/create-and-edit-files-with-claude-to-eliminate-hours-of-busy-work | File creation workflow and native inspection | Paraphrase only; accompanying diagram is course-original |
 | `academy-projects` | https://academy.claude.com/tutorials/intro-to-projects | Project knowledge and instructions | Paraphrase; entitlement deferred to Help Centre |
-| `academy-artifacts` | https://academy.claude.com/tutorials/use-artifacts-to-visualize-and-create-ai-apps-without-ever-writing-a-line-of-code | Artifact iteration, preview, and sharing review | Paraphrase plus image excerpts pending permission |
+| `academy-artifacts` | https://academy.claude.com/tutorials/use-artifacts-to-visualize-and-create-ai-apps-without-ever-writing-a-line-of-code | Artifact iteration, preview, and sharing review | Paraphrase only; accompanying diagrams are course-original |
 | `academy-research` | https://academy.claude.com/tutorials/using-research | Research mode and citation review | Paraphrase; no duration or source-count promise |
 | `academy-skills` | https://academy.claude.com/tutorials/teach-claude-your-way-of-working-using-skills | Skills as reusable procedures and testing | Paraphrase; availability deferred to Help Centre |
-| `academy-connectors` | https://academy.claude.com/tutorials/connect-your-tools-to-unlock-a-smarter-more-capable-ai-companion | Connector discovery and connected context | Paraphrase plus image excerpt pending permission |
-| `academy-cowork` | https://academy.claude.com/tutorials/get-started-in-claude-cowork-in-three-steps | Cowork mode, outcome brief, and folder scope | Paraphrase plus image excerpt pending permission |
+| `academy-connectors` | https://academy.claude.com/tutorials/connect-your-tools-to-unlock-a-smarter-more-capable-ai-companion | Connector discovery and connected context | Paraphrase only; accompanying diagram is course-original |
+| `academy-cowork` | https://academy.claude.com/tutorials/get-started-in-claude-cowork-in-three-steps | Cowork mode, outcome brief, and folder scope | Paraphrase only; accompanying diagram is course-original |
 | `academy-powerpoint` | https://academy.claude.com/tutorials/building-a-powerpoint-with-claude | Presentation brief and slide review | Paraphrase |
 | `academy-teachers` | https://academy.claude.com/tutorials/claude-for-teachers-in-action | Teacher workflow transfer and educator review | Paraphrase |
 | `support-projects` | https://support.claude.com/en/articles/9519177-how-can-i-create-and-manage-projects | Current Project operation, plan conditions, and boundaries | Paraphrase; operational authority |
@@ -74,14 +77,14 @@ Claims were accepted only when the exact URL or pinned commit was available. Cur
 
 | Figures | Source class | Current rights state | Release action |
 |---|---|---|---|
-| 01–05, 07–10, 13–15 | Claude Academy-hosted interface image excerpts | `permission-required`; no general redistribution grant located | Written permission or replacement with reviewed self-capture required |
+| 01–05, 07–10, 13–15 | Course-original deterministic SVG diagrams | `course-original`, CC0-1.0; no Academy pixels, third-party visual assets, remote assets, or scripts | Retain visible not-product-UI label, public provenance, exact hash, privacy review, and localized boundary copy |
 | 06 | `chrisblattman/claudeblattman`, pinned above | Repository licence reviewed; UI/trademark caveat disclosed | Retain attribution and NOTICE; confirm publication review |
 | 11 | `anthropics/claude-plugins-official@340e33aef211d95769d252324854497af871dafe` | Apache-2.0 repository licence reviewed; UI/trademark caveat disclosed | Retain attribution, exact source hash, metadata-removal record, and NOTICE |
 | 12 | `anthropics/claude-cookbooks`, pinned above | Repository licence reviewed; UI/trademark caveat disclosed | Retain attribution and NOTICE; confirm publication review |
 
-Each figure record contains the local file paths, source URL, date, observed surface, intrinsic dimensions, SHA-256 digests for the PNG master and both served WebP derivatives, privacy checklist, attribution, and rights state. The offline checker independently validates each file signature, declared width, metadata boundary, and pinned digest.
+Each original-diagram record contains its local SVG path, creation date and method, dimensions, SHA-256 digest, CC0 dedication, privacy checklist, attribution, and provenance-ledger path. Each licensed screenshot record retains its local PNG/WebP paths, source URL and commit, observation date, dimensions, source and derivative hashes, modification record, privacy checklist, attribution, and rights state. The offline checker validates SVG structure and safety, visible diagram labelling, raster signatures and metadata boundaries, public provenance coverage, and every pinned digest.
 
-Authenticity and republication rights are evaluated independently. As of 2026-08-24, eleven Academy figures match assets currently served by their cited first-party pages, but all twelve still require republication permission. Figure 01 is an additional fail-closed exception: its local 1274 × 1156 montage does not match any asset currently served by the cited Academy page, and no immutable source URL, source SHA-256, or reproducible composite/crop/resize recipe is recorded. It carries blocker `CLAUDE-FIG-01-PROVENANCE-UNVERIFIED`; permission alone must never clear that blocker. Recover and review the exact source chain, or replace the figure with an approved synthetic self-capture and regenerate every derivative and hash.
+Authenticity and republication rights remain independent for any future first-party screenshot. The old Academy binaries were retired, not relabelled. Figure 01’s former `CLAUDE-FIG-01-PROVENANCE-UNVERIFIED` blocker was closed only by removing the unverifiable binary and creating a different, original diagram with a new hash and authorship record. The first-party screenshot validator still fails closed unless an image has both reviewed source provenance and a defensible permission state.
 
 ## Claim boundaries
 
@@ -118,4 +121,4 @@ Fail-closed publication audit:
 node --import tsx scripts/check-claude-course.mjs --release
 ```
 
-The release command is expected to fail while any Academy figure remains `permission-required`, while Figure 01 provenance remains unverified, or after the Academy catalogue snapshot becomes stale.
+The release command is expected to fail for any Academy or product screenshot that remains `permission-required`, any unresolved screenshot-authenticity record, any unsafe or unlabelled original SVG, any provenance/hash mismatch, or an expired Academy catalogue snapshot. As of 2026-08-26 the Claude-specific release checker passes with twelve original diagrams and three repository-licensed screenshots.

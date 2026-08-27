@@ -11,6 +11,7 @@
 import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inspectReleaseGateWiring } from "./release-gate-wiring.mjs";
 
 import {
   AGENT_ORCHESTRATION_CONCEPT_DOMAIN_IDS,
@@ -834,14 +835,16 @@ function checkIntegration() {
       fail("package.json: agent-orchestration:static-check is missing");
     }
     for (const scriptName of ["build", "build:release"]) {
-      const build = String(scripts[scriptName] ?? "");
-      const releaseGateIndex = build.indexOf("npm run agent-orchestration:check:release");
-      const nextBuildIndex = build.lastIndexOf("next build");
-      const staticGateIndex = build.indexOf("npm run agent-orchestration:static-check");
-      if (releaseGateIndex < 0 || nextBuildIndex < 0 || releaseGateIndex > nextBuildIndex) {
+      const wiring = inspectReleaseGateWiring(
+        scripts,
+        scriptName,
+        "agent-orchestration:check:release",
+        "agent-orchestration:static-check",
+      );
+      if (!wiring.releaseBeforeBuild) {
         fail(`package.json: ${scriptName} must run the Course 15 source/release gate before next build`);
       }
-      if (staticGateIndex < 0 || staticGateIndex < nextBuildIndex) {
+      if (!wiring.staticAfterBuild) {
         fail(`package.json: ${scriptName} must run the Course 15 static-output gate after next build`);
       }
     }

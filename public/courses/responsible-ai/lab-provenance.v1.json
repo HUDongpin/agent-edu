@@ -1,0 +1,69 @@
+{
+  "schema_version": "aicourse.course-lab-provenance.v1",
+  "course_id": "responsible-ai",
+  "course_version": "2026.08.26-v1",
+  "notice_version": "responsible-ai-notice.v2",
+  "created_on": "2026-08-26",
+  "generation": {
+    "method": "Hand-authored governance dossier template and reference package with a standard-library fail-closed validator.",
+    "network_required": false,
+    "validator_id": "aicourse.responsible-ai.validator.v1"
+  },
+  "rights": {
+    "publication_eligible": true,
+    "containsThirdPartyData": false,
+    "containsPersonalData": false,
+    "template_and_example_data": "CC0-1.0",
+    "course_code_and_copy": "Repository terms apply; not included in the CC0 data dedication.",
+    "privacy_review": "The package contains no real person, participant, institution, incident, system, account, or research datum."
+  },
+  "resources": [
+    {
+      "path": "lab/README.md",
+      "sha256": "5fef66708e5e03a02db694cc216f5ad95dcf8cd3cb5fbb929b50b270c231a1e0",
+      "media_type": "text/markdown",
+      "origin": "Course-authored lab instructions"
+    },
+    {
+      "path": "lab/README.zh-Hans.md",
+      "sha256": "89e526663da4fccac91c613636a9c1c17cb07fad3522dae583676b2f9331c705",
+      "media_type": "text/markdown; charset=utf-8",
+      "origin": "Course-authored Simplified Chinese lab instructions; human language review remains pending"
+    },
+    {
+      "path": "lab/capstone.schema.json",
+      "sha256": "060fedfc5859130102c5dc89d986a8c2fafa1c4475e8c4d4a74248599a06ed00",
+      "media_type": "application/schema+json",
+      "origin": "Course-authored capstone schema"
+    },
+    {
+      "path": "lab/governance-dossier-example.json",
+      "sha256": "15501cb6fcbe152db962d26ddd719b43a299e547695d7e6afa804fc646b39d14",
+      "media_type": "application/json",
+      "origin": "Course-authored fictional reference dossier"
+    },
+    {
+      "path": "lab/governance-dossier-template.json",
+      "sha256": "6a5543d5eea2662664ba0f53a45851ce68d62b4b871b698ce527e92eff91b436",
+      "media_type": "application/json",
+      "origin": "Course-authored incomplete learner template"
+    },
+    {
+      "path": "lab/test_lab.py",
+      "sha256": "5f8a33028cb31c0fa23b4d36a48b299175c30539573ffc5edc39335aeb186e9a",
+      "media_type": "text/x-python",
+      "origin": "Course-authored clean-run and destructive negative tests"
+    },
+    {
+      "path": "lab/validate.py",
+      "sha256": "8b3a68e860fa5fec3c8d53213970ae46759b69cbd56ec042068bcf8e1153d64a",
+      "media_type": "text/x-python",
+      "origin": "Course-authored standard-library validator"
+    }
+  ],
+  "boundaries": [
+    "A passing reference dossier demonstrates schema conformance only; it is not independent assurance, certification, legal advice, or deployment approval.",
+    "A real dossier requires qualified, accountable human review over the actual system, jurisdiction, affected people, evidence, controls, and current official texts.",
+    "The locked synthetic fixture is verified by SHA-256 and cannot support a claim about a real population or system."
+  ]
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" data-origin="course-original">
+  <title>Course-original browser boundary and allowlist diagram</title>
+  <rect width="1600" height="900" rx="48" fill="#0f172a"/>
+  <rect x="155" y="200" width="1290" height="540" rx="48" fill="#1e293b" stroke="#64748b" stroke-width="8"/>
+  <path d="M155 315h1290" stroke="#64748b" stroke-width="8"/>
+  <circle cx="235" cy="258" r="18" fill="#f87171"/><circle cx="295" cy="258" r="18" fill="#fbbf24"/><circle cx="355" cy="258" r="18" fill="#34d399"/>
+  <rect x="450" y="232" width="760" height="52" rx="26" fill="#334155"/>
+  <rect x="280" y="400" width="410" height="230" rx="36" fill="#134e4a" stroke="#5eead4" stroke-width="7"/>
+  <path d="m365 505 55 57 117-145" fill="none" stroke="#f8fafc" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="910" y="400" width="410" height="230" rx="36" fill="#7f1d1d" stroke="#fca5a5" stroke-width="7"/>
+  <path d="m1015 455 190 120m0-120-190 120" stroke="#f8fafc" stroke-width="24" stroke-linecap="round"/>
+  <path d="M710 515h180" stroke="#f59e0b" stroke-width="18" stroke-linecap="round" stroke-dasharray="20 18"/>
+</svg>

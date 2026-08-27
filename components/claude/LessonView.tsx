@@ -95,6 +95,8 @@ export default function LessonView({
                       pendingLabel={course.copy.ui.capturePending}
                       sourceLabel={course.copy.ui.source}
                       observedLabel={course.copy.ui.figureObservedOn}
+                      createdLabel={course.copy.ui.figureCreatedOn}
+                      provenanceLabel={course.copy.ui.figureProvenance}
                     />
                   ) : null}
                 </section>
@@ -153,7 +155,7 @@ export default function LessonView({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <strong dir="auto">{source.title}</strong>
+                      <strong lang="en" dir="ltr">{source.title}</strong>
                       <span dir="auto">
                         {source.publisher}
                         {" · "}{course.copy.ui.sourceVerifiedOn}{" "}
@@ -168,7 +170,7 @@ export default function LessonView({
                         {source.supportingAnchors.map((anchor, index) => (
                           <li key={anchor}>
                             <a href={anchor} target="_blank" rel="noopener noreferrer">
-                              <span dir="auto">{source.title}</span>
+                              <span lang="en" dir="ltr">{source.title}</span>
                               {" · "}
                               <span>{course.copy.ui.source} <bdi>{index + 2}</bdi></span>
                             </a>

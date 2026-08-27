@@ -1,0 +1,38 @@
+{
+  "schemaId": "aicourse.responsible-ai.capstone.v1",
+  "courseId": "responsible-ai",
+  "courseVersion": "2026.08.26-v1",
+  "capstoneVersion": "2026.08.26-capstone-v1",
+  "fixture": {
+    "path": "public/courses/responsible-ai/governance-case-synthetic-v1.json",
+    "sha256": "289625c9ff824dea69c96048f6e1b8293d94f2d8434f0ef268aaaf271fad1253"
+  },
+  "artifacts": {
+    "impact-assessment": { "owner": "governance lead", "status": "complete", "evidence": ["case purpose, affected fictional groups, irreversible harms, and no-deploy trigger recorded"], "limitations": ["The fixture cannot estimate real-world likelihood or severity."] },
+    "stakeholder-map": { "owner": "participation reviewer", "status": "complete", "evidence": ["affected learner, educator, appeal reviewer, operator, and indirect family roles mapped"], "limitations": ["No real stakeholder consultation occurred."] },
+    "risk-register": { "owner": "risk owner", "status": "complete", "evidence": ["R-01 subgroup false-positive harm; R-02 missing override; R-03 disclosure delay"], "limitations": ["Risk scoring is instructional, not actuarial."] },
+    "data-map": { "owner": "data steward", "status": "complete", "evidence": ["field purpose, access, retention, deletion, and prohibited reuse mapped"], "limitations": ["The synthetic fields establish no lawful basis for real data."] },
+    "subgroup-test": { "owner": "evaluation reviewer", "status": "complete", "evidence": ["counts and false-positive rates calculated with denominators for every authored group"], "limitations": ["Tiny balanced groups do not support population inference."] },
+    "explanation-limitations-card": { "owner": "communication reviewer", "status": "complete", "evidence": ["score meaning, uncertainty, abstention, unsupported inferences, and correction path stated"], "limitations": ["No explanation was tested with real users."] },
+    "override-appeal-flow": { "owner": "human authority owner", "status": "complete", "evidence": ["pause, override, independent appeal, correction, notification, and record-retention steps assigned"], "limitations": ["The flow has not been staffed or timed in a real setting."] },
+    "red-team-incident-log": { "owner": "incident lead", "status": "complete", "evidence": ["missing override and subgroup threshold failures injected, detected, contained, and retested"], "limitations": ["The toy tests do not exhaust plausible attacks or harms."] },
+    "go-no-go-memo": { "owner": "named decision maker", "status": "complete", "evidence": ["no-deploy decision linked to unresolved rights, external-validity, staffing, and remedy evidence"], "limitations": ["Course completion is not authorization."] }
+  },
+  "responsibleAiGate": {
+    "version": "2026.08.26-v1",
+    "criteria": [
+      "purpose-risk-stop",
+      "data-rights-minimisation",
+      "subgroups-uncertainty",
+      "human-authority-recourse",
+      "challenge-incident-recovery",
+      "evidence-decision-expiry"
+    ]
+  },
+  "decision": "no-deploy",
+  "reviewer": {
+    "role": "independent instructional reviewer",
+    "decision": "accept-with-limitations",
+    "reviewedOn": "2026-08-26"
+  }
+}

@@ -157,10 +157,10 @@ export const CLAUDE_LESSONS = [
 
 export const CLAUDE_COURSE_MANIFEST = {
   id: CLAUDE_COURSE_ID,
-  version: "1.0.0",
+  version: "1.1.0",
   preparedOn: "2026-08-23",
-  publicationStatus: "rights-gated",
-  publishedOn: null,
+  publicationStatus: "published",
+  publishedOn: "2026-08-26",
   sourceSnapshotOn: "2026-08-24",
   units: CLAUDE_UNITS,
   lessons: CLAUDE_LESSONS,

@@ -1,7 +1,11 @@
 import Catalog from "@/components/courses/Catalog";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
 import { SITE, seoFor, urlFor } from "@/lib/seo";
-import { COURSE_MODULES, TOP_LEVEL_COURSES } from "@/lib/courses";
+import {
+  COURSE_MODULES,
+  TOP_LEVEL_COURSES,
+  type TopLevelCourse,
+} from "@/lib/courses";
 import { CODEX_LESSONS, isCodexLocale, loadCodexCopy } from "@/lib/codex";
 import { CLAUDE_COURSE_MANIFEST, loadClaudeCourse } from "@/lib/claude";
 import { loadCursorCourse } from "@/lib/cursor/load";
@@ -17,6 +21,8 @@ import { loadAiTutorCourse } from "@/lib/ai-tutor";
 import { loadProductManagementCourse } from "@/lib/product-management";
 import { loadAgentOrchestrationCourse } from "@/lib/agent-orchestration";
 import { SOFTWARE_ENGINEERING_LESSONS } from "@/lib/software-engineering";
+import { materialiseCourseKit } from "@/lib/course-kit/locale";
+import { COURSE_KIT_DEFINITIONS } from "@/lib/course-kit/registry";
 import JsonLd from "@/components/JsonLd";
 import type { Metadata } from "next";
 
@@ -65,6 +71,12 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     loadAgentOrchestrationCourse(locale),
   ]);
   const mcpCourse = await loadMcpCourse(locale);
+  const courseKitCourses = COURSE_KIT_DEFINITIONS.map((definition) =>
+    materialiseCourseKit(definition, locale),
+  );
+  const courseKitById = new Map<string, (typeof courseKitCourses)[number]>(
+    courseKitCourses.map((course) => [course.id, course] as const),
+  );
 
   const courseOneParts = COURSE_MODULES.map((module) => ({
     "@type": "Course",
@@ -200,7 +212,24 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     timeRequired: `PT${module.minutes}M`,
   }));
 
-  const partsByCourse = {
+  const courseKitParts = new Map(
+    courseKitCourses.map((course) => [
+      course.id,
+      course.modules.map((module) => ({
+        "@type": "LearningResource",
+        position: module.order,
+        name: module.copy.title,
+        description: module.copy.summary,
+        url: `${urlFor(course.locale.canonicalLocale)}${course.id}/${module.slug}/`,
+        inLanguage: course.locale.contentLocale,
+        timeRequired: `PT${module.minutes}M`,
+      })),
+    ] as const),
+  );
+
+  const partsByCourse: Partial<
+    Record<TopLevelCourse["id"], readonly Record<string, unknown>[]>
+  > = {
     agentic: courseOneParts,
     codex: courseTwoParts,
     claude: courseThreeParts,
@@ -216,64 +245,73 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     "ai-tutor": courseThirteenParts,
     "product-management": courseFourteenParts,
     "agent-orchestration": courseFifteenParts,
-  } as const;
+    ...Object.fromEntries(courseKitParts),
+  };
 
   const list = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: TOP_LEVEL_COURSES.map((course) => ({
-      "@type": "ListItem",
-      position: course.displayNumber,
-      item: {
-        "@type": "Course",
-        name: course.id === "mcp" ? mcpCourse.title : t(`c.${course.id}.title`),
-        description: course.id === "mcp" ? mcpCourse.summary : t(`c.${course.id}.blurb`),
-        url: course.id === "agentic"
-          ? `${urlFor(locale)}courses/#agentic-engineering`
-          : course.id === "mcp"
-            ? `${urlFor(mcpCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : course.id === "make-money-with-codex"
-            ? `${urlFor("en")}${course.href.replace(/^\//, "")}`
-          : course.id === "ai-tutor"
-            ? `${urlFor(aiTutorCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : course.id === "product-management"
-            ? `${urlFor(productManagementCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : course.id === "agent-orchestration"
-            ? `${urlFor(agentOrchestrationCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : course.id === "prompts"
-            ? `${urlFor(promptCourse.contentLocale)}${course.href.replace(/^\//, "")}`
-          : `${urlFor(locale)}${course.href.replace(/^\//, "")}`,
-        provider: { "@id": `${SITE}/#org` },
-        inLanguage: course.id === "rag"
-          ? ragCourse.contentLocale
-          : course.id === "mcp"
-          ? mcpCourse.contentLocale
+    itemListElement: TOP_LEVEL_COURSES.map((course) => {
+      const courseKitCourse = courseKitById.get(course.id);
+      const contentLocale = courseKitCourse?.locale.contentLocale
+        ?? (course.id === "rag" ? ragCourse.contentLocale
+          : course.id === "mcp" ? mcpCourse.contentLocale
           : course.id === "prompts"
           || course.id === "software-engineering"
           || course.id === "make-money-with-codex"
-          || course.id === "claude-income"
-          ? "en"
-          : course.id === "ai-tutor"
-            ? aiTutorCourse.contentLocale
-          : course.id === "product-management"
-            ? productManagementCourse.contentLocale
-          : course.id === "agent-orchestration"
-            ? agentOrchestrationCourse.contentLocale
-          : locale,
-        educationalLevel: t(`c.${course.id}.level`),
-        isAccessibleForFree: true,
-        ...(partsByCourse[course.id].length ? { hasPart: partsByCourse[course.id] } : {}),
-        offers: {
-          "@type": "Offer", price: 0, priceCurrency: "USD",
-          category: "Free", availability: "https://schema.org/InStock",
+          || course.id === "claude-income" ? "en"
+          : course.id === "ai-tutor" ? aiTutorCourse.contentLocale
+          : course.id === "product-management" ? productManagementCourse.contentLocale
+          : course.id === "agent-orchestration" ? agentOrchestrationCourse.contentLocale
+          : locale);
+      const courseUrl = courseKitCourse
+        ? `${urlFor(courseKitCourse.locale.canonicalLocale)}${course.href.replace(/^\//, "")}`
+        : course.id === "agentic"
+          ? `${urlFor(locale)}courses/#agentic-engineering`
+        : course.id === "mcp"
+          ? `${urlFor(mcpCourse.contentLocale)}${course.href.replace(/^\//, "")}`
+        : course.id === "make-money-with-codex"
+          ? `${urlFor("en")}${course.href.replace(/^\//, "")}`
+        : course.id === "ai-tutor"
+          ? `${urlFor(aiTutorCourse.contentLocale)}${course.href.replace(/^\//, "")}`
+        : course.id === "product-management"
+          ? `${urlFor(productManagementCourse.contentLocale)}${course.href.replace(/^\//, "")}`
+        : course.id === "agent-orchestration"
+          ? `${urlFor(agentOrchestrationCourse.contentLocale)}${course.href.replace(/^\//, "")}`
+        : course.id === "prompts"
+          ? `${urlFor(promptCourse.contentLocale)}${course.href.replace(/^\//, "")}`
+        : `${urlFor(locale)}${course.href.replace(/^\//, "")}`;
+
+      return {
+        "@type": "ListItem",
+        position: course.displayNumber,
+        item: {
+          "@type": "Course",
+          name: courseKitCourse?.copy.meta.title
+            ?? (course.id === "mcp" ? mcpCourse.title : t(`c.${course.id}.title`)),
+          description: courseKitCourse?.copy.meta.summary
+            ?? (course.id === "mcp" ? mcpCourse.summary : t(`c.${course.id}.blurb`)),
+          url: courseUrl,
+          provider: { "@id": `${SITE}/#org` },
+          inLanguage: contentLocale,
+          educationalLevel: courseKitCourse?.copy.meta.level
+            ?? t(`c.${course.id}.level`),
+          isAccessibleForFree: true,
+          ...(partsByCourse[course.id]?.length
+            ? { hasPart: partsByCourse[course.id] }
+            : {}),
+          offers: {
+            "@type": "Offer", price: 0, priceCurrency: "USD",
+            category: "Free", availability: "https://schema.org/InStock",
+          },
+          hasCourseInstance: {
+            "@type": "CourseInstance",
+            courseMode: "online",
+            courseWorkload: `PT${course.minutes}M`,
+          },
         },
-        hasCourseInstance: {
-          "@type": "CourseInstance",
-          courseMode: "online",
-          courseWorkload: `PT${course.minutes}M`,
-        },
-      },
-    })),
+      };
+    }),
   };
 
   return (

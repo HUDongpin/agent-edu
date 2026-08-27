@@ -1,0 +1,84 @@
+{
+  "schema": "aicourse.course-kit.localization-reviews.v1",
+  "checklistVersion": "course-kit-native-content-review.v1",
+  "courses": {
+    "responsible-ai": {
+      "courseVersion": "2026.08.26-v1",
+      "locales": {
+        "en": {
+          "status": "pending",
+          "copySha256": "f6c33055397d42dfb5803f94276a8a553f5cc9c0a98408d641b875d3e0a65c43"
+        },
+        "zh-Hans": {
+          "status": "pending",
+          "copySha256": "3fb3877d1e4ee37b00b34e61c40ec2900faa7fa6a65337b17e9acd6f49391529"
+        }
+      }
+    },
+    "ai-research": {
+      "courseVersion": "2026.08.26-v1",
+      "locales": {
+        "en": {
+          "status": "pending",
+          "copySha256": "4338bcdc06adefe711086081f2cccd79e34e69571e2c10635bc4a18e742f6e37"
+        },
+        "zh-Hans": {
+          "status": "pending",
+          "copySha256": "f9e9fd2da92d666176f29781934e6129cd99e91ce5d34ea847505bab24c0b85e"
+        }
+      }
+    },
+    "ai-python-data": {
+      "courseVersion": "2026.08.26-v1",
+      "locales": {
+        "en": {
+          "status": "pending",
+          "copySha256": "fbc549a8136ffb92d56ab0689225a4e5cbc2b105e2824270458b1d4c3f55c9c4"
+        },
+        "zh-Hans": {
+          "status": "pending",
+          "copySha256": "1d5507f72baefac544ff17606989e5c2bb7455b95e80477884a34fd2cf723239"
+        }
+      }
+    },
+    "machine-learning": {
+      "courseVersion": "2026.08.26-v1",
+      "locales": {
+        "en": {
+          "status": "pending",
+          "copySha256": "27ad339295db16d58cd8ae6c4b05116cbe083cd04348309ceab31a9c0dc55f09"
+        },
+        "zh-Hans": {
+          "status": "pending",
+          "copySha256": "7cfa6444871635f5983b3104d294007ca226dc8f6404eb2c59188d7db61ddad7"
+        }
+      }
+    },
+    "deep-learning": {
+      "courseVersion": "2026.08.26-v1",
+      "locales": {
+        "en": {
+          "status": "pending",
+          "copySha256": "6eece793744303fb786ad360c6534d54bde4fcfe4dc6e39dbe792b644c391b8a"
+        },
+        "zh-Hans": {
+          "status": "pending",
+          "copySha256": "9ea64fc7d3971ed6bbae62d5214d4f1d6f79d1861bba0bd947d9dcd0e4b58e92"
+        }
+      }
+    },
+    "production-ai": {
+      "courseVersion": "2026.08.26-v1",
+      "locales": {
+        "en": {
+          "status": "pending",
+          "copySha256": "9ba1099c4434894e1b555bcb49f21d8539d36a12ec431d5c147f734f3e5d3538"
+        },
+        "zh-Hans": {
+          "status": "pending",
+          "copySha256": "15e27130f3400a4fed63602f9af5f92d9ecc7d86991a562ab64d299d30c1a712"
+        }
+      }
+    }
+  }
+}

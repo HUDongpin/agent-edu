@@ -1,0 +1,1132 @@
+{
+  "schemaVersion": "1.0.0",
+  "siteLocales": [
+    "en",
+    "es",
+    "fr",
+    "de",
+    "zh-Hans",
+    "zh-Hant",
+    "ja",
+    "ko",
+    "ar"
+  ],
+  "evidenceSets": {
+    "brand-rights-and-provenance": [
+      "README.md",
+      "LICENSE"
+    ],
+    "brand-locale-alternative": [
+      "README.md",
+      "components/Shell.tsx"
+    ],
+    "claude-original-rights-and-provenance": [
+      "public/courses/claude/NOTICE.md",
+      "public/courses/claude/figure-provenance.v1.json",
+      "public/courses/claude/figure-hashes.sha256",
+      "lib/claude/figures.ts"
+    ],
+    "claude-original-locale-alternative": [
+      "components/claude/CourseFigure.tsx",
+      "messages/claude/en.json",
+      "messages/claude/es.json",
+      "messages/claude/fr.json",
+      "messages/claude/de.json",
+      "messages/claude/zh-Hans.json",
+      "messages/claude/zh-Hant.json",
+      "messages/claude/ja.json",
+      "messages/claude/ko.json",
+      "messages/claude/ar.json"
+    ],
+    "rag-anthropic-rights-and-provenance": [
+      "public/courses/rag/NOTICE.md",
+      "lib/rag/figures.ts",
+      "lib/rag/sources.ts",
+      "outputs/rag-course-research-brief.provenance.md"
+    ],
+    "rag-anthropic-locale-alternative": [
+      "components/rag/RagFigure.tsx",
+      "messages/rag/en.json",
+      "messages/rag/es.json",
+      "messages/rag/fr.json",
+      "messages/rag/de.json",
+      "messages/rag/zh-Hans.json",
+      "messages/rag/zh-Hant.json",
+      "messages/rag/ja.json",
+      "messages/rag/ko.json",
+      "messages/rag/ar.json"
+    ]
+  },
+  "assets": [
+    {
+      "path": "public/logo-lockup.svg",
+      "sha256": "3558c5fddf03a423643a01e5dfe5890253a0c3cda030235814bad69544348c0e",
+      "visibleTextInventory": [
+        "aicourse .top",
+        "TOP AI COURSE"
+      ],
+      "classification": "brand-mark",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "repository-owned",
+        "holder": "HU Dongpin",
+        "licence": "MIT",
+        "evidenceSet": "brand-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "repository-native",
+        "source": "aicourse.top repository brand lockup",
+        "evidenceSet": "brand-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "none",
+        "description": "Repository-native vector wordmark; no upstream asset or transformation is recorded."
+      },
+      "localeBehavior": {
+        "mode": "documentation-only-locale-invariant-brand",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "brand-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "locale-shell-text-equivalent",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "components/Shell.tsx#brand-wordmark",
+        "evidenceSet": "brand-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "mechanically-verified",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Exact repository brand asset, hash, two visible labels, MIT ownership record, README alt and text-only localized shell wordmark all match."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-01-surface-map-original.svg",
+      "sha256": "b2d2b3c258db48cbacb6f0bef871d110ba41774909b6043d27ed0445d4575d7e",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "BOUNDED TASK",
+        "outcome · inputs · risk · authority",
+        "CHAT",
+        "conversation and review",
+        "human executes final action",
+        "COWORK",
+        "bounded files and steps",
+        "checkpoints before effects",
+        "CODE",
+        "repository and tests",
+        "diff before merge or deploy",
+        "Choose the smallest surface that can produce inspectable evidence."
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-01",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-02-outcome-contract-original.svg",
+      "sha256": "84d843f884cf21c32966b5a609f3edd7ec4c2772ee35a7531af09b7dce9acd8f",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "MAKE THE OUTCOME TESTABLE",
+        "OUTCOME",
+        "what exists",
+        "when done",
+        "INPUTS",
+        "allowed sources",
+        "and missing facts",
+        "CONSTRAINTS",
+        "format · limits",
+        "safety · authority",
+        "CHECKS",
+        "observable tests",
+        "and stop rules",
+        "REVIEWABLE TASK CONTRACT",
+        "a second person can judge completion"
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-02",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-03-iteration-loop-original.svg",
+      "sha256": "1dbae1d91d09d68a060c1c52c239d5d915ed504a58df4bfb81531e0c1967cffd",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "DRAFT",
+        "keep the object",
+        "INSPECT",
+        "compare evidence",
+        "TEST",
+        "check acceptance",
+        "ONE DELTA",
+        "change one property",
+        "PRESERVE",
+        "what already works"
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-03",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-04-permission-gate-original.svg",
+      "sha256": "b677c22e11ee9dbbe6566c54ad329787532f289f8aea90491a749526ea90a93e",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "REQUEST",
+        "what action?",
+        "SCOPE",
+        "which files?",
+        "read or write?",
+        "REVIEW",
+        "risk and need",
+        "MINIMUM",
+        "allow once",
+        "DENY",
+        "or redesign",
+        "File creation and network access are separate decisions."
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-04",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-05-file-verification-original.svg",
+      "sha256": "690d659c59f0763499003126312709a4dcf588009ebad6a1a9a76ff2ea2263b2",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "PREVIEW IS NOT VERIFICATION",
+        "SOURCE",
+        "facts and files",
+        "GENERATE",
+        "draft object",
+        "NATIVE FILE",
+        "DOCX · XLSX",
+        "PPTX · PDF",
+        "OPEN",
+        "render · inspect",
+        "recalculate",
+        "SHARE",
+        "after approval",
+        "CHECK RECEIPT",
+        "format · formulas · links · accessibility · sensitive content"
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-05",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-07-artifact-gate-original.svg",
+      "sha256": "6af320bf1960e3c8341273a3cfc1ad7f676d5cac28b814feb8b257f82c3e3e39",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "BRIEF",
+        "audience and test",
+        "BUILD",
+        "smallest version",
+        "PREVIEW",
+        "inspect behaviour",
+        "inspect code",
+        "TEST",
+        "criteria pass?",
+        "NO · REVISE ONE FAILURE",
+        "YES",
+        "PUBLISH GATE",
+        "audience · exposure"
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-07",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-08-source-audit-original.svg",
+      "sha256": "8a1baaf5e04681af8513949c94591a90056aa1755586a8b714872e7360bf7561",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "RETRIEVAL LOCATES · SOURCES SUPPORT",
+        "LOCATE",
+        "candidate",
+        "OPEN",
+        "primary record",
+        "LOCATOR",
+        "page · table · cell",
+        "VERIFY",
+        "identity and fit",
+        "CITE",
+        "bounded claim",
+        "CLAIM–SOURCE LEDGER",
+        "identity · exact support · limitation · access status · correction"
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-08",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-09-tool-scope-original.svg",
+      "sha256": "41b2b4a530bc08ccdb69ed86ee3f0c36b7a970f3fbe464c1f01a57fbfe0b0617",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "TOOL",
+        "described capability",
+        "READ SCOPE",
+        "WRITE SCOPE",
+        "INHERITED ACCESS",
+        "LOG AND REVOKE",
+        "DECISION",
+        "allow minimum",
+        "or do not connect",
+        "Capability is not blanket authorisation."
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-09",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-10-delegation-envelope-original.svg",
+      "sha256": "00448e3d0be7caa90e3ba8c232a84c051d439e844b668d2852693399ecbfe0be",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "DELEGATED TASK",
+        "observable outcome",
+        "limited workspace",
+        "ALLOWED FILES",
+        "APPROVAL GATES",
+        "CHECKPOINTS",
+        "STOP · ROLLBACK",
+        "Delegation expands execution, never accountability."
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-10",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-13-writing-control-original.svg",
+      "sha256": "f3bec89b8a7459afd1050865ac28eb326a78c745dcf7573f4c8d62e12adf7a2d",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "DRAFTING DOES NOT AUTHORISE SENDING",
+        "SOURCE",
+        "facts",
+        "DRAFT",
+        "structure",
+        "CRITIQUE",
+        "gaps",
+        "VERIFY",
+        "claims",
+        "APPROVE",
+        "human",
+        "SEND GATE",
+        "recipient · tone · attachment",
+        "REVISION RECEIPT",
+        "what changed · who checked · what remains uncertain"
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-13",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-14-learning-loop-original.svg",
+      "sha256": "123a25efcafa675ab03e52959b6cbbdca6f7143855134e9b7ee196f0fd6751ca",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "LEARNING GOAL",
+        "teacher defines",
+        "PRACTICE",
+        "learner attempts",
+        "EVIDENCE",
+        "show thinking",
+        "REVIEW",
+        "teacher verifies",
+        "FEEDBACK",
+        "supports the next attempt"
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-14",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/claude/figures/fig-15-publication-boundary-original.svg",
+      "sha256": "67b91a42fb9c0672b62761df412cdfde578b860b53bf6442c2d25c4f14720c31",
+      "visibleTextInventory": [
+        "ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI",
+        "ARTIFACT",
+        "PUBLICATION CHECK",
+        "exact object and context",
+        "audience and discoverability",
+        "links and embedded access",
+        "sensitive-content scan",
+        "named human approval",
+        "PUBLISH",
+        "record the receipt",
+        "STOP",
+        "remove or redesign",
+        "Preview, share, and publish are different exposure decisions."
+      ],
+      "classification": "course-original-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "course-original-cc0",
+        "holder": "aicourse.top course authors",
+        "licence": "CC0-1.0",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "course-original",
+        "source": "public/courses/claude/figure-provenance.v1.json",
+        "evidenceSet": "claude-original-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "course-authored-original",
+        "description": "Deterministic hand-authored SVG assembled from geometric primitives and course-authored English labels; no third-party pixels were traced or embedded."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-and-caption",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "figures.fig-15",
+        "evidenceSet": "claude-original-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Rights and localized alt/caption evidence are exact, but the English SVG has no intrinsic lang=en annotation and no complete localized visible-label transcript; media-language review remains open."
+      }
+    },
+    {
+      "path": "public/courses/rag/figures/anthropic-knowledge-wiki-architecture.svg",
+      "sha256": "947a005c4690087aed08f92a1681e95c2e6de7909e1edc7a75e085fa5d00131f",
+      "visibleTextInventory": [
+        "FLOW 1 &#183; BUILD THE WIKI &#8212; extract &amp; resolve, then dream",
+        "FLOW 2 &#183; QUERY THE WIKI &#8212; every analyst question",
+        "Document corpus",
+        "filings · deck · notes",
+        "fetched from public sources",
+        "1",
+        "Extract and Resolve Agent",
+        "Sonnet 5 &#183; one session per doc,",
+        "then a resolve pass over the gap list",
+        "files facts with [source | as-of]",
+        "gaps &#8594; open_questions.md, then",
+        "researched on SEC EDGAR (web tools)",
+        "2",
+        "Steered dream",
+        "POST /v1/dreams &#183; claude-sonnet-5",
+        "dedupe &#183; index",
+        "write ranked escalations.md",
+        "reads the wiki + transcripts",
+        "Knowledge Wiki",
+        "versioned memory store",
+        "index &#183; entities &#183; escalations",
+        "3",
+        "Analyst agents (Sonnet 5)",
+        "fresh Managed Agents session per question",
+        "answer from the wiki only,",
+        "cite [source | as-of] provenance",
+        "analyst questions",
+        "\"which EBITDA is comparable?\"",
+        "\"anything worth escalating?\"",
+        "Sourced answers",
+        "every fact carries provenance;",
+        "\"not in the corpus\" on a miss",
+        "read once",
+        "transcripts feed the dream",
+        "writes wiki + gap resolutions",
+        "reads",
+        "writes a new,",
+        "consolidated version",
+        "read_only attach",
+        "4",
+        "Sonnet 5 dream &#183; analyst transcripts",
+        "the wiki learns from usage",
+        "the two flows share exactly one thing: the knowledge wiki store. Build runs once per corpus; query runs once per question."
+      ],
+      "classification": "third-party-or-derived-diagram",
+      "contentLanguage": "en",
+      "rights": {
+        "status": "licensed-third-party",
+        "holder": "Anthropic",
+        "licence": "MIT",
+        "evidenceSet": "rag-anthropic-rights-and-provenance"
+      },
+      "provenance": {
+        "status": "pinned-upstream",
+        "source": "https://raw.githubusercontent.com/anthropics/claude-quickstarts/5264b729deda905dba3e5402d717bebed000325c/managed-agents/knowledge-wiki/assets/architecture.svg",
+        "evidenceSet": "rag-anthropic-rights-and-provenance"
+      },
+      "transformation": {
+        "status": "none-byte-for-byte",
+        "description": "Local SVG is preserved byte for byte from the pinned upstream commit."
+      },
+      "localeBehavior": {
+        "mode": "english-ltr-third-party-media-in-localized-course",
+        "direction": "ltr",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "explicitLanguageAnnotation": false,
+        "evidenceSet": "rag-anthropic-locale-alternative"
+      },
+      "localizedAlternative": {
+        "status": "localized-alt-caption-and-transcript",
+        "locales": [
+          "en",
+          "es",
+          "fr",
+          "de",
+          "zh-Hans",
+          "zh-Hant",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "copyLocator": "lessons.advanced-patterns.figure",
+        "evidenceSet": "rag-anthropic-locale-alternative"
+      },
+      "reviewStatus": {
+        "state": "review-required",
+        "reviewer": null,
+        "reviewedOn": null,
+        "basis": "Pinned MIT provenance and localized alt/caption/transcript are exact, but third-party visible-English publication and media-language review has no recorded human closure and therefore remains blocking."
+      }
+    }
+  ]
+}

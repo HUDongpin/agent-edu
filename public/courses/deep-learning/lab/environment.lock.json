@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "aicourse.python-environment-lock.v1",
+  "courseId": "deep-learning",
+  "courseVersion": "2026.08.26-v1",
+  "referenceRuntime": {
+    "implementation": "CPython",
+    "python": "3.9.6",
+    "stdlibOnly": true,
+    "networkRequired": false,
+    "acceleratorRequired": false,
+    "processor": "CPU"
+  },
+  "experiment": {
+    "seed": 20260826,
+    "architecture": "16-4-1-tanh-sigmoid",
+    "epochs": 800,
+    "learningRate": 0.18,
+    "ablation": "same seed, data, learning rate and epochs; hidden/output biases disabled"
+  },
+  "determinism": {
+    "locale": "C.UTF-8",
+    "timezone": "UTC",
+    "fixtureOrder": "authoritative",
+    "floatingPointReceipt": "rounded to 8 decimal places; other Python builds must report any observed variance"
+  }
+}

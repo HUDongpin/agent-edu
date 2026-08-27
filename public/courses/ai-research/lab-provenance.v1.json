@@ -1,0 +1,120 @@
+{
+  "schema_version": "aicourse.course-lab-provenance.v1",
+  "course_id": "ai-research",
+  "course_version": "2026.08.26-v1",
+  "notice_version": "ai-research-notice.v2",
+  "created_on": "2026-08-26",
+  "generation": {
+    "pdf_generator": "scripts/generate-ai-research-primary-pdfs.py",
+    "pdf_generator_sha256": "fed796e8c2e100c120894f87f05f6c455654853b1aefaba6b247675b4f8d9860",
+    "reportlab_version": "5.0.1",
+    "pdf_invariant_mode": true,
+    "network_required": false,
+    "runner": "public/courses/ai-research/lab/run_mini_review.py",
+    "validator": "public/courses/ai-research/lab/validate.py"
+  },
+  "rights": {
+    "publication_eligible": true,
+    "containsThirdPartyData": false,
+    "containsPersonalData": false,
+    "course_authored_data_and_pdf_content": "CC0-1.0",
+    "course_code_and_copy": "Repository terms apply; not included in the CC0 data dedication.",
+    "embedded_font_boundary": "The PDFs embed unmodified subsets of Bitstream Vera. The font software remains under the bundled Bitstream Vera licence and is excluded from the CC0 dedication.",
+    "font_licence_path": "BITSTREAM-VERA-LICENSE.txt",
+    "privacy_review": "No real person, participant, account, institution, publication, identifier, or research datum is present."
+  },
+  "resources": [
+    {
+      "path": "BITSTREAM-VERA-LICENSE.txt",
+      "sha256": "3361d054759a2fc686a2c058be82deaf9c2e6fe549be9004d7935a6c1736315d",
+      "media_type": "text/plain",
+      "origin": "Third-party licence notice bundled with ReportLab for the embedded Bitstream Vera font subsets",
+      "reuse": "Bitstream Vera licence; not CC0"
+    },
+    {
+      "path": "primary/REC-001.pdf",
+      "sha256": "6b7ade61c5c33784fb48c22b4ec6fa6e2ee235c6c436551743eb41445b66c1ef",
+      "media_type": "application/pdf",
+      "pages": 9,
+      "origin": "Course-authored fictional primary object",
+      "reuse": "CC0 content with embedded Bitstream Vera font subset under its own licence"
+    },
+    {
+      "path": "primary/REC-002.pdf",
+      "sha256": "631a4bd74a026fcce0d16681ebd5a37d206851ed4767473f460dd7c320af371a",
+      "media_type": "application/pdf",
+      "pages": 11,
+      "origin": "Course-authored fictional primary object",
+      "reuse": "CC0 content with embedded Bitstream Vera font subset under its own licence"
+    },
+    {
+      "path": "primary/REC-005.pdf",
+      "sha256": "8a7d06815c40041f97b4a67fd453b7a144e07175609021494dae4448b612043e",
+      "media_type": "application/pdf",
+      "pages": 13,
+      "origin": "Course-authored fictional primary object",
+      "reuse": "CC0 content with embedded Bitstream Vera font subset under its own licence"
+    },
+    {
+      "path": "lab/README.md",
+      "sha256": "09e593da7808d206f910d24c5adc17d292467f14c17b701083a056cee7537955",
+      "media_type": "text/markdown",
+      "origin": "Course-authored lab instructions",
+      "reuse": "Repository terms"
+    },
+    {
+      "path": "lab/capstone.schema.json",
+      "sha256": "7116c4772081d593004bd0674cc4889688dba5420d0f5e61abd334dae097a3f3",
+      "media_type": "application/schema+json",
+      "origin": "Course-authored validation schema",
+      "reuse": "Repository terms"
+    },
+    {
+      "path": "lab/mini-review-example.json",
+      "sha256": "d32e02e37cb2807ed1e878f17a750d617733d26d1abb119528f655360afe3c9f",
+      "media_type": "application/json",
+      "origin": "Deterministic output of the course-authored reference runner over fictional fixtures",
+      "reuse": "CC0-1.0"
+    },
+    {
+      "path": "lab/mini-review-template.json",
+      "sha256": "ca0cf646864b41603e6c619c7ad13915c1a7a2639deb28248d767c0de2e7336d",
+      "media_type": "application/json",
+      "origin": "Course-authored learner template",
+      "reuse": "CC0-1.0"
+    },
+    {
+      "path": "lab/primary-object-manifest.json",
+      "sha256": "d015a6bc161379a15b6dee8ca59b935a536e9616082772086af17a69d3ac3a8e",
+      "media_type": "application/json",
+      "origin": "Course-authored binding between PDF bytes, pages, locators, and claim boundaries",
+      "reuse": "CC0-1.0"
+    },
+    {
+      "path": "lab/run_mini_review.py",
+      "sha256": "c60131d06f23e91c949476c3b98329f7d93fdfb62a9b26419f08196eadc42646",
+      "media_type": "text/x-python",
+      "origin": "Course-authored deterministic reference runner",
+      "reuse": "Repository terms"
+    },
+    {
+      "path": "lab/test_lab.py",
+      "sha256": "108918928212588e85ed5ab0db45b4c1dee1deb990631ca1dde4f50a1b11d48e",
+      "media_type": "text/x-python",
+      "origin": "Course-authored clean-run and destructive negative tests",
+      "reuse": "Repository terms"
+    },
+    {
+      "path": "lab/validate.py",
+      "sha256": "7b7794fdaf0fa08b4e9eccdd3b4590dd3bee78dcb3d5c3ca4a923fb7cee1a3ef",
+      "media_type": "text/x-python",
+      "origin": "Course-authored fail-closed validator",
+      "reuse": "Repository terms"
+    }
+  ],
+  "boundaries": [
+    "RAG chunks and extracted JSON are locators only; final evidence must return to a locked PDF page, table, data object, or code receipt.",
+    "The three PDFs and all research records are fictional teaching objects and cannot be cited as real research.",
+    "Byte reproduction of the PDFs requires the declared generator, ReportLab 5.0.1, and its bundled Bitstream Vera font files."
+  ]
+}

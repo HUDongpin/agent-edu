@@ -196,7 +196,7 @@ export default function ModuleView({
                         {sectionSources.map((source, sourceIndex) => (
                           <span key={source.id}>
                             {sourceIndex ? " · " : ""}
-                            <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a>
+                            <a href={source.url} target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">{source.title}</a>
                           </span>
                         ))}
                       </p>
@@ -242,7 +242,7 @@ export default function ModuleView({
                     <span className={styles.sourceNumber}>{String(sourceIndex + 1).padStart(2, "0")}</span>
                     <div>
                       <header>
-                        <a href={source.url} target="_blank" rel="noopener noreferrer" lang="en">{source.title}<span aria-hidden="true">↗</span></a>
+                        <a href={source.url} target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">{source.title}<span aria-hidden="true">↗</span></a>
                         <div className={styles.sourceMeta}>
                           <span lang="en">{source.publisher}</span><span>{sourceKindLabel(source.kind, course.contentLocale)}</span><span>{sourceStabilityLabel(source.stability, course.contentLocale)}</span><span>{label(course.copy.ui, "accessed", "Accessed")} {source.accessedOn}</span>
                           {source.revision ? <span>{label(course.copy.ui, "revision", "Revision")}: {source.revision}</span> : null}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "aicourse.capstone-submission.v1",
+  "courseId": "production-ai",
+  "courseVersion": "2026.08.26-v1",
+  "capstoneVersion": "2026.08.26-capstone-v1",
+  "validatorId": "aicourse.production-ai.validator.v1",
+  "generatedOn": "2026-08-26",
+  "artifacts": [
+    { "artifactId": "lineage-manifest", "content": { "inputs": [], "code": [], "systems": [], "outputs": [], "networkBoundary": "" } },
+    { "artifactId": "experiment-record", "content": { "services": [], "phases": [], "httpTranscriptPath": "", "httpTranscriptSha256": "" } },
+    { "artifactId": "registry-entry", "content": { "predictive": {}, "rag": {}, "states": [], "approvalRequired": true } },
+    { "artifactId": "serving-contract", "content": { "host": "127.0.0.1", "services": [], "requestSchemas": {}, "responseSchemas": {} } },
+    { "artifactId": "monitoring-dashboard", "content": { "signals": [], "thresholds": {}, "dashboardDataPath": "", "dashboardDataSha256": "" } },
+    { "artifactId": "drift-evidence", "content": { "injections": [], "predictive": {}, "rag": {}, "detected": false } },
+    { "artifactId": "alert-runbook", "content": { "alerts": [], "steps": [], "owners": [], "stopConditions": [] } },
+    { "artifactId": "rollback-evidence", "content": { "predictive": {}, "rag": {}, "verified": false, "receiptPath": "" } },
+    { "artifactId": "postmortem", "content": { "timeline": [], "contributingConditions": [], "correctiveActions": [], "unresolved": [] } },
+    { "artifactId": "governance-approval", "content": { "reviewer": {}, "decision": "", "scope": "", "expiresOn": "", "revocationConditions": [] } }
+  ]
+}

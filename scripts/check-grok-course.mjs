@@ -3,6 +3,10 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
+import {
+  inspectCoursePlaywrightWiring,
+  inspectReleaseGateWiring,
+} from "./release-gate-wiring.mjs";
 
 const ROOT = process.cwd();
 const release = process.argv.includes("--release");
@@ -760,13 +764,28 @@ if (release) {
     if (packageJson.scripts?.["grok:check:release"] !== "node scripts/check-grok-course.mjs --release") {
       fail("package.json grok:check:release script is missing or changed");
     }
-    if (packageJson.scripts?.["test:grok"] !== "playwright test tests/grok-course.spec.ts") {
-      fail("package.json test:grok script is missing or changed");
+    const browserWiring = inspectCoursePlaywrightWiring(
+      packageJson.scripts?.["test:grok"],
+      {
+        courseId: "grok",
+        specPath: "tests/grok-course.spec.ts",
+        configPath: "tests/course-playwright.config.ts",
+        port: 3120,
+      },
+    );
+    if (!browserWiring.valid) {
+      fail(`package.json test:grok Playwright wiring is invalid: ${browserWiring.errors.join("; ")}`);
+    }
+    if (!existsSync(resolve(ROOT, "tests/course-playwright.config.ts"))) {
+      fail("tests/course-playwright.config.ts is missing");
     }
     for (const scriptName of ["build", "build:release"]) {
-      const script = packageJson.scripts?.[scriptName] ?? "";
-      if (!script.includes("npm run grok:check:release")
-        || script.indexOf("npm run grok:check:release") > script.indexOf("next build")) {
+      const wiring = inspectReleaseGateWiring(
+        packageJson.scripts,
+        scriptName,
+        "grok:check:release",
+      );
+      if (!wiring.releaseBeforeBuild) {
         fail(`package.json ${scriptName} must run the Grok release gate before next build`);
       }
     }

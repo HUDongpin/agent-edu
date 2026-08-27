@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "aicourse.python-environment-lock.v1",
+  "courseId": "machine-learning",
+  "courseVersion": "2026.08.26-v1",
+  "runtime": {
+    "implementation": "CPython",
+    "python": ">=3.11,<3.14",
+    "dependencies": "stdlib-only",
+    "compute": "single-process CPU",
+    "networkRequired": false
+  },
+  "determinism": {
+    "seed": 19019,
+    "iterations": 4000,
+    "learningRate": 0.08,
+    "l2": 0.01,
+    "threshold": 0.5,
+    "locale": "C.UTF-8",
+    "timezone": "UTC"
+  }
+}

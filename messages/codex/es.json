@@ -6,7 +6,7 @@
     "audience": "Para personas que saben navegar por archivos y ejecutar comandos básicos. No se requiere experiencia profesional en software.",
     "duration": "Entre 9 y 11 horas, incluido un proyecto final de 130 minutos",
     "sourceNote": "El curso se basa en documentación actual de OpenAI y repositorios seleccionados con muchas estrellas, verificados el 24-08-2026. Las estrellas de los repositorios son una señal de popularidad fechada, no una prueba de corrección ni de seguridad.",
-    "figureNote": "Las figuras se publican solo después de que una captura real de Codex supera controles de versión, privacidad y texto. Una tarjeta de captura pendiente es intencional, no una pantalla simulada.",
+    "figureNote": "Los diagramas originales del curso se etiquetan explícitamente como contenido que no es la interfaz del producto. Las figuras de interfaces reales solo se publican tras comprobar versión, derechos, privacidad, leyenda e integridad de bytes.",
     "startCta": "Empezar el curso",
     "resumeCta": "Continuar aprendiendo"
   },

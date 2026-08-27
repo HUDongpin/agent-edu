@@ -1,0 +1,151 @@
+export const RESPONSIBLE_AI_ZH_HANS_COURSE_COPY = {
+  meta: {
+    title: "负责任的人工智能与人工监督",
+    kicker: "课程 16 · 治理目的、证据、权限与救济",
+    summary: "围绕一个明确的人工智能使用场景，建立可作出决策的治理档案。课程把安全视为一套运行系统：限定目的、检验影响、保留人工权限、提供可申诉性、从事件中学习，并写明不得部署的条件。",
+    audience: "需要说明某个 AI 系统是否应当使用、以及如何使用的产品团队、教育者、研究者、工程师、评审者和决策负责人。",
+    prerequisite: "具备 AI 基础素养；技术审计单元建议掌握基础评估知识。",
+    level: "初级到中级",
+    duration: "10 个模块 · 10 小时 50 分钟",
+    startCta: "先给使用场景分级",
+    resumeCta: "继续治理档案",
+    fallbackNotice: "本课程提供完整的简体中文正文；若页面回退英文，英文正文始终保持从左到右显示。",
+    evidenceNote: "核心方法以一手标准、官方指南和原始研究为依据。特定地区的法规放入注明版本和核验日期的附录，不被写成永久法律结论。",
+  },
+  principles: [
+    "治理的是特定情境中的明确用途，而不是脱离系统的抽象模型。",
+    "严格区分系统具备的能力与它影响人或资源的权限。",
+    "在选择发布阈值之前检验影响分布和不确定性。",
+    "让具名人员拥有停止或覆盖系统所需的信息、能力、时间、权限与程序。",
+    "把可申诉性、事件证据和不得部署条件作为一等发布产物。",
+  ],
+  outcomes: [
+    "按目的、受影响群体、后果、可逆性和暴露范围给 AI 使用场景分级。",
+    "产出影响评估、利益相关者图、风险登记册和带负责人的数据地图。",
+    "实施群体与不确定性检查，同时避免声称某一个公平指标可以替代政策判断。",
+    "编写能在决策点真正使用的模型卡、数据说明书与课程原创系统保障卡。",
+    "设计事前批准、覆盖、停止、升级、申诉和责任边界。",
+    "对现实的滥用与失败路径做红队测试，并把结果接入事件响应和披露。",
+    "发布证据与未解决风险清晰可见的上线、有条件上线或不上线备忘录。",
+  ],
+  quiz: { title: "负责任 AI 期末评估", intro: "题库抽取 12 题。至少答对 10 题，并且人工权限、数据权利与不得部署的所有关键题均答对，才算通过。" },
+  capstone: {
+    title: "治理档案毕业项目",
+    intro: "把完整治理闭环应用到一个有界 AI 使用场景。勾选清单不等于证据；每项产物都要写明决策、负责人、证据、不确定性和下一道门。",
+    instructions: ["使用真实或严谨设定的假想场景，不上传个人、机密或受限数据。", "对九项产物进行版本化，并交叉引用风险 ID、证据 ID、决策负责人和未决问题。", "以‘上线／有条件上线／不上线’收口；任何条件都要写明核验人、期限和回滚触发器。"],
+    attestation: "我已审查全部必需产物，并未把完成清单表述为法律批准、外部认证或自动化高风险决策的许可。",
+  },
+} as const;
+
+export const RESPONSIBLE_AI_ZH_HANS_MODULES = {
+  "purpose-risk-classification": {
+    title: "目的与风险分级", summary: "在讨论部署之前，把吸引人的能力转化为边界清楚的使用合同。", objective: "写明谁使用系统、为了什么决策、处理谁的数据、产生什么后果，以及暴露范围、可逆性和责任人。", artifact: "目的与风险简报",
+    sections: [
+      { heading: "对用途分级，而不是对名称分级", paragraphs: ["即使产品被称为‘助手’，也可能实质影响重要决定。先描述运行目的、使用者、受影响者、数据流、行动与下游后果。当错误难以发现、触及权利或机会、快速扩散或无法逆转时，风险会显著上升。"], sourceIds: ["nist-ai-rmf"], evidenceMode: "source-grounded" },
+      { heading: "写出边界", paragraphs: ["列出允许用途、禁止用途、范围外人群、运行假设和必须停止的条件。分级只是安排审查强度；它不授予权限、不自动证明合规，也不能让不安全用途变得合理。"], sourceIds: ["oecd-ai-principles"], evidenceMode: "instructional-synthesis" },
+      { heading: "发布前先约定证据", paragraphs: ["为每项风险指定测试、决策阈值、评审者和失败后的行动。现在就写下至少一个不得部署条件，避免团队在投入过多之后才面对它。"], sourceIds: ["nist-ai-rmf"], evidenceMode: "instructional-synthesis" },
+    ],
+    practice: { title: "起草目的边界", brief: "按后果、可逆性、暴露范围和受影响群体给一个用途分级。", steps: ["打开原创虚构案例 /courses/responsible-ai/governance-case-synthetic-v1.json，并先阅读同目录 NOTICE，再把任何字段当作练习证据。", "写明允许和禁止的决定，并列出直接与间接利益相关者。", "记录三个失败模式和一个不得部署条件。"], deliverable: "带具名责任人的一页目的与风险简报。", reviewGate: "评审者能够准确说出系统不得做什么。" },
+    checkpoint: { question: "团队把高风险 AI 助手视为可部署之前，必须先完成什么？", options: ["记录有界用途、证据、权限、受影响者和不得部署条件", "确认模型的一般基准分数很高", "让用户接受宽泛免责声明", "把系统改称为决策支持"], correctIndex: 0, explanation: "名称或通用基准无法界定实际决策、风险、权限与发布证据。" },
+    takeaway: "风险分级是审查地图，绝不是授权印章。",
+  },
+  "stakeholders-impact-assessment": {
+    title: "利益相关者与影响评估", summary: "追踪建设者、使用者、资助者、评审者和受影响者之间的利益、负担、失败暴露与话语权。", objective: "产出包含低权力受影响者的利益相关者图和影响评估。", artifact: "利益相关者与影响图",
+    sections: [
+      { heading: "既画接触，也画权力", paragraphs: ["直接用户只是其中一组。还要纳入数据主体、被输出分类的人、前线员工、申诉评审者、维护者、社区，以及因设备或语言而被排除的人。记录谁获得利益、谁承担错误、谁能改变设计。"], sourceIds: ["algorithmic-impact-assessment"], evidenceMode: "source-grounded" },
+      { heading: "描述影响路径", paragraphs: ["把系统事件连到可能影响：输入缺失、置信度被夸大、员工过度依赖、输出继续传播，最终某人失去机会。分开写证据与假设，并在设计冻结之前邀请受影响经验进入评审。"], sourceIds: ["nist-ai-rmf"], evidenceMode: "instructional-synthesis" },
+      { heading: "把参与变成决策", paragraphs: ["记录听到了什么、改了什么、没有改什么、由谁决定以及理由。没有回应机制的咨询不构成有意义的参与。"], sourceIds: ["algorithmic-impact-assessment"], evidenceMode: "instructional-synthesis" },
+    ],
+    practice: { title: "开展影响工作坊", brief: "从低权力利益相关者视角画出正常、边缘和失败旅程。", steps: ["列出利益相关者及其决策权。", "沿完整流程追踪利益和伤害。", "给缓解措施分配负责人、证据和复核日期。"], deliverable: "利益相关者图与影响评估。", reviewGate: "至少一组没有部署权的受影响者提出的问题得到记录和回应。" },
+    checkpoint: { question: "哪类利益相关者最容易被遗漏，却必须进入影响评估？", options: ["从未操作系统但受输出影响的人", "仅供应商销售负责人", "仅训练模型的工程师", "仅采购负责人"], correctIndex: 0, explanation: "一个人不必接触界面，也可能承担系统后果。" },
+    takeaway: "影响沿整个社会技术流程发生，而不只发生在模型边界。",
+  },
+  "data-rights-privacy-minimisation": {
+    title: "数据权利、隐私与最小化", summary: "要求每一项数据为采集、访问、保留、转换和删除提供理由。", objective: "建立连接目的、授权基础、访问、保留、来源和下游用途的数据地图。", artifact: "数据地图与最小化决策日志",
+    sections: [
+      { heading: "跟踪数据的完整旅程", paragraphs: ["清点来源、字段、敏感性、数据主体、采集情境、转换、接收者、存储位置、保留与删除。训练数据、检索语料、提示、日志、反馈和评估集是不同的数据流，风险也不同。"], sourceIds: ["nist-privacy-framework"], evidenceMode: "source-grounded" },
+      { heading: "通过设计实现最小化", paragraphs: ["逐字段追问：能否不使用、降低精度、缩短保留期，或只在受控本地环境处理？删除非必要数据，比承诺今后谨慎处理更可靠地减少暴露。"], sourceIds: ["oecd-privacy"], evidenceMode: "source-grounded" },
+      { heading: "保留权利与来源", paragraphs: ["记录同意或其他授权基础，但不要假定一套依据适用于所有地区。设计适合情境的访问、更正、删除、撤回与来源核验程序。技术数据地图不是特定司法管辖区的法律意见。"], sourceIds: ["oecd-privacy"], evidenceMode: "version-watch" },
+    ],
+    practice: { title: "压缩一条数据流", brief: "质疑拟议管线中的每个字段和每份副本。", steps: ["画出采集、转换、访问、日志和删除。", "标记敏感数据和推导数据。", "删除或降低至少一个缺乏理由的元素并记录权衡。"], deliverable: "带保留规则和权利操作的版本化数据地图。", reviewGate: "没有字段仅因为‘以后也许有用’而保留。" },
+    checkpoint: { question: "对于声明目的不需要的输入，最强的隐私控制是什么？", options: ["不采集、不保留", "加密后无限期保存", "只在界面中隐藏", "放进宽泛同意书"], correctIndex: 0, explanation: "安全措施能保护已保留数据，而最小化直接消除了非必要暴露。" },
+    takeaway: "最安全的非必要字段，是系统从未收到的字段。",
+  },
+  "fairness-subgroup-audit": {
+    title: "公平与群体审计", summary: "检查错误和利益如何分布，同时拒绝用单一指标替代规范性判断。", objective: "设计包含群体理由、不确定性、样本充足性、交叉群体和行动规则的审计。", artifact: "群体测试与决策备忘录",
+    sections: [
+      { heading: "从伤害出发", paragraphs: ["先说明决策与伤害，再选择指标。漏判、误判、排序位置、校准、获得服务的机会和服务质量可能具有不同意义。公平指标是观察已声明问题的镜头，不是通用证书。"], sourceIds: ["fairlearn-user-guide"], evidenceMode: "source-grounded" },
+      { heading: "负责任地审计切片", paragraphs: ["尽可能预先定义相关群体，报告分母和不确定性，检查交叉群体，并避免在小样本单元暴露身份。缺失或噪声很大的群体标签，既可能隐藏伤害，也可能制造虚假差异。"], sourceIds: ["gender-shades"], evidenceMode: "source-grounded" },
+      { heading: "把发现接入权限", paragraphs: ["明确什么差距会触发调查、重设计、限制用途、加强监测或不得部署。总体表现不得抹去实质性的群体失败。"], sourceIds: ["fairlearn-user-guide"], evidenceMode: "instructional-synthesis" },
+    ],
+    practice: { title: "建立群体审计", brief: "建立显式呈现分母、不确定性、差距和决策的表格。", steps: ["为每个切片定义伤害和指标。", "规划置信区间与小单元处理。", "为每个阈值写出对应行动。"], deliverable: "群体审计表与缓解决策。", reviewGate: "不能只靠总体准确率重建结论。" },
+    checkpoint: { question: "模型总体准确率很高，但一个受影响群体的漏判率严重偏高，应如何处理？", options: ["把群体失败视为发布问题，调查或限制用途", "把结果平均进总体分数", "删除群体列", "假定更大模型会自行解决"], correctIndex: 0, explanation: "总体表现不能抵消实质性的影响分布失败。" },
+    takeaway: "公平证据必须改变决策，否则只是装饰性报告。",
+  },
+  "explainability-uncertainty-limitations": {
+    title: "可解释性、不确定性与局限", summary: "为每类决策者提供完成下一步行动所需的解释与不确定性。", objective: "分别为用户、评审者、受影响者与运营人员编写解释和局限卡。", artifact: "解释与局限卡",
+    sections: [
+      { heading: "为决策而解释", paragraphs: ["调试管线的开发者、审查个案的人员和申诉结果的人需要不同证据。先确定受众、问题、可采取的行动和已知局限，再选择解释方法。"], sourceIds: ["nist-ai-rmf"], evidenceMode: "source-grounded" },
+      { heading: "诚实表达不确定性", paragraphs: ["分数不自动等于经过校准的概率。展示验证情境、适用的不确定区间、分布外条件、缺失数据影响以及系统必须弃答的情况。"], sourceIds: ["uncertainty-calibration"], evidenceMode: "source-grounded" },
+      { heading: "测试可用性而非美观", paragraphs: ["检查目标读者能否识别原因、局限、替代方案和下一步。精美的特征重要性图仍可能误导，也可能在实际决策点毫无用处。"], sourceIds: ["nist-ai-rmf"], evidenceMode: "instructional-synthesis" },
+    ],
+    practice: { title: "面向三类受众写解释", brief: "向操作人员、受影响者和技术评审者解释同一个输出。", steps: ["说明系统可以与不可以推断什么。", "展示不确定性和弃答条件。", "为每类受众给出安全行动或申诉路径。"], deliverable: "多受众解释与局限卡。", reviewGate: "读者能安全行动，而不会把解释误当成因果证明。" },
+    checkpoint: { question: "什么时候解释才算充分？", options: ["目标读者能理解相关原因、局限、不确定性和下一步行动时", "包含尽可能多的技术细节时", "让模型看起来完全确定时", "能够替代申诉流程时"], correctIndex: 0, explanation: "解释质量取决于受众和决策，而且永远不能替代救济。" },
+    takeaway: "只有能支持更安全、可审查决策的解释，才值得进入系统。",
+  },
+  "model-data-system-cards": {
+    title: "模型卡、数据卡与系统卡", summary: "把模型记录为版本化数据与运行系统中的一个组件。", objective: "建立相互链接的卡片，呈现用途、来源、评估、局限、负责人、依赖和变更历史。", artifact: "相互链接的保障卡组",
+    sections: [
+      { heading: "区分三类记录", paragraphs: ["模型卡报告模型目的、评估与局限；数据说明书记录动机、构成、采集、处理、用途与维护；本课程原创系统保障卡连接组件、保障、评估、部署情境和残余风险，但不声称它是跨机构统一标准。"], sourceIds: ["model-cards", "datasheets", "nist-genai-profile"], evidenceMode: "source-grounded" },
+      { heading: "把主张绑定到版本", paragraphs: ["记录模型、数据、提示、检索语料、代码、政策和评估版本。没有发布标识的卡片会迅速变成无法解释生产结果的陈旧文字。"], sourceIds: ["model-cards"], evidenceMode: "instructional-synthesis" },
+      { heading: "为交接和质疑而写", paragraphs: ["写明负责人、未解决风险、排除用途、监测和更新触发器。用链接指向证据，并区分观测到的结果与计划中的保障。"], sourceIds: ["nist-genai-profile"], evidenceMode: "instructional-synthesis" },
+    ],
+    practice: { title: "建立保障链", brief: "用稳定标识连接一个数据集、模型和应用发布。", steps: ["记录每一层的目的与来源。", "把评估结果绑定到精确版本。", "列出局限、负责人、监测和更新触发器。"], deliverable: "交叉链接的保障卡组。", reviewGate: "评审者能判断数据、模型、提示或政策变化时应更新哪份记录。" },
+    checkpoint: { question: "为什么只有模型卡不足以支持 AI 应用发布？", options: ["部署系统还依赖数据、提示、检索、代码、政策、使用者和运行情境", "模型卡只适用于图像", "系统行为与部署情境无关", "模型卡会自动记录事件"], correctIndex: 0, explanation: "应用风险来自完整的社会技术系统及其版本。" },
+    takeaway: "当版本、证据和负责人被连在一起时，文档就是可执行的交接合同。",
+  },
+  "human-authority-oversight-boundaries": {
+    title: "人工权限与监督边界", summary: "设计真正的人工控制：信息、能力、时间、权限与安全行动路径。", objective: "明确事前批准、覆盖、停止、升级、工作量和责任边界。", artifact: "人工权限与覆盖流程",
+    sections: [
+      { heading: "有人在场不等于有权限", paragraphs: ["如果一个人无法理解信号、检查证据、暂停行动、改变结果或获得支持，他只是观看自动化过程，并不构成有意义的监督。明确人工角色以及必须保留给他的决定。"], sourceIds: ["eu-hleg-ethics-guidelines-2019-historical", "eu-ai-act-2024"], evidenceMode: "source-grounded" },
+      { heading: "把批准放在后果之前", paragraphs: ["重要行动应在生效前停在可见的批准边界，并提供相关情境、不确定性、替代方案及批准后果。事后记录并不等于事前授权。"], sourceIds: ["nist-ai-rmf"], evidenceMode: "instructional-synthesis" },
+      { heading: "为工作量和失败设计", paragraphs: ["测试告警量、自动化偏误、疲劳、评审者缺席、利益冲突和紧急停止。明确最终责任；模型、供应商或界面都不能成为问责主体。"], sourceIds: ["eu-hleg-ethics-guidelines-2019-historical"], evidenceMode: "instructional-synthesis" },
+    ],
+    practice: { title: "画出权限图", brief: "映射建议、评审、批准、执行、覆盖、停止与问责。", steps: ["标记所有改变状态的行动。", "把具名批准门放在重要后果之前。", "测试缺席、过载、分歧与紧急停止。"], deliverable: "权限、覆盖与停止流程。", reviewGate: "每个重要分支都以具名负责人的可行行动收口。" },
+    checkpoint: { question: "哪个设计体现了有意义的人工监督？", options: ["受过训练的评审者在行动生效前得到相关证据，并可拒绝、覆盖、停止和升级", "每月在行动完成后给人看日志", "界面只显示置信分数，没有停止控制", "让供应商承担所有本地决定"], correctIndex: 0, explanation: "监督需要及时信息、能力、权限与有效控制路径。" },
+    takeaway: "能力可以委派；问责和重要权限必须保持明确。",
+  },
+  "escalation-appeal-contestability": {
+    title: "升级、申诉与可争议性", summary: "给人一条能够质疑、更正和逆转 AI 影响结果的可见路径。", objective: "设计含通知、证据访问、独立复核、补救、时限和证据保存的升级与申诉流程。", artifact: "升级与申诉流程",
+    sections: [
+      { heading: "让决定可见", paragraphs: ["人无法质疑自己不知道存在的过程。说明 AI 何时实质影响结果、哪些信息可以查看、如何更正数据，以及如何联系人工评审者。"], sourceIds: ["unesco-ai-ethics"], evidenceMode: "source-grounded" },
+      { heading: "区分升级与申诉", paragraphs: ["升级是在运行中把未解决个案转交给更有能力或权限的角色；申诉是在决定之后或决定之外挑战结果。两者都需要服务时限、证据、负责人和补救路径。"], sourceIds: ["algorithmic-impact-assessment"], evidenceMode: "instructional-synthesis" },
+      { heading: "保护决策记录", paragraphs: ["在不过度保留个人数据的前提下，保存相关输入、模型与政策版本、人工行动、理由和变更。独立评审者应能重建决定，并在有理由时将其逆转。"], sourceIds: ["unesco-ai-ethics"], evidenceMode: "instructional-synthesis" },
+    ],
+    practice: { title: "制作争议路径原型", brief: "让一名受影响者从通知走到更正、复核、决定和补救。", steps: ["用清楚语言写通知。", "定义证据访问与更正步骤。", "明确评审独立性、时限、补救与审计记录。"], deliverable: "无障碍升级与申诉流程。", reviewGate: "无法使用原数字渠道的人也能走完流程。" },
+    checkpoint: { question: "什么让申诉流程具有可争议性，而非象征性？", options: ["可见入口、相关证据、独立人工复核、更正、说明理由的决定与补救", "没有时限的通用客服邮箱", "不能改变结果的模型解释", "使用前接受的放弃权利声明"], correctIndex: 0, explanation: "可争议性要求一条实际能够纠正或逆转决定的路径。" },
+    takeaway: "如果挑战无法改变结果，那只是反馈，不是救济。",
+  },
+  "red-teaming-incidents-disclosure": {
+    title: "红队、事件与披露", summary: "测试可信的滥用和失败，并为控制、学习与适度披露保存证据。", objective: "开展基于威胁和影响的测试，把发现接入事件等级、响应、沟通与回归控制。", artifact: "红队与事件日志",
+    sections: [
+      { heading: "测试人们实际使用的系统", paragraphs: ["在完整流程中测试滥用、提示注入、数据泄露、不安全自动化、群体伤害、过度依赖、分布漂移和控制绕过。仅有模型越狱分数无法代表应用权限或人工程序。"], sourceIds: ["nist-genai-profile"], evidenceMode: "source-grounded" },
+      { heading: "记录失败，而不是表演", paragraphs: ["每项发现都应有可复现实例、预期控制、观测结果、严重度理由、证据、负责人、修复、复测和残余风险。不要把创意提示清单包装成全面安全证明。"], sourceIds: ["nist-genai-profile"], evidenceMode: "instructional-synthesis" },
+      { heading: "准备事件路径", paragraphs: ["定义侦测、分级、控制、回滚或停用、通知、证据保存、披露和复盘。事件案例可以提示测试方向，但不能证明某故障在你的系统中的发生率。"], sourceIds: ["nist-incident-response-r3"], evidenceMode: "source-grounded" },
+    ],
+    practice: { title: "开展有界红队演练", brief: "用三个现实滥用或失败场景检验已声明控制。", steps: ["从威胁和影响评估选择场景。", "保存可复现证据和严重度。", "分配控制、修复、复测、披露与回归检查。"], deliverable: "红队发现日志和事件演练记录。", reviewGate: "至少一个测试真正到达人工停止或回滚路径。" },
+    checkpoint: { question: "最有用的红队产出是什么？", options: ["与预期控制、严重度、负责人、修复、复测和残余风险相连的可复现发现", "尽可能长的创意提示清单", "没有发现问题的声明", "脱离应用情境的模型分数"], correctIndex: 0, explanation: "可行动证据把现实失败连接到控制表现和闭环学习。" },
+    takeaway: "只有发现改变控制并进入回归测试，红队才成为治理。",
+  },
+  "governance-dossier-capstone": {
+    title: "治理档案毕业项目", summary: "把证据、权限、救济和事件合同组装成一个发布决定。", objective: "产出九项交叉链接的成果，并在不隐藏不确定性的情况下为上线、有条件上线或不上线辩护。", artifact: "完整治理档案与决策备忘录",
+    sections: [
+      { heading: "建立一个证据图", paragraphs: ["风险 ID 应连接目的、利益相关者、数据、群体测试、局限、权限、申诉、红队发现、缓解与监测。解决矛盾，或把它们清楚带入决策备忘录。"], sourceIds: ["nist-ai-rmf"], evidenceMode: "instructional-synthesis" },
+      { heading: "在不确定性下作决定", paragraphs: ["有条件上线必须写明条件、所需证据、核验负责人、期限、受限范围和回滚触发器。当风险无法降低或权限缺乏正当性时，不上线是有效的工程结果。"], sourceIds: ["oecd-ai-principles"], evidenceMode: "instructional-synthesis" },
+      { heading: "审查评审本身", paragraphs: ["检查利益冲突、受影响者代表性、技术能力、适用的法律或政策专长，以及变化或事件后谁能重启决定。档案支持问责判断，但不认证系统。"], sourceIds: ["nist-ai-rmf"], evidenceMode: "version-watch" },
+    ],
+    practice: { title: "召开发布评审会", brief: "让技术、运营、受影响者和决策视角的负责人共同审查档案。", steps: ["核验九项成果及交叉链接。", "记录异议、缺失证据与冲突。", "发布包含条件、监测、停止、申诉和复核日期的决定。"], deliverable: "签署的决策记录与版本化治理档案。", reviewGate: "评审者能指出什么证据会迫使决定改变。" },
+    checkpoint: { question: "毕业项目在什么情况下应得出‘不得部署’？", options: ["当实质风险、权限缺口、权利问题或证据缺口无法在有界用途内降低时", "只有准确率低于 50% 时", "永远不能，因为课程要求上线", "只要评审者提出难题时"], correctIndex: 0, explanation: "负责任发布过程必须能够在控制或证据不足时停止。" },
+    takeaway: "只有当档案能支持并承受‘不部署’决定时，它才算完整。",
+  },
+} as const;

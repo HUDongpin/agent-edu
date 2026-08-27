@@ -6,7 +6,7 @@
     "audience": "Für Lernende, die Dateien finden und einfache Befehle ausführen können. Berufliche Softwareerfahrung ist nicht erforderlich.",
     "duration": "Etwa 9 bis 11 Stunden einschließlich eines 130-minütigen Abschlussprojekts",
     "sourceNote": "Der Kurs stützt sich auf aktuelle OpenAI-Dokumentation und ausgewählte GitHub-Repositories mit vielen Sternen, verifiziert am 24.08.2026. Repository-Sterne sind ein datiertes Popularitätssignal, kein Beleg für Korrektheit oder Sicherheit.",
-    "figureNote": "Eine Abbildung erscheint erst, wenn eine echte Codex-Aufnahme auf Version, Datenschutz und Beschriftung geprüft wurde. Aufnahme erforderlich ist bewusst kein nachgebauter Screenshot.",
+    "figureNote": "Kurseigene Diagramme sind ausdrücklich als nicht zur Produktoberfläche gehörend gekennzeichnet. Abbildungen echter Oberflächen werden erst nach Prüfungen von Version, Rechten, Datenschutz, Beschriftung und Byte-Integrität veröffentlicht.",
     "startCta": "Kurs starten",
     "resumeCta": "Weiterlernen"
   },

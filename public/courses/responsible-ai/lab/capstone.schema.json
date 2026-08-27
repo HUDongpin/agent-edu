@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aicourse.responsible-ai.capstone.v1",
+  "title": "Course 16 governance dossier",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "courseId",
+    "courseVersion",
+    "capstoneVersion",
+    "fixture",
+    "artifacts",
+    "responsibleAiGate",
+    "decision",
+    "reviewer"
+  ],
+  "properties": {
+    "schemaId": { "const": "aicourse.responsible-ai.capstone.v1" },
+    "courseId": { "const": "responsible-ai" },
+    "courseVersion": { "const": "2026.08.26-v1" },
+    "capstoneVersion": { "const": "2026.08.26-capstone-v1" },
+    "fixture": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "const": "public/courses/responsible-ai/governance-case-synthetic-v1.json" },
+        "sha256": { "const": "289625c9ff824dea69c96048f6e1b8293d94f2d8434f0ef268aaaf271fad1253" }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "required": [
+        "impact-assessment",
+        "stakeholder-map",
+        "risk-register",
+        "data-map",
+        "subgroup-test",
+        "explanation-limitations-card",
+        "override-appeal-flow",
+        "red-team-incident-log",
+        "go-no-go-memo"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "impact-assessment": { "$ref": "#/$defs/artifact" },
+        "stakeholder-map": { "$ref": "#/$defs/artifact" },
+        "risk-register": { "$ref": "#/$defs/artifact" },
+        "data-map": { "$ref": "#/$defs/artifact" },
+        "subgroup-test": { "$ref": "#/$defs/artifact" },
+        "explanation-limitations-card": { "$ref": "#/$defs/artifact" },
+        "override-appeal-flow": { "$ref": "#/$defs/artifact" },
+        "red-team-incident-log": { "$ref": "#/$defs/artifact" },
+        "go-no-go-memo": { "$ref": "#/$defs/artifact" }
+      }
+    },
+    "responsibleAiGate": {
+      "type": "object",
+      "required": ["version", "criteria"],
+      "properties": {
+        "version": { "const": "2026.08.26-v1" },
+        "criteria": { "type": "array", "minItems": 6, "maxItems": 6, "uniqueItems": true }
+      }
+    },
+    "decision": { "enum": ["go", "revise", "no-go", "no-deploy"] },
+    "reviewer": {
+      "type": "object",
+      "required": ["role", "decision", "reviewedOn"],
+      "properties": {
+        "role": { "type": "string", "minLength": 1 },
+        "decision": { "enum": ["accept", "accept-with-limitations"] },
+        "reviewedOn": { "type": "string", "format": "date" }
+      }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "status", "evidence", "limitations"],
+      "properties": {
+        "owner": { "type": "string", "minLength": 1 },
+        "status": { "const": "complete" },
+        "evidence": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "limitations": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}

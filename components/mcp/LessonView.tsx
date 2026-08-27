@@ -116,7 +116,7 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
                   {section.code ? (
                     <figure className={styles.codePanel}>
                       <figcaption><span>{section.code.label}</span><span>{section.code.language}</span></figcaption>
-                      <pre dir="ltr"><code>{section.code.value}</code></pre>
+                      <pre dir="ltr"><code lang="en" dir="ltr">{section.code.value}</code></pre>
                     </figure>
                   ) : null}
                   {section.callout ? (
@@ -143,7 +143,7 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
                         <tr key={extension.id}>
                           <th scope="row"><a href={extension.specificationUrl} target="_blank" rel="noopener noreferrer"><bdi>{extension.name}</bdi><span className={styles.visuallyHidden}> ({ui.externalNewTab})</span></a><small dir="ltr">{extension.id}</small></th>
                           <td><span data-maturity={extension.maturity}>{maturityLabel[extension.maturity]}</span></td>
-                          <td><code dir="ltr">{extension.specificationVersion}</code><small>{formatMcpCopy(ui.lessonObservedTemplate, { date: extension.observedOn })}</small></td>
+                          <td><code lang="en" dir="ltr">{extension.specificationVersion}</code><small>{formatMcpCopy(ui.lessonObservedTemplate, { date: extension.observedOn })}</small></td>
                           <td>{extension.fallback}</td>
                         </tr>
                       ))}
@@ -191,7 +191,7 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
                   <li key={source.id}>
                     <a href={source.url} target="_blank" rel="noopener noreferrer">
                       <span className={styles.sourceTier} data-tier={source.tier}>{tierLabel[source.tier]}</span>
-                      <span><strong><bdi>{source.title}</bdi></strong><small>{formatMcpCopy(ui.lessonSourceAccessedTemplate, { publisher: source.publisher, date: source.accessedOn })}</small><em>{source.note}</em></span>
+                      <span><strong><bdi lang="en" dir="ltr">{source.title}</bdi></strong><small>{formatMcpCopy(ui.lessonSourceAccessedTemplate, { publisher: source.publisher, date: source.accessedOn })}</small><em>{source.note}</em></span>
                       <b aria-hidden="true">↗</b>
                       <span className={styles.visuallyHidden}> ({ui.externalNewTab})</span>
                     </a>

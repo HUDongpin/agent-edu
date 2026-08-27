@@ -1,0 +1,220 @@
+{
+  "schema": "aicourse.codex.diagram-rights.v1",
+  "renderer": {
+    "path": "scripts/render-codex-original-diagrams.mjs",
+    "version": "codex-original-diagrams.v1",
+    "sha256": "94d13c4e0d06b2328c32b21a763d33775e332a01d291ca69e64a410197cdcc51",
+    "environment": {
+      "sharpVersion": "0.35.3",
+      "libvipsVersion": "8.18.3",
+      "svgTextFontStack": "Arial, Helvetica, sans-serif",
+      "reproductionPolicy": "release-rerender-byte-identical"
+    }
+  },
+  "notice": {
+    "path": "public/courses/codex/NOTICE.md",
+    "sha256": "62fc27555fb735eb712bdf83f5817cb4aae33d321c876277790315e70788de54"
+  },
+  "assetContract": {
+    "root": "/courses/codex/figures",
+    "pngPathTemplate": "fig-XX-master.png",
+    "webp2240PathTemplate": "fig-XX-2240.webp",
+    "webp1120PathTemplate": "fig-XX-1120.webp",
+    "masterWidth": 2240,
+    "masterHeight": 1260,
+    "responsiveWidth": 1120,
+    "responsiveHeight": 630
+  },
+  "policy": {
+    "classification": "course-original-abstract-diagram",
+    "authorship": {
+      "rightsBasis": "course-original-work",
+      "rightsHolder": "HU Dongpin",
+      "license": "MIT",
+      "licensePath": "LICENSE",
+      "licenseSha256": "2a24b39b930cf5c7cce0abb47db1752414ff30ae44f2f3359769a4c9d37f67a5",
+      "thirdPartyPixels": false,
+      "thirdPartyAssets": []
+    },
+    "privacy": {
+      "dataClass": "synthetic-labels-only",
+      "containsPersonalData": false,
+      "containsSecrets": false,
+      "containsAccountOrRepositoryIdentifiers": false,
+      "metadataStripped": true
+    },
+    "nonImpersonation": {
+      "depiction": "abstract-process-diagram",
+      "productUiCapture": false,
+      "simulatedProductUi": false,
+      "vendorLogoIncluded": false,
+      "tradeDressReproduction": false,
+      "visibleLabel": "COURSE-ORIGINAL ABSTRACT DIAGRAM · NOT PRODUCT UI",
+      "labelEmbeddedInPixels": true
+    }
+  },
+  "records": [
+    {
+      "id": "codex-diagram-rights.fig-01.v1",
+      "figureId": "fig-01",
+      "status": "publishable",
+      "binding": { "lessonSlug": "meet-codex", "surface": "app" },
+      "instructionalPurpose": "Explain that a learner chooses a Codex surface and then binds work to one repository boundary without depicting product UI.",
+      "officialSupportingSourceIds": ["openai-app", "openai-quickstart"],
+      "assetSha256": { "png2240": "413268881a324aa006374939ef55790a29f3d6fda92da637cd1cd129ceee0faa", "webp2240": "420c8e6bee3c6913970774fad4ac44a5e4186ab692eb8a20886e5a8b8874520b", "webp1120": "9bfcc4af640caf339efc6cbec516e04d9591fea80f032d48bc7ad20b9006e17f" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-02.v1",
+      "figureId": "fig-02",
+      "status": "publishable",
+      "binding": { "lessonSlug": "meet-codex", "surface": "app" },
+      "instructionalPurpose": "Model the download, verification, isolated practice, and reset cycle for the disposable course workspace.",
+      "officialSupportingSourceIds": ["openai-quickstart", "openai-app"],
+      "assetSha256": { "png2240": "57a91e71a80b3e49eaedea21467e11a9cac061003f50dc941692247715788b4b", "webp2240": "e20436e553d02e710453fb9fe0f66b8f1c0f3feac9dbe53de7dedd2db2ba206c", "webp1120": "10c1a104ab394fe092424555251d6ece091e21a45f9a4880750a0a4a2e13913b" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-03.v1",
+      "figureId": "fig-03",
+      "status": "publishable",
+      "binding": { "lessonSlug": "task-contracts", "surface": "app" },
+      "instructionalPurpose": "Present the outcome, scope, frozen input, constraints, verification, and stop boundary as a course-authored task-contract model.",
+      "officialSupportingSourceIds": ["openai-prompting"],
+      "assetSha256": { "png2240": "b4bee1f7f26ddcc4e8a61984f65145123d9f62574e538f007f3c32cef1ef8af4", "webp2240": "4c1b05ce0e73d12b68961b6fd1b8eed0815ba18f3445f7343fa1f99bfb8af26e", "webp1120": "c2b9b8b4008386770d91a653295e6ebdca00cd920e7c2b84aadc4da107282c1d" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-04.v1",
+      "figureId": "fig-04",
+      "status": "publishable",
+      "binding": { "lessonSlug": "environments-permissions", "surface": "app" },
+      "instructionalPurpose": "Compare Local, Worktree, and Cloud as abstract execution boundaries chosen from task facts and least privilege.",
+      "officialSupportingSourceIds": ["openai-environment-modes", "openai-permissions"],
+      "assetSha256": { "png2240": "bd3dedb52884e7c1798134d4211f2dd52c6c5f08bc1c2025831b1960499bd54d", "webp2240": "a053c2de99ee0921c7f4919feaaa6c423aa88fa0ac26fa3bd79275e5786767aa", "webp1120": "4b73c0059182a91413ca45b1b681627ac11922aacb62c34f1001ba85893ece8f" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-05.v1",
+      "figureId": "fig-05",
+      "status": "publishable",
+      "binding": { "lessonSlug": "ground-plan", "surface": "app" },
+      "instructionalPurpose": "Show read-only repository orientation as a relationship among instructions, routes, source, tests, and scripts.",
+      "officialSupportingSourceIds": ["openai-projects", "openai-agents-md", "openai-prompting"],
+      "assetSha256": { "png2240": "12c7789e5db8640b718371425551b007389611141d2d1c88cc8fbefb500ab893", "webp2240": "a0208077aaeb1f7d7233ecec14d7c58a6cc9f8ca91d88022414f8b9540d468a1", "webp1120": "75c8df907f667b3fed3cc400f7b93945ef1971ed58309031ca8c9d2f61e11d6f" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-06.v1",
+      "figureId": "fig-06",
+      "status": "publishable",
+      "binding": { "lessonSlug": "environments-permissions", "surface": "app" },
+      "instructionalPurpose": "Explain approval as a decision over an exact command, reason, data access, write effect, and network boundary.",
+      "officialSupportingSourceIds": ["openai-permissions"],
+      "assetSha256": { "png2240": "d424db5fb480fd734180737678ca1c5bdce296da97b49d54b878718a1b559867", "webp2240": "7d3b3e361c8e6b851222d82820a3e18be7ab87e1b4cad3717f7a021953ee90d0", "webp1120": "768c51191cb10c0f9bf155660ff5aede19bc09955013b6e5d5c0bf325d3804fc" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-07.v1",
+      "figureId": "fig-07",
+      "status": "publishable",
+      "binding": { "lessonSlug": "debug-test", "surface": "app" },
+      "instructionalPurpose": "Model the evidence chain from a known workspace through a focused test command to observable results.",
+      "officialSupportingSourceIds": ["openai-prompting", "openai-code-review"],
+      "assetSha256": { "png2240": "0c3520ef0e7924032d9ca8639cc4bb798df10e918b41e6528306fcef26a2d424", "webp2240": "c4812abdee49e5e32b0124d0a8aa735cb935df046e62ae0e9d6fb9ec63ff7217", "webp1120": "e01f199af33f9f638e6fff7e3d8e2a5f459cbca910aec52f0ab9f56a86d16a82" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-08.v1",
+      "figureId": "fig-08",
+      "status": "publishable",
+      "binding": { "lessonSlug": "implement-steer", "surface": "app" },
+      "instructionalPurpose": "Explain evidence-based steering as preserving valid work, naming a correction, and reconfirming scope.",
+      "officialSupportingSourceIds": ["openai-long-running-work"],
+      "assetSha256": { "png2240": "6a22f9e8ca69f384441b923e48a5dfdc48b4960e83990390b6a3ff50e21d9eca", "webp2240": "6040b9f44a66b4c0960a40a66d547149ee6554892dfa5bac962c5bed26252662", "webp1120": "3f9067e902463f74b6dcf85247c04cbcb616d4916f95de6a8a9a66d01b058277" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-09.v1",
+      "figureId": "fig-09",
+      "status": "publishable",
+      "binding": { "lessonSlug": "debug-test", "surface": "app" },
+      "instructionalPurpose": "Teach the reproduce, explain, minimally change, and verify cycle without presenting invented terminal output.",
+      "officialSupportingSourceIds": ["openai-prompting", "openai-code-review"],
+      "assetSha256": { "png2240": "2589772119ccb06e903bb0f5bc1d1ecc747bdba7752dbffb645b0836845a002a", "webp2240": "14c836386bc59b1c7aec1008952f4306a081a812bce3f7b74b8ee0b8a6040dd2", "webp1120": "3ff9c22ed0c812dddab4a68ace62971a4a08791bb258802d2d5e58c236719a5d" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-10.v1",
+      "figureId": "fig-10",
+      "status": "publishable",
+      "binding": { "lessonSlug": "review-diff", "surface": "app" },
+      "instructionalPurpose": "Separate the declared changed-file scope from frozen tests and preserved routes in an abstract boundary model.",
+      "officialSupportingSourceIds": ["openai-code-review"],
+      "assetSha256": { "png2240": "218e54e356d5e8accc590129f2fc7ecc8abadcdb2cd72b38680929ce4c372755", "webp2240": "86421ba63a54f51dca757ea391c82cb953759d5eb8b97bbe39fc409f7b6c2923", "webp1120": "4c39e92573e09565f5c367d0eb59ea64191bc4111ce7fa9b5944fba32ab8d54e" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-11.v1",
+      "figureId": "fig-11",
+      "status": "publishable",
+      "binding": { "lessonSlug": "review-diff", "surface": "app" },
+      "instructionalPurpose": "Connect declared review scope, complete diff inspection, acceptance behavior, and actionable findings.",
+      "officialSupportingSourceIds": ["openai-code-review"],
+      "assetSha256": { "png2240": "41b23f4d1f3f194fed3b0c5b66172978d322c7cefad0f5da2740ae2513db66ba", "webp2240": "81379ad2912b16ef5babd6d8dca542387972affb30935e24dbe68bb29109944d", "webp1120": "cf9c0e4be99121bffa09d73288d865be3bd9a59bb483fdb41a218c024106ba8f" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-12.v1",
+      "figureId": "fig-12",
+      "status": "publishable",
+      "binding": { "lessonSlug": "review-diff", "surface": "app" },
+      "instructionalPurpose": "Separate changed behavior, fresh verification, unrun checks, residual risk, and the next human decision.",
+      "officialSupportingSourceIds": ["openai-code-review", "openai-app"],
+      "assetSha256": { "png2240": "665fa31c2ae9a009fc73403babf73874e1729d47e9517eeb0fd039848befe508", "webp2240": "04d5dd9e2839a9e356a966426ebe60f9473c15dc458f967d4d62ba5519334e2f", "webp1120": "ea680da9351dff88e59169329c1f2e54696948f46c3d9ae0f34ad8ab00bd33dc" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-18.v1",
+      "figureId": "fig-18",
+      "status": "publishable",
+      "binding": { "lessonSlug": "ide", "surface": "ide" },
+      "instructionalPurpose": "Model an IDE-to-cloud context envelope containing repository context, task contract, constraints, and return evidence.",
+      "officialSupportingSourceIds": ["openai-ide", "openai-developer-commands"],
+      "assetSha256": { "png2240": "7ca7dbaf4dd8a758778e8eae28ccf1e66bae54c58d1de19991b1542c5c42b0a5", "webp2240": "e9c23a6857e79acf2363f268bb9d88d68b7f720fa44b0ea02cca834588ccf6e7", "webp1120": "e1d7ea7e48e87387f9d9480eed79737ae00ecd8260d2a3a73f9164088c87aee8" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-19.v1",
+      "figureId": "fig-19",
+      "status": "publishable",
+      "binding": { "lessonSlug": "cloud-parallel", "surface": "cloud" },
+      "instructionalPurpose": "Connect cloud setup, task boundary, execution, logs, and reviewable handoff without inventing a cloud UI capture.",
+      "officialSupportingSourceIds": ["openai-cloud", "openai-cloud-environment"],
+      "assetSha256": { "png2240": "d27a46522ab09f70a9b8fd589f68a72226cee594a0afb4e13891635c6f89a768", "webp2240": "90b187e521bf32ba47705f81debb3fbf3f2b215acc9865639a98eed1a99a005b", "webp1120": "c80fe73d09df19ebfb3dc4cc1b002e855a600f20b670d8838634b194a7fd3c4a" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-20.v1",
+      "figureId": "fig-20",
+      "status": "publishable",
+      "binding": { "lessonSlug": "cloud-parallel", "surface": "app" },
+      "instructionalPurpose": "Explain that isolated worktrees branch from a baseline and still require an integration owner and fresh verification.",
+      "officialSupportingSourceIds": ["openai-worktrees"],
+      "assetSha256": { "png2240": "cdc4f5d3743337b4080e1f08f486c99204aadc9bb1d376e6ff6cd19cea580147", "webp2240": "5eaf04dec77d4b785b39d19004fa03d06e29b707b434d2ee5fd793193dd8d915", "webp1120": "85dcd77fcb2cb936616aad3f1e3d1a562be3564b2ccbe1b955f8256f7caaf614" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-21.v1",
+      "figureId": "fig-21",
+      "status": "publishable",
+      "binding": { "lessonSlug": "cloud-parallel", "surface": "app" },
+      "instructionalPurpose": "Model independent subagent investigations returning separate evidence to one integration owner.",
+      "officialSupportingSourceIds": ["openai-subagents"],
+      "assetSha256": { "png2240": "970add3e53d12e6a1c46bf3d97bd44f54f22be09d09361aa45f5624f90d66c90", "webp2240": "581d82eea60679ce128bd846b204302c29d684397b0ca0f41e53b6be7ba61274", "webp1120": "59c68162810423ab614d6109eae5718c586e80a0145df9ff1957d78537f3325d" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-23.v1",
+      "figureId": "fig-23",
+      "status": "publishable",
+      "binding": { "lessonSlug": "cloud-parallel", "surface": "app" },
+      "instructionalPurpose": "Explain that manual rehearsal precedes scheduling, least privilege, stop rules, delivery, and human review.",
+      "officialSupportingSourceIds": ["openai-automations", "openai-long-running-work"],
+      "assetSha256": { "png2240": "af5580f769b94b166b000a1e5a2f06588833d9d8630740ab7d5c37667069380e", "webp2240": "ced4ebcf30f917338172f3920295fe452528c6e880d5f2df34f068cfb6998f4d", "webp1120": "b568b552191146c023af67e740e9a455a85bf6d63e330a24afa919696e1229a7" }
+    },
+    {
+      "id": "codex-diagram-rights.fig-24.v1",
+      "figureId": "fig-24",
+      "status": "publishable",
+      "binding": { "lessonSlug": "automation-capstone", "surface": "github" },
+      "instructionalPurpose": "Separate untrusted pull-request input, read-only review, explicitly authorized repair, clean validation, and published evidence.",
+      "officialSupportingSourceIds": ["openai-github-action", "openai-noninteractive"],
+      "assetSha256": { "png2240": "bb896ebb142b0789a2b1f84e639b38b452caa5390cf8b6f732e94c0828a9316a", "webp2240": "4ade8f37e0df4867143fbc7a5c42c0d22671bcba75db167f1e3feee317e59e66", "webp1120": "d9e50a188ed702f9b59d025d602ccba40daaf1c37ee84d9b24878abe209fb846" }
+    }
+  ]
+}

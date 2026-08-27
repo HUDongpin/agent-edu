@@ -11,9 +11,9 @@
  *   node scripts/check-codex-course.mjs --release
  *   node scripts/check-codex-course.mjs --json
  *
- * Development mode permits honest `capture-required` figure records and emits
- * warnings. Release mode fails until every referenced figure is a verified,
- * privacy-reviewed local asset with matching provenance and SHA-256.
+ * Every referenced figure must be either an audited product-interface capture
+ * or a locally rendered course-original abstract diagram. The two provenance
+ * branches are intentionally non-interchangeable and both fail closed.
  */
 
 import { createHash } from "node:crypto";
@@ -21,11 +21,14 @@ import { spawnSync } from "node:child_process";
 import {
   existsSync,
   lstatSync,
+  mkdtempSync,
   readFileSync,
   readdirSync,
   realpathSync,
+  rmSync,
   statSync,
 } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -75,6 +78,18 @@ const COURSE_LESSON_ROUTES = [
 
 const FIGURE_AUDIT_PATH = "lib/codex/figure-audits.json";
 const FIGURE_AUDIT_SCHEMA = "aicourse.codex.figure-audits.v1";
+const DIAGRAM_RIGHTS_PATH = "lib/codex/diagram-rights.json";
+const DIAGRAM_RIGHTS_SCHEMA = "aicourse.codex.diagram-rights.v1";
+const DIAGRAM_RENDERER_PATH = "scripts/render-codex-original-diagrams.mjs";
+const DIAGRAM_NOTICE_PATH = "public/courses/codex/NOTICE.md";
+const DIAGRAM_RENDERER_VERSION = "codex-original-diagrams.v1";
+const DIAGRAM_PROVENANCE_LABEL = "COURSE-ORIGINAL ABSTRACT DIAGRAM · NOT PRODUCT UI";
+const DIAGRAM_RENDER_ENVIRONMENT = {
+  sharpVersion: "0.35.3",
+  libvipsVersion: "8.18.3",
+  svgTextFontStack: "Arial, Helvetica, sans-serif",
+  reproductionPolicy: "release-rerender-byte-identical",
+};
 const LOCALIZATION_REVIEW_PATH = "lib/codex/localization-reviews.json";
 const LOCALIZATION_REVIEW_SCHEMA = "aicourse.codex.localization-reviews.v1";
 const LOCALIZATION_REVIEW_CHECKLIST_VERSION = "codex-localization-second-pass.v1";
@@ -90,6 +105,13 @@ const PUBLIC_ROOT = join(ROOT, "public");
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const FIGURE_ID_PATTERN = /^fig-(?:0[1-9]|1\d|2[0-4])$/;
 const FIGURE_AUDIT_ID_PATTERN = /^codex-figure-audit\.fig-(?:0[1-9]|1\d|2[0-4])\.[a-z0-9][a-z0-9._-]*$/;
+const DIAGRAM_RIGHTS_ID_PATTERN = /^codex-diagram-rights\.fig-(?:0[1-9]|1\d|2[0-4])\.[a-z0-9][a-z0-9._-]*$/;
+const PRODUCT_UI_CAPTURE_IDS = ["fig-13", "fig-14", "fig-15", "fig-16", "fig-17", "fig-22"];
+const ORIGINAL_DIAGRAM_IDS = [
+  "fig-01", "fig-02", "fig-03", "fig-04", "fig-05", "fig-06",
+  "fig-07", "fig-08", "fig-09", "fig-10", "fig-11", "fig-12",
+  "fig-18", "fig-19", "fig-20", "fig-21", "fig-23", "fig-24",
+];
 const FIGURE_OCR_CHECKLIST_VERSION = "codex-figure-ocr.v1";
 const FIGURE_METADATA_CHECKLIST_VERSION = "codex-figure-metadata.v1";
 const FIGURE_PRIVACY_CHECKLIST_VERSION = "codex-figure-privacy.v2";
@@ -1128,14 +1150,209 @@ function loadFigureAuditBindings(figures, sources) {
       fail(`${label}.figureId: orphan audit does not match a figure manifest`);
       continue;
     }
-    if (figure.status !== "available") {
-      fail(`${label}.figureId: approved audit may bind only an available figure`);
+    if (figure.kind !== "product-ui-capture") {
+      fail(`${label}.figureId: product UI audit may bind only a product-ui-capture figure`);
       continue;
     }
     if (figure.auditId !== audit.id) fail(`${label}.id: figure auditId does not bind back to this record`);
     checkStructuredFigureAudit(audit, figure, sourcesById, label);
   }
+  const auditedFigureIds = [...auditByFigureId.keys()].sort();
+  if (JSON.stringify(auditedFigureIds) !== JSON.stringify([...PRODUCT_UI_CAPTURE_IDS].sort())) {
+    fail(`${FIGURE_AUDIT_PATH}: audits must bind exactly ${PRODUCT_UI_CAPTURE_IDS.join(", ")}`);
+  }
   return { auditById, auditByFigureId };
+}
+
+function checkFrozenTextFile(record, expectedPath, label, requiredText = null) {
+  if (!isPlainObject(record)) {
+    fail(`${label}: path and SHA-256 record is required`);
+    return;
+  }
+  exactKeySet(record, ["path", "sha256"], label);
+  if (record.path !== expectedPath) fail(`${label}.path: expected ${expectedPath}`);
+  if (!SHA256_PATTERN.test(record.sha256 ?? "")) fail(`${label}.sha256: lowercase SHA-256 is required`);
+  const path = join(ROOT, expectedPath);
+  if (!existsSync(path) || !statSync(path).isFile() || lstatSync(path).isSymbolicLink()) {
+    fail(`${label}.path: committed regular file is missing or is a symbolic link`);
+    return;
+  }
+  const bytes = readFileSync(path);
+  if (record.sha256 !== sha256(bytes)) fail(`${label}.sha256: frozen digest does not match ${expectedPath}`);
+  if (requiredText && !bytes.toString("utf8").includes(requiredText)) {
+    fail(`${label}.path: file does not contain the locked non-impersonation label`);
+  }
+}
+
+function loadDiagramRightsBindings(figures, sources, lessons) {
+  const path = join(ROOT, DIAGRAM_RIGHTS_PATH);
+  const ledger = readJson(path, DIAGRAM_RIGHTS_PATH);
+  const recordById = new Map();
+  const recordByFigureId = new Map();
+  if (!isPlainObject(ledger)) return { recordById, recordByFigureId };
+  exactKeySet(ledger, ["schema", "renderer", "notice", "assetContract", "policy", "records"], DIAGRAM_RIGHTS_PATH);
+  if (ledger.schema !== DIAGRAM_RIGHTS_SCHEMA) fail(`${DIAGRAM_RIGHTS_PATH}: schema must be ${DIAGRAM_RIGHTS_SCHEMA}`);
+
+  if (!isPlainObject(ledger.renderer)) {
+    fail(`${DIAGRAM_RIGHTS_PATH}.renderer: renderer provenance is required`);
+  } else {
+    exactKeySet(ledger.renderer, ["path", "version", "sha256", "environment"], `${DIAGRAM_RIGHTS_PATH}.renderer`);
+    if (ledger.renderer.path !== DIAGRAM_RENDERER_PATH) fail(`${DIAGRAM_RIGHTS_PATH}.renderer.path: expected ${DIAGRAM_RENDERER_PATH}`);
+    if (ledger.renderer.version !== DIAGRAM_RENDERER_VERSION) fail(`${DIAGRAM_RIGHTS_PATH}.renderer.version: expected ${DIAGRAM_RENDERER_VERSION}`);
+    if (!SHA256_PATTERN.test(ledger.renderer.sha256 ?? "")) fail(`${DIAGRAM_RIGHTS_PATH}.renderer.sha256: lowercase SHA-256 is required`);
+    if (!isPlainObject(ledger.renderer.environment)) {
+      fail(`${DIAGRAM_RIGHTS_PATH}.renderer.environment: frozen rendering environment is required`);
+    } else {
+      exactKeySet(ledger.renderer.environment, Object.keys(DIAGRAM_RENDER_ENVIRONMENT), `${DIAGRAM_RIGHTS_PATH}.renderer.environment`);
+      for (const [key, expected] of Object.entries(DIAGRAM_RENDER_ENVIRONMENT)) {
+        if (ledger.renderer.environment[key] !== expected) fail(`${DIAGRAM_RIGHTS_PATH}.renderer.environment.${key}: expected ${expected}`);
+      }
+    }
+    const rendererPath = join(ROOT, DIAGRAM_RENDERER_PATH);
+    if (!existsSync(rendererPath) || !statSync(rendererPath).isFile() || lstatSync(rendererPath).isSymbolicLink()) {
+      fail(`${DIAGRAM_RIGHTS_PATH}.renderer.path: committed regular renderer is missing or is a symbolic link`);
+    } else {
+      const rendererBytes = readFileSync(rendererPath);
+      if (ledger.renderer.sha256 !== sha256(rendererBytes)) fail(`${DIAGRAM_RIGHTS_PATH}.renderer.sha256: renderer changed after the rights record was frozen`);
+      const rendererSource = rendererBytes.toString("utf8");
+      if (!rendererSource.includes(DIAGRAM_PROVENANCE_LABEL)) fail(`${DIAGRAM_RIGHTS_PATH}.renderer: locked visible provenance label is missing`);
+      if (!rendererSource.includes("intentionally do not") || !rendererSource.includes("reproduce Codex, ChatGPT, an IDE, a terminal, GitHub")) fail(`${DIAGRAM_RIGHTS_PATH}.renderer: non-impersonation boundary is missing`);
+    }
+  }
+  checkFrozenTextFile(ledger.notice, DIAGRAM_NOTICE_PATH, `${DIAGRAM_RIGHTS_PATH}.notice`, DIAGRAM_PROVENANCE_LABEL);
+
+  const expectedAssetContract = {
+    root: "/courses/codex/figures",
+    pngPathTemplate: "fig-XX-master.png",
+    webp2240PathTemplate: "fig-XX-2240.webp",
+    webp1120PathTemplate: "fig-XX-1120.webp",
+    masterWidth: 2240,
+    masterHeight: 1260,
+    responsiveWidth: 1120,
+    responsiveHeight: 630,
+  };
+  if (!isPlainObject(ledger.assetContract)) {
+    fail(`${DIAGRAM_RIGHTS_PATH}.assetContract: canonical asset contract is required`);
+  } else {
+    exactKeySet(ledger.assetContract, Object.keys(expectedAssetContract), `${DIAGRAM_RIGHTS_PATH}.assetContract`);
+    for (const [key, expected] of Object.entries(expectedAssetContract)) {
+      if (ledger.assetContract[key] !== expected) fail(`${DIAGRAM_RIGHTS_PATH}.assetContract.${key}: expected ${expected}`);
+    }
+  }
+
+  if (!isPlainObject(ledger.policy)) {
+    fail(`${DIAGRAM_RIGHTS_PATH}.policy: authorship, privacy, and non-impersonation policy is required`);
+  } else {
+    exactKeySet(ledger.policy, ["classification", "authorship", "privacy", "nonImpersonation"], `${DIAGRAM_RIGHTS_PATH}.policy`);
+    if (ledger.policy.classification !== "course-original-abstract-diagram") fail(`${DIAGRAM_RIGHTS_PATH}.policy.classification: expected course-original-abstract-diagram`);
+    if (!isPlainObject(ledger.policy.authorship)) {
+      fail(`${DIAGRAM_RIGHTS_PATH}.policy.authorship: original-work rights record is required`);
+    } else {
+      exactKeySet(ledger.policy.authorship, ["rightsBasis", "rightsHolder", "license", "licensePath", "licenseSha256", "thirdPartyPixels", "thirdPartyAssets"], `${DIAGRAM_RIGHTS_PATH}.policy.authorship`);
+      if (ledger.policy.authorship.rightsBasis !== "course-original-work") fail(`${DIAGRAM_RIGHTS_PATH}.policy.authorship.rightsBasis: expected course-original-work`);
+      if (ledger.policy.authorship.rightsHolder !== "HU Dongpin") fail(`${DIAGRAM_RIGHTS_PATH}.policy.authorship.rightsHolder: must match the repository license`);
+      if (ledger.policy.authorship.license !== "MIT" || ledger.policy.authorship.licensePath !== "LICENSE") fail(`${DIAGRAM_RIGHTS_PATH}.policy.authorship.license: must bind the root MIT LICENSE`);
+      if (ledger.policy.authorship.thirdPartyPixels !== false || !Array.isArray(ledger.policy.authorship.thirdPartyAssets) || ledger.policy.authorship.thirdPartyAssets.length !== 0) {
+        fail(`${DIAGRAM_RIGHTS_PATH}.policy.authorship: original diagrams must declare zero third-party pixels and assets`);
+      }
+      const licensePath = join(ROOT, "LICENSE");
+      if (!existsSync(licensePath) || !statSync(licensePath).isFile() || lstatSync(licensePath).isSymbolicLink()) {
+        fail(`${DIAGRAM_RIGHTS_PATH}.policy.authorship.licensePath: root LICENSE is missing or is a symbolic link`);
+      } else if (!SHA256_PATTERN.test(ledger.policy.authorship.licenseSha256 ?? "") || ledger.policy.authorship.licenseSha256 !== sha256(readFileSync(licensePath))) {
+        fail(`${DIAGRAM_RIGHTS_PATH}.policy.authorship.licenseSha256: root LICENSE digest mismatch`);
+      }
+    }
+    if (!isPlainObject(ledger.policy.privacy)) {
+      fail(`${DIAGRAM_RIGHTS_PATH}.policy.privacy: privacy assertions are required`);
+    } else {
+      exactKeySet(ledger.policy.privacy, ["dataClass", "containsPersonalData", "containsSecrets", "containsAccountOrRepositoryIdentifiers", "metadataStripped"], `${DIAGRAM_RIGHTS_PATH}.policy.privacy`);
+      if (ledger.policy.privacy.dataClass !== "synthetic-labels-only" ||
+          ledger.policy.privacy.containsPersonalData !== false ||
+          ledger.policy.privacy.containsSecrets !== false ||
+          ledger.policy.privacy.containsAccountOrRepositoryIdentifiers !== false ||
+          ledger.policy.privacy.metadataStripped !== true) {
+        fail(`${DIAGRAM_RIGHTS_PATH}.policy.privacy: synthetic-only, no-private-data, metadata-stripped assertions are required`);
+      }
+    }
+    if (!isPlainObject(ledger.policy.nonImpersonation)) {
+      fail(`${DIAGRAM_RIGHTS_PATH}.policy.nonImpersonation: non-impersonation assertions are required`);
+    } else {
+      exactKeySet(ledger.policy.nonImpersonation, ["depiction", "productUiCapture", "simulatedProductUi", "vendorLogoIncluded", "tradeDressReproduction", "visibleLabel", "labelEmbeddedInPixels"], `${DIAGRAM_RIGHTS_PATH}.policy.nonImpersonation`);
+      if (ledger.policy.nonImpersonation.depiction !== "abstract-process-diagram" ||
+          ledger.policy.nonImpersonation.productUiCapture !== false ||
+          ledger.policy.nonImpersonation.simulatedProductUi !== false ||
+          ledger.policy.nonImpersonation.vendorLogoIncluded !== false ||
+          ledger.policy.nonImpersonation.tradeDressReproduction !== false ||
+          ledger.policy.nonImpersonation.visibleLabel !== DIAGRAM_PROVENANCE_LABEL ||
+          ledger.policy.nonImpersonation.labelEmbeddedInPixels !== true) {
+        fail(`${DIAGRAM_RIGHTS_PATH}.policy.nonImpersonation: locked abstract, non-product-UI assertions are required`);
+      }
+    }
+  }
+
+  if (!Array.isArray(ledger.records)) {
+    fail(`${DIAGRAM_RIGHTS_PATH}: records must be an array`);
+    return { recordById, recordByFigureId };
+  }
+  const figureById = new Map(figures.map((figure) => [figure?.id, figure]));
+  const sourcesById = new Map(sources.map((source) => [source?.id, source]));
+  const lessonBySlug = new Map(lessons.map((lesson) => [lesson?.slug, lesson]));
+  for (const [index, record] of ledger.records.entries()) {
+    const label = `${DIAGRAM_RIGHTS_PATH}: records[${index}]`;
+    if (!isPlainObject(record)) {
+      fail(`${label}: rights record must be an object`);
+      continue;
+    }
+    exactKeySet(record, ["id", "figureId", "status", "binding", "instructionalPurpose", "officialSupportingSourceIds", "assetSha256"], label);
+    if (typeof record.id !== "string" || !DIAGRAM_RIGHTS_ID_PATTERN.test(record.id)) {
+      fail(`${label}.id: must use codex-diagram-rights.fig-XX.<stable-suffix>`);
+    } else if (recordById.has(record.id)) {
+      fail(`${label}.id: duplicate rights record ID ${record.id}`);
+    } else {
+      recordById.set(record.id, record);
+    }
+    if (!ORIGINAL_DIAGRAM_IDS.includes(record.figureId)) {
+      fail(`${label}.figureId: must bind one of the eighteen locked original-diagram IDs`);
+      continue;
+    }
+    if (recordByFigureId.has(record.figureId)) fail(`${label}.figureId: multiple rights records bind ${record.figureId}`);
+    else recordByFigureId.set(record.figureId, record);
+    const figure = figureById.get(record.figureId);
+    if (!figure || figure.kind !== "course-original-diagram") {
+      fail(`${label}.figureId: rights record may bind only a course-original-diagram figure`);
+      continue;
+    }
+    if (record.status !== "publishable") fail(`${label}.status: expected publishable`);
+    if (!isPlainObject(record.binding) || record.binding.lessonSlug !== figure.lessonSlug || record.binding.surface !== figure.surface) {
+      fail(`${label}.binding: lesson and subject surface must match the figure manifest`);
+    } else {
+      exactKeySet(record.binding, ["lessonSlug", "surface"], `${label}.binding`);
+    }
+    if (record.instructionalPurpose !== figure.instructionalPurpose) fail(`${label}.instructionalPurpose: must match the figure manifest exactly`);
+    if (!nonEmptyStrings(record.officialSupportingSourceIds)) {
+      fail(`${label}.officialSupportingSourceIds: at least one official source is required`);
+    } else {
+      if (JSON.stringify(record.officialSupportingSourceIds) !== JSON.stringify(figure.officialSupportingSourceIds)) fail(`${label}.officialSupportingSourceIds: must match the figure manifest exactly`);
+      const owningLesson = lessonBySlug.get(figure.lessonSlug);
+      for (const sourceId of record.officialSupportingSourceIds) {
+        const source = sourcesById.get(sourceId);
+        if (!source || source.kind !== "official-doc") fail(`${label}.officialSupportingSourceIds: ${sourceId} is not an official OpenAI source record`);
+        if (!owningLesson?.sourceIds?.includes(sourceId)) fail(`${label}.officialSupportingSourceIds: ${sourceId} is not cited by the owning lesson`);
+      }
+    }
+    if (exactKeySet(record.assetSha256, ["png2240", "webp2240", "webp1120"], `${label}.assetSha256`)) {
+      for (const role of ["png2240", "webp2240", "webp1120"]) {
+        if (!SHA256_PATTERN.test(record.assetSha256[role] ?? "")) fail(`${label}.assetSha256.${role}: lowercase SHA-256 is required`);
+        if (record.assetSha256[role] !== figure.assetSha256?.[role]) fail(`${label}.assetSha256.${role}: rights and manifest digests differ`);
+      }
+    }
+    if (record.id !== figure.rightsRecordId) fail(`${label}.id: figure and rights record do not form an exact two-way binding`);
+  }
+  const recordedIds = [...recordByFigureId.keys()].sort();
+  if (JSON.stringify(recordedIds) !== JSON.stringify([...ORIGINAL_DIAGRAM_IDS].sort())) {
+    fail(`${DIAGRAM_RIGHTS_PATH}: records must bind exactly ${ORIGINAL_DIAGRAM_IDS.join(", ")}`);
+  }
+  return { recordById, recordByFigureId };
 }
 
 function noSymlinkComponents(path, label) {
@@ -1296,13 +1513,136 @@ function checkFigureAssetDirectory(expectedPaths) {
   inspect(FIGURE_ASSET_ROOT);
 }
 
-function checkFigures(figures, sources) {
+function checkOriginalDiagramRerender(figures) {
+  if (!RELEASE) return;
+  const scratchDirectory = mkdtempSync(join(tmpdir(), "aicourse-codex-diagrams-"));
+  const rendererPath = join(ROOT, DIAGRAM_RENDERER_PATH);
+  try {
+    const rendering = spawnSync(
+      process.execPath,
+      [rendererPath, "--output-directory", scratchDirectory],
+      {
+        cwd: ROOT,
+        encoding: "utf8",
+        maxBuffer: 16 * 1024 * 1024,
+        shell: false,
+        timeout: 120_000,
+      },
+    );
+    if (rendering.error || rendering.status !== 0) {
+      fail("original diagram rerender: frozen renderer did not complete successfully");
+      return;
+    }
+    if (typeof rendering.stderr === "string" && rendering.stderr.trim()) {
+      fail("original diagram rerender: frozen renderer emitted diagnostics");
+      return;
+    }
+
+    let result;
+    try {
+      result = JSON.parse(rendering.stdout);
+    } catch {
+      fail("original diagram rerender: frozen renderer did not emit its structured receipt");
+      return;
+    }
+    if (!isPlainObject(result)) {
+      fail("original diagram rerender: structured receipt must be an object");
+      return;
+    }
+    exactKeySet(result, ["rendererVersion", "rendererSha256", "environment", "records"], "original diagram rerender receipt");
+    if (result.rendererVersion !== DIAGRAM_RENDERER_VERSION) fail(`original diagram rerender receipt.rendererVersion: expected ${DIAGRAM_RENDERER_VERSION}`);
+    if (result.rendererSha256 !== sha256(readFileSync(rendererPath))) fail("original diagram rerender receipt.rendererSha256: renderer digest mismatch");
+    if (!isPlainObject(result.environment)) {
+      fail("original diagram rerender receipt.environment: rendering environment is required");
+    } else {
+      exactKeySet(result.environment, Object.keys(DIAGRAM_RENDER_ENVIRONMENT), "original diagram rerender receipt.environment");
+      for (const [key, expected] of Object.entries(DIAGRAM_RENDER_ENVIRONMENT)) {
+        if (result.environment[key] !== expected) fail(`original diagram rerender receipt.environment.${key}: expected ${expected}`);
+      }
+    }
+    if (!Array.isArray(result.records)) {
+      fail("original diagram rerender receipt.records: expected an array");
+      return;
+    }
+
+    const figureById = new Map(figures.map((figure) => [figure?.id, figure]));
+    const recordById = new Map();
+    const expectedFiles = [];
+    for (const [index, record] of result.records.entries()) {
+      const label = `original diagram rerender receipt.records[${index}]`;
+      if (!isPlainObject(record)) {
+        fail(`${label}: expected an object`);
+        continue;
+      }
+      exactKeySet(record, ["id", "title", "width", "height", "assetSha256"], label);
+      if (!ORIGINAL_DIAGRAM_IDS.includes(record.id)) {
+        fail(`${label}.id: unexpected original diagram ID`);
+        continue;
+      }
+      if (recordById.has(record.id)) fail(`${label}.id: duplicate original diagram ID`);
+      else recordById.set(record.id, record);
+      const figure = figureById.get(record.id);
+      if (!figure || figure.kind !== "course-original-diagram") {
+        fail(`${label}.id: rerendered record does not bind a course-original diagram`);
+        continue;
+      }
+      if (typeof record.title !== "string" || !record.title.trim()) fail(`${label}.title: title is required`);
+      if (record.width !== 2240 || record.height !== 1260) fail(`${label}: dimensions must be exactly 2240 by 1260`);
+      const fileNames = {
+        png2240: `${record.id}-master.png`,
+        webp2240: `${record.id}-2240.webp`,
+        webp1120: `${record.id}-1120.webp`,
+      };
+      exactKeySet(record.assetSha256, Object.keys(fileNames), `${label}.assetSha256`);
+      for (const [role, fileName] of Object.entries(fileNames)) {
+        expectedFiles.push(fileName);
+        const generatedPath = join(scratchDirectory, fileName);
+        if (!existsSync(generatedPath) || !statSync(generatedPath).isFile() || lstatSync(generatedPath).isSymbolicLink()) {
+          fail(`${label}.${role}: renderer did not create the expected regular file`);
+          continue;
+        }
+        const generatedBytes = readFileSync(generatedPath);
+        const generatedHash = sha256(generatedBytes);
+        if (record.assetSha256?.[role] !== generatedHash) fail(`${label}.${role}: receipt digest does not match rerendered bytes`);
+        if (figure.assetSha256?.[role] !== generatedHash) fail(`${label}.${role}: rerendered bytes differ from the published manifest`);
+        const publishedPath = join(FIGURE_ASSET_ROOT, fileName);
+        if (!existsSync(publishedPath) || !generatedBytes.equals(readFileSync(publishedPath))) {
+          fail(`${label}.${role}: published bytes are not an exact product of the frozen renderer`);
+        }
+      }
+    }
+    if (JSON.stringify([...recordById.keys()].sort()) !== JSON.stringify([...ORIGINAL_DIAGRAM_IDS].sort())) {
+      fail(`original diagram rerender receipt.records: expected exactly ${ORIGINAL_DIAGRAM_IDS.join(", ")}`);
+    }
+    const actualFiles = readdirSync(scratchDirectory).sort();
+    if (JSON.stringify(actualFiles) !== JSON.stringify(expectedFiles.sort())) {
+      fail("original diagram rerender: output directory contains a missing or unexpected file");
+    }
+  } finally {
+    rmSync(scratchDirectory, { recursive: true, force: true });
+  }
+}
+
+function checkFigures(figures, sources, lessons) {
   const ids = uniqueIds(figures, "FIGURES");
   const { auditById } = loadFigureAuditBindings(figures, sources);
+  const { recordById } = loadDiagramRightsBindings(figures, sources, lessons);
   const servedPaths = new Map();
   const servedHashes = new Map();
   const declaredHashes = new Map();
   const expectedPaths = new Set();
+  const productIds = [];
+  const diagramIds = [];
+  const productOnlyFields = [
+    "auditId", "officialSupportingSourceId", "captureIntent", "capturedAt", "capturedOn",
+    "productVersion", "codexVersion", "os", "sha256", "privacyReviewed", "sourceUrl",
+    "thirdPartySourceUrl", "thirdPartyLicense",
+  ];
+  const diagramOnlyFields = [
+    "rightsRecordId", "officialSupportingSourceIds", "instructionalPurpose", "rendererVersion",
+    "provenanceLabel", "privacyClassification", "nonImpersonationClassification",
+  ];
+
   for (const [index, figure] of figures.entries()) {
     const label = `FIGURES[${index}] (${figure?.id ?? "unknown"})`;
     if ((figure?.altKey !== undefined || figure?.captionKey !== undefined) &&
@@ -1312,76 +1652,75 @@ function checkFigures(figures, sources) {
     if (!new Set(["app", "cli", "ide", "cloud", "github"]).has(figure?.surface)) {
       fail(`${label}: surface must be app, cli, ide, cloud, or github`);
     }
-
-    if (figure?.status === "capture-required") {
-      const premature = [
-        "auditId",
-        "officialSupportingSourceId",
-        "src",
-        "fallback",
-        "srcSet",
-        "assetSha256",
-        "width",
-        "height",
-        "sha256",
-        "capturedAt",
-        "capturedOn",
-        "productVersion",
-        "codexVersion",
-        "os",
-        "privacyReviewed",
-        "sourceUrl",
-        "thirdPartySourceUrl",
-        "thirdPartyLicense",
-      ].filter(
-        (field) => figure[field] !== undefined,
-      );
-      if (premature.length) fail(`${label}: capture-required records must not carry ${premature.join(", ")}`);
-      if (typeof figure.captureIntent !== "string" || !figure.captureIntent.trim()) {
-        fail(`${label}: captureIntent must describe the real UI evidence still needed`);
-      }
-      if (!nonEmptyStrings(figure.privacyChecklist)) fail(`${label}: privacyChecklist must be present before capture`);
-      const message = `${label}: real Codex UI capture is still required`;
-      if (RELEASE) fail(message);
-      else warn(message);
-      continue;
-    }
-
-    if (!new Set(["ready", "available"]).has(figure?.status)) {
-      fail(`${label}: status must be "capture-required", "ready", or the live-schema alias "available"`);
+    if (figure?.status !== "available") {
+      fail(`${label}: every Course 2 figure must be available at release`);
       continue;
     }
     if (!FIGURE_ID_PATTERN.test(figure.id ?? "")) {
-      fail(`${label}: available figure ID must be fig-01 through fig-24`);
+      fail(`${label}: figure ID must be fig-01 through fig-24`);
       continue;
     }
     if (figure.fallback !== undefined) fail(`${label}.fallback: noncanonical fallback assets are forbidden`);
-    if (figure.width !== 2240 || !Number.isInteger(figure.height) || figure.height < 1) {
-      fail(`${label}: available figures need a 2240-pixel master and positive integer height`);
-    }
-    const capturedAt = figure.capturedAt ?? figure.capturedOn;
-    const productVersion = figure.productVersion ?? figure.codexVersion;
-    if (!validDate(capturedAt)) {
-      fail(`${label}: capturedAt (or capturedOn) must be an ISO date or timestamp`);
+    if (!nonEmptyStrings(figure.privacyChecklist)) fail(`${label}.privacyChecklist: a provenance-specific privacy checklist is required`);
+
+    let audit;
+    let rightsRecord;
+    if (figure.kind === "product-ui-capture") {
+      productIds.push(figure.id);
+      for (const field of diagramOnlyFields.filter((candidate) => Object.hasOwn(figure, candidate))) {
+        fail(`${label}.${field}: product UI captures must not be relabeled as course-original diagrams`);
+      }
+      if (!PRODUCT_UI_CAPTURE_IDS.includes(figure.id)) fail(`${label}.kind: only the six locked IDs may be product UI captures`);
+      if (typeof figure.captureIntent !== "string" || !figure.captureIntent.trim()) fail(`${label}.captureIntent: real capture intent is required`);
+      const capturedAt = figure.capturedAt ?? figure.capturedOn;
+      const productVersion = figure.productVersion ?? figure.codexVersion;
+      if (!validDate(capturedAt)) {
+        fail(`${label}: capturedAt (or capturedOn) must be an ISO date or timestamp`);
+      } else {
+        const capturedTime = Date.parse(capturedAt.length === 10 ? `${capturedAt}T00:00:00Z` : capturedAt);
+        const ageDays = (Date.now() - capturedTime) / 86_400_000;
+        if (ageDays < -1) fail(`${label}: capture date is unexpectedly in the future`);
+        if (ageDays > 90) fail(`${label}: capture is older than the required 90-day freshness window`);
+      }
+      if (typeof productVersion !== "string" || !productVersion.trim()) fail(`${label}: Codex product version is required`);
+      if (typeof figure.os !== "string" || !figure.os.trim()) fail(`${label}: operating system is required for a product UI capture`);
+      if (figure.privacyReviewed !== true) fail(`${label}: compatibility privacyReviewed flag must be true`);
+      if (!validHttps(figure.sourceUrl)) fail(`${label}: sourceUrl must be an HTTPS provenance URL`);
+      if (!SHA256_PATTERN.test(figure.sha256 ?? "")) fail(`${label}: sha256 must be 64 lowercase hexadecimal characters`);
+      audit = typeof figure.auditId === "string" ? auditById.get(figure.auditId) : undefined;
+      if (!audit) {
+        fail(`${label}.auditId: no matching approved product-UI audit; privacyReviewed alone is insufficient`);
+      } else if (audit.figureId !== figure.id || audit.id !== figure.auditId || audit.status !== "approved") {
+        fail(`${label}.auditId: product capture manifest and audit do not form an approved two-way binding`);
+      }
+    } else if (figure.kind === "course-original-diagram") {
+      diagramIds.push(figure.id);
+      for (const field of productOnlyFields.filter((candidate) => Object.hasOwn(figure, candidate))) {
+        fail(`${label}.${field}: original diagrams must not carry screenshot capture metadata or a product UI audit binding`);
+      }
+      if (!ORIGINAL_DIAGRAM_IDS.includes(figure.id)) fail(`${label}.kind: only the eighteen locked IDs may be original diagrams`);
+      if (typeof figure.instructionalPurpose !== "string" || !figure.instructionalPurpose.trim()) fail(`${label}.instructionalPurpose: concrete diagram purpose is required`);
+      if (!nonEmptyStrings(figure.officialSupportingSourceIds)) fail(`${label}.officialSupportingSourceIds: at least one official source is required`);
+      if (figure.rendererVersion !== DIAGRAM_RENDERER_VERSION) fail(`${label}.rendererVersion: expected ${DIAGRAM_RENDERER_VERSION}`);
+      if (figure.provenanceLabel !== DIAGRAM_PROVENANCE_LABEL) fail(`${label}.provenanceLabel: locked non-product-UI label is required`);
+      if (figure.privacyClassification !== "synthetic-labels-only") fail(`${label}.privacyClassification: synthetic-labels-only is required`);
+      if (figure.nonImpersonationClassification !== "abstract-model-not-product-ui") fail(`${label}.nonImpersonationClassification: abstract-model-not-product-ui is required`);
+      if (figure.width !== 2240 || figure.height !== 1260) fail(`${label}.dimensions: original diagram master must be exactly 2240 by 1260 pixels`);
+      if (figure.srcSet?.mobile !== undefined) fail(`${label}.srcSet.mobile: original diagrams use only the frozen 2240 and 1120 derivatives`);
+      rightsRecord = typeof figure.rightsRecordId === "string" ? recordById.get(figure.rightsRecordId) : undefined;
+      if (!rightsRecord) {
+        fail(`${label}.rightsRecordId: no matching publishable original-diagram rights record exists`);
+      } else if (rightsRecord.figureId !== figure.id || rightsRecord.id !== figure.rightsRecordId || rightsRecord.status !== "publishable") {
+        fail(`${label}.rightsRecordId: original diagram manifest and rights record do not form a publishable two-way binding`);
+      }
     } else {
-      const capturedTime = Date.parse(capturedAt.length === 10 ? `${capturedAt}T00:00:00Z` : capturedAt);
-      const ageDays = (Date.now() - capturedTime) / 86_400_000;
-      if (ageDays < -1) fail(`${label}: capture date is unexpectedly in the future`);
-      if (ageDays > 90) fail(`${label}: capture is older than the required 90-day freshness window`);
-    }
-    if (typeof productVersion !== "string" || !productVersion.trim()) fail(`${label}: Codex product version is required`);
-    if (typeof figure.os !== "string" || !figure.os.trim()) fail(`${label}: os is required when available`);
-    if (figure.privacyReviewed !== true) fail(`${label}: compatibility privacyReviewed flag must be true`);
-    if (!validHttps(figure.sourceUrl)) fail(`${label}: sourceUrl must be an HTTPS provenance URL`);
-    if (!SHA256_PATTERN.test(figure.sha256 ?? "")) fail(`${label}: sha256 must be 64 lowercase hexadecimal characters`);
-
-    const audit = typeof figure.auditId === "string" ? auditById.get(figure.auditId) : undefined;
-    if (!audit) {
-      fail(`${label}.auditId: no matching approved figure-audit record; privacyReviewed alone is insufficient`);
-    } else if (audit.figureId !== figure.id || audit.id !== figure.auditId || audit.status !== "approved") {
-      fail(`${label}.auditId: manifest and audit do not form an approved two-way binding`);
+      fail(`${label}.kind: must be product-ui-capture or course-original-diagram`);
+      continue;
     }
 
+    if (figure.width !== 2240 || !Number.isInteger(figure.height) || figure.height < 1) {
+      fail(`${label}: every figure needs a 2240-pixel master and positive integer height`);
+    }
     const includeMobile = figure.srcSet?.mobile !== undefined;
     const canonical = canonicalFigureAssetPaths(figure.id, includeMobile);
     const manifestPaths = {
@@ -1392,10 +1731,9 @@ function checkFigures(figures, sources) {
     };
     const roles = Object.keys(canonical);
     exactKeySet(figure.assetSha256, roles, `${label}.assetSha256`);
-    if (figure.sha256 !== figure.assetSha256?.png2240) fail(`${label}.sha256: must equal assetSha256.png2240`);
-    if (audit && !exactKeySet(audit.servedAssets, roles, `${label}.audit.servedAssets`)) {
-      // The mismatch is already recorded; individual bindings below remain fail-closed.
-    }
+    if (figure.kind === "product-ui-capture" && figure.sha256 !== figure.assetSha256?.png2240) fail(`${label}.sha256: must equal assetSha256.png2240`);
+    if (audit) exactKeySet(audit.servedAssets, roles, `${label}.audit.servedAssets`);
+    if (rightsRecord) exactKeySet(rightsRecord.assetSha256, roles, `${label}.rights.assetSha256`);
 
     const inspectedByRole = new Map();
     for (const role of roles) {
@@ -1412,21 +1750,28 @@ function checkFigures(figures, sources) {
         if (figure.assetSha256?.[role] !== inspected.sha256) fail(`${owner}: manifest SHA-256 does not match actual bytes`);
       }
 
-      const frozen = audit?.servedAssets?.[role];
-      if (!isPlainObject(frozen)) {
-        fail(`${owner}: bound audit is missing the frozen served-asset record`);
-        continue;
-      }
-      exactKeySet(frozen, ["path", "mediaType", "width", "height", "sha256"], `${owner}.audit`);
-      if (frozen.path !== expectedSrc || frozen.path !== src) fail(`${owner}: audit path, manifest path, and canonical path must match`);
-      const expectedMediaType = role === "png2240" ? "image/png" : "image/webp";
-      if (frozen.mediaType !== expectedMediaType) fail(`${owner}: audit MIME type must be ${expectedMediaType}`);
-      if (!SHA256_PATTERN.test(frozen.sha256 ?? "")) fail(`${owner}: audit SHA-256 must be lowercase hexadecimal`);
-      if (frozen.sha256 !== figure.assetSha256?.[role]) fail(`${owner}: audit and manifest SHA-256 values differ`);
-      if (inspected) {
-        if (frozen.sha256 !== inspected.sha256) fail(`${owner}: frozen audit SHA-256 does not match actual bytes`);
-        if (frozen.width !== inspected.width || frozen.height !== inspected.height) fail(`${owner}: frozen audit dimensions do not match actual bytes`);
-        if (frozen.mediaType !== inspected.mediaType) fail(`${owner}: frozen audit MIME type does not match decoded container`);
+      if (figure.kind === "product-ui-capture") {
+        const frozen = audit?.servedAssets?.[role];
+        if (!isPlainObject(frozen)) {
+          fail(`${owner}: bound product-UI audit is missing the frozen served-asset record`);
+          continue;
+        }
+        exactKeySet(frozen, ["path", "mediaType", "width", "height", "sha256"], `${owner}.audit`);
+        if (frozen.path !== expectedSrc || frozen.path !== src) fail(`${owner}: audit path, manifest path, and canonical path must match`);
+        const expectedMediaType = role === "png2240" ? "image/png" : "image/webp";
+        if (frozen.mediaType !== expectedMediaType) fail(`${owner}: audit MIME type must be ${expectedMediaType}`);
+        if (!SHA256_PATTERN.test(frozen.sha256 ?? "")) fail(`${owner}: audit SHA-256 must be lowercase hexadecimal`);
+        if (frozen.sha256 !== figure.assetSha256?.[role]) fail(`${owner}: audit and manifest SHA-256 values differ`);
+        if (inspected) {
+          if (frozen.sha256 !== inspected.sha256) fail(`${owner}: frozen audit SHA-256 does not match actual bytes`);
+          if (frozen.width !== inspected.width || frozen.height !== inspected.height) fail(`${owner}: frozen audit dimensions do not match actual bytes`);
+          if (frozen.mediaType !== inspected.mediaType) fail(`${owner}: frozen audit MIME type does not match decoded container`);
+        }
+      } else {
+        const frozenHash = rightsRecord?.assetSha256?.[role];
+        if (!SHA256_PATTERN.test(frozenHash ?? "")) fail(`${owner}: original-diagram rights record is missing a lowercase SHA-256`);
+        if (frozenHash !== figure.assetSha256?.[role]) fail(`${owner}: rights and manifest SHA-256 values differ`);
+        if (inspected && frozenHash !== inspected.sha256) fail(`${owner}: frozen rights SHA-256 does not match actual bytes`);
       }
     }
 
@@ -1443,8 +1788,19 @@ function checkFigures(figures, sources) {
     if (master && small && Math.abs(small.height - Math.round(master.height / 2)) > 1) {
       fail(`${label}.srcSet.webp1120: derivative aspect ratio does not match the master`);
     }
+    if (figure.kind === "course-original-diagram" && small && small.height !== 630) {
+      fail(`${label}.srcSet.webp1120: original diagram derivative must be exactly 1120 by 630 pixels`);
+    }
+  }
+
+  if (JSON.stringify(productIds.sort()) !== JSON.stringify([...PRODUCT_UI_CAPTURE_IDS].sort())) {
+    fail(`FIGURES: product-ui-capture classification must remain exactly ${PRODUCT_UI_CAPTURE_IDS.join(", ")}`);
+  }
+  if (JSON.stringify(diagramIds.sort()) !== JSON.stringify([...ORIGINAL_DIAGRAM_IDS].sort())) {
+    fail(`FIGURES: course-original-diagram classification must remain exactly ${ORIGINAL_DIAGRAM_IDS.join(", ")}`);
   }
   checkFigureAssetDirectory(expectedPaths);
+  checkOriginalDiagramRerender(figures);
   return ids;
 }
 
@@ -1790,7 +2146,7 @@ checkCapstoneFixture();
 checkLessons(lessons);
 checkPractices(loaded.practices, lessons);
 const sourceIds = checkSources(sources);
-const figureIds = checkFigures(figures, sources);
+const figureIds = checkFigures(figures, sources, lessons);
 if (figureIds.size !== 24) fail(`FIGURES: expected exactly 24 unique figures, found ${figureIds.size}`);
 const figureById = new Map(figures.map((figure) => [figure?.id, figure]));
 const referencedFigureIds = new Set();

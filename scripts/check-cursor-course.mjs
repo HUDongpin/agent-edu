@@ -323,7 +323,9 @@ for (const required of ["Agents Window", "Auto-review", "Allowlist", "Run Everyt
 }
 
 const accuracyLocks = [
-  [english.meta.figureNote, "before any public release or redistribution", "figure publication-rights boundary"],
+  [english.meta.figureNote, "course-original abstract SVG diagrams", "course-original figure boundary"],
+  [english.meta.figureNote, "not Cursor screenshots or product media", "no-third-party-media boundary"],
+  [english.meta.figureNote, "authorship, MIT licence, provenance, and SHA-256", "figure evidence boundary"],
   [english.lessons["orient-privacy"].sections[0].body, "targets Cursor Desktop 3.17", "Desktop interface scope"],
   [english.lessons["orient-privacy"].sections[0].body, "Open IDE", "current return-to-editor command"],
   [english.lessons["orient-privacy"].sections[0].body, "Cursor CLI is a separate terminal surface", "CLI scope boundary"],
@@ -362,13 +364,6 @@ if (JSON.stringify(english).includes("Rules and hooks are workflow guardrails, n
 }
 if (english.lessons["writing-studio"].sections[1].body.includes("shows the value")) {
   fail("English writing lesson infers effectiveness from an implementation example");
-}
-for (const figureId of ["fig-01", "fig-03"]) {
-  const figure = CURSOR_FIGURES.find((item) => item.id === figureId);
-  if (figure?.status !== "available"
-    || figure.cursorVersion !== "Current Agents Window docs; Desktop 3.17 latest when checked") {
-    fail(`${figureId} overstates image-level Desktop 3.17 provenance`);
-  }
 }
 if (JSON.stringify(english.lessons["workflow-capstone"]).includes("machine-verifiable")) {
   fail("English capstone overclaims the unsigned client-side receipt as machine-verifiable proof");
@@ -424,7 +419,12 @@ if (!q08 || q08.sourceIds.join("|") !== "cursor-planning") {
 }
 pass("source ledger separates current official authority from revision-pinned practitioner patterns");
 
+const figureRights = json("public/courses/cursor/figure-rights.json");
+const figureProvenance = json("public/courses/cursor/figure-provenance.json");
+const rightsById = new Map((figureRights.assets ?? []).map((item) => [item.id, item]));
+const provenanceById = new Map((figureProvenance.assets ?? []).map((item) => [item.id, item]));
 const figureIds = new Set();
+const pendingThirdPartyFigures = [];
 for (const figure of CURSOR_FIGURES) {
   if (figure.status !== "available") {
     fail(`${figure.id} is not technically available`);
@@ -432,50 +432,127 @@ for (const figure of CURSOR_FIGURES) {
   }
   if (figureIds.has(figure.id)) fail(`duplicate figure ID: ${figure.id}`);
   figureIds.add(figure.id);
-  for (const localPath of [figure.src, figure.srcSet.webpLarge, figure.srcSet.webpSmall]) {
-    const path = localPath.replace(/^\//, "");
-    if (!existsSync(join(ROOT, "public", path.replace(/^courses\//, "courses/")))) {
-      fail(`${figure.id} local asset missing: ${localPath}`);
-    }
+  const assetPath = `public${figure.src}`;
+  if (!existsSync(join(ROOT, assetPath))) {
+    fail(`${figure.id} local asset missing: ${figure.src}`);
+    continue;
   }
-  const masterPath = `public${figure.src}`;
-  if (existsSync(join(ROOT, masterPath))) {
-    if (digest(masterPath) !== figure.sha256) fail(`${figure.id} master SHA-256 mismatch`);
-    const master = inspectPng(masterPath);
-    if (!master.valid) fail(`${figure.id} master is not a well-formed PNG`);
-    if (master.width !== figure.width || master.height !== figure.height) {
-      fail(`${figure.id} intrinsic dimensions differ from the manifest`);
-    }
-    if (master.metadata.length) fail(`${figure.id} master contains embedded text or EXIF metadata: ${master.metadata.join(", ")}`);
+  if (digest(assetPath) !== figure.sha256) fail(`${figure.id} asset SHA-256 mismatch`);
+  if (figure.privacyChecklist.length < 3 || figure.privacyChecklist.some((item) => !item.trim())) {
+    fail(`${figure.id} lacks a complete privacy checklist`);
   }
-  for (const responsivePath of [figure.srcSet.webpLarge, figure.srcSet.webpSmall]) {
+
+  if (figure.kind === "course-original-diagram") {
+    if (figure.rightsStatus !== "original-authorship-reviewed"
+      || figure.author !== "aicourse.top course team"
+      || figure.license !== "MIT"
+      || figure.noticePath !== "/courses/cursor/THIRD_PARTY_NOTICES.md"
+      || figure.rightsPath !== "/courses/cursor/figure-rights.json"
+      || figure.provenancePath !== "/courses/cursor/figure-provenance.json") {
+      fail(`${figure.id} lacks canonical course-original rights metadata`);
+    }
+    if (!/^\/courses\/cursor\/fig-\d{2}-concept\.svg$/.test(figure.src)) {
+      fail(`${figure.id} does not use the canonical course-original SVG path`);
+    }
+    const svg = text(assetPath);
+    if (!/<svg\b[^>]*\bwidth=["']1600["'][^>]*\bheight=["']900["'][^>]*\bviewBox=["']0 0 1600 900["'][^>]*\bdata-origin=["']course-original["']/i.test(svg)) {
+      fail(`${figure.id} lacks the locked 1600x900 course-original SVG contract`);
+    }
+    if (/<(?:image|script|foreignObject)\b|\b(?:xlink:)?href\s*=|\burl\s*\(/i.test(svg)) {
+      fail(`${figure.id} embeds an external-capable SVG element or reference`);
+    }
+    if (svg.includes("COURSE ORIGINAL · ABSTRACT")) {
+      fail(`${figure.id} embeds the deprecated English-only origin badge`);
+    }
+    if (!figure.evidenceSourceIds.length || figure.evidenceSourceIds.some((id) => !sourceIds.has(id))) {
+      fail(`${figure.id} has missing or unknown teaching-evidence source IDs`);
+    }
+    const rights = rightsById.get(figure.id);
+    const provenance = provenanceById.get(figure.id);
+    const expectedFileName = `${figure.id}-concept.svg`;
+    if (!rights || rights.path !== expectedFileName || rights.sha256 !== figure.sha256
+      || rights.rightsStatus !== figure.rightsStatus) {
+      fail(`${figure.id} does not match the exact rights-ledger record`);
+    }
+    if (!provenance || provenance.path !== expectedFileName || provenance.sha256 !== figure.sha256
+      || !String(provenance.concept ?? "").trim()) {
+      fail(`${figure.id} does not match the exact provenance-ledger record`);
+    }
+    continue;
+  }
+
+  // A real product capture remains subject to the full binary, privacy,
+  // provenance, and exact-asset publication-rights gates.
+  const responsivePaths = [figure.srcSet.webpLarge, figure.srcSet.webpSmall];
+  const master = inspectPng(assetPath);
+  if (!master.valid || master.width !== figure.width || master.height !== figure.height || master.metadata.length) {
+    fail(`${figure.id} third-party master fails PNG dimensions or metadata checks`);
+  }
+  for (const responsivePath of responsivePaths) {
     const localPath = `public${responsivePath}`;
-    if (!existsSync(join(ROOT, localPath))) continue;
+    if (!existsSync(join(ROOT, localPath))) {
+      fail(`${figure.id} responsive asset missing: ${responsivePath}`);
+      continue;
+    }
     const responsive = inspectWebp(localPath);
-    if (!responsive.valid) fail(`${figure.id} responsive asset is not a well-formed WebP: ${responsivePath}`);
-    if (responsive.metadata.length) fail(`${figure.id} responsive asset contains EXIF or XMP metadata: ${responsivePath}`);
-  }
-  if (!figure.sourceUrl.startsWith("https://") || !figure.sourcePageUrl.startsWith("https://")) fail(`${figure.id} lacks first-party provenance`);
-  if (/\.mp4(?:$|\?)/.test(figure.sourceUrl)) {
-    if (!/^[a-f0-9]{64}$/.test(figure.sourceAssetSha256 ?? "")) fail(`${figure.id} lacks a source video SHA-256`);
-    if (typeof figure.frameTimeSeconds !== "number" || !Number.isFinite(figure.frameTimeSeconds) || figure.frameTimeSeconds < 0) {
-      fail(`${figure.id} lacks a valid source-video frame timestamp`);
+    if (!responsive.valid || responsive.metadata.length) {
+      fail(`${figure.id} responsive asset fails WebP format or metadata checks: ${responsivePath}`);
     }
   }
-  if (figure.visiblePublicDemoIdentifiers?.some((item) => !item.trim())) fail(`${figure.id} has a blank public-demo identifier disclosure`);
-  if (figure.privacyChecklist.some((item) => /no .*private repository content/i.test(item))) {
-    fail(`${figure.id} privacy checklist overclaims the absence of publicly disclosed demo repository identifiers`);
+  if (!figure.sourceUrl.startsWith("https://") || !figure.sourcePageUrl.startsWith("https://")
+    || figure.privacyReviewed !== true || !figure.copyrightNotice.trim()) {
+    fail(`${figure.id} third-party capture lacks provenance, privacy, or copyright review`);
   }
-  if (!figure.copyrightNotice.includes("Anysphere") || !figure.copyrightNotice.includes("not affiliated")) fail(`${figure.id} lacks rights and independence notice`);
-  if (figure.privacyReviewed !== true || figure.privacyChecklist.length < 3) fail(`${figure.id} lacks completed privacy review`);
-  if (figure.uiFreshness === "historical-interface" && !english.figures[figure.id].caption.toLowerCase().includes("historical")) {
-    fail(`${figure.id} historical interface is not disclosed in its teaching caption`);
+  if (/\.mp4(?:$|\?)/.test(figure.sourceUrl)
+    && (!/^[a-f0-9]{64}$/.test(figure.sourceAssetSha256 ?? "")
+      || typeof figure.frameTimeSeconds !== "number"
+      || !Number.isFinite(figure.frameTimeSeconds)
+      || figure.frameTimeSeconds < 0)) {
+    fail(`${figure.id} video-derived capture lacks exact source hash or frame timestamp`);
+  }
+  if (figure.rightsStatus === "rights-review-required") {
+    pendingThirdPartyFigures.push(figure.id);
+  } else {
+    const evidence = figure.rightsEvidence;
+    if (!evidence.reviewedBy.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(evidence.reviewedOn)
+      || Number.isNaN(Date.parse(evidence.reviewedOn)) || !evidence.basis.trim()
+      || !evidence.scope.trim() || !evidence.evidenceUrl.startsWith("https://")
+      || evidence.exactAssetSha256 !== figure.sha256) {
+      fail(`${figure.id} publication clearance is not evidence-bearing or exact-asset bound`);
+    }
   }
 }
 const usedFigures = CURSOR_COURSE_MANIFEST.lessons.flatMap((lesson) => lesson.figureIds);
-if (usedFigures.length !== 14 || new Set(usedFigures).size !== 14) fail("every lesson must use exactly one unique authentic figure");
+if (usedFigures.length !== 14 || new Set(usedFigures).size !== 14) fail("every lesson must use exactly one unique figure");
 if ([...figureIds].some((id) => !usedFigures.includes(id))) fail("figure ledger contains an unused figure");
-pass("14 real first-party Cursor figures are technically present, integrity-checked, privacy-reviewed, and source-attributed");
+if (figureRights.schemaVersion !== "aicourse.cursor.figure-rights.v1"
+  || figureRights.decision !== "approved-for-course-publication"
+  || figureRights.license !== "MIT"
+  || figureRights.thirdPartyGate?.unknownLicenseMayBeTreatedAsCleared !== false
+  || !Array.isArray(figureRights.thirdPartyCapturesRetained)
+  || figureRights.thirdPartyCapturesRetained.length !== 0
+  || rightsById.size !== 14) {
+  fail("course-original rights ledger is incomplete or weakens the fail-closed third-party policy");
+}
+if (figureProvenance.schemaVersion !== "aicourse.cursor.figure-provenance.v1"
+  || figureProvenance.courseId !== CURSOR_COURSE_MANIFEST.id
+  || figureProvenance.sharedVisualContract?.intrinsicWidth !== 1600
+  || figureProvenance.sharedVisualContract?.intrinsicHeight !== 900
+  || figureProvenance.sharedVisualContract?.originMarker !== "data-origin=course-original"
+  || !Array.isArray(figureProvenance.sharedVisualContract?.runtimeDependencies)
+  || figureProvenance.sharedVisualContract.runtimeDependencies.length !== 0
+  || provenanceById.size !== 14) {
+  fail("course-original provenance ledger is incomplete or differs from the SVG contract");
+}
+for (const locale of CURSOR_LOCALES) {
+  const copy = json(`messages/cursor/${locale}.json`);
+  for (const figure of CURSOR_FIGURES) {
+    if (!copy.figures?.[figure.id]?.alt?.trim() || !copy.figures?.[figure.id]?.caption?.trim()) {
+      fail(`${locale} ${figure.id} lacks localized figure copy`);
+    }
+  }
+}
+pass("14 course-original SVG figures are integrity-bound to reviewed rights and provenance records");
 
 for (const required of [
   "app/[locale]/cursor/page.tsx",
@@ -488,6 +565,9 @@ for (const required of [
   "public/courses/cursor/aicourse-cursor-demo-v1.sha256",
   "public/courses/cursor/CAPSTONE_CONTRACT.md",
   "public/courses/cursor/THIRD_PARTY_NOTICES.md",
+  "public/courses/cursor/figure-rights.json",
+  "public/courses/cursor/figure-provenance.json",
+  "public/courses/cursor/figures.sha256",
 ]) {
   if (!existsSync(join(ROOT, required))) fail(`required course file missing: ${required}`);
 }
@@ -572,11 +652,13 @@ if (!verifier.includes("rmSync(RECEIPT_FILE, { force: true })")) {
   fail("fixture verifier does not remove a stale passing receipt before current checks");
 }
 const mediaNotice = text("public/courses/cursor/THIRD_PARTY_NOTICES.md");
-if (!/not covered by\s+this repository's MIT licence/i.test(mediaNotice)
-  || !/not affiliated with\s+or endorsed by Cursor/i.test(mediaNotice)
-  || !/status:\s*`?available`?.*technical.*does not mean publication rights are cleared/is.test(mediaNotice)
-  || !/before\s+any public release\s+or redistribution/i.test(mediaNotice)) {
-  fail("Cursor media notice does not clearly separate third-party rights from the repository licence");
+if (!/original, repository-native SVG abstract diagrams/i.test(mediaNotice)
+  || !/covered by this repository's MIT licence/i.test(mediaNotice)
+  || !/not affiliated with or endorsed by Cursor or Anysphere/i.test(mediaNotice)
+  || !/unknown licence does not clear republication/i.test(mediaNotice)
+  || !/rights-review-required.*blocks release/is.test(mediaNotice)
+  || !/No third-party captures are retained/i.test(mediaNotice)) {
+  fail("Cursor media notice does not document original authorship and the fail-closed third-party gate");
 }
 pass("capstone fixture, verifier, archive, checksum, and receipt contract agree");
 
@@ -653,18 +735,53 @@ if (!cursorSeo.includes("alternateLocale") || !cursorSeo.includes("CURSOR_OPEN_G
 }
 pass("static dashboard and lesson routes expose localised metadata and structured data hooks");
 
-const imageCount = listFiles("public/courses/cursor").filter((path) => /fig-\d{2}-(?:master\.png|1600\.webp|960\.webp)$/.test(path)).length;
-if (imageCount !== 42) fail(`expected 42 responsive figure assets, found ${imageCount}`);
-for (const path of listFiles("public/courses/cursor")) {
+const cursorPublicFiles = listFiles("public/courses/cursor");
+const originalSvgFiles = cursorPublicFiles
+  .filter((path) => /\/fig-\d{2}-concept\.svg$/.test(path))
+  .map((path) => path.replace("public/courses/cursor/", ""))
+  .sort();
+const expectedOriginalSvgFiles = Array.from(
+  { length: 14 },
+  (_, index) => `fig-${String(index + 1).padStart(2, "0")}-concept.svg`,
+);
+if (originalSvgFiles.join("|") !== expectedOriginalSvgFiles.join("|")) {
+  fail(`expected exactly fourteen canonical course-original SVGs, found: ${originalSvgFiles.join(", ")}`);
+}
+const legacyCaptures = cursorPublicFiles.filter((path) => /\/fig-\d{2}-(?:master\.png|1600\.webp|960\.webp)$/.test(path));
+if (legacyCaptures.length) fail(`unreferenced rights-unclear capture binaries remain: ${legacyCaptures.join(", ")}`);
+for (const path of cursorPublicFiles) {
   if (statSync(join(ROOT, path)).size === 0) fail(`${path} is empty`);
 }
 
-const rightsReviewRequired = CURSOR_FIGURES.filter(
-  (item) => item.status === "available" && item.rightsStatus === "rights-review-required",
-);
-if (rightsReviewRequired.length) {
-  const ids = rightsReviewRequired.map((item) => item.id).join(", ");
-  const message = `${rightsReviewRequired.length} first-party Cursor figures are technically available but lack an evidence-bearing publication-rights determination: ${ids}`;
+const checksumLines = text("public/courses/cursor/figures.sha256").trim().split(/\r?\n/);
+const checksumEntries = new Map();
+for (const line of checksumLines) {
+  const match = line.match(/^([a-f0-9]{64})  ([A-Za-z0-9._-]+)$/);
+  if (!match) {
+    fail(`malformed Cursor figure checksum line: ${line}`);
+    continue;
+  }
+  checksumEntries.set(match[2], match[1]);
+}
+const expectedChecksumFiles = [
+  "THIRD_PARTY_NOTICES.md",
+  "figure-rights.json",
+  "figure-provenance.json",
+  ...expectedOriginalSvgFiles,
+].sort();
+if ([...checksumEntries.keys()].sort().join("|") !== expectedChecksumFiles.join("|")) {
+  fail("figure checksum manifest does not contain the exact rights, provenance, notice, and fourteen-SVG set");
+}
+for (const [fileName, expectedHash] of checksumEntries) {
+  const localPath = `public/courses/cursor/${fileName}`;
+  if (!existsSync(join(ROOT, localPath)) || digest(localPath) !== expectedHash) {
+    fail(`figure checksum mismatch: ${fileName}`);
+  }
+}
+
+if (pendingThirdPartyFigures.length) {
+  const ids = pendingThirdPartyFigures.join(", ");
+  const message = `${pendingThirdPartyFigures.length} third-party Cursor captures lack exact-asset publication clearance: ${ids}`;
   if (release) fail(message);
   else warn(message);
 }

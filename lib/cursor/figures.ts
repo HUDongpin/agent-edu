@@ -1,188 +1,188 @@
-import type { CursorFigureId, CursorFigureManifest, CursorLessonSlug } from "./types";
+import type {
+  CursorFigureId,
+  CursorFigureManifest,
+  CursorLessonSlug,
+  CursorOriginalDiagramFigure,
+  CursorSourceId,
+} from "./types";
 
 const privacyChecklist = [
-  "First-party Cursor media from a public official page",
-  "No API key, token, credential, email address, or learner-supplied private content",
-  "Incidental identifiers already published in a public Cursor demo are recorded per figure",
-  "No unrelated application or private browser tab visible",
+  "Visible SVG artwork composed only of course-authored geometry and language-neutral numerals",
+  "No third-party pixels, screenshots, logos, trademarks, avatars, or product trade dress",
+  "No real person, repository, path, account, request, document, credential, or learner-supplied content",
+  "No external image, font, script, foreignObject, or remote runtime dependency",
 ] as const;
 
-const copyrightNotice = "© Anysphere, Inc. First-party Cursor UI used for limited educational commentary. aicourse.top is not affiliated with or endorsed by Cursor.";
-
-type FigureInput = {
+type OriginalFigureInput = {
   readonly id: CursorFigureId;
   readonly lessonSlug: CursorLessonSlug;
   readonly surface: CursorFigureManifest["surface"];
-  readonly captureIntent: string;
-  readonly width: number;
-  readonly height: number;
+  readonly teachingIntent: string;
   readonly sha256: string;
-  readonly cursorVersion: string;
-  readonly os: string;
-  readonly sourceUrl: string;
-  readonly sourcePageUrl: string;
-  readonly sourcePublishedOn?: string;
-  readonly sourceAssetSha256?: string;
-  readonly frameTimeSeconds?: number;
-  readonly visiblePublicDemoIdentifiers?: readonly string[];
-  readonly uiFreshness: "current" | "dated-current" | "historical-interface";
+  readonly evidenceSourceIds: readonly [CursorSourceId, ...CursorSourceId[]];
 };
 
-function figure(input: FigureInput): CursorFigureManifest {
-  const stem = `/courses/cursor/${input.id}`;
+function originalFigure(
+  input: OriginalFigureInput,
+): CursorOriginalDiagramFigure {
   return {
     ...input,
+    kind: "course-original-diagram",
     status: "available",
-    rightsStatus: "rights-review-required",
-    captureIntent: input.captureIntent,
-    src: `${stem}-master.png`,
-    srcSet: {
-      webpLarge: `${stem}-1600.webp`,
-      webpSmall: `${stem}-960.webp`,
-    },
-    capturedOn: "2026-08-23",
-    privacyReviewed: true,
+    rightsStatus: "original-authorship-reviewed",
+    src: `/courses/cursor/${input.id}-concept.svg`,
+    width: 1600,
+    height: 900,
+    createdOn: "2026-08-26",
+    diagramVersion: "1.1",
+    author: "aicourse.top course team",
+    license: "MIT",
+    noticePath: "/courses/cursor/THIRD_PARTY_NOTICES.md",
+    rightsPath: "/courses/cursor/figure-rights.json",
+    provenancePath: "/courses/cursor/figure-provenance.json",
     privacyChecklist,
-    copyrightNotice,
     altKey: `figures.${input.id}.alt`,
     captionKey: `figures.${input.id}.caption`,
   };
 }
 
+/**
+ * Course-original conceptual diagrams. Official Cursor sources support the
+ * surrounding teaching claims, but no source image, screenshot, or trade dress
+ * is reproduced in these assets.
+ */
 export const CURSOR_FIGURES = [
-  figure({
-    id: "fig-01", lessonSlug: "orient-privacy", surface: "app",
-    captureIntent: "Open Agents Window from the command palette and identify the agent-first workspace.",
-    width: 2400, height: 1399, sha256: "57dc0260a1b60348d50814b253d3b55c6aa39428e8db6441af9c30820e42a013",
-    cursorVersion: "Current Agents Window docs; Desktop 3.17 latest when checked", os: "macOS, official demo",
-    sourceUrl: "https://cursor.com/docs-static/images/agent/open-agents-window-final.png",
-    sourcePageUrl: "https://cursor.com/docs/agent/agents-window", uiFreshness: "current",
+  originalFigure({
+    id: "fig-01",
+    lessonSlug: "orient-privacy",
+    surface: "app",
+    teachingIntent:
+      "Show nested workspace, execution, and privacy boundaries before a learner grants an agent access.",
+    sha256: "815aee14722838f9242f3204e6adf272920aba2cc7c6d777e91d6d81de2c69a7",
+    evidenceSourceIds: ["cursor-agents-window", "cursor-data-use"],
   }),
-  figure({
-    id: "fig-02", lessonSlug: "tab-inline-edit", surface: "app",
-    captureIntent: "Recognise a multi-line Tab prediction as a suggestion that remains under the learner's control.",
-    width: 2400, height: 1260, sha256: "360a586c0c7562cb75df243a984a5f2190fe18792c2a0658799508a9015b8d93",
-    cursorVersion: "Cursor Tab product visual, current", os: "First-party product artwork",
-    sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/features/tab-og-image-2.png",
-    sourcePageUrl: "https://cursor.com/tab", uiFreshness: "current",
+  originalFigure({
+    id: "fig-02",
+    lessonSlug: "tab-inline-edit",
+    surface: "app",
+    teachingIntent:
+      "Represent a proposed multi-line edit as reviewable ghost content with explicit accept and reject paths.",
+    sha256: "66b38379a6590b82a19a6fce715712e68b9e894b4b4dfb76480518710094ea49",
+    evidenceSourceIds: ["cursor-tab", "cursor-inline-edit"],
   }),
-  figure({
-    id: "fig-03", lessonSlug: "agent-interface", surface: "app",
-    captureIntent: "Read an Agent result beside the file it inspected and separate claims from visible repository evidence.",
-    width: 2400, height: 1386, sha256: "6c0404d33c7f9035b8b186bffaa30da7120e2b71cd85a98c2fd08dcad8fcdd47",
-    cursorVersion: "Current Agents Window docs; Desktop 3.17 latest when checked", os: "macOS, official demo",
-    sourceUrl: "https://cursor.com/docs-static/images/agent/file-agents-window-final.png",
-    sourcePageUrl: "https://cursor.com/docs/agent/agents-window", uiFreshness: "current",
-    visiblePublicDemoIdentifiers: [
-      "Public Cursor demo Draft PR URL: github.com/anysphere/everysphere/pull/90449",
+  originalFigure({
+    id: "fig-03",
+    lessonSlug: "agent-interface",
+    surface: "app",
+    teachingIntent:
+      "Connect an agent claim to inspectable repository evidence rather than depicting a real product conversation.",
+    sha256: "9d496de5c3b0f032fa064609550f5ac19a301b476305341c0d36c67976994ced",
+    evidenceSourceIds: ["cursor-agent-overview", "cursor-prompting"],
+  }),
+  originalFigure({
+    id: "fig-04",
+    lessonSlug: "task-contracts",
+    surface: "app",
+    teachingIntent:
+      "Break an ambitious goal into scope, inputs, boundaries, and acceptance checks before tool execution.",
+    sha256: "dbe87b1e3f37fb52dc1eb9a97461605818eafeea16ac0fa790330be019f5538d",
+    evidenceSourceIds: ["cursor-prompting", "cursor-planning"],
+  }),
+  originalFigure({
+    id: "fig-05",
+    lessonSlug: "plan-execute-steer",
+    surface: "app",
+    teachingIntent:
+      "Show plan, human review, execution, verification, and steering as a reversible evidence loop.",
+    sha256: "ce4939de4886747ab4f847626f2a15d98d29866e23568d9cb1c5ab9efdff6082",
+    evidenceSourceIds: ["cursor-planning", "cursor-agent-review"],
+  }),
+  originalFigure({
+    id: "fig-06",
+    lessonSlug: "test-review-recover",
+    surface: "app",
+    teachingIntent:
+      "Converge parallel changes through diff review and tests while retaining a visible recovery path.",
+    sha256: "4dbab6190bcf72f15c204a4369b6c6bc2434112739fc597e301e01f8331090d0",
+    evidenceSourceIds: ["cursor-agent-review", "cursor-debugging"],
+  }),
+  originalFigure({
+    id: "fig-07",
+    lessonSlug: "rules-skills-mcp",
+    surface: "web",
+    teachingIntent:
+      "Separate durable rules, procedural skills, and external tool boundaries around one governed task.",
+    sha256: "91f4684a38c747f0775780d9bfadf0ccb2fa11fcd14c75e80cca5b02b6045095",
+    evidenceSourceIds: ["cursor-rules", "cursor-skills", "cursor-mcp"],
+  }),
+  originalFigure({
+    id: "fig-08",
+    lessonSlug: "cloud-parallel",
+    surface: "cloud",
+    teachingIntent:
+      "Make the local-to-cloud execution handoff, environment change, and approval point visible without copying product UI.",
+    sha256: "103f44b8b47e75c2b6602a9b18d430a02f3fc612f902356b9c96a3cdc4a006c5",
+    evidenceSourceIds: ["cursor-cloud-agents", "cursor-run-modes"],
+  }),
+  originalFigure({
+    id: "fig-09",
+    lessonSlug: "software-studio",
+    surface: "web",
+    teachingIntent:
+      "Show an allowlisted local browser boundary with an explicit permitted and blocked destination.",
+    sha256: "e9a4e477ab734e7632a7ae76c3a90afac0c70d26cc13833856fb032241f8e894",
+    evidenceSourceIds: ["cursor-browser", "cursor-agent-security"],
+  }),
+  originalFigure({
+    id: "fig-10",
+    lessonSlug: "research-studio",
+    surface: "app",
+    teachingIntent:
+      "Trace search results through source inspection into a bounded claim instead of presenting search as proof.",
+    sha256: "9b7a4af8185db4160cf9cb3a3d8ef702f3f8a2034fd23e86e5e6682e65a8213a",
+    evidenceSourceIds: ["cursor-prompting", "cursor-browser"],
+  }),
+  originalFigure({
+    id: "fig-11",
+    lessonSlug: "writing-studio",
+    surface: "app",
+    teachingIntent:
+      "Represent evidence review, outline, draft, style review, and integrity checks as distinct writing stages.",
+    sha256: "53ddad73203ef5a542479e74d9bccb6c5dfc1e8a24db686720bf9c11b3d6e799",
+    evidenceSourceIds: ["cursor-prompting", "cursor-rules"],
+  }),
+  originalFigure({
+    id: "fig-12",
+    lessonSlug: "office-studio",
+    surface: "app",
+    teachingIntent:
+      "Place a human approval gate between approved office files and connected tools or integrations.",
+    sha256: "f26bda549dee229abc340bec085bb89af187a7d6a547d97432ee8953f890f309",
+    evidenceSourceIds: ["cursor-skills", "cursor-google-workspace", "cursor-mcp"],
+  }),
+  originalFigure({
+    id: "fig-13",
+    lessonSlug: "teaching-studio",
+    surface: "app",
+    teachingIntent:
+      "Keep a synthetic teaching workspace inside an explicit boundary and separate it from external sources.",
+    sha256: "f8e547aeacdd70a76ef7c338e02e6b7e17c91a4db13f4e50cbd032e31c961ea0",
+    evidenceSourceIds: ["cursor-students", "cursor-data-use"],
+  }),
+  originalFigure({
+    id: "fig-14",
+    lessonSlug: "workflow-capstone",
+    surface: "cloud",
+    teachingIntent:
+      "Link scope, implementation, verification, and handoff evidence to one bounded capstone receipt.",
+    sha256: "70566efad58d7aa7ed8b6398e3e42393af1d12410b7165dc40b465ebb04f9f38",
+    evidenceSourceIds: [
+      "cursor-cloud-builds",
+      "cursor-agent-review",
+      "course-capstone-fixture",
     ],
   }),
-  figure({
-    id: "fig-04", lessonSlug: "task-contracts", surface: "app",
-    captureIntent: "Use the current prompt composer to turn an ambitious goal into a bounded contract before any tool runs.",
-    width: 3608, height: 2160, sha256: "f780f81227626bded06b552a1fac58d4940c4fdfd08384d0e807458ad15c004f",
-    cursorVersion: "Cursor 3.17-era changelog UI", os: "Cursor interface, official demo",
-    sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/2026-08-13-changelog-goal-CPDEcewlxhbdqRa131C8yZjhDdOGzb.mp4",
-    sourcePageUrl: "https://cursor.com/changelog/08-19-26", sourcePublishedOn: "2026-08-19", uiFreshness: "dated-current",
-    sourceAssetSha256: "72c567f74492b46e2311af7cd334ad5f3c218ee53794c772e8d8d28787646c3f",
-    frameTimeSeconds: 2,
-  }),
-  figure({
-    id: "fig-05", lessonSlug: "plan-execute-steer", surface: "app",
-    captureIntent: "Inspect an editable prepared plan and approve the Build transition only after scope and checks are explicit.",
-    width: 1739, height: 1124, sha256: "e6d6b599ad5fc2d173bb855633fb983150b15ea62adf7a9b639e1db198329701",
-    cursorVersion: "Cursor Plan Mode UI, October 2025", os: "macOS, official demo",
-    sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/blog/plan-mode-0.png",
-    sourcePageUrl: "https://cursor.com/blog/plan-mode", sourcePublishedOn: "2025-10-07", uiFreshness: "historical-interface",
-  }),
-  figure({
-    id: "fig-06", lessonSlug: "test-review-recover", surface: "app",
-    captureIntent: "Review multiple agent tabs and diffs while keeping the changed-file boundary visible.",
-    width: 1833, height: 1179, sha256: "458fccd51d59de6b52201efc01d3cd5d148cff48021fa006ae60c5ab1ca843c6",
-    cursorVersion: "Cursor 3.0", os: "macOS, official demo",
-    sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/agent-tabs",
-    sourcePageUrl: "https://cursor.com/changelog/3-0", sourcePublishedOn: "2026-04-02", uiFreshness: "dated-current",
-    visiblePublicDemoIdentifiers: [
-      "Public Cursor demo local path: /Users/dgomes/src",
-      "Public Cursor demo repository remote: git@github.com:davidgomes/treadmiller.git",
-    ],
-  }),
-  figure({
-    id: "fig-07", lessonSlug: "rules-skills-mcp", surface: "web",
-    captureIntent: "Distinguish a focused Team Rule from Skills and MCP tools instead of treating every customization as a rule.",
-    width: 1949, height: 562, sha256: "16d0af902c226199ca2ad805633a4390a6d465488b7f947d928e947c1cf6d77e",
-    cursorVersion: "Cursor Rules documentation, current", os: "Cursor web settings, official demo",
-    sourceUrl: "https://cursor.com/docs-static/images/context/rules/team-rules-1.png",
-    sourcePageUrl: "https://cursor.com/docs/rules", uiFreshness: "current",
-  }),
-  figure({
-    id: "fig-08", lessonSlug: "cloud-parallel", surface: "cloud",
-    captureIntent: "Choose Local or Cloud deliberately and keep the execution environment visible during handoff.",
-    width: 2142, height: 1356, sha256: "e0856bda345d77bcef18d7643b0e680cb36b043c7f4127bccb9aa1739b6b2849",
-    cursorVersion: "Cursor 3.7", os: "Agents Window, official demo",
-    sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/handoff-to-cloud.png",
-    sourcePageUrl: "https://cursor.com/changelog/cloud-in-agents-window", sourcePublishedOn: "2026-06-17", uiFreshness: "dated-current",
-  }),
-  figure({
-    id: "fig-09", lessonSlug: "software-studio", surface: "app",
-    captureIntent: "Recognise the optional enterprise Browser Origin Allowlist before using manually approved visual verification on a local application.",
-    width: 1008, height: 328, sha256: "5d62e6a79cc1e735a95261d4890a4ed8812af20135f4c02f55cbd2069c490832",
-    cursorVersion: "Cursor Browser documentation, current", os: "Cursor settings, official demo",
-    sourceUrl: "https://cursor.com/docs-static/images/agent/browser-origin-allowlist.png",
-    sourcePageUrl: "https://cursor.com/docs/agent/tools/browser", uiFreshness: "current",
-  }),
-  figure({
-    id: "fig-10", lessonSlug: "research-studio", surface: "app",
-    captureIntent: "Observe Agentic Search locating relevant repository material before a research claim is drafted.",
-    width: 1920, height: 1080, sha256: "cb48af304ab84d255535ec2dc13fab6ce39266a3eea87c9f40f6b7ae4d309cfd",
-    cursorVersion: "Cursor Learn video UI", os: "macOS, official lesson",
-    sourceUrl: "https://image.mux.com/Qd4HOPoW018byI6froV6iiMH900mm00D802ywLjMueEZWQM/thumbnail.jpg?time=70&width=1920",
-    sourcePageUrl: "https://cursor.com/learn/understanding-your-codebase", uiFreshness: "historical-interface",
-    visiblePublicDemoIdentifiers: [
-      "Recognizable official Cursor Learn presenter in first-party lesson media",
-    ],
-  }),
-  figure({
-    id: "fig-11", lessonSlug: "writing-studio", surface: "app",
-    captureIntent: "Use a visible plan to separate source review, outline, drafting, style checks, and integrity checks.",
-    width: 1920, height: 1080, sha256: "9eb3c0433416b0e338f1e130313ee29840db63b32d2ce9be3b2d22d7dbbb8e07",
-    cursorVersion: "Cursor Learn video UI", os: "macOS, official lesson",
-    sourceUrl: "https://image.mux.com/lV01vHZrA4Y8JWAbiRnCF95GhgqwQcw1H7T7bXCRFrAY/thumbnail.jpg?time=180&width=1920",
-    sourcePageUrl: "https://cursor.com/learn/creating-features", uiFreshness: "historical-interface",
-    visiblePublicDemoIdentifiers: [
-      "Public Cursor Learn demo local path: /Users/lrobinson/Developer/cursor-sh-landing",
-    ],
-  }),
-  figure({
-    id: "fig-12", lessonSlug: "office-studio", surface: "app",
-    captureIntent: "Inspect a workflow Skill, then deliberately keep it active as a Custom Mode in the current chat before working with approved office files and integrations.",
-    width: 3840, height: 2160, sha256: "04da725ef2d7ab5aa7b90e001b32e6f77fcc79495b60f82e909400933b4505e9",
-    cursorVersion: "Cursor 3.17-era changelog UI", os: "Cursor interface, official demo",
-    sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/2026-08-13-changelog-sticky-skills-GyjHI2f0MGVFngQBebLBnlQjEkkxQm.mp4",
-    sourcePageUrl: "https://cursor.com/changelog/08-19-26", sourcePublishedOn: "2026-08-19", uiFreshness: "dated-current",
-    sourceAssetSha256: "0b8cbb230d10dd93a48fe7548156f54ae6f4a42b0ea24ffa4dd15bd5d0643962",
-    frameTimeSeconds: 2,
-  }),
-  figure({
-    id: "fig-13", lessonSlug: "teaching-studio", surface: "app",
-    captureIntent: "Open only a synthetic teaching workspace and keep local versus cloud sources explicit.",
-    width: 1670, height: 966, sha256: "2c8434e62417623149f0f6e3906ae625898f29bfb90621839a003dd7cae3449c",
-    cursorVersion: "Cursor 3.11", os: "macOS, official demo",
-    sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/redesigned-picker.png",
-    sourcePageUrl: "https://cursor.com/changelog/side-chat", sourcePublishedOn: "2026-07-10", uiFreshness: "dated-current",
-  }),
-  figure({
-    id: "fig-14", lessonSlug: "workflow-capstone", surface: "cloud",
-    captureIntent: "Read Cloud Build status, active-build revision, snapshot, environment version, and detail links before opening logs and checks or accepting a capstone handoff.",
-    width: 1920, height: 1080, sha256: "2af5302873a7e429259a755c130ee9008d00b8f6a56b40cdbd03de15b91f28fe",
-    cursorVersion: "Cursor Cloud Builds, August 2026", os: "Cursor web dashboard, official demo",
-    sourceUrl: "https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/debug-builds-ERbRas4foKC6DFp3sTW0LSRfoFcxjG.png",
-    sourcePageUrl: "https://cursor.com/changelog/08-13-26", sourcePublishedOn: "2026-08-13", uiFreshness: "dated-current",
-    visiblePublicDemoIdentifiers: [
-      "Public Cursor demo account name and avatar: Maya Gao",
-    ],
-  }),
-] as const satisfies readonly CursorFigureManifest[];
+] as const satisfies readonly CursorOriginalDiagramFigure[];
 
 export const CURSOR_FIGURE_BY_ID = Object.fromEntries(
   CURSOR_FIGURES.map((item) => [item.id, item]),

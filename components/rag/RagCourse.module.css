@@ -292,6 +292,7 @@
 }
 
 .labControls select {
+  height: 44px;
   min-block-size: 44px;
   inline-size: 100%;
   border: 1px solid var(--line);

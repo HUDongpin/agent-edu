@@ -9,8 +9,8 @@
  *   node --import tsx scripts/check-claude-course.mjs --json
  *
  * Development mode reports unresolved publication rights as warnings so the
- * course can be reviewed locally. Release mode fails closed until the Academy
- * image permission records are replaced with publication-cleared evidence.
+ * course can be reviewed locally. Release mode fails closed for any unknown
+ * screenshot rights, malformed original SVG, or provenance/hash mismatch.
  */
 
 import { createHash } from "node:crypto";
@@ -73,6 +73,8 @@ const REQUIRED_FILES = [
   "outputs/claude-course-research-brief.provenance.md",
   "outputs/claude-figure-rights-clearance.md",
   "public/courses/claude/NOTICE.md",
+  "public/courses/claude/figure-provenance.v1.json",
+  "public/courses/claude/figure-hashes.sha256",
   "public/courses/claude/claude-capstone-brief.md",
   "public/courses/claude/licenses/CLAUDEBLATTMAN-MIT.txt",
   "public/courses/claude/licenses/CLAUDE-COOKBOOKS-MIT.txt",
@@ -348,17 +350,178 @@ function checkWebp(path, expectedWidth, expectedSha256, masterWidth, masterHeigh
   }
 }
 
+function checkOriginalSvg(path, figure) {
+  if (!requireRegularFile(path)) return;
+  const bytes = readFileSync(path);
+  const text = bytes.toString("utf8");
+  if (!/^<svg\b[^>]*\bwidth="1200"[^>]*\bheight="720"[^>]*\bviewBox="0 0 1200 720"/u.test(text)) {
+    fail(`${rel(path)}: original diagram must use the exact 1200x720 SVG viewport contract`);
+  }
+  if (!/<title\b[^>]*>[^<]+<\/title>/u.test(text)
+    || !/<desc\b[^>]*>[^<]+<\/desc>/u.test(text)) {
+    fail(`${rel(path)}: original diagram requires non-empty title and desc text equivalents`);
+  }
+  if (!text.includes("ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI")) {
+    fail(`${rel(path)}: original diagram must visibly identify itself as not product UI`);
+  }
+  const prohibited = [
+    /<script\b/iu,
+    /<image\b/iu,
+    /<foreignObject\b/iu,
+    /\b(?:href|src)\s*=/iu,
+    /\bon[a-z]+\s*=/iu,
+    /url\(\s*["']?(?:https?:|\/\/|data:)/iu,
+  ];
+  if (prohibited.some((pattern) => pattern.test(text))) {
+    fail(`${rel(path)}: original SVG must not embed scripts, external or data assets, event handlers, or foreign content`);
+  }
+  if ((text.match(/<svg\b/giu) ?? []).length !== 1) {
+    fail(`${rel(path)}: original diagram must contain exactly one root SVG element`);
+  }
+  const sha256 = createHash("sha256").update(bytes).digest("hex");
+  if (sha256 !== figure.sha256) {
+    fail(`${rel(path)}: SHA-256 ${sha256} does not match manifest ${figure.sha256}`);
+  }
+}
+
+function expectedFigureAssetRecords() {
+  return CLAUDE_FIGURES.flatMap((figure) => {
+    if (figure.status !== "available") return [];
+    const master = {
+      path: figure.src.replace("/courses/claude/", ""),
+      sha256: figure.sha256,
+    };
+    if (figure.assetKind === "original-diagram") return [master];
+    const records = [
+      master,
+      {
+        path: figure.srcSet.webpLarge.replace("/courses/claude/", ""),
+        sha256: figure.srcSet.largeSha256,
+      },
+      {
+        path: figure.srcSet.webpSmall.replace("/courses/claude/", ""),
+        sha256: figure.srcSet.smallSha256,
+      },
+    ];
+    if (figure.srcSet.mobile) {
+      records.push({
+        path: figure.srcSet.mobile.replace("/courses/claude/", ""),
+        sha256: figure.srcSet.mobileSha256,
+      });
+    }
+    return records;
+  });
+}
+
+function checkFigureProvenanceAndHashes() {
+  const provenancePath = resolve(ROOT, "public/courses/claude/figure-provenance.v1.json");
+  const hashesPath = resolve(ROOT, "public/courses/claude/figure-hashes.sha256");
+  const provenance = readJson(provenancePath);
+  if (provenance) {
+    const originals = CLAUDE_FIGURES.filter(
+      (figure) => figure.status === "available" && figure.assetKind === "original-diagram",
+    );
+    const screenshots = CLAUDE_FIGURES.filter(
+      (figure) => figure.status === "available" && figure.assetKind === "interface-screenshot",
+    );
+    if (provenance.schemaVersion !== "1.0.0"
+      || provenance.courseId !== "how-to-use-claude"
+      || provenance.preparedOn !== "2026-08-26") {
+      fail("public/courses/claude/figure-provenance.v1.json: schema, course, or preparation date differs from the locked record");
+    }
+    if (!Array.isArray(provenance.originalFigures)
+      || provenance.originalFigures.length !== originals.length) {
+      fail("public/courses/claude/figure-provenance.v1.json: original figure ledger must cover every course-original diagram exactly once");
+    } else {
+      for (const figure of originals) {
+        const record = provenance.originalFigures.find((item) => item.id === figure.id);
+        if (!record
+          || record.path !== figure.src.replace("/courses/claude/", "")
+          || record.sha256 !== figure.sha256
+          || record.width !== figure.width
+          || record.height !== figure.height
+          || record.createdOn !== figure.createdOn) {
+          fail(`public/courses/claude/figure-provenance.v1.json: ${figure.id} does not match its original-diagram manifest record`);
+        }
+      }
+    }
+    if (!Array.isArray(provenance.licensedScreenshots)
+      || provenance.licensedScreenshots.length !== screenshots.length) {
+      fail("public/courses/claude/figure-provenance.v1.json: licensed screenshot ledger must cover every retained screenshot exactly once");
+    } else {
+      for (const figure of screenshots) {
+        const record = provenance.licensedScreenshots.find((item) => item.id === figure.id);
+        if (!record
+          || record.masterPath !== figure.src.replace("/courses/claude/", "")
+          || record.sourceUrl !== figure.sourceUrl
+          || record.sourceCommit !== figure.sourceCommit
+          || record.sourceSha256 !== figure.sourceSha256
+          || record.licence !== figure.thirdPartyLicense
+          || record.observedOn !== figure.observedOn) {
+          fail(`public/courses/claude/figure-provenance.v1.json: ${figure.id} does not match its licensed screenshot manifest record`);
+        }
+      }
+    }
+    const expectedRetired = originals.map((figure) => figure.id);
+    if (!Array.isArray(provenance.retiredAcademyFigures?.ids)
+      || provenance.retiredAcademyFigures.ids.join("|") !== expectedRetired.join("|")
+      || !String(provenance.retiredAcademyFigures.disposition ?? "").includes("not relabelled as cleared")) {
+      fail("public/courses/claude/figure-provenance.v1.json: retired Academy record must preserve the exact IDs and the no-relabel boundary");
+    }
+  }
+
+  if (!requireRegularFile(hashesPath)) return;
+  const expected = expectedFigureAssetRecords();
+  const lines = readFileSync(hashesPath, "utf8").trim().split(/\r?\n/u);
+  const records = lines.map((line) => {
+    const match = /^([a-f0-9]{64}) {2}([^\s].*)$/u.exec(line);
+    if (!match) {
+      fail(`public/courses/claude/figure-hashes.sha256: malformed line: ${line}`);
+      return null;
+    }
+    return { sha256: match[1], path: match[2] };
+  }).filter(Boolean);
+  if (records.length !== expected.length || new Set(records.map((record) => record.path)).size !== records.length) {
+    fail("public/courses/claude/figure-hashes.sha256: hash ledger must contain every served figure asset exactly once");
+  }
+  for (const expectedRecord of expected) {
+    const record = records.find((item) => item.path === expectedRecord.path);
+    if (!record || record.sha256 !== expectedRecord.sha256) {
+      fail(`public/courses/claude/figure-hashes.sha256: ${expectedRecord.path} does not match the figure manifest`);
+      continue;
+    }
+    const absolute = resolve(ROOT, "public/courses/claude", record.path);
+    if (!requireRegularFile(absolute)) continue;
+    const actual = createHash("sha256").update(readFileSync(absolute)).digest("hex");
+    if (actual !== record.sha256) {
+      fail(`public/courses/claude/figure-hashes.sha256: ${record.path} digest ${actual} does not match ${record.sha256}`);
+    }
+  }
+}
+
 function checkFigureAssets() {
   const allPaths = new Set();
   for (const figure of CLAUDE_FIGURES) {
     if (figure.status !== "available") {
-      const message = `${figure.id}: real-interface figure is still capture-required`;
+      const message = `${figure.id}: instructional figure is still capture-required`;
       if (RELEASE) fail(message);
       else warn(message);
       continue;
     }
 
     const master = publicAssetPath(figure.src, `${figure.id}.src`);
+    if (figure.assetKind === "original-diagram") {
+      if (master) {
+        const key = rel(master);
+        if (allPaths.has(key)) fail(`${figure.id}: duplicate figure asset path ${key}`);
+        allPaths.add(key);
+        if (extname(master).toLowerCase() !== ".svg") {
+          fail(`${rel(master)}: course-original figure must be SVG`);
+        }
+        checkOriginalSvg(master, figure);
+      }
+      continue;
+    }
     const large = publicAssetPath(figure.srcSet.webpLarge, `${figure.id}.srcSet.webpLarge`);
     const small = publicAssetPath(figure.srcSet.webpSmall, `${figure.id}.srcSet.webpSmall`);
     const candidates = [master, large, small].filter(Boolean);
@@ -423,6 +586,7 @@ function checkFigureAssets() {
 
   const authenticityReviewed = CLAUDE_FIGURES.filter(
     (figure) => figure.status === "available"
+      && figure.provenance !== "course-original"
       && figure.provenance !== "licensed-community"
       && isClaudeFigureAuthenticityReleaseReady(figure),
   );
@@ -438,6 +602,13 @@ function checkFigureAssets() {
       if (RELEASE) fail(message);
       else warn(message);
     }
+  }
+
+  const originalFigures = CLAUDE_FIGURES.filter(
+    (figure) => figure.status === "available" && figure.provenance === "course-original",
+  );
+  if (originalFigures.length) {
+    note(`${originalFigures.length} course-original SVG diagrams have visible not-product-UI labels, local provenance records, and audited hashes`);
   }
 
   const repositoryFigures = CLAUDE_FIGURES.filter(
@@ -565,6 +736,24 @@ function checkThirdPartyLicenses() {
     || !figureEleven.sourceUrl.includes("anthropics/claude-plugins-official/blob/340e33aef")) {
     fail("fig-11: official Apache-2.0 Claude Code replacement must remain bound to its reviewed pinned source");
   }
+
+  const retained = [
+    ["fig-06", "MIT", "12e14d42d5c8af6383019ac27ef91e898e812fc2", "fb7bc7488412a683616d19dfe3635049cbadb11c9fc5b38ca476a96ab8f22772"],
+    ["fig-12", "MIT", "35f2eec7e44897c537e44441b7dff2f0ecbfb804", "edcc3b1d266a6bf936545be99d3ac6fd22f9b28bc50fa8906ec39d39e79c5645"],
+  ];
+  for (const [id, licence, commit, sourceSha256] of retained) {
+    const figure = CLAUDE_FIGURES.find((candidate) => candidate.id === id);
+    if (!figure
+      || figure.status !== "available"
+      || figure.assetKind !== "interface-screenshot"
+      || figure.provenance !== "licensed-community"
+      || figure.rightsStatus !== "repository-licence-reviewed"
+      || figure.thirdPartyLicense !== licence
+      || figure.sourceCommit !== commit
+      || figure.sourceSha256 !== sourceSha256) {
+      fail(`${id}: retained licensed screenshot must remain bound to its reviewed pinned repository source`);
+    }
+  }
 }
 
 function flattenStrings(value, path = "$", output = new Map()) {
@@ -622,6 +811,7 @@ async function main() {
   });
   await checkCopy();
   checkFigureAssets();
+  checkFigureProvenanceAndHashes();
   checkCatalogueFreshness();
   checkOfficialSourceFreshness();
   checkLocalImageUse();

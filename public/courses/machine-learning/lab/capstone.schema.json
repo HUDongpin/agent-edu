@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/machine-learning/lab/capstone.schema.json",
+  "title": "Course 19 student-support risk model capstone",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "courseId", "courseVersion", "capstoneVersion", "validatorId", "generatedOn", "artifacts"],
+  "properties": {
+    "schemaVersion": { "const": "aicourse.capstone-submission.v1" },
+    "courseId": { "const": "machine-learning" },
+    "courseVersion": { "const": "2026.08.26-v1" },
+    "capstoneVersion": { "const": "2026.08.26-capstone-v1" },
+    "validatorId": { "const": "aicourse.machine-learning.validator.v1" },
+    "generatedOn": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artifactId", "content"],
+        "properties": {
+          "artifactId": {
+            "enum": [
+              "problem-split-contract",
+              "baseline-experiment",
+              "reproducible-pipeline",
+              "model-comparison",
+              "metrics-calibration",
+              "subgroup-error-audit",
+              "model-card",
+              "no-deploy-review"
+            ]
+          },
+          "content": { "type": "object", "minProperties": 3 }
+        }
+      }
+    }
+  },
+  "x-schemaId": "aicourse.machine-learning.capstone.v1",
+  "x-validatorId": "aicourse.machine-learning.validator.v1",
+  "x-artifactIds": [
+    "problem-split-contract",
+    "baseline-experiment",
+    "reproducible-pipeline",
+    "model-comparison",
+    "metrics-calibration",
+    "subgroup-error-audit",
+    "model-card",
+    "no-deploy-review"
+  ]
+}

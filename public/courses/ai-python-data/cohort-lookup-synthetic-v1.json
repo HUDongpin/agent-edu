@@ -1,0 +1,20 @@
+{
+  "fixture_version": "ai-python-data-fixture.v1",
+  "cohorts": [
+    {
+      "cohort": "amber",
+      "format": "guided-lab",
+      "planned_minutes": 75
+    },
+    {
+      "cohort": "blue",
+      "format": "self-paced",
+      "planned_minutes": 70
+    },
+    {
+      "cohort": "coral",
+      "format": "studio",
+      "planned_minutes": 80
+    }
+  ]
+}

@@ -1,0 +1,635 @@
+{
+  "snapshotKind": "historical-phase-0-baseline",
+  "supersededOn": "2026-08-26",
+  "supersededBy": "outputs/course-platform-matrix.2026-08-26.json",
+  "warning": "This file records the initial 15-course baseline before the roadmap implementation. It is not the current release state.",
+  "schemaVersion": 1,
+  "snapshot": {
+    "commit": "59bc97969ee5febb5896c7b357c844810c06d2a5",
+    "catalogSource": "lib/courses.ts#TOP_LEVEL_COURSES+CATALOG_COURSES",
+    "seoSource": "lib/seo.ts#PAGES",
+    "sitemapSource": "app/sitemap.ts#default",
+    "availableCourseCount": 15,
+    "checkerExecution": "executed",
+    "worktreeDirty": true
+  },
+  "status": "fail",
+  "globalGates": {
+    "inventory": {
+      "status": "pass",
+      "issues": [],
+      "availableCourseCount": 15,
+      "catalogAvailableCount": 15
+    },
+    "progress": {
+      "status": "fail",
+      "issues": [
+        "progress-event-missing: TOP_LEVEL_COURSES: \"agentic\" reports progress but declares no progressEvent",
+        "progress-event-missing: CATALOG_COURSES: \"agentic\" reports progress but declares no progressEvent",
+        "progress-event-missing: CATALOG_COURSES: \"github\" reports progress but declares no progressEvent",
+        "progress-event-missing: CATALOG_COURSES: \"prompts\" reports progress but declares no progressEvent",
+        "progress-event-missing: CATALOG_COURSES: \"software-engineering\" reports progress but declares no progressEvent",
+        "progress-event-missing: CATALOG_COURSES: \"rag\" reports progress but declares no progressEvent",
+        "progress-event-missing: CATALOG_COURSES: \"mcp\" reports progress but declares no progressEvent",
+        "progress-event-missing: CATALOG_COURSES: \"make-money-with-codex\" reports progress but declares no progressEvent",
+        "progress-event-missing: CATALOG_COURSES: \"claude-income\" reports progress but declares no progressEvent",
+        "progress-reset-store-missing: components/progress-reset.ts does not import course-kit/progress-store",
+        "progress-legacy-key-ratchet: 17 modules hard-code ae.progress; the ratchet allows 16"
+      ],
+      "counts": {
+        "reportingAdapters": 30,
+        "distinctEvents": 14,
+        "stores": 15,
+        "hardCodedLegacyKeys": 17
+      }
+    },
+    "releaseCheckerWiring": {
+      "status": "fail",
+      "issues": [
+        "course:offline is not before next build"
+      ]
+    },
+    "productionReadiness": {
+      "status": "fail",
+      "issues": [
+        "Native reviews (8 non-English locales): pending",
+        "Arabic RTL matrix (390/979/980/1440 × light/dark × keyboard): pending",
+        "Provider canary, reconciliation, and credential lifecycle: pending",
+        "Vercel preview CSP report-only then enforced response headers: pending",
+        "GitHub required checks and three consecutive green runs: pending",
+        "Rollback target, ordinary revert PR, and recovery validation: pending"
+      ]
+    },
+    "frozenStaticExport": {
+      "status": "not-assessable",
+      "issues": [
+        "out/ is not proven to be a fresh static export bound to the current approved release target"
+      ]
+    }
+  },
+  "courses": [
+    {
+      "id": "agentic",
+      "displayNumber": 1,
+      "href": "/handbook/",
+      "status": "fail",
+      "moduleCount": 3,
+      "checkerScripts": [
+        "handbook:check",
+        "widgets:check",
+        "course:offline"
+      ],
+      "checkerExitCodes": [
+        0,
+        0,
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "not-applicable",
+        "rights": "not-applicable"
+      },
+      "blockers": [
+        {
+          "gate": "progress",
+          "message": "progress-event-missing: TOP_LEVEL_COURSES: \"agentic\" reports progress but declares no progressEvent"
+        },
+        {
+          "gate": "progress",
+          "message": "progress-event-missing: CATALOG_COURSES: \"agentic\" reports progress but declares no progressEvent"
+        }
+      ]
+    },
+    {
+      "id": "codex",
+      "displayNumber": 2,
+      "href": "/codex/",
+      "status": "fail",
+      "moduleCount": 0,
+      "checkerScripts": [
+        "codex:check:release"
+      ],
+      "checkerExitCodes": [
+        1
+      ],
+      "checkerSignals": [
+        "\"FIGURES[10] (fig-11): real Codex UI capture is still required\",",
+        "\"FIGURES[11] (fig-12): real Codex UI capture is still required\",",
+        "\"FIGURES[17] (fig-18): real Codex UI capture is still required\",",
+        "\"FIGURES[18] (fig-19): real Codex UI capture is still required\",",
+        "\"FIGURES[19] (fig-20): real Codex UI capture is still required\",",
+        "\"FIGURES[20] (fig-21): real Codex UI capture is still required\",",
+        "\"FIGURES[22] (fig-23): real Codex UI capture is still required\",",
+        "\"FIGURES[23] (fig-24): real Codex UI capture is still required\""
+      ],
+      "gates": {
+        "manifest": "fail",
+        "checker": "fail",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "pass",
+        "assets": "fail",
+        "rights": "pass"
+      },
+      "blockers": [
+        {
+          "gate": "manifest",
+          "message": "the normalized release manifest exposes no moduleIds"
+        },
+        {
+          "gate": "checker",
+          "message": "codex:check:release exited 1"
+        },
+        {
+          "gate": "assets",
+          "message": "\"FIGURES[10] (fig-11): real Codex UI capture is still required\","
+        },
+        {
+          "gate": "assets",
+          "message": "\"FIGURES[11] (fig-12): real Codex UI capture is still required\","
+        },
+        {
+          "gate": "assets",
+          "message": "\"FIGURES[17] (fig-18): real Codex UI capture is still required\","
+        },
+        {
+          "gate": "assets",
+          "message": "\"FIGURES[18] (fig-19): real Codex UI capture is still required\","
+        },
+        {
+          "gate": "assets",
+          "message": "\"FIGURES[19] (fig-20): real Codex UI capture is still required\","
+        },
+        {
+          "gate": "assets",
+          "message": "\"FIGURES[20] (fig-21): real Codex UI capture is still required\","
+        },
+        {
+          "gate": "assets",
+          "message": "\"FIGURES[22] (fig-23): real Codex UI capture is still required\","
+        },
+        {
+          "gate": "assets",
+          "message": "\"FIGURES[23] (fig-24): real Codex UI capture is still required\""
+        }
+      ]
+    },
+    {
+      "id": "claude",
+      "displayNumber": 3,
+      "href": "/claude/",
+      "status": "fail",
+      "moduleCount": 15,
+      "checkerScripts": [
+        "claude:check:release"
+      ],
+      "checkerExitCodes": [
+        1
+      ],
+      "checkerSignals": [
+        "\"status\": \"FAIL\",",
+        "\"errors\": [",
+        "\"12 Academy-hosted figures still require publication permission: fig-01, fig-02, fig-03, fig-04, fig-05, fig-07, fig-08, fig-09, fig-10, fig-13, fig-14, fig-15\","
+      ],
+      "gates": {
+        "manifest": "pass",
+        "checker": "fail",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "pass",
+        "assets": "pass",
+        "rights": "fail"
+      },
+      "blockers": [
+        {
+          "gate": "checker",
+          "message": "claude:check:release exited 1"
+        },
+        {
+          "gate": "rights",
+          "message": "\"12 Academy-hosted figures still require publication permission: fig-01, fig-02, fig-03, fig-04, fig-05, fig-07, fig-08, fig-09, fig-10, fig-13, fig-14, fig-15\","
+        }
+      ]
+    },
+    {
+      "id": "cursor",
+      "displayNumber": 4,
+      "href": "/cursor/",
+      "status": "fail",
+      "moduleCount": 14,
+      "checkerScripts": [
+        "cursor:check:release"
+      ],
+      "checkerExitCodes": [
+        1
+      ],
+      "checkerSignals": [
+        "Cursor course validation failed:",
+        "FAIL  pure sixteen-milestone progress or global-reset cache contract changed",
+        "FAIL  14 first-party Cursor figures are technically available but lack an evidence-bearing publication-rights determination: fig-01, fig-02, fig-03, fig-04, fig-05, fig-06, fig-07, fig-08, fig-09, fig-10, fig-11, fig-12, fig-13, fig-14",
+        "FAIL  release mode requires publicationStatus=published and a non-null publication date"
+      ],
+      "gates": {
+        "manifest": "pass",
+        "checker": "fail",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "pass",
+        "rights": "fail"
+      },
+      "blockers": [
+        {
+          "gate": "checker",
+          "message": "cursor:check:release exited 1"
+        },
+        {
+          "gate": "progress",
+          "message": "FAIL  pure sixteen-milestone progress or global-reset cache contract changed"
+        },
+        {
+          "gate": "rights",
+          "message": "FAIL  14 first-party Cursor figures are technically available but lack an evidence-bearing publication-rights determination: fig-01, fig-02, fig-03, fig-04, fig-05, fig-06, fig-07, fig-08, fig-09, fig-10, fig-11, fig-12, fig-13, fig-14"
+        },
+        {
+          "gate": "rights",
+          "message": "FAIL  release mode requires publicationStatus=published and a non-null publication date"
+        }
+      ]
+    },
+    {
+      "id": "grok",
+      "displayNumber": 5,
+      "href": "/grok/",
+      "status": "fail",
+      "moduleCount": 14,
+      "checkerScripts": [
+        "grok:check:release"
+      ],
+      "checkerExitCodes": [
+        1
+      ],
+      "checkerSignals": [
+        "FAIL  Global progress reset does not clear the isolated Grok progress store",
+        "1 failure; release blocked."
+      ],
+      "gates": {
+        "manifest": "pass",
+        "checker": "fail",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "pass",
+        "rights": "pass"
+      },
+      "blockers": [
+        {
+          "gate": "checker",
+          "message": "grok:check:release exited 1"
+        },
+        {
+          "gate": "progress",
+          "message": "FAIL  Global progress reset does not clear the isolated Grok progress store"
+        }
+      ]
+    },
+    {
+      "id": "github",
+      "displayNumber": 6,
+      "href": "/github/",
+      "status": "fail",
+      "moduleCount": 12,
+      "checkerScripts": [
+        "github:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "pass",
+        "rights": "pass"
+      },
+      "blockers": [
+        {
+          "gate": "progress",
+          "message": "progress-event-missing: CATALOG_COURSES: \"github\" reports progress but declares no progressEvent"
+        },
+        {
+          "gate": "progress",
+          "message": "catalog progressEvent does not match the top-level manifest"
+        }
+      ]
+    },
+    {
+      "id": "prompts",
+      "displayNumber": 7,
+      "href": "/prompts/",
+      "status": "fail",
+      "moduleCount": 9,
+      "checkerScripts": [
+        "prompts:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "pass",
+        "rights": "pass"
+      },
+      "blockers": [
+        {
+          "gate": "progress",
+          "message": "progress-event-missing: CATALOG_COURSES: \"prompts\" reports progress but declares no progressEvent"
+        },
+        {
+          "gate": "progress",
+          "message": "catalog progressEvent does not match the top-level manifest"
+        }
+      ]
+    },
+    {
+      "id": "software-engineering",
+      "displayNumber": 8,
+      "href": "/software-engineering/",
+      "status": "fail",
+      "moduleCount": 18,
+      "checkerScripts": [
+        "software-engineering:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "pass",
+        "rights": "pass"
+      },
+      "blockers": [
+        {
+          "gate": "progress",
+          "message": "progress-event-missing: CATALOG_COURSES: \"software-engineering\" reports progress but declares no progressEvent"
+        },
+        {
+          "gate": "progress",
+          "message": "catalog progressEvent does not match the top-level manifest"
+        }
+      ]
+    },
+    {
+      "id": "rag",
+      "displayNumber": 9,
+      "href": "/rag/",
+      "status": "fail",
+      "moduleCount": 12,
+      "checkerScripts": [
+        "rag:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "pass",
+        "rights": "pass"
+      },
+      "blockers": [
+        {
+          "gate": "progress",
+          "message": "progress-event-missing: CATALOG_COURSES: \"rag\" reports progress but declares no progressEvent"
+        },
+        {
+          "gate": "progress",
+          "message": "catalog progressEvent does not match the top-level manifest"
+        }
+      ]
+    },
+    {
+      "id": "mcp",
+      "displayNumber": 10,
+      "href": "/mcp/",
+      "status": "fail",
+      "moduleCount": 18,
+      "checkerScripts": [
+        "mcp:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "pass",
+        "rights": "pass"
+      },
+      "blockers": [
+        {
+          "gate": "progress",
+          "message": "progress-event-missing: CATALOG_COURSES: \"mcp\" reports progress but declares no progressEvent"
+        },
+        {
+          "gate": "progress",
+          "message": "catalog progressEvent does not match the top-level manifest"
+        }
+      ]
+    },
+    {
+      "id": "make-money-with-codex",
+      "displayNumber": 11,
+      "href": "/make-money-with-codex/",
+      "status": "fail",
+      "moduleCount": 12,
+      "checkerScripts": [
+        "make-money-with-codex:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "pass",
+        "rights": "pass"
+      },
+      "blockers": [
+        {
+          "gate": "progress",
+          "message": "progress-event-missing: CATALOG_COURSES: \"make-money-with-codex\" reports progress but declares no progressEvent"
+        },
+        {
+          "gate": "progress",
+          "message": "catalog progressEvent does not match the top-level manifest"
+        }
+      ]
+    },
+    {
+      "id": "claude-income",
+      "displayNumber": 12,
+      "href": "/claude-income/",
+      "status": "fail",
+      "moduleCount": 12,
+      "checkerScripts": [
+        "claude-income:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "fail",
+        "assets": "pass",
+        "rights": "pass"
+      },
+      "blockers": [
+        {
+          "gate": "progress",
+          "message": "progress-event-missing: CATALOG_COURSES: \"claude-income\" reports progress but declares no progressEvent"
+        },
+        {
+          "gate": "progress",
+          "message": "catalog progressEvent does not match the top-level manifest"
+        }
+      ]
+    },
+    {
+      "id": "ai-tutor",
+      "displayNumber": 13,
+      "href": "/ai-tutor/",
+      "status": "pass",
+      "moduleCount": 8,
+      "checkerScripts": [
+        "ai-tutor:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "pass",
+        "assets": "not-applicable",
+        "rights": "not-applicable"
+      },
+      "blockers": []
+    },
+    {
+      "id": "product-management",
+      "displayNumber": 14,
+      "href": "/product-management/",
+      "status": "pass",
+      "moduleCount": 14,
+      "checkerScripts": [
+        "product-management:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "pass",
+        "assets": "not-applicable",
+        "rights": "not-applicable"
+      },
+      "blockers": []
+    },
+    {
+      "id": "agent-orchestration",
+      "displayNumber": 15,
+      "href": "/agent-orchestration/",
+      "status": "pass",
+      "moduleCount": 15,
+      "checkerScripts": [
+        "agent-orchestration:check:release"
+      ],
+      "checkerExitCodes": [
+        0
+      ],
+      "checkerSignals": [],
+      "gates": {
+        "manifest": "pass",
+        "checker": "pass",
+        "routes": "pass",
+        "catalog": "pass",
+        "seo": "pass",
+        "sitemap": "pass",
+        "progress": "pass",
+        "assets": "pass",
+        "rights": "pass"
+      },
+      "blockers": []
+    }
+  ]
+}

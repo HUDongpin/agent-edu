@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/production-ai/lab/capstone.schema.json",
+  "title": "Course 21 dual-system production capstone",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "courseId", "courseVersion", "capstoneVersion", "validatorId", "generatedOn", "artifacts"],
+  "properties": {
+    "schemaVersion": { "const": "aicourse.capstone-submission.v1" },
+    "courseId": { "const": "production-ai" },
+    "courseVersion": { "const": "2026.08.26-v1" },
+    "capstoneVersion": { "const": "2026.08.26-capstone-v1" },
+    "validatorId": { "const": "aicourse.production-ai.validator.v1" },
+    "generatedOn": { "const": "2026-08-26" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artifactId", "content"],
+        "properties": {
+          "artifactId": { "enum": ["lineage-manifest", "experiment-record", "registry-entry", "serving-contract", "monitoring-dashboard", "drift-evidence", "alert-runbook", "rollback-evidence", "postmortem", "governance-approval"] },
+          "content": { "type": "object", "minProperties": 4 }
+        }
+      }
+    }
+  },
+  "x-schemaId": "aicourse.production-ai.capstone.v1",
+  "x-validatorId": "aicourse.production-ai.validator.v1",
+  "x-artifactIds": ["lineage-manifest", "experiment-record", "registry-entry", "serving-contract", "monitoring-dashboard", "drift-evidence", "alert-runbook", "rollback-evidence", "postmortem", "governance-approval"],
+  "x-requiredServices": ["predictive", "rag"],
+  "x-requiredInjections": ["numeric-data-drift-v1", "retrieval-degradation-v1"],
+  "x-requiredLifecycle": ["clean", "injected", "alerted", "held", "rolled-back", "verified"],
+  "x-decisionBoundary": "no-deploy"
+}

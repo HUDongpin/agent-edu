@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-learning.ai/courses/deep-learning/fixtures/neural-training-fixture-v1.schema.json",
+  "title": "Course 20 original neural-training fixture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "fixtureId", "createdOn", "origin", "seed", "task", "labels", "splitPolicy", "records", "referenceClaims"],
+  "properties": {
+    "schemaVersion": {"const": "deep-learning.fixture.v1"},
+    "fixtureId": {"const": "ae-deep-learning-synthetic-lines-v1"},
+    "createdOn": {"const": "2026-08-26"},
+    "origin": {"type": "string", "minLength": 20},
+    "seed": {"const": 20260826},
+    "task": {"type": "string", "minLength": 20},
+    "labels": {"const": ["horizontal", "vertical"]},
+    "splitPolicy": {"type": "string", "minLength": 20},
+    "records": {
+      "type": "array",
+      "minItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sampleId", "split", "slice", "label", "pixels"],
+        "properties": {
+          "sampleId": {"type": "string", "pattern": "^dl-[0-9]{3}$"},
+          "split": {"enum": ["train", "validation", "test"]},
+          "slice": {"enum": ["clean-a", "clean-b", "shifted-a", "shifted-b", "noise-a", "noise-b", "low-contrast-a", "low-contrast-b"]},
+          "label": {"enum": ["horizontal", "vertical"]},
+          "pixels": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {"type": "number", "minimum": 0, "maximum": 1}
+            }
+          }
+        }
+      }
+    },
+    "referenceClaims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "prohibited"],
+      "properties": {
+        "allowed": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 20}},
+        "prohibited": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 20}}
+      }
+    }
+  }
+}

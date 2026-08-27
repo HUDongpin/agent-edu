@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" data-origin="course-original">
+  <title>Course-original claim-to-evidence trace diagram</title>
+  <rect width="1600" height="900" rx="48" fill="#0f172a"/>
+  <rect x="150" y="200" width="520" height="500" rx="40" fill="#312e81" stroke="#818cf8" stroke-width="7"/>
+  <circle cx="260" cy="310" r="46" fill="#c4b5fd"/>
+  <rect x="340" y="280" width="240" height="28" rx="14" fill="#f8fafc"/>
+  <rect x="240" y="390" width="330" height="22" rx="11" fill="#a5b4fc"/>
+  <rect x="240" y="450" width="280" height="22" rx="11" fill="#a5b4fc"/>
+  <rect x="240" y="510" width="360" height="22" rx="11" fill="#a5b4fc"/>
+  <rect x="930" y="200" width="520" height="500" rx="40" fill="#134e4a" stroke="#5eead4" stroke-width="7"/>
+  <path d="M1040 310h290M1040 380h230M1040 450h320M1040 520h190" stroke="#ccfbf1" stroke-width="24" stroke-linecap="round"/>
+  <path d="M690 450h220" stroke="#f59e0b" stroke-width="18" stroke-linecap="round"/>
+  <path d="m860 405 55 45-55 45" fill="none" stroke="#f59e0b" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="800" cy="450" r="48" fill="#f59e0b"/>
+  <path d="m777 450 17 18 34-41" fill="none" stroke="#111827" stroke-width="12" stroke-linecap="round"/>
+</svg>

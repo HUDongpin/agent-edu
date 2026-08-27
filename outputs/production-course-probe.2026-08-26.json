@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "snapshotKind": "read-only-production-edge-probe",
+  "observedAt": "2026-08-26T09:10:00+08:00/2026-08-26T09:15:00+08:00",
+  "baseUrl": "https://aicourse.top",
+  "method": "Sequential unauthenticated GET requests with redirects followed; no external state was changed.",
+  "boundary": "This is a five-minute CDN/edge snapshot, not durable production evidence and not a release PASS.",
+  "site": {
+    "root": {
+      "path": "/",
+      "httpStatus": 200,
+      "canonical": "https://aicourse.top/en/"
+    },
+    "englishHome": {
+      "path": "/en/",
+      "httpStatus": 200,
+      "responseBytes": 77113,
+      "hasMain": true,
+      "hasH1": true,
+      "canonical": "https://aicourse.top/en/",
+      "jsonLdType": "EducationalOrganization",
+      "jsonLdInLanguage": "en"
+    },
+    "sitemap": {
+      "path": "/sitemap.xml",
+      "httpStatus": 200,
+      "responseBytes": 63790,
+      "locCount": 63,
+      "lastmod": "2026-08-18",
+      "englishPaths": [
+        "/en/",
+        "/en/courses/",
+        "/en/handbook/",
+        "/en/lab/",
+        "/en/build/",
+        "/en/teach/",
+        "/en/about/"
+      ],
+      "courseSlugMatchesForCourses2Through21": 0
+    },
+    "catalog": {
+      "path": "/en/courses/",
+      "httpStatus": 200,
+      "responseBytes": 66690,
+      "visibleCourseCount": 6,
+      "availableCardCount": 3,
+      "comingSoonCardCount": 3,
+      "comingSoonCards": [
+        "Tool Design",
+        "Cost Engineering",
+        "Human in the Loop"
+      ],
+      "jsonLdItemCount": 3,
+      "jsonLdItems": [
+        "Handbook",
+        "Lab",
+        "Build"
+      ],
+      "hasAgenticEngineeringAnchor": false,
+      "matchesLocalTwentyOneCourseCatalog": false
+    },
+    "responseHeaders": {
+      "platform": "Vercel",
+      "cdnCache": "HIT",
+      "cspMode": "report-only"
+    }
+  },
+  "plannedCourseEntrypoints": [
+    { "displayNumber": 2, "id": "codex", "path": "/en/codex/", "httpStatus": 404 },
+    { "displayNumber": 3, "id": "claude", "path": "/en/claude/", "httpStatus": 404 },
+    { "displayNumber": 4, "id": "cursor", "path": "/en/cursor/", "httpStatus": 404 },
+    { "displayNumber": 5, "id": "grok", "path": "/en/grok/", "httpStatus": 404 },
+    { "displayNumber": 6, "id": "github", "path": "/en/github/", "httpStatus": 404 },
+    { "displayNumber": 7, "id": "prompts", "path": "/en/prompts/", "httpStatus": 404 },
+    { "displayNumber": 8, "id": "software-engineering", "path": "/en/software-engineering/", "httpStatus": 404 },
+    { "displayNumber": 9, "id": "rag", "path": "/en/rag/", "httpStatus": 404 },
+    { "displayNumber": 10, "id": "mcp", "path": "/en/mcp/", "httpStatus": 404 },
+    { "displayNumber": 11, "id": "make-money-with-codex", "path": "/en/make-money-with-codex/", "httpStatus": 404 },
+    { "displayNumber": 12, "id": "claude-income", "path": "/en/claude-income/", "httpStatus": 404 },
+    { "displayNumber": 13, "id": "ai-tutor", "path": "/en/ai-tutor/", "httpStatus": 404 },
+    { "displayNumber": 14, "id": "product-management", "path": "/en/product-management/", "httpStatus": 404 },
+    { "displayNumber": 15, "id": "agent-orchestration", "path": "/en/agent-orchestration/", "httpStatus": 404 },
+    { "displayNumber": 16, "id": "responsible-ai", "path": "/en/responsible-ai/", "httpStatus": 404 },
+    { "displayNumber": 17, "id": "ai-research", "path": "/en/ai-research/", "httpStatus": 404 },
+    { "displayNumber": 18, "id": "ai-python-data", "path": "/en/ai-python-data/", "httpStatus": 404 },
+    { "displayNumber": 19, "id": "machine-learning", "path": "/en/machine-learning/", "httpStatus": 404 },
+    { "displayNumber": 20, "id": "deep-learning", "path": "/en/deep-learning/", "httpStatus": 404 },
+    { "displayNumber": 21, "id": "production-ai", "path": "/en/production-ai/", "httpStatus": 404 }
+  ],
+  "shared404": {
+    "finalUrlUnchanged": true,
+    "responseBytes": 12549,
+    "title": "404 · aicourse.top",
+    "h1": "404"
+  },
+  "productionLiveClaim": false,
+  "conclusion": "The current production snapshot does not contain the local 21-course candidate. Deployment and frozen-artifact route verification remain required."
+}

@@ -185,7 +185,7 @@ export default function LessonView({
                       ? course.copy.ui.sourceTypeGitHub
                       : course.copy.ui.sourceTypeOfficial}
                   </p>
-                  <h3 lang={course.locale === "en" ? undefined : "en"}>{source.title}</h3>
+                  <h3 lang="en" dir="ltr">{source.title}</h3>
                   <p>{source.publisher}</p>
                   <dl>
                     <div>
@@ -201,13 +201,13 @@ export default function LessonView({
                   </dl>
                   <details>
                     <summary>{course.copy.ui.sourceBoundary}</summary>
-                    <p lang={course.locale === "en" ? undefined : "en"}>{source.boundary}</p>
+                    <p lang="en" dir="ltr">{source.boundary}</p>
                   </details>
                   <a
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`${course.copy.ui.readSource}: ${source.title}`}
+                    aria-label={course.copy.ui.readSource}
                   >
                     {course.copy.ui.readSource} ↗
                   </a>

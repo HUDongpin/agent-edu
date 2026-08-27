@@ -11,7 +11,16 @@ export default function CourseFigure({
 }: {
   figure: Figure;
   pendingLabel: string;
-  labels: Pick<CursorCourseCopy["ui"], "openFullSize" | "source" | "figureCurrent" | "figureDated" | "figureHistorical" | "figureAttribution">;
+  labels: Pick<
+    CursorCourseCopy["ui"],
+    | "openFullSize"
+    | "source"
+    | "figureCurrent"
+    | "figureDated"
+    | "figureHistorical"
+    | "figureOriginal"
+    | "figureAttribution"
+  >;
 }) {
   const { manifest, copy } = figure;
   const captionId = `${manifest.id}-caption`;
@@ -49,7 +58,8 @@ export default function CourseFigure({
       className={styles.courseFigure}
       data-testid={`cursor-figure-${manifest.id}`}
       data-figure-status={manifest.status}
-      data-capture-sha256={manifest.sha256}
+      data-figure-kind={manifest.kind}
+      data-asset-sha256={manifest.sha256}
     >
       <a
         className={styles.figureImage}
@@ -58,25 +68,18 @@ export default function CourseFigure({
         aria-label={`${labels.openFullSize}: ${copy.alt}`}
         dir="ltr"
       >
-        <picture>
-          {manifest.srcSet.mobile ? (
-            <source media="(max-width: 640px)" srcSet={manifest.srcSet.mobile} type="image/webp" />
-          ) : null}
-          <source
-            type="image/webp"
-            srcSet={`${manifest.srcSet.webpSmall} ${Math.min(manifest.width, 960)}w, ${manifest.srcSet.webpLarge} ${Math.min(manifest.width, 1600)}w`}
-            sizes="(max-width: 760px) calc(100vw - 40px), 760px"
-          />
-          <Image
-            src={manifest.src}
-            alt={copy.alt}
-            width={manifest.width}
-            height={manifest.height}
-            loading={manifest.id === "fig-01" ? "eager" : "lazy"}
-            sizes="(max-width: 760px) calc(100vw - 40px), 760px"
-            unoptimized
-          />
-        </picture>
+        <Image
+          src={manifest.src}
+          alt={copy.alt}
+          width={manifest.width}
+          height={manifest.height}
+          loading={manifest.id === "fig-01" ? "eager" : "lazy"}
+          sizes="(max-width: 760px) calc(100vw - 40px), 760px"
+          unoptimized
+        />
+        {manifest.kind === "course-original-diagram" ? (
+          <span className={styles.figureOriginBadge}>{labels.figureOriginal}</span>
+        ) : null}
         {callouts.length ? (
           <span className={styles.figureMarkers} aria-hidden="true">
             {callouts.map((callout) => (
@@ -101,18 +104,33 @@ export default function CourseFigure({
           ) : null}
           <p className={styles.figureRights}>
             {labels.figureAttribution}{" "}
-            <a href={manifest.sourcePageUrl} target="_blank" rel="noopener noreferrer">
-              {labels.source}
-            </a>
+            {manifest.kind === "course-original-diagram" ? (
+              <a href={manifest.provenancePath}>{labels.source}</a>
+            ) : (
+              <a href={manifest.sourcePageUrl} target="_blank" rel="noopener noreferrer">
+                {labels.source}
+              </a>
+            )}
           </p>
         </div>
         <small data-testid={`cursor-freshness-${manifest.id}`}>
-          {manifest.uiFreshness === "current"
-            ? labels.figureCurrent
-            : manifest.uiFreshness === "dated-current"
-              ? labels.figureDated
-              : labels.figureHistorical}
-          {" · "}<bdi dir="ltr">{manifest.cursorVersion}</bdi>{" · "}<bdi dir="ltr">{manifest.capturedOn}</bdi>
+          {manifest.kind === "course-original-diagram" ? (
+            <>
+              {labels.figureOriginal}{" · "}
+              <bdi dir="ltr">v{manifest.diagramVersion}</bdi>{" · "}
+              <bdi dir="ltr">{manifest.createdOn}</bdi>
+            </>
+          ) : (
+            <>
+              {manifest.uiFreshness === "current"
+                ? labels.figureCurrent
+                : manifest.uiFreshness === "dated-current"
+                  ? labels.figureDated
+                  : labels.figureHistorical}
+              {" · "}<bdi dir="ltr">{manifest.cursorVersion}</bdi>{" · "}
+              <bdi dir="ltr">{manifest.capturedOn}</bdi>
+            </>
+          )}
         </small>
       </figcaption>
     </figure>

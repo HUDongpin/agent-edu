@@ -83,6 +83,12 @@ export default async function Shell({
               <li><Link href={p("/ai-tutor/")}>{t("c.ai-tutor.title")}</Link></li>
               <li><Link href={p("/product-management/")}>{t("c.product-management.title")}</Link></li>
               <li><Link href={p("/agent-orchestration/")}>{t("c.agent-orchestration.title")}</Link></li>
+              <li><Link href={p("/responsible-ai/")}>{t("c.responsible-ai.title")}</Link></li>
+              <li><Link href={p("/ai-research/")}>{t("c.ai-research.title")}</Link></li>
+              <li><Link href={p("/ai-python-data/")}>{t("c.ai-python-data.title")}</Link></li>
+              <li><Link href={p("/machine-learning/")}>{t("c.machine-learning.title")}</Link></li>
+              <li><Link href={p("/deep-learning/")}>{t("c.deep-learning.title")}</Link></li>
+              <li><Link href={p("/production-ai/")}>{t("c.production-ai.title")}</Link></li>
             </ul>
           </div>
           <div>

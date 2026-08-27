@@ -24,8 +24,10 @@ function writeJson(path: string, value: unknown) {
  * mock fail closed instead of reaching the live service.
  */
 export const test = base.extend<{ _curatedEvidence: void }>({
-  _curatedEvidence: [async ({ page, browserName }, use, testInfo) => {
+  _curatedEvidence: [async ({ page, browserName, baseURL }, use, testInfo) => {
     let unmockedProviderRequests = 0;
+    if (!baseURL) throw new Error("safe browser evidence requires an explicit base URL");
+    const localOrigin = new URL(baseURL).origin;
     await page.route("https://api.deepseek.com/**", (route) => {
       unmockedProviderRequests += 1;
       return route.abort("blockedbyclient");
@@ -45,7 +47,7 @@ export const test = base.extend<{ _curatedEvidence: void }>({
     page.on("pageerror", () => { pageErrorCount += 1; });
     page.on("request", (request) => {
       const origin = new URL(request.url()).origin;
-      const originClass = origin === "http://127.0.0.1:4173"
+      const originClass = origin === localOrigin
         ? "local"
         : origin === "https://api.deepseek.com" ? "provider" : "external";
       addTrace({

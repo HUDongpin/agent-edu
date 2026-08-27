@@ -100,12 +100,12 @@ function EnvelopeLab({ interactive, ui }: { interactive: McpInteractiveCopy; ui:
       <label>
         {ui.labCurrentMethod}
         <select value={method} onChange={(event) => setMethod(event.target.value as (typeof methods)[number])}>
-          {methods.map((item) => <option key={item}>{item}</option>)}
+          {methods.map((item) => <option key={item} lang="en" dir="ltr">{item}</option>)}
         </select>
       </label>
       <p>{interactive.envelopePurposes[method]}</p>
       <p id="mcp-envelope-description" className={styles.microcopy}>{ui.labEnvelopeDescription}</p>
-      <pre dir="ltr" tabIndex={0} aria-describedby="mcp-envelope-description"><code>{envelope}</code></pre>
+      <pre dir="ltr" tabIndex={0} aria-describedby="mcp-envelope-description"><code lang="en" dir="ltr">{envelope}</code></pre>
       <ul className={styles.invariantList}>
         <li><strong>{ui.labRequiredLabel}</strong> {ui.labRequiredBody}</li>
         <li><strong>{ui.labRecommendedLabel}</strong> {ui.labRecommendedBody}</li>
@@ -150,7 +150,7 @@ function ToolContractLab({ ui }: { ui: McpUiCopy }) {
         <label className={styles.checkRow}><input type="checkbox" checked={unknown} onChange={(event) => setUnknown(event.target.checked)} /> {ui.labAcceptUnknown}</label>
         <div className={styles.contractScore} data-score={score} role="status" aria-live="polite"><strong>{score}/3</strong><span>{ui.labGuardrails}</span></div>
       </div>
-      <pre dir="ltr" tabIndex={0} aria-label={ui.labGeneratedJsonAria}><code>{contract}</code></pre>
+      <pre dir="ltr" tabIndex={0} aria-label={ui.labGeneratedJsonAria}><code lang="en" dir="ltr">{contract}</code></pre>
       <p className={styles.microcopy}>{ui.labAnnotationsNote}</p>
     </div>
   );

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "aicourse.capstone-submission.v1",
+  "courseId": "machine-learning",
+  "courseVersion": "2026.08.26-v1",
+  "capstoneVersion": "2026.08.26-capstone-v1",
+  "validatorId": "aicourse.machine-learning.validator.v1",
+  "generatedOn": "YYYY-MM-DD",
+  "artifacts": [
+    { "artifactId": "problem-split-contract", "content": { "task": "", "outcome": "completion_next_period", "positiveClass": 1, "partitionCounts": {}, "prohibitedFeatures": [], "holdoutPolicy": "" } },
+    { "artifactId": "baseline-experiment", "content": { "baseline": "train-prevalence", "trainPrevalence": 0, "validationMetrics": {}, "limitations": [] } },
+    { "artifactId": "reproducible-pipeline", "content": { "runtime": "stdlib-only", "seed": 19019, "iterations": 4000, "featureOrder": [], "excludedFields": [], "inputReceipts": [], "predictionReceipt": {}, "modelReceipt": {}, "recommenderBoundaryAudit": {} } },
+    { "artifactId": "model-comparison", "content": { "selectionPartition": "validation", "metric": "brier", "candidates": [], "selected": "", "selectionFrozenBeforeHoldout": false } },
+    { "artifactId": "metrics-calibration", "content": { "thresholdPurpose": "illustrative-only", "threshold": 0.5, "validation": {}, "holdout": {}, "calibrationBins": [], "holdoutOpenedOnce": false } },
+    { "artifactId": "subgroup-error-audit", "content": { "partition": "holdout", "groupField": "cohort", "groups": [], "minimumGroupWarning": "", "fairnessClaim": "none" } },
+    { "artifactId": "model-card", "content": { "modelName": "", "intendedUse": "", "outOfScopeUses": [], "trainingData": "", "evaluationData": "", "limitations": [], "humanAuthority": "" } },
+    { "artifactId": "no-deploy-review", "content": { "decision": "no-deploy", "reasons": [], "prohibitedActions": [], "humanAuthority": "", "expiry": "", "reviewer": {} } }
+  ]
+}

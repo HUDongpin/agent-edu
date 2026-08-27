@@ -7,6 +7,11 @@ import {
 } from "../lib/codex/capstone";
 import { CODEX_COURSE_MANIFEST } from "../lib/codex/manifest";
 import { CODEX_QUIZ } from "../lib/codex/quiz";
+import {
+  CODEX_ORIGINAL_DIAGRAM_FIGURE_IDS,
+  CODEX_ORIGINAL_DIAGRAM_LABEL,
+  CODEX_PRODUCT_UI_CAPTURE_FIGURE_IDS,
+} from "../lib/codex/types";
 
 const LESSON_SLUGS = [
   "meet-codex",
@@ -27,6 +32,9 @@ const ENGLISH_CODEX_PATHS = [
   "/en/codex/",
   ...LESSON_SLUGS.map((slug) => `/en/codex/${slug}/`),
 ];
+
+const ORIGINAL_DIAGRAM_IDS = new Set<string>(CODEX_ORIGINAL_DIAGRAM_FIGURE_IDS);
+const PRODUCT_UI_CAPTURE_IDS = new Set<string>(CODEX_PRODUCT_UI_CAPTURE_FIGURE_IDS);
 
 const CORRECT_INDEX = new Map<string, number>(
   CODEX_QUIZ.map((question) => [question.id, question.correctIndex]),
@@ -119,7 +127,7 @@ test.describe("Codex static routes and hierarchy", () => {
     });
   }
 
-  test("course catalogue exposes Course 1 and Course 2 while preserving all Course 1 module links", async ({ page }) => {
+  test("complete course catalogue exposes all 21 released courses and preserves Course 1 module links", async ({ page }) => {
     await page.goto("/en/courses/");
     const releasedSection = page.locator(
       'section[aria-labelledby="catalog-released-courses-title"]',
@@ -128,15 +136,10 @@ test.describe("Codex static routes and hierarchy", () => {
       'section[aria-labelledby="catalog-coming-soon-courses-title"]',
     );
     await expect(releasedSection.getByRole("heading", { name: /Available now/ })).toBeVisible();
-    await expect(comingSoonSection.getByRole("heading", { name: /Coming soon/ })).toBeVisible();
-    expect(await page.locator(".catalog-course-section").evaluateAll((sections) => (
-      sections.map((section) => section.getAttribute("aria-labelledby"))
-    ))).toEqual([
-      "catalog-released-courses-title",
-      "catalog-coming-soon-courses-title",
-    ]);
+    await expect(comingSoonSection).toBeHidden();
+    await expect(releasedSection.locator("li.catalog-course-card")).toHaveCount(21);
     await expect(releasedSection.locator("li.catalog-course-card-upcoming")).toHaveCount(0);
-    await expect(comingSoonSection.locator("li.catalog-course-card-upcoming")).not.toHaveCount(0);
+    await expect(comingSoonSection.locator("li.catalog-course-card-upcoming")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Agentic Engineering" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "How to Use Codex" })).toBeVisible();
     const agenticCard = page.locator("li.catalog-course-card").filter({
@@ -144,7 +147,7 @@ test.describe("Codex static routes and hierarchy", () => {
     });
     await expect(agenticCard.getByRole("link", { name: "The Handbook", exact: true })).toHaveAttribute("href", "/en/handbook/");
     await expect(agenticCard.getByRole("link", { name: "The Lab", exact: true })).toHaveAttribute("href", "/en/lab/");
-    await expect(agenticCard.getByRole("link", { name: "Build an Agent", exact: true })).toHaveAttribute("href", /github\.com\/HUDongpin\/agent-edu/);
+    await expect(agenticCard.getByRole("link", { name: "Build an Agent", exact: true })).toHaveAttribute("href", "/en/build/");
     const codexCard = page.locator("li.catalog-course-card").filter({
       has: page.getByRole("heading", { name: "How to Use Codex" }),
     });
@@ -492,8 +495,10 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
     expect(await code.evaluate((element) => getComputedStyle(element).direction)).toBe("ltr");
     await expect(page.locator('[data-testid="codex-capstone-receipt-input"]')).toHaveAttribute("dir", "ltr");
 
-    await page.evaluate(() => localStorage.setItem("ae.progress", JSON.stringify({ "codex.capstone.v1": true })));
-    await page.reload();
+    const receiptInput = page.locator('[data-testid="codex-capstone-receipt-input"]');
+    await receiptInput.fill(JSON.stringify(VALID_RECEIPT));
+    await page.locator('form:has([data-testid="codex-capstone-receipt-input"]) button[type="submit"]').click();
+    await expect(page.locator('[data-testid="codex-capstone-receipt"]')).toBeVisible();
     for (const width of [390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       const layout = await page.evaluate(() => {
@@ -595,9 +600,9 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
     await expect(feedback.locator("a").first()).toBeFocused();
   });
 
-  test("all 24 figure fallbacks remain semantic without JavaScript and available images are local", async ({ browser }) => {
+  test("all 24 released figures remain semantic without JavaScript and preserve their provenance class", async ({ browser }) => {
     for (const lesson of CODEX_COURSE_MANIFEST.lessons) {
-      await assertNoJsFigureFallback(
+      await assertNoJsFigureContract(
         browser,
         `/en/codex/${lesson.slug}/`,
         lesson.figureIds,
@@ -606,22 +611,13 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
   });
 
   test("an available full-resolution figure link is keyboard operable", async ({ page }) => {
-    for (const lesson of CODEX_COURSE_MANIFEST.lessons) {
-      await page.goto(`/en/codex/${lesson.slug}/`);
-      const link = page.locator('[data-figure-status="available"] a').first();
-      if (await link.count()) {
-        const href = await link.getAttribute("href");
-        expect(href).toMatch(/^\/courses\/codex\//);
-        await link.focus();
-        await page.keyboard.press("Enter");
-        await expect(page).toHaveURL(new RegExp(`${href!.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
-        return;
-      }
-    }
-    test.info().annotations.push({
-      type: "release-blocker",
-      description: "No available figure exists yet; codex:check --release remains responsible for failing the release.",
-    });
+    await page.goto("/en/codex/meet-codex/");
+    const link = page.locator('[data-testid="codex-figure-fig-01"] a');
+    const href = await link.getAttribute("href");
+    expect(href).toMatch(/^\/courses\/codex\//);
+    await link.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(new RegExp(`${href!.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
   });
 
   test("a verified capstone prints as one isolated, light, readable receipt", async ({ page }) => {
@@ -703,7 +699,7 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
   });
 });
 
-async function assertNoJsFigureFallback(
+async function assertNoJsFigureContract(
   browser: Browser,
   path: string,
   expectedFigureIds: readonly string[],
@@ -716,25 +712,34 @@ async function assertNoJsFigureFallback(
   for (const id of expectedFigureIds) {
     const figure = page.locator(`[data-testid="codex-figure-${id}"]`);
     const status = await figure.getAttribute("data-figure-status");
-    if (status === "available") {
-      await figure.scrollIntoViewIfNeeded();
-      const link = figure.locator("a");
-      await expect(link).toHaveAttribute("href", /^\/courses\/codex\//);
-      await expect(link).toHaveAttribute("dir", "ltr");
-      expect(await link.evaluate((element) => getComputedStyle(element).direction)).toBe("ltr");
-      const image = link.locator("img");
-      await expect(image).toHaveAttribute("width", /\d+/);
-      await expect(image).toHaveAttribute("height", /\d+/);
-      await expect(image).toHaveAttribute("loading", id === "fig-01" ? "eager" : "lazy");
-      await expect.poll(() => image.evaluate((element: HTMLImageElement) => (
-        element.complete && element.naturalWidth > 0
-      ))).toBe(true);
-      const remoteResponsiveSourceCount = await link.locator('source[srcset^="http"]').count();
-      expect(remoteResponsiveSourceCount).toBe(0);
+    expect(status).toBe("available");
+    await figure.scrollIntoViewIfNeeded();
+    const link = figure.locator("a");
+    await expect(link).toHaveAttribute("href", /^\/courses\/codex\//);
+    await expect(link).toHaveAttribute("dir", "ltr");
+    expect(await link.evaluate((element) => getComputedStyle(element).direction)).toBe("ltr");
+    const image = link.locator("img");
+    await expect(image).toHaveAttribute("width", /\d+/);
+    await expect(image).toHaveAttribute("height", /\d+/);
+    await expect(image).toHaveAttribute("loading", id === "fig-01" ? "eager" : "lazy");
+    await expect.poll(() => image.evaluate((element: HTMLImageElement) => (
+      element.complete && element.naturalWidth > 0
+    ))).toBe(true);
+    const remoteResponsiveSourceCount = await link.locator('source[srcset^="http"]').count();
+    expect(remoteResponsiveSourceCount).toBe(0);
+
+    if (ORIGINAL_DIAGRAM_IDS.has(id)) {
+      await expect(figure).toHaveAttribute("data-figure-kind", "course-original-diagram");
+      await expect(figure).toHaveAttribute("data-diagram-sha256", /^[a-f0-9]{64}$/);
+      await expect(figure).not.toHaveAttribute("data-capture-sha256", /.+/);
+      await expect(figure.locator("figcaption small")).toContainText(CODEX_ORIGINAL_DIAGRAM_LABEL);
+      await expect(image).toHaveAttribute("alt", new RegExp(`^${CODEX_ORIGINAL_DIAGRAM_LABEL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.`));
     } else {
-      expect(status).toBe("capture-required");
-      await expect(figure.getByRole("img")).toBeVisible();
-      await expect(figure.locator("figcaption")).not.toBeEmpty();
+      expect(PRODUCT_UI_CAPTURE_IDS.has(id)).toBe(true);
+      await expect(figure).toHaveAttribute("data-figure-kind", "product-ui-capture");
+      await expect(figure).toHaveAttribute("data-capture-sha256", /^[a-f0-9]{64}$/);
+      await expect(figure).not.toHaveAttribute("data-diagram-sha256", /.+/);
+      await expect(figure.locator("figcaption small")).toContainText("Codex");
     }
   }
   await context.close();

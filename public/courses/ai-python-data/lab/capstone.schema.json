@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/ai-python-data/lab/capstone.schema.json",
+  "title": "Course 18 education-data audit capstone",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "courseId", "courseVersion", "capstoneVersion", "validatorId", "generatedOn", "artifacts"],
+  "properties": {
+    "schemaVersion": { "const": "aicourse.capstone-submission.v1" },
+    "courseId": { "const": "ai-python-data" },
+    "courseVersion": { "const": "2026.08.26-v1" },
+    "capstoneVersion": { "const": "2026.08.26-capstone-v1" },
+    "validatorId": { "const": "aicourse.ai-python-data.validator.v1" },
+    "generatedOn": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artifactId", "content"],
+        "properties": {
+          "artifactId": {
+            "enum": [
+              "environment-receipt",
+              "executable-notebook",
+              "data-dictionary",
+              "cleaning-ledger",
+              "validation-report",
+              "statistical-note",
+              "visual-report",
+              "provenance-manifest"
+            ]
+          },
+          "content": { "type": "object", "minProperties": 3 }
+        }
+      }
+    }
+  },
+  "x-schemaId": "aicourse.ai-python-data.capstone.v1",
+  "x-validatorId": "aicourse.ai-python-data.validator.v1",
+  "x-artifactIds": [
+    "environment-receipt",
+    "executable-notebook",
+    "data-dictionary",
+    "cleaning-ledger",
+    "validation-report",
+    "statistical-note",
+    "visual-report",
+    "provenance-manifest"
+  ]
+}

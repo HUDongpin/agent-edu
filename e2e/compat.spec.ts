@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
 
 const STATIC_PATHS = [
-  { path: "/en/", marker: "#curriculum" },
+  { path: "/en/", marker: "#featured-title" },
   { path: "/en/handbook/", marker: "#rail" },
   { path: "/en/lab/", marker: ".shellwrap.lab .labhero" },
   { path: "/en/build/", marker: ".build-page .build-steps" },

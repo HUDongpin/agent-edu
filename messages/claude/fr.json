@@ -6,7 +6,7 @@
     "audience": "Pour les débutants curieux comme pour les professionnels expérimentés. Le parcours principal fonctionne sans fonctionnalités payantes ; les outils payants et ceux gérés par une organisation sont clairement signalés comme des extensions.",
     "duration": "Environ 12 à 15 heures, dont un projet final de portfolio de 120 minutes",
     "sourceNote": "Claude Academy fournit la progression pédagogique ; le Claude Help Centre et la documentation produit à jour fournissent les détails opérationnels et les informations sur les offres. En cas de désaccord, la source opérationnelle la plus récente prévaut. Les exemples GitHub sont présentés comme des éléments officiels ou issus de la pratique, jamais comme une preuve d’efficacité.",
-    "figureNote": "Chaque figure présente une interface ou une sortie réelle et datée de Claude, avec fichiers locaux, provenance des sources, contrôle de confidentialité et hachage audité. Les noms de modèles et les commandes visibles constituent des traces historiques, pas des promesses de disponibilité. Guide pédagogique indépendant, sans affiliation ni soutien d’Anthropic.",
+    "figureNote": "Les schémas originaux du cours sont clairement signalés et ne sont pas des captures du produit Claude. Les autres captures, issues de dépôts sous licence, sont des traces datées à provenance figée. Chaque ressource locale a fait l’objet d’un contrôle de confidentialité et d’un hachage audité. Guide pédagogique indépendant, sans affiliation ni soutien d’Anthropic.",
     "startCta": "Commencer par la carte des environnements",
     "resumeCta": "Poursuivre votre pratique avec Claude"
   },
@@ -63,6 +63,8 @@
     "source": "Source de la preuve",
     "sourceVerifiedOn": "Vérifié",
     "figureObservedOn": "Observé",
+    "figureCreatedOn": "Créé",
+    "figureProvenance": "Provenance de la ressource",
     "stars": "Étoiles",
     "license": "Licence",
     "storageUnavailable": "Le stockage du navigateur n’est pas disponible. Le cours reste utilisable, mais la progression ne sera conservée que pour cette session.",
@@ -999,44 +1001,44 @@
   },
   "figures": {
     "fig-01": {
-      "alt": "Vue d’ensemble de Claude Desktop présentant les modes distincts Chat, Cowork et Code",
-      "caption": "Choisissez un mode selon les limites de la tâche. Image officielle de l’interface Academy consultée le 23 août 2026 ; les commandes et la disponibilité peuvent évoluer."
+      "alt": "Schéma abstrait original du cours, et non une interface produit, comparant les limites de Chat, Cowork et Code",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Choisissez une surface selon la limite du travail, les outils requis et le degré de délégation."
     },
     "fig-02": {
-      "alt": "Claude Desktop Chat avec barre latérale, conversation, commandes de réponse, zone de saisie et indicateur du modèle",
-      "caption": "La zone de saisie n’est qu’une partie du contexte de la tâche : la conversation, le mode, les outils et les limites visibles comptent également. Les noms de modèles de cette image datée ne renseignent pas sur les offres actuelles."
+      "alt": "Schéma abstrait original du cours, et non une interface produit, reliant tâche, contexte, contraintes, preuves et format",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Une demande utile rend inspectables le résultat, le contexte, les contraintes, les preuves et le format."
     },
     "fig-03": {
-      "alt": "Vue de remix de Claude Artifact avec la conversation à gauche et un visuel interactif à droite",
-      "caption": "Une instruction de suivi peut conserver l’Artifact existant tout en modifiant une propriété observable. Testez directement l’objet après chaque révision."
+      "alt": "Boucle abstraite originale du cours, et non une interface produit, allant de l’inspection à la modification puis à la vérification",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Préservez l’objet de travail, changez une propriété observable et vérifiez-la après chaque révision."
     },
     "fig-04": {
-      "alt": "Boîte de dialogue de Claude expliquant l’accès réseau limité des fichiers générés et le risque de sécurité associé",
-      "caption": "Lisez la capacité exacte et le risque avant d’autoriser l’accès. Une demande de fichier et une autorisation réseau constituent deux décisions distinctes."
+      "alt": "Porte d’autorisation abstraite originale du cours, et non une interface produit, séparant capacité, conséquence et approbation",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Lisez la capacité et sa conséquence avant d’approuver : la demande et l’autorisation sont distinctes."
     },
     "fig-05": {
-      "alt": "Aperçu d’un document généré par Claude avec commandes de téléchargement et Google Drive",
-      "caption": "L’aperçu, le téléchargement et l’enregistrement sur un espace externe franchissent des limites différentes. Inspectez le fichier natif téléchargé avant de le partager."
+      "alt": "Flux abstrait original du cours, et non une interface produit, séparant aperçu, fichier natif, inspection et partage",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Aperçu, fichier natif, inspection locale et partage externe sont des limites distinctes."
     },
     "fig-06": {
       "alt": "Interface Claude Projects présentant la mémoire, les instructions, les fichiers, la zone de saisie et les conversations propres à chaque projet",
       "caption": "La fonction Projects distingue la mémoire durable, les instructions, les fichiers et les conversations. Capture d’interface de Chris Blattman, février 2026, utilisée sous licence MIT et considérée comme une trace historique de l’interface."
     },
     "fig-07": {
-      "alt": "Tableau de bord d’un projet Claude Artifact avec volet de conversation, aperçu en direct, bascule Code et bouton Publier",
-      "caption": "Testez l’Artifact au regard des critères d’acceptation avant de traiter la publication comme une décision distincte concernant le public et l’exposition."
+      "alt": "Porte abstraite d’Artifact originale du cours, et non une interface produit, plaçant les tests avant la publication",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Testez l’Artifact selon les critères d’acceptation avant une décision distincte sur le public et l’exposition."
     },
     "fig-08": {
-      "alt": "Feuille de route de revue de littérature de Claude Academy présentant un article, le plan d’étude, les résultats, les statistiques et un champ de notes",
-      "caption": "Exemple non vérifié : n’utilisez pas ces affirmations médicales ou scientifiques comme éléments de preuve. Une sortie de recherche soignée est un objet d’audit, pas une preuve. Ouvrez chaque article original et vérifiez les titres, les plans d’étude, les chiffres, les citations et l’adéquation entre affirmation et source."
+      "alt": "Schéma abstrait original du cours, et non une interface produit, reliant une affirmation retrouvée à sa source et au registre de vérification",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Le texte retrouvé est un repère, pas une preuve : ouvrez la source et vérifiez titre, plan, chiffres, citations et adéquation."
     },
     "fig-09": {
-      "alt": "Répertoire Claude Connectors présentant les catégories d’extensions web et de bureau, les descriptions des outils et les commandes d’ajout",
-      "caption": "La description d’un répertoire indique une capacité, pas une autorisation générale. Examinez les droits de lecture et d’écriture ainsi que les autorisations héritées avant toute connexion."
+      "alt": "Schéma abstrait original du cours, et non une interface produit, sur capacité, portée, circulation des données et révocation",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Une capacité n’est pas une autorisation générale ; vérifiez portée, droits hérités, données et révocation."
     },
     "fig-10": {
-      "alt": "Accueil de Claude Cowork avec sélection du mode, Projects, tâches planifiées, Artifacts en direct, personnalisation et zone de saisie de la tâche",
-      "caption": "Choisissez délibérément Cowork, les limites du projet ou du dossier, le type de tâche et les approbations. Les noms de modèles et mentions bêta ne constituent que des traces datées de l’interface."
+      "alt": "Cadre abstrait de délégation original du cours, et non une interface produit, bornant entrées, espace, approbations, vérification et arrêt",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Délimitez le travail délégué par des entrées, un espace, des approbations, une vérification et des conditions d’arrêt explicites."
     },
     "fig-11": {
       "alt": "Exemple du terminal Claude Code d’Anthropic auditant les instructions CLAUDE.md d’un dépôt au regard du code actuel",
@@ -1047,16 +1049,16 @@
       "caption": "Une véritable exécution d’agent révèle les ressources et les événements qui sous-tendent la réponse. Image officielle du cookbook Anthropic utilisée sous licence MIT ; il s’agit de Claude Platform, et non de Chat dans Claude.ai."
     },
     "fig-13": {
-      "alt": "Assistant de rédaction d’e-mails Claude Artifact avec conversation, commandes de brouillon et formulaire d’écriture interactif",
-      "caption": "Utilisez un assistant pour structurer et critiquer un brouillon ; gardez les faits, les destinataires, le ton, l’approbation et l’envoi sous contrôle humain."
+      "alt": "Schéma abstrait original du cours, et non une interface produit, maintenant faits, public, ton, approbation et envoi sous contrôle humain",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. L’assistance structure et critique, tandis que les personnes gardent l’autorité sur les faits, le public, l’approbation et l’envoi."
     },
     "fig-14": {
-      "alt": "Tuteur de langue Claude Artifact avec objectifs d’apprentissage, indicateurs de progression, zone de chat et commande de personnalisation",
-      "caption": "Un tuteur interactif peut créer des activités d’entraînement, mais les éducateurs doivent toujours vérifier le contenu, les objectifs, l’accessibilité et les preuves de la réflexion de l’apprenant."
+      "alt": "Boucle abstraite d’apprentissage originale du cours, et non une interface produit, reliant objectifs, entraînement, preuves et examen pédagogique",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. L’entraînement généré reste soumis aux objectifs, à l’accessibilité, aux preuves d’apprentissage et à l’examen pédagogique."
     },
     "fig-15": {
-      "alt": "Boîte de dialogue de confirmation de publication d’un Artifact Claude, avertissant qu’il sera accessible sur le web",
-      "caption": "Marquez une pause au seuil de la publication. Examinez l’Artifact exact, le contexte associé, le public, les liens et le contenu sensible avant de confirmer."
+      "alt": "Limite abstraite de publication originale du cours, et non une interface produit, vérifiant contenu, public, confidentialité, liens et approbation",
+      "caption": "Schéma original du cours ; ce n’est pas une capture de Claude. Avant publication, vérifiez l’Artifact, le contexte, le public, les liens, le contenu sensible et l’approbation."
     }
   },
   "capstone": {

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "aicourse.cursor.figure-rights.v1",
+  "reviewedOn": "2026-08-26",
+  "reviewedBy": "aicourse.top course team",
+  "decision": "approved-for-course-publication",
+  "scope": "Public redistribution of the fourteen exact SVG assets listed here as part of Course 4 and its static export.",
+  "copyrightHolder": "aicourse.top course team",
+  "license": "MIT",
+  "evidenceBasis": [
+    "Each asset is a repository-native SVG authored from simple geometry for this course.",
+    "Each SVG declares data-origin=course-original and contains no image, script, foreignObject, external href, logo, screenshot, avatar, or product trade dress.",
+    "Visible origin labeling is supplied by localized runtime UI rather than embedded English SVG text.",
+    "Official Cursor documentation supports the surrounding teaching claims but no official media pixels, layouts, or artwork were reused.",
+    "Every approved file is bound to this record by an exact SHA-256 digest."
+  ],
+  "thirdPartyCapturesRetained": [],
+  "thirdPartyGate": {
+    "policy": "Any future third-party capture remains rights-review-required and blocks release unless an evidence-bearing publication-cleared record is bound to the exact asset digest, reviewer, date, basis, scope, and evidence URL.",
+    "unknownLicenseMayBeTreatedAsCleared": false
+  },
+  "assets": [
+    {"id":"fig-01","path":"fig-01-concept.svg","sha256":"815aee14722838f9242f3204e6adf272920aba2cc7c6d777e91d6d81de2c69a7","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-02","path":"fig-02-concept.svg","sha256":"66b38379a6590b82a19a6fce715712e68b9e894b4b4dfb76480518710094ea49","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-03","path":"fig-03-concept.svg","sha256":"9d496de5c3b0f032fa064609550f5ac19a301b476305341c0d36c67976994ced","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-04","path":"fig-04-concept.svg","sha256":"dbe87b1e3f37fb52dc1eb9a97461605818eafeea16ac0fa790330be019f5538d","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-05","path":"fig-05-concept.svg","sha256":"ce4939de4886747ab4f847626f2a15d98d29866e23568d9cb1c5ab9efdff6082","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-06","path":"fig-06-concept.svg","sha256":"4dbab6190bcf72f15c204a4369b6c6bc2434112739fc597e301e01f8331090d0","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-07","path":"fig-07-concept.svg","sha256":"91f4684a38c747f0775780d9bfadf0ccb2fa11fcd14c75e80cca5b02b6045095","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-08","path":"fig-08-concept.svg","sha256":"103f44b8b47e75c2b6602a9b18d430a02f3fc612f902356b9c96a3cdc4a006c5","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-09","path":"fig-09-concept.svg","sha256":"e9a4e477ab734e7632a7ae76c3a90afac0c70d26cc13833856fb032241f8e894","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-10","path":"fig-10-concept.svg","sha256":"9b7a4af8185db4160cf9cb3a3d8ef702f3f8a2034fd23e86e5e6682e65a8213a","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-11","path":"fig-11-concept.svg","sha256":"53ddad73203ef5a542479e74d9bccb6c5dfc1e8a24db686720bf9c11b3d6e799","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-12","path":"fig-12-concept.svg","sha256":"f26bda549dee229abc340bec085bb89af187a7d6a547d97432ee8953f890f309","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-13","path":"fig-13-concept.svg","sha256":"f8e547aeacdd70a76ef7c338e02e6b7e17c91a4db13f4e50cbd032e31c961ea0","rightsStatus":"original-authorship-reviewed"},
+    {"id":"fig-14","path":"fig-14-concept.svg","sha256":"70566efad58d7aa7ed8b6398e3e42393af1d12410b7165dc40b465ebb04f9f38","rightsStatus":"original-authorship-reviewed"}
+  ]
+}

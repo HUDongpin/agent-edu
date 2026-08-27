@@ -1,0 +1,129 @@
+{
+  "schema_version": "aicourse.fixture-provenance.v1",
+  "fixture_version": "ai-python-data-fixture.v1",
+  "notice_version": "ai-python-data-notice.v2",
+  "created_on": "2026-08-26",
+  "created_by": "aicourse.top course authors",
+  "generation": {
+    "method": "Deterministic hand-authored fictional records created from an original teaching specification; no external data, fitted distribution, scraped values, model output, or real identifiers were used.",
+    "generator_version": "ai-python-data-manual-fixture-spec.v1",
+    "random_seed": "not-applicable-no-random-generator",
+    "network_required": false
+  },
+  "rights": {
+    "authorship_assertion": "The project authors created every byte of the fixture data, metadata, and offline lab payload except the names of open formats, Python/Jupyter, and the linked CC0 legal instrument.",
+    "third_party_inputs": [],
+    "data_dedication": "CC0-1.0",
+    "data_dedication_url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+    "course_code_and_copy": "Not covered by this data dedication; governed by the repository and source-specific terms.",
+    "publication_eligible": true
+  },
+  "resources": [
+    {
+      "path": "education-outcomes-synthetic-v1.csv",
+      "media_type": "text/csv",
+      "sha256": "3ec62e24548576c6f6c69470b3a5ae524cec1d248b47cce0d9b0e3f48c337349",
+      "rows_excluding_header": 18
+    },
+    {
+      "path": "cohort-lookup-synthetic-v1.json",
+      "media_type": "application/json",
+      "sha256": "91768ca56526db1c05e8a5e33f59bf1559c90a5f044c34df900698567cf0be17",
+      "records": 3
+    },
+    {
+      "path": "education-outcomes-schema-v1.json",
+      "media_type": "application/json",
+      "sha256": "45726eeb0524cba1555ee697bd1fdeaf9879634a7b2b608ac0fbf257adb51b08",
+      "fields": 9
+    },
+    {
+      "path": "lab/README.md",
+      "media_type": "text/markdown",
+      "sha256": "8679841f37eff4b12edb95c4b93b545c090014d181228964e7085e505030aa5c",
+      "role": "offline run, negative-test, and boundary instructions"
+    },
+    {
+      "path": "lab/README.zh-Hans.md",
+      "media_type": "text/markdown; charset=utf-8",
+      "sha256": "9d413672261c1322254e11bd358f6b937a5e14ce7bb21db5f2e376a1d188ca18",
+      "role": "Simplified Chinese offline run, negative-test, and boundary instructions; human language review remains pending"
+    },
+    {
+      "path": "lab/audit.ipynb",
+      "media_type": "application/x-ipynb+json",
+      "sha256": "f404503873b1f98d5f01b982fc1c3cd45b44340e8725f824023794865485a13e",
+      "role": "ordered notebook handoff over the canonical runner"
+    },
+    {
+      "path": "lab/capstone.schema.json",
+      "media_type": "application/schema+json",
+      "sha256": "cb9d4f73d7e9b23190b47543fd5cc006141ec640fc0d078cc0444aa329af38b1",
+      "role": "course, version, validator, and artifact-ID contract"
+    },
+    {
+      "path": "lab/environment.lock.json",
+      "media_type": "application/json",
+      "sha256": "412fa44ea0233cef2b66296fdc0d3207d2ef925a3e4e25c95c7922c67957e88d",
+      "role": "stdlib runtime, notebook format, and deterministic seed lock"
+    },
+    {
+      "path": "lab/requirements.lock",
+      "media_type": "text/plain",
+      "sha256": "89e5394701e622c1fe0bc06649f915578d2ac47da25f6a10c4d58dea4ac40373",
+      "role": "zero-third-party-runtime dependency declaration"
+    },
+    {
+      "path": "lab/run_audit.py",
+      "media_type": "text/x-python",
+      "sha256": "61fa7f159f63f99156b406bb1fd291eab20195729bf772534c90cc704e62097b",
+      "role": "offline deterministic audit runner"
+    },
+    {
+      "path": "lab/run_notebook.py",
+      "media_type": "text/x-python",
+      "sha256": "1c8589007b8d184d0c19d7a345667ccf33e2cfcb4d5005c0efb7f24fdf310fde",
+      "role": "dependency-free fresh-namespace notebook cell runner"
+    },
+    {
+      "path": "lab/submission.template.json",
+      "media_type": "application/json",
+      "sha256": "329e56d1ca80d7c75c86eb41777485d63c66f73ed24ad83f793655063f416000",
+      "role": "schema-specific eight-artifact starter template"
+    },
+    {
+      "path": "lab/validate.py",
+      "media_type": "text/x-python",
+      "sha256": "7f05520a7bdd3ec4f30edea5edaab23cb0dc1a0062904903e7c7ee3065e534a3",
+      "role": "fail-closed course and artifact validator"
+    }
+  ],
+  "lab_pack": {
+    "version": "ai-python-data-lab.v1",
+    "validator_id": "aicourse.ai-python-data.validator.v1",
+    "authorship": "Original course code, schemas, notebook wrapper, templates, and documentation; no external course artifacts copied.",
+    "runtime": "CPython standard library only; dependency-free notebook cell runner included and optional Jupyter presentation host not bundled.",
+    "network_required": false,
+    "personal_data": false,
+    "publication_eligible": true
+  },
+  "datasheet": {
+    "purpose": "A small offline fixture for teaching Python execution, arrays, tidy tables, missingness, validation, descriptive statistics, visualization, file formats, and audited joins.",
+    "unit_of_observation": "One fictional learner code in one fictional period; codes do not correspond to people.",
+    "composition": "Eighteen rows across three invented cohorts and two invented periods, plus a three-row cohort lookup.",
+    "missingness": "Two study-minute cells and two checkpoint-score cells are intentionally empty; support_requested includes an explicit unknown category.",
+    "sensitive_attributes": "None. Cohort colors are arbitrary teaching labels and must not be interpreted as demographic, institutional, geographic, or protected groups.",
+    "maintenance": "Immutable. Any byte change requires a new fixture version, new hashes, and a new notice/provenance version."
+  },
+  "known_artificialities": [
+    "The sample is tiny and deliberately balanced enough for manual checking.",
+    "Values were selected to create visible but non-empirical differences for grouping, missingness, and chart exercises.",
+    "There is no underlying population, intervention, causal process, privacy subject, or live data-collection system.",
+    "The rows must never be merged with real records or represented as anonymized observations."
+  ],
+  "non_claims": [
+    "No claim about real learners, institutions, educational programs, outcomes, disparities, or effectiveness.",
+    "No claim of representativeness, causal identification, privacy compliance, legal authorization, security, fairness, or production readiness.",
+    "No claim that structural validation establishes truth, appropriate meaning, or fitness for a consequential decision."
+  ]
+}

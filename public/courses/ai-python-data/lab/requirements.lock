@@ -1,0 +1,3 @@
+# Course 18 canonical runner has no third-party runtime dependencies.
+# Use CPython >=3.11,<3.14 as recorded in environment.lock.json.
+# Jupyter is an optional presentation host; the notebook code itself imports only this pack and the Python standard library.

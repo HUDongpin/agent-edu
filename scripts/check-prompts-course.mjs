@@ -153,9 +153,9 @@ function readJson(relativePath) {
 }
 
 function loadTypeScriptCourseData() {
-  const tsxBin = join(ROOT, "node_modules", ".bin", "tsx");
-  if (!existsSync(tsxBin)) {
-    fail("node_modules/.bin/tsx is required to validate the TypeScript course ledgers.");
+  const tsxPackage = join(ROOT, "node_modules", "tsx", "package.json");
+  if (!existsSync(tsxPackage)) {
+    fail("The pinned tsx package is required to validate the TypeScript course ledgers.");
     return null;
   }
 
@@ -173,7 +173,16 @@ function loadTypeScriptCourseData() {
     'process.stdout.write(JSON.stringify({ manifest: PROMPT_COURSE_MANIFEST, sources: PROMPT_SOURCES, figures: PROMPT_FIGURES, catalogue: { course: TOP_LEVEL_COURSES.find((item) => item.id === "prompts"), completeProgress: promptProgress(completeProgress), staleCapstoneProgress: promptProgress(staleCapstoneProgress) }, capstoneScoreChecks }));',
   ].join(" ");
 
-  const result = spawnSync(tsxBin, ["-e", expression], {
+  // Importing tsx through Node's loader runs entirely in this process tree.
+  // The tsx CLI creates an IPC socket, which is unavailable in the ordinary
+  // sandbox used by the deterministic repository build.
+  const result = spawnSync(process.execPath, [
+    "--import",
+    "tsx",
+    "--input-type=module",
+    "--eval",
+    expression,
+  ], {
     cwd: ROOT,
     encoding: "utf8",
     maxBuffer: 2 * 1024 * 1024,

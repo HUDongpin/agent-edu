@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/deep-learning/lab/capstone.schema.json",
+  "title": "Course 20 auditable neural-training capstone",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "courseId", "courseVersion", "capstoneVersion", "validatorId", "generatedOn", "artifacts"],
+  "properties": {
+    "schemaVersion": { "const": "aicourse.capstone-submission.v1" },
+    "courseId": { "const": "deep-learning" },
+    "courseVersion": { "const": "2026.08.26-v1" },
+    "capstoneVersion": { "const": "2026.08.26-capstone-v1" },
+    "validatorId": { "const": "aicourse.deep-learning.validator.v1" },
+    "generatedOn": { "const": "2026-08-26" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artifactId", "content"],
+        "properties": {
+          "artifactId": { "enum": ["environment-lock", "training-log", "cost-energy-record", "error-slices", "ablation", "training-card", "limitations", "reproducibility-receipt"] },
+          "content": { "type": "object", "minProperties": 4 }
+        }
+      }
+    }
+  },
+  "x-schemaId": "aicourse.deep-learning.capstone.v1",
+  "x-validatorId": "aicourse.deep-learning.validator.v1",
+  "x-artifactIds": ["environment-lock", "training-log", "cost-energy-record", "error-slices", "ablation", "training-card", "limitations", "reproducibility-receipt"],
+  "x-requiredComparisons": ["orientation-rule-baseline", "tiny-neural-network", "no-bias-ablation"],
+  "x-requiredSlices": ["clean", "contrast-drop", "occlusion"],
+  "x-decisionBoundary": "no-deploy"
+}

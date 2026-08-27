@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Artifact build and publication gate</title>
+  <desc id="desc">An original course diagram separates iterative building and testing from the decision to publish an Artifact.</desc>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#315f6e"/></marker></defs>
+  <rect width="1200" height="720" rx="36" fill="#f4efe7"/><rect x="44" y="38" width="1112" height="54" rx="27" fill="#1e3440"/><text x="600" y="72" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-size="20" font-weight="700" letter-spacing="2">ORIGINAL COURSE DIAGRAM · NOT PRODUCT UI</text>
+  <g font-family="system-ui,sans-serif" text-anchor="middle">
+    <rect x="70" y="250" width="210" height="160" rx="24" fill="#dce5f5" stroke="#4f6fa7" stroke-width="3"/><text x="175" y="306" fill="#294166" font-size="23" font-weight="760">BRIEF</text><text x="175" y="343" fill="#40577b" font-size="16">audience and test</text>
+    <rect x="330" y="250" width="210" height="160" rx="24" fill="#eadff0" stroke="#76528a" stroke-width="3"/><text x="435" y="306" fill="#4e3260" font-size="23" font-weight="760">BUILD</text><text x="435" y="343" fill="#624675" font-size="16">smallest version</text>
+    <rect x="590" y="250" width="210" height="160" rx="24" fill="#f8dfc3" stroke="#bd6f36" stroke-width="3"/><text x="695" y="296" fill="#633618" font-size="23" font-weight="760">PREVIEW</text><text x="695" y="331" fill="#72482d" font-size="16">inspect behaviour</text><text x="695" y="360" fill="#72482d" font-size="16">inspect code</text>
+    <polygon points="936,226 1040,330 936,434 832,330" fill="#fff" stroke="#1e3440" stroke-width="4"/><text x="936" y="315" fill="#1e3440" font-size="22" font-weight="760">TEST</text><text x="936" y="346" fill="#526872" font-size="16">criteria pass?</text>
+  </g>
+  <path d="M280 330 H316M540 330 H576M800 330 H818" stroke="#315f6e" stroke-width="5" marker-end="url(#arrow)"/>
+  <path d="M936 434 V510 H435 V424" fill="none" stroke="#a74c46" stroke-width="5" marker-end="url(#arrow)"/><text x="688" y="498" text-anchor="middle" fill="#7c413c" font-family="system-ui,sans-serif" font-size="16" font-weight="700">NO · REVISE ONE FAILURE</text>
+  <path d="M1040 330 H1115 V548" fill="none" stroke="#2d7768" stroke-width="5" marker-end="url(#arrow)"/><text x="1080" y="375" text-anchor="middle" fill="#31584f" font-family="system-ui,sans-serif" font-size="16" font-weight="700">YES</text>
+  <rect x="902" y="562" width="246" height="94" rx="24" fill="#d8ebe5" stroke="#2d7768" stroke-width="3"/><text x="1025" y="602" text-anchor="middle" fill="#173d37" font-family="system-ui,sans-serif" font-size="22" font-weight="760">PUBLISH GATE</text><text x="1025" y="632" text-anchor="middle" fill="#31584f" font-family="system-ui,sans-serif" font-size="15">audience · exposure</text>
+</svg>

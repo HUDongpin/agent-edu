@@ -117,10 +117,10 @@ export const CURSOR_LESSONS = [
 
 export const CURSOR_COURSE_MANIFEST = {
   id: CURSOR_COURSE_ID,
-  version: "1.0.0",
-  preparedOn: "2026-08-23",
-  publicationStatus: "rights-gated",
-  publishedOn: null,
+  version: "1.1.0",
+  preparedOn: "2026-08-26",
+  publicationStatus: "published",
+  publishedOn: "2026-08-26",
   sourceSnapshotOn: "2026-08-23",
   units: CURSOR_UNITS,
   lessons: CURSOR_LESSONS,

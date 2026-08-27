@@ -1,8 +1,8 @@
 # Research brief: Course 3 — How to Use Claude
 
-Status: product slice implemented; public release blocked by unresolved rights for 12 Claude Academy images and unreproducible source-to-local provenance for Figure 01  
-Research snapshot: 2026-08-24 (Asia/Taipei)  
-Course version: 1.0.0  
+Status: product slice implemented; Academy media debt resolved by course-original replacements, with three repository-licensed screenshots retained
+Research snapshot: 2026-08-24 (Asia/Taipei)
+Course version: 1.1.0
 Primary audience: first-time through intermediate Claude users who need transferable, evidence-based work practices
 
 ## Executive decision
@@ -19,7 +19,7 @@ Build a 15-lesson, 14.5-hour course around a single durable progression:
 8. transfer the method into software engineering, research and data, writing and office work, and teaching;
 9. complete a six-artifact portfolio using all four AI Fluency dimensions.
 
-This is not a catalogue of buttons and it does not promise that a particular plan, model label, or interface position will remain current. The course treats UI figures as dated evidence, current Help Centre pages as the operational source of truth, and Claude Academy as the principal instructional spine.
+This is not a catalogue of buttons and it does not promise that a particular plan, model label, or interface position will remain current. Course-original figures teach durable boundaries without simulating product UI; three licensed screenshots remain dated evidence. Current Help Centre pages are the operational source of truth, and Claude Academy remains the principal instructional spine by paraphrase.
 
 ## Evidence hierarchy
 
@@ -89,7 +89,7 @@ The course makes plan-sensitive pathways optional. Chat supplies the baseline ro
 |  | Teaching and learning | 60 | Ground an activity, preserve learner thinking, and keep assessment decisions human |
 |  | Portfolio capstone | 120 | Submit a six-artifact, four-dimension, self-audited work portfolio |
 
-Total guided duration is 870 minutes. Every lesson contains three teaching sections, one real-interface figure, one three-step practice, two requested evidence items, one safety boundary, one Discernment checkpoint, and two source-traceable quiz questions.
+Total guided duration is 870 minutes. Every lesson contains three teaching sections, one rights-labelled instructional figure, one three-step practice, two requested evidence items, one safety boundary, one Discernment checkpoint, and two source-traceable quiz questions.
 
 ## GitHub workflow transfer
 
@@ -144,24 +144,19 @@ The learner completes a conservative 100-point self-audit. The completion contro
 
 ## Interface figures and accessibility
 
-The implemented figure ledger contains 15 local PNG masters and 30 responsive WebP derivatives. Every served image has a pinned SHA-256 digest. Each master additionally records intrinsic dimensions, observation date, source URL, privacy checklist, teaching intent, localized alt text and caption, and visible source attribution.
+The implemented figure ledger contains twelve local course-original SVG diagrams and three retained repository-licensed PNG screenshots with six responsive WebP derivatives. Every served asset has a pinned SHA-256 digest. Original records include creation date, method, dimensions, CC0 dedication, privacy checklist, localized alt text and caption, and a visible not-product-UI label. Screenshot records retain observation date, pinned repository source, licence, transformation record, privacy checklist, attribution, and trademark caveat.
 
-The images are evidence, not navigation instructions. Captions date the observed UI; lesson prose provides a text-equivalent workflow; and learners are told that visible buttons, model labels, plan labels, and beta states can change.
+Figures are explanation, not navigation instructions. Original-diagram captions identify them as abstractions rather than Claude screenshots; licensed-screenshot captions date the observed UI. Lesson prose provides a text-equivalent workflow, and learners are told that visible buttons, model labels, plan labels, and beta states can change.
 
-### Release blocker
+### Rights resolution
 
-Twelve images are excerpts of Claude Academy-hosted interface images. No general redistribution licence was found on the relevant Academy pages. Their ledger state is `permission-required`. Three repository-hosted images have pinned, recorded licences: Figures 06 and 12 under MIT, and Figure 11 under Apache 2.0. Their UI and trademark caveat remains disclosed.
+The former Academy-hosted excerpts for Figures 01–05, 07–10, and 13–15 were retired because no general redistribution licence or reviewed written permission was found. They were replaced with deterministic, hand-authored abstract SVG diagrams containing no copied Academy pixels, third-party logos, remote assets, or embedded scripts. The diagrams are visibly marked as course-original and not product UI and are dedicated under CC0-1.0. Three repository-hosted screenshots retain pinned licences: Figures 06 and 12 under MIT, and Figure 11 under Apache 2.0. Their UI and trademark caveat remains disclosed.
 
-Authenticity and republication rights are separate gates. A live match to an official Academy page can support authenticity without granting permission to republish the image. Conversely, permission cannot cure an unverified source chain. On 2026-08-24, eleven of the twelve Academy figures matched assets still served by their cited pages. Figure 01 did not match any current page asset, and the current ledger lacks an immutable source asset, source hash, and reproducible transformation record for the local montage. Figure 01 therefore carries the independent `CLAUDE-FIG-01-PROVENANCE-UNVERIFIED` blocker and must remain unpublished even if a general image permission is later obtained; it requires exact-source evidence or an approved replacement.
+Authenticity and republication rights remain separate gates for any future first-party screenshot. The validator still requires independent source provenance plus pending or reviewed written permission; course-original status cannot be applied to a screenshot. The former Figure 01 authenticity blocker was resolved only by retiring the unverifiable binary and assigning a new hash and authorship record to an independently created diagram—not by relabelling the old asset.
 
 Figure 11 replaced the former Academy-derived Desktop Code image on 2026-08-23. Its new source is `claude-md-improver-example.png` from Anthropic's official `anthropics/claude-plugins-official` repository at commit `340e33aef211d95769d252324854497af871dafe`. The local PNG differs only by metadata removal; the two responsive WebP derivatives are additionally resized and compressed. The authentic Claude Code terminal view visibly supports the lesson's repository-instruction audit objective without being mislabeled as the Desktop graphical interface.
 
-The development build can display the current figures for internal review. The release checker must fail in `--release` mode until a defensible publication basis is documented. Preferred resolution:
-
-1. obtain written permission from Anthropic for the identified Academy image excerpts, while separately resolving Figure 01’s exact provenance; or
-2. replace them with current, self-captured, synthetic-account screenshots and complete authenticity, privacy, terms, trademark, and publication-rights review.
-
-No public deployment should be described as release-ready while this gate remains open.
+The offline release checker now validates SVG structure and safety, the visible original-diagram marker, exact hashes, public provenance coverage, retained screenshot licences, source currentness, and the unchanged fail-closed first-party screenshot gate. A passing course checker is evidence for this course slice only; it does not by itself claim a full-site build or deployment.
 
 ## Internationalisation and inclusion
 
@@ -176,7 +171,7 @@ The product slice is acceptable for shared integration only when all of the foll
 - manifest contract: 4 units, 15 lessons, 870 minutes, 15 practices, 15 figures, 30 questions;
 - locale contract: all 9 files are valid JSON with exact structural, placeholder, protected technical-token, and targeted product-identity parity;
 - evidence contract: every lesson, quiz, and figure resolves to a known source ID or provenance URL;
-- figure contract: local-only paths, valid PNG/WebP signatures, declared dimensions, checksums for every served asset, and privacy records;
+- figure contract: local-only paths, safe deterministic SVGs or valid PNG/WebP signatures, declared dimensions, checksums for every served asset, provenance coverage, and privacy records;
 - assessment contract: balanced final attempts, versioned best-score storage, all-six-artifact gate, weighted 80/100 self-score gate, critical-risk attestation, and no credential inflation;
 - route contract: dashboard plus 15 lesson routes for every locale under static export;
 - browser contract: keyboard, mobile, RTL, progress persistence, quiz, print/export, and no remote image dependencies;
@@ -185,7 +180,7 @@ The product slice is acceptable for shared integration only when all of the foll
 
 ## Open decisions
 
-1. Resolve the 12 remaining Academy image permissions or replace the images before deployment; independently recover Figure 01’s immutable source chain or replace it.
-2. Re-run the live Academy catalogue audit after 2026-09-20 or before any later release, whichever comes first.
-3. Recheck plan and surface availability immediately before publication.
+1. Re-run the live Academy catalogue audit after 2026-09-20 or before any later release, whichever comes first.
+2. Recheck plan and surface availability immediately before publication.
+3. Re-audit retained licensed screenshots after material UI or repository-licence change.
 4. Complete the additive shared integration only after Course 4 and Course 5 provide their stable metadata and route contracts.

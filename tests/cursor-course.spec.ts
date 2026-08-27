@@ -53,13 +53,51 @@ const passingCapstoneAssessment = createCursorCapstoneProgressAssessment(
   { scope: true, safety: true, implementation: false, verification: true, handoff: true },
 );
 
-test("publication state remains fail-closed while real Cursor figures await rights review", () => {
-  expect(CURSOR_COURSE_MANIFEST.publicationStatus).toBe("rights-gated");
-  expect(CURSOR_COURSE_MANIFEST.publishedOn).toBeNull();
+test("publication state is backed by reviewed course-original figure rights", () => {
+  expect(CURSOR_COURSE_MANIFEST.publicationStatus).toBe("published");
+  expect(CURSOR_COURSE_MANIFEST.publishedOn).toBe("2026-08-26");
   expect(CURSOR_FIGURES).toHaveLength(14);
   expect(CURSOR_FIGURES.every((figure) => (
-    figure.status === "available" && figure.rightsStatus === "rights-review-required"
+    figure.status === "available"
+      && figure.kind === "course-original-diagram"
+      && figure.rightsStatus === "original-authorship-reviewed"
+      && figure.license === "MIT"
   ))).toBe(true);
+});
+
+test("course-original SVG bytes match the rights and provenance ledgers", () => {
+  const rights = JSON.parse(readFileSync(
+    new URL("../public/courses/cursor/figure-rights.json", import.meta.url),
+    "utf8",
+  )) as { assets: Array<{ id: string; path: string; sha256: string; rightsStatus: string }> };
+  const provenance = JSON.parse(readFileSync(
+    new URL("../public/courses/cursor/figure-provenance.json", import.meta.url),
+    "utf8",
+  )) as { assets: Array<{ id: string; path: string; sha256: string }> };
+
+  expect(rights.assets).toHaveLength(14);
+  expect(provenance.assets).toHaveLength(14);
+  for (const figure of CURSOR_FIGURES) {
+    const fileName = `${figure.id}-concept.svg`;
+    const bytes = readFileSync(new URL(`../public/courses/cursor/${fileName}`, import.meta.url));
+    const svg = bytes.toString("utf8");
+    const sha256 = createHash("sha256").update(bytes).digest("hex");
+    expect(sha256).toBe(figure.sha256);
+    expect(rights.assets.find((item) => item.id === figure.id)).toEqual({
+      id: figure.id,
+      path: fileName,
+      sha256,
+      rightsStatus: "original-authorship-reviewed",
+    });
+    expect(provenance.assets.find((item) => item.id === figure.id)).toMatchObject({
+      id: figure.id,
+      path: fileName,
+      sha256,
+    });
+    expect(svg).toContain('data-origin="course-original"');
+    expect(svg).not.toContain("COURSE ORIGINAL · ABSTRACT");
+    expect(svg).not.toMatch(/<(?:image|script|foreignObject)\b|\b(?:xlink:)?href\s*=|\burl\s*\(/i);
+  }
 });
 
 test("pure progress adapter requires all sixteen strict milestones", () => {
@@ -188,17 +226,18 @@ test.describe("Cursor Course 4", () => {
   });
 
   for (const slug of CURSOR_LESSON_SLUGS) {
-    test(`English lesson ${slug} renders authentic local media and evidence`, async ({ page }) => {
+    test(`English lesson ${slug} renders course-original local media and evidence`, async ({ page }) => {
       const response = await page.goto(`/en/cursor/${slug}/`);
       expect(response?.status()).toBe(200);
       await expect(page.locator("article > header h1")).toBeVisible();
       const figure = page.locator('[data-testid^="cursor-figure-"]');
       await expect(figure).toHaveCount(1);
       await expect(figure).toHaveAttribute("data-figure-status", "available");
-      await expect(figure).toHaveAttribute("data-capture-sha256", /^[a-f0-9]{64}$/);
+      await expect(figure).toHaveAttribute("data-figure-kind", "course-original-diagram");
+      await expect(figure).toHaveAttribute("data-asset-sha256", /^[a-f0-9]{64}$/);
       const image = figure.locator("img");
       await expect(image).toBeVisible();
-      await expect(image).toHaveAttribute("src", /^\/courses\/cursor\/fig-\d{2}-master\.png$/);
+      await expect(image).toHaveAttribute("src", /^\/courses\/cursor\/fig-\d{2}-concept\.svg$/);
       const imageAlt = await image.getAttribute("alt");
       expect(imageAlt).toBeTruthy();
       await expect(figure.locator("a").first()).toHaveAttribute(
@@ -210,11 +249,11 @@ test.describe("Cursor Course 4", () => {
         declaredWidth: Number(node.getAttribute("width")),
         naturalWidth: node.naturalWidth,
       }));
-      expect(imageEvidence.currentPath).toMatch(/^\/courses\/cursor\/fig-\d{2}-(?:960|1600)\.webp$|^\/courses\/cursor\/fig-\d{2}-master\.png$/);
-      expect(imageEvidence.declaredWidth).toBeGreaterThan(900);
-      expect(imageEvidence.naturalWidth).toBeGreaterThan(0);
-      await expect(figure.locator("figcaption")).toContainText("Anysphere");
-      await expect(figure.locator('figcaption a[href^="https://cursor.com/"]')).toHaveCount(1);
+      expect(imageEvidence.currentPath).toMatch(/^\/courses\/cursor\/fig-\d{2}-concept\.svg$/);
+      expect(imageEvidence.declaredWidth).toBe(1600);
+      expect(imageEvidence.naturalWidth).toBe(1600);
+      await expect(figure.locator("figcaption")).toContainText("Course-original SVG");
+      await expect(figure.locator('figcaption a[href="/courses/cursor/figure-provenance.json"]')).toHaveCount(1);
       await expect(page.locator('section[aria-labelledby="cursor-sources-title"] li').first()).toBeVisible();
       await expect(page.getByText("Practice", { exact: true })).toBeVisible();
       await expect(page.getByTestId("cursor-lesson-quiz").locator("fieldset")).toHaveCount(2);
@@ -613,7 +652,7 @@ test.describe("Cursor Course 4", () => {
     const page = await context.newPage();
     await page.goto("/en/cursor/plan-execute-steer/");
     await expect(page.getByTestId("cursor-figure-fig-05").locator("img")).toBeVisible();
-    await expect(page.getByTestId("cursor-figure-fig-05").locator("figcaption")).toContainText("historical");
+    await expect(page.getByTestId("cursor-figure-fig-05").locator("figcaption")).toContainText("Course-original");
     await context.close();
   });
 

@@ -3,18 +3,18 @@ import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
-const BUILD_TRUTH_KEYS = ["track.3.desc", "c.build.blurb", "build.lede", "build.beforeTime"];
+const BUILD_TRUTH_KEYS = ["track.3.desc", "build.lede", "build.beforeTime"];
 
 const VARIABLE_COST_TRUTH: Record<string, { lab: string; build: string }> = {
-  en: { lab: "Provider charges vary", build: "offline or usage-based Provider calls" },
-  es: { lab: "los cargos del proveedor varían", build: "sin conexión o llamadas al proveedor según el uso" },
-  fr: { lab: "les frais du fournisseur varient", build: "hors ligne ou appels facturés à l'usage" },
-  de: { lab: "variable Provider-Kosten", build: "offline oder nutzungsabhängige Provider-Aufrufe" },
-  "zh-Hans": { lab: "供应商费用随实际用量变化", build: "可离线，或按实际用量调用供应商" },
-  "zh-Hant": { lab: "供應商費用隨實際用量變化", build: "可離線，或按實際用量呼叫供應商" },
-  ja: { lab: "プロバイダー料金は実際の使用量で変動", build: "オフラインまたは従量課金のプロバイダー呼び出し" },
-  ko: { lab: "공급자 요금은 실제 사용량에 따라 달라짐", build: "오프라인 또는 사용량 기반 공급자 호출" },
-  ar: { lab: "تختلف رسوم المزوّد حسب الاستخدام الفعلي", build: "دون اتصال أو استدعاءات للمزوّد محسوبة حسب الاستخدام" },
+  en: { lab: "Provider charges vary", build: "Live totals vary with the selected model, tokens, cache and current Provider prices" },
+  es: { lab: "los cargos del proveedor varían", build: "Los totales en vivo varían según el modelo seleccionado, los tokens, la caché y los precios actuales del proveedor" },
+  fr: { lab: "les frais du fournisseur varient", build: "Les totaux en direct varient selon le modèle choisi, les jetons, le cache et les tarifs actuels du fournisseur" },
+  de: { lab: "variable Provider-Kosten", build: "Live-Summen variieren je nach ausgewähltem Modell, Token, Cache und aktuellen Anbieterpreisen" },
+  "zh-Hans": { lab: "供应商费用随实际用量变化", build: "实时总费用会随所选模型、token、缓存和服务商当前价格变化" },
+  "zh-Hant": { lab: "供應商費用隨實際用量變化", build: "即時總費用會隨所選模型、token、快取和供應商目前價格而變化" },
+  ja: { lab: "プロバイダー料金は実際の使用量で変動", build: "ライブの合計額は、選択したモデル、トークン、キャッシュ、提供元の現在料金によって変わります" },
+  ko: { lab: "공급자 요금은 실제 사용량에 따라 달라짐", build: "실시간 합계는 선택한 모델, 토큰, 캐시, 현재 제공사 가격에 따라 달라집니다" },
+  ar: { lab: "تختلف رسوم المزوّد حسب الاستخدام الفعلي", build: "تتغير المجاميع الحية حسب النموذج المختار والرموز والذاكرة المخبأة وأسعار المزوّد الحالية" },
 };
 
 const HANDBOOK_COST_TRUTH: Record<string, string> = {
@@ -63,17 +63,17 @@ test("Part 3 names nine guided stages 0–8 and a distinct Stage 9 transfer proj
   assert.match(courseReadme, /## The nine guided stages \(0–8\)/);
 });
 
-test("homepage metadata describes variable Provider cost instead of promising a fixed price", () => {
+test("published Lab and Build cost disclosures stay variable instead of promising a fixed price", () => {
   const fixedPriceUnit = /[¢$€£¥₩]|\b(?:cent|cents)\b|美分|分钱|分錢|セント|سنت/u;
 
   for (const locale of LOCALES) {
     const catalog = JSON.parse(readFileSync(`messages/${locale}.json`, "utf8")) as Record<string, string>;
     const handbook = JSON.parse(readFileSync(`messages/handbook/${locale}.json`, "utf8")) as Record<string, string>;
     const labMeta = catalog["track.2.meta"];
-    const buildMeta = catalog["track.3.meta"];
+    const buildMeta = catalog["build.costBody"];
     const handbookCost = handbook["hb.body.p-compare.82"];
     assert.equal(typeof labMeta, "string", `${locale}:track.2.meta must exist`);
-    assert.equal(typeof buildMeta, "string", `${locale}:track.3.meta must exist`);
+    assert.equal(typeof buildMeta, "string", `${locale}:build.costBody must exist`);
     assert.equal(typeof handbookCost, "string", `${locale}:hb.body.p-compare.82 must exist`);
     assert.match(labMeta, /DeepSeek/u, `${locale}:track.2.meta must identify the browser Lab Provider`);
     assert.match(labMeta, new RegExp(VARIABLE_COST_TRUTH[locale].lab.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));

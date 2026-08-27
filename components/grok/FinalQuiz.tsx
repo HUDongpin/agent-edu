@@ -163,7 +163,7 @@ export default function FinalQuiz({
               <ul>
                 {question.sources.slice(0, 2).map((source) => (
                   <li key={source.id}>
-                    <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a>
+                    <a href={source.url} target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">{source.title}</a>
                   </li>
                 ))}
               </ul>

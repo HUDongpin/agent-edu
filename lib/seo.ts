@@ -16,6 +16,7 @@
  */
 import type { Metadata } from "next";
 import { LOCALE_CODES, DEFAULT_LOCALE } from "@/lib/i18n";
+import { COURSE_KIT_PAGES } from "@/lib/course-kit/registry";
 
 export const SITE = "https://aicourse.top";
 
@@ -283,6 +284,7 @@ export const PAGES = [
   ...AI_TUTOR_MODULE_PAGES,
   ...PRODUCT_MANAGEMENT_MODULE_PAGES,
   ...AGENT_ORCHESTRATION_MODULE_PAGES,
+  ...COURSE_KIT_PAGES,
 ] as const;
 export type Page = (typeof PAGES)[number];
 
@@ -390,7 +392,7 @@ const OPEN_GRAPH_LOCALES: Readonly<Record<string, string>> = {
 /** The platform card is language-neutral; course-specific cards can override it later. */
 const OG_IMAGE = { url: "/images/ai-learning-social.webp", width: 2400, height: 1260 };
 
-export function urlFor(locale: string, page: Page = ""): string {
+export function urlFor(locale: string, page: string = ""): string {
   return `${SITE}/${locale}/${page}`;
 }
 
@@ -403,7 +405,7 @@ export function urlFor(locale: string, page: Page = ""): string {
  */
 export function alternatesFor(
   locale: string,
-  page: Page = "",
+  page: string = "",
   options?: {
     availableLocales?: readonly string[];
     canonicalLocale?: string;
@@ -431,7 +433,7 @@ export function alternatesFor(
  */
 export function seoFor(o: {
   locale: string;
-  page: Page;
+  page: string;
   title: string;
   description: string;
   siteName: string;

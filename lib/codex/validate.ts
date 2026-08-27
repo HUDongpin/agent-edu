@@ -15,6 +15,7 @@ import { CODEX_FINAL_QUIZ, CODEX_FINAL_QUIZ_IDS, CODEX_QUIZ } from "./quiz";
 import { CODEX_SOURCE_BY_ID, CODEX_SOURCES } from "./sources";
 import {
   CODEX_FIGURE_AUDIT_SCHEMA,
+  CODEX_DIAGRAM_RIGHTS_SCHEMA,
   CODEX_FIGURE_IDS,
   CODEX_FIGURE_METADATA_CHECK_IDS,
   CODEX_FIGURE_METADATA_CHECKLIST_VERSION,
@@ -22,6 +23,11 @@ import {
   CODEX_FIGURE_OCR_CHECKLIST_VERSION,
   CODEX_FIGURE_PRIVACY_CHECK_IDS,
   CODEX_FIGURE_PRIVACY_CHECKLIST_VERSION,
+  CODEX_ORIGINAL_DIAGRAM_FIGURE_IDS,
+  CODEX_ORIGINAL_DIAGRAM_LABEL,
+  CODEX_ORIGINAL_DIAGRAM_RENDER_ENVIRONMENT,
+  CODEX_ORIGINAL_DIAGRAM_RENDERER_VERSION,
+  CODEX_PRODUCT_UI_CAPTURE_FIGURE_IDS,
   CODEX_LESSON_SLUGS,
   CODEX_LOCALES,
   CODEX_QUIZ_IDS,
@@ -30,9 +36,11 @@ import {
   type CodexCourseCopy,
   type CodexFigureAvailable,
   type CodexFigureManifest,
+  type CodexOriginalDiagramFigure,
   type CodexLocale,
 } from "./types";
 import figureAuditLedger from "./figure-audits.json";
+import diagramRightsLedger from "./diagram-rights.json";
 
 export interface CodexValidationIssue {
   readonly locale: CodexLocale | "manifest";
@@ -463,6 +471,7 @@ type ManifestIssueAdder = (path: string, message: string) => void;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const AUDIT_ID_PATTERN = /^codex-figure-audit\.fig-(?:0[1-9]|1\d|2[0-4])\.[a-z0-9][a-z0-9._-]*$/;
+const DIAGRAM_RIGHTS_ID_PATTERN = /^codex-diagram-rights\.fig-(?:0[1-9]|1\d|2[0-4])\.[a-z0-9][a-z0-9._-]*$/;
 const PLACEHOLDER_HUMAN_REVIEWER = /(?:^|[-_.\s])(?:tbd|pending|unknown|anonymous|ai|codex|bot|agent)(?:$|[-_.\s])/iu;
 
 function exactManifestKeys(
@@ -595,7 +604,7 @@ export function validateCodexFigureAuditLedger(
 
   if (!exactManifestKeys(ledger, ["schema", "audits"], "figureAudits", add)) {
     for (const figure of figures) {
-      if (figure.status === "available") add(`figures.${figure.id}.auditId`, "Available figure has no usable external audit ledger.");
+      if (figure.kind === "product-ui-capture") add(`figures.${figure.id}.auditId`, "Product UI capture has no usable external audit ledger.");
     }
     return issues;
   }
@@ -605,7 +614,7 @@ export function validateCodexFigureAuditLedger(
   if (!Array.isArray(ledger.audits)) {
     add("figureAudits.audits", "Audit ledger must contain an audits array.");
     for (const figure of figures) {
-      if (figure.status === "available") add(`figures.${figure.id}.auditId`, "Available figure has no usable external audit records.");
+      if (figure.kind === "product-ui-capture") add(`figures.${figure.id}.auditId`, "Product UI capture has no usable external audit records.");
     }
     return issues;
   }
@@ -808,17 +817,20 @@ export function validateCodexFigureAuditLedger(
       const boundFigure = figureById.get(figureId as (typeof CODEX_FIGURE_IDS)[number]);
       if (!boundFigure) {
         add(`${path}.figureId`, "Audit is orphaned from the Course 2 figure manifest.");
-      } else if (boundFigure.status !== "available") {
-        add(`${path}.figureId`, "Approved audits may bind only figures whose manifest status is available.");
+      } else if (boundFigure.kind !== "product-ui-capture") {
+        add(`${path}.figureId`, "Product UI audits may bind only figures classified as product-ui-capture.");
       }
     }
   }
 
   const lessonBySlug = new Map(CODEX_COURSE_MANIFEST.lessons.map((lesson) => [lesson.slug, lesson]));
-  const captureOnlyFields = [
-    "auditId", "officialSupportingSourceId", "src", "srcSet", "assetSha256", "width", "height",
-    "capturedOn", "codexVersion", "os", "sha256", "privacyReviewed", "sourceUrl",
-    "thirdPartySourceUrl", "thirdPartyLicense",
+  const productCaptureOnlyFields = [
+    "auditId", "officialSupportingSourceId", "captureIntent", "capturedOn", "codexVersion", "os",
+    "sha256", "privacyReviewed", "sourceUrl", "thirdPartySourceUrl", "thirdPartyLicense",
+  ];
+  const originalDiagramOnlyFields = [
+    "rightsRecordId", "officialSupportingSourceIds", "instructionalPurpose", "rendererVersion",
+    "provenanceLabel", "privacyClassification", "nonImpersonationClassification",
   ];
   for (const figure of figures) {
     const owningLesson = lessonBySlug.get(figure.lessonSlug);
@@ -830,16 +842,18 @@ export function validateCodexFigureAuditLedger(
         add(`figures.${figure.id}.callouts.${callout.id}`, "Callout coordinates must be percentages between zero and one hundred.");
       }
     }
-    if (figure.status === "capture-required") {
+    if (figure.kind === "course-original-diagram") {
       const fields = Object.keys(figure);
-      const found = captureOnlyFields.find((field) => fields.includes(field));
-      if (found) add(`figures.${figure.id}.${found}`, "Pending figures must not invent capture metadata.");
-      if (!figure.captureIntent.trim()) add(`figures.${figure.id}.captureIntent`, "Pending figures need a concrete capture intent.");
-      if (!figure.privacyChecklist.length) add(`figures.${figure.id}.privacyChecklist`, "Pending figures need a privacy checklist.");
+      for (const field of productCaptureOnlyFields.filter((candidate) => fields.includes(candidate))) {
+        add(`figures.${figure.id}.${field}`, "Course-original diagrams must not carry product capture or screenshot metadata.");
+      }
       continue;
     }
 
     const available = figure as CodexFigureAvailable;
+    for (const field of originalDiagramOnlyFields.filter((candidate) => Object.keys(available).includes(candidate))) {
+      add(`figures.${figure.id}.${field}`, "Product UI captures must not be relabeled with original-diagram provenance.");
+    }
     const localSources = [
       available.src,
       available.srcSet?.webp2240,
@@ -930,6 +944,217 @@ export function validateCodexFigureAuditLedger(
     } else if (available.thirdPartySourceUrl !== undefined || available.thirdPartyLicense !== undefined) {
       add(`figures.${figure.id}.thirdPartySourceUrl`, "Course-authored captures must not carry legacy third-party reuse fields.");
     }
+  }
+
+  const productCaptureIds = figures
+    .filter((figure) => figure.kind === "product-ui-capture")
+    .map((figure) => figure.id)
+    .sort();
+  const expectedProductCaptureIds = [...CODEX_PRODUCT_UI_CAPTURE_FIGURE_IDS].sort();
+  if (productCaptureIds.join("|") !== expectedProductCaptureIds.join("|")) {
+    add("figures.productUiCaptures", `Expected exactly the audited capture set: ${expectedProductCaptureIds.join(", ")}.`);
+  }
+  if (auditIdByFigureId.size !== expectedProductCaptureIds.length) {
+    add("figureAudits.audits", `Expected exactly ${expectedProductCaptureIds.length} product UI audit records.`);
+  }
+
+  return issues;
+}
+
+/**
+ * Validates the independent provenance contract for locally rendered course
+ * diagrams. Diagram records can never stand in for product-UI capture audits,
+ * and capture metadata is forbidden on this branch of the union.
+ */
+export function validateCodexDiagramRightsLedger(
+  figures: readonly CodexFigureManifest[] = CODEX_FIGURES as readonly CodexFigureManifest[],
+  ledger: unknown = diagramRightsLedger,
+): readonly CodexValidationIssue[] {
+  const issues: CodexValidationIssue[] = [];
+  const add: ManifestIssueAdder = (path, message) => issues.push({ locale: "manifest", path, message });
+  const diagramById = new Map(
+    figures
+      .filter((figure): figure is CodexOriginalDiagramFigure => figure.kind === "course-original-diagram")
+      .map((figure) => [figure.id, figure]),
+  );
+  const lessonBySlug = new Map(CODEX_COURSE_MANIFEST.lessons.map((lesson) => [lesson.slug, lesson]));
+  const recordById = new Map<string, Record<string, unknown>>();
+  const recordByFigureId = new Map<string, Record<string, unknown>>();
+
+  if (!exactManifestKeys(
+    ledger,
+    ["schema", "renderer", "notice", "assetContract", "policy", "records"],
+    "diagramRights",
+    add,
+  )) return issues;
+
+  if (ledger.schema !== CODEX_DIAGRAM_RIGHTS_SCHEMA) {
+    add("diagramRights.schema", `Expected ${CODEX_DIAGRAM_RIGHTS_SCHEMA}.`);
+  }
+  if (exactManifestKeys(ledger.renderer, ["path", "version", "sha256", "environment"], "diagramRights.renderer", add)) {
+    if (ledger.renderer.path !== "scripts/render-codex-original-diagrams.mjs") add("diagramRights.renderer.path", "Renderer path must name the committed Course 2 renderer.");
+    if (ledger.renderer.version !== CODEX_ORIGINAL_DIAGRAM_RENDERER_VERSION) add("diagramRights.renderer.version", `Expected ${CODEX_ORIGINAL_DIAGRAM_RENDERER_VERSION}.`);
+    requireSha256(ledger.renderer.sha256, "diagramRights.renderer.sha256", add);
+    if (exactManifestKeys(
+      ledger.renderer.environment,
+      Object.keys(CODEX_ORIGINAL_DIAGRAM_RENDER_ENVIRONMENT),
+      "diagramRights.renderer.environment",
+      add,
+    )) {
+      for (const [key, expected] of Object.entries(CODEX_ORIGINAL_DIAGRAM_RENDER_ENVIRONMENT)) {
+        if (ledger.renderer.environment[key] !== expected) add(`diagramRights.renderer.environment.${key}`, `Expected ${expected}.`);
+      }
+    }
+  }
+  if (exactManifestKeys(ledger.notice, ["path", "sha256"], "diagramRights.notice", add)) {
+    if (ledger.notice.path !== "public/courses/codex/NOTICE.md") add("diagramRights.notice.path", "Notice path must name the public Course 2 notice.");
+    requireSha256(ledger.notice.sha256, "diagramRights.notice.sha256", add);
+  }
+  const expectedAssetContract = {
+    root: "/courses/codex/figures",
+    pngPathTemplate: "fig-XX-master.png",
+    webp2240PathTemplate: "fig-XX-2240.webp",
+    webp1120PathTemplate: "fig-XX-1120.webp",
+    masterWidth: 2240,
+    masterHeight: 1260,
+    responsiveWidth: 1120,
+    responsiveHeight: 630,
+  } as const;
+  if (exactManifestKeys(ledger.assetContract, Object.keys(expectedAssetContract), "diagramRights.assetContract", add)) {
+    for (const [key, expected] of Object.entries(expectedAssetContract)) {
+      if (ledger.assetContract[key] !== expected) add(`diagramRights.assetContract.${key}`, `Expected ${expected}.`);
+    }
+  }
+
+  if (exactManifestKeys(ledger.policy, ["classification", "authorship", "privacy", "nonImpersonation"], "diagramRights.policy", add)) {
+    if (ledger.policy.classification !== "course-original-abstract-diagram") add("diagramRights.policy.classification", "Rights policy must classify these assets as course-original abstract diagrams.");
+    if (exactManifestKeys(
+      ledger.policy.authorship,
+      ["rightsBasis", "rightsHolder", "license", "licensePath", "licenseSha256", "thirdPartyPixels", "thirdPartyAssets"],
+      "diagramRights.policy.authorship",
+      add,
+    )) {
+      if (ledger.policy.authorship.rightsBasis !== "course-original-work") add("diagramRights.policy.authorship.rightsBasis", "Rights basis must be course-original-work.");
+      if (ledger.policy.authorship.rightsHolder !== "HU Dongpin") add("diagramRights.policy.authorship.rightsHolder", "Rights holder must match the repository MIT license.");
+      if (ledger.policy.authorship.license !== "MIT" || ledger.policy.authorship.licensePath !== "LICENSE") add("diagramRights.policy.authorship.license", "Course-original assets must bind to the repository MIT LICENSE.");
+      requireSha256(ledger.policy.authorship.licenseSha256, "diagramRights.policy.authorship.licenseSha256", add);
+      if (ledger.policy.authorship.thirdPartyPixels !== false) add("diagramRights.policy.authorship.thirdPartyPixels", "Original diagrams must explicitly contain no third-party pixels.");
+      if (!Array.isArray(ledger.policy.authorship.thirdPartyAssets) || ledger.policy.authorship.thirdPartyAssets.length !== 0) add("diagramRights.policy.authorship.thirdPartyAssets", "Original diagrams must have an empty third-party asset list.");
+    }
+    if (exactManifestKeys(
+      ledger.policy.privacy,
+      ["dataClass", "containsPersonalData", "containsSecrets", "containsAccountOrRepositoryIdentifiers", "metadataStripped"],
+      "diagramRights.policy.privacy",
+      add,
+    )) {
+      if (ledger.policy.privacy.dataClass !== "synthetic-labels-only") add("diagramRights.policy.privacy.dataClass", "Diagram labels must be synthetic-only.");
+      for (const key of ["containsPersonalData", "containsSecrets", "containsAccountOrRepositoryIdentifiers"] as const) {
+        if (ledger.policy.privacy[key] !== false) add(`diagramRights.policy.privacy.${key}`, "Privacy-negative assertions must be false.");
+      }
+      if (ledger.policy.privacy.metadataStripped !== true) add("diagramRights.policy.privacy.metadataStripped", "Published derivatives must be metadata-stripped.");
+    }
+    if (exactManifestKeys(
+      ledger.policy.nonImpersonation,
+      ["depiction", "productUiCapture", "simulatedProductUi", "vendorLogoIncluded", "tradeDressReproduction", "visibleLabel", "labelEmbeddedInPixels"],
+      "diagramRights.policy.nonImpersonation",
+      add,
+    )) {
+      if (ledger.policy.nonImpersonation.depiction !== "abstract-process-diagram") add("diagramRights.policy.nonImpersonation.depiction", "Depiction must be an abstract process diagram.");
+      for (const key of ["productUiCapture", "simulatedProductUi", "vendorLogoIncluded", "tradeDressReproduction"] as const) {
+        if (ledger.policy.nonImpersonation[key] !== false) add(`diagramRights.policy.nonImpersonation.${key}`, "Non-impersonation assertions must be false.");
+      }
+      if (ledger.policy.nonImpersonation.visibleLabel !== CODEX_ORIGINAL_DIAGRAM_LABEL || ledger.policy.nonImpersonation.labelEmbeddedInPixels !== true) {
+        add("diagramRights.policy.nonImpersonation.visibleLabel", "Every derivative must embed the locked course-original, not-product-UI label.");
+      }
+    }
+  }
+
+  if (!Array.isArray(ledger.records)) {
+    add("diagramRights.records", "Rights ledger must contain a records array.");
+    return issues;
+  }
+  for (const [index, recordValue] of ledger.records.entries()) {
+    const path = `diagramRights.records[${index}]`;
+    if (!exactManifestKeys(
+      recordValue,
+      ["id", "figureId", "status", "binding", "instructionalPurpose", "officialSupportingSourceIds", "assetSha256"],
+      path,
+      add,
+    )) continue;
+    const record = recordValue;
+    if (typeof record.id !== "string" || !DIAGRAM_RIGHTS_ID_PATTERN.test(record.id)) {
+      add(`${path}.id`, "Rights record ID must use codex-diagram-rights.fig-XX.<stable-suffix>.");
+    } else if (recordById.has(record.id)) {
+      add(`${path}.id`, `Duplicate rights record ID: ${record.id}.`);
+    } else {
+      recordById.set(record.id, record);
+    }
+    if (typeof record.figureId !== "string" || !CODEX_ORIGINAL_DIAGRAM_FIGURE_IDS.includes(record.figureId as never)) {
+      add(`${path}.figureId`, "Rights record must bind one of the eighteen locked original-diagram IDs.");
+      continue;
+    }
+    if (recordByFigureId.has(record.figureId)) add(`${path}.figureId`, `Duplicate rights binding for ${record.figureId}.`);
+    else recordByFigureId.set(record.figureId, record);
+    const figure = diagramById.get(record.figureId as CodexOriginalDiagramFigure["id"]);
+    if (!figure) {
+      add(`${path}.figureId`, "Rights record is orphaned or points to a product UI capture.");
+      continue;
+    }
+    if (record.status !== "publishable") add(`${path}.status`, "Original diagram rights status must be publishable.");
+    if (exactManifestKeys(record.binding, ["lessonSlug", "surface"], `${path}.binding`, add)) {
+      if (record.binding.lessonSlug !== figure.lessonSlug || record.binding.surface !== figure.surface) add(`${path}.binding`, "Rights binding must match the figure lesson and subject surface.");
+    }
+    if (record.instructionalPurpose !== figure.instructionalPurpose) add(`${path}.instructionalPurpose`, "Rights record and figure instructional purpose must match exactly.");
+    if (!Array.isArray(record.officialSupportingSourceIds) || record.officialSupportingSourceIds.length === 0) {
+      add(`${path}.officialSupportingSourceIds`, "At least one official source ID is required.");
+    } else {
+      if (record.officialSupportingSourceIds.join("|") !== figure.officialSupportingSourceIds.join("|")) add(`${path}.officialSupportingSourceIds`, "Rights record and figure source bindings must match exactly.");
+      const lesson = lessonBySlug.get(figure.lessonSlug);
+      for (const sourceId of record.officialSupportingSourceIds) {
+        const source = typeof sourceId === "string" ? CODEX_SOURCES.find((candidate) => candidate.id === sourceId) : undefined;
+        if (!source || source.kind !== "official-doc") add(`${path}.officialSupportingSourceIds`, `Unknown or non-official source ID: ${String(sourceId)}.`);
+        if (!lesson?.sourceIds.includes(sourceId as never)) add(`${path}.officialSupportingSourceIds`, `Source ${String(sourceId)} is not cited by the owning lesson.`);
+      }
+    }
+    if (exactManifestKeys(record.assetSha256, ["png2240", "webp2240", "webp1120"], `${path}.assetSha256`, add)) {
+      for (const role of ["png2240", "webp2240", "webp1120"] as const) {
+        requireSha256(record.assetSha256[role], `${path}.assetSha256.${role}`, add);
+        if (record.assetSha256[role] !== figure.assetSha256[role]) add(`${path}.assetSha256.${role}`, "Rights record digest differs from the figure manifest.");
+      }
+    }
+    if (record.id !== figure.rightsRecordId) add(`${path}.id`, "Figure and rights record must form an exact two-way binding.");
+  }
+
+  const expectedDiagramIds = [...CODEX_ORIGINAL_DIAGRAM_FIGURE_IDS].sort();
+  const actualDiagramIds = [...diagramById.keys()].sort();
+  if (actualDiagramIds.join("|") !== expectedDiagramIds.join("|")) {
+    add("figures.originalDiagrams", `Expected exactly the original-diagram set: ${expectedDiagramIds.join(", ")}.`);
+  }
+  if (recordByFigureId.size !== expectedDiagramIds.length) add("diagramRights.records", `Expected exactly ${expectedDiagramIds.length} original-diagram rights records.`);
+
+  const forbiddenCaptureFields = [
+    "auditId", "officialSupportingSourceId", "captureIntent", "capturedOn", "capturedAt", "codexVersion",
+    "productVersion", "os", "sha256", "privacyReviewed", "sourceUrl", "thirdPartySourceUrl", "thirdPartyLicense",
+  ];
+  for (const figure of diagramById.values()) {
+    for (const field of forbiddenCaptureFields.filter((candidate) => Object.hasOwn(figure, candidate))) {
+      add(`figures.${figure.id}.${field}`, "Original diagrams must not carry screenshot capture metadata or a product UI audit binding.");
+    }
+    if (!figure.instructionalPurpose.trim()) add(`figures.${figure.id}.instructionalPurpose`, "Original diagrams require a concrete instructional purpose.");
+    if (!figure.privacyChecklist.length) add(`figures.${figure.id}.privacyChecklist`, "Original diagrams require a privacy and non-impersonation checklist.");
+    if (figure.width !== 2240 || figure.height !== 1260) add(`figures.${figure.id}.dimensions`, "Original diagram masters must be exactly 2240 by 1260 pixels.");
+    const canonical = {
+      src: `/courses/codex/figures/${figure.id}-master.png`,
+      webp2240: `/courses/codex/figures/${figure.id}-2240.webp`,
+      webp1120: `/courses/codex/figures/${figure.id}-1120.webp`,
+    };
+    if (figure.src !== canonical.src || figure.srcSet.webp2240 !== canonical.webp2240 || figure.srcSet.webp1120 !== canonical.webp1120) add(`figures.${figure.id}.srcSet`, "Original diagram paths must use the canonical local derivative names.");
+    if (figure.rendererVersion !== CODEX_ORIGINAL_DIAGRAM_RENDERER_VERSION) add(`figures.${figure.id}.rendererVersion`, "Original diagram renderer version is not the locked release renderer.");
+    if (figure.provenanceLabel !== CODEX_ORIGINAL_DIAGRAM_LABEL) add(`figures.${figure.id}.provenanceLabel`, "Original diagram must carry the locked visible non-UI provenance label.");
+    if (figure.privacyClassification !== "synthetic-labels-only") add(`figures.${figure.id}.privacyClassification`, "Original diagram must declare synthetic-only labels.");
+    if (figure.nonImpersonationClassification !== "abstract-model-not-product-ui") add(`figures.${figure.id}.nonImpersonationClassification`, "Original diagram must declare that it is an abstract model, not product UI.");
+    const record = recordByFigureId.get(figure.id);
+    if (!record || record.id !== figure.rightsRecordId) add(`figures.${figure.id}.rightsRecordId`, "No matching publishable original-diagram rights record exists.");
   }
 
   return issues;
@@ -1125,6 +1350,7 @@ export function validateCodexManifests(): readonly CodexValidationIssue[] {
     add("finalQuiz.bankQuestionIds", "The bank needs at least one unused per-unit alternative so a retry can draw a distinct stratified question set.");
   }
   issues.push(...validateCodexFigureAuditLedger());
+  issues.push(...validateCodexDiagramRightsLedger());
 
   const rubricWeight = CODEX_CAPSTONE_RUBRIC.reduce((sum, item) => sum + item.weight, 0);
   if (rubricWeight !== 100) add("capstone.rubric", "Capstone rubric weights must total 100.");

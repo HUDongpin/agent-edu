@@ -119,6 +119,8 @@ const UI_COPY_KEYS = Object.keys({
   source: true,
   sourceVerifiedOn: true,
   figureObservedOn: true,
+  figureCreatedOn: true,
+  figureProvenance: true,
   stars: true,
   license: true,
   storageUnavailable: true,
@@ -486,6 +488,11 @@ export function validateClaudeFigureAuthenticity(
 
   const record = figure as unknown as Record<string, unknown>;
   const review = record.authenticityReview;
+  if (figure.provenance === "course-original") {
+    return review === undefined
+      ? []
+      : ["Course-original diagrams bind authenticity to their local provenance record and must not add a screenshot authenticityReview."];
+  }
   if (figure.provenance === "licensed-community") {
     return review === undefined
       ? []
@@ -539,7 +546,7 @@ export function isClaudeFigureAuthenticityReleaseReady(
   figure: ClaudeFigureManifest,
 ): boolean {
   if (figure.status !== "available") return false;
-  if (figure.provenance === "licensed-community") return true;
+  if (figure.provenance === "course-original" || figure.provenance === "licensed-community") return true;
   return figure.authenticityReview.status === "source-provenance-reviewed";
 }
 
@@ -548,6 +555,7 @@ export function validateClaudeFigureAuthenticityCurrentness(
   today: string,
 ): readonly string[] {
   if (figure.status !== "available"
+    || figure.provenance === "course-original"
     || figure.provenance === "licensed-community"
     || figure.authenticityReview.status !== "source-provenance-reviewed") {
     return [];
@@ -573,6 +581,21 @@ export function validateClaudeFigureRights(
   const record = figure as unknown as Record<string, unknown>;
   const rightsStatus = record.rightsStatus;
   const clearance = record.permissionClearance;
+
+  if (figure.provenance === "course-original") {
+    if (rightsStatus !== "course-original"
+      || record.assetKind !== "original-diagram"
+      || record.licence !== "CC0-1.0"
+      || record.provenancePath !== "/courses/claude/figure-provenance.v1.json"
+      || !isExactCalendarDate(record.createdOn)
+      || !isNonEmptyString(record.creationMethod)) {
+      issues.push("Course-original figure requires its diagram kind, creation date and method, CC0 licence, and local provenance ledger.");
+    }
+    if (clearance !== undefined) {
+      issues.push("Course-original figures must not include a written-permission clearance record.");
+    }
+    return issues;
+  }
 
   if (figure.provenance === "licensed-community") {
     if (rightsStatus !== "repository-licence-reviewed"
@@ -795,12 +818,12 @@ export function validateClaudeCopy(
     }
     if (locale === "en") {
       const figureEight = copy.figures["fig-08"];
-      const expectedCaption = "Unverified example—do not use these medical or research claims as evidence. Polished research output is an audit target, not proof. Open each original paper and verify titles, designs, numbers, quotations, and claim fit.";
+      const expectedCaption = "Course-original diagram; not a Claude screenshot. Retrieved text is a locator, not proof: open the original source and verify title, design, numbers, quotations, and claim fit.";
       if (!isRecord(figureEight) || figureEight.caption !== expectedCaption) {
         issues.push({
           locale,
           path: "$.figures.fig-08.caption",
-          message: "Figure 08 must visibly identify its medical and research claims as an unverified audit example.",
+          message: "Figure 08 must visibly identify retrieval output as a locator and require original-source verification.",
         });
       }
     }
@@ -1043,7 +1066,7 @@ export function validateClaudeManifests(): readonly ClaudeValidationIssue[] {
       add(`${path}.quizIds`, "Every lesson must reference exactly two known quiz questions.");
     }
     if (lesson.figureIds.length !== 1 || lesson.figureIds.some((id) => !figureIds.has(id))) {
-      add(`${path}.figureIds`, "Every lesson must reference exactly one known real-interface figure.");
+      add(`${path}.figureIds`, "Every lesson must reference exactly one known instructional figure.");
     }
     if (!practiceIds.has(lesson.practiceId)) {
       add(`${path}.practiceId`, "Lesson references an unknown guided practice.");
@@ -1214,7 +1237,7 @@ export function validateClaudeManifests(): readonly ClaudeValidationIssue[] {
       }
     }
     if (figure.status !== "available") {
-      add(`${path}.status`, "Every lesson requires an available real-interface figure.");
+      add(`${path}.status`, "Every lesson requires an available instructional figure.");
       continue;
     }
 
@@ -1222,21 +1245,23 @@ export function validateClaudeManifests(): readonly ClaudeValidationIssue[] {
     if (!(lesson?.figureIds as readonly string[] | undefined)?.includes(figure.id)) {
       add(`${path}.lessonSlug`, "Figure must map one-to-one to its lesson.");
     }
-    const localPaths = [
-      figure.src,
-      figure.srcSet.webpLarge,
-      figure.srcSet.webpSmall,
-      ...(figure.srcSet.mobile ? [figure.srcSet.mobile] : []),
-    ];
+    const localPaths = figure.assetKind === "original-diagram"
+      ? [figure.src]
+      : [
+          figure.src,
+          figure.srcSet.webpLarge,
+          figure.srcSet.webpSmall,
+          ...(figure.srcSet.mobile ? [figure.srcSet.mobile] : []),
+        ];
     if (localPaths.some((src) => !src.startsWith("/") || src.startsWith("//"))) {
-      add(`${path}.srcSet`, "Figure assets must use root-relative local paths.");
+      add(`${path}.assets`, "Figure assets must use root-relative local paths.");
     }
     if (new Set(localPaths).size !== localPaths.length) {
-      add(`${path}.srcSet`, "Master and responsive figure assets must use distinct paths.");
+      add(`${path}.assets`, "Master and responsive figure assets must use distinct paths.");
     }
     for (const assetPath of localPaths) {
       if (allAssetPaths.has(assetPath)) {
-        add(`${path}.srcSet`, `Figure asset is reused by another record: ${assetPath}.`);
+        add(`${path}.assets`, `Figure asset is reused by another record: ${assetPath}.`);
       }
       allAssetPaths.add(assetPath);
     }
@@ -1244,39 +1269,46 @@ export function validateClaudeManifests(): readonly ClaudeValidationIssue[] {
       || !Number.isInteger(figure.height) || figure.height < 1) {
       add(`${path}.dimensions`, "Figure requires positive intrinsic dimensions.");
     }
-    if (figure.srcSet.largeWidth > figure.width
-      || figure.srcSet.smallWidth >= figure.srcSet.largeWidth
-      || figure.srcSet.smallWidth < 1) {
-      add(`${path}.srcSet`, "Responsive widths must be positive, ordered, and no wider than the master.");
-    }
-    if (!/^[a-f0-9]{64}$/.test(figure.srcSet.largeSha256)
-      || !/^[a-f0-9]{64}$/.test(figure.srcSet.smallSha256)) {
-      add(`${path}.srcSet`, "Every responsive derivative requires a lowercase SHA-256 digest.");
-    }
-    const hasMobile = typeof figure.srcSet.mobile === "string";
-    const hasMobileWidth = Number.isInteger(figure.srcSet.mobileWidth)
-      && (figure.srcSet.mobileWidth ?? 0) > 0;
-    const hasMobileHash = typeof figure.srcSet.mobileSha256 === "string"
-      && /^[a-f0-9]{64}$/.test(figure.srcSet.mobileSha256);
-    if (hasMobile !== hasMobileWidth || hasMobile !== hasMobileHash) {
-      add(`${path}.srcSet.mobile`, "A mobile derivative requires a path, positive width, and lowercase SHA-256 together.");
-    }
-    if (!isValidDate(figure.observedOn)) {
-      add(`${path}.observedOn`, "Figure requires a valid observation date.");
-    }
-    if (!isNonEmptyString(figure.observedUi)
-      || !isNonEmptyString(figure.captureIntent)
-      || !isNonEmptyString(figure.attribution)) {
-      add(`${path}.provenance`, "Figure requires UI observation, teaching intent, and attribution.");
-    }
     if (!/^[a-f0-9]{64}$/.test(figure.sha256)) {
       add(`${path}.sha256`, "Figure requires a lowercase SHA-256 digest.");
     }
     if (figure.privacyReviewed !== true || figure.privacyChecklist.length < 4) {
       add(`${path}.privacyReviewed`, "Figure requires completed privacy review and a recorded checklist.");
     }
-    if (!figure.sourceUrl.startsWith("https://")) {
-      add(`${path}.sourceUrl`, "Figure requires an HTTPS provenance URL.");
+    if (!isNonEmptyString(figure.captureIntent) || !isNonEmptyString(figure.attribution)) {
+      add(`${path}.provenance`, "Figure requires teaching intent and attribution.");
+    }
+    if (figure.assetKind === "original-diagram") {
+      if (!figure.src.endsWith(".svg") || figure.width !== 1200 || figure.height !== 720) {
+        add(`${path}.assetKind`, "Course-original diagrams must use the locked local 1200 by 720 SVG contract.");
+      }
+    } else {
+      if (figure.srcSet.largeWidth > figure.width
+        || figure.srcSet.smallWidth >= figure.srcSet.largeWidth
+        || figure.srcSet.smallWidth < 1) {
+        add(`${path}.srcSet`, "Responsive widths must be positive, ordered, and no wider than the master.");
+      }
+      if (!/^[a-f0-9]{64}$/.test(figure.srcSet.largeSha256)
+        || !/^[a-f0-9]{64}$/.test(figure.srcSet.smallSha256)) {
+        add(`${path}.srcSet`, "Every responsive derivative requires a lowercase SHA-256 digest.");
+      }
+      const hasMobile = typeof figure.srcSet.mobile === "string";
+      const hasMobileWidth = Number.isInteger(figure.srcSet.mobileWidth)
+        && (figure.srcSet.mobileWidth ?? 0) > 0;
+      const hasMobileHash = typeof figure.srcSet.mobileSha256 === "string"
+        && /^[a-f0-9]{64}$/.test(figure.srcSet.mobileSha256);
+      if (hasMobile !== hasMobileWidth || hasMobile !== hasMobileHash) {
+        add(`${path}.srcSet.mobile`, "A mobile derivative requires a path, positive width, and lowercase SHA-256 together.");
+      }
+      if (!isValidDate(figure.observedOn)) {
+        add(`${path}.observedOn`, "Screenshot requires a valid observation date.");
+      }
+      if (!isNonEmptyString(figure.observedUi)) {
+        add(`${path}.observedUi`, "Screenshot requires a recorded UI observation.");
+      }
+      if (!figure.sourceUrl.startsWith("https://")) {
+        add(`${path}.sourceUrl`, "Screenshot requires an HTTPS provenance URL.");
+      }
     }
     for (const message of validateClaudeFigureRights(figure)) {
       add(`${path}.rights`, message);
