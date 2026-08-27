@@ -613,6 +613,11 @@
   "c.ai-tutor.blurb": "Entwickeln Sie einen KI-Tutor als begrenztes Lernsystem: explizite Lernziele, evidenzbasierte Diagnose, adaptive Unterstützung und validierte Beurteilung. Modellieren Sie, was eine lernende Person weiß, messen Sie die Wirkung auf das Lernen und behalten Sie die Lehrkraft in der Verantwortung.",
   "c.ai-tutor.level": "Mittelstufe bis Fortgeschritten",
   "c.ai-tutor.meta": "8 Module, 7 Std. 30 Min., Abschlussprüfung und Nachweismappe",
+  "c.math-animation.title": "Mathematische Animationen mit Codex und Claude erstellen",
+  "c.math-animation.blurb": "Wählen Sie auf Grundlage von Evidenz eine Animations-Engine, führen Sie Codex und Claude mit einer präzisen Szenenspezifikation und veröffentlichen Sie eine reproduzierbare Animation, deren Mathematik geprüft wurde.",
+  "c.math-animation.level": "Anfänger bis Fortgeschrittene",
+  "c.math-animation.meta": "12 Module · 13 Std. 25 Min. · Abschlussprüfung und Praxisprojekt",
+  "cat.course19": "Kurs 19",
   "lab.storageUnavailable": "Der Browser-Speicher ist nicht verfügbar. Alle Schritte funktionieren weiterhin, aber das Labor kann sich nach dieser Sitzung nicht merken, welche Sie abgeschlossen haben.",
   "home.q5": "Wo wird mein Fortschritt gespeichert?",
   "home.a5": "Kursmeilensteine und Ihre Designauswahl bleiben in diesem Browser. Es gibt kein Lernkonto. Die Website zählt anonyme Seitenaufrufe, erhält aber weder Ihren Kursfortschritt noch einen API-Schlüssel, den Sie im Labor verwenden."

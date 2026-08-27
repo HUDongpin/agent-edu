@@ -16,6 +16,7 @@ import { CLAUDE_INCOME_COURSE } from "@/lib/claude-income";
 import { loadAiTutorCourse } from "@/lib/ai-tutor";
 import { loadProductManagementCourse } from "@/lib/product-management";
 import { loadAgentOrchestrationCourse } from "@/lib/agent-orchestration";
+import { loadMathAnimationCourse } from "@/lib/math-animation";
 import { SOFTWARE_ENGINEERING_LESSONS } from "@/lib/software-engineering";
 import JsonLd from "@/components/JsonLd";
 import type { Metadata } from "next";
@@ -52,6 +53,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     aiTutorCourse,
     productManagementCourse,
     agentOrchestrationCourse,
+    mathAnimationCourse,
   ] = await Promise.all([
     loadCodexCopy(locale),
     loadClaudeCourse(locale),
@@ -63,6 +65,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     loadAiTutorCourse(locale),
     loadProductManagementCourse(locale),
     loadAgentOrchestrationCourse(locale),
+    loadMathAnimationCourse(locale),
   ]);
   const mcpCourse = await loadMcpCourse(locale);
 
@@ -200,6 +203,34 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     timeRequired: `PT${module.minutes}M`,
   }));
 
+  const courseNineteenUrl = `${urlFor(mathAnimationCourse.contentLocale)}math-animation/`;
+  const courseNineteenParts = [
+    ...mathAnimationCourse.modules.map((module) => ({
+      "@type": "LearningResource",
+      position: module.order,
+      name: module.copy.title,
+      url: `${courseNineteenUrl}${module.slug}/`,
+      inLanguage: mathAnimationCourse.contentLocale,
+      timeRequired: `PT${module.minutes}M`,
+    })),
+    {
+      "@type": "LearningResource",
+      position: 13,
+      name: mathAnimationCourse.copy.ui.finalAssessment,
+      url: `${courseNineteenUrl}#math-animation-assessment`,
+      inLanguage: mathAnimationCourse.contentLocale,
+      learningResourceType: "assessment",
+    },
+    {
+      "@type": "LearningResource",
+      position: 14,
+      name: mathAnimationCourse.copy.capstone.title,
+      url: `${courseNineteenUrl}#math-animation-capstone`,
+      inLanguage: mathAnimationCourse.contentLocale,
+      learningResourceType: "capstone",
+    },
+  ];
+
   const partsByCourse = {
     agentic: courseOneParts,
     codex: courseTwoParts,
@@ -216,6 +247,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     "ai-tutor": courseThirteenParts,
     "product-management": courseFourteenParts,
     "agent-orchestration": courseFifteenParts,
+    "math-animation": courseNineteenParts,
   } as const;
 
   const list = {
@@ -226,8 +258,16 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
       position: course.displayNumber,
       item: {
         "@type": "Course",
-        name: course.id === "mcp" ? mcpCourse.title : t(`c.${course.id}.title`),
-        description: course.id === "mcp" ? mcpCourse.summary : t(`c.${course.id}.blurb`),
+        name: course.id === "mcp"
+          ? mcpCourse.title
+          : course.id === "math-animation"
+            ? mathAnimationCourse.copy.meta.title
+            : t(`c.${course.id}.title`),
+        description: course.id === "mcp"
+          ? mcpCourse.summary
+          : course.id === "math-animation"
+            ? mathAnimationCourse.copy.meta.summary
+            : t(`c.${course.id}.blurb`),
         url: course.id === "agentic"
           ? `${urlFor(locale)}courses/#agentic-engineering`
           : course.id === "mcp"
@@ -240,6 +280,8 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
             ? `${urlFor(productManagementCourse.contentLocale)}${course.href.replace(/^\//, "")}`
           : course.id === "agent-orchestration"
             ? `${urlFor(agentOrchestrationCourse.contentLocale)}${course.href.replace(/^\//, "")}`
+          : course.id === "math-animation"
+            ? `${urlFor(mathAnimationCourse.contentLocale)}${course.href.replace(/^\//, "")}`
           : course.id === "prompts"
             ? `${urlFor(promptCourse.contentLocale)}${course.href.replace(/^\//, "")}`
           : `${urlFor(locale)}${course.href.replace(/^\//, "")}`,
@@ -259,8 +301,12 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
             ? productManagementCourse.contentLocale
           : course.id === "agent-orchestration"
             ? agentOrchestrationCourse.contentLocale
+          : course.id === "math-animation"
+            ? mathAnimationCourse.contentLocale
           : locale,
-        educationalLevel: t(`c.${course.id}.level`),
+        educationalLevel: course.id === "math-animation"
+          ? mathAnimationCourse.copy.meta.level
+          : t(`c.${course.id}.level`),
         isAccessibleForFree: true,
         ...(partsByCourse[course.id].length ? { hasPart: partsByCourse[course.id] } : {}),
         offers: {

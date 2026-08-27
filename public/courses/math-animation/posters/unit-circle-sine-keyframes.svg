@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  id="math-poster"
+  width="1536"
+  height="1024"
+  viewBox="0 0 1536 1024"
+  role="img"
+  aria-labelledby="poster-title poster-description"
+  data-theta-radians="0.7853981633974483"
+  data-theta-min="0"
+  data-theta-max="6.283185307179586"
+  data-samples="129"
+>
+  <title id="poster-title">One angle drives a unit circle, sine graph, projection, and timeline</title>
+  <desc id="poster-description">At theta equals pi over four, the highlighted unit-circle point and sine-graph point share the value sin theta. The sine graph spans zero through two pi on a uniform linear axis with equal positive and negative amplitudes.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#06111f"/>
+      <stop offset="0.55" stop-color="#0b1830"/>
+      <stop offset="1" stop-color="#111b31"/>
+    </linearGradient>
+    <radialGradient id="circle-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#66e4ff" stop-opacity="0.17"/>
+      <stop offset="1" stop-color="#66e4ff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#8ca1c4" stroke-opacity="0.07" stroke-width="1"/>
+    </pattern>
+    <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8192ac"/>
+    </marker>
+  </defs>
+
+  <rect width="1536" height="1024" fill="url(#background)"/>
+  <rect width="1536" height="1024" fill="url(#grid)"/>
+  <circle cx="260" cy="280" r="430" fill="#21446f" opacity="0.12"/>
+  <circle cx="1320" cy="820" r="390" fill="#713761" opacity="0.10"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif">
+    <text x="80" y="76" fill="#66e4ff" font-size="22" font-weight="700" letter-spacing="4">MATHEMATICAL ANIMATION CONTRACT</text>
+    <text x="80" y="126" fill="#f7fbff" font-size="42" font-weight="700">One parameter. Four synchronized views.</text>
+    <g transform="translate(1282 74)">
+      <rect x="0" y="0" width="174" height="62" rx="31" fill="#162a45" stroke="#66e4ff" stroke-opacity="0.55"/>
+      <text x="87" y="40" fill="#ffffff" font-size="26" font-weight="700" text-anchor="middle">θ = π/4</text>
+    </g>
+  </g>
+
+  <rect x="76" y="166" width="548" height="570" rx="32" fill="#0b1729" fill-opacity="0.82" stroke="#7f91ad" stroke-opacity="0.23"/>
+  <rect x="660" y="166" width="800" height="570" rx="32" fill="#0b1729" fill-opacity="0.82" stroke="#7f91ad" stroke-opacity="0.23"/>
+  <rect x="660" y="762" width="800" height="172" rx="32" fill="#0b1729" fill-opacity="0.82" stroke="#7f91ad" stroke-opacity="0.23"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <text x="112" y="216" fill="#91a2bd" font-size="18" font-weight="700" letter-spacing="2.4">01 · UNIT CIRCLE</text>
+    <text x="696" y="216" fill="#91a2bd" font-size="18" font-weight="700" letter-spacing="2.4">02 · SINE GRAPH</text>
+    <text x="696" y="804" fill="#91a2bd" font-size="18" font-weight="700" letter-spacing="2.4">03 · DETERMINISTIC TIMELINE</text>
+  </g>
+
+  <circle cx="340" cy="420" r="260" fill="url(#circle-glow)"/>
+  <line x1="104" y1="420" x2="576" y2="420" stroke="#73839c" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="340" y1="656" x2="340" y2="184" stroke="#73839c" stroke-width="2" marker-end="url(#arrow)"/>
+  <circle id="unit-circle" cx="340" cy="420" r="210" fill="none" stroke="#66e4ff" stroke-width="5"/>
+  <path d="M 403 420 A 63 63 0 0 0 384.548 375.452" fill="none" stroke="#ffbf69" stroke-width="5" stroke-linecap="round"/>
+  <line id="unit-angle-ray" x1="340" y1="420" x2="488.492" y2="271.508" stroke="#ffbf69" stroke-width="6" stroke-linecap="round"/>
+  <line x1="488.492" y1="271.508" x2="488.492" y2="420" stroke="#ff7ab2" stroke-width="3" stroke-dasharray="10 10" opacity="0.8"/>
+  <line x1="340" y1="271.508" x2="488.492" y2="271.508" stroke="#66e4ff" stroke-width="3" stroke-dasharray="10 10" opacity="0.8"/>
+  <circle id="unit-circle-point" cx="488.492" cy="271.508" r="13" fill="#ffffff" stroke="#ffbf69" stroke-width="7" filter="url(#soft-glow)"/>
+  <circle cx="340" cy="420" r="7" fill="#dce7f5"/>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="19">
+    <text x="360" y="391" fill="#ffbf69">θ</text>
+    <text x="396" y="450" fill="#ff7ab2">cos θ</text>
+    <text x="359" y="261" fill="#66e4ff">sin θ</text>
+    <text x="457" y="247" fill="#ffffff" font-weight="700">(cos θ, sin θ)</text>
+    <text x="555" y="446" fill="#91a2bd">x</text>
+    <text x="354" y="204" fill="#91a2bd">y</text>
+  </g>
+
+  <line id="sine-x-axis" x1="760" y1="420" x2="1400" y2="420" stroke="#73839c" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="760" y1="660" x2="760" y2="184" stroke="#73839c" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="760" y1="210" x2="1400" y2="210" stroke="#71839f" stroke-width="1.5" stroke-dasharray="6 10" opacity="0.35"/>
+  <line x1="760" y1="630" x2="1400" y2="630" stroke="#71839f" stroke-width="1.5" stroke-dasharray="6 10" opacity="0.35"/>
+  <line x1="920" y1="198" x2="920" y2="642" stroke="#71839f" stroke-width="1.5" stroke-dasharray="6 10" opacity="0.23"/>
+  <line x1="1080" y1="198" x2="1080" y2="642" stroke="#71839f" stroke-width="1.5" stroke-dasharray="6 10" opacity="0.23"/>
+  <line x1="1240" y1="198" x2="1240" y2="642" stroke="#71839f" stroke-width="1.5" stroke-dasharray="6 10" opacity="0.23"/>
+  <line x1="1400" y1="198" x2="1400" y2="642" stroke="#71839f" stroke-width="1.5" stroke-dasharray="6 10" opacity="0.23"/>
+
+  <polyline
+    id="sine-curve"
+    fill="none"
+    stroke="#66e4ff"
+    stroke-width="7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    points="
+      760.000,420.000 765.000,409.696 770.000,399.416 775.000,389.187 780.000,379.031 785.000,368.974 790.000,359.040 795.000,349.253
+      800.000,339.636 805.000,330.213 810.000,321.007 815.000,312.038 820.000,303.330 825.000,294.903 830.000,286.777 835.000,278.973
+      840.000,271.508 845.000,264.400 850.000,257.668 855.000,251.326 860.000,245.391 865.000,239.877 870.000,234.797 875.000,230.162
+      880.000,225.985 885.000,222.276 890.000,219.043 895.000,216.293 900.000,214.035 905.000,212.273 910.000,211.011 915.000,210.253
+      920.000,210.000 925.000,210.253 930.000,211.011 935.000,212.273 940.000,214.035 945.000,216.293 950.000,219.043 955.000,222.276
+      960.000,225.985 965.000,230.162 970.000,234.797 975.000,239.877 980.000,245.391 985.000,251.326 990.000,257.668 995.000,264.400
+      1000.000,271.508 1005.000,278.973 1010.000,286.777 1015.000,294.903 1020.000,303.330 1025.000,312.038 1030.000,321.007 1035.000,330.213
+      1040.000,339.636 1045.000,349.253 1050.000,359.040 1055.000,368.974 1060.000,379.031 1065.000,389.187 1070.000,399.416 1075.000,409.696
+      1080.000,420.000 1085.000,430.304 1090.000,440.584 1095.000,450.813 1100.000,460.969 1105.000,471.026 1110.000,480.960 1115.000,490.747
+      1120.000,500.364 1125.000,509.787 1130.000,518.993 1135.000,527.962 1140.000,536.670 1145.000,545.097 1150.000,553.223 1155.000,561.027
+      1160.000,568.492 1165.000,575.600 1170.000,582.332 1175.000,588.674 1180.000,594.609 1185.000,600.123 1190.000,605.203 1195.000,609.838
+      1200.000,614.015 1205.000,617.724 1210.000,620.957 1215.000,623.707 1220.000,625.965 1225.000,627.727 1230.000,628.989 1235.000,629.747
+      1240.000,630.000 1245.000,629.747 1250.000,628.989 1255.000,627.727 1260.000,625.965 1265.000,623.707 1270.000,620.957 1275.000,617.724
+      1280.000,614.015 1285.000,609.838 1290.000,605.203 1295.000,600.123 1300.000,594.609 1305.000,588.674 1310.000,582.332 1315.000,575.600
+      1320.000,568.492 1325.000,561.027 1330.000,553.223 1335.000,545.097 1340.000,536.670 1345.000,527.962 1350.000,518.993 1355.000,509.787
+      1360.000,500.364 1365.000,490.747 1370.000,480.960 1375.000,471.026 1380.000,460.969 1385.000,450.813 1390.000,440.584 1395.000,430.304
+      1400.000,420.000
+    "
+  />
+
+  <line id="sine-value-projection" x1="488.492" y1="271.508" x2="840" y2="271.508" stroke="#ffbf69" stroke-width="3" stroke-dasharray="12 10" opacity="0.9"/>
+  <line id="theta-projection" x1="840" y1="271.508" x2="840" y2="846" stroke="#ff7ab2" stroke-width="3" stroke-dasharray="12 10" opacity="0.62"/>
+  <circle id="sine-graph-point" cx="840" cy="271.508" r="13" fill="#ffffff" stroke="#ffbf69" stroke-width="7" filter="url(#soft-glow)"/>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="19" fill="#a9b8ce">
+    <text x="741" y="202" text-anchor="end">+1</text>
+    <text x="741" y="426" text-anchor="end">0</text>
+    <text x="741" y="636" text-anchor="end">−1</text>
+    <text x="760" y="682" text-anchor="middle">0</text>
+    <text x="920" y="682" text-anchor="middle">π/2</text>
+    <text x="1080" y="682" text-anchor="middle">π</text>
+    <text x="1240" y="682" text-anchor="middle">3π/2</text>
+    <text x="1400" y="682" text-anchor="middle">2π</text>
+    <text x="1382" y="394" text-anchor="end" fill="#eaf2fc" font-weight="700">y = sin θ</text>
+    <text x="856" y="257" fill="#ffffff" font-weight="700">(π/4, √2/2)</text>
+  </g>
+
+  <line id="timeline-axis" x1="760" y1="846" x2="1400" y2="846" stroke="#73839c" stroke-width="4" stroke-linecap="round"/>
+  <line x1="760" y1="832" x2="760" y2="860" stroke="#a7b6cc" stroke-width="4"/>
+  <line x1="920" y1="832" x2="920" y2="860" stroke="#a7b6cc" stroke-width="4"/>
+  <line x1="1080" y1="832" x2="1080" y2="860" stroke="#a7b6cc" stroke-width="4"/>
+  <line x1="1240" y1="832" x2="1240" y2="860" stroke="#a7b6cc" stroke-width="4"/>
+  <line x1="1400" y1="832" x2="1400" y2="860" stroke="#a7b6cc" stroke-width="4"/>
+  <line id="timeline-marker" x1="840" y1="818" x2="840" y2="874" stroke="#ffbf69" stroke-width="8" stroke-linecap="round" filter="url(#soft-glow)"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" fill="#a9b8ce">
+    <text x="760" y="890" text-anchor="middle">0</text>
+    <text x="920" y="890" text-anchor="middle">π/2</text>
+    <text x="1080" y="890" text-anchor="middle">π</text>
+    <text x="1240" y="890" text-anchor="middle">3π/2</text>
+    <text x="1400" y="890" text-anchor="middle">2π</text>
+    <text x="840" y="919" text-anchor="middle" fill="#ffcf88" font-weight="700">θ = π/4</text>
+  </g>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <rect x="80" y="780" width="500" height="124" rx="24" fill="#12233b" stroke="#66e4ff" stroke-opacity="0.30"/>
+    <text x="110" y="821" fill="#66e4ff" font-size="16" font-weight="700" letter-spacing="2">SHARED STATE</text>
+    <text x="110" y="860" fill="#f5f9ff" font-size="23" font-weight="650">θ → (cos θ, sin θ) → graph → frame</text>
+    <text x="110" y="889" fill="#9fb0c8" font-size="17">No hand-drawn drift. Every view is derived.</text>
+  </g>
+
+  <text x="80" y="976" fill="#71839f" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="1.5">COURSE 19 · CODEX + CLAUDE · DETERMINISTIC VECTOR SOURCE</text>
+</svg>

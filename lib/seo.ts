@@ -247,6 +247,21 @@ export const AGENT_ORCHESTRATION_MODULE_PAGES = [
   "agent-orchestration/production-orchestration-capstone/",
 ] as const;
 
+export const MATH_ANIMATION_MODULE_PAGES = [
+  "math-animation/outcome-before-engine/",
+  "math-animation/repository-evidence-lab/",
+  "math-animation/scene-contract-storyboard/",
+  "math-animation/manim-environment-first-scene/",
+  "math-animation/transformations-camera-continuity/",
+  "math-animation/equations-graphs-geometry/",
+  "math-animation/codex-implementation-loop/",
+  "math-animation/claude-direction-review/",
+  "math-animation/motion-canvas-web-track/",
+  "math-animation/voice-slides-remotion/",
+  "math-animation/mathematical-visual-accessibility-qa/",
+  "math-animation/capstone-release-pack/",
+] as const;
+
 export const PAGES = [
   "",
   "courses/",
@@ -269,6 +284,7 @@ export const PAGES = [
   "ai-tutor/",
   "product-management/",
   "agent-orchestration/",
+  "math-animation/",
   ...CODEX_LESSON_PAGES,
   ...CLAUDE_LESSON_PAGES,
   ...CURSOR_LESSON_PAGES,
@@ -283,6 +299,7 @@ export const PAGES = [
   ...AI_TUTOR_MODULE_PAGES,
   ...PRODUCT_MANAGEMENT_MODULE_PAGES,
   ...AGENT_ORCHESTRATION_MODULE_PAGES,
+  ...MATH_ANIMATION_MODULE_PAGES,
 ] as const;
 export type Page = (typeof PAGES)[number];
 
@@ -370,6 +387,14 @@ export function agentOrchestrationModulePage(slug: string): Page {
   const page = `agent-orchestration/${slug}/`;
   if (!(PAGES as readonly string[]).includes(page)) {
     throw new Error(`Unknown Agent Orchestration module route: ${slug}`);
+  }
+  return page as Page;
+}
+
+export function mathAnimationModulePage(slug: string): Page {
+  const page = `math-animation/${slug}/`;
+  if (!(PAGES as readonly string[]).includes(page)) {
+    throw new Error(`Unknown Math Animation module route: ${slug}`);
   }
   return page as Page;
 }

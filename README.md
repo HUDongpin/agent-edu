@@ -16,6 +16,7 @@
 | **[How to Write Prompts](https://aicourse.top/en/prompts/)** | three units, nine lessons, nine original prompt figures, a source-linked assessment, and a prompt evidence-packet capstone | no account, API key, or coding experience |
 | **[Retrieval-Augmented Generation](https://aicourse.top/en/rag/)** | four units, twelve lessons in nine languages, a deterministic retrieval lab, five authentic UI figures, one official Anthropic teaching diagram, a source-linked assessment, and a production evidence-packet capstone | no account, API key, vector database, or coding experience for the teaching lab |
 | **[Agent Orchestration](https://aicourse.top/en/agent-orchestration/)** | four phases, fifteen evidence-bounded modules, six deterministic control-room labs, an assessment, and a fifteen-artifact production capstone | no account or API key; software-system design experience helps with the production exercises |
+| **[Mathematical Animation with Codex and Claude](https://aicourse.top/en/math-animation/)** | four phases, twelve bilingual modules, a repository evidence lab, an interactive unit-circle animation, an 80% assessment, and a six-artifact release capstone | no account or API key to read; Python/Manim or TypeScript/Motion Canvas for the optional production tracks |
 
 Published courses and the open roadmap—including AI tools, research, teaching, evaluation, and responsible AI—are listed in the [catalogue](https://aicourse.top/en/courses/). Teaching the foundations material? There is a **[90-minute lesson plan](TEACHING.md)**.
 
@@ -79,6 +80,49 @@ The evidence synthesis and publication boundaries live in
 [`outputs/agent-orchestration-course-research-brief.md`](outputs/agent-orchestration-course-research-brief.md)
 and
 [`outputs/agent-orchestration-course-research-brief.provenance.md`](outputs/agent-orchestration-course-research-brief.provenance.md).
+
+---
+
+## Course: Mathematical Animation with Codex and Claude
+
+Course 19 turns a mathematical explanation into a scene contract, a pinned
+animation environment, executable mathematical invariants, sampled-frame
+review, accessible motion, and a release pack. Manim Community is the default
+semantic mathematics engine. ManimGL is kept as an incompatible advanced
+reference; Motion Canvas is the TypeScript track; Manim Slides, Manim
+Voiceover, and Remotion are optional delivery layers with explicit dependency,
+rights, and verification boundaries.
+
+The evidence hierarchy is deliberate. Direct X posts are dated discovery
+signals, not proof of mathematical correctness, reproducibility, native model
+integration, or reuse rights. GitHub revisions and official documentation
+control technical claims, while the learner's scene contract, tests, low-quality
+render, sampled frames, media probe, accessibility review, and rights record
+carry the release proof. Codex and Claude can exchange implementer and reviewer
+roles, but both must use the same contract and return independently checkable
+evidence.
+
+The original poster, nine-repository evaluation lock, source and rights notice,
+and downloadable starter kit live in
+[`public/courses/math-animation/`](public/courses/math-animation/). The starter
+contains separate `AGENTS.md` and `CLAUDE.md` project instructions, a Manim
+scene and mathematical invariant, a Motion Canvas comparison scene, an export
+probe, and a scene contract. It vendors none of the linked frameworks or Agent
+Skills.
+
+Useful maintenance commands:
+
+```bash
+npm run math-animation:check         # manifest, copy, evidence, repository scores, rights, assets, kit, and routes
+npm run math-animation:check:release # strict catalogue, locale, SEO, sitemap, and package integration gate
+npm run math-animation:static-check  # audit 117 emitted overview/module documents after next build
+npm run test:math-animation          # Chromium overview, module, keyboard, reduced-motion, storage, and progress checks
+```
+
+The research synthesis and complete claim-level provenance are in
+[`outputs/math-animation-course-research-brief.md`](outputs/math-animation-course-research-brief.md)
+and
+[`outputs/math-animation-course-research-brief.provenance.md`](outputs/math-animation-course-research-brief.provenance.md).
 
 ---
 

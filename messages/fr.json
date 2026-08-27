@@ -613,6 +613,11 @@
   "c.ai-tutor.blurb": "Concevez un tuteur IA comme un système d’apprentissage borné : objectifs explicites, diagnostic fondé sur des preuves, soutien adaptatif et évaluation validée. Modélisez ce que l’apprenant sait, mesurez l’effet sur l’apprentissage et gardez l’enseignant aux commandes.",
   "c.ai-tutor.level": "Intermédiaire à avancé",
   "c.ai-tutor.meta": "8 modules, 7 h 30, évaluation finale et dossier de preuves",
+  "c.math-animation.title": "Comment créer des animations mathématiques avec Codex et Claude",
+  "c.math-animation.blurb": "Choisissez un moteur d’animation sur la base de preuves, guidez Codex et Claude à l’aide d’un contrat de scène précis, puis publiez une animation reproductible dont les mathématiques ont été vérifiées.",
+  "c.math-animation.level": "De débutant à avancé",
+  "c.math-animation.meta": "12 modules · 13 h 25 · évaluation finale et projet de synthèse",
+  "cat.course19": "Cours 19",
   "lab.storageUnavailable": "Le stockage du navigateur n’est pas disponible. Toutes les étapes fonctionnent toujours, mais l’Atelier ne pourra pas se souvenir de celles que vous avez terminées après cette session.",
   "home.q5": "Où ma progression est-elle enregistrée ?",
   "home.a5": "Les étapes franchies et votre choix de thème restent dans ce navigateur. Il n’existe aucun compte apprenant. Le site compte les pages vues de façon anonyme, mais ne reçoit ni votre progression ni la clé API utilisée dans l’Atelier."

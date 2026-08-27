@@ -613,6 +613,11 @@
   "c.ai-tutor.blurb": "Diseña un tutor de IA como un sistema de aprendizaje acotado: objetivos explícitos, diagnóstico basado en evidencia, apoyo adaptativo y evaluación validada. Modela lo que sabe cada estudiante, mide el efecto sobre el aprendizaje y mantén al docente al mando.",
   "c.ai-tutor.level": "Intermedio a avanzado",
   "c.ai-tutor.meta": "8 módulos, 7 h 30 min, evaluación final y expediente de evidencias",
+  "c.math-animation.title": "Cómo crear animaciones matemáticas con Codex y Claude",
+  "c.math-animation.blurb": "Elige un motor de animación basándote en evidencia, guía a Codex y Claude con un contrato de escena preciso y publica una animación reproducible cuya corrección matemática haya sido verificada.",
+  "c.math-animation.level": "De principiante a avanzado",
+  "c.math-animation.meta": "12 módulos · 13 h 25 min · evaluación final y proyecto integrador",
+  "cat.course19": "Curso 19",
   "lab.storageUnavailable": "El almacenamiento del navegador no está disponible. Todos los pasos siguen funcionando, pero el Laboratorio no podrá recordar cuáles has terminado después de esta sesión.",
   "home.q5": "¿Dónde se guarda mi progreso?",
   "home.a5": "Los hitos de los cursos y tu elección de tema permanecen en este navegador. No hay cuenta de estudiante. El sitio cuenta visitas anónimas, pero no recibe tu progreso ni ninguna clave API que uses en el Laboratorio."

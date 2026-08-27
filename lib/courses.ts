@@ -25,6 +25,12 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_EVENT,
   agentOrchestrationProgressPercent,
 } from "./agent-orchestration";
+import {
+  MATH_ANIMATION_COURSE_MANIFEST,
+  MATH_ANIMATION_PROGRESS_EVENT,
+  MATH_ANIMATION_TOTAL_MINUTES,
+  mathAnimationProgressPercent,
+} from "./math-animation";
 import { CLAUDE_COURSE_MANIFEST } from "./claude/manifest";
 import { claudeProgressPercent } from "./claude/progress";
 import { CLAUDE_INCOME_COURSE } from "./claude-income/curriculum";
@@ -96,8 +102,9 @@ export interface TopLevelCourse {
     | "claude-income"
     | "ai-tutor"
     | "product-management"
-    | "agent-orchestration";
-  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+    | "agent-orchestration"
+    | "math-animation";
+  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 19;
   href: string;
   minutes: number;
   durationMinutes: number;
@@ -649,6 +656,25 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     progressEvent: AGENT_ORCHESTRATION_PROGRESS_EVENT,
     progress: (p) => agentOrchestrationProgressPercent(p),
   },
+  {
+    id: "math-animation",
+    displayNumber: 19,
+    href: "/math-animation/",
+    minutes: MATH_ANIMATION_TOTAL_MINUTES,
+    durationMinutes: MATH_ANIMATION_TOTAL_MINUTES,
+    status: "available",
+    hue: "var(--coral)",
+    level: "beginner-to-advanced",
+    moduleIds: MATH_ANIMATION_COURSE_MANIFEST.modules.map((module) => module.slug),
+    outcomeKeys: [
+      "c.math-animation.blurb",
+      "c.math-animation.title",
+      "c.math-animation.meta",
+    ],
+    progressStrategy: "fourteen-equal-milestones",
+    progressEvent: MATH_ANIMATION_PROGRESS_EVENT,
+    progress: (p) => mathAnimationProgressPercent(p),
+  },
 ];
 
 const agenticCourse = TOP_LEVEL_COURSES.find((course) => course.id === "agentic")!;
@@ -675,6 +701,9 @@ const productManagementCourse = TOP_LEVEL_COURSES.find(
 )!;
 const agentOrchestrationCourse = TOP_LEVEL_COURSES.find(
   (course) => course.id === "agent-orchestration",
+)!;
+const mathAnimationCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "math-animation",
 )!;
 
 /**
@@ -985,6 +1014,25 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     hue: agentOrchestrationCourse.hue,
     progressEvent: agentOrchestrationCourse.progressEvent,
     progress: agentOrchestrationCourse.progress,
+  },
+  {
+    id: "math-animation",
+    displayNumber: mathAnimationCourse.displayNumber,
+    href: mathAnimationCourse.href,
+    titleKey: "c.math-animation.title",
+    blurbKey: "c.math-animation.blurb",
+    metaKey: "c.math-animation.meta",
+    topic: "coding-assistants",
+    topicKey: "topic.codingAssistants",
+    level: mathAnimationCourse.level,
+    levelKey: "c.math-animation.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: mathAnimationCourse.minutes,
+    status: mathAnimationCourse.status,
+    hue: mathAnimationCourse.hue,
+    progressEvent: mathAnimationCourse.progressEvent,
+    progress: mathAnimationCourse.progress,
   },
   {
     id: "responsible-ai",

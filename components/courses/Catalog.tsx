@@ -167,6 +167,7 @@ function CourseCard({
   const isAiTutor = course.id === "ai-tutor";
   const isProductManagement = course.id === "product-management";
   const isAgentOrchestration = course.id === "agent-orchestration";
+  const isMathAnimation = course.id === "math-animation";
   const duration = course.metaKey
     ? t(course.metaKey)
     : course.minutes == null
@@ -271,6 +272,8 @@ function CourseCard({
       ? "product-management-in-the-age-of-ai"
     : isAgentOrchestration
       ? "agent-orchestration"
+    : isMathAnimation
+      ? "math-animation-with-codex-and-claude"
       : undefined;
 
   if (!available) {

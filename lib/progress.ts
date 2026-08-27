@@ -128,6 +128,9 @@ export interface LearningStore {
 
 const SECTION_SET = new Set<string>(HANDBOOK_SECTION_IDS);
 const STEP_SET = new Set<string>(LAB_STEPS);
+const LEGACY_LAB_PROGRESS_KEYS = [
+  "play0", "play1", "play2", "play3", "evalBest",
+] as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -450,13 +453,15 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     notify();
   };
 
-  function writeLegacy(state: LearningStateV2, storage: StorageLike): void {
-    safeWrite(storage, LEGACY_SECTION_KEY, state.handbook.lastSection);
-    safeWrite(storage, LEGACY_SEEN_KEY, state.handbook.visitedSections.join(","));
-
+  function writeLegacyProgress(
+    state: LearningStateV2,
+    storage: StorageLike,
+    { clearRetiredPart2 = false }: { readonly clearRetiredPart2?: boolean } = {},
+  ): void {
     const old = safeRead(storage, LEGACY_PROGRESS_KEY);
     const progress = old.ok ? legacyObject(old.value) : {};
-    for (const key of ["play0", "play1", "play2", "play3", "evalBest"]) delete progress[key];
+    for (const key of LEGACY_LAB_PROGRESS_KEYS) delete progress[key];
+    if (clearRetiredPart2) delete progress.part2;
 
     if (state.lab.completedSteps.includes("first-call")) progress.play0 = true;
     if (state.lab.completedSteps.includes("rules")) progress.play1 = true;
@@ -470,6 +475,12 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     } else {
       safeRemove(storage, LEGACY_PROGRESS_KEY);
     }
+  }
+
+  function writeLegacy(state: LearningStateV2, storage: StorageLike): void {
+    safeWrite(storage, LEGACY_SECTION_KEY, state.handbook.lastSection);
+    safeWrite(storage, LEGACY_SEEN_KEY, state.handbook.visitedSections.join(","));
+    writeLegacyProgress(state, storage);
   }
 
   function readLearningState(): LearningStateV2 {
@@ -629,11 +640,11 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
       safeRemove(storage, LEGACY_SEEN_KEY);
     }
     if (scope === "all" && handbookWasReset && labWasReset) {
-      /* Not safeRemove: `ae.progress` is shared with fourteen course stores,
-         and removing the key takes their milestones with it. writeLegacy
-         deletes only the five fields this module owns and writes the rest
-         back, or removes the key when nothing else is left in it. */
-      writeLegacy(result, storage);
+      /* Not safeRemove: `ae.progress` is shared with fifteen course stores,
+         and removing the key takes their milestones with it. Rewrite only
+         this module's shared fields here: calling writeLegacy would recreate
+         the two Handbook keys that were deliberately removed just above. */
+      writeLegacyProgress(result, storage, { clearRetiredPart2: true });
     } else if (scope === "lab" && labWasReset) {
       // `commit` already rewrote only the expressible Lab fields and preserved
       // unrelated legacy data such as part2 for the retirement window.
@@ -748,7 +759,7 @@ export function mark(key: string, value: unknown = true): void {
 /* ---------------------------------------------------------------------------
  * The shared course record.
  *
- * `ae.progress` is not this module's alone. Fourteen courses write it through
+ * `ae.progress` is not this module's alone. Fifteen courses write it through
  * their own `components/*\/progress-store.ts`, and the handbook counts sections
  * under `tch.seen`. What lives here is the part the Lab and the handbook own,
  * plus the two things a caller outside this module needs to know: whether a
@@ -766,7 +777,7 @@ export const AGENTIC_PROGRESS_EVENT = "agentic:progress-change";
 
 /** The fields this module owns inside the shared record. */
 export const AGENTIC_PROGRESS_KEYS = [
-  "play0", "play1", "play2", "play3", "evalBest", "part2",
+  ...LEGACY_LAB_PROGRESS_KEYS, "part2",
 ] as const;
 
 /** Latched: once storage has refused us, it is refusing for the session. */

@@ -49,6 +49,12 @@
       },
       {
         "catalog": "site",
+        "key": "c.rag.title",
+        "locales": ["de"],
+        "reason": "German technical usage retains Retrieval-Augmented Generation (RAG) and its international acronym."
+      },
+      {
+        "catalog": "site",
         "key": "ab.p.hwang.aff",
         "locales": ["de"],
         "reason": "The official English institution name is retained as a proper name."
@@ -88,6 +94,12 @@
         "key": "topic.agents",
         "locales": ["fr"],
         "reason": "Agents is the same correctly spelled French plural noun."
+      },
+      {
+        "catalog": "site",
+        "key": "topic.collaboration",
+        "locales": ["fr"],
+        "reason": "Collaboration is the same correctly spelled French category noun."
       },
       {
         "catalog": "handbook",

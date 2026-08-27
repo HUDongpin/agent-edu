@@ -613,6 +613,11 @@
   "c.agent-orchestration.level": "Intermediate to advanced",
   "c.agent-orchestration.meta": "15 modules · 17 h 40 min · 6 deterministic labs · assessment and capstone",
   "cat.course15": "Course 15",
+  "c.math-animation.title": "How to Make Mathematical Animations with Codex and Claude",
+  "c.math-animation.blurb": "Choose an animation engine with evidence, direct Codex and Claude through a precise scene contract, and release a reproducible animation whose mathematics has been checked.",
+  "c.math-animation.level": "Beginner to advanced",
+  "c.math-animation.meta": "12 modules · 13 hr 25 min · final assessment and capstone",
+  "cat.course19": "Course 19",
   "lab.storageUnavailable": "Browser storage is unavailable. Every step still runs, but the Lab cannot remember which ones you have finished after this session.",
   "home.q5": "Where is my progress stored?",
   "home.a5": "Course milestones and your theme choice stay in this browser. There is no learner account. The site counts anonymous page views, but it does not receive your course progress or any API key you use in the Lab."

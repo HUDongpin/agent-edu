@@ -444,7 +444,7 @@ test("lab reset preserves Handbook state and unrelated legacy retirement data", 
   });
 });
 
-test("all reset keeps a v2 marker but clears every legacy progress key", () => {
+test("all reset removes the shared key when it contains only Agentic legacy fields", () => {
   const storage = new MemoryStorage({
     [LEGACY_PROGRESS_KEY]: json({ part2: true }),
   });
@@ -458,6 +458,26 @@ test("all reset keeps a v2 marker but clears every legacy progress key", () => {
   assert.equal(storage.getItem(LEGACY_SECTION_KEY), null);
   assert.equal(storage.getItem(LEGACY_SEEN_KEY), null);
   assert.equal(storage.getItem(LEGACY_PROGRESS_KEY), null);
+});
+
+test("all reset preserves other courses while clearing only Agentic legacy fields", () => {
+  const storage = new MemoryStorage({
+    [LEGACY_PROGRESS_KEY]: json({
+      part2: true,
+      play0: true,
+      "codex.capstone.v1": true,
+    }),
+  });
+  const store = createLearningStore({ storage, events: null });
+  store.recordHandbookVisit("play");
+  store.recordLabStep("full-eval", { score: 18 });
+  store.resetLearningState("all");
+
+  assert.equal(storage.getItem(LEGACY_SECTION_KEY), null);
+  assert.equal(storage.getItem(LEGACY_SEEN_KEY), null);
+  assert.deepEqual(JSON.parse(storage.getItem(LEGACY_PROGRESS_KEY)!), {
+    "codex.capstone.v1": true,
+  });
 });
 
 test("Part 3 is always external/open with no website percentage", () => {

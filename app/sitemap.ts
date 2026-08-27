@@ -4,6 +4,7 @@ import { PAGES, urlFor } from "@/lib/seo";
 import { AI_TUTOR_TRANSLATED_LOCALES } from "@/lib/ai-tutor";
 import { PRODUCT_MANAGEMENT_TRANSLATED_LOCALES } from "@/lib/product-management";
 import { AGENT_ORCHESTRATION_TRANSLATED_LOCALES } from "@/lib/agent-orchestration";
+import { MATH_ANIMATION_TRANSLATED_LOCALES } from "@/lib/math-animation";
 import { RAG_LOCALES } from "@/lib/rag";
 import { MCP_LOCALES } from "@/lib/mcp";
 
@@ -32,6 +33,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ? PRODUCT_MANAGEMENT_TRANSLATED_LOCALES
       : page === "agent-orchestration/" || page.startsWith("agent-orchestration/")
       ? AGENT_ORCHESTRATION_TRANSLATED_LOCALES
+      : page === "math-animation/" || page.startsWith("math-animation/")
+      ? MATH_ANIMATION_TRANSLATED_LOCALES
       : page === "rag/" || page.startsWith("rag/")
       ? RAG_LOCALES
       : page === "mcp/" || page.startsWith("mcp/")
@@ -45,7 +48,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return availableLocales.map((locale) => ({
       url: urlFor(locale, page),
       lastModified: new Date(
-        page === "rag/" || page.startsWith("rag/")
+        page === "math-animation/" || page.startsWith("math-animation/")
+          ? "2026-08-26"
+        : page === "rag/" || page.startsWith("rag/")
         || page === "mcp/" || page.startsWith("mcp/")
           ? "2026-08-24"
           : "2026-08-23",

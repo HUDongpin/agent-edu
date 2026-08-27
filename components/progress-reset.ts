@@ -3,7 +3,7 @@
 /**
  * The site-wide reset, in one place.
  *
- * Fourteen course stores share `ae.progress`, and each keeps a module-level
+ * Fifteen course stores share `ae.progress`, and each keeps a module-level
  * copy of the record so a course stays usable after localStorage fails. So
  * removing the key is not enough: every store that is loaded in this tab has
  * to drop its copy and say so, or a later write revives milestones the reader
@@ -25,6 +25,7 @@ import { resetGithubProgress } from "./github/progress-store";
 import { resetGrokProgress } from "./grok/progress-store";
 import { resetIncomeProgress } from "./make-money-with-codex/progress-store";
 import { resetMcpProgress } from "./mcp/progress-store";
+import { resetMathAnimationProgress } from "./math-animation/progress-store";
 import { resetProductManagementProgress } from "./product-management/progress-store";
 import { resetPromptProgress } from "./prompts/progress-store";
 import { resetRagProgress } from "./rag/progress-store";
@@ -63,6 +64,7 @@ export async function resetEveryCourseProgress(): Promise<boolean> {
     resetGrokProgress(),
     resetIncomeProgress(),
     resetMcpProgress(),
+    resetMathAnimationProgress(),
     resetProductManagementProgress(),
     resetPromptProgress(),
     resetRagProgress(),
