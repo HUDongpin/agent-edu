@@ -17,6 +17,19 @@
   --course-cover-accent-ink: #fffaf3;
 }
 
+.root.creatorOps {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 72%, #f0ddd7);
+  --course-cover-surface: color-mix(in srgb, var(--card) 95%, #fff6f1);
+  --course-cover-panel: color-mix(in srgb, var(--bg-2) 74%, #ead7d1);
+  --course-cover-editor: color-mix(in srgb, var(--card) 97%, #fffaf7);
+  --course-cover-ink: var(--ink);
+  --course-cover-muted: var(--ink-3);
+  --course-cover-line: color-mix(in srgb, var(--line) 70%, #ad8178);
+  --course-cover-accent: #b94734;
+  --course-cover-accent-ink: #fffaf3;
+  background: var(--course-cover-bg);
+}
+
 .root.agentic,
 .root.claude,
 .root.grok,

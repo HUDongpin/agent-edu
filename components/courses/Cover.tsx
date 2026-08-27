@@ -231,6 +231,44 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
         <circle cx="156" cy="118" r="5" fill="var(--course-cover-accent)" />
       </>
     ),
+    // Signal radar → evidence card → approved distribution, with a visible human gate.
+    "creator-ops": (
+      <>
+        <rect width="190" height="140" fill="var(--course-cover-bg)" />
+        <circle cx="14" cy="126" r="45" fill="var(--course-cover-accent)" opacity=".12" />
+        <rect x="19" y="14" width="152" height="113" rx="13" fill="var(--course-cover-surface)"
+          stroke="var(--course-cover-line)" />
+        <path d="M19 36 H171" stroke="var(--course-cover-line)" />
+        <circle cx="30" cy="25" r="2.2" fill="var(--course-cover-accent)" />
+        <circle cx="38" cy="25" r="2.2" fill="var(--course-cover-muted)" opacity=".45" />
+        <circle cx="46" cy="25" r="2.2" fill="var(--course-cover-muted)" opacity=".25" />
+
+        <circle cx="48" cy="72" r="24" fill="var(--course-cover-panel)" />
+        <circle cx="48" cy="72" r="16" fill="none" stroke="var(--course-cover-accent)" opacity=".7" />
+        <circle cx="48" cy="72" r="8" fill="none" stroke="var(--course-cover-accent)" opacity=".45" />
+        <path d="M48 72 64 57" stroke="var(--course-cover-accent)" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="64" cy="57" r="3" fill="var(--course-cover-accent)" />
+
+        <path d="M73 72 H86" stroke="var(--course-cover-accent)" strokeWidth="2" strokeLinecap="round" />
+        <rect x="86" y="47" width="40" height="50" rx="7" fill="var(--course-cover-editor)"
+          stroke="var(--course-cover-line)" />
+        <rect x="93" y="56" width="24" height="4" rx="2" fill="var(--course-cover-ink)" opacity=".7" />
+        <rect x="93" y="67" width="19" height="3" rx="1.5" fill="var(--course-cover-muted)" opacity=".45" />
+        <rect x="93" y="76" width="26" height="3" rx="1.5" fill="var(--course-cover-muted)" opacity=".3" />
+        <circle cx="116" cy="88" r="5" fill="var(--course-cover-accent)" />
+        <path d="M113.5 88 115.5 90 119 85.5" fill="none" stroke="var(--course-cover-accent-ink)"
+          strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+
+        <path d="M126 72 H137" stroke="var(--course-cover-accent)" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="148" cy="56" r="7" fill="var(--course-cover-panel)" stroke="var(--course-cover-line)" />
+        <circle cx="154" cy="75" r="7" fill="var(--course-cover-accent)" />
+        <circle cx="145" cy="94" r="7" fill="var(--course-cover-panel)" stroke="var(--course-cover-line)" />
+        <path d="M137 72 143 59 M137 72 147 75 M137 72 141 91" fill="none"
+          stroke="var(--course-cover-line)" strokeWidth="1.5" />
+        <rect x="80" y="106" width="55" height="8" rx="4" fill="var(--course-cover-panel)" />
+        <rect x="80" y="106" width="39" height="8" rx="4" fill="var(--course-cover-accent)" opacity=".78" />
+      </>
+    ),
     // Evidence moves from a scoped brief through verification to a defensible offer.
     "make-money-with-codex": (
       <>
@@ -711,6 +749,7 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
     "ai-teaching": styles.teaching,
     "product-management": styles.claudeIncome,
     "agent-orchestration": styles.engineering,
+    "creator-ops": styles.creatorOps,
     "responsible-ai": styles.responsible,
   };
   const motifId = id === "rag" ? "ai-research" : id === "ai-tutor" ? "ai-teaching" : id;

@@ -16,6 +16,7 @@
  */
 import type { Metadata } from "next";
 import { LOCALE_CODES, DEFAULT_LOCALE } from "@/lib/i18n";
+import { CREATOR_OPS_MODULE_SLUGS } from "@/lib/creator-ops/types";
 
 export const SITE = "https://aicourse.top";
 
@@ -247,6 +248,10 @@ export const AGENT_ORCHESTRATION_MODULE_PAGES = [
   "agent-orchestration/production-orchestration-capstone/",
 ] as const;
 
+export const CREATOR_OPS_MODULE_PAGES = CREATOR_OPS_MODULE_SLUGS.map(
+  (slug) => `creator-ops/${slug}/` as const,
+);
+
 export const PAGES = [
   "",
   "courses/",
@@ -267,6 +272,7 @@ export const PAGES = [
   "ai-tutor/",
   "product-management/",
   "agent-orchestration/",
+  "creator-ops/",
   ...CODEX_LESSON_PAGES,
   ...CLAUDE_LESSON_PAGES,
   ...CURSOR_LESSON_PAGES,
@@ -281,6 +287,7 @@ export const PAGES = [
   ...AI_TUTOR_MODULE_PAGES,
   ...PRODUCT_MANAGEMENT_MODULE_PAGES,
   ...AGENT_ORCHESTRATION_MODULE_PAGES,
+  ...CREATOR_OPS_MODULE_PAGES,
 ] as const;
 export type Page = (typeof PAGES)[number];
 
@@ -368,6 +375,14 @@ export function agentOrchestrationModulePage(slug: string): Page {
   const page = `agent-orchestration/${slug}/`;
   if (!(PAGES as readonly string[]).includes(page)) {
     throw new Error(`Unknown Agent Orchestration module route: ${slug}`);
+  }
+  return page as Page;
+}
+
+export function creatorOpsModulePage(slug: string): Page {
+  const page = `creator-ops/${slug}/`;
+  if (!(PAGES as readonly string[]).includes(page)) {
+    throw new Error(`Unknown Creator Operations module route: ${slug}`);
   }
   return page as Page;
 }

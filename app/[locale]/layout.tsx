@@ -1,17 +1,22 @@
-import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next";
+import type { Metadata, Viewport } from "next";
 import Shell from "@/components/Shell";
+import ProductionAnalytics from "@/components/ProductionAnalytics";
 import { LOCALE_CODES, getMessages, metaFor, translator } from "@/lib/i18n";
 import { SITE, seoFor } from "@/lib/seo";
 import type { ReactNode } from "react";
-
-const isVercelDeployment = process.env.NODE_ENV === "production" && process.env.VERCEL === "1";
 
 export function generateStaticParams() {
   return LOCALE_CODES.map((locale) => ({ locale }));
 }
 
 export const dynamicParams = false;
+
+// Next owns viewport metadata ordering. Keeping this out of the hand-authored
+// <head> prevents concurrent metadata rendering from reordering an equivalent
+// tag between otherwise identical production builds.
+export const viewport: Viewport = {
+  colorScheme: "light dark",
+};
 
 export async function generateMetadata(
   { params }: { params: Promise<{ locale: string }> },
@@ -50,7 +55,6 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={meta.dir} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
-        <meta name="color-scheme" content="light dark" />
         {/* Applied before paint so a dark-mode reader never sees a white flash. */}
         <script
           dangerouslySetInnerHTML={{
@@ -66,10 +70,9 @@ export default async function LocaleLayout({
         </Shell>
         {/* Anonymous page-view counts, no cookies and no cross-site profile.
             It is still analytics, so the copy says so rather than claiming
-            "no tracking" — see home.free / home.a1 / lab.keyNote. Vercel
-            supplies both the deployment marker and the analytics endpoint;
-            local and non-Vercel static hosts therefore inject no script. */}
-        {isVercelDeployment ? <Analytics /> : null}
+            "no tracking" — see home.free / home.a1 / lab.keyNote. Runtime
+            hostname gating keeps local and Vercel builds byte-identical. */}
+        <ProductionAnalytics />
       </body>
     </html>
   );

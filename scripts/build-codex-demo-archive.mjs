@@ -36,7 +36,9 @@ async function collect(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
 
-  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const entry of entries.sort((a, b) => (
+    a.name < b.name ? -1 : a.name > b.name ? 1 : 0
+  ))) {
     if (ignored.has(entry.name)) continue;
     const absolute = join(directory, entry.name);
     if (entry.isDirectory()) files.push(...await collect(absolute));
@@ -48,7 +50,14 @@ async function collect(directory) {
 
 function run(command, args, cwd) {
   return new Promise((resolvePromise, reject) => {
-    const child = spawn(command, args, { cwd, stdio: "inherit" });
+    const child = spawn(command, args, {
+      cwd,
+      stdio: "inherit",
+      // ZIP stores DOS-style local timestamps. Pin the child timezone so the
+      // same normalized source tree produces identical archive headers on
+      // machines in different timezones.
+      env: { ...process.env, TZ: "UTC" },
+    });
     child.once("error", reject);
     child.once("exit", (code) => {
       if (code === 0) resolvePromise();

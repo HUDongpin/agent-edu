@@ -475,6 +475,11 @@
   "c.agent-orchestration.level": "Intermédiaire à avancé",
   "c.agent-orchestration.meta": "15 modules · 17 h 40 · 6 laboratoires déterministes · évaluation et projet final",
   "cat.course15": "Cours 15",
+  "c.creator-ops.title": "Opérations créateurs avec agents",
+  "c.creator-ops.blurb": "Construisez un système média fondé sur les preuves : détectez les signaux, vérifiez les affirmations, créez des actifs réutilisables, imposez une validation humaine, publiez par des voies autorisées et apprenez des données propriétaires.",
+  "c.creator-ops.level": "Débutant à avancé",
+  "c.creator-ops.meta": "10 modules · 11 h 50 · livrables pratiques · évaluation et simulation finale de 30 jours",
+  "cat.course16": "Cours 16",
   "home.q5": "Où ma progression est-elle enregistrée ?",
   "home.a5": "Les étapes franchies et votre choix de thème restent dans ce navigateur. Il n’existe aucun compte apprenant. Le site compte les pages vues de façon anonyme, mais ne reçoit ni votre progression ni la clé API utilisée dans l’Atelier."
 }

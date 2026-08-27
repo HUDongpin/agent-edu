@@ -161,7 +161,13 @@ const SOURCE_AUDIT: Record<CodexSourceId, {
     reuseMode: "paraphrased",
   },
   "openai-github-action": {
-    exactAnchor: "https://learn.chatgpt.com/docs/github-action",
+    exactAnchor: "https://learn.chatgpt.com/docs/github-action#security-checklist",
+    supportingAnchors: [
+      "https://learn.chatgpt.com/docs/github-action#example-workflow",
+      "https://learn.chatgpt.com/docs/github-action#configure-codex-exec",
+      "https://learn.chatgpt.com/docs/github-action#manage-privileges",
+      "https://learn.chatgpt.com/docs/github-action#capture-outputs",
+    ],
     latestObservedRelease: null,
     claimIds: ["action-usage", "read-only-review-job", "separate-feedback-job"],
     reuseMode: "paraphrased",

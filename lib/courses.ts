@@ -25,6 +25,11 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_EVENT,
   agentOrchestrationProgressPercent,
 } from "./agent-orchestration";
+import {
+  CREATOR_OPS_COURSE_MANIFEST,
+  CREATOR_OPS_PROGRESS_EVENT,
+  creatorOpsProgressPercent,
+} from "./creator-ops";
 import { CLAUDE_COURSE_MANIFEST } from "./claude/manifest";
 import { claudeProgressPercent } from "./claude/progress";
 import { CLAUDE_INCOME_COURSE } from "./claude-income/curriculum";
@@ -95,8 +100,9 @@ export interface TopLevelCourse {
     | "claude-income"
     | "ai-tutor"
     | "product-management"
-    | "agent-orchestration";
-  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+    | "agent-orchestration"
+    | "creator-ops";
+  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16;
   href: string;
   minutes: number;
   durationMinutes: number;
@@ -111,6 +117,7 @@ export interface TopLevelCourse {
     | "sixteen-equal-milestones"
     | "seventeen-equal-milestones"
     | "eleven-equal-milestones"
+    | "twelve-equal-milestones"
     | "ten-equal-milestones"
     | "twenty-equal-milestones";
   /** Browser store supplied to the progress adapter; defaults to `ae.progress`. */
@@ -648,6 +655,31 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     progressEvent: AGENT_ORCHESTRATION_PROGRESS_EVENT,
     progress: (p) => agentOrchestrationProgressPercent(p),
   },
+  {
+    id: "creator-ops",
+    displayNumber: 16,
+    href: "/creator-ops/",
+    minutes: CREATOR_OPS_COURSE_MANIFEST.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: CREATOR_OPS_COURSE_MANIFEST.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--coral)",
+    level: "beginner-to-advanced",
+    moduleIds: CREATOR_OPS_COURSE_MANIFEST.modules.map((module) => module.slug),
+    outcomeKeys: [
+      "c.creator-ops.blurb",
+      "c.creator-ops.title",
+      "c.creator-ops.meta",
+    ],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: CREATOR_OPS_PROGRESS_EVENT,
+    progress: (p) => creatorOpsProgressPercent(p),
+  },
 ];
 
 const agenticCourse = TOP_LEVEL_COURSES.find((course) => course.id === "agentic")!;
@@ -674,6 +706,9 @@ const productManagementCourse = TOP_LEVEL_COURSES.find(
 )!;
 const agentOrchestrationCourse = TOP_LEVEL_COURSES.find(
   (course) => course.id === "agent-orchestration",
+)!;
+const creatorOpsCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "creator-ops",
 )!;
 
 /**
@@ -984,6 +1019,25 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     hue: agentOrchestrationCourse.hue,
     progressEvent: agentOrchestrationCourse.progressEvent,
     progress: agentOrchestrationCourse.progress,
+  },
+  {
+    id: "creator-ops",
+    displayNumber: creatorOpsCourse.displayNumber,
+    href: creatorOpsCourse.href,
+    titleKey: "c.creator-ops.title",
+    blurbKey: "c.creator-ops.blurb",
+    metaKey: "c.creator-ops.meta",
+    topic: "business",
+    topicKey: "topic.business",
+    level: creatorOpsCourse.level,
+    levelKey: "c.creator-ops.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: creatorOpsCourse.minutes,
+    status: creatorOpsCourse.status,
+    hue: creatorOpsCourse.hue,
+    progressEvent: creatorOpsCourse.progressEvent,
+    progress: creatorOpsCourse.progress,
   },
   {
     id: "responsible-ai",

@@ -153,7 +153,7 @@ export const CODEX_LESSONS = [
 
 export const CODEX_COURSE_MANIFEST = {
   id: CODEX_COURSE_ID,
-  version: "1.0.12",
+  version: "1.0.13",
   publishedOn: "2026-08-21",
   sourceSnapshotOn: "2026-08-24",
   units: CODEX_UNITS,

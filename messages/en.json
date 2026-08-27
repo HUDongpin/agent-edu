@@ -475,6 +475,11 @@
   "c.agent-orchestration.level": "Intermediate to advanced",
   "c.agent-orchestration.meta": "15 modules · 17 h 40 min · 6 deterministic labs · assessment and capstone",
   "cat.course15": "Course 15",
+  "c.creator-ops.title": "Agentic Creator Operations",
+  "c.creator-ops.blurb": "Build an evidence-led creator media system that finds signals, researches claims, produces reusable assets, requires human approval, publishes through authorized paths, and learns from first-party feedback.",
+  "c.creator-ops.level": "Beginner to advanced",
+  "c.creator-ops.meta": "10 modules · 11 hr 50 min · applied artifacts · assessment and 30-day simulation capstone",
+  "cat.course16": "Course 16",
   "home.q5": "Where is my progress stored?",
   "home.a5": "Course milestones and your theme choice stay in this browser. There is no learner account. The site counts anonymous page views, but it does not receive your course progress or any API key you use in the Lab."
 }

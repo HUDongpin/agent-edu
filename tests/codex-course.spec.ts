@@ -47,6 +47,11 @@ async function clearProgress(page: Page) {
   await page.reload();
 }
 
+async function expectGlobalProgressReset(page: Page) {
+  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+  expect(Object.keys(stored).every((key) => key.endsWith(".progress.version"))).toBe(true);
+}
+
 async function completeQuizAttempt(page: Page, correctAnswers: number) {
   const ids: string[] = [];
   const units: string[] = [];
@@ -201,7 +206,7 @@ test.describe.serial("private browser progress", () => {
     })));
     await page.goto("/en/");
     await page.getByRole("button", { name: "Reset progress" }).click();
-    expect(await page.evaluate(() => localStorage.getItem("ae.progress"))).toBeNull();
+    await expectGlobalProgressReset(page);
   });
 
   test("storage denial keeps the course usable and announces that progress is not saved", async ({ browser }) => {
@@ -241,7 +246,7 @@ test.describe.serial("private browser progress", () => {
     await page.locator('a[href="/en/"]').first().click();
     await expect(page).toHaveURL(/\/en\/$/);
     await page.getByRole("button", { name: "Reset progress" }).click();
-    expect(await page.evaluate(() => localStorage.getItem("ae.progress"))).toBeNull();
+    await expectGlobalProgressReset(page);
 
     await page.locator('a[href="/en/courses/"]').first().click();
     await page.locator('a[href="/en/codex/"]').first().click();

@@ -475,6 +475,11 @@
   "c.agent-orchestration.level": "Mittelstufe bis Fortgeschrittene",
   "c.agent-orchestration.meta": "15 Module · 17 Std. 40 Min. · 6 deterministische Labore · Prüfung und Abschlussprojekt",
   "cat.course15": "Kurs 15",
+  "c.creator-ops.title": "Agentengestützter Creator-Betrieb",
+  "c.creator-ops.blurb": "Baue ein evidenzbasiertes Mediensystem für Creator: Signale erkennen, Aussagen prüfen, wiederverwendbare Inhalte erstellen, menschliche Freigaben erzwingen, autorisiert veröffentlichen und aus eigenen Daten lernen.",
+  "c.creator-ops.level": "Anfänger bis Fortgeschrittene",
+  "c.creator-ops.meta": "10 Module · 11 Std. 50 Min. · Praxisartefakte · Prüfung und 30-Tage-Abschlusssimulation",
+  "cat.course16": "Kurs 16",
   "home.q5": "Wo wird mein Fortschritt gespeichert?",
   "home.a5": "Kursmeilensteine und Ihre Designauswahl bleiben in diesem Browser. Es gibt kein Lernkonto. Die Website zählt anonyme Seitenaufrufe, erhält aber weder Ihren Kursfortschritt noch einen API-Schlüssel, den Sie im Labor verwenden."
 }

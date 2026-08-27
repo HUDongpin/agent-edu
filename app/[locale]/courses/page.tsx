@@ -16,6 +16,7 @@ import { CLAUDE_INCOME_COURSE } from "@/lib/claude-income";
 import { loadAiTutorCourse } from "@/lib/ai-tutor";
 import { loadProductManagementCourse } from "@/lib/product-management";
 import { loadAgentOrchestrationCourse } from "@/lib/agent-orchestration";
+import { loadCreatorOpsCourse } from "@/lib/creator-ops";
 import { SOFTWARE_ENGINEERING_LESSONS } from "@/lib/software-engineering";
 import JsonLd from "@/components/JsonLd";
 import type { Metadata } from "next";
@@ -52,6 +53,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     aiTutorCourse,
     productManagementCourse,
     agentOrchestrationCourse,
+    creatorOpsCourse,
   ] = await Promise.all([
     loadCodexCopy(locale),
     loadClaudeCourse(locale),
@@ -63,6 +65,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     loadAiTutorCourse(locale),
     loadProductManagementCourse(locale),
     loadAgentOrchestrationCourse(locale),
+    loadCreatorOpsCourse(locale),
   ]);
   const mcpCourse = await loadMcpCourse(locale);
 
@@ -200,6 +203,15 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     timeRequired: `PT${module.minutes}M`,
   }));
 
+  const courseSixteenParts = creatorOpsCourse.modules.map((module) => ({
+    "@type": "LearningResource",
+    position: module.order,
+    name: module.copy.title,
+    url: `${urlFor(creatorOpsCourse.contentLocale)}creator-ops/${module.slug}/`,
+    inLanguage: creatorOpsCourse.contentLocale,
+    timeRequired: `PT${module.minutes}M`,
+  }));
+
   const partsByCourse = {
     agentic: courseOneParts,
     codex: courseTwoParts,
@@ -216,6 +228,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     "ai-tutor": courseThirteenParts,
     "product-management": courseFourteenParts,
     "agent-orchestration": courseFifteenParts,
+    "creator-ops": courseSixteenParts,
   } as const;
 
   const list = {
@@ -240,6 +253,8 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
             ? `${urlFor(productManagementCourse.contentLocale)}${course.href.replace(/^\//, "")}`
           : course.id === "agent-orchestration"
             ? `${urlFor(agentOrchestrationCourse.contentLocale)}${course.href.replace(/^\//, "")}`
+          : course.id === "creator-ops"
+            ? `${urlFor(creatorOpsCourse.contentLocale)}${course.href.replace(/^\//, "")}`
           : course.id === "prompts"
             ? `${urlFor(promptCourse.contentLocale)}${course.href.replace(/^\//, "")}`
           : `${urlFor(locale)}${course.href.replace(/^\//, "")}`,
@@ -259,6 +274,8 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
             ? productManagementCourse.contentLocale
           : course.id === "agent-orchestration"
             ? agentOrchestrationCourse.contentLocale
+          : course.id === "creator-ops"
+            ? creatorOpsCourse.contentLocale
           : locale,
         educationalLevel: t(`c.${course.id}.level`),
         isAccessibleForFree: true,

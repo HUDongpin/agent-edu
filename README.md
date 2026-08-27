@@ -16,6 +16,7 @@
 | **[How to Write Prompts](https://aicourse.top/en/prompts/)** | three units, nine lessons, nine original prompt figures, a source-linked assessment, and a prompt evidence-packet capstone | no account, API key, or coding experience |
 | **[Retrieval-Augmented Generation](https://aicourse.top/en/rag/)** | four units, twelve lessons in nine languages, a deterministic retrieval lab, five authentic UI figures, one official Anthropic teaching diagram, a source-linked assessment, and a production evidence-packet capstone | no account, API key, vector database, or coding experience for the teaching lab |
 | **[Agent Orchestration](https://aicourse.top/en/agent-orchestration/)** | four phases, fifteen evidence-bounded modules, six deterministic control-room labs, an assessment, and a fifteen-artifact production capstone | no account or API key; software-system design experience helps with the production exercises |
+| **[智能体赋能自媒体运营 / Agentic Creator Operations](https://aicourse.top/zh-Hans/creator-ops/)** | four phases, ten evidence-producing modules, ten applied artifact workbenches, an assessment, and a 30-day simulation capstone | no account, paid API, production social account, or coding background for the core course |
 
 Published courses and the open roadmap—including AI tools, research, teaching, evaluation, and responsible AI—are listed in the [catalogue](https://aicourse.top/en/courses/). Teaching the foundations material? There is a **[90-minute lesson plan](TEACHING.md)**.
 
@@ -79,6 +80,57 @@ The evidence synthesis and publication boundaries live in
 [`outputs/agent-orchestration-course-research-brief.md`](outputs/agent-orchestration-course-research-brief.md)
 and
 [`outputs/agent-orchestration-course-research-brief.provenance.md`](outputs/agent-orchestration-course-research-brief.provenance.md).
+
+---
+
+## Course 16: 智能体赋能自媒体运营
+
+Course 16 treats creator media as an accountable operating system rather than a
+one-click content machine. Its teaching loop is **signal → evidence → editorial
+agent graph → factual/brand/rights gates → multimodal assets → one source of
+truth → human approval → authorized distribution → first-party feedback →
+governance**. Ten modules produce ten inspectable operating artifacts, followed
+by a ten-question final assessment and a 30-day synthetic simulation capstone.
+
+GitHub repositories are the primary implementation evidence. The course
+separates code licenses, model and plug-in licenses, input-media rights, identity
+and voice consent, output provenance, and platform permission instead of
+inferring that an MIT or Apache repository makes every model, asset, output, or
+publish action commercially usable. PASS sources support a bounded classroom
+pattern; CONDITIONAL sources carry visible deployment, model, target-site, or
+license constraints; EXCLUDED projects such as MediaCrawler and
+MoneyPrinterTurbo appear only as compliance cases and are never installed or
+run in the hands-on path. All real external writes remain off: publishing uses a
+local outbox or an authorized official API path and requires human approval.
+
+The complete long-form course is reviewed in English and Simplified Chinese.
+The other seven route locales retain the translated platform shell and catalog
+card, render the explicit reviewed-English fallback, and canonicalize to the
+English edition. Browser progress shares `ae.progress` with the platform but
+stores only milestone receipts; the editable practice text remains in component
+memory and is never written to local storage.
+
+Useful maintenance commands:
+
+```bash
+npm run creator-ops:check         # curriculum, GitHub ledger, bilingual copy, routes, rights and integration contracts
+npm run creator-ops:check:release # strict fail-closed Course 16 gate
+npm run creator-ops:static-check  # emitted out/ HTML, sitemap, local assets and deployment checksum receipt
+npm run test:creator-ops          # real Chromium: a11y, responsive, privacy, download, quiz and History API regressions
+npm run creator-ops:release       # Course 16 gate -> production build -> static audit -> browser audit
+```
+
+The two Course 16 SHA-256 surfaces are checksum-backed review receipts for
+detecting accidental drift, not cryptographic identity signatures. Approval
+identity remains the responsibility of protected Git review/commit history or
+an external audit record.
+
+The evidence synthesis and item-level provenance are in
+[`outputs/creator-ops-course-research-brief.md`](outputs/creator-ops-course-research-brief.md)
+and
+[`outputs/creator-ops-course-research-brief.provenance.md`](outputs/creator-ops-course-research-brief.provenance.md).
+The link-only source and rights boundary is published in
+[`public/courses/creator-ops/NOTICE.md`](public/courses/creator-ops/NOTICE.md).
 
 ---
 

@@ -475,6 +475,11 @@
   "c.agent-orchestration.level": "Intermedio a avanzado",
   "c.agent-orchestration.meta": "15 módulos · 17 h 40 min · 6 laboratorios deterministas · evaluación y proyecto final",
   "cat.course15": "Curso 15",
+  "c.creator-ops.title": "Operaciones de creación con agentes",
+  "c.creator-ops.blurb": "Construye un sistema de medios para creadores basado en evidencias: detecta señales, investiga afirmaciones, crea activos reutilizables, exige aprobación humana, publica por vías autorizadas y aprende de datos propios.",
+  "c.creator-ops.level": "De principiante a avanzado",
+  "c.creator-ops.meta": "10 módulos · 11 h 50 min · entregables prácticos · evaluación y simulación final de 30 días",
+  "cat.course16": "Curso 16",
   "home.q5": "¿Dónde se guarda mi progreso?",
   "home.a5": "Los hitos de los cursos y tu elección de tema permanecen en este navegador. No hay cuenta de estudiante. El sitio cuenta visitas anónimas, pero no recibe tu progreso ni ninguna clave API que uses en el Laboratorio."
 }
