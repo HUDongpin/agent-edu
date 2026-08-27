@@ -13,6 +13,7 @@
 .root.cursor,
 .root.research,
 .root.teaching,
+.root.mathAnimation,
 .root.responsible {
   --course-cover-accent-ink: #fffaf3;
 }
@@ -24,6 +25,7 @@
 .root.cursor,
 .root.research,
 .root.teaching,
+.root.mathAnimation,
 .root.responsible {
   --course-cover-surface: color-mix(in srgb, var(--card) 94%, #f7efe4);
   --course-cover-panel: color-mix(in srgb, var(--bg-2) 78%, #ddd1c1);
@@ -119,6 +121,15 @@
   --course-cover-accent: #6f7f5f;
 }
 
+.root.mathAnimation {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 72%, #e2e9e8);
+  --course-cover-surface: color-mix(in srgb, var(--card) 95%, #f8f4ed);
+  --course-cover-panel: color-mix(in srgb, var(--bg-2) 76%, #d8dfdc);
+  --course-cover-editor: color-mix(in srgb, var(--card) 97%, #fbf8f2);
+  --course-cover-line: color-mix(in srgb, var(--line) 70%, #859a96);
+  --course-cover-accent: #b95d48;
+}
+
 .root.responsible {
   --course-cover-bg: color-mix(in srgb, var(--bg-2) 74%, #eadbd4);
   --course-cover-accent: #b85f49;
@@ -136,6 +147,7 @@
   .root.cursor,
   .root.research,
   .root.teaching,
+  .root.mathAnimation,
   .root.responsible {
     --course-cover-line: var(--ink-3);
   }
