@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "courseId": "math-animation",
+  "courseNumber": 19,
+  "snapshotOn": "2026-08-26",
+  "note": "These are evidence pins, not vendored dependencies. Re-run the documented smoke checks before upgrading.",
+  "repositories": [
+    {
+      "id": "manim-community",
+      "clone": "https://github.com/ManimCommunity/manim.git",
+      "revision": "1dc796e9652273950d9863b35746c7329888e384",
+      "release": "v0.21.0",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/ManimCommunity/manim/blob/1dc796e9652273950d9863b35746c7329888e384/README.md#license",
+      "licenseNotices": [
+        "https://github.com/ManimCommunity/manim/blob/1dc796e9652273950d9863b35746c7329888e384/LICENSE",
+        "https://github.com/ManimCommunity/manim/blob/1dc796e9652273950d9863b35746c7329888e384/LICENSE.community"
+      ],
+      "githubSnapshot": { "stars": 40459, "defaultBranchHeadDate": "2026-08-25", "latestRelease": "v0.21.0", "latestReleasePublishedOn": "2026-08-10", "capturedOn": "2026-08-26" },
+      "courseRole": "core",
+      "smoke": "rendered"
+    },
+    {
+      "id": "manimgl",
+      "clone": "https://github.com/3b1b/manim.git",
+      "revision": "9d57bcf9edea2486f214e190931de2a5537f23c1",
+      "release": "v1.7.2",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/3b1b/manim/blob/9d57bcf9edea2486f214e190931de2a5537f23c1/LICENSE.md",
+      "githubSnapshot": { "stars": 92037, "defaultBranchHeadDate": "2026-08-18", "latestRelease": "v1.7.2", "latestReleasePublishedOn": "2024-12-13", "capturedOn": "2026-08-26" },
+      "courseRole": "advanced",
+      "smoke": "rendered"
+    },
+    {
+      "id": "manim-slides",
+      "clone": "https://github.com/jeertmans/manim-slides.git",
+      "revision": "1549ef4ffdf9b145875178519a471eedd8f273ae",
+      "release": "v5.6.0",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/jeertmans/manim-slides/blob/1549ef4ffdf9b145875178519a471eedd8f273ae/LICENSE.md",
+      "githubSnapshot": { "stars": 920, "defaultBranchHeadDate": "2026-08-21", "latestRelease": "v5.6.0", "latestReleasePublishedOn": "2026-04-15", "capturedOn": "2026-08-26" },
+      "courseRole": "extension",
+      "smoke": "rendered"
+    },
+    {
+      "id": "manim-voiceover",
+      "clone": "https://github.com/ManimCommunity/manim-voiceover.git",
+      "revision": "3dc0d95d2f1d9d0937872b3dd68c7b38c4dfc96a",
+      "release": "v0.4.0",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/ManimCommunity/manim-voiceover/blob/3dc0d95d2f1d9d0937872b3dd68c7b38c4dfc96a/LICENSE",
+      "githubSnapshot": { "stars": 314, "defaultBranchHeadDate": "2026-06-15", "latestRelease": "v0.4.0", "latestReleasePublishedOn": "2026-06-14", "capturedOn": "2026-08-26" },
+      "courseRole": "extension",
+      "smoke": "validated; SoX and provider calls not exercised"
+    },
+    {
+      "id": "motion-canvas",
+      "clone": "https://github.com/motion-canvas/motion-canvas.git",
+      "revision": "7b91435c301d530351dcf5ebb91dd139c002e405",
+      "release": "scaffold 3.17.2",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/motion-canvas/motion-canvas/blob/7b91435c301d530351dcf5ebb91dd139c002e405/LICENSE",
+      "githubSnapshot": { "stars": 19005, "defaultBranchHeadDate": "2026-07-02", "latestRelease": "v3.17.2", "latestReleasePublishedOn": "2024-12-14", "capturedOn": "2026-08-26" },
+      "courseRole": "advanced",
+      "smoke": "scaffold validated; video export not claimed"
+    },
+    {
+      "id": "remotion",
+      "clone": "https://github.com/remotion-dev/remotion.git",
+      "revision": "7aee2f4b3d5c05c77761f2dc6ec5aeac701dcce8",
+      "release": "v4.0.517",
+      "license": "Custom Remotion License",
+      "licenseEvidence": "https://github.com/remotion-dev/remotion/blob/7aee2f4b3d5c05c77761f2dc6ec5aeac701dcce8/LICENSE.md",
+      "githubSnapshot": { "stars": 57328, "defaultBranchHeadDate": "2026-08-25", "latestRelease": "v4.0.517", "latestReleasePublishedOn": "2026-08-25", "capturedOn": "2026-08-26" },
+      "courseRole": "extension with license gate",
+      "smoke": "rendered"
+    },
+    {
+      "id": "remotion-skills",
+      "clone": "https://github.com/remotion-dev/skills.git",
+      "revision": "7c5c10caa5294d01b168a08c9648b4deef717274",
+      "release": null,
+      "license": "No standalone license found at pinned revision",
+      "licenseEvidence": null,
+      "githubSnapshot": { "stars": 4409, "defaultBranchHeadDate": "2026-08-25", "latestRelease": null, "latestReleasePublishedOn": null, "capturedOn": "2026-08-26" },
+      "courseRole": "workflow guidance",
+      "smoke": "documentation validated; not redistributed"
+    },
+    {
+      "id": "mafs",
+      "clone": "https://github.com/stevenpetryk/mafs.git",
+      "revision": "e74a3ef465f4ddc98704814d2ae18b73a6cd9dae",
+      "release": "v0.21.0",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/stevenpetryk/mafs/blob/e74a3ef465f4ddc98704814d2ae18b73a6cd9dae/LICENSE",
+      "githubSnapshot": { "stars": 3427, "defaultBranchHeadDate": "2025-03-30", "latestRelease": "v0.21.0", "latestReleasePublishedOn": "2024-10-20", "capturedOn": "2026-08-26" },
+      "courseRole": "companion",
+      "smoke": "repository contract validated; no video claim"
+    },
+    {
+      "id": "jsxgraph",
+      "clone": "https://github.com/jsxgraph/jsxgraph.git",
+      "revision": "02b2fd492dcc4249d0ab5d24b98d427788f2ab1e",
+      "release": "v1.13.2",
+      "license": "MIT OR LGPL-3.0-or-later",
+      "licenseEvidence": "https://github.com/jsxgraph/jsxgraph/blob/02b2fd492dcc4249d0ab5d24b98d427788f2ab1e/README.md#license",
+      "githubSnapshot": { "stars": 1427, "defaultBranchHeadDate": "2026-08-17", "latestRelease": "v1.13.2", "latestReleasePublishedOn": "2026-08-17", "capturedOn": "2026-08-26" },
+      "courseRole": "companion",
+      "smoke": "repository contract validated; no video claim"
+    }
+  ]
+}

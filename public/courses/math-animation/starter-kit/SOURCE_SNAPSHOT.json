@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "courseId": "math-animation",
+  "capturedOn": "2026-08-26",
+  "note": "These are evidence pins, not vendored dependencies. Re-run the course smoke checks before upgrading.",
+  "dependencies": [
+    {
+      "name": "Manim Community",
+      "clone": "https://github.com/ManimCommunity/manim.git",
+      "revision": "1dc796e9652273950d9863b35746c7329888e384",
+      "release": "v0.21.0",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/ManimCommunity/manim/blob/1dc796e9652273950d9863b35746c7329888e384/README.md#license",
+      "licenseNotices": [
+        "https://github.com/ManimCommunity/manim/blob/1dc796e9652273950d9863b35746c7329888e384/LICENSE",
+        "https://github.com/ManimCommunity/manim/blob/1dc796e9652273950d9863b35746c7329888e384/LICENSE.community"
+      ],
+      "boundary": "This kit links to Manim Community and does not vendor it. ManimGL commands and APIs are incompatible with this path."
+    },
+    {
+      "name": "Motion Canvas",
+      "clone": "https://github.com/motion-canvas/motion-canvas.git",
+      "revision": "7b91435c301d530351dcf5ebb91dd139c002e405",
+      "release": "v3.17.2",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/motion-canvas/motion-canvas/blob/7b91435c301d530351dcf5ebb91dd139c002e405/LICENSE",
+      "boundary": "The included original TSX fragment was type-checked and built in a fresh 3.17.2 scaffold; no final Motion Canvas video export is claimed."
+    }
+  ],
+  "courseFiles": {
+    "license": "MIT; see LICENSE",
+    "thirdPartyCodeVendored": false,
+    "thirdPartyMediaIncluded": false
+  }
+}
