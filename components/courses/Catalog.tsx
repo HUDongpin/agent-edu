@@ -598,9 +598,7 @@ export default function Catalog({ locale }: { locale: string }) {
   const [filtersReady, setFiltersReady] = useState(false);
 
   const directoryCourses = useMemo<readonly DirectoryCourse[]>(() =>
-    CATALOG_COURSE_RELEASES
-      .filter(({ surface }) => surface.interfaceLocales.includes(locale as ContentLocale))
-      .map(({ course, surface }) => {
+    CATALOG_COURSE_RELEASES.map(({ course, surface }) => {
         const requestedContentLocale = language !== ALL
           ? language
           : isContentLocale(locale)
@@ -631,8 +629,12 @@ export default function Catalog({ locale }: { locale: string }) {
           targetHref: rawHref && contentLocale
             ? withPublicCourseReturnLocale(rawHref, locale)
             : null,
-        };
-      }), [language, locale]);
+        } satisfies DirectoryCourse;
+      })
+      // Keep the registry map as the auditable source, then fail closed for a
+      // shell locale the record does not explicitly support.
+      .filter((course) => course.interfaceLocales.includes(locale as ContentLocale)),
+  [language, locale]);
 
   // Static export friendly: hydrate shareable filter state only in the browser.
   useEffect(() => {

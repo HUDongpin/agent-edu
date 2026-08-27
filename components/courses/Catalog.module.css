@@ -10,6 +10,8 @@
 }
 
 .filterControl :is(input, select) {
+  box-sizing: border-box;
+  block-size: 44px;
   inline-size: 100%;
   min-inline-size: 0;
 }

@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { PublicCourseId } from "@/lib/public-release-surface";
+import {
+  loadPublishedProgressAdapters,
+  useProgressAdaptersImporter,
+} from "../ProgressAdaptersProvider";
 
 type ProgressState = "pending" | "not-started" | "in-progress" | "completed" | "unavailable";
 
@@ -121,7 +125,7 @@ async function connectCourseShellProgress(
 export async function loadCourseShellProgress(
   courseId: PublicCourseId,
   locale: string,
-  importer: CourseShellProgressImporter = () => import("../progress-adapters"),
+  importer: CourseShellProgressImporter = loadPublishedProgressAdapters,
 ): Promise<CourseShellProgressSnapshot> {
   const connection = await connectCourseShellProgress(courseId, locale, importer);
   return connection?.read() ?? UNAVAILABLE_COURSE_SHELL_PROGRESS;
@@ -156,6 +160,7 @@ export default function CourseShellProgress({
   readonly locale: string;
   readonly labels: CourseShellProgressLabels;
 }) {
+  const importProgressAdapters = useProgressAdaptersImporter();
   const [snapshot, setSnapshot] = useState<CourseShellProgressSnapshot>(
     PENDING_COURSE_SHELL_PROGRESS,
   );
@@ -167,7 +172,7 @@ export default function CourseShellProgress({
     void connectCourseShellProgress(
       courseId,
       locale,
-      () => import("../progress-adapters"),
+      importProgressAdapters,
     ).then((connection) => {
       if (disposed) return;
       if (!connection) {
@@ -192,7 +197,7 @@ export default function CourseShellProgress({
       disposed = true;
       cleanup();
     };
-  }, [courseId, locale]);
+  }, [courseId, importProgressAdapters, locale]);
 
   const label = progressLabel(snapshot, labels);
   const interactive = snapshot.state !== "pending" && snapshot.state !== "unavailable";

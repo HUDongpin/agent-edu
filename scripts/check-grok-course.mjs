@@ -752,7 +752,10 @@ if (release) {
     if (packageJson.scripts?.["grok:check"] !== "node scripts/check-grok-course.mjs") {
       fail("package.json grok:check script is missing or changed");
     }
-    if (packageJson.scripts?.["grok:check:release"] !== "node scripts/check-grok-course.mjs --release") {
+    if (
+      packageJson.scripts?.["grok:check:release"] !==
+      "npm run release-manifest:assert && node scripts/check-grok-course.mjs --release"
+    ) {
       fail("package.json grok:check:release script is missing or changed");
     }
     if (packageJson.scripts?.["test:grok"] !== "playwright test tests/grok-course.spec.ts") {

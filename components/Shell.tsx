@@ -6,6 +6,7 @@ import MobileNav from "./MobileNav";
 import NavLinks from "./NavLinks";
 import RouteFocus from "./RouteFocus";
 import ProgressRecencyTracker from "./ProgressRecencyTracker";
+import ProgressAdaptersProvider from "./ProgressAdaptersProvider";
 import CourseLocaleReturn from "./CourseLocaleReturn";
 import { I18nProvider } from "./I18nProvider";
 import { translator, type Messages } from "@/lib/i18n";
@@ -87,7 +88,9 @@ export default async function Shell({
       <Suspense fallback={null}>
         <CourseLocaleReturn />
       </Suspense>
-      <main id="main">{children}</main>
+      <ProgressAdaptersProvider>
+        <main id="main">{children}</main>
+      </ProgressAdaptersProvider>
 
       <footer className="sitefoot">
         <div className="sitefoot-in">

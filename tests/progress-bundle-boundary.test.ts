@@ -403,13 +403,22 @@ test("CourseShell keeps static overview metadata out of its client island graph"
     join(ROOT, "components/course-shell/CourseShellProgress.tsx"),
     "utf8",
   );
+  const providerSource = readFileSync(
+    join(ROOT, "components/ProgressAdaptersProvider.tsx"),
+    "utf8",
+  );
+  const shellSource = readFileSync(join(ROOT, "components/Shell.tsx"), "utf8");
   assert.match(progressSource, /^["']use client["'];/u);
-  assert.match(progressSource, /import\(["']\.\.\/progress-adapters["']\)/u);
+  assert.match(progressSource, /useProgressAdaptersImporter/u);
+  assert.doesNotMatch(progressSource, /import\(["']\.\.\/progress-adapters["']\)/u);
   assert.doesNotMatch(
     progressSource,
     /^import\s+[\s\S]*?from\s+["']\.\.\/progress-adapters["']/mu,
     "the adapter registry must be a rejected-safe dynamic chunk, not initial client code",
   );
+  assert.match(providerSource, /import\(["']\.\/progress-adapters["']\)/u);
+  assert.match(providerSource, /progressAdaptersPromise/u);
+  assert.match(shellSource, /<ProgressAdaptersProvider>/u);
 
   const graph = clientDependencyGraph("components/course-shell/CourseShellProgress.tsx");
   const forbidden = graph.filter((path) => (

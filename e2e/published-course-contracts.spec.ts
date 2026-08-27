@@ -125,8 +125,19 @@ test("Agent Orchestration's version marker alone is not learner progress", async
   const response = await page.goto("/en/learning/");
   expect(response?.status()).toBe(200);
   await waitForLearningDashboard(page);
-  await expect(page.getByRole("heading", { name: "No learning progress yet" })).toBeVisible();
-  await expect(page.locator(".learning-course-card")).toHaveCount(0);
+  await expect(page.locator(
+    'section[aria-labelledby="learning-continue-title"] .learning-course-card',
+  )).toHaveCount(0);
+  await expect(page.locator(
+    'section[aria-labelledby="learning-in-progress-title"] .learning-course-card',
+  )).toHaveCount(0);
+  await expect(page.locator(
+    'section[aria-labelledby="learning-completed-title"] .learning-course-card',
+  )).toHaveCount(0);
+  await expect(page.locator(
+    'section[aria-labelledby="learning-suggested-title"] '
+      + '.learning-course-card[data-learning-state="not-started"]',
+  )).toHaveCount(3);
   expect(await page.evaluate(() => localStorage.getItem("ae.progress"))).toBe(versionOnly);
 });
 
@@ -150,7 +161,7 @@ test("Make Money with Codex reports same-tab completion and resumes the exact ne
   await expect(page).toHaveURL(/\/en\/learning\/$/);
   await waitForLearningDashboard(page);
   const action = page.locator(
-    `section[aria-labelledby="learning-in-progress-title"] a[href="${secondHref}"]`,
+    `section[aria-labelledby="learning-continue-title"] a[href="${secondHref}"]`,
   );
   await expect(action).toHaveAccessibleName(/Resume/);
   await action.click();

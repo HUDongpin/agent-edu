@@ -54,6 +54,7 @@ import {
   MAKE_MONEY_PROGRESS_SCHEMA,
 } from "../lib/progress-topology";
 import { withIsolatedRoutePage } from "../tests/published-course-test-helpers";
+import publicSurface from "../config/course-public-surface.json" with { type: "json" };
 import releaseSurface from "../config/course-release-surface.json" with { type: "json" };
 import { expect, test } from "./fixtures";
 
@@ -748,6 +749,18 @@ async function waitForLearningDashboard(page: Page) {
     .toHaveAttribute("aria-busy", "false");
 }
 
+async function expectFreshLearningSections(page: Page) {
+  for (const section of ["continue", "in-progress", "completed"] as const) {
+    await expect(page.locator(
+      `section[aria-labelledby="learning-${section}-title"] .learning-course-card`,
+    )).toHaveCount(0);
+  }
+  await expect(page.locator(
+    'section[aria-labelledby="learning-suggested-title"] '
+      + '.learning-course-card[data-learning-state="not-started"]',
+  )).toHaveCount(3);
+}
+
 function expectedPublishedUrls() {
   const urls = new Set<string>();
 
@@ -978,7 +991,8 @@ async function expectEnglishRecoverySurface(
 }
 
 test("release registry pins exactly the approved twelve-course surface", () => {
-  expect(releaseSurface.schemaVersion).toBe(2);
+  expect(releaseSurface.schemaVersion).toBe(3);
+  expect(releaseSurface.manifestKind).toBe("course-release-surface-projection");
   expect(publishedCourses.map((course) => course.id).sort()).toEqual(
     [...EXPECTED_PUBLISHED_IDS].sort(),
   );
@@ -1421,7 +1435,7 @@ test("catalog loading and empty-filter states are distinct and recoverable", asy
 
   await empty.locator(".catalog-empty-reset").click();
   await expect(empty).toHaveCount(0);
-  await expect(page.locator("li.catalog-course-card")).toHaveCount(releaseSurface.courses.length);
+  await expect(page.locator("li.catalog-course-card")).toHaveCount(publicSurface.courses.length);
   await expect(page.locator(".catalog-search-input")).toHaveValue("");
 });
 
@@ -1464,15 +1478,18 @@ test("sitemap files equal the registry-derived localized route set", async ({ re
   }
 });
 
-test("a fresh learner gets an honest empty state and a catalogue action", async ({ page }) => {
+test("a fresh learner gets honest empty journey groups and bounded suggestions", async ({ page }) => {
   const response = await page.goto("/en/learning/");
   expect(response?.status()).toBe(200);
   await waitForLearningDashboard(page);
 
-  await expect(page.getByRole("heading", { name: "No learning progress yet" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Browse courses/ }))
-    .toHaveAttribute("href", "/en/courses/");
-  await expect(page.locator(".learning-course-card")).toHaveCount(0);
+  await expectFreshLearningSections(page);
+  await expect(page.locator(
+    'section[aria-labelledby="learning-suggested-title"] a.learning-course-action',
+  )).toHaveCount(3);
+  await expect(page.locator(
+    'section[aria-labelledby="learning-suggested-title"] a.learning-course-action',
+  ).first()).toHaveAccessibleName(/Start/);
   await expect(page.locator('header a[href="/en/learning/"]'))
     .toHaveAttribute("aria-current", "page");
 });
@@ -1526,7 +1543,7 @@ test("Home to lesson to My Learning resumes the exact next Grok lesson", async (
   await expectPrimaryHeadingFocused(page);
 });
 
-test("a completed course is grouped separately and offers Review", async ({ page }) => {
+test("a completed course becomes Continue when no course is in progress and offers Review", async ({ page }) => {
   await page.addInitScript((progress) => {
     localStorage.setItem("aicourse.grok.progress.v1", JSON.stringify(progress));
   }, COMPLETE_GROK_PROGRESS);
@@ -1535,14 +1552,17 @@ test("a completed course is grouped separately and offers Review", async ({ page
   expect(response?.status()).toBe(200);
   await waitForLearningDashboard(page);
 
-  const completed = page.locator('section[aria-labelledby="learning-completed-title"]');
-  await expect(completed).toBeVisible();
-  const grokCard = completed.locator(".learning-course-card").filter({
+  const continueGroup = page.locator('section[aria-labelledby="learning-continue-title"]');
+  await expect(continueGroup).toBeVisible();
+  const grokCard = continueGroup.locator(".learning-course-card").filter({
     has: page.getByRole("heading", { name: "How to Use Grok" }),
   });
   await expect(grokCard).toContainText("100%");
   await expect(grokCard.getByRole("link", { name: /Review/ }))
     .toHaveAttribute("href", "/en/grok/");
+  await expect(page.locator(
+    'section[aria-labelledby="learning-completed-title"] .learning-course-card',
+  )).toHaveCount(0);
 });
 
 test("unavailable browser storage is announced without a fabricated zero", async ({ page }) => {
@@ -1582,8 +1602,10 @@ test("corrupt progress is quarantined without overwriting the raw record or show
   await expect(page.locator(".learning-storage-warning")).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem("aicourse.grok.progress.v1")))
     .toBe(corruptRaw);
-  await expect(page.locator(".learning-course-card")).toHaveCount(0);
-  await expect(page.getByRole("progressbar")).toHaveCount(0);
+  await expectFreshLearningSections(page);
+  await expect(page.locator(".learning-course-card").filter({
+    has: page.getByRole("heading", { name: "How to Use Grok" }),
+  })).toHaveCount(0);
 });
 
 test("global reset cancels cleanly, then clears progress but preserves device preferences and drafts", async ({ page }) => {
@@ -1676,8 +1698,9 @@ test("global reset cancels cleanly, then clears progress but preserves device pr
     await dialog.accept();
   });
   await reset.click();
-  await expect(page.locator(".learning-reset-feedback")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "No learning progress yet" })).toBeVisible();
+  await expect(page.locator('.learning-feedback[role="status"][aria-live="polite"]'))
+    .toHaveText("All active learning progress on this device was cleared.");
+  await expectFreshLearningSections(page);
 
   const afterReset = await snapshot();
   expect(afterReset.theme).toBe("dark");
@@ -1770,7 +1793,7 @@ test("confirmed reset quarantines all corrupt owners byte-exactly and reloads fr
   await reset.click();
   await expect.poll(snapshot, { message: "cancel must preserve every tracked byte" })
     .toEqual(beforeCancel);
-  await expect(page.locator(".learning-reset-feedback")).toHaveCount(0);
+  await expect(page.locator(".learning-feedback")).toHaveCount(0);
 
   page.once("dialog", async (dialog) => {
     expect(dialog.type()).toBe("confirm");
@@ -1778,11 +1801,11 @@ test("confirmed reset quarantines all corrupt owners byte-exactly and reloads fr
   });
   await reset.click();
 
-  const feedback = page.locator('.learning-reset-feedback[role="status"][aria-live="polite"]');
+  const feedback = page.locator('.learning-feedback[role="status"][aria-live="polite"]');
   await expect(feedback).toHaveText(
     "Active learning progress was cleared. One or more unreadable records were moved to inactive recovery storage on this device and will not be used as progress.",
   );
-  await expect(page.getByRole("heading", { name: "No learning progress yet" })).toBeVisible();
+  await expectFreshLearningSections(page);
 
   const afterReset = await snapshot();
   expect(afterReset.active).toEqual({
@@ -1800,10 +1823,8 @@ test("confirmed reset quarantines all corrupt owners byte-exactly and reloads fr
 
   await page.reload();
   await waitForLearningDashboard(page);
-  await expect(page.getByRole("heading", { name: "No learning progress yet" })).toBeVisible();
+  await expectFreshLearningSections(page);
   await expect(page.locator(".learning-storage-warning")).toHaveCount(0);
-  await expect(page.locator(".learning-course-card")).toHaveCount(0);
-  await expect(page.getByRole("progressbar")).toHaveCount(0);
   expect((await snapshot()).protected).toEqual(protectedValues);
 });
 
@@ -1831,7 +1852,7 @@ test("a conflicting quarantine slot keeps corrupt active progress and reports an
   page.once("dialog", async (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Clear all progress" }).click();
 
-  const feedback = page.locator('.learning-reset-feedback[role="status"][aria-live="polite"]');
+  const feedback = page.locator('.learning-feedback[role="status"][aria-live="polite"]');
   await expect(feedback).toHaveText(
     "The current tab was reset, but one or more records on this device could not be cleared safely. They may reappear after refresh.",
   );
@@ -1855,8 +1876,9 @@ test("an Arabic catalogue declares English-only content before crossing locales"
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 
   const promptCard = page.locator("#how-to-write-prompts");
-  await expect(promptCard.locator(".catalog-course-meta"))
-    .toContainText("محتوى الدورة: الإنجليزية");
+  await expect(promptCard.locator('[data-course-content-language="en"]'))
+    .toContainText("English");
+  await expect(promptCard.locator('[data-course-language-fallback="true"]')).toBeVisible();
   const courseLink = promptCard.locator('a[href^="/en/prompts/"]');
   await expect(courseLink).toHaveAttribute("href", "/en/prompts/?fromLocale=ar");
   await courseLink.click();

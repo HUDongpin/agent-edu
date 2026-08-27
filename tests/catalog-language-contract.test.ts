@@ -54,7 +54,7 @@ test("public course projection separates interface, reviewed content, and fallba
 });
 
 test("catalog consumes the language contract before navigation", () => {
-  assert.match(catalogSource, /surface\.interfaceLocales\.includes/);
+  assert.match(catalogSource, /course\.interfaceLocales\.includes/);
   assert.match(catalogSource, /surface\.reviewedContentLocales/);
   assert.match(catalogSource, /surface\.fallbackLocale/);
   assert.match(catalogSource, /data-course-content-language/);
