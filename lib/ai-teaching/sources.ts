@@ -1,0 +1,518 @@
+import type { AgenticTeachingSource } from "./types";
+
+/**
+ * The public source ledger is intentionally claim-level. GitHub establishes
+ * inspectable capabilities, X establishes dated announcements, and research
+ * or official guidance carries learning/governance claims. None is silently
+ * promoted into evidence of general educational effectiveness.
+ */
+export const AGENTIC_TEACHING_SOURCES = [
+  {
+    id: "S01",
+    title: "OpenAI Agents SDK for Python",
+    publisher: "OpenAI",
+    url: "https://github.com/openai/openai-agents-python",
+    kind: "github-repository",
+    role: "inspectable-implementation",
+    stability: "version-pinned",
+    accessedOn: "2026-08-26",
+    revision: "5f9f4f09c3fe840b5a4c09bdbbf6f0b1239bf0ec",
+    license: "MIT",
+    claimEvidenceUrls: [
+      "https://github.com/openai/openai-agents-python/blob/5f9f4f09c3fe840b5a4c09bdbbf6f0b1239bf0ec/README.md",
+      "https://github.com/openai/openai-agents-python/blob/5f9f4f09c3fe840b5a4c09bdbbf6f0b1239bf0ec/docs/human_in_the_loop.md",
+      "https://github.com/openai/openai-agents-python/blob/5f9f4f09c3fe840b5a4c09bdbbf6f0b1239bf0ec/docs/tracing.md",
+      "https://github.com/openai/openai-agents-python/blob/5f9f4f09c3fe840b5a4c09bdbbf6f0b1239bf0ec/docs/guardrails.md",
+      "https://github.com/openai/openai-agents-python/blob/5f9f4f09c3fe840b5a4c09bdbbf6f0b1239bf0ec/docs/testing.md",
+    ],
+    reuseStatus: "reuse-with-license-notice",
+    rightsDecision: {
+      en: "Link to the pinned repository and documentation files, and retain the MIT notice.",
+      "zh-Hans": "链接固定提交与固定文档文件，并保留 MIT 声明。",
+    },
+    supports: {
+      en: "Agents, tools, handoffs, guardrails, human approval, tracing and testing are available engineering primitives.",
+      "zh-Hans": "可核验 agents、tools、handoff、guardrail、人工审批、追踪与测试等工程原语。",
+    },
+    boundary: {
+      en: "SDK features do not prove learning impact, correctness, safety or school compliance; traces may contain sensitive inputs and outputs.",
+      "zh-Hans": "SDK 功能不证明学习成效、正确性、安全或学校合规；追踪可能包含敏感输入输出。",
+    },
+  },
+  {
+    id: "S02",
+    title: "Model Context Protocol specification",
+    publisher: "Model Context Protocol project",
+    url: "https://github.com/modelcontextprotocol/modelcontextprotocol",
+    kind: "github-repository",
+    role: "inspectable-implementation",
+    stability: "version-pinned",
+    accessedOn: "2026-08-26",
+    revision: "57ac4a2ec742e0cb7622d899b0f5d3bcf769fd69 · specification 2026-07-28",
+    license: "Apache-2.0 / CC BY 4.0 / earlier MIT content; inspect the target file",
+    claimEvidenceUrls: [
+      "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/57ac4a2ec742e0cb7622d899b0f5d3bcf769fd69/docs/specification/2026-07-28/architecture/index.mdx",
+      "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/57ac4a2ec742e0cb7622d899b0f5d3bcf769fd69/SECURITY.md",
+    ],
+    reuseStatus: "link-and-summarise",
+    rightsDecision: {
+      en: "Link and paraphrase. Check the licence of every copied specification, code or documentation file.",
+      "zh-Hans": "以链接和摘要为主；复制规范、代码或文档前逐文件核对许可。",
+    },
+    supports: {
+      en: "MCP defines host-client-server boundaries and resources, tools, prompts and capability negotiation.",
+      "zh-Hans": "MCP 定义 host-client-server 边界，以及 resources、tools、prompts 与能力协商。",
+    },
+    boundary: {
+      en: "MCP is a connection protocol, not a pedagogy, orchestrator, security audit or automatic least-privilege system.",
+      "zh-Hans": "MCP 是连接协议，不是教学法、编排器、安全审计或自动最小权限系统。",
+    },
+  },
+  {
+    id: "S03",
+    title: "Anthropic computer-use demo",
+    publisher: "Anthropic",
+    url: "https://github.com/anthropics/claude-quickstarts/tree/3313e9716fb5b977248bcd06cb0cc86a8c547b9b/computer-use-demo",
+    kind: "github-repository",
+    role: "inspectable-implementation",
+    stability: "version-pinned",
+    accessedOn: "2026-08-26",
+    revision: "3313e9716fb5b977248bcd06cb0cc86a8c547b9b",
+    license: "MIT",
+    claimEvidenceUrls: [
+      "https://github.com/anthropics/claude-quickstarts/tree/3313e9716fb5b977248bcd06cb0cc86a8c547b9b/computer-use-demo",
+    ],
+    reuseStatus: "reuse-with-license-notice",
+    rightsDecision: {
+      en: "Use the pinned demo as an inspectable risk case and retain the MIT notice.",
+      "zh-Hans": "把固定版本 demo 作为可检查的风险案例，并保留 MIT 声明。",
+    },
+    supports: {
+      en: "A computer-use loop can act through a browser; the demo recommends isolation, minimum privilege, allowlists and confirmation for consequential actions.",
+      "zh-Hans": "计算机使用循环可操作浏览器；demo 建议隔离、最小权限、域名白名单及有后果动作前确认。",
+    },
+    boundary: {
+      en: "A minimal beta demo does not establish safe operation in an LMS, SIS, email or any environment containing learner credentials.",
+      "zh-Hans": "最小 beta demo 不证明其可安全操作含学生凭据的 LMS、SIS、邮件或其他环境。",
+    },
+  },
+  {
+    id: "S04",
+    title: "Browser Use",
+    publisher: "Browser Use",
+    url: "https://github.com/browser-use/browser-use",
+    kind: "github-repository",
+    role: "inspectable-implementation",
+    stability: "version-pinned",
+    accessedOn: "2026-08-26",
+    revision: "9a2db2d2db42c6f68a871f011b3b25fdcaa71847",
+    license: "MIT",
+    claimEvidenceUrls: [
+      "https://github.com/browser-use/browser-use/blob/9a2db2d2db42c6f68a871f011b3b25fdcaa71847/README.md",
+      "https://github.com/browser-use/browser-use/blob/9a2db2d2db42c6f68a871f011b3b25fdcaa71847/skills/cloud/references/guides/subagent.md",
+      "https://github.com/browser-use/browser-use/blob/9a2db2d2db42c6f68a871f011b3b25fdcaa71847/browser_use/tools/service.py",
+      "https://github.com/browser-use/browser-use/blob/9a2db2d2db42c6f68a871f011b3b25fdcaa71847/browser_use/browser/session.py",
+    ],
+    reuseStatus: "reuse-with-license-notice",
+    rightsDecision: {
+      en: "Link to pinned code; distinguish the open-source package from commercial cloud terms.",
+      "zh-Hans": "链接固定代码；明确区分开源包与商业云服务条款。",
+    },
+    supports: {
+      en: "Browser agents can open pages, inspect state, click, type, upload and take screenshots in a persistent session.",
+      "zh-Hans": "浏览器智能体可在持久会话中打开页面、读取状态、点击、输入、上传及截图。",
+    },
+    boundary: {
+      en: "Capability is not permission: real profiles, cookies, prompt injection, UI drift and accidental submission remain material risks.",
+      "zh-Hans": "能力不等于授权：真实 profile、cookie、提示注入、界面漂移和误提交仍是实质风险。",
+    },
+  },
+  {
+    id: "S05",
+    title: "Google Agent Development Kit for Python",
+    publisher: "Google",
+    url: "https://github.com/google/adk-python",
+    kind: "github-repository",
+    role: "inspectable-implementation",
+    stability: "version-pinned",
+    accessedOn: "2026-08-26",
+    revision: "ef2d68080a05f2fc3e00634c4f6c4d3d43c2a7f1",
+    license: "Apache-2.0",
+    claimEvidenceUrls: [
+      "https://github.com/google/adk-python/blob/ef2d68080a05f2fc3e00634c4f6c4d3d43c2a7f1/README.md",
+      "https://github.com/google/adk-python/blob/ef2d68080a05f2fc3e00634c4f6c4d3d43c2a7f1/contributing/samples/patterns/workflow_triage/README.md",
+    ],
+    reuseStatus: "reuse-with-license-notice",
+    rightsDecision: {
+      en: "Use pinned architecture examples with Apache-2.0 attribution; model and cloud terms remain separate.",
+      "zh-Hans": "引用固定架构示例并保留 Apache-2.0 署名；模型与云服务条款另行处理。",
+    },
+    supports: {
+      en: "Coordinator, sequential and parallel workers, shared state, clarification, tracing and evaluation are implementable patterns.",
+      "zh-Hans": "协调器、顺序/并行 worker、共享状态、澄清、追踪和评测是可实现模式。",
+    },
+    boundary: {
+      en: "A framework sample does not show that more agents improve instruction; complexity adds cost and failure modes.",
+      "zh-Hans": "框架示例不证明更多智能体改善教学；复杂度会增加成本与故障模式。",
+    },
+  },
+  {
+    id: "S06",
+    title: "Oak Open Curriculum Ecosystem",
+    publisher: "Oak National Academy",
+    url: "https://github.com/oaknational/oak-open-curriculum-ecosystem",
+    kind: "github-repository",
+    role: "inspectable-implementation",
+    stability: "version-pinned",
+    accessedOn: "2026-08-26",
+    revision: "1173c1adf252eab2dbe7d95f2494139f51504243 · public beta",
+    license: "Code MIT; curriculum/data and brand carry separate terms",
+    claimEvidenceUrls: [
+      "https://github.com/oaknational/oak-open-curriculum-ecosystem/blob/1173c1adf252eab2dbe7d95f2494139f51504243/README.md",
+    ],
+    reuseStatus: "link-and-summarise",
+    rightsDecision: {
+      en: "Link and summarise. Treat code, curriculum data, evidence content and marks as separate rights layers.",
+      "zh-Hans": "链接并摘要；代码、课程数据、证据内容与品牌标识按不同权利层处理。",
+    },
+    supports: {
+      en: "A structured curriculum API, search, graph and MCP surface can expose lessons, prerequisites and misconceptions to approved tools.",
+      "zh-Hans": "结构化课程 API、搜索、图谱及 MCP 界面可向获批工具提供课时、先备知识和误概念。",
+    },
+    boundary: {
+      en: "The public beta is centred on England; retrieval does not guarantee local alignment, age suitability, accuracy or learning impact.",
+      "zh-Hans": "该 public beta 主要对齐英格兰；检索不保证本地对齐、适龄、准确或学习成效。",
+    },
+  },
+  {
+    id: "S07",
+    title: "Tutor CoPilot: A Human-AI Approach for Scaling Real-Time Expertise",
+    publisher: "EdWorkingPapers",
+    url: "https://github.com/rosewang2008/tutor-copilot/",
+    kind: "research",
+    role: "learning-evidence",
+    stability: "version-pinned",
+    accessedOn: "2026-08-26",
+    publishedOn: "2025-11",
+    revision: "paper revision 2025-11 · repository 25c6eab7e416614f2033358bceddd30a4d5ca616",
+    license: "Demo Apache-2.0; paper terms apply separately",
+    claimEvidenceUrls: [
+      "https://scale.stanford.edu/sites/default/files/ai24_1054_v2.pdf",
+      "https://github.com/rosewang2008/tutor-copilot/tree/25c6eab7e416614f2033358bceddd30a4d5ca616",
+    ],
+    reuseStatus: "link-and-summarise",
+    rightsDecision: {
+      en: "Cite the named paper version and link the demo; do not merge numerical claims across versions.",
+      "zh-Hans": "引用指定论文版本并链接 demo；不得混用不同版本的数字。",
+    },
+    supports: {
+      en: "In a tutor-randomised intention-to-treat study, access to Tutor CoPilot increased the unconditional exit-ticket pass rate from 62% to 66% (+4 p.p.); in the lower-rated-tutor stratum, it rose from 56% to 65% (+9 p.p.).",
+      "zh-Hans": "在以导师为随机化单位的 ITT 现场实验中，获得 Tutor CoPilot 访问权限的导师所教学生，无条件 exit-ticket 通过率由 62% 升至 66%（+4 个百分点）；低评分导师层由 56% 升至 65%（+9 个百分点）。",
+    },
+    boundary: {
+      en: "The result is tied to the platform, districts, subject, tutors and paper version; it does not support an autonomous AI teacher or universal effects.",
+      "zh-Hans": "结果受平台、学区、学科、导师及论文版本限制；不支持自主 AI 教师或普遍效果。",
+    },
+  },
+  {
+    id: "S08",
+    title: "Open Multi-Agent Interactive Classroom",
+    publisher: "THU-MAIC",
+    url: "https://github.com/THU-MAIC/OpenMAIC",
+    kind: "github-repository",
+    role: "inspectable-implementation",
+    stability: "version-pinned",
+    accessedOn: "2026-08-26",
+    revision: "4a9f906a1378a51b84e020828cf8af25bb5d8a2d",
+    license: "Root MIT at pinned revision; third-party packages differ",
+    claimEvidenceUrls: [
+      "https://github.com/THU-MAIC/OpenMAIC/blob/4a9f906a1378a51b84e020828cf8af25bb5d8a2d/README.md",
+      "https://doi.org/10.1007/s11390-025-6000-0",
+    ],
+    reuseStatus: "link-and-summarise",
+    rightsDecision: {
+      en: "Link to the pinned revision and inspect each bundled dependency or generated asset before reuse.",
+      "zh-Hans": "链接固定版本；复用依赖或生成资产前逐项核查。",
+    },
+    supports: {
+      en: "An inspectable system can orchestrate AI teacher/peer roles, slides, quizzes, simulations and project scenarios.",
+      "zh-Hans": "可检查系统能够编排 AI 教师/同伴角色、课件、测验、模拟及项目场景。",
+    },
+    boundary: {
+      en: "Generated content, real-time scoring, multiple roles and repository visibility do not prove correctness, safety or learning gains.",
+      "zh-Hans": "生成内容、实时评分、多角色及仓库可见度不证明正确、安全或学习增益。",
+    },
+  },
+  {
+    id: "S09",
+    title: "Generative AI without guardrails can harm learning: Evidence from high school mathematics",
+    publisher: "Bastani et al. · PNAS",
+    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12232635/",
+    kind: "research",
+    role: "learning-evidence",
+    stability: "stable-concept",
+    accessedOn: "2026-08-26",
+    publishedOn: "2025-06-25",
+    revision: "PNAS 122(26) · affiliation-only correction published online 2025-08-20 (PNAS 122(34), e2518204122) · analysis repository 2f63dae1a01d51453826fe07ef5cf6678e339588",
+    claimEvidenceUrls: [
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC12232635/",
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC12403119/",
+      "https://github.com/obastani/GenAICanHarmLearning/tree/2f63dae1a01d51453826fe07ef5cf6678e339588",
+    ],
+    reuseStatus: "link-only",
+    rightsDecision: {
+      en: "Cite and link the open article and analysis record; do not republish code or data without a separate licence review.",
+      "zh-Hans": "引用并链接开放论文与分析记录；未单独核验许可前不再发布代码或数据。",
+    },
+    supports: {
+      en: "In a PNAS field experiment involving nearly 1,000 students across about 50 ninth- to eleventh-grade classes in one Turkish high school, classrooms were assigned to control, GPT Base or GPT Tutor. Unguarded GPT improved assisted practice, yet the GPT Base group scored 17% lower than control once AI was removed; the teacher-informed, guardrailed GPT Tutor largely mitigated that negative effect but showed no positive exam effect.",
+      "zh-Hans": "在一项发表于 PNAS 的现场实验中，土耳其一所高中的接近 1,000 名九至十一年级学生分布于约 50 个班；班级被分入无 AI 对照、GPT Base 或 GPT Tutor。无护栏 GPT 提高了有 AI 时的练习表现，但移除 AI 后 GPT Base 组考试成绩比对照低 17%；采用教师输入与提示护栏的 GPT Tutor 大幅缓解了该负效应，却未显示正向考试效果。",
+    },
+    boundary: {
+      en: "The classroom—not the individual student—was the unit of randomization; class assignments used an integer program that matched observed characteristics while satisfying scheduling constraints, and standard errors were clustered by classroom. Regular-class students had been randomly assigned to classrooms, while honors-designated classrooms were excluded from the main sample. Do not generalise the 17% result across subjects, countries, models or time, or confuse assisted task performance with independent learning. A later PNAS correction changed only Osbert Bastani’s affiliation, not the study design, data, analyses or results.",
+      "zh-Hans": "随机化单位是班级而非学生个体；班级分组采用整数规划，在匹配可观测特征的同时满足排课约束，标准误按班级聚类。常规班学生原先由学校随机分班，荣誉班不纳入主样本。不得把 17% 外推到其他学科、国家、模型或时期，也不得混淆辅助任务表现与独立学习。PNAS 后续勘误只更正 Osbert Bastani 的作者单位，不涉及研究设计、数据、分析或结果。",
+    },
+  },
+  {
+    id: "S10",
+    title: "AI tutoring outperforms in-class active learning: an RCT introducing a novel research-based design in an authentic educational setting",
+    publisher: "Kestin et al. · Scientific Reports",
+    url: "https://www.nature.com/articles/s41598-025-97652-6",
+    kind: "research",
+    role: "learning-evidence",
+    stability: "stable-concept",
+    accessedOn: "2026-08-26",
+    publishedOn: "2025-06-03",
+    revision: "Scientific Reports 15, 17458 · data repository c5bf864c5369fbedd61c248743a89da95dcaa114",
+    claimEvidenceUrls: [
+      "https://www.nature.com/articles/s41598-025-97652-6",
+      "https://github.com/HarvardAItutor/Study-Data-v4/tree/c5bf864c5369fbedd61c248743a89da95dcaa114",
+    ],
+    reuseStatus: "link-and-summarise",
+    rightsDecision: {
+      en: "Cite the open article and link its data entry; avoid reproducing figures or data without asset-level review.",
+      "zh-Hans": "引用开放论文并链接数据入口；未逐资产审查前不复制图表或数据。",
+    },
+    supports: {
+      en: "A customised tutor produced greater short-term learning gains in a crossover study of 194 eligible students in one Harvard physics course.",
+      "zh-Hans": "在一门哈佛本科物理课、194 名符合条件学生的交叉实验中，定制 tutor 取得更高的短期学习增益。",
+    },
+    boundary: {
+      en: "This was two lessons, one course and one tailored system; it does not show that AI generally outperforms teachers or classrooms.",
+      "zh-Hans": "研究仅涉及两次课、一门课程和一个定制系统；不证明 AI 普遍优于教师或课堂。",
+    },
+  },
+  {
+    id: "S11",
+    title: "AI Assistance for Discretionary Work: Increasing Feedback Provision in Higher Education",
+    publisher: "Mahinpei et al. · arXiv preprint",
+    url: "https://arxiv.org/abs/2606.03095",
+    kind: "research",
+    role: "learning-evidence",
+    stability: "version-pinned",
+    accessedOn: "2026-08-26",
+    publishedOn: "2026-06-02",
+    revision: "arXiv v1 · repository e4613f58a71777e29f8c2a4310db90d108f24557",
+    claimEvidenceUrls: [
+      "https://arxiv.org/abs/2606.03095",
+      "https://github.com/humans-and-machines/ai-feedback-provision/tree/e4613f58a71777e29f8c2a4310db90d108f24557",
+    ],
+    reuseStatus: "link-only",
+    rightsDecision: {
+      en: "Cite the preprint version and link the repository; write an original exercise rather than copying unlicensed code.",
+      "zh-Hans": "引用预印本版本并链接仓库；用原创练习替代未经许可核验的代码复制。",
+    },
+    supports: {
+      en: "In one small university experiment, AI drafts shown only after TA grading increased feedback provision by 10.8 percentage points; the draft remained editable.",
+      "zh-Hans": "在一项小型大学实验中，TA 完成评分后出现的可编辑 AI 草稿使反馈提供率提高 10.8 个百分点。",
+    },
+    boundary: {
+      en: "This preprint does not establish learning gains, automated grading validity, total time savings or general effects.",
+      "zh-Hans": "该预印本不证明学习增益、自动评分效度、总时间节省或普遍效果。",
+    },
+  },
+  {
+    id: "S12",
+    title: "Subagents are now available in Codex",
+    publisher: "OpenAI Developers on X",
+    url: "https://x.com/OpenAIDevs/status/2033636701848174967",
+    kind: "x-post",
+    role: "field-signal",
+    stability: "dated-post",
+    accessedOn: "2026-08-26",
+    publishedOn: "2026-03-16",
+    claimEvidenceUrls: [
+      "https://x.com/OpenAIDevs/status/2033636701848174967",
+      "https://publish.twitter.com/oembed?url=https%3A%2F%2Fx.com%2FOpenAIDevs%2Fstatus%2F2033636701848174967&omit_script=true",
+      "https://x.com/OpenAIDevs/status/2033636713877430747",
+    ],
+    reuseStatus: "link-only",
+    rightsDecision: {
+      en: "Link and paraphrase the dated post; do not copy its media.",
+      "zh-Hans": "链接并摘要转述带日期原帖；不复制帖子媒体。",
+    },
+    statusId: "2033636701848174967",
+    authorIdentity: "OpenAI Developers (@OpenAIDevs)",
+    authorRole: "Official OpenAI developer account",
+    threadContext: "Part of an official same-author self-thread. The target status was verified through X oEmbed on 2026-08-26; the live X thread also exposed same-author continuation status 2033636713877430747. Course claims rely only on the target status and current first-party documentation.",
+    mediaContext: "Media is not reused; the course preserves a text summary and first-party links.",
+    corroboratingUrls: [
+      "https://developers.openai.com/codex/subagents",
+    ],
+    supports: {
+      en: "The official account announced Codex subagents and described keeping the main context window clean, tackling task parts in parallel and steering individual agents as product capabilities on that date.",
+      "zh-Hans": "该官方账号在当日宣布 Codex subagents，并把保持主上下文整洁、并行处理任务不同部分及运行中干预单个智能体描述为产品能力。",
+    },
+    boundary: {
+      en: "The post is a release signal, not evidence that subagents make teaching faster, safer or more effective.",
+      "zh-Hans": "该帖仅是发布信号，不证明 subagents 让教学更快、更安全或更有效。",
+    },
+  },
+  {
+    id: "S13",
+    title: "OpenAI Study Mode announcement",
+    publisher: "OpenAI on X",
+    url: "https://x.com/OpenAI/status/1950240351547248941",
+    kind: "x-post",
+    role: "field-signal",
+    stability: "dated-post",
+    accessedOn: "2026-08-26",
+    publishedOn: "2025-07-29",
+    claimEvidenceUrls: [
+      "https://x.com/OpenAI/status/1950240351547248941",
+      "https://publish.twitter.com/oembed?url=https%3A%2F%2Fx.com%2FOpenAI%2Fstatus%2F1950240351547248941&omit_script=true",
+      "https://x.com/OpenAI/status/1950240348695072934",
+      "https://x.com/OpenAI/status/1950240350129574358",
+    ],
+    reuseStatus: "link-only",
+    rightsDecision: {
+      en: "Link and briefly paraphrase the announcement; current behaviour must be checked in current product documentation.",
+      "zh-Hans": "链接并简短转述公告；当前功能须另查现行产品文档。",
+    },
+    statusId: "1950240351547248941",
+    authorIdentity: "OpenAI (@OpenAI)",
+    authorRole: "Official OpenAI account",
+    threadContext: "Part of an official same-author self-thread. The target status was verified through X oEmbed on 2026-08-26; the live X thread also exposed preceding same-author statuses 1950240348695072934 and 1950240350129574358. Course claims rely only on the target status and corroborating first-party documentation.",
+    mediaContext: "No embedded media is required for the instructional claim.",
+    corroboratingUrls: [
+      "https://openai.com/index/chatgpt-study-mode/",
+    ],
+    supports: {
+      en: "OpenAI framed Study Mode as a first step toward guided learning and referenced educator participation.",
+      "zh-Hans": "OpenAI 把 Study Mode 定位为引导式学习的第一步，并提及教育者参与。",
+    },
+    boundary: {
+      en: "A launch statement is not evidence of learning impact, current features, universal suitability or safety.",
+      "zh-Hans": "发布声明不证明学习成效、当前功能、普遍适用性或安全。",
+    },
+  },
+  {
+    id: "S14",
+    title: "OpenMAIC release post",
+    publisher: "Jifan Yu on X",
+    url: "https://x.com/yujifan_0326/status/2033174084331475423",
+    kind: "x-post",
+    role: "field-signal",
+    stability: "dated-post",
+    accessedOn: "2026-08-26",
+    publishedOn: "2026-03-15",
+    claimEvidenceUrls: [
+      "https://x.com/yujifan_0326/status/2033174084331475423",
+      "https://publish.twitter.com/oembed?url=https%3A%2F%2Fx.com%2Fyujifan_0326%2Fstatus%2F2033174084331475423&omit_script=true",
+      "https://x.com/yujifan_0326/status/2033174088672510069",
+      "https://x.com/yujifan_0326/status/2033189543579648306",
+      "https://x.com/yujifan_0326/status/2033196896555319416",
+    ],
+    reuseStatus: "link-only",
+    rightsDecision: {
+      en: "Link and paraphrase the author post; use the pinned repository for architecture and licence claims.",
+      "zh-Hans": "链接并摘要作者原帖；架构与许可主张以固定仓库为准。",
+    },
+    statusId: "2033174084331475423",
+    authorIdentity: "Jifan Yu (@yujifan_0326)",
+    authorRole: "OpenMAIC author",
+    threadContext: "The target is labelled (1/2) in a numbered two-part announcement. The live same-author self-thread also exposed statuses 2033174088672510069, 2033189543579648306 and 2033196896555319416. Course claims rely only on the target status and the pinned repository/paper.",
+    mediaContext: "No post media is copied; the repository is the inspectable companion source.",
+    corroboratingSourceIds: ["S08"],
+    supports: {
+      en: "An author announced the multi-agent classroom project and its generative architecture on that date.",
+      "zh-Hans": "项目作者在当日发布多智能体课堂项目及其生成式架构主张。",
+    },
+    boundary: {
+      en: "An author announcement cannot establish learning outcomes, reliability, adoption or classroom safety.",
+      "zh-Hans": "作者公告不能证明学习结果、可靠性、采用率或课堂安全。",
+    },
+  },
+  {
+    id: "S15",
+    title: "Guidance for generative AI in education and research",
+    publisher: "UNESCO",
+    url: "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research?hub=387",
+    kind: "official-guidance",
+    role: "governance-boundary",
+    stability: "jurisdiction-and-date-bound",
+    accessedOn: "2026-08-26",
+    publishedOn: "2023-09-07",
+    revision: "page updated 2026-01-16",
+    claimEvidenceUrls: [
+      "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research?hub=387",
+    ],
+    reuseStatus: "link-and-summarise",
+    rightsDecision: {
+      en: "Link and summarise; consult the publication terms before reusing text or figures.",
+      "zh-Hans": "链接并摘要；复用文字或图表前核对出版物条款。",
+    },
+    supports: {
+      en: "The guidance foregrounds human agency, privacy, age appropriateness, oversight and pedagogical validation.",
+      "zh-Hans": "指南强调人的主体性、隐私、年龄适切、监督与教学验证。",
+    },
+    boundary: {
+      en: "Global guidance is not local law, legal advice or a product compliance certificate.",
+      "zh-Hans": "全球指南不是当地法律、法律意见或产品合规证书。",
+    },
+  },
+  {
+    id: "S16",
+    title: "Guidance on AI and Children v3.0",
+    publisher: "UNICEF Innocenti",
+    url: "https://www.unicef.org/innocenti/reports/policy-guidance-ai-children",
+    kind: "official-guidance",
+    role: "governance-boundary",
+    stability: "jurisdiction-and-date-bound",
+    accessedOn: "2026-08-26",
+    publishedOn: "2025-12",
+    revision: "Version 3.0 · December 2025; companion brief June 2026",
+    claimEvidenceUrls: [
+      "https://www.unicef.org/innocenti/reports/policy-guidance-ai-children",
+      "https://www.unicef.org/innocenti/media/11991/file/UNICEF-Innocenti-Guidance-on-AI-and-Children-3-2025.pdf",
+      "https://www.unicef.org/innocenti/media/11996/file/UNICEF-Innocenti-Guidance-on-AI-and-Children-3-Checklist-2025.pdf",
+      "https://www.unicef.org/documents/when-ai-becomes-friend-child-rights-risks",
+      "https://www.unicef.org/media/181131/file/UNICEF-When-AI-becomes-friend-policy-brief-2026.pdf",
+      "https://www.unicef.org/media/181136/file/UNICEF-When-AI-becomes-friend-Business-recommendations-2026.pdf",
+    ],
+    reuseStatus: "link-and-summarise",
+    rightsDecision: {
+      en: "Link, cite and summarise UNICEF publications; follow publication-specific reuse terms.",
+      "zh-Hans": "链接、引用并摘要 UNICEF 出版物；遵守各出版物的复用规则。",
+    },
+    supports: {
+      en: "Child-centred AI governance includes safety, privacy, fairness, transparency, accountability, rights, inclusion and continuous oversight; children should know they are interacting with AI.",
+      "zh-Hans": "儿童中心 AI 治理涵盖安全、隐私、公平、透明、问责、权利、包容和持续监督；儿童应知晓其正与 AI 交互。",
+    },
+    boundary: {
+      en: "The guidance is not a universal age threshold or national compliance checklist, and it does not certify companion-style systems as safe.",
+      "zh-Hans": "该指南不是全球统一年龄门槛或国家合规清单，也不证明陪伴型系统安全。",
+    },
+  },
+] as const satisfies readonly AgenticTeachingSource[];
+
+export type AgenticTeachingSourceId =
+  (typeof AGENTIC_TEACHING_SOURCES)[number]["id"];
+
+export function getAgenticTeachingSource(
+  id: string,
+): AgenticTeachingSource {
+  const source = AGENTIC_TEACHING_SOURCES.find((item) => item.id === id);
+  if (!source) throw new Error(`Unknown ai-teaching source: ${id}`);
+  return source;
+}
