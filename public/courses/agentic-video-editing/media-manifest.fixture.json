@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.media-manifest.v1",
+  "fixtureId": "harbor-house-workshop-recap-v1",
+  "courseId": "agentic-video-editing",
+  "manifestStatus": "blocked-no-source-media",
+  "createdFor": "Schema and fail-closed intake practice only",
+  "workspacePolicy": {
+    "networkAccess": false,
+    "externalAccounts": false,
+    "credentialsAccepted": false,
+    "sourceRootsReadOnly": true,
+    "overwriteOriginals": false,
+    "outputRoot": "edits/harbor-house-workshop-recap-v1/",
+    "publishCapability": false
+  },
+  "mediaRecords": [
+    {
+      "mediaId": "cam-a-001",
+      "declaredRelativePath": "incoming/workshop-camera-a.mov",
+      "fileIncludedInFixture": false,
+      "sha256": null,
+      "byteLength": null,
+      "probeReceiptSha256": null,
+      "technicalMetadata": null,
+      "provenance": {
+        "sourceType": "learner-supplied",
+        "ownerIdentifier": null,
+        "acquiredOn": null,
+        "chainOfCustodyRecord": null
+      },
+      "rights": {
+        "status": "unknown",
+        "allowedUses": [],
+        "territories": [],
+        "termEndsOn": null,
+        "attribution": null,
+        "licenseEvidence": null,
+        "consentEvidence": null,
+        "privacyReview": "not-started"
+      },
+      "intakeDecision": "quarantine",
+      "releaseEligible": false,
+      "blockingReasons": [
+        "No file, hash, probe receipt, ownership evidence, license evidence, consent evidence, or privacy decision is included."
+      ]
+    },
+    {
+      "mediaId": "audio-room-001",
+      "declaredRelativePath": "incoming/workshop-room-audio.wav",
+      "fileIncludedInFixture": false,
+      "sha256": null,
+      "byteLength": null,
+      "probeReceiptSha256": null,
+      "technicalMetadata": null,
+      "provenance": {
+        "sourceType": "learner-supplied",
+        "ownerIdentifier": null,
+        "acquiredOn": null,
+        "chainOfCustodyRecord": null
+      },
+      "rights": {
+        "status": "unknown",
+        "allowedUses": [],
+        "territories": [],
+        "termEndsOn": null,
+        "attribution": null,
+        "licenseEvidence": null,
+        "consentEvidence": null,
+        "privacyReview": "not-started"
+      },
+      "intakeDecision": "quarantine",
+      "releaseEligible": false,
+      "blockingReasons": [
+        "No file, hash, probe receipt, ownership evidence, license evidence, consent evidence, or privacy decision is included."
+      ]
+    }
+  ],
+  "manifestDecision": {
+    "eligibleForAnalysis": false,
+    "eligibleForEditing": false,
+    "eligibleForRendering": false,
+    "eligibleForPublication": false,
+    "defaultWhenEvidenceIsMissing": "block-and-request-human-review",
+    "decisionOwner": null,
+    "decisionTimestamp": null
+  },
+  "fixtureNote": "The records are fictional, contain no media, and intentionally fail intake. Learners may copy the structure, then replace every null with verifiable evidence from media they are authorized to use."
+}

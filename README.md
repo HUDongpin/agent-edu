@@ -16,6 +16,7 @@
 | **[How to Write Prompts](https://aicourse.top/en/prompts/)** | three units, nine lessons, nine original prompt figures, a source-linked assessment, and a prompt evidence-packet capstone | no account, API key, or coding experience |
 | **[Retrieval-Augmented Generation](https://aicourse.top/en/rag/)** | four units, twelve lessons in nine languages, a deterministic retrieval lab, five authentic UI figures, one official Anthropic teaching diagram, a source-linked assessment, and a production evidence-packet capstone | no account, API key, vector database, or coding experience for the teaching lab |
 | **[Agent Orchestration](https://aicourse.top/en/agent-orchestration/)** | four phases, fifteen evidence-bounded modules, six deterministic control-room labs, an assessment, and a fifteen-artifact production capstone | no account or API key; software-system design experience helps with the production exercises |
+| **[How to Edit Video with Agents](https://aicourse.top/en/agentic-video-editing/)** | four phases, ten modules, an authority-aware assessment, original planning/QC fixtures, and a twelve-artifact production capstone | no account or API key for the course; authorized media and optional local editing tools for hands-on production |
 
 Published courses and the open roadmap—including AI tools, research, teaching, evaluation, and responsible AI—are listed in the [catalogue](https://aicourse.top/en/courses/). Teaching the foundations material? There is a **[90-minute lesson plan](TEACHING.md)**.
 
@@ -30,6 +31,49 @@ npm install && npm run dev
 `npm run build` type-checks and writes the multilingual site to `out/` as static files. No server, no database, no API route — you can serve `out/` with anything.
 
 **Nothing here is a real AI — by default.** Every "model" reply in the handbook is scripted, so the patterns stay legible and the page can never break because a key expired. The Lab is the exception: give it your own [DeepSeek](https://platform.deepseek.com/api_keys) key and it calls a real model, so you can watch the same question come back different. Your key is held in that one browser tab, erased when you close it, and sent to `api.deepseek.com` and nowhere else. No page loads a script, font or image from another host.
+
+---
+
+## Course: How to Edit Video with Agents
+
+Course 20 teaches agentic video editing as an inspectable production system:
+define creative intent and authority, inventory media and rights, build transcript
+and shot evidence, propose a declarative edit plan, render without touching
+originals, verify the exact candidate, and stop for a named human release
+decision. Its four phases and ten modules run for 750 minutes. The assessment
+has ten questions with critical rights, semantic-integrity, and release-authority
+items; the capstone requires twelve inspectable artifacts. Neither local progress
+nor a passing score inspects a learner's external files or authorizes publication.
+
+The evidence ledger closes over exactly 20 GitHub implementation records and 5
+direct X posts. GitHub release names are descriptive version anchors; all primary
+claims and same-repository license evidence use full commit SHAs. X posts remain dated
+field signals: their status IDs, official oEmbed locators, author/context fields,
+text-completeness limits, and GitHub-only corroborators are recorded, while post
+wording and media are not republished. Repository evidence supports mechanisms,
+not a demo's implied quality, speed, cost, safety, or footage authorization.
+
+The reviewed long-form editions are English and Simplified Chinese. The other
+seven locale routes keep their localized shell and visibly disclose the reviewed
+English fallback. Original, media-free learning assets include a fictional
+[`creative brief`](public/courses/agentic-video-editing/creative-brief.fixture.json),
+blocked [`media manifest`](public/courses/agentic-video-editing/media-manifest.fixture.json),
+strict [`edit-plan schema`](public/courses/agentic-video-editing/edit-plan.schema.json),
+bilingual [`QC checklist`](public/courses/agentic-video-editing/qc-checklist.md),
+and [`NOTICE`](public/courses/agentic-video-editing/NOTICE.md). Their hashes and
+original-project rights declarations live in
+[`fixtures.provenance.json`](public/courses/agentic-video-editing/fixtures.provenance.json).
+No source media, third-party code, screenshots, X media, or GitHub demo assets are
+included.
+
+Useful maintenance commands:
+
+```bash
+npm run agentic-video-editing:check         # sources, curriculum, languages, assessment, capstone, rights, and fixture integrity
+npm run agentic-video-editing:check:release # strict route, catalogue, i18n, README, and build-chain release gate
+npm run agentic-video-editing:static-check  # post-build byte/hash audit of emitted public learning assets
+npm run test:agentic-video-editing          # dashboard, all modules, contracts, assessment state, and mobile browser checks
+```
 
 ---
 

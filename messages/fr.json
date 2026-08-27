@@ -475,6 +475,12 @@
   "c.agent-orchestration.level": "Intermédiaire à avancé",
   "c.agent-orchestration.meta": "15 modules · 17 h 40 · 6 laboratoires déterministes · évaluation et projet final",
   "cat.course15": "Cours 15",
+  "cat.course20": "Cours 20",
+  "c.agentic-video-editing.title": "Montage vidéo avec des agents : de l’intention à une version vérifiée",
+  "c.agentic-video-editing.blurb": "Transformez une intention créative en plan de montage fondé sur des sources, rendu contrôlé et vérifiable et livraison approuvée par une personne, avec des contrôles explicites des droits, des outils et de la qualité.",
+  "c.agentic-video-editing.level": "De débutant à avancé",
+  "c.agentic-video-editing.meta": "10 modules · 12 h 30 · évaluation finale et projet de production",
+  "c.agentic-video-editing.contentLanguage": "Contenu du cours : anglais",
   "home.q5": "Où ma progression est-elle enregistrée ?",
   "home.a5": "Les étapes franchies et votre choix de thème restent dans ce navigateur. Il n’existe aucun compte apprenant. Le site compte les pages vues de façon anonyme, mais ne reçoit ni votre progression ni la clé API utilisée dans l’Atelier."
 }

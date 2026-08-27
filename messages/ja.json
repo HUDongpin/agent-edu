@@ -475,6 +475,12 @@
   "c.agent-orchestration.level": "中級から上級",
   "c.agent-orchestration.meta": "15モジュール・17時間40分・6つの決定論的ラボ・最終評価と総合プロジェクト",
   "cat.course15": "コース15",
+  "cat.course20": "コース20",
+  "c.agentic-video-editing.title": "エージェントによる動画編集：意図から検証済みカットまで",
+  "c.agentic-video-editing.blurb": "創作意図を、根拠に基づく編集計画、制御され検証可能なレンダリング、人が承認した公開物へ変換し、権利・ツール権限・品質のゲートを明示します。",
+  "c.agentic-video-editing.level": "入門から上級まで",
+  "c.agentic-video-editing.meta": "10モジュール・12時間30分・最終評価と制作総合プロジェクト",
+  "c.agentic-video-editing.contentLanguage": "コース本文：英語",
   "home.q5": "進捗はどこに保存されますか？",
   "home.a5": "講座の節目とテーマ設定は、このブラウザ内にだけ保存されます。学習者アカウントはありません。サイトは匿名のページビュー数を計測しますが、講座の進捗やラボで使うAPIキーを受け取ることはありません。"
 }

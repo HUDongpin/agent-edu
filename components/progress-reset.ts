@@ -16,6 +16,7 @@
 
 import { SECTIONS, resetAgenticProgress } from "@/lib/progress";
 import { resetAgentOrchestrationProgress } from "./agent-orchestration/progress-store";
+import { resetAgenticVideoEditingProgress } from "./agentic-video-editing/progress-store";
 import { resetAiTutorProgress } from "./ai-tutor/progress-store";
 import { resetClaudeIncomeProgress } from "./claude-income/progress-store";
 import { resetClaudeProgressAfterGlobalReset } from "./claude/progress-store";
@@ -56,6 +57,7 @@ export async function resetEveryCourseProgress(): Promise<boolean> {
     sectionsCleared,
     resetAgenticProgress(),
     resetAgentOrchestrationProgress(),
+    resetAgenticVideoEditingProgress(),
     resetAiTutorProgress(),
     resetClaudeIncomeProgress(),
     resetClaudeProgressAfterGlobalReset().persisted,

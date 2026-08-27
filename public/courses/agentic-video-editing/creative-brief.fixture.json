@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.creative-brief.v1",
+  "fixtureId": "harbor-house-workshop-recap-v1",
+  "courseId": "agentic-video-editing",
+  "status": "draft-not-approved-for-production",
+  "fixtureBoundary": {
+    "fictionalScenario": true,
+    "sourceMediaIncluded": false,
+    "personalDataIncluded": false,
+    "thirdPartyContentIncluded": false,
+    "networkAccessRequired": false,
+    "publicationAuthorized": false
+  },
+  "scenario": {
+    "workingTitle": "Harbor House repair workshop recap",
+    "objective": "Create a concise internal-review cut that shows the workshop sequence without changing the meaning of any speaker.",
+    "audience": "A fictional community workshop team reviewing an editorial plan locally.",
+    "deliveryContext": "Local review only; this fixture does not authorize upload, distribution, or publication.",
+    "targetDurationSeconds": {
+      "minimum": 75,
+      "maximum": 105
+    },
+    "targetFrameRate": {
+      "numerator": 30000,
+      "denominator": 1001
+    },
+    "targetCanvas": {
+      "width": 1920,
+      "height": 1080,
+      "pixelAspectRatio": "1:1"
+    }
+  },
+  "editorialIntent": {
+    "requiredIdeas": [
+      "State why the fictional workshop exists before showing the repair sequence.",
+      "Keep safety instructions in their original order and context.",
+      "Distinguish an observed action from an inferred motivation.",
+      "End with a review invitation, not a claim that the event or edit has been published."
+    ],
+    "prohibitedTransformations": [
+      "Do not splice separate statements into a new sentence.",
+      "Do not remove a qualification, negation, safety warning, or attribution.",
+      "Do not synthesize a voice, face, quotation, testimonial, or event detail.",
+      "Do not imply that an unknown person, location, logo, music track, or archive item is cleared.",
+      "Do not publish or upload any input, preview, transcript, timeline, or render."
+    ],
+    "tone": [
+      "clear",
+      "calm",
+      "observational",
+      "non-promotional"
+    ]
+  },
+  "agentAuthority": {
+    "may": [
+      "Inventory media records that have already passed intake.",
+      "Propose transcript, shot, and edit-plan candidates with evidence references.",
+      "Generate a dry-run diff and a review render in a separate output directory.",
+      "Run scripted, controlled technical checks and report unresolved findings."
+    ],
+    "mustStopWhen": [
+      "A media hash, owner, consent record, license, or retention rule is absent or inconsistent.",
+      "A transcript changes a name, number, negation, safety instruction, or speaker attribution.",
+      "A requested operation falls outside the approved plan or would overwrite an original.",
+      "The frozen plan, candidate render, or release packet lacks a separate named-human decision record bound to its hash.",
+      "A tool requests network access, credentials, publication authority, or access beyond the declared workspace."
+    ],
+    "mayNot": [
+      "Approve its own plan, rights decision, semantic review, or release.",
+      "Replace missing evidence with a model guess.",
+      "Modify, rename, move, or delete source media.",
+      "Treat a successful render, metric, or assessment score as publication authority."
+    ],
+    "humanApprovals": {
+      "editorialPlanRequired": true,
+      "rightsAndPrivacyRequired": true,
+      "meaningAndAccessibilityRequired": true,
+      "finalReleaseRequired": true,
+      "agentSelfApprovalAllowed": false,
+      "namedApproverAssignments": {
+        "editorialPlanHumanId": null,
+        "rightsAndPrivacyHumanId": null,
+        "meaningAndAccessibilityHumanId": null,
+        "finalReleaseHumanId": null
+      },
+      "whenAnyNamedApproverIsUnassigned": "block-and-request-assignment"
+    }
+  },
+  "acceptanceContract": {
+    "technical": [
+      "The candidate matches the approved frame rate, canvas, channel layout, and duration range.",
+      "Every operation resolves to a stable media ID, immutable source hash, frame range, reason, and evidence reference.",
+      "The render log, edit-plan hash, tool versions, command receipt, and output hash are present."
+    ],
+    "semantic": [
+      "A named reviewer confirms that quotations, chronology, attribution, and safety context remain accurate.",
+      "Every inference is visibly labeled and no unsupported event, person, claim, or outcome is introduced."
+    ],
+    "accessibility": [
+      "Captions are human-reviewed for words, timing, speaker labels, sound cues, line breaks, and reading speed.",
+      "Essential meaning is available without relying on color, audio alone, or rapidly flashing imagery."
+    ],
+    "rightsAndPrivacy": [
+      "Each used media ID has a recorded owner, allowed use, territory, term, consent/privacy decision, and attribution requirement.",
+      "Unknown or disputed rights remain quarantined and block release."
+    ],
+    "release": [
+      "A named human compares the final candidate hash with the approved review packet.",
+      "Release remains blocked unless all stop conditions are resolved and the final decision explicitly says approve-release."
+    ]
+  }
+}

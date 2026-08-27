@@ -475,6 +475,12 @@
   "c.agent-orchestration.level": "Intermedio a avanzado",
   "c.agent-orchestration.meta": "15 módulos · 17 h 40 min · 6 laboratorios deterministas · evaluación y proyecto final",
   "cat.course15": "Curso 15",
+  "cat.course20": "Curso 20",
+  "c.agentic-video-editing.title": "Edición de vídeo con agentes: de la intención a un montaje verificado",
+  "c.agentic-video-editing.blurb": "Convierte la intención creativa en un plan de edición basado en fuentes, un render controlado y revisable y una entrega aprobada por una persona, con controles explícitos de derechos, herramientas y calidad.",
+  "c.agentic-video-editing.level": "De principiante a avanzado",
+  "c.agentic-video-editing.meta": "10 módulos · 12 h 30 min · evaluación final y proyecto de producción",
+  "c.agentic-video-editing.contentLanguage": "Contenido del curso: inglés",
   "home.q5": "¿Dónde se guarda mi progreso?",
   "home.a5": "Los hitos de los cursos y tu elección de tema permanecen en este navegador. No hay cuenta de estudiante. El sitio cuenta visitas anónimas, pero no recibe tu progreso ni ninguna clave API que uses en el Laboratorio."
 }

@@ -190,10 +190,11 @@ function CourseCard({
           <span>{t(course.formatKey)}</span>
           <span aria-hidden="true">·</span>
           <span>{duration}</span>
-          {isClaudeIncome && locale !== "en" ? (
+          {course.contentLanguageKey &&
+            !(course.contentLocales ?? ["en"]).includes(locale) ? (
             <>
               <span aria-hidden="true">·</span>
-              <span>{t("c.claude-income.contentLanguage")}</span>
+              <span>{t(course.contentLanguageKey)}</span>
             </>
           ) : null}
         </div>
@@ -271,6 +272,8 @@ function CourseCard({
       ? "product-management-in-the-age-of-ai"
     : isAgentOrchestration
       ? "agent-orchestration"
+    : course.id === "agentic-video-editing"
+      ? "agentic-video-editing"
       : undefined;
 
   if (!available) {
@@ -414,6 +417,7 @@ export default function Catalog({ locale }: { locale: string }) {
         t(course.topicKey),
         t(course.levelKey),
         t(course.formatKey),
+        course.contentLanguageKey ? t(course.contentLanguageKey) : "",
         course.id === "prompts" ? t("cat.promptIncludes") : "",
         course.id === "prompts" ? t("cat.promptLessons") : "",
         course.id === "prompts" ? t("cat.promptFigures") : "",

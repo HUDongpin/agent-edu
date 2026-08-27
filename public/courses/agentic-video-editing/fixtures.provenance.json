@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "aicourse.public-fixtures.provenance.v1",
+  "courseId": "agentic-video-editing",
+  "fixtureSetVersion": "1.1.0",
+  "verifiedOn": "2026-08-26",
+  "rights": {
+    "basis": "original-project-fixture",
+    "repositoryLicense": "MIT",
+    "publicationEligible": true,
+    "containsThirdPartyCode": false,
+    "containsThirdPartyMedia": false,
+    "containsPersonalData": false,
+    "containsPrivateInput": false,
+    "containsModelOutput": false
+  },
+  "scope": {
+    "fictionalScenario": true,
+    "shipsSourceMedia": false,
+    "authorizesRealMediaUse": false,
+    "authorizesExecution": false,
+    "authorizesPublication": false,
+    "requiresNamedHumanReleaseDecision": true,
+    "unknownRightsDefault": "block"
+  },
+  "files": [
+    {
+      "path": "creative-brief.fixture.json",
+      "sha256": "035bfd52b2a29392b88aaca357ca52510774094809d1598164203dfe6c209a27",
+      "mediaType": "application/json",
+      "origin": "original-project-fixture",
+      "purpose": "Fictional creative, authority, stop-condition, and acceptance contract."
+    },
+    {
+      "path": "media-manifest.fixture.json",
+      "sha256": "659e289e57edceb5608c6c85843d5b38fa423dda20129bccfe71aa9ef462ffdb",
+      "mediaType": "application/json",
+      "origin": "original-project-fixture",
+      "purpose": "Fail-closed intake example with no source media and deliberately unresolved rights."
+    },
+    {
+      "path": "edit-plan.schema.json",
+      "sha256": "f1b4925382df750c80d77fcb392b3cde6cb4804138f5418ff4381d6c93b05dc2",
+      "mediaType": "application/schema+json",
+      "origin": "original-project-fixture",
+      "purpose": "Strict teaching schema for non-destructive, evidence-linked, human-reviewed edit plans."
+    },
+    {
+      "path": "qc-checklist.md",
+      "sha256": "cbc78c4693e69173d32d53879046a310ce2a0715388e68120ed322d4b59f4088",
+      "mediaType": "text/markdown",
+      "origin": "original-project-fixture",
+      "purpose": "Bilingual technical, semantic, accessibility, rights, privacy, and named-release review record."
+    },
+    {
+      "path": "NOTICE.md",
+      "sha256": "75c3fecda32fc04fbde79e5221fd60038dd3c6042d74263193c0b8b3df22a830",
+      "mediaType": "text/markdown",
+      "origin": "original-project-fixture",
+      "purpose": "License, no-copy, no-media, no-authority, and verification boundary."
+    }
+  ],
+  "integrityNote": "SHA-256 records bind only the five original public files listed above. This provenance file is intentionally not self-hashed. Integrity does not establish editorial quality, real-media rights, execution safety, or release approval."
+}

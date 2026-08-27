@@ -475,6 +475,12 @@
   "c.agent-orchestration.level": "Mittelstufe bis Fortgeschrittene",
   "c.agent-orchestration.meta": "15 Module · 17 Std. 40 Min. · 6 deterministische Labore · Prüfung und Abschlussprojekt",
   "cat.course15": "Kurs 15",
+  "cat.course20": "Kurs 20",
+  "c.agentic-video-editing.title": "Agentische Videobearbeitung: von der Absicht zum geprüften Schnitt",
+  "c.agentic-video-editing.blurb": "Überführen Sie kreative Absichten in einen quellenbasierten Schnittplan, ein kontrolliertes und überprüfbares Rendering und eine menschlich freigegebene Veröffentlichung mit klaren Rechte-, Werkzeug- und Qualitätskontrollen.",
+  "c.agentic-video-editing.level": "Anfänger bis Fortgeschrittene",
+  "c.agentic-video-editing.meta": "10 Module · 12 Std. 30 Min. · Abschlussprüfung und Produktionsprojekt",
+  "c.agentic-video-editing.contentLanguage": "Kursinhalt: Englisch",
   "home.q5": "Wo wird mein Fortschritt gespeichert?",
   "home.a5": "Kursmeilensteine und Ihre Designauswahl bleiben in diesem Browser. Es gibt kein Lernkonto. Die Website zählt anonyme Seitenaufrufe, erhält aber weder Ihren Kursfortschritt noch einen API-Schlüssel, den Sie im Labor verwenden."
 }

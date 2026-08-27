@@ -231,6 +231,40 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
         <circle cx="156" cy="118" r="5" fill="var(--course-cover-accent)" />
       </>
     ),
+    // A reviewable edit plan flows through a preview monitor into a layered timeline.
+    "agentic-video-editing": (
+      <>
+        <rect width="190" height="140" fill="var(--course-cover-bg)" />
+        <circle cx="176" cy="18" r="41" fill="var(--course-cover-accent)" opacity=".14" />
+        <rect x="17" y="14" width="156" height="112" rx="13" fill="var(--course-cover-surface)" stroke="var(--course-cover-line)" />
+        <path d="M17 36 H173" stroke="var(--course-cover-line)" />
+        <circle cx="29" cy="25" r="2.2" fill="var(--course-cover-accent)" />
+        <circle cx="37" cy="25" r="2.2" fill="var(--course-cover-muted)" opacity=".45" />
+        <circle cx="45" cy="25" r="2.2" fill="var(--course-cover-muted)" opacity=".25" />
+        <rect x="123" y="21.5" width="37" height="6" rx="3" fill="var(--course-cover-panel)" />
+
+        <rect x="27" y="45" width="79" height="43" rx="7" fill="var(--course-cover-editor)" stroke="var(--course-cover-line)" />
+        <rect x="33" y="51" width="67" height="31" rx="4" fill="var(--course-cover-panel)" />
+        <path d="M57 58 76 66.5 57 75 Z" fill="var(--course-cover-accent)" opacity=".86" />
+        <path d="M110 65 H123" stroke="var(--course-cover-accent)" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M119 61 123 65 119 69" fill="none" stroke="var(--course-cover-accent)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="127" y="45" width="35" height="43" rx="7" fill="var(--course-cover-panel)" stroke="var(--course-cover-line)" />
+        <path d="M135 56 H154 M135 64 H151 M135 72 H155" stroke="var(--course-cover-muted)" strokeWidth="2.1" strokeLinecap="round" opacity=".45" />
+        <circle cx="145" cy="80" r="4" fill="var(--course-cover-accent)" />
+        <path d="M143 80 144.5 81.5 147.5 78" fill="none" stroke="var(--course-cover-accent-ink)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+
+        <path d="M27 96 H162" stroke="var(--course-cover-line)" />
+        <rect x="27" y="100" width="135" height="6" rx="3" fill="var(--course-cover-panel)" />
+        <rect x="31" y="101" width="38" height="4" rx="2" fill="var(--course-cover-accent)" opacity=".82" />
+        <rect x="72" y="101" width="26" height="4" rx="2" fill="var(--course-cover-accent)" opacity=".5" />
+        <rect x="101" y="101" width="56" height="4" rx="2" fill="var(--course-cover-muted)" opacity=".26" />
+        <rect x="27" y="110" width="135" height="6" rx="3" fill="var(--course-cover-panel)" />
+        <rect x="35" y="111" width="51" height="4" rx="2" fill="var(--course-cover-muted)" opacity=".38" />
+        <rect x="89" y="111" width="30" height="4" rx="2" fill="var(--course-cover-accent)" opacity=".66" />
+        <path d="M111 94 V120" stroke="var(--course-cover-accent)" strokeWidth="1.4" />
+        <circle cx="111" cy="94" r="2.5" fill="var(--course-cover-accent)" />
+      </>
+    ),
     // Evidence moves from a scoped brief through verification to a defensible offer.
     "make-money-with-codex": (
       <>
@@ -711,6 +745,7 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
     "ai-teaching": styles.teaching,
     "product-management": styles.claudeIncome,
     "agent-orchestration": styles.engineering,
+    "agentic-video-editing": styles.engineering,
     "responsible-ai": styles.responsible,
   };
   const motifId = id === "rag" ? "ai-research" : id === "ai-tutor" ? "ai-teaching" : id;

@@ -475,6 +475,12 @@
   "c.agent-orchestration.level": "中级到进阶",
   "c.agent-orchestration.meta": "15 个模块 · 17 小时 40 分钟 · 6 个确定性交互实验 · 期末评估与综合项目",
   "cat.course15": "课程十五",
+  "cat.course20": "课程二十",
+  "c.agentic-video-editing.title": "如何使用智能体进行视频剪辑",
+  "c.agentic-video-editing.blurb": "把创作意图转化为有来源依据的剪辑计划、受控且可复查的渲染结果与经人工批准的成片，并设置明确的版权、工具权限与质量关口。",
+  "c.agentic-video-editing.level": "从入门到进阶",
+  "c.agentic-video-editing.meta": "10 个模块 · 12 小时 30 分钟 · 期末评估与制作综合项目",
+  "c.agentic-video-editing.contentLanguage": "课程内容：简体中文",
   "home.q5": "我的进度保存在哪里？",
   "home.a5": "课程里程碑和主题选择只保存在这个浏览器中。本站没有学习者账号。网站会统计匿名页面浏览量，但不会收到你的课程进度，也不会收到你在实验室中使用的任何 API 密钥。"
 }

@@ -475,6 +475,12 @@
   "c.agent-orchestration.level": "중급부터 고급까지",
   "c.agent-orchestration.meta": "15개 모듈 · 17시간 40분 · 6개 결정론적 실습 · 최종 평가와 종합 프로젝트",
   "cat.course15": "코스 15",
+  "cat.course20": "코스 20",
+  "c.agentic-video-editing.title": "에이전트 기반 동영상 편집: 의도에서 검증된 컷까지",
+  "c.agentic-video-editing.blurb": "창작 의도를 출처에 근거한 편집 계획, 통제되고 검토 가능한 렌더링, 사람의 승인을 받은 결과물로 전환하고 저작권·도구 권한·품질 게이트를 명확히 설정합니다.",
+  "c.agentic-video-editing.level": "입문부터 고급까지",
+  "c.agentic-video-editing.meta": "10개 모듈 · 12시간 30분 · 최종 평가와 제작 종합 프로젝트",
+  "c.agentic-video-editing.contentLanguage": "강의 본문: 영어",
   "home.q5": "진행 기록은 어디에 저장되나요?",
   "home.a5": "강의 이정표와 테마 설정은 이 브라우저에만 저장됩니다. 학습자 계정은 없습니다. 사이트는 익명 페이지 조회수를 집계하지만 강의 진행 기록이나 실습실에서 사용하는 API 키를 받지 않습니다."
 }

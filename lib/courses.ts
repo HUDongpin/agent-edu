@@ -25,6 +25,11 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_EVENT,
   agentOrchestrationProgressPercent,
 } from "./agent-orchestration";
+import {
+  AGENTIC_VIDEO_EDITING_COURSE_MANIFEST,
+  AGENTIC_VIDEO_EDITING_PROGRESS_EVENT,
+  agenticVideoEditingProgressPercent,
+} from "./agentic-video-editing";
 import { CLAUDE_COURSE_MANIFEST } from "./claude/manifest";
 import { claudeProgressPercent } from "./claude/progress";
 import { CLAUDE_INCOME_COURSE } from "./claude-income/curriculum";
@@ -95,8 +100,9 @@ export interface TopLevelCourse {
     | "claude-income"
     | "ai-tutor"
     | "product-management"
-    | "agent-orchestration";
-  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+    | "agent-orchestration"
+    | "agentic-video-editing";
+  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 20;
   href: string;
   minutes: number;
   durationMinutes: number;
@@ -111,6 +117,7 @@ export interface TopLevelCourse {
     | "sixteen-equal-milestones"
     | "seventeen-equal-milestones"
     | "eleven-equal-milestones"
+    | "twelve-equal-milestones"
     | "ten-equal-milestones"
     | "twenty-equal-milestones";
   /** Browser store supplied to the progress adapter; defaults to `ae.progress`. */
@@ -161,6 +168,10 @@ export interface CatalogCourse {
   blurbKey: string;
   /** Optional translated curriculum summary, for example lesson count and study time. */
   metaKey?: string;
+  /** Label shown when the selected shell locale falls back to another content edition. */
+  contentLanguageKey?: string;
+  /** Complete, reviewed long-form editions available for this course. */
+  contentLocales?: readonly string[];
   topic: CatalogTopic;
   topicKey: string;
   level: CatalogLevel;
@@ -648,6 +659,31 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     progressEvent: AGENT_ORCHESTRATION_PROGRESS_EVENT,
     progress: (p) => agentOrchestrationProgressPercent(p),
   },
+  {
+    id: "agentic-video-editing",
+    displayNumber: 20,
+    href: "/agentic-video-editing/",
+    minutes: AGENTIC_VIDEO_EDITING_COURSE_MANIFEST.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    durationMinutes: AGENTIC_VIDEO_EDITING_COURSE_MANIFEST.modules.reduce(
+      (sum, module) => sum + module.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--brand)",
+    level: "beginner-to-advanced",
+    moduleIds: AGENTIC_VIDEO_EDITING_COURSE_MANIFEST.modules.map((module) => module.slug),
+    outcomeKeys: [
+      "c.agentic-video-editing.blurb",
+      "c.agentic-video-editing.title",
+      "c.agentic-video-editing.meta",
+    ],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: AGENTIC_VIDEO_EDITING_PROGRESS_EVENT,
+    progress: (p) => agenticVideoEditingProgressPercent(p),
+  },
 ];
 
 const agenticCourse = TOP_LEVEL_COURSES.find((course) => course.id === "agentic")!;
@@ -674,6 +710,9 @@ const productManagementCourse = TOP_LEVEL_COURSES.find(
 )!;
 const agentOrchestrationCourse = TOP_LEVEL_COURSES.find(
   (course) => course.id === "agent-orchestration",
+)!;
+const agenticVideoEditingCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "agentic-video-editing",
 )!;
 
 /**
@@ -916,6 +955,8 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     titleKey: "c.claude-income.title",
     blurbKey: "c.claude-income.blurb",
     metaKey: "c.claude-income.meta",
+    contentLanguageKey: "c.claude-income.contentLanguage",
+    contentLocales: ["en"],
     topic: "business",
     topicKey: "topic.business",
     level: claudeIncomeCourse.level,
@@ -984,6 +1025,27 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     hue: agentOrchestrationCourse.hue,
     progressEvent: agentOrchestrationCourse.progressEvent,
     progress: agentOrchestrationCourse.progress,
+  },
+  {
+    id: "agentic-video-editing",
+    displayNumber: agenticVideoEditingCourse.displayNumber,
+    href: agenticVideoEditingCourse.href,
+    titleKey: "c.agentic-video-editing.title",
+    blurbKey: "c.agentic-video-editing.blurb",
+    metaKey: "c.agentic-video-editing.meta",
+    contentLanguageKey: "c.agentic-video-editing.contentLanguage",
+    contentLocales: ["en", "zh-Hans"],
+    topic: "ai-systems",
+    topicKey: "topic.aiSystems",
+    level: agenticVideoEditingCourse.level,
+    levelKey: "c.agentic-video-editing.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: agenticVideoEditingCourse.minutes,
+    status: agenticVideoEditingCourse.status,
+    hue: agenticVideoEditingCourse.hue,
+    progressEvent: agenticVideoEditingCourse.progressEvent,
+    progress: agenticVideoEditingCourse.progress,
   },
   {
     id: "responsible-ai",

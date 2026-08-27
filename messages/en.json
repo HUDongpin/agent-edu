@@ -475,6 +475,12 @@
   "c.agent-orchestration.level": "Intermediate to advanced",
   "c.agent-orchestration.meta": "15 modules · 17 h 40 min · 6 deterministic labs · assessment and capstone",
   "cat.course15": "Course 15",
+  "cat.course20": "Course 20",
+  "c.agentic-video-editing.title": "Agentic Video Editing: From Intent to a Verified Cut",
+  "c.agentic-video-editing.blurb": "Turn creative intent into a source-grounded edit plan, controlled and reviewable render, and human-approved release with explicit rights, tool, and quality gates.",
+  "c.agentic-video-editing.level": "Beginner to advanced",
+  "c.agentic-video-editing.meta": "10 modules · 12 h 30 min · final assessment and production capstone",
+  "c.agentic-video-editing.contentLanguage": "Course content: English",
   "home.q5": "Where is my progress stored?",
   "home.a5": "Course milestones and your theme choice stay in this browser. There is no learner account. The site counts anonymous page views, but it does not receive your course progress or any API key you use in the Lab."
 }
