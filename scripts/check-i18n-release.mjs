@@ -27,8 +27,10 @@ import ts from "typescript";
 import vm from "node:vm";
 import { walkHandbook } from "../lib/handbook/segments.mjs";
 import { sourceInventory } from "./lib/source-inventory.mjs";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const releaseArtifacts = assertReleaseArtifactsCurrent({ projectRoot: ROOT });
 const argv = process.argv.slice(2);
 const RELEASE = argv.includes("--release");
 const POST_BUILD = argv.includes("--post-build");
@@ -194,10 +196,7 @@ const localeMeta = discoverLocales();
 const locales = localeMeta.map((item) => item.code);
 const defaultLocale = /DEFAULT_LOCALE\s*=\s*["']([^"']+)/.exec(readText(join(ROOT, "lib", "i18n.ts")))?.[1] ?? "en";
 const targetLocales = locales.filter((locale) => locale !== defaultLocale);
-const releaseSurfaceDocument = safeJson(
-  join(ROOT, "config", "course-release-surface.json"),
-  { domain: "release-surface" },
-) ?? { core: { routes: [], contentLocales: [] }, courses: [] };
+const releaseSurfaceDocument = releaseArtifacts.releaseSurface;
 const releaseCourses = Array.isArray(releaseSurfaceDocument.courses)
   ? releaseSurfaceDocument.courses
   : [];

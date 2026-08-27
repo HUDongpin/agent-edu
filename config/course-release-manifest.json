@@ -1,9 +1,23 @@
 {
   "schemaVersion": 3,
-  "manifestKind": "course-release-surface-projection",
-  "source": {
-    "path": "config/course-release-manifest.json",
-    "sha256": "5592e04547baf15330a204d57f8c1765921ef8be2bea40823fc42fcc27a6bd69"
+  "manifestKind": "course-release-manifest",
+  "intakeFreeze": {
+    "policy": "fixed-published-allowlist",
+    "iteration": "platform-release-v1",
+    "publishedCourseIds": [
+      "agentic",
+      "grok",
+      "github",
+      "prompts",
+      "software-engineering",
+      "rag",
+      "mcp",
+      "make-money-with-codex",
+      "claude-income",
+      "ai-tutor",
+      "product-management",
+      "agent-orchestration"
+    ]
   },
   "siteLocales": [
     "en",
@@ -40,18 +54,6 @@
       "ar"
     ],
     "fallbackLocale": "en",
-    "primaryLocale": "en",
-    "contentLocales": [
-      "en",
-      "es",
-      "fr",
-      "de",
-      "zh-Hans",
-      "zh-Hant",
-      "ja",
-      "ko",
-      "ar"
-    ],
     "routes": [
       "",
       "courses/",
@@ -90,18 +92,6 @@
         "ar"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "es",
-        "fr",
-        "de",
-        "zh-Hans",
-        "zh-Hant",
-        "ja",
-        "ko",
-        "ar"
-      ],
       "routes": [
         "handbook/",
         "lab/",
@@ -142,18 +132,6 @@
         "ar"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "es",
-        "fr",
-        "de",
-        "zh-Hans",
-        "zh-Hant",
-        "ja",
-        "ko",
-        "ar"
-      ],
       "routes": [
         "codex/",
         "codex/meet-codex/",
@@ -207,18 +185,6 @@
         "ar"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "es",
-        "fr",
-        "de",
-        "zh-Hans",
-        "zh-Hant",
-        "ja",
-        "ko",
-        "ar"
-      ],
       "routes": [
         "claude/",
         "claude/choose-your-surface/",
@@ -275,18 +241,6 @@
         "ar"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "es",
-        "fr",
-        "de",
-        "zh-Hans",
-        "zh-Hant",
-        "ja",
-        "ko",
-        "ar"
-      ],
       "routes": [
         "cursor/",
         "cursor/orient-privacy/",
@@ -342,18 +296,6 @@
         "ar"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "es",
-        "fr",
-        "de",
-        "zh-Hans",
-        "zh-Hant",
-        "ja",
-        "ko",
-        "ar"
-      ],
       "routes": [
         "grok/",
         "grok/map-grok/",
@@ -406,18 +348,6 @@
         "ar"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "es",
-        "fr",
-        "de",
-        "zh-Hans",
-        "zh-Hant",
-        "ja",
-        "ko",
-        "ar"
-      ],
       "routes": [
         "github/",
         "github/start-secure/",
@@ -460,10 +390,6 @@
         "en"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en"
-      ],
       "routes": [
         "prompts/",
         "prompts/prompts-are-specifications/",
@@ -503,10 +429,6 @@
         "en"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en"
-      ],
       "routes": [
         "software-engineering/",
         "software-engineering/agentic-engineering-system/",
@@ -563,18 +485,6 @@
         "ar"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "es",
-        "fr",
-        "de",
-        "zh-Hans",
-        "zh-Hant",
-        "ja",
-        "ko",
-        "ar"
-      ],
       "routes": [
         "rag/",
         "rag/choose-rag/",
@@ -625,18 +535,6 @@
         "ar"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "es",
-        "fr",
-        "de",
-        "zh-Hans",
-        "zh-Hant",
-        "ja",
-        "ko",
-        "ar"
-      ],
       "routes": [
         "mcp/",
         "mcp/why-mcp/",
@@ -685,10 +583,6 @@
         "en"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en"
-      ],
       "routes": [
         "make-money-with-codex/",
         "make-money-with-codex/money-not-magic/",
@@ -731,10 +625,6 @@
         "en"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en"
-      ],
       "routes": [
         "claude-income/",
         "claude-income/choose-a-money-path/",
@@ -777,10 +667,6 @@
         "en"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en"
-      ],
       "routes": [
         "ai-tutor/",
         "ai-tutor/objectives-concept-map/",
@@ -819,10 +705,6 @@
         "en"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en"
-      ],
       "routes": [
         "product-management/",
         "product-management/product-judgment-operating-model/",
@@ -868,11 +750,6 @@
         "zh-Hans"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "zh-Hans"
-      ],
       "routes": [
         "agent-orchestration/",
         "agent-orchestration/workflow-agent-boundary/",
@@ -919,11 +796,6 @@
         "zh-Hans"
       ],
       "fallbackLocale": "en",
-      "primaryLocale": "en",
-      "contentLocales": [
-        "en",
-        "zh-Hans"
-      ],
       "routes": [
         "creator-ops/",
         "creator-ops/outcomes-operating-system/",
@@ -961,8 +833,6 @@
       ],
       "reviewedContentLocales": [],
       "fallbackLocale": null,
-      "primaryLocale": null,
-      "contentLocales": [],
       "routes": [],
       "releaseGate": null,
       "progress": null
@@ -985,11 +855,10 @@
       ],
       "reviewedContentLocales": [],
       "fallbackLocale": null,
-      "primaryLocale": null,
-      "contentLocales": [],
       "routes": [],
       "releaseGate": null,
       "progress": null
     }
   ]
 }
+

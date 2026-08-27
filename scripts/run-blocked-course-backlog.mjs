@@ -5,9 +5,9 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const PROJECT = resolve(process.cwd());
-const CONTRACT = resolve(PROJECT, "config/course-release-surface.json");
 const PACKAGE = resolve(PROJECT, "package.json");
 const DEFAULT_OUTPUT = resolve(PROJECT, "tmp/release/blocked-course-backlog.json");
 const SUMMARY_LINE_LIMIT = 48;
@@ -126,7 +126,7 @@ export function gateExpectationFailures(courses) {
 }
 
 export function runBlockedCourseBacklog(options = {}) {
-  const contract = JSON.parse(readFileSync(CONTRACT, "utf8"));
+  const { manifest: contract } = assertReleaseArtifactsCurrent({ projectRoot: PROJECT });
   const packageJson = JSON.parse(readFileSync(PACKAGE, "utf8"));
   const plan = deriveBlockedGatePlan(contract, packageJson);
   const courses = [];

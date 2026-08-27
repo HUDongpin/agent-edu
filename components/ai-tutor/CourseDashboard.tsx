@@ -9,7 +9,7 @@ import {
 } from "./Interactions";
 import base from "../prompts/PromptCourse.module.css";
 import styles from "./AiTutorCourse.module.css";
-import SharedCourseShell from "../SharedCourseShell";
+import CourseShell from "../course-shell/CourseShell";
 
 export default function CourseDashboard({
   course,
@@ -33,7 +33,7 @@ export default function CourseDashboard({
       dir={course.contentDirection}
       data-testid="ai-tutor-course-dashboard"
     >
-      <SharedCourseShell courseId="ai-tutor" locale={course.locale} />
+      <CourseShell courseId="ai-tutor" locale={course.locale} />
       {course.locale !== course.contentLocale ? (
         <p className={base.languageNotice}>{course.copy.meta.englishOnly}</p>
       ) : null}

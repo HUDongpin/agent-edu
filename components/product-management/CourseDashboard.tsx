@@ -11,7 +11,7 @@ import {
   type ProductManagementAssessmentQuestion,
 } from "./Interactions";
 import styles from "./ProductManagementCourse.module.css";
-import SharedCourseShell from "../SharedCourseShell";
+import CourseShell from "../course-shell/CourseShell";
 
 type Labels = MaterializedProductManagementCourse["copy"]["ui"];
 
@@ -70,7 +70,7 @@ export default function CourseDashboard({
         <span aria-hidden="true">/</span>
         <span aria-current="page">{label(course.copy.ui, "module", "Course")} 14</span>
       </nav>
-      <SharedCourseShell courseId="product-management" locale={course.locale} showBreadcrumb={false} />
+      <CourseShell courseId="product-management" locale={course.locale} showBreadcrumb={false} />
 
       <header className={styles.courseHero}>
         <div className={styles.heroCopy}>

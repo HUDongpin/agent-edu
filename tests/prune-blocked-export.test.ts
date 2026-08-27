@@ -11,19 +11,21 @@ import { join } from "node:path";
 import test from "node:test";
 import { pruneBlockedExport } from "../scripts/prune-blocked-export.mjs";
 
-function fixture() {
-  const root = mkdtempSync(join(tmpdir(), "agent-edu-prune-blocked-"));
-  mkdirSync(join(root, "config"), { recursive: true });
-  mkdirSync(join(root, "out/en"), { recursive: true });
-  mkdirSync(join(root, "out/courses/codex"), { recursive: true });
-  mkdirSync(join(root, "out/courses/published"), { recursive: true });
-  writeFileSync(join(root, "config/course-release-surface.json"), JSON.stringify({
+function registry(codexState: "published" | "blocked" = "blocked") {
+  return {
     siteLocales: ["en", "ar"],
     courses: [
       { id: "published", state: "published", routes: ["published/"] },
-      { id: "codex", state: "blocked", routes: ["codex/", "codex/lesson/"] },
+      { id: "codex", state: codexState, routes: ["codex/", "codex/lesson/"] },
     ],
-  }));
+  };
+}
+
+function fixture() {
+  const root = mkdtempSync(join(tmpdir(), "agent-edu-prune-blocked-"));
+  mkdirSync(join(root, "out/en"), { recursive: true });
+  mkdirSync(join(root, "out/courses/codex"), { recursive: true });
+  mkdirSync(join(root, "out/courses/published"), { recursive: true });
   writeFileSync(join(root, "out/en/index.html"), "<!doctype html><title>Published</title>");
   writeFileSync(join(root, "out/courses/codex/blocked.png"), "blocked-source\n");
   writeFileSync(join(root, "out/courses/published/kept.png"), "published-source\n");
@@ -33,7 +35,7 @@ function fixture() {
 test("blocked export pruning removes exact media roots and preserves published assets", () => {
   const root = fixture();
   try {
-    const result = pruneBlockedExport({ projectRoot: root, emit: false });
+    const result = pruneBlockedExport({ projectRoot: root, emit: false, registry: registry() });
     assert.deepEqual(result.blockedCourseIds, ["codex"]);
     assert.deepEqual(result.removed, ["codex"]);
     assert.equal(existsSync(join(root, "out/courses/codex")), false);
@@ -46,14 +48,11 @@ test("blocked export pruning removes exact media roots and preserves published a
 test("blocked export pruning is a safe no-op after every course is published", () => {
   const root = fixture();
   try {
-    writeFileSync(join(root, "config/course-release-surface.json"), JSON.stringify({
-      siteLocales: ["en", "ar"],
-      courses: [
-        { id: "published", state: "published", routes: ["published/"] },
-        { id: "codex", state: "published", routes: ["codex/", "codex/lesson/"] },
-      ],
-    }));
-    const result = pruneBlockedExport({ projectRoot: root, emit: false });
+    const result = pruneBlockedExport({
+      projectRoot: root,
+      emit: false,
+      registry: registry("published"),
+    });
     assert.deepEqual(result.blockedCourseIds, []);
     assert.deepEqual(result.removed, []);
     assert.equal(existsSync(join(root, "out/courses/codex/blocked.png")), true);
@@ -70,7 +69,7 @@ test("blocked export pruning fails before deletion when published HTML reference
       '<!doctype html><img src="/courses/codex/blocked.png">',
     );
     assert.throws(
-      () => pruneBlockedExport({ projectRoot: root, emit: false }),
+      () => pruneBlockedExport({ projectRoot: root, emit: false, registry: registry() }),
       /published export references blocked course media/,
     );
     assert.equal(existsSync(join(root, "out/courses/codex/blocked.png")), true);
@@ -85,7 +84,7 @@ test("blocked export pruning fails rather than deleting a generated public route
     mkdirSync(join(root, "out/en/codex"), { recursive: true });
     writeFileSync(join(root, "out/en/codex/index.html"), "<!doctype html><title>Blocked</title>");
     assert.throws(
-      () => pruneBlockedExport({ projectRoot: root, emit: false }),
+      () => pruneBlockedExport({ projectRoot: root, emit: false, registry: registry() }),
       /blocked public route was generated/,
     );
     assert.equal(existsSync(join(root, "out/courses/codex/blocked.png")), true);

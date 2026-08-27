@@ -30,6 +30,7 @@ import {
   COURSE_RELEASE_SURFACE,
   PUBLISHED_COURSE_SURFACES,
   ROADMAP_COURSE_SURFACES,
+  STAGED_COURSE_SURFACES,
   courseChildParams,
   courseChildRouteValues,
   courseHrefFor,
@@ -61,8 +62,8 @@ const ENGLISH_ONLY = [
   "product-management",
 ];
 
-test("the registry preserves twelve published, three blocked, and two roadmap courses", () => {
-  assert.equal(COURSE_RELEASE_SURFACE.schemaVersion, 2);
+test("the manifest preserves twelve published, three blocked, one staged, and two roadmap courses", () => {
+  assert.equal(COURSE_RELEASE_SURFACE.schemaVersion, 3);
   assert.deepEqual(COURSE_RELEASE_SURFACE.siteLocales, LOCALE_CODES);
   assert.equal(PUBLISHED_COURSE_SURFACES.length, 12);
   assert.deepEqual(
@@ -73,6 +74,7 @@ test("the registry preserves twelve published, three blocked, and two roadmap co
     ROADMAP_COURSE_SURFACES.map((course) => course.id).sort(),
     ["ai-research", "responsible-ai"],
   );
+  assert.deepEqual(STAGED_COURSE_SURFACES.map((course) => course.id), ["creator-ops"]);
   const checkerSource = readFileSync("scripts/check-release-surface.mjs", "utf8");
   assert.doesNotMatch(checkerSource, /published\.length\s*===\s*12/);
   assert.doesNotMatch(checkerSource, /\b(?:AUTHORED_IDS|BLOCKED_IDS|ROADMAP_IDS)\b/);
@@ -90,6 +92,11 @@ test("the registry preserves twelve published, three blocked, and two roadmap co
     assert.equal(course.releaseGate, null);
     assert.equal(course.progress, null);
   }
+  const creatorOps = STAGED_COURSE_SURFACES[0];
+  assert.equal(creatorOps.fallbackLocale, "en");
+  assert.deepEqual(creatorOps.reviewedContentLocales, ["en", "zh-Hans"]);
+  assert.equal(creatorOps.progress, null);
+  assert.equal(creatorOps.routes.length, 11);
 });
 
 test("the public README does not promote blocked course routes or detailed course sections", () => {
@@ -202,7 +209,11 @@ test("static params emit only published content locales", () => {
       surface.contentLocales,
     );
   }
-  for (const surface of [...BLOCKED_COURSE_SURFACES, ...ROADMAP_COURSE_SURFACES]) {
+  for (const surface of [
+    ...BLOCKED_COURSE_SURFACES,
+    ...STAGED_COURSE_SURFACES,
+    ...ROADMAP_COURSE_SURFACES,
+  ]) {
     assert.deepEqual(courseLocaleParams(surface.id), []);
   }
   assert.deepEqual(courseChildParams("prompts", "lesson", ["one"]), [
@@ -225,8 +236,9 @@ test("registry sync keeps blocked implementations private and can generate publi
   )) {
     for (const root of new Set(surface.routes.map((route) => route.split("/")[0]))) {
       const page = `app/[locale]/${root}/page.tsx`;
-      const authored = existsSync(`app/[locale]/_blocked/${surface.id}/page.tsx`);
-      if (surface.state === "blocked" && authored) {
+      const authored = existsSync(`app/[locale]/_blocked/${surface.id}/page.tsx`)
+        || existsSync(`app/[locale]/_staged/${surface.id}/page.tsx`);
+      if ((surface.state === "blocked" || surface.state === "staged") && authored) {
         assert.equal(existsSync(page), false, page);
         continue;
       }
@@ -257,9 +269,9 @@ test("registry sync keeps blocked implementations private and can generate publi
   }
 
   const catalogueSource = readFileSync("app/[locale]/courses/page.tsx", "utf8");
-  assert.match(catalogueSource, /COURSE_RELEASE_SURFACES\.map/);
+  assert.match(catalogueSource, /PUBLIC_COURSE_IDS\.map/);
   assert.match(catalogueSource, /\.\.\.registryPartsByCourse/);
-  assert.match(catalogueSource, /partsByCourse\[course\.id\]\?\.length/);
+  assert.match(catalogueSource, /partsByCourse\[course\.id\]\s*\?\?\s*\[\]/);
 });
 
 test("learner links resolve to real content locales and never expose blocked routes", () => {
@@ -335,7 +347,7 @@ test("SEO, sitemap, and robots consume the same publication boundary", () => {
 
 test("the published ledger contains one fail-closed gate per published course", () => {
   const ledger = publishedGateLedger();
-  assert.equal(ledger.schemaVersion, 2);
+  assert.equal(ledger.schemaVersion, 3);
   assert.equal(ledger.publishedCount, PUBLISHED_COURSE_SURFACES.length);
   assert.equal(ledger.blockedCount, BLOCKED_COURSE_SURFACES.length);
   assert.equal(ledger.gates.length, PUBLISHED_COURSE_SURFACES.length);
@@ -355,5 +367,5 @@ test("course collection JSON-LD enumerates only published registry entries", () 
   assert.match(source, /educationalLevel:\s*t\(course\.levelKey\)/);
   assert.doesNotMatch(source, /t\(`c\.\$\{course\.id\}\.(?:title|blurb|level)`\)/);
   assert.match(source, /courseHrefFor\(course\.id, locale\)/);
-  assert.match(source, /contentLocaleForCourse\(course\.id, locale\)/);
+  assert.match(source, /contentLocaleForCourse\(courseId, locale\)/);
 });

@@ -12,7 +12,7 @@ import {
 import DashboardProgress from "./DashboardProgress";
 import FinalQuiz from "./FinalQuiz";
 import styles from "./ClaudeIncomeCourse.module.css";
-import SharedCourseShell from "../SharedCourseShell";
+import CourseShell from "../course-shell/CourseShell";
 
 const claimLabels = {
   "verified-capability": "Verified capability",
@@ -61,7 +61,7 @@ export default function CourseDashboard({
       dir="ltr"
       data-testid="claude-income-dashboard"
     >
-      <SharedCourseShell courseId="claude-income" locale={locale} />
+      <CourseShell courseId="claude-income" locale={locale} />
       {locale !== "en" ? (
         <p className={styles.languageNotice} role="note">
           {CLAUDE_INCOME_ENGLISH_BODY_NOTICE}

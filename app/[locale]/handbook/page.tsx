@@ -1,5 +1,6 @@
 import Handbook from "@/components/handbook/Handbook";
 import JsonLd from "@/components/JsonLd";
+import CourseShell from "@/components/course-shell/CourseShell";
 import { loadWidgetCopy } from "@/lib/handbook/copy";
 import { localiseHandbook } from "@/lib/handbook/localise";
 import { getMessages, translator } from "@/lib/i18n";
@@ -69,7 +70,12 @@ export default async function HandbookPage(
   return (
     <>
       <JsonLd data={data} />
-      <Handbook html={html} localised={localised} copy={copy} />
+      <Handbook
+        html={html}
+        localised={localised}
+        copy={copy}
+        courseShell={<CourseShell courseId="agentic" locale={locale} />}
+      />
     </>
   );
 }

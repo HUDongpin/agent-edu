@@ -398,6 +398,36 @@ test("public progress client graph has no transitive course-content dependency",
   assert.ok(graph.includes("config/course-public-surface.json"));
 });
 
+test("CourseShell keeps static overview metadata out of its client island graph", () => {
+  const progressSource = readFileSync(
+    join(ROOT, "components/course-shell/CourseShellProgress.tsx"),
+    "utf8",
+  );
+  assert.match(progressSource, /^["']use client["'];/u);
+  assert.match(progressSource, /import\(["']\.\.\/progress-adapters["']\)/u);
+  assert.doesNotMatch(
+    progressSource,
+    /^import\s+[\s\S]*?from\s+["']\.\.\/progress-adapters["']/mu,
+    "the adapter registry must be a rejected-safe dynamic chunk, not initial client code",
+  );
+
+  const graph = clientDependencyGraph("components/course-shell/CourseShellProgress.tsx");
+  const forbidden = graph.filter((path) => (
+    path === "components/course-shell/CourseShell.tsx"
+    || path === "lib/public-courses.ts"
+    || path === "lib/i18n.ts"
+    || path.startsWith("messages/")
+  ));
+  assert.deepEqual(forbidden, [], graph.join("\n"));
+
+  const compatibilityGraph = clientDependencyGraph("components/SharedCourseShell.tsx");
+  assert.deepEqual(
+    compatibilityGraph,
+    ["components/SharedCourseShell.tsx"],
+    compatibilityGraph.join("\n"),
+  );
+});
+
 test("agent orchestration browser templates exactly mirror authoritative copy", () => {
   assert.deepEqual(
     Object.keys(AGENT_ORCHESTRATION_PRACTICE_TEMPLATES),

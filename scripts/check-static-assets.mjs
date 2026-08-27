@@ -8,6 +8,7 @@ import {
 } from "node:fs";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const KIB = 1024;
 const MIB = 1024 * KIB;
@@ -125,15 +126,12 @@ function regularFilesBelow(root) {
   return files;
 }
 
-function loadBlockedCourseIds(projectRoot) {
-  const registryPath = join(projectRoot, "config", "course-release-surface.json");
-  if (!existsSync(registryPath)) {
-    throw new Error("course release registry is missing");
-  }
-  const registry = JSON.parse(readFileSync(registryPath, "utf8"));
-  if (!Array.isArray(registry.courses)) {
-    throw new Error("course release registry has an invalid shape");
-  }
+function loadBlockedCourseIds(projectRoot, injectedRegistry) {
+  // Direct/CLI execution cannot bypass the canonical manifest assertion.
+  // A deliberately injected registry keeps unit tests of leak detection pure,
+  // including hypothetical post-freeze state transitions.
+  const registry = injectedRegistry
+    ?? assertReleaseArtifactsCurrent({ projectRoot }).releaseSurface;
   const blockedIds = registry.courses
     .filter((course) => course.state === "blocked")
     .map((course) => course.id);
@@ -210,7 +208,7 @@ export function checkStaticAssets(options = {}) {
     throw new Error("the Next build ID is missing or invalid");
   }
 
-  const blockedCourseIds = loadBlockedCourseIds(projectRoot);
+  const blockedCourseIds = loadBlockedCourseIds(projectRoot, options.registry);
   const publicFiles = regularFilesBelow(publicRoot).map((file) => ({
     ...file,
     relative: relative(publicRoot, file.absolute).split(sep).join("/"),

@@ -54,12 +54,12 @@ import { SOFTWARE_ENGINEERING_COURSE_MANIFEST } from "./software-engineering/man
 import { isSoftwareEngineeringCapstoneSubmission } from "./software-engineering/capstone";
 import { isSoftwareEngineeringQuizPassed } from "./software-engineering/quiz";
 import {
-  COURSE_RELEASE_SURFACES,
   isPublishedCourse,
   releaseSurfaceFor,
   type CourseId as ReleaseCourseId,
 } from "./release-surface";
 import { registryOrderedCourseRecords } from "./course-collection-contract";
+import { PUBLIC_COURSE_IDS } from "./public-release-surface";
 
 export type Level = "beginner" | "intermediate" | "advanced";
 export type Format = "read" | "interactive" | "code";
@@ -652,9 +652,9 @@ const TOP_LEVEL_COURSE_DEFINITIONS: TopLevelCourse[] = [
   },
 ];
 
-const IMPLEMENTED_REGISTRY_COURSE_IDS = COURSE_RELEASE_SURFACES
-  .filter((course) => course.state !== "roadmap")
-  .map((course) => course.id);
+const IMPLEMENTED_REGISTRY_COURSE_IDS = PUBLIC_COURSE_IDS.filter(
+  (courseId) => releaseSurfaceFor(courseId).state !== "roadmap",
+);
 
 export const TOP_LEVEL_COURSES: TopLevelCourse[] = registryOrderedCourseRecords(
   IMPLEMENTED_REGISTRY_COURSE_IDS,
@@ -1025,7 +1025,7 @@ const CATALOG_COURSE_DEFINITIONS: readonly CatalogCourse[] = [
 ];
 
 export const CATALOG_COURSES: readonly CatalogCourse[] = registryOrderedCourseRecords(
-  COURSE_RELEASE_SURFACES.map((course) => course.id),
+  PUBLIC_COURSE_IDS,
   CATALOG_COURSE_DEFINITIONS,
   "catalogue course metadata",
 );

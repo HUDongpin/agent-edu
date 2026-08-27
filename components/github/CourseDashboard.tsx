@@ -5,7 +5,7 @@ import CompletionSummary from "./CompletionSummary";
 import FinalQuiz, { type GithubFinalQuizQuestion } from "./FinalQuiz";
 import base from "@/components/codex/CodexCourse.module.css";
 import styles from "./GithubCourse.module.css";
-import SharedCourseShell from "../SharedCourseShell";
+import CourseShell from "../course-shell/CourseShell";
 
 export default function CourseDashboard({
   course,
@@ -54,7 +54,7 @@ export default function CourseDashboard({
       className={`shellwrap ${base.coursePage} ${styles.githubCourse}`}
       data-testid="github-course-dashboard"
     >
-      <SharedCourseShell courseId="github" locale={course.locale} />
+      <CourseShell courseId="github" locale={course.locale} />
       <header className={base.courseHero}>
         <div className={base.heroCopy}>
           <p className={base.kicker}>{course.copy.meta.kicker}</p>

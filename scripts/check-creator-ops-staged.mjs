@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { CREATOR_OPS_COURSE_MANIFEST } from "../staging/course-src/creator-ops/lib/manifest.ts";
 import { CREATOR_OPS_TRANSLATED_LOCALES } from "../staging/course-src/creator-ops/lib/load.ts";
 import { validateCreatorOpsCourse } from "../staging/course-src/creator-ops/lib/validate.ts";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const STAGED_ROUTE_ROOT = resolve(ROOT, "app/[locale]/_staged/creator-ops");
@@ -45,6 +46,32 @@ function verifyStagedAssetManifest() {
 }
 
 export function checkCreatorOpsStaged() {
+  const releaseArtifacts = assertReleaseArtifactsCurrent({ projectRoot: ROOT });
+  const releaseRecord = releaseArtifacts.manifest.courses.find(
+    (course) => course.id === "creator-ops",
+  );
+  invariant(releaseRecord?.state === "staged", "canonical creator-ops state must be staged");
+  invariant(
+    JSON.stringify(releaseRecord.interfaceLocales) === JSON.stringify(releaseArtifacts.manifest.siteLocales),
+    "canonical creator-ops interfaceLocales must cover all site locales",
+  );
+  invariant(
+    JSON.stringify(releaseRecord.reviewedContentLocales) === JSON.stringify(["en", "zh-Hans"]),
+    "canonical creator-ops reviewedContentLocales must be en and zh-Hans",
+  );
+  invariant(releaseRecord.fallbackLocale === "en", "canonical creator-ops fallbackLocale must be en");
+  invariant(releaseRecord.progress === null, "canonical creator-ops progress must remain null");
+  invariant(
+    releaseRecord.releaseGate === "npm run creator-ops:check:staged",
+    "canonical creator-ops gate must run the staged checker",
+  );
+  invariant(
+    JSON.stringify(releaseRecord.routes) === JSON.stringify([
+      "creator-ops/",
+      ...CREATOR_OPS_COURSE_MANIFEST.modules.map((module) => `creator-ops/${module.slug}/`),
+    ]),
+    "canonical creator-ops routes must match the staged course modules",
+  );
   const validation = validateCreatorOpsCourse();
   invariant(validation.errors.length === 0, validation.errors.join("\n"));
   invariant(

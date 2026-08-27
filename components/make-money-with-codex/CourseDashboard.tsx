@@ -13,7 +13,7 @@ import CourseProgress from "./CourseProgress";
 import EvidenceBadge from "./EvidenceBadge";
 import KnowledgeCheck from "./KnowledgeCheck";
 import styles from "./IncomeCourse.module.css";
-import SharedCourseShell from "../SharedCourseShell";
+import CourseShell from "../course-shell/CourseShell";
 
 function durationLabel(totalMinutes: number): string {
   const hours = Math.floor(totalMinutes / 60);
@@ -48,7 +48,7 @@ export default function CourseDashboard({
 
   return (
     <div className={`${styles.coursePage} en-content`} dir="ltr" data-testid="income-course-dashboard">
-      <SharedCourseShell courseId="make-money-with-codex" locale={locale} standalone />
+      <CourseShell courseId="make-money-with-codex" locale={locale} standalone />
       <section className={`shellwrap ${styles.courseHero}`} aria-labelledby="income-course-title">
         <div className={styles.heroCopy}>
           <p className={styles.kicker} lang="en">{course.kicker}</p>

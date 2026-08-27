@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertReleaseArtifactsCurrent } from "../sync-course-public-surface.mjs";
 
 function readJson(root, path) {
   return JSON.parse(readFileSync(resolve(root, path), "utf8"));
@@ -35,7 +36,7 @@ export function publishedReleaseIntegrationErrors(root, courseId, expectedGate, 
   let contract;
   let packageJson;
   try {
-    contract = readJson(root, "config/course-release-surface.json");
+    contract = assertReleaseArtifactsCurrent({ projectRoot: root }).releaseSurface;
     packageJson = readJson(root, "package.json");
   } catch (error) {
     return [`published release contract could not be read: ${error.message}`];

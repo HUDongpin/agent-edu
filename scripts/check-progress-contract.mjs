@@ -10,6 +10,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { progressRegistryIntegrationErrors } from "./lib/progress-registry-contract.mjs";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const COMPONENTS = join(ROOT, "components");
@@ -23,7 +24,6 @@ const RECENCY_TRACKER = join(COMPONENTS, "ProgressRecencyTracker.tsx");
 const SHELL = join(COMPONENTS, "Shell.tsx");
 const PUBLIC_PROGRESS_CONTRACT = join(ROOT, "lib", "public-progress-contract.ts");
 const PROGRESS_STORAGE_CONTRACT = join(ROOT, "lib", "progress-storage-contract.ts");
-const RELEASE_REGISTRY = join(ROOT, "config", "course-release-surface.json");
 
 // Migration ratchet: all learner-facing progress surfaces use the registered
 // adapters. Twelve legacy shared-key owners remain until their physical stores
@@ -73,7 +73,7 @@ globalThis.window = contractWindow;
 globalThis.localStorage = contractLocalStorage;
 globalThis.sessionStorage = contractSessionStorage;
 
-const releaseContract = JSON.parse(readFileSync(RELEASE_REGISTRY, "utf8"));
+const { manifest: releaseContract } = assertReleaseArtifactsCurrent({ projectRoot: ROOT });
 const {
   createAllProgressAdapters,
   createPublishedProgressAdapters,

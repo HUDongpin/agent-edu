@@ -10,7 +10,7 @@ import {
 } from "./Interactions";
 import { CourseTopology, RuntimeSemanticsLedger } from "./OrchestrationMap";
 import styles from "./AgentOrchestrationCourse.module.css";
-import SharedCourseShell from "../SharedCourseShell";
+import CourseShell from "../course-shell/CourseShell";
 
 function label(
   labels: Readonly<Record<string, string>>,
@@ -82,7 +82,7 @@ export default function CourseDashboard({
         <span aria-hidden="true">/</span>
         <span aria-current="page">{label(course.copy.ui, "course", "Course 15")}</span>
       </nav>
-      <SharedCourseShell courseId="agent-orchestration" locale={course.locale} showBreadcrumb={false} />
+      <CourseShell courseId="agent-orchestration" locale={course.locale} showBreadcrumb={false} />
 
       <header className={styles.hero}>
         <div className={styles.heroCopy}>

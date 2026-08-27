@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const SITE = "https://aicourse.top";
 const MAX_SHARD_BYTES = 500 * 1024;
@@ -64,8 +65,8 @@ function routeEntries(locales, routes, targetLocale, primaryLocale) {
 }
 
 export function expectedSitemapUrlCount(contract) {
-  if (contract?.schemaVersion !== 2) {
-    throw new Error("course release surface schemaVersion must be 2");
+  if (contract?.schemaVersion !== 3) {
+    throw new Error("course release surface schemaVersion must be 3");
   }
   const coreCount = contract.core.contentLocales.length * contract.core.routes.length;
   const publishedCourseCount = contract.courses
@@ -81,10 +82,7 @@ export function generateSitemaps(options = {}) {
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
   const out = join(projectRoot, "out");
   if (!existsSync(out)) throw new Error("out/ is missing; run next build first");
-  const contract = JSON.parse(readFileSync(
-    join(projectRoot, "config/course-release-surface.json"),
-    "utf8",
-  ));
+  const { releaseSurface: contract } = assertReleaseArtifactsCurrent({ projectRoot });
   const shardRoot = join(out, "sitemaps");
   rmSync(shardRoot, { recursive: true, force: true });
   mkdirSync(shardRoot, { recursive: true });

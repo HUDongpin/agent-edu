@@ -9,6 +9,8 @@ import {
 const publishedTestFiles = [
   "e2e/published-courses.spec.ts",
   "e2e/published-course-contracts.spec.ts",
+  "e2e/catalog-language.spec.ts",
+  "e2e/platform-learning-shell.spec.ts",
   "tests/ai-tutor-course.spec.ts",
   "tests/claude-income-course.spec.ts",
   "tests/github-course.spec.ts",

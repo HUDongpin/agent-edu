@@ -34,7 +34,7 @@ export default async function LearningPage({ params }: { params: Promise<{ local
     url: pageUrl,
     isPartOf: { "@id": `${SITE}/#website` },
     inLanguage: locale,
-    dateModified: "2026-08-26",
+    dateModified: "2026-08-28",
   };
 
   return (

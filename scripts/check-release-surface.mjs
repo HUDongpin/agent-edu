@@ -1,9 +1,9 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const PROJECT = resolve(process.cwd());
-const CONTRACT_PATH = join(PROJECT, "config", "course-release-surface.json");
 const PACKAGE_PATH = join(PROJECT, "package.json");
 const README_PATH = join(PROJECT, "README.md");
 
@@ -87,9 +87,17 @@ function assertRouteWiring(course) {
   const roots = [...new Set(course.routes.map((route) => route.split("/")[0]))];
   for (const root of roots) {
     const file = `${routeRoot}/${root}/page.tsx`;
-    const authoredImplementation = join(PROJECT, routeRoot, "_blocked", course.id);
-    const authored = existsSync(authoredImplementation);
-    if (authored && course.state === "blocked") {
+    const privateImplementations = ["_blocked", "_staged"]
+      .map((privateRoot) => ({
+        privateRoot,
+        path: join(PROJECT, routeRoot, privateRoot, course.id),
+      }))
+      .filter(({ path }) => existsSync(path));
+    assert(privateImplementations.length <= 1, `${course.id} must have one private implementation root`);
+    const authoredImplementation = privateImplementations[0]?.path;
+    const authoredRoot = privateImplementations[0]?.privateRoot;
+    const authored = Boolean(authoredImplementation);
+    if (authoredImplementation && (course.state === "blocked" || course.state === "staged")) {
       assert(
         existsSync(join(authoredImplementation, "page.tsx")),
         `${course.id} must retain its internal dashboard implementation`,
@@ -122,7 +130,7 @@ function assertRouteWiring(course) {
         `${file} must be generated from registry state`,
       );
       assert(
-        source.includes(`_blocked/${course.id}/page`),
+        source.includes(`${authoredRoot}/${course.id}/page`),
         `${file} must activate the authored implementation after publication`,
       );
     }
@@ -144,7 +152,7 @@ function assertRouteWiring(course) {
       assertDynamicParamsFalse(childSource, childFile);
       if (authored) {
         assert(
-          childSource.includes(`_blocked/${course.id}/${entry.name}/page`),
+          childSource.includes(`${authoredRoot}/${course.id}/${entry.name}/page`),
           `${childFile} must activate the authored child implementation after publication`,
         );
       }
@@ -153,7 +161,11 @@ function assertRouteWiring(course) {
 }
 
 export function validateReleaseSurface(contract, packageJson) {
-  assert(contract?.schemaVersion === 2, "release surface schemaVersion must be 2");
+  assert(contract?.schemaVersion === 3, "release surface schemaVersion must be 3");
+  assert(
+    contract.manifestKind === "course-release-surface-projection",
+    "release surface manifestKind is invalid",
+  );
   assert(Array.isArray(contract.siteLocales), "siteLocales must be an array");
   assertUnique(contract.siteLocales, "siteLocales");
   assert(contract.siteLocales.includes("en"), "siteLocales must include English");
@@ -164,34 +176,50 @@ export function validateReleaseSurface(contract, packageJson) {
   assert(Array.isArray(contract.courses), "courses must be an array");
 
   const publicSurface = readJson(join(PROJECT, "config", "course-public-surface.json"));
-  assert(publicSurface.schemaVersion === 1, "public course surface schemaVersion must be 1");
-  assert(Array.isArray(publicSurface.courses), "public course surface courses must be an array");
-  const expectedPublicProjection = contract.courses.map((course) => ({
-    id: course.id,
-    state: course.state,
-    href: course.state === "published" ? course.href : null,
-    titleKey: course.titleKey,
-    primaryLocale: course.primaryLocale,
-    contentLocales: course.contentLocales,
-    progressEvent: course.state === "published" ? course.progress?.event ?? null : null,
-  }));
+  assert(publicSurface.schemaVersion === 3, "public course surface schemaVersion must be 3");
   assert(
-    JSON.stringify(publicSurface.courses) === JSON.stringify(expectedPublicProjection),
-    "client-safe course surface must exactly match the public registry projection",
+    publicSurface.manifestKind === "course-public-surface-projection",
+    "public course surface manifestKind is invalid",
+  );
+  assert(
+    publicSurface.source?.sha256 === contract.source?.sha256,
+    "generated projections must share one manifest source SHA",
+  );
+  assert(Array.isArray(publicSurface.courses), "public course surface courses must be an array");
+  assert(
+    publicSurface.courses.every((course) => course.state !== "staged"),
+    "client-safe course surface must exclude staged courses",
   );
 
   assertUnique(contract.courses.map((course) => course.id), "course ids");
 
   const published = contract.courses.filter((course) => course.state === "published");
   const blocked = contract.courses.filter((course) => course.state === "blocked");
+  const staged = contract.courses.filter((course) => course.state === "staged");
   const roadmap = contract.courses.filter((course) => course.state === "roadmap");
   const allRoutes = [...contract.core.routes];
   for (const course of contract.courses) {
     assert(
-      course.state === "published" || course.state === "blocked" || course.state === "roadmap",
+      course.state === "published"
+        || course.state === "blocked"
+        || course.state === "staged"
+        || course.state === "roadmap",
       `${course.id} has invalid state`,
     );
     assert(typeof course.titleKey === "string" && course.titleKey.length > 0, `${course.id} titleKey is required`);
+    assert(Array.isArray(course.interfaceLocales), `${course.id} interfaceLocales must be an array`);
+    assert(Array.isArray(course.reviewedContentLocales), `${course.id} reviewedContentLocales must be an array`);
+    assertUnique(course.interfaceLocales, `${course.id} interfaceLocales`);
+    assertUnique(course.reviewedContentLocales, `${course.id} reviewedContentLocales`);
+    assert(
+      JSON.stringify(course.interfaceLocales) === JSON.stringify(contract.siteLocales),
+      `${course.id} interfaceLocales must match the site shell locales`,
+    );
+    assert(
+      JSON.stringify(course.reviewedContentLocales) === JSON.stringify(course.contentLocales),
+      `${course.id} compatibility contentLocales must equal reviewedContentLocales`,
+    );
+    assert(course.fallbackLocale === course.primaryLocale, `${course.id} fallback compatibility drift`);
     assert(Array.isArray(course.contentLocales), `${course.id} contentLocales must be an array`);
     assert(Array.isArray(course.routes), `${course.id} routes must be an array`);
     assertUnique(course.contentLocales, `${course.id} contentLocales`);
@@ -224,6 +252,13 @@ export function validateReleaseSurface(contract, packageJson) {
     );
     assert(typeof course.releaseGate === "string", `${course.id} must declare exactly one releaseGate`);
     assertGateExists(course.releaseGate, packageJson);
+    if (course.state === "staged") {
+      assert(course.progress === null, `${course.id} staged progress must be null`);
+      assert(Array.isArray(course.blockers) && course.blockers.length > 0, `${course.id} staged blockers are required`);
+      assertRouteWiring(course);
+      allRoutes.push(...course.routes);
+      continue;
+    }
     assert(course.progress && typeof course.progress === "object", `${course.id} progress is required`);
     assert(typeof course.progress.strategy === "string", `${course.id} progress.strategy is required`);
     assert(typeof course.progress.storageKey === "string", `${course.id} progress.storageKey is required`);
@@ -279,19 +314,19 @@ export function validateReleaseSurface(contract, packageJson) {
   );
   assertReadmePublicationBoundary(contract, blocked);
 
-  return { published, blocked, roadmap };
+  return { published, blocked, staged, roadmap };
 }
 
 export function publishedGateLedger(contract) {
   const { published, blocked } = validateReleaseSurface(contract, readJson(PACKAGE_PATH));
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     publishedCount: published.length,
     blockedCount: blocked.length,
     gates: published.map((course) => ({
       courseId: course.id,
-      primaryLocale: course.primaryLocale,
-      contentLocales: course.contentLocales,
+      fallbackLocale: course.fallbackLocale,
+      reviewedContentLocales: course.reviewedContentLocales,
       routeCount: course.routes.length,
       releaseGate: course.releaseGate,
     })),
@@ -299,13 +334,14 @@ export function publishedGateLedger(contract) {
 }
 
 export function checkReleaseSurface() {
-  const contract = readJson(CONTRACT_PATH);
+  const { releaseSurface: contract } = assertReleaseArtifactsCurrent({ projectRoot: PROJECT });
   const packageJson = readJson(PACKAGE_PATH);
   const result = validateReleaseSurface(contract, packageJson);
   return {
     contract,
     published: result.published.length,
     blocked: result.blocked.length,
+    staged: result.staged.length,
     roadmap: result.roadmap.length,
   };
 }
@@ -321,7 +357,7 @@ if (invoked) {
     } else {
       console.log(
         `release surface: PASS — ${result.published} published, `
-        + `${result.blocked} blocked, ${result.roadmap} roadmap`,
+        + `${result.blocked} blocked, ${result.staged} staged, ${result.roadmap} roadmap`,
       );
     }
   } catch (error) {

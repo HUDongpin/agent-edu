@@ -10,6 +10,24 @@ import { join } from "node:path";
 import test from "node:test";
 import { checkStaticAssets } from "../scripts/check-static-assets.mjs";
 
+function registry(blocked = ["codex", "claude", "cursor"] as readonly string[]) {
+  const blockedSet = new Set(blocked);
+  return {
+    courses: ["published", "codex", "claude", "cursor"].map((id) => ({
+      id,
+      state: blockedSet.has(id) ? "blocked" : "published",
+    })),
+  };
+}
+
+function checkFixture(root: string, blocked?: readonly string[]) {
+  return checkStaticAssets({
+    projectRoot: root,
+    emit: false,
+    registry: registry(blocked),
+  });
+}
+
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), "agent-edu-assets-"));
   for (const path of [
@@ -21,14 +39,6 @@ function fixture() {
     "public/docs",
     "config",
   ]) mkdirSync(join(root, path), { recursive: true });
-  writeFileSync(join(root, "config/course-release-surface.json"), JSON.stringify({
-    courses: [
-      { id: "published", state: "published" },
-      { id: "codex", state: "blocked" },
-      { id: "claude", state: "blocked" },
-      { id: "cursor", state: "blocked" },
-    ],
-  }));
   writeFileSync(join(root, ".next/BUILD_ID"), "build-one\n");
   writeFileSync(join(root, ".next/prerender-manifest.json"), JSON.stringify({
     routes: { "/en/": {} },
@@ -44,7 +54,7 @@ function fixture() {
 test("static inventory covers Next chunks, emitted public files, and route payloads", () => {
   const root = fixture();
   try {
-    const inventory = checkStaticAssets({ projectRoot: root, emit: false });
+    const inventory = checkFixture(root);
     assert.equal(inventory.schemaVersion, 3);
     assert.deepEqual(inventory.categories, {
       nextStatic: { fileCount: 1, bytes: 20 },
@@ -88,7 +98,7 @@ test("static inventory enforces the 500 KiB public-media, HTML/RSC, and sitemap 
       }
       writeFileSync(join(root, path), Buffer.alloc(512_001));
       assert.throws(
-        () => checkStaticAssets({ projectRoot: root, emit: false }),
+        () => checkFixture(root),
         expected,
       );
     } finally {
@@ -105,7 +115,7 @@ test("static inventory fails closed for a course media directory without an audi
     writeFileSync(join(root, "public/courses/unreviewed/new.png"), "media\n");
     writeFileSync(join(root, "out/courses/unreviewed/new.png"), "media\n");
     assert.throws(
-      () => checkStaticAssets({ projectRoot: root, emit: false }),
+      () => checkFixture(root),
       /courseMediaBytes\.unreviewed has no audited baseline/,
     );
   } finally {
@@ -118,7 +128,7 @@ test("static inventory fails when a same-size public asset was not emitted byte-
   try {
     writeFileSync(join(root, "out/docs/card.png"), `${"x".repeat(20)}\n`);
     assert.throws(
-      () => checkStaticAssets({ projectRoot: root, emit: false }),
+      () => checkFixture(root),
       /emitted public asset contents drifted/,
     );
   } finally {
@@ -131,7 +141,7 @@ test("static inventory preserves blocked source evidence but requires it to be a
   try {
     mkdirSync(join(root, "public/courses/codex"), { recursive: true });
     writeFileSync(join(root, "public/courses/codex/evidence.png"), "blocked-evidence\n");
-    const inventory = checkStaticAssets({ projectRoot: root, emit: false });
+    const inventory = checkFixture(root);
     assert.deepEqual(inventory.categories.excludedBlockedSourceAssets, {
       fileCount: 1,
       bytes: 17,
@@ -140,7 +150,7 @@ test("static inventory preserves blocked source evidence but requires it to be a
     mkdirSync(join(root, "out/courses/codex"), { recursive: true });
     writeFileSync(join(root, "out/courses/codex/evidence.png"), "blocked-evidence\n");
     assert.throws(
-      () => checkStaticAssets({ projectRoot: root, emit: false }),
+      () => checkFixture(root),
       /blocked course asset was emitted/,
     );
   } finally {
@@ -151,13 +161,7 @@ test("static inventory preserves blocked source evidence but requires it to be a
 test("static inventory accepts an empty blocked-course set", () => {
   const root = fixture();
   try {
-    writeFileSync(join(root, "config/course-release-surface.json"), JSON.stringify({
-      courses: [
-        { id: "published", state: "published" },
-        { id: "codex", state: "published" },
-      ],
-    }));
-    const inventory = checkStaticAssets({ projectRoot: root, emit: false });
+    const inventory = checkFixture(root, []);
     assert.deepEqual(inventory.categories.excludedBlockedSourceAssets, {
       fileCount: 0,
       bytes: 0,
@@ -170,17 +174,11 @@ test("static inventory accepts an empty blocked-course set", () => {
 test("publishing a course stops treating its curriculum sentinel as a blocked leak", () => {
   const root = fixture();
   try {
-    writeFileSync(join(root, "config/course-release-surface.json"), JSON.stringify({
-      courses: [
-        { id: "published", state: "published" },
-        { id: "codex", state: "published" },
-      ],
-    }));
     writeFileSync(
       join(root, "out/_next/static/build-one/app.js"),
       'const publishedCurriculum = "practice-meet-codex";\n',
     );
-    assert.doesNotThrow(() => checkStaticAssets({ projectRoot: root, emit: false }));
+    assert.doesNotThrow(() => checkFixture(root, []));
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -205,7 +203,7 @@ test("static inventory rejects blocked gate and curriculum internals in client c
         `const leakedBlockedInternal = ${JSON.stringify(sentinel)};\n`,
       );
       assert.throws(
-        () => checkStaticAssets({ projectRoot: root, emit: false }),
+        () => checkFixture(root),
         /blocked course internals entered the public export/,
       );
     } finally {
@@ -222,7 +220,7 @@ test("static inventory rejects registry-owned blocked media paths in public payl
       'const blockedMedia = "/courses/codex/figures/figure.png";\n',
     );
     assert.throws(
-      () => checkStaticAssets({ projectRoot: root, emit: false }),
+      () => checkFixture(root),
       /blocked course media path entered the public export: codex/,
     );
   } finally {

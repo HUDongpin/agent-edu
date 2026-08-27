@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const PROJECT = resolve(process.cwd());
-const CONTRACT = resolve(PROJECT, "config/course-release-surface.json");
 const DEFAULT_OUTPUT = resolve(PROJECT, "tmp/release/published-course-gates.json");
 
 function commandArgs(command) {
@@ -32,7 +32,7 @@ function commitSha() {
 }
 
 export function runPublishedReleaseGates(options = {}) {
-  const contract = JSON.parse(readFileSync(CONTRACT, "utf8"));
+  const { manifest: contract } = assertReleaseArtifactsCurrent({ projectRoot: PROJECT });
   const published = contract.courses.filter((course) => course.state === "published");
 
   const results = [];

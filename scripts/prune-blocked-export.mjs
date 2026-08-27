@@ -7,6 +7,7 @@ import {
 } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 function normalizedRelative(root, absolute) {
   return relative(root, absolute).split(sep).join("/");
@@ -28,15 +29,7 @@ function filesBelow(root) {
 }
 
 function loadRegistry(projectRoot) {
-  const registryPath = join(projectRoot, "config", "course-release-surface.json");
-  if (!existsSync(registryPath)) {
-    throw new Error("course release registry is missing");
-  }
-  const registry = JSON.parse(readFileSync(registryPath, "utf8"));
-  if (!Array.isArray(registry.siteLocales) || !Array.isArray(registry.courses)) {
-    throw new Error("course release registry has an invalid shape");
-  }
-  return registry;
+  return assertReleaseArtifactsCurrent({ projectRoot }).releaseSurface;
 }
 
 function routeArtifactCandidates(out, locale, route) {
@@ -56,7 +49,10 @@ export function pruneBlockedExport(options = {}) {
     throw new Error("static export is missing; run next build before pruning blocked assets");
   }
 
-  const registry = loadRegistry(projectRoot);
+  // CLI/direct callers always take the fail-closed canonical path. Unit tests
+  // may inject a small registry to exercise destructive pruning decisions
+  // without pretending a hypothetical lifecycle state is the frozen manifest.
+  const registry = options.registry ?? loadRegistry(projectRoot);
   const blockedCourses = registry.courses
     .filter((course) => course.state === "blocked")
     .sort((left, right) => left.id.localeCompare(right.id));

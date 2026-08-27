@@ -8,7 +8,7 @@ import {
 import CourseProgress from "./CourseProgress";
 import FinalQuiz, { type GrokQuizQuestion } from "./FinalQuiz";
 import styles from "./GrokCourse.module.css";
-import SharedCourseShell from "../SharedCourseShell";
+import CourseShell from "../course-shell/CourseShell";
 
 export default function CourseDashboard({
   course,
@@ -52,7 +52,7 @@ export default function CourseDashboard({
 
   return (
     <div className={styles.coursePage} data-testid="grok-course-dashboard">
-      <SharedCourseShell courseId="grok" locale={course.locale} standalone />
+      <CourseShell courseId="grok" locale={course.locale} standalone />
       <section className={`shellwrap ${styles.courseHero}`} aria-labelledby="grok-course-title">
         <div className={styles.heroCopy}>
           <p className={styles.heroKicker}>{course.copy.meta.kicker}</p>

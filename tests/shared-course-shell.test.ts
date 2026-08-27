@@ -2,9 +2,12 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { PUBLISHED_COURSE_SURFACES } from "../lib/release-surface";
+import {
+  PENDING_COURSE_SHELL_PROGRESS,
+  loadCourseShellProgress,
+} from "../components/course-shell/CourseShellProgress";
 
-const dashboardByCourse = new Map<string, string>([
-  ["agentic", "components/handbook/Handbook.tsx"],
+const serverDashboardByCourse = new Map<string, string>([
   ["grok", "components/grok/CourseDashboard.tsx"],
   ["github", "components/github/CourseDashboard.tsx"],
   ["prompts", "components/prompts/CourseDashboard.tsx"],
@@ -33,16 +36,24 @@ const journeyByCourse = new Map<string, string>([
   ["agent-orchestration", "components/agent-orchestration/Interactions.tsx"],
 ]);
 
-test("every published dashboard mounts the registry-derived shared course shell", () => {
-  assert.equal(dashboardByCourse.size, PUBLISHED_COURSE_SURFACES.length);
-  for (const course of PUBLISHED_COURSE_SURFACES) {
-    const path = dashboardByCourse.get(course.id);
+test("eleven published dashboards mount the server CourseShell entry", () => {
+  const serverCourses = PUBLISHED_COURSE_SURFACES.filter((course) => course.id !== "agentic");
+  assert.equal(serverDashboardByCourse.size, 11);
+  assert.equal(serverDashboardByCourse.size, serverCourses.length);
+  for (const course of serverCourses) {
+    const path = serverDashboardByCourse.get(course.id);
     assert.ok(path, course.id);
     const source = readFileSync(path, "utf8");
-    assert.match(source, new RegExp(`<SharedCourseShell\\s+courseId=["']${course.id}["']`), path);
+    assert.match(source, /from\s+["']\.\.\/course-shell\/CourseShell["']/u, path);
+    assert.match(source, new RegExp(`<CourseShell\\s+courseId=["']${course.id}["']`), path);
+    assert.doesNotMatch(source, /^\s*["']use client["']/u, path);
   }
 
-  const shell = readFileSync("components/SharedCourseShell.tsx", "utf8");
+  const shell = readFileSync("components/course-shell/CourseShell.tsx", "utf8");
+  assert.match(shell, /^import\s+["']server-only["'];/u);
+  assert.doesNotMatch(shell, /^\s*["']use client["']/u);
+  assert.match(shell, /<section/u, "the core overview is content, not complementary aside content");
+  assert.doesNotMatch(shell, /<aside/u);
   for (const field of [
     "data-course-publication-state",
     "data-course-level",
@@ -52,8 +63,69 @@ test("every published dashboard mounts the registry-derived shared course shell"
     "local-progress",
   ]) assert.match(shell, new RegExp(field), field);
   assert.match(shell, /PUBLISHED_CATALOG_COURSES\.find/);
+  assert.match(shell, /getMessages\(locale\)/);
   assert.match(shell, /metaFor\(contentLocale\)\.native/);
   assert.doesNotMatch(shell, /new\s+Intl\.DisplayNames/);
+  for (const contract of [
+    "courseShell.overview",
+    "courseShell.status",
+    "courseShell.difficulty",
+    "courseShell.duration",
+    "courseShell.contentLanguage",
+    "courseShell.fallbackNotice",
+    "courseShell.prerequisites",
+    "courseShell.outcome",
+    "courseShell.artifact",
+    "courseShell.syllabus",
+    "courseShell.syllabusSummary",
+    "courseShell.localNote",
+  ]) assert.match(shell, new RegExp(contract.replace(".", "\\.")), contract);
+});
+
+test("Handbook keeps a client-compatible RSC slot without importing server metadata", () => {
+  const handbook = readFileSync("components/handbook/Handbook.tsx", "utf8");
+  const compatibilitySlot = readFileSync("components/SharedCourseShell.tsx", "utf8");
+  const page = readFileSync("app/[locale]/handbook/page.tsx", "utf8");
+
+  assert.match(handbook, /^["']use client["'];/u);
+  assert.match(handbook, /<SharedCourseShell>\{courseShell\}<\/SharedCourseShell>/u);
+  assert.match(compatibilitySlot, /^["']use client["'];/u);
+  assert.match(compatibilitySlot, /return children/u);
+  assert.doesNotMatch(compatibilitySlot, /public-courses|public-release-surface|getMessages|useI18n/u);
+  assert.match(page, /from\s+["']@\/components\/course-shell\/CourseShell["']/u);
+  assert.match(page, /courseShell=\{<CourseShell courseId=["']agentic["'] locale=\{locale\} \/>\}/u);
+});
+
+test("CourseShell progress starts pending and fails closed for every loader boundary", async () => {
+  assert.deepEqual(PENDING_COURSE_SHELL_PROGRESS, {
+    state: "pending",
+    percent: null,
+    nextHref: null,
+  });
+
+  const unavailable = { state: "unavailable", percent: null, nextHref: null };
+  assert.deepEqual(await loadCourseShellProgress("grok", "en", async () => {
+    throw new Error("chunk rejected");
+  }), unavailable);
+  assert.deepEqual(await loadCourseShellProgress("grok", "en", async () => ({})), unavailable);
+  assert.deepEqual(await loadCourseShellProgress("grok", "en", async () => ({
+    createPublishedProgressAdapters: () => [],
+  })), unavailable);
+  assert.deepEqual(await loadCourseShellProgress("grok", "en", async () => ({
+    createPublishedProgressAdapters: () => [{
+      courseId: "grok",
+      progressEvent: "grok:progress",
+      readSummary: () => { throw new Error("adapter read failed"); },
+    }],
+  })), unavailable);
+
+  assert.deepEqual(await loadCourseShellProgress("grok", "en", async () => ({
+    createPublishedProgressAdapters: () => [{
+      courseId: "grok",
+      progressEvent: "grok:progress",
+      readSummary: () => ({ state: "in-progress", percent: 42, nextHref: "/en/grok/next/" }),
+    }],
+  })), { state: "in-progress", percent: 42, nextHref: "/en/grok/next/" });
 });
 
 test("every published dashboard exposes exactly one designated journey CTA implementation", () => {

@@ -12,6 +12,7 @@ import {
   internalPagePath,
 } from "./check-routes.mjs";
 import { contentFindings } from "./check-secrets.mjs";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const SITE_ORIGIN = "https://aicourse.top";
 const GIT_SHA = /^[0-9a-f]{40}$/;
@@ -370,10 +371,8 @@ export async function verifyVercelPreview(options) {
   const trustedOidcToken = validateTrustedOidcToken(options.trustedOidcToken);
   const requestHeaders = previewRequestHeaders(trustedOidcToken);
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
-  const releaseSurface = options.releaseSurface ?? JSON.parse(readFileSync(
-    resolve(projectRoot, "config/course-release-surface.json"),
-    "utf8",
-  ));
+  const releaseArtifacts = assertReleaseArtifactsCurrent({ projectRoot });
+  const releaseSurface = options.releaseSurface ?? releaseArtifacts.releaseSurface;
   const routeManifest = options.routeManifest ?? JSON.parse(readFileSync(
     resolve(projectRoot, "config/route-manifest.json"),
     "utf8",

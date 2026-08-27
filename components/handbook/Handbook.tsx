@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import initHandbook from "@/lib/handbook/behaviour";
 import { makeCopy, type WidgetTable } from "@/lib/handbook/copy";
 import { useI18n } from "../I18nProvider";
@@ -29,7 +29,17 @@ import AgenticTrackNav from "../AgenticTrackNav";
  * widgets are still free to mutate the subtree afterwards.
  */
 export default function Handbook(
-  { html, localised, copy }: { html: string; localised: boolean; copy: WidgetTable },
+  {
+    html,
+    localised,
+    copy,
+    courseShell,
+  }: {
+    html: string;
+    localised: boolean;
+    copy: WidgetTable;
+    courseShell: ReactNode;
+  },
 ) {
   const { t, locale } = useI18n();
   const startedFor = useRef<string | null>(null);
@@ -66,7 +76,7 @@ export default function Handbook(
     <>
       <div className="shellwrap">
         {!localised && locale !== "en" && <p className="langnote">{t("note.englishOnly")}</p>}
-        <SharedCourseShell courseId="agentic" locale={locale} />
+        <SharedCourseShell>{courseShell}</SharedCourseShell>
         <AgenticTrackNav locale={locale} current="handbook" />
         <CourseJourney locale={locale} />
       </div>

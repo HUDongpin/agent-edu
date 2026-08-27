@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useMemo, useState } from "react";
+import { Fragment, useEffect, useId, useMemo, useState } from "react";
 import Cover from "./Cover";
+import styles from "./Catalog.module.css";
 import { useI18n } from "../I18nProvider";
 import {
   CATALOG_COURSE_RELEASES,
@@ -17,7 +18,6 @@ import {
   type Status,
 } from "@/lib/public-courses";
 import {
-  publicContentLocaleForCourse as contentLocaleForCourse,
   publicCourseHrefFor as courseHrefFor,
   withPublicCourseReturnLocale,
   type PublicContentLocale as ContentLocale,
@@ -40,8 +40,90 @@ type DirectoryCourse = CatalogCourse & {
   readonly publicationState: PublicationStatus;
   readonly targetHref: string | null;
   readonly contentLocale: ContentLocale | null;
+  readonly requestedContentLocale: ContentLocale | null;
+  readonly interfaceLocales: readonly ContentLocale[];
+  readonly reviewedContentLocales: readonly ContentLocale[];
+  readonly fallbackLocale: ContentLocale | null;
+  readonly usesFallback: boolean;
 };
-type Translator = (key: string) => string;
+
+type LanguageMeta = {
+  readonly native: string;
+  readonly dir: "ltr" | "rtl";
+};
+
+const LANGUAGE_META: Readonly<Record<ContentLocale, LanguageMeta>> = {
+  en: { native: "English", dir: "ltr" },
+  es: { native: "Español", dir: "ltr" },
+  fr: { native: "Français", dir: "ltr" },
+  de: { native: "Deutsch", dir: "ltr" },
+  "zh-Hans": { native: "简体中文", dir: "ltr" },
+  "zh-Hant": { native: "繁體中文", dir: "ltr" },
+  ja: { native: "日本語", dir: "ltr" },
+  ko: { native: "한국어", dir: "ltr" },
+  ar: { native: "العربية", dir: "rtl" },
+};
+
+const CONTENT_LOCALES = Object.keys(LANGUAGE_META) as readonly ContentLocale[];
+
+function unavailablePublishedProgressMap(): ProgressMap {
+  return Object.fromEntries(
+    CATALOG_COURSE_RELEASES
+      .filter(({ surface }) => surface.state === "published")
+      .map(({ course }) => [course.id, {
+        state: "unavailable" as const,
+        percent: null,
+        nextHref: null,
+      }]),
+  );
+}
+
+function isContentLocale(value: string | null): value is ContentLocale {
+  return Boolean(value && CONTENT_LOCALES.includes(value as ContentLocale));
+}
+
+export function catalogLanguageFromQuery(
+  value: string | null,
+  reviewedLocales: readonly ContentLocale[],
+): ContentLocale | typeof ALL {
+  return isContentLocale(value) && reviewedLocales.includes(value) ? value : ALL;
+}
+
+export function catalogContentLocaleFor(
+  reviewedLocales: readonly ContentLocale[],
+  fallbackLocale: ContentLocale | null,
+  requestedLocale: string,
+): ContentLocale | null {
+  if (isContentLocale(requestedLocale) && reviewedLocales.includes(requestedLocale)) {
+    return requestedLocale;
+  }
+  return fallbackLocale && reviewedLocales.includes(fallbackLocale) ? fallbackLocale : null;
+}
+
+type TemplateValue = {
+  readonly text: string;
+  readonly locale: ContentLocale;
+};
+
+function LanguageTemplate({
+  template,
+  values,
+}: {
+  template: string;
+  values: Readonly<Record<string, TemplateValue>>;
+}) {
+  return template.split(/(\{[A-Za-z]+\})/u).map((part, index) => {
+    const key = /^\{([A-Za-z]+)\}$/u.exec(part)?.[1];
+    const value = key ? values[key] : undefined;
+    if (!value) return <Fragment key={`${part}-${index}`}>{part}</Fragment>;
+    const meta = LANGUAGE_META[value.locale];
+    return (
+      <bdi key={`${key}-${index}`} lang={value.locale} dir={meta.dir}>
+        {value.text}
+      </bdi>
+    );
+  });
+}
 
 function catalogTopicFromQuery(value: string | null): CatalogTopic | typeof ALL {
   if (!value) return ALL;
@@ -68,45 +150,55 @@ function useCourseProgress(locale: string): ProgressMap {
   useEffect(() => {
     let cancelled = false;
     let removeListeners = () => {};
-    void import("../progress-adapters").then(({ createPublishedProgressAdapters }) => {
-      if (cancelled) return;
-      const adapters = createPublishedProgressAdapters(locale);
-      const read = () => {
-        const next: ProgressMap = {};
-        for (const adapter of adapters) {
-          try {
-            const summary = adapter.readSummary();
-            if (summary.state === "unavailable") {
+    void import("../progress-adapters")
+      .then(({ createPublishedProgressAdapters }) => {
+        if (cancelled) return;
+        const adapters = createPublishedProgressAdapters(locale);
+        const read = () => {
+          // Begin fail-closed so a partial/empty factory cannot leave one
+          // published card looking as if its progress were still loading.
+          const next = unavailablePublishedProgressMap();
+          for (const adapter of adapters) {
+            try {
+              const summary = adapter.readSummary();
+              if (summary.state === "unavailable") {
+                next[adapter.courseId] = {
+                  state: "unavailable",
+                  percent: null,
+                  nextHref: null,
+                };
+                continue;
+              }
+              next[adapter.courseId] = summary;
+            } catch {
               next[adapter.courseId] = {
                 state: "unavailable",
                 percent: null,
                 nextHref: null,
               };
-              continue;
             }
-            next[adapter.courseId] = summary;
-          } catch {
-            next[adapter.courseId] = {
-              state: "unavailable",
-              percent: null,
-              nextHref: null,
-            };
           }
-        }
-        if (!cancelled) setMap(next);
-      };
+          if (!cancelled) setMap(next);
+        };
 
-      read();
-      const progressEvents = new Set(adapters.map((adapter) => adapter.progressEvent));
-      window.addEventListener("focus", read);
-      window.addEventListener("storage", read);
-      for (const event of progressEvents) window.addEventListener(event, read);
-      removeListeners = () => {
-        window.removeEventListener("focus", read);
-        window.removeEventListener("storage", read);
-        for (const event of progressEvents) window.removeEventListener(event, read);
-      };
-    });
+        read();
+        const progressEvents = new Set(adapters.map((adapter) => adapter.progressEvent));
+        window.addEventListener("focus", read);
+        window.addEventListener("storage", read);
+        for (const event of progressEvents) window.addEventListener(event, read);
+        removeListeners = () => {
+          window.removeEventListener("focus", read);
+          window.removeEventListener("storage", read);
+          for (const event of progressEvents) window.removeEventListener(event, read);
+        };
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setMap(unavailablePublishedProgressMap());
+        removeListeners = () => {
+          // The module never loaded, so no listeners were installed.
+        };
+      });
     return () => {
       cancelled = true;
       removeListeners();
@@ -116,10 +208,10 @@ function useCourseProgress(locale: string): ProgressMap {
   return map;
 }
 
-function actionLabel(progress: number, t: Translator): string {
-  if (progress >= 100) return t("cat.review");
-  if (progress > 0) return t("cat.resume");
-  return t("cat.start");
+function actionKey(progress: number): "cat.startIn" | "cat.resumeIn" | "cat.reviewIn" {
+  if (progress >= 100) return "cat.reviewIn";
+  if (progress > 0) return "cat.resumeIn";
+  return "cat.startIn";
 }
 
 function normalise(value: string, locale: string): string {
@@ -136,11 +228,16 @@ function SelectFilter({
   id: string;
   label: string;
   value: string;
-  options: readonly { value: string; label: string }[];
+  options: readonly {
+    value: string;
+    label: string;
+    lang?: string;
+    dir?: "ltr" | "rtl";
+  }[];
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="filt catalog-filter">
+    <div className={`filt catalog-filter ${styles.filterControl}`}>
       <label htmlFor={id}>{label}</label>
       <select
         id={id}
@@ -149,7 +246,14 @@ function SelectFilter({
         aria-controls={CATALOG_RESULTS_IDS}
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value}>{option.label}</option>
+          <option
+            key={option.value}
+            value={option.value}
+            lang={option.lang}
+            dir={option.dir}
+          >
+            {option.label}
+          </option>
         ))}
       </select>
     </div>
@@ -170,6 +274,13 @@ function CourseCard({
   const progressPending = available && progress === undefined;
   const progressUnavailable = progress?.state === "unavailable";
   const progressPercent = progress && !progressUnavailable ? progress.percent : null;
+  const actionProgress = progressPercent ?? 0;
+  const contentLanguage = course.contentLocale
+    ? LANGUAGE_META[course.contentLocale]
+    : null;
+  const requestedLanguage = course.requestedContentLocale
+    ? LANGUAGE_META[course.requestedContentLocale]
+    : null;
   const isAgentic = course.id === "agentic";
   const isClaude = course.id === "claude";
   const isCursor = course.id === "cursor";
@@ -191,13 +302,13 @@ function CourseCard({
   const body = (
     <>
       <Cover id={course.id} hue={course.hue} />
-      <div className="cbody catalog-course-body">
+      <div className={`cbody catalog-course-body ${styles.courseBody}`}>
         {course.displayNumber ? (
           <span className="catalog-course-number">
             {t(`cat.course${course.displayNumber}`)}
           </span>
         ) : null}
-        <div className="cmeta catalog-course-meta">
+        <div className={`cmeta catalog-course-meta ${styles.courseMeta}`}>
           <span className="ctag" style={{ color: course.hue, borderColor: course.hue }}>
             {t(course.topicKey)}
           </span>
@@ -206,16 +317,46 @@ function CourseCard({
           <span>{t(course.formatKey)}</span>
           <span aria-hidden="true">·</span>
           <span>{duration}</span>
-          {course.contentLocale && course.contentLocale !== locale ? (
-            <>
-              <span aria-hidden="true">·</span>
-              <span>{t("cat.contentLanguageEnglish")}</span>
-            </>
-          ) : null}
         </div>
+        {course.contentLocale && contentLanguage ? (
+          <div
+            className={styles.languageContract}
+            data-course-content-language={course.contentLocale}
+            data-course-reviewed-languages={course.reviewedContentLocales.join(",")}
+          >
+            <p className={styles.languageLine}>
+              <LanguageTemplate
+                template={t("cat.contentLanguage")}
+                values={{
+                  language: {
+                    text: contentLanguage.native,
+                    locale: course.contentLocale,
+                  },
+                }}
+              />
+            </p>
+            {course.usesFallback && course.requestedContentLocale && requestedLanguage ? (
+              <p className={styles.fallbackNotice} data-course-language-fallback="true">
+                <LanguageTemplate
+                  template={t("cat.fallbackNotice")}
+                  values={{
+                    interfaceLanguage: {
+                      text: requestedLanguage.native,
+                      locale: course.requestedContentLocale,
+                    },
+                    contentLanguage: {
+                      text: contentLanguage.native,
+                      locale: course.contentLocale,
+                    },
+                  }}
+                />
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         <h2>{t(course.titleKey)}</h2>
         <p>{t(course.blurbKey)}</p>
-        <div className="cfoot catalog-course-footer">
+        <div className={`cfoot catalog-course-footer ${styles.courseFooter}`}>
           {available ? (
             <>
               {progressPending ? (
@@ -241,10 +382,42 @@ function CourseCard({
                   <span className="cpct">{progressPercent}%</span>
                 </div>
               ) : null}
-              {!progressPending && !progressUnavailable && progressPercent !== null ? (
-                <span className="cgo catalog-course-action" style={{ color: course.hue }}>
-                  {actionLabel(progressPercent, t)} <span className="arrow" aria-hidden="true">→</span>
-                </span>
+              {course.contentLocale && contentLanguage ? (
+                isAgentic && course.targetHref ? (
+                  <Link
+                    className={`cgo catalog-course-action ${styles.action}`}
+                    href={course.targetHref}
+                    hrefLang={course.contentLocale}
+                    style={{ color: course.hue }}
+                  >
+                    <LanguageTemplate
+                      template={t(actionKey(actionProgress))}
+                      values={{
+                        language: {
+                          text: contentLanguage.native,
+                          locale: course.contentLocale,
+                        },
+                      }}
+                    />
+                    <span className="arrow" aria-hidden="true">→</span>
+                  </Link>
+                ) : (
+                  <span
+                    className={`cgo catalog-course-action ${styles.action}`}
+                    style={{ color: course.hue }}
+                  >
+                    <LanguageTemplate
+                      template={t(actionKey(actionProgress))}
+                      values={{
+                        language: {
+                          text: contentLanguage.native,
+                          locale: course.contentLocale,
+                        },
+                      }}
+                    />
+                    <span className="arrow" aria-hidden="true">→</span>
+                  </span>
+                )
               ) : null}
             </>
           ) : (
@@ -268,6 +441,7 @@ function CourseCard({
   const cardClass = [
     "ccard",
     "catalog-course-card",
+    styles.courseCard,
     available ? "" : "soon catalog-course-card-upcoming",
     isPrompts ? "catalog-course-card-prompts" : "",
   ].filter(Boolean).join(" ");
@@ -301,7 +475,12 @@ function CourseCard({
 
   if (!available) {
     return (
-      <li id={anchorId} className={cardClass} data-course-id={course.id}>
+      <li
+        id={anchorId}
+        className={cardClass}
+        data-course-id={course.id}
+        data-course-interface-locales={course.interfaceLocales.join(",")}
+      >
         <div className="cinner catalog-course-disabled" aria-disabled="true">
           {body}
         </div>
@@ -315,6 +494,7 @@ function CourseCard({
         id={anchorId}
         className={`${cardClass} catalog-course-card-agentic`}
         data-course-id={course.id}
+        data-course-interface-locales={course.interfaceLocales.join(",")}
       >
         <div className="cinner catalog-agentic-shell">
           {body}
@@ -337,8 +517,9 @@ function CourseCard({
                   <li key={module.id}>
                     {module.external ? (
                       <a
-                        className="module-link"
+                        className={`module-link ${styles.moduleLink}`}
                         href={module.href}
+                        hrefLang={course.contentLocale ?? undefined}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={title}
@@ -347,8 +528,12 @@ function CourseCard({
                       </a>
                     ) : (
                       <Link
-                        className="module-link"
-                        href={`/${locale}${module.href}`}
+                        className={`module-link ${styles.moduleLink}`}
+                        href={withPublicCourseReturnLocale(
+                          `/${course.contentLocale ?? locale}${module.href}`,
+                          locale,
+                        )}
+                        hrefLang={course.contentLocale ?? undefined}
                         aria-label={title}
                       >
                         {content}
@@ -366,13 +551,26 @@ function CourseCard({
 
   const href = course.targetHref ?? "#";
   return (
-    <li id={anchorId} className={cardClass} data-course-id={course.id}>
+    <li
+      id={anchorId}
+      className={cardClass}
+      data-course-id={course.id}
+      data-course-interface-locales={course.interfaceLocales.join(",")}
+    >
       {course.external ? (
-        <a className="cinner" href={href} target="_blank" rel="noopener noreferrer">
+        <a
+          className="cinner"
+          href={href}
+          hrefLang={course.contentLocale ?? undefined}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {body}
         </a>
       ) : (
-        <Link className="cinner" href={href}>{body}</Link>
+        <Link className="cinner" href={href} hrefLang={course.contentLocale ?? undefined}>
+          {body}
+        </Link>
       )}
     </li>
   );
@@ -385,40 +583,75 @@ export default function Catalog({ locale }: { locale: string }) {
   const topicId = useId();
   const levelId = useId();
   const statusId = useId();
+  const languageId = useId();
+
+  const reviewedCatalogLocales = useMemo<readonly ContentLocale[]>(() =>
+    CONTENT_LOCALES.filter((candidate) => CATALOG_COURSE_RELEASES.some(
+      ({ surface }) => surface.reviewedContentLocales.includes(candidate),
+    )), []);
 
   const [query, setQuery] = useState("");
   const [topic, setTopic] = useState<CatalogTopic | typeof ALL>(ALL);
   const [level, setLevel] = useState<Level | typeof ALL>(ALL);
   const [status, setStatus] = useState<Status | typeof ALL>(ALL);
+  const [language, setLanguage] = useState<ContentLocale | typeof ALL>(ALL);
   const [filtersReady, setFiltersReady] = useState(false);
 
   const directoryCourses = useMemo<readonly DirectoryCourse[]>(() =>
-    CATALOG_COURSE_RELEASES.map(({ course, surface }) => {
-      const contentLocale = contentLocaleForCourse(course.id as CourseId, locale);
-      const rawHref = courseHrefFor(course.id as CourseId, locale);
-      return {
-        ...course,
-        status: surface.state === "published" ? "available" : "soon",
-        publicationState: surface.state,
-        contentLocale,
-        targetHref: rawHref && contentLocale
-          ? withPublicCourseReturnLocale(rawHref, locale)
-          : null,
-      };
-    }), [locale]);
+    CATALOG_COURSE_RELEASES
+      .filter(({ surface }) => surface.interfaceLocales.includes(locale as ContentLocale))
+      .map(({ course, surface }) => {
+        const requestedContentLocale = language !== ALL
+          ? language
+          : isContentLocale(locale)
+            ? locale
+            : surface.fallbackLocale;
+        const contentLocale = requestedContentLocale
+          ? catalogContentLocaleFor(
+              surface.reviewedContentLocales,
+              surface.fallbackLocale,
+              requestedContentLocale,
+            )
+          : null;
+        const rawHref = requestedContentLocale
+          ? courseHrefFor(course.id as CourseId, requestedContentLocale)
+          : null;
+        return {
+          ...course,
+          status: surface.state === "published" ? "available" : "soon",
+          publicationState: surface.state,
+          interfaceLocales: surface.interfaceLocales,
+          reviewedContentLocales: surface.reviewedContentLocales,
+          fallbackLocale: surface.fallbackLocale,
+          requestedContentLocale,
+          contentLocale,
+          usesFallback: Boolean(
+            contentLocale && requestedContentLocale && contentLocale !== requestedContentLocale,
+          ),
+          targetHref: rawHref && contentLocale
+            ? withPublicCourseReturnLocale(rawHref, locale)
+            : null,
+        };
+      }), [language, locale]);
 
   // Static export friendly: hydrate shareable filter state only in the browser.
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
+    const readFilters = () => {
       const params = new URLSearchParams(window.location.search);
       setQuery(params.get("q") ?? "");
       setTopic(catalogTopicFromQuery(params.get("topic")));
       setLevel(levelFromQuery(params.get("level")));
       setStatus(statusFromQuery(params.get("status")));
+      setLanguage(catalogLanguageFromQuery(params.get("language"), reviewedCatalogLocales));
       setFiltersReady(true);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
+    };
+    const frame = window.requestAnimationFrame(readFilters);
+    window.addEventListener("popstate", readFilters);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("popstate", readFilters);
+    };
+  }, [reviewedCatalogLocales]);
 
   useEffect(() => {
     if (!filtersReady) return;
@@ -432,9 +665,10 @@ export default function Catalog({ locale }: { locale: string }) {
     update("topic", topic);
     update("level", level);
     update("status", status);
+    update("language", language);
 
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [filtersReady, level, query, status, topic]);
+  }, [filtersReady, language, level, query, status, topic]);
 
   const topicOptions = useMemo(() => [
     { value: ALL, label: t("cat.all") },
@@ -450,6 +684,7 @@ export default function Catalog({ locale }: { locale: string }) {
       if (topic !== ALL && course.topic !== topic) return false;
       if (level !== ALL && !catalogCourseMatchesLevel(course, level)) return false;
       if (status !== ALL && course.status !== status) return false;
+      if (language !== ALL && !course.reviewedContentLocales.includes(language)) return false;
       if (!wanted) return true;
 
       const searchable = [
@@ -459,6 +694,7 @@ export default function Catalog({ locale }: { locale: string }) {
         t(course.topicKey),
         t(course.levelKey),
         t(course.formatKey),
+        ...course.reviewedContentLocales.map((courseLocale) => LANGUAGE_META[courseLocale].native),
         course.id === "prompts" ? t("cat.promptIncludes") : "",
         course.id === "prompts" ? t("cat.promptLessons") : "",
         course.id === "prompts" ? t("cat.promptFigures") : "",
@@ -466,17 +702,22 @@ export default function Catalog({ locale }: { locale: string }) {
       ].join(" ");
       return normalise(searchable, locale).includes(wanted);
     }).sort((a, b) => Number(a.status === "soon") - Number(b.status === "soon"));
-  }, [directoryCourses, level, locale, query, status, t, topic]);
+  }, [directoryCourses, language, level, locale, query, status, t, topic]);
 
   const releasedCourses = shown.filter((course) => course.status === "available");
   const upcomingCourses = shown.filter((course) => course.status === "soon");
 
-  const dirty = Boolean(query.trim()) || topic !== ALL || level !== ALL || status !== ALL;
+  const dirty = Boolean(query.trim())
+    || topic !== ALL
+    || level !== ALL
+    || status !== ALL
+    || language !== ALL;
   const reset = () => {
     setQuery("");
     setTopic(ALL);
     setLevel(ALL);
     setStatus(ALL);
+    setLanguage(ALL);
   };
 
   return (
@@ -491,11 +732,11 @@ export default function Catalog({ locale }: { locale: string }) {
           {t("cat.filterTitle")}
         </h2>
         <form
-          className="filters catalog-filters"
+          className={`filters catalog-filters ${styles.controlsGrid}`}
           role="search"
           onSubmit={(event) => event.preventDefault()}
         >
-          <div className="filt catalog-filter catalog-search-field">
+          <div className={`filt catalog-filter catalog-search-field ${styles.filterControl}`}>
             <label htmlFor={searchId}>{t("cat.searchLabel")}</label>
             <input
               id={searchId}
@@ -535,12 +776,31 @@ export default function Catalog({ locale }: { locale: string }) {
               ...STATUSES.map((value) => ({ value, label: t(`status.${value}`) })),
             ]}
           />
+          <SelectFilter
+            id={languageId}
+            label={t("cat.filterLanguage")}
+            value={language}
+            onChange={(value) => setLanguage(value as ContentLocale | typeof ALL)}
+            options={[
+              { value: ALL, label: t("cat.allLanguages") },
+              ...reviewedCatalogLocales.map((value) => ({
+                value,
+                label: LANGUAGE_META[value].native,
+                lang: value,
+                dir: LANGUAGE_META[value].dir,
+              })),
+            ]}
+          />
           <div className="filt-meta catalog-filter-summary">
             <span className="catalog-result-count" aria-live="polite" aria-atomic="true">
               {shown.length} {t(shown.length === 1 ? "cat.result" : "cat.results")}
             </span>
             {dirty ? (
-              <button type="button" className="iconbtn catalog-reset" onClick={reset}>
+              <button
+                type="button"
+                className={`iconbtn catalog-reset ${styles.resetButton}`}
+                onClick={reset}
+              >
                 {t("cat.reset")}
               </button>
             ) : null}
@@ -594,7 +854,11 @@ export default function Catalog({ locale }: { locale: string }) {
         <>
           <div className="langnote catalog-empty" id="catalog-course-results">
             <p>{t("cat.none")}</p>
-            <button type="button" className="iconbtn catalog-empty-reset" onClick={reset}>
+            <button
+              type="button"
+              className={`iconbtn catalog-empty-reset ${styles.emptyReset}`}
+              onClick={reset}
+            >
               {t("cat.reset")}
             </button>
           </div>

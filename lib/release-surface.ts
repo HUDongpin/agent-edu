@@ -1,10 +1,10 @@
-import rawContract from "@/config/course-release-surface.json";
+import rawManifest from "@/config/course-release-manifest.json";
 import { assertExactCourseIdSet } from "./course-collection-contract";
 
 /**
- * The public course registry has one authoritative lifecycle state:
- * `published`, `blocked`, or `roadmap`. `lib/courses.ts` joins this machine
- * contract to presentation metadata and executable progress adapters.
+ * The v3 manifest is the only authored release source. The legacy release
+ * surface JSON is a byte-checked generated projection for scripts that have
+ * not yet migrated; application code reads the manifest directly.
  *
  * The content locale list remains independent from shell-message coverage so
  * an English fallback never masquerades as a translated route.
@@ -26,12 +26,13 @@ export const COURSE_IDS = [
   "ai-tutor",
   "product-management",
   "agent-orchestration",
+  "creator-ops",
   "ai-research",
   "responsible-ai",
 ] as const;
 
 export type CourseId = (typeof COURSE_IDS)[number];
-export type PublicationStatus = "published" | "blocked" | "roadmap";
+export type PublicationStatus = "published" | "blocked" | "staged" | "roadmap";
 export type ContentLocale =
   | "en"
   | "es"
@@ -54,7 +55,12 @@ export interface CourseReleaseSurface {
   readonly state: PublicationStatus;
   readonly href: string | null;
   readonly titleKey: string;
+  readonly interfaceLocales: readonly ContentLocale[];
+  readonly reviewedContentLocales: readonly ContentLocale[];
+  readonly fallbackLocale: ContentLocale | null;
+  /** @deprecated Use fallbackLocale. */
   readonly primaryLocale: ContentLocale | null;
+  /** @deprecated Use reviewedContentLocales. */
   readonly contentLocales: readonly ContentLocale[];
   readonly routes: readonly string[];
   readonly releaseGate: string | null;
@@ -62,12 +68,32 @@ export interface CourseReleaseSurface {
   readonly blockers?: readonly string[];
 }
 
-export interface CourseReleaseSurfaceContract {
-  readonly schemaVersion: 2;
+export interface CourseReleaseManifestContract {
+  readonly schemaVersion: 3;
+  readonly manifestKind: "course-release-manifest";
+  readonly intakeFreeze: {
+    readonly policy: "fixed-published-allowlist";
+    readonly iteration: "platform-release-v1";
+    readonly publishedCourseIds: readonly CourseId[];
+  };
   readonly siteLocales: readonly ContentLocale[];
   readonly core: {
-    readonly contentLocales: readonly ContentLocale[];
+    readonly interfaceLocales: readonly ContentLocale[];
+    readonly reviewedContentLocales: readonly ContentLocale[];
+    readonly fallbackLocale: ContentLocale;
     readonly routes: readonly string[];
+  };
+  readonly courses: readonly Omit<CourseReleaseSurface, "primaryLocale" | "contentLocales">[];
+}
+
+export interface CourseReleaseSurfaceContract {
+  readonly schemaVersion: 3;
+  readonly manifestKind: "course-release-manifest";
+  readonly intakeFreeze: CourseReleaseManifestContract["intakeFreeze"];
+  readonly siteLocales: readonly ContentLocale[];
+  readonly core: CourseReleaseManifestContract["core"] & {
+    readonly primaryLocale: ContentLocale;
+    readonly contentLocales: readonly ContentLocale[];
   };
   readonly courses: readonly CourseReleaseSurface[];
 }
@@ -82,15 +108,28 @@ function requireStringArray(value: unknown, label: string): asserts value is str
   }
 }
 
-function parseContract(value: unknown): CourseReleaseSurfaceContract {
-  if (!isRecord(value) || value.schemaVersion !== 2) {
-    throw new Error("course release surface schemaVersion must be 2");
+function parseManifest(value: unknown): CourseReleaseManifestContract {
+  if (!isRecord(value) || value.schemaVersion !== 3) {
+    throw new Error("course release manifest schemaVersion must be 3");
   }
+  if (value.manifestKind !== "course-release-manifest") {
+    throw new Error("course release manifestKind must be course-release-manifest");
+  }
+  if (!isRecord(value.intakeFreeze)) throw new Error("course release intakeFreeze is missing");
+  if (
+    value.intakeFreeze.policy !== "fixed-published-allowlist"
+    || value.intakeFreeze.iteration !== "platform-release-v1"
+  ) throw new Error("course release intakeFreeze is invalid");
+  requireStringArray(value.intakeFreeze.publishedCourseIds, "intakeFreeze.publishedCourseIds");
   requireStringArray(value.siteLocales, "siteLocales");
-  if (!isRecord(value.core)) throw new Error("course release surface core is missing");
-  requireStringArray(value.core.contentLocales, "core.contentLocales");
+  if (!isRecord(value.core)) throw new Error("course release manifest core is missing");
+  requireStringArray(value.core.interfaceLocales, "core.interfaceLocales");
+  requireStringArray(value.core.reviewedContentLocales, "core.reviewedContentLocales");
+  if (typeof value.core.fallbackLocale !== "string") {
+    throw new Error("core.fallbackLocale must be a string");
+  }
   requireStringArray(value.core.routes, "core.routes");
-  if (!Array.isArray(value.courses)) throw new Error("course release surface courses must be an array");
+  if (!Array.isArray(value.courses)) throw new Error("course release manifest courses must be an array");
 
   const registryIds: string[] = [];
   for (const [index, course] of value.courses.entries()) {
@@ -102,6 +141,7 @@ function parseContract(value: unknown): CourseReleaseSurfaceContract {
     if (
       course.state !== "published"
       && course.state !== "blocked"
+      && course.state !== "staged"
       && course.state !== "roadmap"
     ) {
       throw new Error(`courses[${index}] has invalid publication status`);
@@ -112,10 +152,11 @@ function parseContract(value: unknown): CourseReleaseSurfaceContract {
     if (typeof course.titleKey !== "string") {
       throw new Error(`courses[${index}].titleKey must be a string`);
     }
-    if (course.primaryLocale !== null && typeof course.primaryLocale !== "string") {
-      throw new Error(`courses[${index}].primaryLocale must be a string or null`);
+    if (course.fallbackLocale !== null && typeof course.fallbackLocale !== "string") {
+      throw new Error(`courses[${index}].fallbackLocale must be a string or null`);
     }
-    requireStringArray(course.contentLocales, `courses[${index}].contentLocales`);
+    requireStringArray(course.interfaceLocales, `courses[${index}].interfaceLocales`);
+    requireStringArray(course.reviewedContentLocales, `courses[${index}].reviewedContentLocales`);
     requireStringArray(course.routes, `courses[${index}].routes`);
     if (course.releaseGate !== null && typeof course.releaseGate !== "string") {
       throw new Error(`courses[${index}].releaseGate must be a string or null`);
@@ -137,12 +178,25 @@ function parseContract(value: unknown): CourseReleaseSurfaceContract {
     }
   }
 
-  assertExactCourseIdSet(COURSE_IDS, registryIds, "course release registry");
+  assertExactCourseIdSet(COURSE_IDS, registryIds, "course release manifest");
 
-  return value as unknown as CourseReleaseSurfaceContract;
+  return value as unknown as CourseReleaseManifestContract;
 }
 
-export const COURSE_RELEASE_SURFACE = parseContract(rawContract);
+export const COURSE_RELEASE_MANIFEST = parseManifest(rawManifest);
+export const COURSE_RELEASE_SURFACE: CourseReleaseSurfaceContract = {
+  ...COURSE_RELEASE_MANIFEST,
+  core: {
+    ...COURSE_RELEASE_MANIFEST.core,
+    primaryLocale: COURSE_RELEASE_MANIFEST.core.fallbackLocale,
+    contentLocales: COURSE_RELEASE_MANIFEST.core.reviewedContentLocales,
+  },
+  courses: COURSE_RELEASE_MANIFEST.courses.map((course) => ({
+    ...course,
+    primaryLocale: course.fallbackLocale,
+    contentLocales: course.reviewedContentLocales,
+  })),
+};
 export const SITE_CONTENT_LOCALES = COURSE_RELEASE_SURFACE.siteLocales;
 export const COURSE_RELEASE_SURFACES = COURSE_RELEASE_SURFACE.courses;
 
@@ -173,10 +227,10 @@ export function contentLocaleForCourse(
 ): ContentLocale | null {
   const surface = releaseSurfaceFor(courseId);
   if (surface.state === "roadmap") return null;
-  if (surface.contentLocales.includes(requestedLocale as ContentLocale)) {
+  if (surface.reviewedContentLocales.includes(requestedLocale as ContentLocale)) {
     return requestedLocale as ContentLocale;
   }
-  return surface.primaryLocale;
+  return surface.fallbackLocale;
 }
 
 /** A learner-facing href exists only for published content and uses a real content locale. */
@@ -192,6 +246,9 @@ export const PUBLISHED_COURSE_SURFACES = COURSE_RELEASE_SURFACES.filter(
 );
 export const BLOCKED_COURSE_SURFACES = COURSE_RELEASE_SURFACES.filter(
   (course) => course.state === "blocked",
+);
+export const STAGED_COURSE_SURFACES = COURSE_RELEASE_SURFACES.filter(
+  (course) => course.state === "staged",
 );
 export const ROADMAP_COURSE_SURFACES = COURSE_RELEASE_SURFACES.filter(
   (course) => course.state === "roadmap",
@@ -217,17 +274,17 @@ export function isPublishedPage(page: string): boolean {
 }
 
 export function contentLocalesForPage(page: string): readonly ContentLocale[] {
-  if (CORE_PAGE_SET.has(page)) return COURSE_RELEASE_SURFACE.core.contentLocales;
+  if (CORE_PAGE_SET.has(page)) return COURSE_RELEASE_SURFACE.core.reviewedContentLocales;
   const surface = releaseSurfaceForPage(page);
   if (!surface) throw new Error(`Unknown localized release page: ${page}`);
-  return surface.contentLocales;
+  return surface.reviewedContentLocales;
 }
 
 /** Root dashboard params. A blocked course deliberately returns no routes. */
 export function courseLocaleParams(courseId: CourseId): Array<{ locale: ContentLocale }> {
   const surface = releaseSurfaceFor(courseId);
   if (surface.state !== "published") return [];
-  return surface.contentLocales.map((locale) => ({ locale }));
+  return surface.reviewedContentLocales.map((locale) => ({ locale }));
 }
 
 /**
@@ -270,7 +327,7 @@ export function courseChildParams<Key extends string>(
 ): Array<Record<Key, string> & { locale: ContentLocale }> {
   const surface = releaseSurfaceFor(courseId);
   if (surface.state !== "published") return [];
-  return surface.contentLocales.flatMap((locale) =>
+  return surface.reviewedContentLocales.flatMap((locale) =>
     values.map((value) => ({
       locale,
       [key]: value,
@@ -287,13 +344,13 @@ export function publishedLocalizedRoutes(): string[] {
 }
 
 export interface PublishedGateLedger {
-  readonly schemaVersion: 2;
+  readonly schemaVersion: 3;
   readonly publishedCount: number;
   readonly blockedCount: number;
   readonly gates: readonly {
     readonly courseId: CourseId;
-    readonly primaryLocale: ContentLocale;
-    readonly contentLocales: readonly ContentLocale[];
+    readonly fallbackLocale: ContentLocale;
+    readonly reviewedContentLocales: readonly ContentLocale[];
     readonly routeCount: number;
     readonly releaseGate: string;
   }[];
@@ -301,13 +358,13 @@ export interface PublishedGateLedger {
 
 export function publishedGateLedger(): PublishedGateLedger {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     publishedCount: PUBLISHED_COURSE_SURFACES.length,
     blockedCount: BLOCKED_COURSE_SURFACES.length,
     gates: PUBLISHED_COURSE_SURFACES.map((course) => ({
       courseId: course.id,
-      primaryLocale: course.primaryLocale!,
-      contentLocales: course.contentLocales,
+      fallbackLocale: course.fallbackLocale!,
+      reviewedContentLocales: course.reviewedContentLocales,
       routeCount: course.routes.length,
       releaseGate: course.releaseGate!,
     })),

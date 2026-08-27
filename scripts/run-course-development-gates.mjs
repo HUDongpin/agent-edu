@@ -4,13 +4,15 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const PROJECT = resolve(process.cwd());
-const CONTRACT = resolve(PROJECT, "config/course-release-surface.json");
 const PACKAGE = resolve(PROJECT, "package.json");
 const DEFAULT_OUTPUT = resolve(PROJECT, "tmp/release/course-development-gates.json");
 
 function developmentGateFor(releaseGate) {
+  const stagedGate = /^npm run ([a-z0-9-]+:check:staged)$/.exec(releaseGate ?? "");
+  if (stagedGate) return `npm run ${stagedGate[1]}`;
   const npmGate = /^npm run ([a-z0-9-]+:check):release$/.exec(releaseGate ?? "");
   if (npmGate) return `npm run ${npmGate[1]}`;
   const nodeGate = /^node (scripts\/[a-z0-9-]+\.mjs) --release$/.exec(releaseGate ?? "");
@@ -46,7 +48,7 @@ export function deriveCourseDevelopmentGatePlan(contract, packageJson) {
 }
 
 export function runCourseDevelopmentGates(options = {}) {
-  const contract = JSON.parse(readFileSync(CONTRACT, "utf8"));
+  const { manifest: contract } = assertReleaseArtifactsCurrent({ projectRoot: PROJECT });
   const packageJson = JSON.parse(readFileSync(PACKAGE, "utf8"));
   const plan = deriveCourseDevelopmentGatePlan(contract, packageJson);
   const gates = plan.map((entry) => {

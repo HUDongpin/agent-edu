@@ -9,6 +9,7 @@
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 export const LOCALES = ["en", "zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"];
 export const NATIVE_REVIEW_LOCALES = ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"];
@@ -1327,6 +1328,7 @@ export function evaluateReleaseReadiness({ config, catalogs, projectRoot }) {
 }
 
 export function checkReleaseReadiness(projectRoot = ROOT) {
+  assertReleaseArtifactsCurrent({ projectRoot });
   let config;
   try {
     config = JSON.parse(readFileSync(join(projectRoot, "config/release-readiness.json"), "utf8"));

@@ -3,7 +3,7 @@ import type { MaterializedRagCourse } from "@/lib/rag";
 import { CapstoneChecklist, CourseProgress, FinalQuiz, type RagQuizQuestion } from "./RagInteractions";
 import base from "../prompts/PromptCourse.module.css";
 import styles from "./RagCourse.module.css";
-import SharedCourseShell from "../SharedCourseShell";
+import CourseShell from "../course-shell/CourseShell";
 
 export default function CourseDashboard({
   course,
@@ -43,7 +43,7 @@ export default function CourseDashboard({
       dir={course.contentLocale === "ar" ? "rtl" : "ltr"}
       data-testid="rag-course-dashboard"
     >
-      <SharedCourseShell courseId="rag" locale={course.locale} />
+      <CourseShell courseId="rag" locale={course.locale} />
       <header className={`${base.courseHero} ${styles.courseHero}`}>
         <div className={base.heroCopy}>
           <p className={base.kicker}>{course.copy.meta.kicker}</p>

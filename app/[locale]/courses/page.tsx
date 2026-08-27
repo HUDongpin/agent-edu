@@ -2,12 +2,13 @@ import Catalog from "@/components/courses/Catalog";
 import { LOCALE_CODES, getMessages, isLocale, translator } from "@/lib/i18n";
 import { SITE, seoFor, urlFor } from "@/lib/seo";
 import { COURSE_MODULES, PUBLISHED_CATALOG_COURSES } from "@/lib/public-courses";
+import { COURSE_RELEASE_SURFACES } from "@/lib/release-surface";
 import {
-  COURSE_RELEASE_SURFACES,
-  contentLocaleForCourse,
-  courseHrefFor,
-  type ContentLocale,
-} from "@/lib/release-surface";
+  PUBLIC_COURSE_IDS,
+  publicContentLocaleForCourse as contentLocaleForCourse,
+  publicCourseHrefFor as courseHrefFor,
+  type PublicContentLocale as ContentLocale,
+} from "@/lib/public-release-surface";
 import { GROK_COURSE_MANIFEST, loadGrokCourse } from "@/lib/grok";
 import { GITHUB_LESSONS, loadGithubCourse } from "@/lib/github";
 import { PROMPT_LESSONS, loadPromptCourse } from "@/lib/prompts";
@@ -21,6 +22,25 @@ import { loadAgentOrchestrationCourse } from "@/lib/agent-orchestration";
 import { SOFTWARE_ENGINEERING_LESSONS } from "@/lib/software-engineering";
 import JsonLd from "@/components/JsonLd";
 import type { Metadata } from "next";
+
+type StructuredDataPart = Readonly<Record<string, unknown>>;
+
+function partsWithReviewedLanguages(
+  parts: readonly StructuredDataPart[],
+  reviewedContentLocales: readonly ContentLocale[],
+): readonly StructuredDataPart[] {
+  return parts.filter((part) => {
+    const rawLanguage = part.inLanguage;
+    const languages = Array.isArray(rawLanguage)
+      ? rawLanguage.filter((value): value is string => typeof value === "string")
+      : typeof rawLanguage === "string"
+        ? [rawLanguage]
+        : [];
+    return languages.length > 0 && languages.every((language) => (
+      reviewedContentLocales.includes(language as ContentLocale)
+    ));
+  });
+}
 
 export function generateStaticParams() {
   return LOCALE_CODES.map((locale) => ({ locale }));
@@ -171,11 +191,13 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
   }));
 
   const registryPartsByCourse = Object.fromEntries(
-    COURSE_RELEASE_SURFACES.map((course) => {
-      const routeLocale = contentLocaleForCourse(course.id, locale);
+    PUBLIC_COURSE_IDS.map((courseId) => {
+      const course = COURSE_RELEASE_SURFACES.find((candidate) => candidate.id === courseId);
+      if (!course) throw new Error(`Missing server release surface for public course ${courseId}`);
+      const routeLocale = contentLocaleForCourse(courseId, locale);
       const parts = routeLocale
         ? course.routes.map((route, index) => {
-          const slug = route.replace(/\/$/, "").split("/").at(-1) ?? course.id;
+          const slug = route.replace(/\/$/, "").split("/").at(-1) ?? courseId;
           return {
             "@type": "LearningResource",
             position: index + 1,
@@ -187,7 +209,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
           };
         })
         : [];
-      return [course.id, parts] as const;
+      return [courseId, parts] as const;
     }),
   ) as Readonly<Record<string, readonly Record<string, unknown>[]>>;
 
@@ -213,30 +235,40 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
   const list = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: PUBLISHED_CATALOG_COURSES.map(({ course }, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@type": "Course",
-        name: course.id === "mcp" ? mcpCourse.title : t(course.titleKey),
-        description: course.id === "mcp" ? mcpCourse.summary : t(course.blurbKey),
-        url: `${SITE}${courseHrefFor(course.id, locale)}`,
-        provider: { "@id": `${SITE}/#org` },
-        inLanguage: contentLocaleForCourse(course.id, locale),
-        educationalLevel: t(course.levelKey),
-        isAccessibleForFree: true,
-        ...(partsByCourse[course.id]?.length ? { hasPart: partsByCourse[course.id] } : {}),
-        offers: {
-          "@type": "Offer", price: 0, priceCurrency: "USD",
-          category: "Free", availability: "https://schema.org/InStock",
+    itemListElement: PUBLISHED_CATALOG_COURSES.map(({ course, surface }, index) => {
+      const courseHref = courseHrefFor(course.id, locale);
+      if (!courseHref || surface.reviewedContentLocales.length === 0) {
+        throw new Error(`Published course ${course.id} has no reviewed catalogue language route`);
+      }
+      const reviewedParts = partsWithReviewedLanguages(
+        partsByCourse[course.id] ?? [],
+        surface.reviewedContentLocales,
+      );
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Course",
+          name: course.id === "mcp" ? mcpCourse.title : t(course.titleKey),
+          description: course.id === "mcp" ? mcpCourse.summary : t(course.blurbKey),
+          url: `${SITE}${courseHref}`,
+          provider: { "@id": `${SITE}/#org` },
+          inLanguage: [...surface.reviewedContentLocales],
+          educationalLevel: t(course.levelKey),
+          isAccessibleForFree: true,
+          ...(reviewedParts.length ? { hasPart: reviewedParts } : {}),
+          offers: {
+            "@type": "Offer", price: 0, priceCurrency: "USD",
+            category: "Free", availability: "https://schema.org/InStock",
+          },
+          hasCourseInstance: {
+            "@type": "CourseInstance",
+            courseMode: "online",
+            courseWorkload: `PT${course.minutes}M`,
+          },
         },
-        hasCourseInstance: {
-          "@type": "CourseInstance",
-          courseMode: "online",
-          courseWorkload: `PT${course.minutes}M`,
-        },
-      },
-    })),
+      };
+    }),
   };
 
   return (

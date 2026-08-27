@@ -1,11 +1,50 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 3,
+  "manifestKind": "course-public-surface-projection",
+  "source": {
+    "path": "config/course-release-manifest.json",
+    "sha256": "5592e04547baf15330a204d57f8c1765921ef8be2bea40823fc42fcc27a6bd69"
+  },
+  "siteLocales": [
+    "en",
+    "es",
+    "fr",
+    "de",
+    "zh-Hans",
+    "zh-Hant",
+    "ja",
+    "ko",
+    "ar"
+  ],
   "courses": [
     {
       "id": "agentic",
       "state": "published",
       "href": "/handbook/",
       "titleKey": "c.agentic.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en",
@@ -25,6 +64,29 @@
       "state": "blocked",
       "href": null,
       "titleKey": "c.codex.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en",
@@ -44,6 +106,29 @@
       "state": "blocked",
       "href": null,
       "titleKey": "c.claude.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en",
@@ -63,6 +148,29 @@
       "state": "blocked",
       "href": null,
       "titleKey": "c.cursor.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en",
@@ -82,6 +190,29 @@
       "state": "published",
       "href": "/grok/",
       "titleKey": "c.grok.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en",
@@ -101,6 +232,29 @@
       "state": "published",
       "href": "/github/",
       "titleKey": "c.github.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en",
@@ -120,6 +274,21 @@
       "state": "published",
       "href": "/prompts/",
       "titleKey": "c.prompts.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en"
@@ -131,6 +300,21 @@
       "state": "published",
       "href": "/software-engineering/",
       "titleKey": "c.softwareEngineering.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en"
@@ -142,6 +326,29 @@
       "state": "published",
       "href": "/rag/",
       "titleKey": "c.rag.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en",
@@ -161,6 +368,29 @@
       "state": "published",
       "href": "/mcp/",
       "titleKey": "c.mcp.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en",
@@ -180,6 +410,21 @@
       "state": "published",
       "href": "/make-money-with-codex/",
       "titleKey": "c.make-money-with-codex.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en"
@@ -191,6 +436,21 @@
       "state": "published",
       "href": "/claude-income/",
       "titleKey": "c.claude-income.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en"
@@ -202,6 +462,21 @@
       "state": "published",
       "href": "/ai-tutor/",
       "titleKey": "c.ai-tutor.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en"
@@ -213,6 +488,21 @@
       "state": "published",
       "href": "/product-management/",
       "titleKey": "c.product-management.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en"
@@ -224,6 +514,22 @@
       "state": "published",
       "href": "/agent-orchestration/",
       "titleKey": "c.agent-orchestration.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
       "primaryLocale": "en",
       "contentLocales": [
         "en",
@@ -236,6 +542,19 @@
       "state": "roadmap",
       "href": null,
       "titleKey": "c.aiResearch.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [],
+      "fallbackLocale": null,
       "primaryLocale": null,
       "contentLocales": [],
       "progressEvent": null
@@ -245,6 +564,19 @@
       "state": "roadmap",
       "href": null,
       "titleKey": "c.responsibleAi.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [],
+      "fallbackLocale": null,
       "primaryLocale": null,
       "contentLocales": [],
       "progressEvent": null

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const PROJECT = resolve(process.cwd());
 const MANIFEST_PATH = join(PROJECT, "config", "route-manifest.json");
@@ -66,8 +67,8 @@ function seoContracts(releaseSurface) {
 
 export function expandManifest(manifest, releaseSurface) {
   if (manifest?.version !== 2) throw new Error("route manifest version must be 2");
-  if (releaseSurface?.schemaVersion !== 2) {
-    throw new Error("course release surface schemaVersion must be 2");
+  if (releaseSurface?.schemaVersion !== 3) {
+    throw new Error("course release surface schemaVersion must be 3");
   }
 
   const localized = [
@@ -538,16 +539,18 @@ function auditHtmlSeo(contracts, releaseSurface, publicRoutes) {
 }
 
 export function checkRoutes() {
+  const { releaseSurface } = assertReleaseArtifactsCurrent({ projectRoot: PROJECT });
+
   if (!existsSync(PRERENDER_PATH) || !existsSync(OUT)) {
     throw new Error("build output is missing; run npm run build before npm run routes:check");
   }
 
   const manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf8"));
-  const releaseSurfacePath = join(PROJECT, manifest.releaseSurface ?? "");
-  if (!existsSync(releaseSurfacePath)) {
-    throw new Error("release surface is missing: " + String(manifest.releaseSurface));
+  if (manifest.releaseSurface !== "config/course-release-surface.json") {
+    throw new Error(
+      "route manifest releaseSurface must name the generated canonical projection",
+    );
   }
-  const releaseSurface = JSON.parse(readFileSync(releaseSurfacePath, "utf8"));
   const expected = expandManifest(manifest, releaseSurface);
   const contracts = seoContracts(releaseSurface);
   if (contracts.size !== expected.publicRoutes.length - manifest.staticRoutes.length) {

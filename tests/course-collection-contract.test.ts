@@ -17,7 +17,7 @@ import {
   PUBLIC_COURSE_SURFACES,
 } from "../lib/public-release-surface";
 import { COURSE_IDS, COURSE_RELEASE_SURFACES } from "../lib/release-surface";
-import { projectPublicCourseSurface } from "../scripts/sync-course-public-surface.mjs";
+import { validateCourseReleaseManifest } from "../scripts/sync-course-public-surface.mjs";
 
 function assertExactIds(expected: readonly string[], actual: readonly string[]): void {
   assert.equal(new Set(actual).size, actual.length, "course ids must be unique");
@@ -58,19 +58,22 @@ test("registry ordering validates membership before materializing records", () =
   );
 });
 
-test("every public and compatibility view has the registry exact id set", () => {
+test("the public views derive their exact id set by excluding staged records", () => {
   const registryIds = COURSE_RELEASE_SURFACES.map((course) => course.id);
+  const publicIds = COURSE_RELEASE_SURFACES
+    .filter((course) => course.state !== "staged")
+    .map((course) => course.id);
   const implementedIds = COURSE_RELEASE_SURFACES
-    .filter((course) => course.state !== "roadmap")
+    .filter((course) => course.state !== "roadmap" && course.state !== "staged")
     .map((course) => course.id);
 
   assert.deepEqual(COURSE_IDS, registryIds);
-  assert.deepEqual(PUBLIC_COURSE_IDS, registryIds);
-  assert.deepEqual(PUBLIC_COURSE_SURFACES.map((course) => course.id), registryIds);
+  assert.deepEqual(PUBLIC_COURSE_IDS, publicIds);
+  assert.deepEqual(PUBLIC_COURSE_SURFACES.map((course) => course.id), publicIds);
   assert.deepEqual(TOP_LEVEL_COURSES.map((course) => course.id), implementedIds);
-  assert.deepEqual(CATALOG_COURSES.map((course) => course.id), registryIds);
+  assert.deepEqual(CATALOG_COURSES.map((course) => course.id), publicIds);
   assertExactIds(
-    registryIds,
+    publicIds,
     PUBLIC_CATALOG_COURSE_RELEASES.map(({ course }) => course.id),
   );
 });
@@ -92,11 +95,11 @@ test("registry-derived public catalogue preserves the reviewed visual order", ()
 });
 
 test("client projection rejects duplicate registry ids before writing", () => {
-  const contract = JSON.parse(readFileSync("config/course-release-surface.json", "utf8"));
+  const contract = JSON.parse(readFileSync("config/course-release-manifest.json", "utf8"));
   const duplicate = structuredClone(contract);
   duplicate.courses.push(structuredClone(duplicate.courses[0]));
   assert.throws(
-    () => projectPublicCourseSurface(duplicate),
-    /release registry contains duplicate course ids: agentic/,
+    () => validateCourseReleaseManifest(duplicate),
+    /course ids must be unique/,
   );
 });
