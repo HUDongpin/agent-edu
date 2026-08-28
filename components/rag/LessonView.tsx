@@ -65,7 +65,7 @@ export default function LessonView({
       <nav className={base.breadcrumbs} aria-label={course.copy.ui.breadcrumb}>
         <Link className={styles.breadcrumbCourseLink} href={`/${course.locale}/rag/`}><span aria-hidden="true">{backArrow}</span>{course.copy.ui.backToCourse}</Link>
         <span aria-hidden="true">/</span>
-        <span aria-current="page">{lesson.copy.title}</span>
+        <span aria-current="page" data-audit-truncation="breadcrumb-current">{lesson.copy.title}</span>
       </nav>
 
       <details className={base.mobileCourseMap}>

@@ -25,6 +25,14 @@ import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { spawn } from "node:child_process";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { assertAlternateContract, seoContracts } from "./check-routes.mjs";
+import {
+  NAME_REQUIRED_CONTROL_SELECTOR,
+  isExpectedNextRscAbort,
+  partitionGeometryFindings,
+  rawRenderedKeys,
+  translationSegmentRequiresComparison,
+} from "./lib/i18n-browser-audit-policy.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
@@ -76,6 +84,10 @@ if (!release) {
   process.exit(2);
 }
 const snapshotId = release.report.snapshotId;
+const releaseSurface = JSON.parse(
+  readFileSync(join(ROOT, "config", "course-release-surface.json"), "utf8"),
+);
+const browserSeoContracts = seoContracts(releaseSurface);
 const OUTPUT = join(ROOT, "output", "playwright", snapshotId);
 const GENERATED = join(OUTPUT, "generated");
 const CONFIGS = join(OUTPUT, "configs");
@@ -83,6 +95,7 @@ mkdirSync(GENERATED, { recursive: true });
 mkdirSync(CONFIGS, { recursive: true });
 
 const findings = [];
+let acceptedIntentionalTruncations = 0;
 const finding = (value) => findings.push({
   target: value.target ?? "local-candidate",
   locale: value.locale ?? "*",
@@ -279,26 +292,36 @@ function buildAuditFunction({ baseUrl, routeList, target, javaScriptEnabled }) {
             if (!parent || ["SCRIPT", "STYLE", "TEMPLATE"].includes(parent.tagName)) continue;
             const text = normalize(node.nodeValue);
             if (!text) continue;
-            textSegments.push({ selector: selector(parent), text, lang: parent.closest("[lang]")?.getAttribute("lang") || document.documentElement.lang, dir: getComputedStyle(parent).direction });
+            const auditExempt = Boolean(parent.closest(
+              'pre,code,kbd,samp,bdi,[translate="no"],[data-i18n-audit="ignore"],a[href^="http://"],a[href^="https://"]',
+            ));
+            textSegments.push({ selector: selector(parent), text, lang: parent.closest("[lang]")?.getAttribute("lang") || document.documentElement.lang, dir: getComputedStyle(parent).direction, auditExempt });
           }
           const attributes = [];
           for (const element of document.querySelectorAll("[aria-label],[aria-description],[title],[placeholder],[alt]")) {
             for (const name of ["aria-label", "aria-description", "title", "placeholder", "alt"]) if (element.hasAttribute(name)) attributes.push({ selector: selector(element), name, value: element.getAttribute(name) || "", lang: element.closest("[lang]")?.getAttribute("lang") || document.documentElement.lang, dir: getComputedStyle(element).direction });
           }
-          const controls = [...document.querySelectorAll("button,a[href],input,select,textarea,[role],img,svg[role=img]")];
+          const controls = [...document.querySelectorAll(${JSON.stringify(NAME_REQUIRED_CONTROL_SELECTOR)})];
           const emptyControls = controls.filter(element => {
             if (element.matches("[aria-hidden=true],[role=presentation],[role=none]")) return false;
-            if (element.tagName === "IMG") return !element.getAttribute("alt");
+            const controlStyle = getComputedStyle(element);
+            if (element.hidden || controlStyle.display === "none" || controlStyle.visibility === "hidden") return false;
+            if (element.tagName === "IMG") return !element.hasAttribute("alt");
             const labelledBy = (element.getAttribute("aria-labelledby") || "").split(/\\s+/).filter(Boolean).map(id => document.getElementById(id)?.textContent || "").join(" ");
-            const name = normalize(element.getAttribute("aria-label") || labelledBy || element.getAttribute("title") || element.getAttribute("placeholder") || element.textContent || (element instanceof HTMLInputElement ? element.value : ""));
+            const nativeLabels = "labels" in element && element.labels
+              ? [...element.labels].map(label => label.textContent || "").join(" ")
+              : "";
+            const ancestorLabel = element.closest("label")?.textContent || "";
+            const descendantImageText = [...element.querySelectorAll("img[alt]")]
+              .map(image => image.getAttribute("alt") || "")
+              .join(" ");
+            const name = normalize(element.getAttribute("aria-label") || labelledBy || nativeLabels || ancestorLabel || descendantImageText || element.getAttribute("title") || element.getAttribute("placeholder") || element.textContent || (element instanceof HTMLInputElement ? element.value : ""));
             return !name;
           }).slice(0, 100).map(selector);
           const brokenLabelledBy = [...document.querySelectorAll("[aria-labelledby]")].filter(element => (element.getAttribute("aria-labelledby") || "").split(/\\s+/).some(id => id && !document.getElementById(id))).map(selector);
           const idCounts = {};
           for (const element of document.querySelectorAll("[id]")) idCounts[element.id] = (idCounts[element.id] || 0) + 1;
           const duplicateIds = Object.entries(idCounts).filter(([, count]) => count > 1).map(([id, count]) => ({ id, count }));
-          const rawKeyPattern = /\\b(?:ui|nav|course|hb|w)\\.[A-Za-z0-9_.-]{2,}\\b|\\b(?:undefined|null)\\b/g;
-          const rawKeys = [...new Set([...textSegments.map(item => item.text), ...attributes.map(item => item.value)].flatMap(value => value.match(rawKeyPattern) || []))];
           const metadata = {
             title: document.title,
             description: document.querySelector('meta[name="description"]')?.content || "",
@@ -320,7 +343,6 @@ function buildAuditFunction({ baseUrl, routeList, target, javaScriptEnabled }) {
             emptyControls,
             brokenLabelledBy,
             duplicateIds,
-            rawKeys,
             svgText: [...document.querySelectorAll("svg text")].map(element => normalize(element.textContent)).filter(Boolean),
             noscript: [...document.querySelectorAll("noscript")].map(element => element.innerHTML),
             mainTextLength: normalize(document.querySelector("main")?.textContent || document.body?.textContent).length,
@@ -332,21 +354,58 @@ function buildAuditFunction({ baseUrl, routeList, target, javaScriptEnabled }) {
           await page.setViewportSize(viewport);
           const value = await page.evaluate(() => {
             const normalize = value => String(value || "").replace(/\\s+/g, " ").trim();
-          const clipped = [];
-          for (const element of document.querySelectorAll("body *")) {
-            const style = getComputedStyle(element);
-            const text = normalize(element.textContent);
-            if (!text || element.children.length > 8) continue;
-            const rect = element.getBoundingClientRect();
-            const assistiveOffscreen = style.position === "absolute" && (rect.right < 0 || rect.bottom < 0 || style.clip !== "auto" || style.clipPath !== "none");
-            if (assistiveOffscreen) continue;
+            const clipped = [];
+            for (const element of document.querySelectorAll("body *")) {
+              const style = getComputedStyle(element);
+              const text = normalize(element.textContent);
+              if (!text || element.children.length > 8) continue;
+              const rect = element.getBoundingClientRect();
+              const assistiveOffscreen = style.position === "absolute" && (rect.right < 0 || rect.bottom < 0 || style.clip !== "auto" || style.clipPath !== "none");
+              if (assistiveOffscreen) continue;
               const horizontal = element.scrollWidth > element.clientWidth + 1;
               const vertical = element.scrollHeight > element.clientHeight + 1;
-              const clips = [style.overflow, style.overflowX, style.overflowY].some(value => ["hidden", "clip"].includes(value)) || style.textOverflow === "ellipsis" || style.webkitLineClamp !== "none";
-              if ((horizontal || vertical) && clips) clipped.push({ tag: element.tagName.toLowerCase(), id: element.id, className: String(element.className || "").slice(0, 120), text: text.slice(0, 160), horizontal, vertical });
+              const intentional = style.textOverflow === "ellipsis" || style.webkitLineClamp !== "none";
+              const clips = [style.overflow, style.overflowX, style.overflowY].some(value => ["hidden", "clip"].includes(value)) || intentional;
+              if ((horizontal || vertical) && clips) clipped.push({ tag: element.tagName.toLowerCase(), id: element.id, className: String(element.className || "").slice(0, 120), text: text.slice(0, 160), horizontal, vertical, intentional, truncationContract: element.dataset.auditTruncation || null });
               if (clipped.length >= 100) break;
             }
-            return { documentOverflow: document.documentElement.scrollWidth > innerWidth + 1, scrollWidth: document.documentElement.scrollWidth, innerWidth, clipped };
+            const documentOverflow = document.documentElement.scrollWidth > innerWidth + 1;
+            const overflowing = documentOverflow
+              ? [...document.querySelectorAll("body *")].flatMap(element => {
+                  const rect = element.getBoundingClientRect();
+                  if (rect.width <= 0 || (rect.left >= -1 && rect.right <= innerWidth + 1)) return [];
+                  const style = getComputedStyle(element);
+                  if (style.position === "fixed") return [];
+                  const ancestors = [];
+                  let current = element;
+                  while (current && current !== document.body && ancestors.length < 6) {
+                    const currentRect = current.getBoundingClientRect();
+                    const currentStyle = getComputedStyle(current);
+                    ancestors.push({
+                      tag: current.tagName.toLowerCase(),
+                      className: String(current.className || "").slice(0, 120),
+                      width: Math.round(currentRect.width),
+                      clientWidth: current.clientWidth,
+                      scrollWidth: current.scrollWidth,
+                      minInlineSize: currentStyle.minInlineSize,
+                      inlineSize: currentStyle.inlineSize,
+                      overflowX: currentStyle.overflowX,
+                    });
+                    current = current.parentElement;
+                  }
+                  return [{
+                    tag: element.tagName.toLowerCase(),
+                    id: element.id,
+                    className: String(element.className || "").slice(0, 120),
+                    text: normalize(element.textContent).slice(0, 160),
+                    left: Math.round(rect.left),
+                    right: Math.round(rect.right),
+                    width: Math.round(rect.width),
+                    ancestors,
+                  }];
+                }).slice(0, 30)
+              : [];
+            return { documentOverflow, scrollWidth: document.documentElement.scrollWidth, innerWidth, clipped, overflowing };
           });
           geometry.push({ viewport, ...value });
         }
@@ -420,21 +479,44 @@ function persistCrawl(crawlResult) {
       if (result.semantic?.locale && result.semantic.lang !== result.semantic.locale) finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "html-lang-mismatch", observed: result.semantic.lang, evidence: posix(relative(ROOT, directory)) });
       if (result.semantic?.expectedDir && result.semantic.dir !== result.semantic.expectedDir) finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "html-dir-mismatch", observed: result.semantic.dir, evidence: posix(relative(ROOT, directory)) });
       if (!result.semantic?.metadata?.canonical && result.semantic?.locale) finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "canonical-missing", evidence: posix(relative(ROOT, directory)) });
-      const hreflangs = new Set(result.semantic?.metadata?.hreflang?.map((entry) => entry.lang) ?? []);
-      if (result.semantic?.locale) for (const required of [...locales, "x-default"]) if (!hreflangs.has(required)) finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "hreflang-missing", observed: required, evidence: posix(relative(ROOT, directory)) });
-      for (const [category, values] of [["raw-key", result.semantic?.rawKeys], ["empty-accessible-name", result.semantic?.emptyControls], ["broken-aria-labelledby", result.semantic?.brokenLabelledBy], ["duplicate-id", result.semantic?.duplicateIds], ["broken-image", result.semantic?.brokenImages]]) {
+      if (result.semantic?.locale) {
+        const finalRoute = result.finalUrl ? new URL(result.finalUrl).pathname : route;
+        const normalizedRoute = finalRoute === "/" ? "/" : finalRoute.replace(/\/$/, "");
+        const contract = browserSeoContracts.get(normalizedRoute);
+        if (!contract) {
+          finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "seo-contract-missing", evidence: posix(relative(ROOT, directory)) });
+        } else {
+          try {
+            assertAlternateContract(
+              result.semantic?.metadata?.hreflang?.map((entry) => ({ hreflang: entry.lang, href: entry.href })) ?? [],
+              contract,
+              route,
+            );
+          } catch (error) {
+            finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "hreflang-contract", observed: error instanceof Error ? error.message : String(error), evidence: posix(relative(ROOT, directory)) });
+          }
+        }
+      }
+      const renderedRawKeys = rawRenderedKeys([
+        ...(result.semantic?.textSegments?.map((item) => item.text) ?? []),
+        ...(result.semantic?.attributes?.map((item) => item.value) ?? []),
+      ]);
+      for (const [category, values] of [["raw-key", renderedRawKeys], ["empty-accessible-name", result.semantic?.emptyControls], ["broken-aria-labelledby", result.semantic?.brokenLabelledBy], ["duplicate-id", result.semantic?.duplicateIds], ["broken-image", result.semantic?.brokenImages]]) {
         if (values?.length) finding({ target: crawlResult.target, locale, route, state: "FAIL", category, observed: JSON.stringify(values).slice(0, 1500), evidence: posix(relative(ROOT, directory)) });
       }
       if ((result.semantic?.mainTextLength ?? 0) < 20) finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "empty-main-content", observed: result.semantic?.mainTextLength, evidence: posix(relative(ROOT, directory)) });
       const requestFailures = (result.requestFailures ?? []).filter((failure) => {
+        if (isExpectedNextRscAbort(failure)) return false;
         if (failure.method === "HEAD" && failure.failure === "net::ERR_ABORTED") return false;
         if (!crawlResult.javaScriptEnabled && failure.failure === "csp" && /\.js(?:\?|$)/.test(failure.url)) return false;
         return true;
       });
       const consoleEntries = route.includes("__i18n_missing__") && result.status === 404 ? [] : (result.consoleEntries ?? []);
       if (consoleEntries.length || result.pageErrors?.length || requestFailures.length) finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "console-page-or-network-error", observed: JSON.stringify({ console: consoleEntries, pageErrors: result.pageErrors, requestFailures }).slice(0, 3000), evidence: posix(relative(ROOT, directory)) });
-      const geometryFailures = result.geometry?.filter((entry) => entry.documentOverflow || entry.clipped?.length) ?? [];
-      if (geometryFailures.length) finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "overflow-or-clipping", observed: JSON.stringify(geometryFailures).slice(0, 3000), evidence: posix(relative(ROOT, directory)) });
+      const geometryFindings = partitionGeometryFindings(result.geometry ?? []);
+      acceptedIntentionalTruncations += geometryFindings.accepted.length;
+      if (geometryFindings.fail.length) finding({ target: crawlResult.target, locale, route, state: "FAIL", category: "overflow-or-clipping", observed: JSON.stringify(geometryFindings.fail).slice(0, 3000), evidence: posix(relative(ROOT, directory)) });
+      if (geometryFindings.review.length) finding({ target: crawlResult.target, locale, route, state: "NOT_ASSESSABLE", category: "intentional-text-truncation-review", observed: JSON.stringify(geometryFindings.review).slice(0, 3000), evidence: posix(relative(ROOT, directory)) });
     }
   }
 }
@@ -495,7 +577,14 @@ for (const crawlResult of crawls.filter((item) => item.javaScriptEnabled)) {
     const englishSegments = new Map((english.semantic.textSegments ?? []).map((segment) => [segment.selector, segment.text]));
     for (const segment of result.semantic.textSegments ?? []) {
       const source = englishSegments.get(segment.selector);
-      if (source && source === segment.text && /(?:\b[A-Za-z][A-Za-z'-]*\b[\s,.:;!?—–-]*){4,}/.test(source) && source.length >= 20) finding({ target: crawlResult.target, locale, route: path, state: "FAIL", category: "exact-english-rendered-fallback", observed: source.slice(0, 500), evidence: segment.selector });
+      if (
+        source
+        && source === segment.text
+        && translationSegmentRequiresComparison(segment, locale)
+        && /(?:\b[A-Za-z][A-Za-z'-]*\b[\s,.:;!?—–-]*){4,}/.test(source)
+        && source.length >= 20
+        && /\s/.test(source)
+      ) finding({ target: crawlResult.target, locale, route: path, state: "FAIL", category: "exact-english-rendered-fallback", observed: source.slice(0, 500), evidence: segment.selector });
     }
   }
 }
@@ -510,6 +599,7 @@ const report = {
   cli: CLI,
   routeManifest,
   crawls: crawls.map((crawl) => ({ target: crawl.target, javaScriptEnabled: crawl.javaScriptEnabled, routeCount: crawl.results?.length ?? 0 })),
+  acceptedIntentionalTruncations,
   requiredDynamicStates,
   findings,
 };
@@ -522,6 +612,7 @@ const markdown = [
   `- Target: ${targetOption}`,
   `- Routes in manifest: ${routes.length}`,
   `- Crawls completed: ${crawls.length}`,
+  `- Accepted explicit truncation contracts: ${acceptedIntentionalTruncations}`,
   `- Findings: ${findings.length}`,
   "",
   "## Findings",

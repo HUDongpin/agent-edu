@@ -99,6 +99,10 @@
   margin-block-start: 15px;
 }
 
+.sectionBody > * {
+  min-inline-size: 0;
+}
+
 .sectionBody p {
   margin: 0;
   color: var(--ink-2);

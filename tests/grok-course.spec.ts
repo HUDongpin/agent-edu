@@ -466,7 +466,7 @@ test.describe("How to Use Grok course", () => {
       .find((value) => value["@type"] === "ItemList") as {
         itemListElement: readonly {
           position: number;
-          item: { name: string; url: string; inLanguage: string; hasPart: readonly unknown[] };
+          item: { name: string; url: string; inLanguage: readonly string[]; hasPart: readonly unknown[] };
         }[];
       } | undefined;
     const grokListItem = catalogueJsonLd?.itemListElement.find(
@@ -475,7 +475,7 @@ test.describe("How to Use Grok course", () => {
     expect(grokListItem?.item).toMatchObject({
       name: "How to Use Grok",
       url: "https://aicourse.top/en/grok/",
-      inLanguage: "en",
+      inLanguage: [...LOCALES],
     });
     expect(grokListItem?.item.hasPart).toHaveLength(14);
     const softwareEngineeringListItem = catalogueJsonLd?.itemListElement.find(
@@ -483,7 +483,7 @@ test.describe("How to Use Grok course", () => {
     );
     expect(softwareEngineeringListItem?.item).toMatchObject({
       name: "Software Engineering with Agentic AI",
-      inLanguage: "en",
+      inLanguage: ["en"],
     });
 
     const homeResponse = await page.goto("/en/");
@@ -500,7 +500,8 @@ test.describe("How to Use Grok course", () => {
     await expect(page.getByRole("heading", { level: 1, name: "My Learning" })).toBeVisible();
     page.once("dialog", async (dialog) => dialog.accept());
     await page.getByRole("button", { name: "Clear all progress" }).click();
-    await expect(page.locator(".learning-reset-feedback")).toBeVisible();
+    await expect(page.locator('.learning-feedback[role="status"][aria-live="polite"]'))
+      .toHaveText("All active learning progress on this device was cleared.");
 
     await page.goto("/en/");
     await expect(page.locator(".progress-course").filter({ hasText: "How to Use Grok" })).toHaveCount(0);

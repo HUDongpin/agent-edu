@@ -626,7 +626,9 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
       await expect(routePage.locator("html")).toHaveAttribute("lang", "ar");
       await expect(routePage.locator("html")).toHaveAttribute("dir", "rtl");
       const card = routePage.locator("#how-to-write-prompts");
-      await expect(card.locator(".catalog-course-meta")).toContainText("الإنجليزية");
+      await expect(card.locator('[data-course-content-language="en"]')).toContainText("English");
+      await expect(card.locator('[data-course-language-fallback="true"]')).toBeVisible();
+      await expect(card.locator('bdi[lang="en"][dir="ltr"]')).not.toHaveCount(0);
       await expect(card.locator('a[href="/en/prompts/?fromLocale=ar"]')).toBeVisible();
     });
   });
@@ -738,7 +740,7 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
     const promptsCourse = promptsItem?.item as JsonLdNode | undefined;
 
     expect(promptsCourse?.url).toBe("https://aicourse.top/en/prompts/");
-    expect(promptsCourse?.inLanguage).toBe("en");
+    expect(promptsCourse?.inLanguage).toEqual(["en"]);
     expect((promptsCourse?.hasPart as JsonLdNode[]).map((part) => part.url)).toEqual(
       PROMPT_LESSON_SLUGS.map((slug) => `https://aicourse.top/en/prompts/${slug}/`),
     );

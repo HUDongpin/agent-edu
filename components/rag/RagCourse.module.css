@@ -200,6 +200,10 @@
   table-layout: fixed;
 }
 
+.scoreboardFigure :is(th, td) {
+  overflow-wrap: anywhere;
+}
+
 .scoreboardFigure th,
 .scoreboardFigure td {
   padding: 11px 13px;
@@ -551,6 +555,10 @@
   .budgetFigure {
     min-block-size: 210px;
     overflow-x: auto;
+  }
+
+  .budgetFigure span {
+    min-inline-size: 52px;
   }
 }
 

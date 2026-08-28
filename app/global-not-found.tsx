@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "404 · aicourse.top",
   description: "Choose a language and return to the free Agentic Engineering course.",
+  icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }] },
 };
 
 const LANGUAGES = [

@@ -124,7 +124,7 @@ export default function CourseDashboard({
                       <span>{twoDigitFormat.format(lesson.order)}</span>
                       <span>
                         <strong>{lesson.copy.title}</strong>
-                        <small>{lesson.copy.summary}</small>
+                        <small data-audit-truncation="lesson-teaser">{lesson.copy.summary}</small>
                       </span>
                       <time dateTime={`PT${lesson.minutes}M`}>{numberFormat.format(lesson.minutes)} {course.copy.ui.minutes}</time>
                     </Link>

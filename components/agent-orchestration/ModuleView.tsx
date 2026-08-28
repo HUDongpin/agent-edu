@@ -246,7 +246,12 @@ export default function ModuleView({
                         <div className={styles.sourceMeta}>
                           <span lang="en">{source.publisher}</span><span>{sourceKindLabel(source.kind, course.contentLocale)}</span><span>{sourceStabilityLabel(source.stability, course.contentLocale)}</span><span>{label(course.copy.ui, "accessed", "Accessed")} {source.accessedOn}</span>
                           {source.revision ? <span>{label(course.copy.ui, "revision", "Revision")}: {source.revision}</span> : null}
-                          {source.license ? <span>{label(course.copy.ui, "license", "License")}: {source.license}</span> : null}
+                          {source.license ? (
+                            <span>
+                              {label(course.copy.ui, "license", "License")}:{" "}
+                              <bdi lang="en" dir="ltr">{source.license}</bdi>
+                            </span>
+                          ) : null}
                         </div>
                         {source.claimEvidenceUrls.length > 1 || source.versionAnchorUrl ? (
                           <div className={styles.sourceRoleLinks}>

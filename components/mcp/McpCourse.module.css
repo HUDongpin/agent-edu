@@ -419,7 +419,13 @@
 .lessonMain { min-inline-size: 0; }
 .lessonMain article { max-inline-size: 830px; }
 .lessonHero { padding-block: 14px 42px; }
-.lessonHero h1 { max-inline-size: 17ch; font-size: clamp(38px, 6vw, 62px); line-height: 1.02; letter-spacing: -.045em; }
+.lessonHero h1 {
+  max-inline-size: 17ch;
+  font-size: clamp(38px, 6vw, 62px);
+  line-height: 1.02;
+  letter-spacing: -.045em;
+  overflow-wrap: anywhere;
+}
 .lessonSummary { max-inline-size: 68ch; margin-block: 20px 0; color: var(--ink-2); font-size: clamp(17px, 2vw, 20px); line-height: 1.65; }
 .lessonConcepts { display: flex; flex-wrap: wrap; gap: 6px; margin-block-start: 18px; }
 .lessonConcepts span[data-status="deprecated"] { border-color: var(--red-line); background: var(--red-soft); color: var(--red); }

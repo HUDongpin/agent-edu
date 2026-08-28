@@ -84,7 +84,7 @@ export default async function CourseShell({
         <nav className="shared-course-breadcrumb" aria-label={t("nav.courses")}>
           <Link href={`/${locale}/courses/`}>{t("nav.courses")}</Link>
           <span aria-hidden="true">/</span>
-          <span aria-current="page">{t(course.titleKey)}</span>
+          <span aria-current="page" data-audit-truncation="breadcrumb-current">{t(course.titleKey)}</span>
         </nav>
       ) : null}
 

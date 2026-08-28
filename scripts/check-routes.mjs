@@ -27,7 +27,7 @@ function canonicalUrl(route) {
   return SITE_ORIGIN + (route === "/" ? "/" : route.replace(/\/$/, "") + "/");
 }
 
-function seoContracts(releaseSurface) {
+export function seoContracts(releaseSurface) {
   const contracts = new Map();
   const addRoutes = ({ contentLocales, primaryLocale, routes, courseId = null }) => {
     for (const locale of contentLocales) {

@@ -40,7 +40,7 @@ export default function LessonView({
       <nav className={styles.breadcrumbs} aria-label={course.copy.ui.backCourse}>
         <Link href={`/${course.locale}/grok/`}>← {course.copy.ui.backCourse}</Link>
         <span aria-hidden="true">/</span>
-        <span aria-current="page">{lesson.copy.title}</span>
+        <span aria-current="page" data-audit-truncation="breadcrumb-current">{lesson.copy.title}</span>
       </nav>
 
       <div className={styles.lessonLayout}>

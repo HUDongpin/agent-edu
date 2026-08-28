@@ -1075,7 +1075,11 @@
   .untrustedLane,
   .authorityOutput,
   .authorityArrow { grid-column: 1; grid-row: auto; }
-  .authorityArrow { transform: rotate(90deg); }
+  .authorityArrow {
+    inline-size: 40px;
+    justify-self: center;
+    transform: rotate(90deg);
+  }
   .experimentInputs,
   .experimentBranches { grid-template-columns: 1fr; }
   .experimentEdges { grid-template-columns: repeat(2, 1fr); }

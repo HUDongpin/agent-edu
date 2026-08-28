@@ -187,7 +187,10 @@ test.describe("Course 8 contract and static curriculum", () => {
     await expect(dashboard.locator(
       'section[aria-labelledby="software-engineering-coverage-title"] article',
     )).toHaveCount(18);
-    const progressBar = dashboard.getByRole("progressbar", { name: english.ui.progress });
+    const progressBar = dashboard.getByRole("progressbar", {
+      name: english.ui.progress,
+      exact: true,
+    });
     await expect(progressBar).toHaveAttribute("max", "20");
     await expect(progressBar).toHaveAttribute("value", "0");
     await expect(page.getByTestId("software-engineering-final-assessment")).toBeVisible();
@@ -373,7 +376,9 @@ test.describe("localization, metadata, and discovery", () => {
     await expect(page.locator("html")).toHaveAttribute("lang", "ar");
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
     const card = page.locator("#software-engineering-with-agentic-ai");
-    await expect(card.locator(".catalog-course-meta")).toContainText("الإنجليزية");
+    await expect(card.locator('[data-course-content-language="en"]')).toContainText("English");
+    await expect(card.locator('[data-course-language-fallback="true"]')).toBeVisible();
+    await expect(card.locator('bdi[lang="en"][dir="ltr"]')).not.toHaveCount(0);
     await expect(card.locator('a[href="/en/software-engineering/?fromLocale=ar"]'))
       .toBeVisible();
   });
