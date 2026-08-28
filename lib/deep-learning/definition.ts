@@ -5,12 +5,18 @@ import {
   RESPONSIBLE_AI_RUBRIC_VERSION,
 } from "../course-kit/responsible-ai-rubric";
 import {
+  DEEP_LEARNING_CAPSTONE,
   DEEP_LEARNING_CAPSTONE_ARTIFACTS,
   DEEP_LEARNING_CAPSTONE_VERSION,
 } from "./capstone";
+import {
+  DEEP_LEARNING_CLAIM_REVIEW_SNAPSHOT,
+  assertValidDeepLearningClaimLedger,
+} from "./claims";
 import { DEEP_LEARNING_MODULES } from "./modules";
 import {
   DEEP_LEARNING_QUESTION_BANK,
+  DEEP_LEARNING_QUIZ_FORMS,
   DEEP_LEARNING_QUIZ_VERSION,
 } from "./quiz";
 import { DEEP_LEARNING_SOURCE_SEEDS } from "./sources";
@@ -22,9 +28,9 @@ import { DEEP_LEARNING_SOURCE_SEEDS } from "./sources";
 export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
   manifest: {
     id: "deep-learning",
-    version: "2026.08.26-v1",
+    version: "2026.08.28-v2",
     displayNumber: 20,
-    publishedOn: "2026-08-26",
+    publishedOn: "2026-08-28",
     milestoneCount: 14,
     phases: [
       {
@@ -33,12 +39,12 @@ export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
           en: {
             title: "Gradient foundations",
             summary:
-              "Make tensor semantics, derivatives, optimisation choices, train/evaluation state, and reproduction limits inspectable before increasing model scale.",
+              "Move from tensor and derivative contracts into an inspectable training state machine before comparing optimisation, initialisation, normalisation, and regularisation choices.",
           },
           zhHans: {
             title: "梯度基础",
             summary:
-              "在扩大模型规模前，使 tensor 语义、导数、优化选择、训练/评估状态与复现限制可检查。",
+              "从 tensor 与导数合同进入可检查的训练状态机，再比较优化、初始化、归一化与正则化选择。",
           },
         },
       },
@@ -78,18 +84,24 @@ export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
           en: {
             title: "Assurance and capstone",
             summary:
-              "Turn clean, corrupted, slice, cost, ablation, and reproducibility results into a bounded training card with a genuine human no-go path.",
+              "Turn clean, corrupted, slice, cost, ablation, and reproducibility results into a course-local learner-final dossier with a genuine human no-go path.",
           },
           zhHans: {
             title: "保障与毕业项目",
             summary:
-              "把干净、corruption、切片、成本、消融与复现结果整理为有边界 training card，并保留真实的人类否决路径。",
+              "把干净、corruption、切片、成本、消融与复现结果整理为课程本地学习者最终档案，并保留真实的人类否决路径。",
           },
         },
       },
     ],
   },
   sources: DEEP_LEARNING_SOURCE_SEEDS,
+  localizationReviewExtension: {
+    claimReviewStatus: DEEP_LEARNING_CLAIM_REVIEW_SNAPSHOT.status,
+    paragraphCopySha256: DEEP_LEARNING_CLAIM_REVIEW_SNAPSHOT.paragraphCopySha256,
+    claimContractSha256: DEEP_LEARNING_CLAIM_REVIEW_SNAPSHOT.claimContractSha256,
+    boundary: DEEP_LEARNING_CLAIM_REVIEW_SNAPSHOT.boundary,
+  },
   modules: DEEP_LEARNING_MODULES,
   courseCopy: {
     en: {
@@ -97,16 +109,16 @@ export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
         title: "Deep Learning and Transformers",
         kicker: "Course 20 · Auditable neural-network training",
         summary:
-          "Build neural models from tensor and gradient contracts through convolution, sequences, attention, Transformers, adaptation, robustness evaluation, and a reviewer-ready training card.",
+          "Build neural models from tensor and gradient contracts through convolution, sequences, attention, Transformers, adaptation, and robustness evaluation, then assemble a reviewer-ready learner-final dossier.",
         audience:
           "Learners who can train and evaluate conventional machine-learning baselines and now need a disciplined bridge to neural systems.",
         prerequisite:
           "Course 19 or equivalent supervised-learning, evaluation, Python, NumPy, and basic linear-algebra experience. The course does not assume production deployment authority.",
         level: "Intermediate to advanced",
         duration:
-          "900 minutes across 12 modules, a deterministic 16-question final draw, and an eight-artifact capstone",
+          "900 minutes of module instruction across 12 modules; one explicit 16-question final form and the learner-final capstone require additional learner time",
         evidenceNote:
-          "Official documentation is pinned to the 2026-08-26 access boundary and original research is treated as historically bounded evidence. Every implementation claim must be rechecked against the installed version, hardware, fixture, data rights, seeds, and measurement conditions.",
+          "PyTorch implementation evidence is pinned to v2.13.0 and release commit cf30153c4c131c8164ee7798e5022d810682e2cb; the transfer tutorial is an access-cutoff Git snapshot, PEFT is pinned to v0.20.0, and papers remain historically bounded. Human EN and zh-Hans review is pending, so release status remains HOLD.",
       },
       principles: [
         "Prove tensor shape, dtype, device, graph, gradient, and loss semantics on a hand-checkable case before scaling.",
@@ -119,8 +131,8 @@ export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
       outcomes: [
         "Specify and debug tensor programs and computational graphs with executable shape and gradient assertions.",
         "Derive and numerically check backpropagation for a small network while documenting approximation limits.",
-        "Compare optimisation, initialisation, normalisation, and regularisation under a controlled budget.",
         "Implement a reproducible training/validation loop with modes, checkpoints, early stopping, and failure receipts.",
+        "Compare optimisation, initialisation, normalisation, and regularisation under a controlled budget after the training-state contract is working.",
         "Build and inspect a convolutional baseline without overclaiming transfer to a new visual domain.",
         "Compare frozen-feature and fine-tuning transfer strategies while auditing data rights and domain mismatch.",
         "Construct a recurrent sequence baseline with explicit padding, masking, state reset, and leakage checks.",
@@ -133,16 +145,16 @@ export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
       quiz: {
         title: "Deep Learning final assessment",
         intro:
-          "A deterministic 16-question draw is selected from a 36-question bilingual bank. Score at least 13 and answer every selected critical reproducibility, leakage, data-rights, and human-authority question correctly.",
+          "Complete one of three explicit 16-question bilingual forms. Every form covers all 12 modules, includes at least six computational or fault-diagnosis capability items, and contains every critical reproducibility, leakage, data-rights, and human-authority question; score at least 13 and answer every critical question correctly.",
       },
       capstone: {
         title: "Auditable neural-training dossier",
         intro:
-          "Train only against the original synthetic course fixture, then show what happened, what failed, what the evidence does not support, and who retains authority to stop training or deployment.",
+          "Use only the original foundation, visual, and sequence fixtures, then submit a learner-final dossier that separates reference evidence from your three-or-more-seed runs, failures, resources, limitations, and human decision.",
         instructions: [
           "Verify fixture, schema, code, and environment hashes before the first run; record hardware, versions, seeds, deterministic settings, data-rights boundary, and known platform variance.",
-          "Preserve every run—including failures—and reconcile configurations, split receipts, metrics, checkpoints, elapsed time, memory, compute, cost, and energy proxies.",
-          "Complete all eight required artifacts and link each training-card claim to the exact run, slice, ablation, limitation, or reproduction receipt that supports it.",
+          "Run at least three declared seeds; preserve a complete run ledger and failure ledger, and reconcile configurations, split receipts, metrics, checkpoints, elapsed time, memory, compute, cost, and energy proxies.",
+          "Complete all eight learner-final artifacts and link each dossier claim to the exact run, failure, resource, slice, module-artifact, limitation, or reviewer receipt that supports it.",
           "Ask an independent named reviewer to reproduce the declared run, challenge at least one robustness or rights claim, and record continue, revise, no-train, or no-deploy with rationale.",
         ],
         responsibleAiRubric: RESPONSIBLE_AI_CROSS_COURSE_RUBRIC_EN,
@@ -155,16 +167,16 @@ export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
         title: "深度学习与 Transformer",
         kicker: "课程 20 · 可审计的神经网络训练",
         summary:
-          "从 tensor 与梯度合同出发，逐步学习卷积、序列、attention、Transformer、适配与鲁棒性评估，最终交付可供审查的 training card。",
+          "从 tensor 与梯度合同出发，逐步学习卷积、序列、attention、Transformer、适配与鲁棒性评估，最终交付可供审查的学习者最终档案。",
         audience:
           "已经能够训练和评估传统机器学习基线、现在需要严谨进入神经系统的学习者。",
         prerequisite:
           "课程 19 或同等的监督学习、评估、Python、NumPy 与基础线性代数经验。本课程不预设任何生产部署权限。",
         level: "中级至高级",
         duration:
-          "12 个模块共 900 分钟，另含 16 题确定性抽题终测与八产物毕业项目",
+          "12 个模块教学正文共 900 分钟；一套显式 16 题终测与学习者最终毕业项目需要额外学习时间",
         evidenceNote:
-          "官方文档钉定于 2026-08-26 访问边界，原始研究作为有历史边界的证据处理。所有实现声明都必须针对实际安装版本、硬件、fixture、数据权利、种子与测量条件重新核验。",
+          "PyTorch 实现证据钉定 v2.13.0 与 release commit cf30153c4c131c8164ee7798e5022d810682e2cb；迁移教程为访问截止 Git snapshot，PEFT 钉定 v0.20.0，论文保持历史边界。EN 与简中人工审阅仍待完成，因此发布状态保持 HOLD。",
       },
       principles: [
         "扩大规模前，先在可手工核对案例中证明 tensor 形状、类型、设备、图、梯度与损失语义。",
@@ -177,8 +189,8 @@ export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
       outcomes: [
         "用可执行的形状与梯度断言定义并调试 tensor 程序和计算图。",
         "为小型网络推导并数值检查反向传播，同时记录近似限制。",
-        "在受控预算下比较优化、初始化、归一化与正则化。",
         "实现含模式、checkpoint、早停与失败收据的可复现训练/验证循环。",
+        "在训练状态合同可用后，再于受控预算下比较优化、初始化、归一化与正则化。",
         "建立并检查卷积基线，同时不夸大其对新视觉领域的迁移。",
         "比较冻结特征与微调策略，并审计数据权利与领域不匹配。",
         "以显式 padding、mask、状态重置与泄漏检查构建递归序列基线。",
@@ -191,16 +203,16 @@ export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
       quiz: {
         title: "深度学习终测",
         intro:
-          "系统从 36 道双语题中确定性抽取 16 题。至少答对 13 题，并答对所有被抽中的可复现、泄漏、数据权利与人类决定权关键题。",
+          "完成三套显式 16 题双语表单之一；每套覆盖 12 个模块、至少包含 6 道计算或故障诊断能力题，并包含全部可复现、泄漏、数据权利与人类决定权关键题。至少答对 13 题，并答对全部关键题。",
       },
       capstone: {
         title: "可审计神经训练档案",
         intro:
-          "只使用原创合成课程 fixture 训练，并说明发生了什么、哪些地方失败、证据不支持什么，以及谁保留停止训练或部署的权力。",
+          "只使用原创 foundation、visual 与 sequence fixture，提交学习者最终档案，分开参考证据、至少三个种子的运行、失败、资源、限制与人类决定。",
         instructions: [
           "首次运行前验证 fixture、schema、代码与环境哈希；记录硬件、版本、种子、确定性设置、数据权利边界与已知平台差异。",
-          "保留包括失败在内的每次运行，并核对配置、切分收据、指标、checkpoint、耗时、内存、计算、成本与能耗代理。",
-          "完成全部八项必需产物，并把 training card 的每项声明连接到确切运行、切片、消融、限制或复现收据。",
+          "运行至少三个声明种子；保留完整 run ledger 与 failure ledger，并核对配置、切分收据、指标、checkpoint、耗时、内存、计算、成本与能耗代理。",
+          "完成全部八项学习者最终产物，并把档案中每项声明连接到确切运行、失败、资源、切片、模块产物、限制或审查收据。",
           "请独立具名审查者复现声明运行、挑战至少一项鲁棒性或权利声明，并记录继续、修订、no-train 或 no-deploy 及理由。",
         ],
         responsibleAiRubric: RESPONSIBLE_AI_CROSS_COURSE_RUBRIC_ZH_HANS,
@@ -212,20 +224,27 @@ export const DEEP_LEARNING_COURSE = buildCourseKitDefinition({
   quiz: {
     version: DEEP_LEARNING_QUIZ_VERSION,
     questions: DEEP_LEARNING_QUESTION_BANK,
+    forms: DEEP_LEARNING_QUIZ_FORMS,
   },
   capstone: {
     version: DEEP_LEARNING_CAPSTONE_VERSION,
     artifacts: DEEP_LEARNING_CAPSTONE_ARTIFACTS,
+    evidenceContract: DEEP_LEARNING_CAPSTONE.evidenceContract,
+    referenceEvidenceContract: DEEP_LEARNING_CAPSTONE.referenceEvidenceContract,
     responsibleAiGate: {
       version: RESPONSIBLE_AI_RUBRIC_VERSION,
       criteria: [
-        { id: "purpose-risk-stop", questionIds: ["q-fine-tuning-parameter-efficient-adaptation-boundary"], artifactIds: ["limitations", "training-card"] },
-        { id: "data-rights-minimisation", questionIds: ["q-tokenisation-pretraining-boundary"], artifactIds: ["training-card", "reproducibility-receipt"] },
-        { id: "subgroups-uncertainty", questionIds: ["q-robustness-evaluation-training-card-capstone-boundary"], artifactIds: ["error-slices", "limitations"] },
-        { id: "human-authority-recourse", questionIds: ["q-fine-tuning-parameter-efficient-adaptation-boundary"], artifactIds: ["limitations", "training-card"] },
-        { id: "challenge-incident-recovery", questionIds: ["q-training-loops-debugging-boundary"], artifactIds: ["ablation", "training-log"] },
-        { id: "evidence-decision-expiry", questionIds: ["q-transformer-encoder-decoder-core", "q-robustness-evaluation-training-card-capstone-boundary"], artifactIds: ["training-card", "reproducibility-receipt"] },
+        { id: "purpose-risk-stop", questionIds: ["q-fine-tuning-parameter-efficient-adaptation-boundary"], artifactIds: ["limitations", "training-dossier"] },
+        { id: "data-rights-minimisation", questionIds: ["q-tokenisation-pretraining-boundary"], artifactIds: ["training-dossier", "reviewer-decision"] },
+        { id: "subgroups-uncertainty", questionIds: ["q-robustness-evaluation-training-card-capstone-boundary"], artifactIds: ["evaluation-slices", "limitations"] },
+        { id: "human-authority-recourse", questionIds: ["q-fine-tuning-parameter-efficient-adaptation-boundary"], artifactIds: ["limitations", "reviewer-decision"] },
+        { id: "challenge-incident-recovery", questionIds: ["q-training-loops-debugging-boundary"], artifactIds: ["failure-ledger", "run-ledger"] },
+        { id: "evidence-decision-expiry", questionIds: ["q-transformer-encoder-decoder-core", "q-robustness-evaluation-training-card-capstone-boundary"], artifactIds: ["training-dossier", "reviewer-decision"] },
       ],
     },
   },
 });
+
+// The shared CourseKit validator checks section-level source references. Course
+// 20 v2 additionally fails closed on its paragraph-level atomic claim ledger.
+assertValidDeepLearningClaimLedger();

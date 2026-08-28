@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.captions-audio-formats.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "captions-audio-formats",
+  "artifactId": "delivery-matrix",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "render-receipt": "9d403176f5c3ebd735cd75030c8d7b3f5e3b4e834caf7805368ebc1f7fa585d2"
+  },
+  "payload": {
+    "matrixId": "guided-delivery-matrix-v2",
+    "renderSourceSha256": "2770ac63e907506fd88100ae333e9c8737e7a5c4c65dd854b2a9eaefee19af0f",
+    "variants": [
+      {
+        "variantId": "review-1080p",
+        "deliveryTargetId": "review-1080p",
+        "container": "mp4",
+        "video": {
+          "width": 1920,
+          "height": 1080,
+          "frameRate": "30000/1001"
+        },
+        "audio": {
+          "profile": "EBU-R128-training-profile",
+          "scope": "course-review-only-not-universal"
+        },
+        "captions": {
+          "standard": "WebVTT-WCAG-review",
+          "humanReviewRequired": true,
+          "sidecarPath": null,
+          "sidecarSha256": null
+        },
+        "outputPath": "outputs/review-1080p.mp4"
+      },
+      {
+        "variantId": "review-captioned",
+        "deliveryTargetId": "review-captioned",
+        "container": "mp4",
+        "video": {
+          "width": 1080,
+          "height": 1920,
+          "frameRate": "30000/1001"
+        },
+        "audio": {
+          "profile": "EBU-R128-training-profile",
+          "scope": "course-review-only-not-universal"
+        },
+        "captions": {
+          "standard": "WebVTT-WCAG-review",
+          "humanReviewRequired": true,
+          "sidecarPath": "outputs/review-captioned.vtt",
+          "sidecarSha256": "7fb5e902a46ce1726147b98f23959cff03f37b5ac6108df80b0366dc9ca977e0"
+        },
+        "outputPath": "outputs/review-captioned.mp4"
+      }
+    ],
+    "finalDeliveryVariantId": "review-captioned"
+  },
+  "limitations": [
+    "The EBU R128 label is a scoped instructional profile and is not a universal platform requirement.",
+    "The playable variants and WebVTT bytes are hash-bound, but a named human must still review words, timing, cues, reading speed, and audiovisual meaning."
+  ]
+}

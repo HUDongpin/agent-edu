@@ -27,11 +27,11 @@ test("main message files parse and retain exact nine-locale key parity", () => {
   }
 });
 
-test("all 149 non-literal callers have named runtime owners", () => {
+test("all 150 non-literal callers have named runtime owners", () => {
   const englishKeys = new Set(Object.keys(messages("en")));
   const { issues, owners } = validateDynamicMainMessageOwners();
   assert.deepEqual(issues, []);
-  assert.equal(owners.size, 149);
+  assert.equal(owners.size, 150);
   for (const group of MAIN_MESSAGE_DYNAMIC_OWNER_GROUPS) {
     for (const owner of group.owner.split(" + ")) {
       assert.equal(existsSync(join(ROOT, owner)), true, `${owner} exists`);

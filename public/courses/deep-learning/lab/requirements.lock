@@ -1,3 +1,18 @@
-# Course 20 reference experiment has zero third-party runtime dependencies.
-# Exact tested reference: CPython 3.9.6, standard library only, CPU only.
-# GPU and external deep-learning frameworks are optional extensions and are not required for completion.
+# Course 20 v2 reference dependency lock (captured 2026-08-28).
+# Runtime must be offline after provisioning. The two direct wheel hashes below
+# apply only to CPython 3.11 on macOS 14+ arm64; other platforms must resolve and
+# record their own wheel hashes instead of reusing this platform evidence.
+
+torch @ https://files.pythonhosted.org/packages/5b/fe/cba54dc58523434919b66f13a667e36e436deddd77ca519e96553617d4ec/torch-2.13.0-cp311-cp311-macosx_14_0_arm64.whl#sha256=e76f9bcecc52b8ff711239a2f7547d5353df95878ab232f0773c1d95928b92f8
+numpy @ https://files.pythonhosted.org/packages/8e/ba/80fc0b1e3cb2fd5c6143f00f42eb67762aa043eaa05ca924ecc3222a7849/numpy-2.4.1-cp311-cp311-macosx_14_0_arm64.whl#sha256=09aa8a87e45b55a1c2c205d42e2808849ece5c484b2aab11fecabec3841cafba
+
+# Exact transitive dependency tree observed in the clean reference environment:
+# filelock==3.32.4
+# fsspec==2026.7.0
+# jinja2==3.1.6
+# markupsafe==3.0.3
+# mpmath==1.3.0
+# networkx==3.6.1
+# setuptools==84.0.0
+# sympy==1.14.0
+# typing-extensions==4.16.0

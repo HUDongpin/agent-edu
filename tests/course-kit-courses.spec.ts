@@ -1,12 +1,20 @@
+import { createHash } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import axe from "axe-core";
 import { AI_PYTHON_DATA_COURSE } from "../lib/ai-python-data";
 import { AI_RESEARCH_COURSE } from "../lib/ai-research";
 import {
+  courseKitArtifactCompletionMarker,
+  courseKitCheckpointKey,
   courseKitModuleCompleteKey,
+  courseKitModuleReceiptKey,
   createCourseKitProgressConfig,
 } from "../lib/course-kit/progress";
-import { drawCourseKitQuizQuestions } from "../lib/course-kit/quiz";
+import {
+  drawCourseKitQuizQuestions,
+  selectCourseKitQuizForm,
+  selectCourseKitQuizFormQuestions,
+} from "../lib/course-kit/quiz";
 import type { CourseKitDefinition } from "../lib/course-kit/types";
 import { materialiseCourseKit } from "../lib/course-kit/locale";
 import { DEEP_LEARNING_COURSE } from "../lib/deep-learning";
@@ -17,6 +25,7 @@ import { RESPONSIBLE_AI_COURSE } from "../lib/responsible-ai";
 const SITE = "https://aicourse.top";
 const STORAGE_KEY = "ae.progress";
 const CORRUPT_BACKUP_KEY = "ae.progress.course-kit-corrupt-backup";
+const sha256Text = (value: string) => createHash("sha256").update(value).digest("hex");
 
 function evidenceReceipt({
   definition,
@@ -34,16 +43,96 @@ function evidenceReceipt({
     courseVersion: definition.manifest.version,
     artifactId,
     artifactPath: `artifacts/${artifactId}.json`,
-    sha256: "0".repeat(64),
+    sha256: sha256Text(`${definition.manifest.id}:${kind}:${artifactId}`),
     validator: {
-      id: `aicourse.${definition.manifest.id}.validator.v1`,
-      command: `python public/courses/${definition.manifest.id}/lab/validate.py --package artifacts/package.json`,
+      id: definition.capstone.evidenceContract.validatorId,
+      command: definition.capstone.evidenceContract.validatorCommand.replace(
+        /<[^>]+>/gu,
+        "artifacts/package.json",
+      ),
       status: "pass",
       checkedOn: "2026-08-26",
     },
     reviewer: { role: "peer reviewer", decision: "accept" },
     limitations: ["Course fixture evidence only; no external certification."],
   });
+}
+
+function moduleEvidenceReceipt({
+  definition,
+  moduleSlug,
+  inputArtifactHashes = {},
+}: {
+  definition: CourseKitDefinition;
+  moduleSlug: string;
+  inputArtifactHashes?: Readonly<Record<string, string>>;
+}) {
+  const config = createCourseKitProgressConfig(definition);
+  const contract = config.moduleContracts.find((item) => item.moduleSlug === moduleSlug);
+  expect(contract).toBeDefined();
+  expect(contract?.completionMode).toBe("validated-artifact");
+  const artifactId = contract!.producesArtifactIds[0];
+  const artifactPath = `artifacts/${artifactId}.json`;
+  const artifactSha256 = sha256Text(
+    `${definition.manifest.id}:${definition.manifest.version}:${moduleSlug}:${artifactId}`,
+  );
+  return {
+    receipt: JSON.stringify({
+      schemaVersion: "aicourse.module-evidence-receipt.v2",
+      courseId: definition.manifest.id,
+      courseVersion: definition.manifest.version,
+      moduleSlug,
+      artifactId,
+      artifactPath,
+      artifactSha256,
+      inputArtifactIdsAndHashes: inputArtifactHashes,
+      artifactSchemaId: contract!.artifactSchemaId,
+      validatorId: contract!.validatorId,
+      validatorVersion: contract!.validatorId.match(/\.(v\d+)$/u)?.[1],
+      executedCommand: contract!.validatorCommand.replace(/<[^>]+>/gu, artifactPath),
+      validatedAt: "2026-08-28T00:00:00Z",
+      status: "pass",
+      limitations: ["Synthetic browser fixture only; no learner competency or release authority."],
+    }),
+    artifactId,
+    artifactSha256,
+  };
+}
+
+function completedModuleProgress(definition: CourseKitDefinition): Record<string, unknown> {
+  const config = createCourseKitProgressConfig(definition);
+  const record: Record<string, unknown> = {
+    [config.progressVersionKey]: config.courseVersion,
+  };
+  const producedHashes: Record<string, string> = {};
+  for (const contract of config.moduleContracts) {
+    record[courseKitCheckpointKey(config.courseId, contract.moduleSlug)] = {
+      choice: 0,
+      correct: true,
+    };
+    const completionKey = courseKitModuleCompleteKey(config.courseId, contract.moduleSlug);
+    if (contract.completionMode === "self-attested") {
+      record[completionKey] = "self-attested";
+      continue;
+    }
+    const inputArtifactHashes = Object.fromEntries(
+      contract.consumesArtifactIds.map((artifactId) => [artifactId, producedHashes[artifactId]]),
+    );
+    const evidence = moduleEvidenceReceipt({
+      definition,
+      moduleSlug: contract.moduleSlug,
+      inputArtifactHashes,
+    });
+    record[courseKitModuleReceiptKey(config.courseId, contract.moduleSlug)] = evidence.receipt;
+    record[completionKey] = courseKitArtifactCompletionMarker(
+      evidence.artifactId,
+      evidence.artifactSha256,
+    );
+    for (const artifactId of contract.producesArtifactIds) {
+      producedHashes[artifactId] = evidence.artifactSha256;
+    }
+  }
+  return record;
 }
 
 /** The user-approved release scope is fixed at Course 16 through Course 21. */
@@ -120,7 +209,7 @@ async function externalRequestsDuring(
   });
 }
 
-async function seriousAxeViolations(page: Page) {
+async function allWcagAxeViolations(page: Page) {
   await page.addScriptTag({ content: axe.source });
   return page.evaluate(async () => {
     const axeApi = (window as unknown as {
@@ -132,25 +221,19 @@ async function seriousAxeViolations(page: Page) {
           violations: readonly {
             id: string;
             impact: string | null;
+            tags: readonly string[];
             nodes: readonly { target: readonly string[]; html: string }[];
           }[];
         }>;
       };
     }).axe;
-    const result = await axeApi.run(document, {
-      runOnly: {
-        type: "tag",
-        values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"],
-      },
-      resultTypes: ["violations"],
-    });
+    const result = await axeApi.run(document, { resultTypes: ["violations"] });
     return result.violations
-      .filter((violation) =>
-        violation.impact === "serious" || violation.impact === "critical",
-      )
+      .filter((violation) => violation.tags.some((tag) => /^wcag/iu.test(tag)))
       .map((violation) => ({
         id: violation.id,
         impact: violation.impact,
+        tags: violation.tags,
         nodes: violation.nodes.map((node) => ({
           target: node.target,
           html: node.html,
@@ -344,35 +427,41 @@ for (const definition of COURSES) {
       const completionButton = completion.getByRole("button", {
         name: english.ui.markModuleComplete,
       });
-      const validReceipt = evidenceReceipt({
-        definition,
-        artifactId: firstModule.slug,
-        kind: "module-artifact",
-      });
-      const invalidReceipts = [
-        { field: "courseId", mutate: (value: Record<string, unknown>) => { value.courseId = "wrong-course"; } },
-        { field: "courseVersion", mutate: (value: Record<string, unknown>) => { value.courseVersion = "stale-version"; } },
-        { field: "artifactId", mutate: (value: Record<string, unknown>) => { value.artifactId = "wrong-artifact"; } },
-        {
-          field: "validatorId",
-          mutate: (value: Record<string, unknown>) => {
-            (value.validator as Record<string, unknown>).id = "aicourse.wrong.validator.v1";
+      const moduleContract = createCourseKitProgressConfig(definition)
+        .moduleContracts.find((contract) => contract.moduleSlug === firstModule.slug)!;
+      if (moduleContract.completionMode === "validated-artifact") {
+        const validReceipt = moduleEvidenceReceipt({
+          definition,
+          moduleSlug: firstModule.slug,
+        }).receipt;
+        const invalidReceipts = [
+          { field: "courseId", mutate: (value: Record<string, unknown>) => { value.courseId = "wrong-course"; } },
+          { field: "courseVersion", mutate: (value: Record<string, unknown>) => { value.courseVersion = "stale-version"; } },
+          { field: "artifactId", mutate: (value: Record<string, unknown>) => { value.artifactId = "wrong-artifact"; } },
+          {
+            field: "validatorId",
+            mutate: (value: Record<string, unknown>) => {
+              value.validatorId = "aicourse.wrong.validator.v1";
+            },
           },
-        },
-        {
-          field: "validatorCommand",
-          mutate: (value: Record<string, unknown>) => {
-            (value.validator as Record<string, unknown>).command = "python unrelated.py --package artifacts/package.json";
+          {
+            field: "validatorCommand",
+            mutate: (value: Record<string, unknown>) => {
+              value.executedCommand = "python unrelated.py --package artifacts/package.json";
+            },
           },
-        },
-      ];
-      for (const invalid of invalidReceipts) {
-        const receipt = JSON.parse(validReceipt) as Record<string, unknown>;
-        invalid.mutate(receipt);
-        await completion.locator("textarea").fill(JSON.stringify(receipt));
-        await expect(completionButton, invalid.field).toBeDisabled();
+        ];
+        for (const invalid of invalidReceipts) {
+          const receipt = JSON.parse(validReceipt) as Record<string, unknown>;
+          invalid.mutate(receipt);
+          await completion.locator("textarea").fill(JSON.stringify(receipt));
+          await expect(completionButton, invalid.field).toBeDisabled();
+        }
+        await completion.locator("textarea").fill(validReceipt);
+      } else {
+        await expect(completion.locator("textarea")).toHaveCount(0);
+        await expect(completion).toContainText(english.ui.localProgressBoundary);
       }
-      await completion.locator("textarea").fill(validReceipt);
       await expect(completionButton).toBeEnabled();
       await completionButton.click();
       const values = await rootFor(page, id)
@@ -438,14 +527,28 @@ for (const definition of COURSES) {
     });
 
     test("critical quiz gating and receipt-bound capstone completion work without remote calls", async ({ page }) => {
+      await page.addInitScript((record: Readonly<Record<string, unknown>>) => {
+        localStorage.setItem("ae.progress", JSON.stringify(record));
+      }, completedModuleProgress(definition));
       await expectSuccessfulNavigation(page, pathFor("en", id));
       const remoteRequests = await externalRequestsDuring(page, async () => {
         const materialised = materialiseCourseKit(definition, "en");
-        const drawnQuestions = drawCourseKitQuizQuestions(
-          materialised.quiz.questions,
-          materialised.quiz.drawCount,
-          `${id}:${definition.quiz.version}`,
-        );
+        const quizSeed = `${id}:${definition.quiz.version}`;
+        const initialForm = materialised.quiz.forms
+          ? selectCourseKitQuizForm(materialised.quiz.forms, quizSeed)
+          : null;
+        const drawnQuestions = materialised.quiz.forms
+          ? selectCourseKitQuizFormQuestions(
+              materialised.quiz.questions,
+              materialised.quiz.forms,
+              quizSeed,
+              initialForm?.id,
+            )
+          : drawCourseKitQuizQuestions(
+              materialised.quiz.questions,
+              materialised.quiz.drawCount,
+              quizSeed,
+            );
         const firstCritical = drawnQuestions.findIndex((question) => question.critical);
         expect(firstCritical).toBeGreaterThanOrEqual(0);
         const fieldsets = page.locator("#final-assessment fieldset");
@@ -464,16 +567,39 @@ for (const definition of COURSES) {
         const quizStatus = page.locator("#final-assessment [role=status]");
         await expect(quizStatus).toContainText(english.ui.quizNotPassed);
         await expect(quizStatus).toContainText(english.ui.criticalGateFailed);
+        await expect(fieldsets.locator('input[type="radio"]').first()).toBeDisabled();
 
         await page
           .locator("#final-assessment")
           .getByRole("button", { name: english.ui.retryQuiz })
           .click();
-        for (let index = 0; index < drawnQuestions.length; index += 1) {
+        const retryForm = materialised.quiz.forms && initialForm
+          ? materialised.quiz.forms[
+              (materialised.quiz.forms.findIndex((form) => form.id === initialForm.id) + 1)
+                % materialised.quiz.forms.length
+            ]
+          : null;
+        const retryQuestions = materialised.quiz.forms
+          ? selectCourseKitQuizFormQuestions(
+              materialised.quiz.questions,
+              materialised.quiz.forms,
+              quizSeed,
+              retryForm?.id,
+            )
+          : drawnQuestions;
+        if (initialForm && retryForm) {
+          expect(retryForm.id).not.toBe(initialForm.id);
+          await expect(page.locator("#final-assessment form")).toHaveAttribute(
+            "data-quiz-form",
+            retryForm.id,
+          );
+        }
+        await expect(fieldsets).toHaveCount(retryQuestions.length);
+        for (let index = 0; index < retryQuestions.length; index += 1) {
           await fieldsets
             .nth(index)
             .locator('input[type="radio"]')
-            .nth(drawnQuestions[index].correctIndex)
+            .nth(retryQuestions[index].correctIndex)
             .check();
         }
         await page
@@ -526,17 +652,17 @@ for (const definition of COURSES) {
       expect(remoteRequests).toEqual([]);
     });
 
-    test("static pages make no unauthorised remote requests and have no serious axe violations", async ({ page }) => {
+    test("static pages make no unauthorised remote requests and have no WCAG-tagged axe violations", async ({ page }) => {
       const dashboard = pathFor("en", id);
       expect(await externalRequests(page, dashboard)).toEqual([]);
-      expect(await seriousAxeViolations(page), dashboard).toEqual([]);
+      expect(await allWcagAxeViolations(page), dashboard).toEqual([]);
 
       const modulePath = pathFor("en", id, modules[0].slug);
       expect(await externalRequests(page, modulePath)).toEqual([]);
-      expect(await seriousAxeViolations(page), `${dashboard}${modules[0].slug}/`).toEqual([]);
+      expect(await allWcagAxeViolations(page), `${dashboard}${modules[0].slug}/`).toEqual([]);
 
       await expectSuccessfulNavigation(page, pathFor("ar", id));
-      expect(await seriousAxeViolations(page), pathFor("ar", id)).toEqual([]);
+      expect(await allWcagAxeViolations(page), pathFor("ar", id)).toEqual([]);
     });
   });
 }
@@ -588,13 +714,18 @@ test("all six courses keep in-memory state authoritative when storage writes fai
     await expect(checkpointSection.getByRole("status")).toContainText(
       definition.copy.en.ui.savedInMemory,
     );
-    await page.getByLabel(definition.copy.en.ui.evidenceReceiptLabel).fill(
-      evidenceReceipt({
-        definition,
-        artifactId: firstModule.slug,
-        kind: "module-artifact",
-      }),
-    );
+    const firstContract = createCourseKitProgressConfig(definition)
+      .moduleContracts.find((contract) => contract.moduleSlug === firstModule.slug)!;
+    if (firstContract.completionMode === "validated-artifact") {
+      await page.getByLabel(definition.copy.en.ui.evidenceReceiptLabel).fill(
+        moduleEvidenceReceipt({
+          definition,
+          moduleSlug: firstModule.slug,
+        }).receipt,
+      );
+    } else {
+      await expect(page.getByLabel(definition.copy.en.ui.evidenceReceiptLabel)).toHaveCount(0);
+    }
     const markComplete = page.getByRole("button", {
       name: definition.copy.en.ui.markModuleComplete,
     });

@@ -1,80 +1,50 @@
 {
-  "schemaVersion": "course-fixture-provenance.v1",
+  "schemaVersion": "course-fixture-provenance.v2",
   "courseId": "deep-learning",
-  "version": "2026.08.26-v1",
-  "createdOn": "2026-08-26",
-  "authorship": "Original synthetic educational fixture authored for the Agentic Learning course repository.",
-  "method": "Twelve 4x4 arrays were manually specified from two line-generating concepts, then assigned a fixed train/validation/test split and descriptive synthetic slices. The offline lab, hand-coded 16-4-1 neural experiment, rule baseline, transformations, ablation, validator, templates, and destructive tests were authored for this repository. No external dataset, framework, model, notebook, assignment, screenshot, or generative-model output was used.",
-  "randomness": {
-    "declaredSeed": 20260826,
-    "use": "Identifier for the authored fixture contract; the checked-in values and split are authoritative and require no random generation."
-  },
+  "version": "2026.08.28-v2",
+  "createdOn": "2026-08-28",
+  "authorship": "Original synthetic educational fixtures, runners, validators, schemas, tests, templates, and guides authored for the aicourse.top repository.",
+  "method": "The foundation fixture contains twelve manually authored 4x4 line grids. The visual fixture declares an original deterministic 8x8 line-pattern generator and inverted-contrast transfer domain. The sequence fixture declares two original symbolic cycles and four short multilingual tokenizer probes. The PyTorch runner executes tiny CPU models against only those fixtures. No personal data, scraped corpus, external dataset, pretrained model weights, paper figure, notebook, assignment, or third-party source code is redistributed.",
   "rights": {
     "containsPersonalData": false,
     "containsThirdPartyData": false,
     "containsRealMeasurements": false,
-    "reuse": "May be used under the repository licence; see NOTICE.md."
+    "publication_eligible": true,
+    "reuse": "Original repository material; reuse is governed by the repository licence. Linked PyTorch, NumPy, papers, and documentation retain their own terms."
+  },
+  "humanReview": {
+    "en": "pending",
+    "zh-Hans": "pending",
+    "boundary": "Automated generation and validation do not satisfy the named-human terminology, semantic-fidelity, or technical-accuracy release review."
   },
   "files": [
-    {
-      "path": "fixtures/neural-training-fixture-v1.json",
-      "sha256": "70a3a7c10ef24a15df050434f34350e7283eba1be145ee2bedb5cb34e7d5cb6a",
-      "role": "Fixed synthetic records, split policy, and claim boundary"
-    },
-    {
-      "path": "fixtures/neural-training-fixture-v1.schema.json",
-      "sha256": "cfd032a6bed0f5c97d138aabdb16d813b72251bd565c76ae883790182b1029f8",
-      "role": "JSON Schema 2020-12 structural contract"
-    },
-    {
-      "path": "lab/README.md",
-      "sha256": "261441afbd07a686c6759e31fd751c006281fc63e9b5a18adfe8691d36b46726",
-      "role": "Offline run, review, and claim-boundary guide"
-    },
-    {
-      "path": "lab/README.zh-Hans.md",
-      "sha256": "0d8fac8da5dbc1c871102da2cfbd9c6f230cefe1b79c91ff023617fa8dd17b38",
-      "role": "Simplified Chinese offline run, review, and claim-boundary guide; human language review remains pending"
-    },
-    {
-      "path": "lab/capstone.schema.json",
-      "sha256": "40ec8054a0223c57f7b0167e9acc4b15a66860acadc6d8af3cc189e1e10195a6",
-      "role": "Eight-artifact capstone structure and validator binding"
-    },
-    {
-      "path": "lab/environment.lock.json",
-      "sha256": "af6c5e97c450119cd154b2afee657e0dc743e60e9a265b402968a7f842620053",
-      "role": "Exact reference runtime, seed, architecture, and budget lock"
-    },
-    {
-      "path": "lab/requirements.lock",
-      "sha256": "477a177209358b2f4787f6bbfe996e5a034c528b46b5e1dea82586029dc227ad",
-      "role": "Zero third-party dependency declaration"
-    },
-    {
-      "path": "lab/run_experiment.py",
-      "sha256": "921f8d94e766da096da447dcdee7aca85cb0298383685722b6a790eb7209e814",
-      "role": "Deterministic CPU baseline and neural-training evidence generator"
-    },
-    {
-      "path": "lab/submission.template.json",
-      "sha256": "1c73ef4f82d2d1d798ec3205f300a247723b88e2b05142b58b4af4dba89e62ce",
-      "role": "Incomplete eight-artifact authoring template"
-    },
-    {
-      "path": "lab/test_lab.py",
-      "sha256": "5ce9cd78fe44bff42896b1db32e547f6e5a574ccd8943fd1524e83983f1d3869",
-      "role": "Clean-run, positive, and five-mutation negative test"
-    },
-    {
-      "path": "lab/validate.py",
-      "sha256": "5fb21a75a5b83d1221cd8d8fd40e52d51af7c3218c76d99da8600f8100670e3d",
-      "role": "Course-bound numerical, artifact, output-hash, and authority validator"
-    }
+    {"path":"fixtures/neural-training-fixture-v1.json","sha256":"c5e38f16eeb4eab44693f483f06100808848f918251c3932ca574439194deb78","role":"M1-M4 foundation reference records"},
+    {"path":"fixtures/neural-training-fixture-v1.schema.json","sha256":"9ace10751c0758db4a11ad1f3b65b702cf54330ed0b7b916ccce16376cee8787","role":"Foundation fixture schema"},
+    {"path":"fixtures/sequences-v2.json","sha256":"c0d509ceeb0718d22a7667e9eacb5480fe370ebc157eeeedd1d174a2566f964f","role":"M7-M11 sequence, Transformer, tokenizer, and LoRA fixture"},
+    {"path":"fixtures/visual-patterns-v2.json","sha256":"728d92ed2e7805fa838414f374249650caaf197baa9874d0c947f64fdb4f7f73","role":"M5-M6 CNN, residual, and transfer fixture"},
+    {"path":"lab/README.md","sha256":"5fa2aaf5959e2d97fbcec40a68c0b55f032f045e35cfec9854baee25e6a4ff6c","role":"English offline lab, receipt-output, and claim-boundary guide"},
+    {"path":"lab/README.zh-Hans.md","sha256":"35a4eef5d8400ef7f18f153acad261fe46cbd9836449a792d5225a522f4d1177","role":"Simplified Chinese lab and receipt-output guide; named human review remains pending"},
+    {"path":"lab/capstone.schema.json","sha256":"f739aba5f9dce5ae510dc1cd21548ba589b5f91495f634e8065996c8346689a4","role":"Exact eight-artifact Transformer-backed learner-final schema"},
+    {"path":"lab/environment.lock.json","sha256":"3724fef5ad585ab0abb31526f19cffe8d276cd92eee4c8969a8cc5670e841bc7","role":"Platform-scoped Python, PyTorch, NumPy, wheel, dependency, and performance lock"},
+    {"path":"lab/readiness.reference.json","sha256":"ee3f34eae3610f913b0debd36a0db9ab238f014a1712936bdf4bbfd67a38acc3","role":"Passing non-milestone readiness reference"},
+    {"path":"lab/readiness.schema.json","sha256":"2920a3bfa6ebb220fd9bf69071a1867f125d8a12664ab9e5a15796ee089a7f28","role":"Readiness diagnostic schema"},
+    {"path":"lab/readiness.template.json","sha256":"723ea7e834b01ea0346218a6836d6acfad700787d92e91a11ab669ca806f41e2","role":"Incomplete learner readiness template that routes to bridge"},
+    {"path":"lab/reference.schema.json","sha256":"52b2da753e6ecef8abd1996c5753d4371320274c26d703f8fc3f92ea867490bb","role":"Non-credential foundation-reference schema"},
+    {"path":"lab/requirements.lock","sha256":"1c5f884c05280bda8f6fc8354f6f05afdf5f19f98c8677c0918d83c61aca8ea8","role":"macOS arm64 reference wheel hashes and exact observed dependency tree"},
+    {"path":"lab/run_experiment.py","sha256":"aa72975088f2402a23c863072c9bc17a256bb303efd681d7fb0899b17e7bae0f","role":"Standard-library M1-M4 foundation reference generator"},
+    {"path":"lab/run_modules.py","sha256":"6e5aa25669a77d27bcc594fe548cbdcad7fd5c7f0ab969d2a32fdc661436512c","role":"Executable PyTorch evidence generator for all twelve modules"},
+    {"path":"lab/submission.template.json","sha256":"99fe8c788948803ebe0e558ae14099cd84759a6d254814aa3aea260ed930fd60","role":"Intentionally incomplete exact-field learner-final authoring template"},
+    {"path":"lab/test_lab.py","sha256":"499246880ae9a86b084b4239be98e4832bca2a0421c73654ce8b23bb1d56ca4d","role":"Locked-runtime test-suite launcher"},
+    {"path":"lab/test_lab_v2.py","sha256":"d438b7261913ccc62384c730945e482bfa31111b65dddc1f7376837e04713f06","role":"Twelve-module, capstone capability mutations, no-train, and browser-receipt round-trip tests"},
+    {"path":"lab/validate.py","sha256":"e37953c568eaae9b87b03f98278b448764fdb17c769544808c1b345a42301e97","role":"Compatibility dispatcher that preserves reference/learner separation"},
+    {"path":"lab/validate_capstone.py","sha256":"79e518f6d89eeee15ef52d48cf1b1f05362704d15ee2820bc12be55e4803956f","role":"Learner-final semantic validator and exact eight-receipt emitter; grants no training or deployment authority"},
+    {"path":"lab/validate_module.py","sha256":"a540aeb4d73ae70b51ee2f4df68409ce4bc61aafdeea0fc9fe95d29e3309c9b7","role":"Module-specific recomputation and receipt validator"},
+    {"path":"lab/validate_readiness.py","sha256":"dc0593c7e49868ea5de67b9de2ef8b8153c789bc25eaddc3295cad18addf7d7f","role":"Non-milestone readiness/bridge validator"},
+    {"path":"lab/validate_reference.py","sha256":"5b4e5bd6dde5437055398b37924c3a49b16e6021302e2921387e9842163857e1","role":"Foundation reference validator; returns REFERENCE_PASS only"}
   ],
   "verification": {
     "algorithm": "SHA-256",
     "command": "shasum -a 256 -c checksums.sha256",
-    "boundary": "A matching digest proves byte identity with this package version; it does not establish model quality, safety, rights outside this original package, deterministic floating-point execution, or deployment fitness."
+    "boundary": "Matching digests establish byte identity with this package version. They do not establish model quality, reviewer identity, external rights, cross-platform floating-point equality, safety, or deployment fitness."
   }
 }

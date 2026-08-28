@@ -6,12 +6,12 @@ import {
 } from "../course-kit/types";
 import type { DeepLearningSourceId } from "./sources";
 
-export const DEEP_LEARNING_CAPSTONE_VERSION = "2026.08.26-capstone-v1";
+export const DEEP_LEARNING_CAPSTONE_VERSION = "2026.08.28-capstone-v2";
 
 export const DEEP_LEARNING_CAPSTONE_ARTIFACTS = [
   {
     id: "environment-lock",
-    sourceIds: ["dl05-training-reproducibility"],
+    sourceIds: ["dl03-pytorch-training-state-2-13"],
     copy: {
       en: {
         title: "Environment and data lock",
@@ -26,82 +26,82 @@ export const DEEP_LEARNING_CAPSTONE_ARTIFACTS = [
     },
   },
   {
-    id: "training-log",
-    sourceIds: ["dl03-optimisation-adam", "dl05-training-reproducibility"],
+    id: "run-ledger",
+    sourceIds: ["dl03-pytorch-training-state-2-13", "dl04-pytorch-optim-2-13"],
     copy: {
       en: {
-        title: "Complete training log",
+        title: "Three-or-more-seed run ledger",
         description:
-          "Every attempted run, configuration, split receipt, metric definition, train/evaluation mode, checkpoint, failure, stop reason, elapsed time and reviewer-visible exception—not only the best run.",
+          "At least three declared seeds with every attempted run, configuration, split receipt, metric definition, train/evaluation mode, checkpoint, stop reason, elapsed time and linked module-artifact receipt—not only the best run.",
       },
       zhHans: {
-        title: "完整训练日志",
+        title: "至少三种子的运行台账",
         description:
-          "记录每次尝试的运行、配置、切分收据、指标定义、训练/评估模式、checkpoint、失败、停止理由、耗时与审查者可见异常，而不只是最佳运行。",
+          "记录至少三个声明种子的每次运行、配置、切分收据、指标定义、训练/评估模式、checkpoint、停止理由、耗时及连接的模块产物收据，而不只是最佳运行。",
       },
     },
   },
   {
-    id: "cost-energy-record",
-    sourceIds: ["dl05-training-reproducibility", "ra12-model-cards"],
+    id: "failure-ledger",
+    sourceIds: ["dl03-pytorch-training-state-2-13", "ra12-model-cards"],
     copy: {
       en: {
-        title: "Compute, cost, and energy proxy record",
+        title: "Failure and recovery ledger",
         description:
-          "Declared measurement boundary, hardware-hours, wall time, peak memory, run count, failed-run cost, monetary estimate, energy proxy, uncertainty, and the decisions those measurements did and did not inform.",
+          "Every failed, interrupted, rejected, or excluded run with seed, observed symptom, triggered invariant, retained evidence, recovery action, disposition, owner, and link back to the run ledger.",
+      },
+      zhHans: {
+        title: "失败与恢复台账",
+        description:
+          "记录每次失败、中断、拒绝或排除运行的种子、现象、触发 invariant、保留证据、恢复动作、处置、负责人及其 run ledger 链接。",
+      },
+    },
+  },
+  {
+    id: "resource-record",
+    sourceIds: ["dl03-pytorch-training-state-2-13", "ra12-model-cards"],
+    copy: {
+      en: {
+        title: "Compute, cost, and energy-proxy record",
+        description:
+          "Declared measurement boundary, hardware and runtime, wall time, peak memory, run and failed-run counts, monetary estimate, energy proxy, uncertainty, and decisions those measurements do and do not inform.",
       },
       zhHans: {
         title: "计算、成本与能耗代理记录",
         description:
-          "声明测量边界、硬件小时、墙钟时间、峰值内存、运行次数、失败运行成本、金额估计、能耗代理、不确定性，以及这些测量支持和不支持的决策。",
+          "声明测量边界、硬件与 runtime、墙钟时间、峰值内存、运行与失败运行数、金额估计、能耗代理、不确定性，以及测量支持和不支持的决定。",
       },
     },
   },
   {
-    id: "error-slices",
-    sourceIds: ["dl13-robustness", "ra12-model-cards"],
+    id: "evaluation-slices",
+    sourceIds: ["dl13-robustness", "dl12-calibration-paper", "ra12-model-cards"],
     copy: {
       en: {
-        title: "Error and robustness slices",
+        title: "Evaluation, calibration, and robustness slices",
         description:
-          "Clean, corrupted and subgroup-like synthetic slices with denominators, uncertainty, representative errors, transformation receipts, selection rationale, missing tests, and explicit limits on generalisation.",
+          "Clean, corrupted, calibration, error, and synthetic subgroup-like slices with denominators, uncertainty, representative errors, transformation receipts, one controlled ablation, missing tests, and explicit generalisation limits.",
       },
       zhHans: {
-        title: "错误与鲁棒性切片",
+        title: "评估、校准与鲁棒性切片",
         description:
-          "包含分母、不确定性、代表性错误、转换收据、选择理由、未做测试与明确泛化限制的干净、corruption 及合成类子群切片。",
+          "包含分母、不确定性、代表性错误、变换收据、一项受控消融、未做测试与显式泛化限制的干净、corruption、校准、错误及合成类子群切片。",
       },
     },
   },
   {
-    id: "ablation",
-    sourceIds: ["dl03-optimisation-adam", "dl04-normalisation-regularisation"],
+    id: "training-dossier",
+    sourceIds: ["ra12-model-cards", "dl13-robustness", "dl12-calibration-paper"],
     copy: {
       en: {
-        title: "Controlled ablation",
+        title: "Course-local training dossier",
         description:
-          "A predeclared, budget-matched comparison that changes one factor at a time, preserves all run receipts, reports multiple seeds and uncertainty, and refuses causal claims beyond the tested intervention.",
+          "A course-local dossier—not a certification—covering purpose, architecture, data and rights, optimization, evaluation, resources, intended and excluded uses, owners, version, and claims linked to the exact run/failure/module receipts.",
       },
       zhHans: {
-        title: "受控消融实验",
+        title: "课程本地训练档案",
         description:
-          "预先声明、预算匹配、一次只改变一个因素的比较；保留全部运行收据，报告多种子与不确定性，并拒绝超出已测试干预的因果声明。",
-      },
-    },
-  },
-  {
-    id: "training-card",
-    sourceIds: ["ra12-model-cards", "dl13-robustness"],
-    copy: {
-      en: {
-        title: "Training card",
-        description:
-          "Model purpose, architecture, data and rights boundary, optimisation, evaluation conditions, slice results, compute, intended and excluded uses, ethical considerations, owners, version and evidence-linked claims.",
-      },
-      zhHans: {
-        title: "训练卡",
-        description:
-          "模型目的、架构、数据与权利边界、优化方法、评估条件、切片结果、计算资源、预期与排除用途、伦理考虑、负责人、版本及证据链接声明。",
+          "这是课程本地档案而非认证，覆盖目的、架构、数据与权利、优化、评估、资源、预期/排除用途、负责人、版本，以及连接确切 run/failure/module 收据的声明。",
       },
     },
   },
@@ -122,18 +122,18 @@ export const DEEP_LEARNING_CAPSTONE_ARTIFACTS = [
     },
   },
   {
-    id: "reproducibility-receipt",
-    sourceIds: ["dl05-training-reproducibility"],
+    id: "reviewer-decision",
+    sourceIds: ["dl03-pytorch-training-state-2-13", "ra12-model-cards"],
     copy: {
       en: {
-        title: "Independent reproducibility receipt",
+        title: "Named reviewer challenge and no-deploy decision",
         description:
-          "A clean-room rerun by a named reviewer with command transcript, input and output hashes, tolerated numerical differences, failed checks, unresolved platform variance, decision and signed date.",
+          "A named human review with independent challenge, command or evidence transcript, input/output hashes, failed checks, unresolved variance, remediation, explicit no-deploy or stricter decision, rationale, and signed date.",
       },
       zhHans: {
-        title: "独立可复现收据",
+        title: "具名审查挑战与 no-deploy 决定",
         description:
-          "由具名审查者完成的 clean-room 重跑，包含命令记录、输入输出哈希、允许数值差异、失败检查、未解决平台差异、决定与签署日期。",
+          "具名人类审查包含独立 challenge、命令或证据记录、输入输出哈希、失败检查、未解决差异、修复、显式 no-deploy 或更严格决定、理由与签署日期。",
       },
     },
   },
@@ -156,11 +156,18 @@ export const DEEP_LEARNING_CAPSTONE = {
     DeepLearningSourceId
   >["artifacts"],
   evidenceContract: {
-    schemaId: "aicourse.deep-learning.capstone.v1",
+    schemaId: "aicourse.deep-learning.capstone.v2",
     schemaPath: "/courses/deep-learning/lab/capstone.schema.json",
-    validatorId: "aicourse.deep-learning.validator.v1",
-    validatorPath: "/courses/deep-learning/lab/validate.py",
-    validatorCommand: "python public/courses/deep-learning/lab/validate.py --package <artifact-package.json>",
+    validatorId: "aicourse.deep-learning.validator.v2",
+    validatorPath: "/courses/deep-learning/lab/validate_capstone.py",
+    validatorCommand: "python3 public/courses/deep-learning/lab/validate_capstone.py --package <learner-package.json> --receipt-dir <receipt-directory>",
+  },
+  referenceEvidenceContract: {
+    schemaId: "aicourse.deep-learning.reference-package.v2",
+    schemaPath: "/courses/deep-learning/lab/reference.schema.json",
+    validatorId: "aicourse.deep-learning.reference-validator.v1",
+    validatorPath: "/courses/deep-learning/lab/validate_reference.py",
+    validatorCommand: "python3 public/courses/deep-learning/lab/validate_reference.py --package <reference-package.json>",
   },
 } satisfies CourseKitCapstone<
   DeepLearningCapstoneArtifactId,

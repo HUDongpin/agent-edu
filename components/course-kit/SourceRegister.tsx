@@ -50,7 +50,7 @@ export function SourceRegister({
                     <span>{labels.sourceKindLabels[source.kind]}</span>
                     <span>{labels.sourceStabilityLabels[source.stability]}</span>
                     <span>
-                      {labels.accessedOn}: {source.accessedOn}
+                      {labels.accessedOn}: {source.accessedAt ?? source.accessedOn}
                     </span>
                     {source.jurisdiction ? (
                       <span

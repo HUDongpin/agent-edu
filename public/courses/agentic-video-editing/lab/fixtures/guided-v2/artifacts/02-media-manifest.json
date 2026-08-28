@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.media-ingest-provenance.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "media-ingest-provenance",
+  "artifactId": "media-manifest",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "creative-brief": "56f9d8437088141687848592b6e1bbfa6534735d58871c5fb6c37a6542373d0b"
+  },
+  "payload": {
+    "fixtureBoundary": "course-owned-synthetic",
+    "assets": [
+      {
+        "assetId": "camera-a",
+        "relativePath": "assets/camera-a.mp4",
+        "sha256": "df2a13f8c4c1aaf3d52ed3af2d804da662ef4be2455033ec103b3387b0f848bf",
+        "byteLength": 562246,
+        "mediaKind": "video/mp4",
+        "owner": "AI Course fixture governance team",
+        "rightsStatus": "approved-for-declared-use",
+        "consentStatus": "not-applicable-synthetic",
+        "intakeDecision": "eligible-for-declared-edit"
+      },
+      {
+        "assetId": "room-audio",
+        "relativePath": "assets/room-audio.wav",
+        "sha256": "2fb40c54474612235e576ce2df973b163279be5eba7ea18feefed55ddd83157b",
+        "byteLength": 5765878,
+        "mediaKind": "audio/wav",
+        "owner": "AI Course fixture governance team",
+        "rightsStatus": "approved-for-declared-use",
+        "consentStatus": "not-applicable-synthetic",
+        "intakeDecision": "eligible-for-declared-edit"
+      }
+    ],
+    "sourceRootsReadOnly": true,
+    "overwriteOriginals": false,
+    "fixityBaseline": "sha256-byte-identity-not-authenticity",
+    "rightsDecision": {
+      "owner": "AI Course fixture governance team",
+      "status": "approved-for-declared-use",
+      "decidedAt": "2026-08-28T09:00:00+08:00"
+    }
+  },
+  "limitations": [
+    "Read-only paths and matching hashes establish byte identity only against this course baseline.",
+    "The playable source is course-authored synthetic media; fixity does not prove authenticity, ownership truth, consent, or C2PA provenance."
+  ]
+}

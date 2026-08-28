@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "aicourse.ffprobe-receipt.v2",
+  "assetId": "room-audio",
+  "assetPath": "assets/room-audio.wav",
+  "assetSha256": "2fb40c54474612235e576ce2df973b163279be5eba7ea18feefed55ddd83157b",
+  "tool": "ffprobe",
+  "toolVersion": "8.1.1",
+  "container": "wav",
+  "durationSeconds": 60.06,
+  "durationFrames": 1800,
+  "video": null,
+  "audio": {
+    "codec": "pcm_s16le",
+    "sampleRate": 48000,
+    "channels": 1
+  },
+  "projectTimebase": "30000/1001",
+  "networkUsed": false
+}

@@ -3,12 +3,17 @@
 import { useMemo, useState } from "react";
 import {
   courseKitQuizBestKey,
+  courseKitQuizCurrentScoreKey,
   courseKitQuizDraftKey,
+  courseKitQuizFormKey,
+  courseKitQuizPassedKey,
   courseKitQuizVersionKey,
 } from "@/lib/course-kit/progress";
 import {
   drawCourseKitQuizQuestions,
   gradeCourseKitQuiz,
+  selectCourseKitQuizForm,
+  selectCourseKitQuizFormQuestions,
   type CourseKitQuizGrade,
 } from "@/lib/course-kit/quiz";
 import type {
@@ -21,6 +26,7 @@ import { formatCourseKitCopy } from "@/lib/course-kit/ui-copy";
 import {
   clearCourseKitQuizDraft,
   recordCourseKitQuizAttempt,
+  setCourseKitQuizForm,
   setCourseKitQuizDraft,
   useCourseKitProgress,
 } from "./progress-store";
@@ -52,16 +58,37 @@ export function CourseQuiz({
   readonly config: CourseKitProgressClientConfig;
   readonly labels: CourseKitUiCopy;
 }) {
+  const { record } = useCourseKitProgress(config);
+  const storedFormId = typeof record[courseKitQuizFormKey(config.courseId)] === "string"
+    ? String(record[courseKitQuizFormKey(config.courseId)])
+    : undefined;
+  const [activeFormId, setActiveFormId] = useState<string | null>(null);
+  const selectedForm = useMemo(
+    () => quiz.forms
+      ? selectCourseKitQuizForm(
+          quiz.forms,
+          `${config.courseId}:${quiz.version}`,
+          activeFormId ?? storedFormId,
+        )
+      : null,
+    [activeFormId, config.courseId, quiz.forms, quiz.version, storedFormId],
+  );
   const selectedQuestions = useMemo(
     () =>
-      drawCourseKitQuizQuestions(
-        quiz.questions,
-        quiz.drawCount,
-        `${config.courseId}:${quiz.version}`,
-      ),
-    [config.courseId, quiz.drawCount, quiz.questions, quiz.version],
+      quiz.forms
+        ? selectCourseKitQuizFormQuestions(
+            quiz.questions,
+            quiz.forms,
+            `${config.courseId}:${quiz.version}`,
+            selectedForm?.id,
+          )
+        : drawCourseKitQuizQuestions(
+            quiz.questions,
+            quiz.drawCount,
+            `${config.courseId}:${quiz.version}`,
+          ),
+    [config.courseId, quiz.drawCount, quiz.forms, quiz.questions, quiz.version, selectedForm?.id],
   );
-  const { record } = useCourseKitProgress(config);
   const allowedQuestionIds = useMemo(
     () => new Set(selectedQuestions.map((question) => question.id)),
     [selectedQuestions],
@@ -87,6 +114,12 @@ export function CourseQuiz({
   const best = currentQuiz
     ? record[courseKitQuizBestKey(config.courseId)]
     : undefined;
+  const currentScore = currentQuiz
+    ? record[courseKitQuizCurrentScoreKey(config.courseId)]
+    : undefined;
+  const currentPassed = currentQuiz
+    ? record[courseKitQuizPassedKey(config.courseId)] === true
+    : false;
 
   return (
     <section
@@ -138,9 +171,11 @@ export function CourseQuiz({
               config,
               nextGrade.score,
               nextGrade.passed,
+              selectedForm?.id,
             ),
           );
         }}
+        data-quiz-form={selectedForm?.id}
       >
         <ol className={styles.quizQuestions}>
           {selectedQuestions.map((question, questionIndex) => {
@@ -174,6 +209,7 @@ export function CourseQuiz({
                           name={`${config.courseId}-${question.id}`}
                           value={optionIndex}
                           checked={selected === index}
+                          disabled={grade !== null}
                           onChange={() => {
                             const nextAnswers = {
                               ...answers,
@@ -186,7 +222,11 @@ export function CourseQuiz({
                             setGrade(null);
                             setIncomplete(false);
                             setPersisted(
-                              setCourseKitQuizDraft(config, nextAnswers),
+                              setCourseKitQuizDraft(
+                                config,
+                                nextAnswers,
+                                selectedForm?.id,
+                              ),
                             );
                           }}
                         />
@@ -220,10 +260,19 @@ export function CourseQuiz({
               type="button"
               className={styles.secondaryButton}
               onClick={() => {
-                setAnswerDraft({ base: storedAnswersSignature, answers: {} });
+                let saved: boolean;
+                if (quiz.forms && selectedForm) {
+                  const currentIndex = quiz.forms.findIndex((form) => form.id === selectedForm.id);
+                  const nextForm = quiz.forms[(currentIndex + 1) % quiz.forms.length];
+                  setActiveFormId(nextForm.id);
+                  saved = setCourseKitQuizForm(config, nextForm.id);
+                } else {
+                  saved = clearCourseKitQuizDraft(config);
+                }
+                setAnswerDraft(null);
                 setGrade(null);
                 setIncomplete(false);
-                setPersisted(clearCourseKitQuizDraft(config));
+                setPersisted(saved);
               }}
             >
               {labels.retryQuiz}
@@ -270,6 +319,17 @@ export function CourseQuiz({
                 {persisted ? labels.savedInBrowser : labels.savedInMemory}
               </small>
             ) : null}
+          </div>
+        ) : typeof currentScore === "number" ? (
+          <div data-passed={currentPassed || undefined}>
+            <strong>{labels.currentAttempt}: {currentPassed ? labels.quizPassed : labels.quizNotPassed}</strong>
+            <p>
+              {formatCourseKitCopy(labels.scorePosition, {
+                score: currentScore,
+                total: quiz.drawCount,
+                required: quiz.passCount,
+              })}
+            </p>
           </div>
         ) : null}
       </div>

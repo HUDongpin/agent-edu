@@ -69,7 +69,7 @@ test("reported version and jurisdiction prose is translated without translating 
   const expectedTranslations = new Map([
     ["responsible-ai", "algorithmic-impact-assessment"],
     ["ai-research", "grade-book-current"],
-    ["deep-learning", "dl03-optimisation-adam"],
+    ["deep-learning", "dl04-pytorch-optim-2-13"],
     ["production-ai", "pa04-openlineage"],
   ]);
 

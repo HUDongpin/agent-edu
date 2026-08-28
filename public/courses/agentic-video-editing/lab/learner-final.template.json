@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.learner-final.v2",
+  "status": "template-incomplete-not-validatable",
+  "requiredLayout": {
+    "artifacts": [
+      "artifacts/01-creative-brief.json",
+      "artifacts/02-media-manifest.json",
+      "artifacts/02-clock-receipt.json",
+      "artifacts/03-transcript-shot-index.json",
+      "artifacts/04-candidate-segments.json",
+      "artifacts/05-edit-plan.json",
+      "artifacts/06-tool-permission-envelope.json",
+      "artifacts/07-render-receipt.json",
+      "artifacts/08-delivery-matrix.json",
+      "artifacts/08-variant-receipts.json",
+      "artifacts/09-verification-report.json"
+    ],
+    "capstone": [
+      "release-decision.json",
+      "production-dossier.json"
+    ]
+  },
+  "requirements": [
+    "Use a new learner projectId; never reuse course22-guided-video-project-v2.",
+    "Rename every M1-M9 artifactId to its explicit capstone-* semantic ID and rebuild every parent hash.",
+    "Use fresh media that the learner is authorized to use; exact guided-fixture asset or output bytes are ineligible.",
+    "Bind every source and output to runtime ffprobe evidence; JSON metadata, stubs, renamed non-media bytes, and declarations without matching streams are ineligible.",
+    "Select a real 1080x1920 MP4 final variant between 45 and 60 seconds and bind its exact SHA-256 across the variant receipt, M9 candidate review, and M10 release decision.",
+    "Keep credentials outside prompts, chats, repositories, artifacts, receipts, URLs, and logs.",
+    "Record the current v2 readiness pass, twelve evidence locators and hashes, learner attestation, and named human publish or do-not-publish decision."
+  ],
+  "completionEligible": false
+}

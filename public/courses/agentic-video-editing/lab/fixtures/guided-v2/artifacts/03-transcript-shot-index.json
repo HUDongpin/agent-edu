@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.transcripts-shots-index.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "transcripts-shots-index",
+  "artifactId": "transcript-shot-index",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "media-manifest": "392f84cec7e9d7a5bbb843a41b3fdb879aa20b527c8e14809cc10ba25b49f801",
+    "clock-receipt": "0e56dd7028b07fcefb4e0d28aaab65835df453d7d56f7b36df486421e66eee47"
+  },
+  "payload": {
+    "transcriptSegments": [
+      {
+        "segmentId": "transcript-introduction",
+        "assetId": "room-audio",
+        "startFrame": 0,
+        "endFrame": 750,
+        "speaker": "Fictional workshop guide",
+        "text": "This fictional workshop demonstrates a careful repair sequence for local instructional review.",
+        "confidence": 1,
+        "reviewState": "human-reviewed"
+      },
+      {
+        "segmentId": "transcript-safety",
+        "assetId": "room-audio",
+        "startFrame": 900,
+        "endFrame": 1650,
+        "speaker": "Fictional workshop guide",
+        "text": "Disconnect the imaginary tool before the fictional safety demonstration proceeds.",
+        "confidence": 1,
+        "reviewState": "human-reviewed"
+      },
+      {
+        "segmentId": "transcript-review",
+        "assetId": "room-audio",
+        "startFrame": 1650,
+        "endFrame": 1790,
+        "speaker": "Fictional workshop guide",
+        "text": "Review the sequence and its evidence before making any release decision.",
+        "confidence": 1,
+        "reviewState": "human-reviewed"
+      }
+    ],
+    "shots": [
+      {
+        "shotId": "shot-introduction",
+        "assetId": "camera-a",
+        "startFrame": 0,
+        "endFrame": 750,
+        "description": "A synthetic wide-shot label introduces the fictional workshop setting.",
+        "reviewState": "human-reviewed"
+      },
+      {
+        "shotId": "shot-safety",
+        "assetId": "camera-a",
+        "startFrame": 900,
+        "endFrame": 1650,
+        "description": "A synthetic close-up label marks the fictional safety demonstration.",
+        "reviewState": "human-reviewed"
+      },
+      {
+        "shotId": "shot-review",
+        "assetId": "camera-a",
+        "startFrame": 1650,
+        "endFrame": 1790,
+        "description": "A synthetic review card label requests a separate human decision.",
+        "reviewState": "human-reviewed"
+      }
+    ],
+    "evidenceIndex": [
+      {
+        "evidenceId": "evidence-introduction",
+        "assetId": "camera-a",
+        "startFrame": 0,
+        "endFrame": 750,
+        "kind": "shot",
+        "sourceLocator": "shot-introduction plus transcript-introduction"
+      },
+      {
+        "evidenceId": "evidence-safety",
+        "assetId": "camera-a",
+        "startFrame": 900,
+        "endFrame": 1650,
+        "kind": "shot",
+        "sourceLocator": "shot-safety plus transcript-safety"
+      },
+      {
+        "evidenceId": "evidence-review",
+        "assetId": "camera-a",
+        "startFrame": 1650,
+        "endFrame": 1790,
+        "kind": "human-note",
+        "sourceLocator": "shot-review plus transcript-review"
+      }
+    ],
+    "ambiguitiesRetained": []
+  },
+  "limitations": [
+    "All words, speakers, shots, and evidence locators are fictional course-authored metadata.",
+    "Index validation checks frame resolution and review state but cannot infer whether a real transcript preserves meaning."
+  ]
+}

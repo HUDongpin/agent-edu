@@ -48,6 +48,9 @@ export type CourseKitDirection = "ltr" | "rtl";
 export type CourseKitMilestoneCount = 12 | 14;
 export type CourseKitModuleCount = 10 | 12;
 export type CourseKitOptionIndex = 0 | 1 | 2 | 3;
+export type CourseKitModuleCompletionMode =
+  | "validated-artifact"
+  | "self-attested";
 
 export type CourseKitCriticalCategory =
   | "safety"
@@ -87,6 +90,11 @@ export type CourseKitTwelveModules<T> = readonly [
 ];
 
 export type CourseKitSourceKind =
+  | "open-standard"
+  | "legal-policy"
+  | "repository"
+  | "community-issue"
+  // Legacy aliases retained for Course Kit v1 definitions.
   | "normative-standard"
   | "law-or-regulation"
   | "official-guidance"
@@ -98,6 +106,9 @@ export type CourseKitSourceKind =
   | "social-post";
 
 export type CourseKitSourceStability =
+  | "immutable"
+  | "historical-snapshot"
+  // Legacy aliases retained for Course Kit v1 definitions.
   | "stable-concept"
   | "current-documentation"
   | "version-pinned"
@@ -107,7 +118,18 @@ export type CourseKitSourceStability =
 export type CourseKitEvidenceMode =
   | "source-grounded"
   | "instructional-synthesis"
+  | "course-policy"
   | "version-watch";
+
+export interface CourseKitImmutableSourceRef {
+  readonly kind:
+    | "versioned-url"
+    | "release-tag"
+    | "commit-sha"
+    | "content-sha256";
+  readonly value: string;
+  readonly url?: string;
+}
 
 export type CourseKitReuseStatus =
   | "link-and-paraphrase-only"
@@ -132,6 +154,16 @@ export interface CourseKitModuleManifest<
   readonly phaseId: PhaseId;
   readonly minutes: number;
   readonly sourceIds: CourseKitNonEmpty<SourceId>;
+  /** Explicit prerequisite edges. When omitted, legacy courses retain authored order only. */
+  readonly prerequisiteModuleSlugs?: readonly ModuleSlug[];
+  /** Stable artifact lineage produced and consumed by this module. */
+  readonly producesArtifactIds?: CourseKitNonEmpty<string>;
+  readonly consumesArtifactIds?: readonly string[];
+  /** Module-specific evidence contract. Deep Learning v2 requires every field. */
+  readonly artifactSchemaId?: string;
+  readonly validatorId?: string;
+  readonly validatorCommand?: string;
+  readonly completionMode?: CourseKitModuleCompletionMode;
 }
 
 interface CourseKitManifestBase<
@@ -181,9 +213,13 @@ export interface CourseKitSourceRecord<SourceId extends string = string> {
   /** Direct evidence URL; never only a search result or an aggregator record. */
   readonly url: string;
   readonly evidenceUrls: CourseKitNonEmpty<string>;
-  readonly accessedOn: string;
+  /** Preferred timestamp for Course Kit v2 evidence. */
+  readonly accessedAt?: string;
+  /** Legacy date-only access record retained for Course Kit v1 definitions. */
+  readonly accessedOn?: string;
   readonly publishedOn?: string;
   readonly revision?: string;
+  readonly immutableRef?: CourseKitImmutableSourceRef;
   readonly jurisdiction?: string;
   readonly kind: CourseKitSourceKind;
   readonly stability: CourseKitSourceStability;
@@ -304,6 +340,7 @@ export interface CourseKitUiCopy {
   readonly milestonePosition: string;
   readonly storageUnavailable: string;
   readonly browserStorageNote: string;
+  readonly localProgressBoundary: string;
   readonly resetProgress: string;
   readonly resetConfirm: string;
   readonly resetDone: string;
@@ -312,6 +349,7 @@ export interface CourseKitUiCopy {
   readonly markedModuleComplete: string;
   readonly moduleComplete: string;
   readonly completeCheckpointFirst: string;
+  readonly completePrerequisitesFirst: string;
   readonly evidenceReceiptLabel: string;
   readonly evidenceReceiptPlaceholder: string;
   readonly evidenceReceiptHelp: string;
@@ -329,6 +367,7 @@ export interface CourseKitUiCopy {
   readonly questionPosition: string;
   readonly scorePosition: string;
   readonly bestScorePosition: string;
+  readonly currentAttempt: string;
   readonly quizDraftRestored: string;
   readonly clearQuizDraft: string;
   readonly capstone: string;
@@ -348,6 +387,7 @@ export interface CourseKitUiCopy {
   readonly markCapstoneComplete: string;
   readonly capstoneComplete: string;
   readonly completeArtifactsFirst: string;
+  readonly completeCourseFirst: string;
   readonly previous: string;
   readonly next: string;
   readonly backToCourse: string;
@@ -425,19 +465,38 @@ export interface CourseKitCourseCopy<
 export interface CourseKitQuizQuestion<
   QuestionId extends string = string,
   SourceId extends string = string,
+  ModuleSlug extends string = string,
 > {
   readonly id: QuestionId;
+  /** Module whose competency this item assesses. */
+  readonly moduleSlug?: ModuleSlug;
   readonly correctIndex: CourseKitOptionIndex;
   readonly sourceIds: CourseKitNonEmpty<SourceId>;
   /** Every selected critical question must be correct in addition to the score gate. */
   readonly critical?: boolean;
   /** Machine-checkable reason this question is a fail-closed release item. */
   readonly criticalCategory?: CourseKitCriticalCategory;
+  /** Course-owned capability dimensions assessed by a computational or diagnostic item. */
+  readonly capabilityTags?: readonly string[];
+  /** Distinguishes capability evidence from recall or title-matching questions. */
+  readonly capabilityAssessmentMode?: "computational" | "diagnostic";
 }
+
+export interface CourseKitQuizForm<QuestionId extends string = string> {
+  readonly id: string;
+  readonly questionIds: readonly QuestionId[];
+}
+
+export type CourseKitThreeQuizForms<QuestionId extends string = string> = readonly [
+  CourseKitQuizForm<QuestionId>,
+  CourseKitQuizForm<QuestionId>,
+  CourseKitQuizForm<QuestionId>,
+];
 
 export interface CourseKitQuiz<
   QuestionId extends string = string,
   SourceId extends string = string,
+  ModuleSlug extends string = string,
 > {
   readonly schemaVersion: typeof COURSE_KIT_QUIZ_SCHEMA_VERSION;
   readonly version: string;
@@ -446,8 +505,10 @@ export interface CourseKitQuiz<
   /** Courses 16–18 require 10; Courses 19–21 require 13. */
   readonly passCount: 10 | 13;
   readonly questions: CourseKitNonEmpty<
-    CourseKitQuizQuestion<QuestionId, SourceId>
+    CourseKitQuizQuestion<QuestionId, SourceId, ModuleSlug>
   >;
+  /** Optional explicit, release-auditable assessment forms. */
+  readonly forms?: CourseKitThreeQuizForms<QuestionId>;
 }
 
 export interface CourseKitCapstoneArtifact<
@@ -483,6 +544,21 @@ export interface CourseKitResponsibleAiGate<
   ];
 }
 
+export interface CourseKitEvidenceContract {
+  readonly schemaId: string;
+  readonly schemaPath: string;
+  readonly validatorId: string;
+  readonly validatorPath: string;
+  readonly validatorCommand: string;
+}
+
+export interface CourseKitLocalizationReviewExtension {
+  readonly claimReviewStatus: "pending-human" | "approved-human";
+  readonly paragraphCopySha256: string;
+  readonly claimContractSha256: string;
+  readonly boundary: string;
+}
+
 export interface CourseKitCapstone<
   ArtifactId extends string = string,
   SourceId extends string = string,
@@ -493,13 +569,9 @@ export interface CourseKitCapstone<
   readonly artifacts: CourseKitNonEmpty<
     CourseKitCapstoneArtifact<ArtifactId, SourceId>
   >;
-  readonly evidenceContract: {
-    readonly schemaId: string;
-    readonly schemaPath: string;
-    readonly validatorId: string;
-    readonly validatorPath: string;
-    readonly validatorCommand: string;
-  };
+  readonly evidenceContract: CourseKitEvidenceContract;
+  /** Optional non-credential reference-package check, separate from learner completion. */
+  readonly referenceEvidenceContract?: CourseKitEvidenceContract;
   /** Required, fail-closed horizontal Course 16 acceptance mapping for Courses 17–21. */
   readonly responsibleAiGate?: CourseKitResponsibleAiGate<
     QuestionId,
@@ -553,8 +625,10 @@ export interface CourseKitDefinition<
     QuestionId,
     ArtifactId
   >;
-  readonly quiz: CourseKitQuiz<QuestionId, SourceId>;
+  readonly quiz: CourseKitQuiz<QuestionId, SourceId, ModuleSlug>;
   readonly capstone: CourseKitCapstone<ArtifactId, SourceId, QuestionId>;
+  /** Optional extra candidate bytes that named-human localization review must bind. */
+  readonly localizationReviewExtension?: CourseKitLocalizationReviewExtension;
 }
 
 export interface CourseKitLocaleResolution {
@@ -578,11 +652,25 @@ export interface CourseKitProgressClientConfig {
   readonly resetEvent: string;
   readonly milestoneCount: CourseKitMilestoneCount;
   readonly moduleSlugs: readonly string[];
+  readonly moduleContracts: readonly CourseKitModuleProgressContract[];
   readonly quizVersion: string;
   readonly capstoneVersion: string;
   readonly capstoneArtifactIds: readonly string[];
   readonly evidenceValidatorId: string;
   readonly evidenceValidatorCommandPrefix: string;
+}
+
+export interface CourseKitModuleProgressContract {
+  readonly moduleSlug: string;
+  readonly prerequisiteModuleSlugs: readonly string[];
+  readonly producesArtifactIds: readonly string[];
+  readonly consumesArtifactIds: readonly string[];
+  readonly artifactSchemaId: string;
+  readonly validatorId: string;
+  readonly validatorCommand: string;
+  readonly completionMode: CourseKitModuleCompletionMode;
+  /** False only for backwards-compatible Course Kit v1 definitions. */
+  readonly explicitlyDeclared: boolean;
 }
 
 export interface CourseKitMaterialisedPhase {
@@ -600,6 +688,13 @@ export interface CourseKitMaterialisedModule {
   readonly phaseTitle: string;
   readonly minutes: number;
   readonly sourceIds: readonly string[];
+  readonly prerequisiteModuleSlugs: readonly string[];
+  readonly producesArtifactIds: readonly string[];
+  readonly consumesArtifactIds: readonly string[];
+  readonly artifactSchemaId?: string;
+  readonly validatorId?: string;
+  readonly validatorCommand?: string;
+  readonly completionMode?: CourseKitModuleCompletionMode;
   readonly copy: CourseKitModuleCopy<string>;
   readonly previousSlug?: string;
   readonly nextSlug?: string;
@@ -607,6 +702,7 @@ export interface CourseKitMaterialisedModule {
 
 export interface CourseKitMaterialisedQuizQuestion {
   readonly id: string;
+  readonly moduleSlug?: string;
   readonly prompt: string;
   readonly options: CourseKitFourOptions;
   readonly correctIndex: CourseKitOptionIndex;
@@ -614,6 +710,8 @@ export interface CourseKitMaterialisedQuizQuestion {
   readonly sourceIds: readonly string[];
   readonly critical: boolean;
   readonly criticalCategory?: CourseKitCriticalCategory;
+  readonly capabilityTags?: readonly string[];
+  readonly capabilityAssessmentMode?: "computational" | "diagnostic";
 }
 
 export interface CourseKitMaterialisedCapstoneArtifact {
@@ -640,6 +738,7 @@ export interface CourseKitMaterialisedCourse {
     readonly title: string;
     readonly intro: string;
     readonly questions: readonly CourseKitMaterialisedQuizQuestion[];
+    readonly forms?: CourseKitThreeQuizForms<string>;
   };
   readonly capstone: {
     readonly version: string;
@@ -649,6 +748,7 @@ export interface CourseKitMaterialisedCourse {
     readonly responsibleAiRubric: readonly string[];
     readonly responsibleAiGate?: CourseKitResponsibleAiGate<string, string>;
     readonly evidenceContract: CourseKitCapstone["evidenceContract"];
+    readonly referenceEvidenceContract?: CourseKitCapstone["referenceEvidenceContract"];
     readonly attestation: string;
     readonly artifacts: readonly CourseKitMaterialisedCapstoneArtifact[];
   };

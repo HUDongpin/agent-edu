@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.verification-human-review.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "verification-human-review",
+  "artifactId": "verification-report",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "delivery-matrix": "c1284b8146c5a6d6ad572333dd322b8b90f0bc1afd7c544b36d3fe79e46170bd",
+    "variant-receipts": "7925f3a0ebe3a146e67252d572a3e312b4509ecc1c31e30c13f513a4e5eb9d78"
+  },
+  "payload": {
+    "verificationId": "guided-layered-verification-v2",
+    "artifactHashes": {
+      "deliveryMatrix": "c1284b8146c5a6d6ad572333dd322b8b90f0bc1afd7c544b36d3fe79e46170bd",
+      "variantReceipts": "7925f3a0ebe3a146e67252d572a3e312b4509ecc1c31e30c13f513a4e5eb9d78"
+    },
+    "technicalChecks": [
+      {
+        "checkId": "frame-boundary-check",
+        "status": "pass",
+        "evidence": "2 selected ranges stay inside their hash-bound source clocks; maximum declared source duration is 1800 frames."
+      },
+      {
+        "checkId": "timeline-arithmetic-check",
+        "status": "pass",
+        "evidence": "2 sequential selections produce exactly 1500 frames without overlap or gaps."
+      },
+      {
+        "checkId": "variant-fixity-check",
+        "status": "pass",
+        "evidence": "2 variant receipt hashes and ffprobe records match their actual playable output bytes."
+      }
+    ],
+    "semanticReview": {
+      "reviewerName": "Course fixture reviewer",
+      "reviewerRole": "Instructional meaning reviewer",
+      "reviewedAt": "2026-08-28T09:20:00+08:00",
+      "status": "pass",
+      "notes": "The selected fictional introduction and safety sequence retain the declared chronology in the exact playable candidate."
+    },
+    "accessibilityReview": {
+      "reviewerName": "Course fixture reviewer",
+      "reviewerRole": "Instructional accessibility reviewer",
+      "reviewedAt": "2026-08-28T09:22:00+08:00",
+      "status": "pass",
+      "notes": "The playable variants retain a named human caption review requirement, WebVTT sidecar, and scoped audio profile."
+    },
+    "rightsReview": {
+      "reviewerName": "Course fixture reviewer",
+      "reviewerRole": "Instructional rights reviewer",
+      "reviewedAt": "2026-08-28T09:24:00+08:00",
+      "status": "pass",
+      "notes": "Every referenced playable media byte is course-authored synthetic material approved for local instructional review only."
+    },
+    "repairLoop": {
+      "maximumAttempts": 2,
+      "attemptsUsed": 1,
+      "status": "closed"
+    },
+    "candidateReview": {
+      "reviewerName": "Course fixture reviewer",
+      "reviewerRole": "Instructional candidate review boundary",
+      "reviewedAt": "2026-08-28T09:26:00+08:00",
+      "disposition": "blocked-before-release-decision",
+      "reason": "The guided project demonstrates validation but never carries learner publication authority.",
+      "candidateSha256": "73ca60e9b1aec99dec0bd8e490e5852f7bded2ac8831bdb96a6283826255f6f8",
+      "notAgentGenerated": true
+    }
+  },
+  "limitations": [
+    "Layered checks cover real course-owned synthetic media but do not establish the quality, truth, rights, or legality of learner media.",
+    "M9 records candidate review only; the sole publish or do-not-publish decision belongs to a fresh learner M10 package."
+  ]
+}

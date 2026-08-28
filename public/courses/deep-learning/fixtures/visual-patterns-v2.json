@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "aicourse.deep-learning.visual-fixture.v2",
+  "fixtureId": "ae-deep-learning-visual-patterns-v2",
+  "createdOn": "2026-08-28",
+  "origin": "Original deterministic educational patterns authored for this course; no people, photographs, external datasets, or third-party measurements are present.",
+  "seed": 20260828,
+  "task": "Compare a linear classifier, a tiny convolutional network, and a residual convolutional network on shifted horizontal and vertical line patterns, then audit transfer to an inverted-contrast target domain.",
+  "generator": {
+    "height": 8,
+    "width": 8,
+    "labels": ["horizontal", "vertical"],
+    "sourceDomain": {"foreground": 1.0, "background": 0.0},
+    "targetDomain": {"foreground": 0.15, "background": 0.85},
+    "linePositions": [1, 2, 3, 4, 5, 6],
+    "noisePixelsPerRecord": 1,
+    "splitByPosition": {"train": [1, 2, 4, 5], "validation": [3], "test": [6]}
+  },
+  "transferContract": {
+    "courseOwnedCheckpoint": "visual-source-cnn-seed-20260828.pt",
+    "strategies": ["scratch", "frozen-feature-extractor", "partial-unfreeze", "full-fine-tune"],
+    "matchedBudget": "Same target-domain records, seeds, update count, loss, and evaluation slices for every strategy.",
+    "negativeTransferRule": "Do not claim transfer benefit unless the declared target metric improves over scratch under the matched contract."
+  },
+  "rights": {
+    "containsPersonalData": false,
+    "containsThirdPartyData": false,
+    "runtimeDownloadRequired": false,
+    "allowedUse": "Offline course mechanics and validator testing only."
+  }
+}

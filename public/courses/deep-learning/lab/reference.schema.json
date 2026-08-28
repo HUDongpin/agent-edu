@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/deep-learning/lab/reference.schema.json",
+  "title": "Course 20 v2 foundation reference package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "courseId", "courseVersion", "referenceVersion", "validatorId", "generatedAt", "mode", "capstoneEligible", "independentReviewComplete", "decision", "artifacts"],
+  "properties": {
+    "schemaVersion": {"const": "aicourse.deep-learning.reference-package.v2"},
+    "courseId": {"const": "deep-learning"},
+    "courseVersion": {"const": "2026.08.28-v2"},
+    "referenceVersion": {"const": "2026.08.28-reference-v2"},
+    "validatorId": {"const": "aicourse.deep-learning.reference-validator.v1"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "mode": {"const": "reference-example"},
+    "capstoneEligible": {"const": false},
+    "independentReviewComplete": {"const": false},
+    "decision": {"const": "no-deploy"},
+    "artifacts": {"type": "array", "minItems": 8, "maxItems": 8}
+  },
+  "x-schemaId": "aicourse.deep-learning.reference-package.v2",
+  "x-validatorId": "aicourse.deep-learning.reference-validator.v1",
+  "x-capstoneEligible": false
+}

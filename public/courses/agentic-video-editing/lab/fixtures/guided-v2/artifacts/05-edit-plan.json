@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.declarative-edit-plan.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "declarative-edit-plan",
+  "artifactId": "edit-plan",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "candidate-segments": "4ebd269db1f7919e8ed5d0c9f41bd2b275c7c682279b96a462cba010a8ddcd37"
+  },
+  "payload": {
+    "planId": "guided-select-plan-v2",
+    "executionMode": "select-only",
+    "status": "ready-for-human-review",
+    "inputAssetHashes": {
+      "camera-a": "df2a13f8c4c1aaf3d52ed3af2d804da662ef4be2455033ec103b3387b0f848bf",
+      "room-audio": "2fb40c54474612235e576ce2df973b163279be5eba7ea18feefed55ddd83157b"
+    },
+    "operations": [
+      {
+        "operationId": "select-introduction",
+        "kind": "select",
+        "assetId": "camera-a",
+        "sourceStartFrame": 0,
+        "sourceEndFrame": 750,
+        "timelineStartFrame": 0,
+        "timelineEndFrame": 750,
+        "candidateId": "recorded-introduction",
+        "evidenceIds": [
+          "evidence-introduction"
+        ],
+        "reason": "Introduce the declared workshop purpose before the safety demonstration.",
+        "rightsState": "approved-for-declared-use"
+      },
+      {
+        "operationId": "select-safety-demonstration",
+        "kind": "select",
+        "assetId": "camera-a",
+        "sourceStartFrame": 900,
+        "sourceEndFrame": 1650,
+        "timelineStartFrame": 750,
+        "timelineEndFrame": 1500,
+        "candidateId": "recorded-safety",
+        "evidenceIds": [
+          "evidence-safety"
+        ],
+        "reason": "Retain the complete fictional safety demonstration in chronological order.",
+        "rightsState": "approved-for-declared-use"
+      }
+    ],
+    "targetDurationFrames": {
+      "minimum": 1200,
+      "maximum": 2400
+    },
+    "actualDurationFrames": 1500,
+    "analysisLaneId": "recorded-fixture",
+    "humanReviewRequired": true
+  },
+  "limitations": [
+    "The v2 edit plan implements select operations only; captions, titles, audio, and delivery remain separate schemas.",
+    "A schema-valid and semantically valid plan still requires human meaning review before any render or release action."
+  ]
+}

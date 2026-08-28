@@ -8,4 +8,7 @@ export * from "./progress";
 export * from "./load";
 export * from "./validate";
 export * from "./fixtures";
+export * from "./module-contracts";
+export * from "./release";
+export * from "./claims";
 export type * from "./types";

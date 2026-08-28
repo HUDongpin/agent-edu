@@ -89,6 +89,7 @@ export default async function Shell({
               <li><Link href={p("/machine-learning/")}>{t("c.machine-learning.title")}</Link></li>
               <li><Link href={p("/deep-learning/")}>{t("c.deep-learning.title")}</Link></li>
               <li><Link href={p("/production-ai/")}>{t("c.production-ai.title")}</Link></li>
+              <li><Link href={p("/agentic-video-editing/")}>{t("c.agentic-video-editing.title")}</Link></li>
             </ul>
           </div>
           <div>

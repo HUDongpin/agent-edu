@@ -1,9 +1,16 @@
 import type { CourseKitModuleAuthoringSeed } from "../course-kit/authoring";
 import type {
+  CourseKitEvidenceMode,
   CourseKitFourOptions,
   CourseKitNonEmpty,
   CourseKitOptionIndex,
 } from "../course-kit/types";
+import {
+  DEEP_LEARNING_SECTION_READING_CONTRACT_BY_SLUG,
+  DEEP_LEARNING_MODULE_CONTRACT_BY_SLUG,
+  type DeepLearningClaimClass,
+  type DeepLearningModuleContract,
+} from "./module-contracts";
 import type { DeepLearningSourceId } from "./sources";
 
 interface DeepLearningModuleText {
@@ -30,7 +37,7 @@ interface DeepLearningModuleText {
 }
 
 function deepLearningModule<
-  const Slug extends string,
+  const Slug extends DeepLearningModuleContract["slug"],
   const PhaseId extends string,
   const SourceId extends DeepLearningSourceId,
 >(seed: {
@@ -40,31 +47,55 @@ function deepLearningModule<
   readonly sourceIds: CourseKitNonEmpty<SourceId>;
   readonly en: DeepLearningModuleText;
   readonly zhHans: DeepLearningModuleText;
-}): CourseKitModuleAuthoringSeed<Slug, PhaseId, SourceId> {
-  const copy = (text: DeepLearningModuleText) => ({
+}): CourseKitModuleAuthoringSeed<Slug, PhaseId, SourceId> & DeepLearningModuleContract {
+  const sectionReadingContract = DEEP_LEARNING_SECTION_READING_CONTRACT_BY_SLUG[seed.slug];
+  const evidenceMode = (claimClass: DeepLearningClaimClass): CourseKitEvidenceMode => {
+    if (claimClass === "source-grounded") return "source-grounded";
+    if (claimClass === "version-watch") return "version-watch";
+    if (claimClass === "course-policy") return "course-policy";
+    return "instructional-synthesis";
+  };
+  const label = (claimClass: DeepLearningClaimClass, locale: "en" | "zh-Hans") => {
+    const labels = locale === "en"
+      ? {
+          "source-grounded": "Source-grounded",
+          "instructional-synthesis": "Course synthesis",
+          "course-policy": "Course policy",
+          "version-watch": "Version watch",
+        }
+      : {
+          "source-grounded": "来源支持",
+          "instructional-synthesis": "课程综合",
+          "course-policy": "课程政策",
+          "version-watch": "版本观察",
+        };
+    return labels[claimClass];
+  };
+  const section = (
+    kind: "concept" | "method" | "boundary",
+    heading: string,
+    paragraph: string,
+    locale: "en" | "zh-Hans",
+  ) => {
+    const sectionEvidence = sectionReadingContract[kind];
+    return {
+      heading: `${label(sectionEvidence.claimClass, locale)} · ${heading}`,
+      paragraphs: [paragraph] as CourseKitNonEmpty<string>,
+      sourceIds: sectionEvidence.sourceIds as unknown as CourseKitNonEmpty<SourceId>,
+      evidenceMode: evidenceMode(sectionEvidence.claimClass),
+    };
+  };
+  const copy = (text: DeepLearningModuleText, locale: "en" | "zh-Hans") => ({
     title: text.title,
     summary: text.summary,
     objective: text.objective,
     artifact: text.artifact,
     sections: [
       {
-        heading: text.conceptHeading,
-        paragraphs: [text.concept],
-        sourceIds: seed.sourceIds,
-        evidenceMode: "source-grounded" as const,
+        ...section("concept", text.conceptHeading, text.concept, locale),
       },
-      {
-        heading: text.methodHeading,
-        paragraphs: [text.method],
-        sourceIds: seed.sourceIds,
-        evidenceMode: "instructional-synthesis" as const,
-      },
-      {
-        heading: text.boundaryHeading,
-        paragraphs: [text.boundary],
-        sourceIds: seed.sourceIds,
-        evidenceMode: "source-grounded" as const,
-      },
+      { ...section("method", text.methodHeading, text.method, locale) },
+      { ...section("boundary", text.boundaryHeading, text.boundary, locale) },
     ] as const,
     practice: {
       title: text.practiceTitle,
@@ -82,21 +113,23 @@ function deepLearningModule<
     takeaway: text.takeaway,
   });
 
+  const contract = DEEP_LEARNING_MODULE_CONTRACT_BY_SLUG[seed.slug];
   return {
+    ...contract,
     slug: seed.slug,
     phaseId: seed.phaseId,
     minutes: seed.minutes,
     sourceIds: seed.sourceIds,
-    copy: { en: copy(seed.en), zhHans: copy(seed.zhHans) },
-  };
+    copy: { en: copy(seed.en, "en"), zhHans: copy(seed.zhHans, "zh-Hans") },
+  } as CourseKitModuleAuthoringSeed<Slug, PhaseId, SourceId> & DeepLearningModuleContract;
 }
 
-export const DEEP_LEARNING_MODULES = [
+const DEEP_LEARNING_MODULES_AUTHORED = [
   deepLearningModule({
     slug: "tensors-computational-graphs",
     phaseId: "gradient-foundations",
     minutes: 70,
-    sourceIds: ["dl01-tensors-autograd"],
+    sourceIds: ["dl01-pytorch-tensors-autograd-2-13"],
     en: {
       title: "Tensors and computational graphs",
       summary:
@@ -188,7 +221,11 @@ export const DEEP_LEARNING_MODULES = [
     slug: "backpropagation-autodiff",
     phaseId: "gradient-foundations",
     minutes: 70,
-    sourceIds: ["dl01-tensors-autograd", "dl02-backpropagation"],
+    sourceIds: [
+      "dl01-pytorch-tensors-autograd-2-13",
+      "dl02-backpropagation",
+      "dl02-pytorch-gradcheck-2-13",
+    ],
     en: {
       title: "Backpropagation and autodiff",
       summary:
@@ -277,7 +314,14 @@ export const DEEP_LEARNING_MODULES = [
     slug: "optimisation-initialisation-normalisation-regularisation",
     phaseId: "gradient-foundations",
     minutes: 75,
-    sourceIds: ["dl03-optimisation-adam", "dl04-normalisation-regularisation"],
+    sourceIds: [
+      "dl04-pytorch-optim-2-13",
+      "dl04-adam-paper",
+      "dl04-adamw-paper",
+      "dl04-pytorch-initialisation-2-13",
+      "dl04-batch-normalization-paper",
+      "dl04-dropout-paper",
+    ],
     en: {
       title: "Optimisation, initialisation, normalisation and regularisation",
       summary:
@@ -368,7 +412,7 @@ export const DEEP_LEARNING_MODULES = [
     slug: "training-loops-debugging",
     phaseId: "gradient-foundations",
     minutes: 75,
-    sourceIds: ["dl05-training-reproducibility"],
+    sourceIds: ["dl03-pytorch-training-state-2-13"],
     en: {
       title: "Training loops and debugging",
       summary:
@@ -459,7 +503,10 @@ export const DEEP_LEARNING_MODULES = [
     slug: "cnns-visual-representations",
     phaseId: "representation-systems",
     minutes: 75,
-    sourceIds: ["dl06-cnn-resnet"],
+    sourceIds: [
+      "dl05-convolutional-document-recognition-paper",
+      "dl05-resnet-paper",
+    ],
     en: {
       title: "CNNs and visual representations",
       summary:
@@ -548,7 +595,7 @@ export const DEEP_LEARNING_MODULES = [
     slug: "transfer-learning",
     phaseId: "representation-systems",
     minutes: 75,
-    sourceIds: ["dl07-transfer-learning"],
+    sourceIds: ["dl06-pytorch-transfer-snapshot-d445c1f"],
     en: {
       title: "Transfer learning",
       summary:
@@ -559,7 +606,7 @@ export const DEEP_LEARNING_MODULES = [
         "Transfer comparison ledger with source provenance, freeze map, strategy matrix, cost, subgroup errors, and negative-transfer decision",
       conceptHeading: "Transfer reuses learned parameters under a new contract",
       concept:
-        "A pretrained network supplies a parameter starting point or a fixed feature extractor. Strategies range from replacing only the task head, through unfreezing selected blocks, to updating the entire network. Each choice changes trainable parameter count, memory, optimisation sensitivity, and the degree to which the target task can reshape inherited representations.",
+        "A pretrained network supplies either a parameter starting point for full fine-tuning or a fixed feature extractor whose task head is replaced. The pinned PyTorch tutorial demonstrates those two patterns on one small vision task; it does not define partial unfreezing or prove positive transfer.",
       methodHeading: "Make the source–target relationship testable",
       method:
         "Record the exact checkpoint, source-data statement, licence, preprocessing, and target-task contract. Compare scratch, frozen, partial, and full strategies on identical splits and budgets; log trainable parameters, wall time, peak memory, seed variability, and worst-group or slice results. Define negative transfer before inspecting outcomes and retain a scratch baseline.",
@@ -598,10 +645,10 @@ export const DEEP_LEARNING_MODULES = [
       objective:
         "在小型目标任务上评估四种迁移策略，并记录源模型、冻结参数、目标数据量、计算、子群结果与许可边界。",
       artifact:
-        "包含源来源、冻结图、策略矩阵、成本、子群错误与负迁移决策的迁移比较台账",
+        "包含源模型来源信息、冻结图、策略矩阵、成本、子群错误与负迁移决策的迁移比较台账",
       conceptHeading: "迁移在新合同下复用已学习参数",
       concept:
-        "预训练网络提供参数起点或固定特征提取器。策略可从只替换任务 head，到解冻部分 block，再到更新整个网络。每项选择都会改变可训练参数量、内存、优化敏感度，以及目标任务重塑继承表示的程度。",
+        "预训练网络可以作为全量微调的参数起点，也可以作为只替换任务 head 的固定特征提取器。钉定的 PyTorch 教程只在一个小型视觉任务上展示这两种模式；它没有定义部分解冻，也不能证明正迁移。",
       methodHeading: "使源域与目标域关系可测试",
       method:
         "记录精确 checkpoint、源数据声明、许可、预处理与目标任务合同。在相同切分和预算下比较 scratch、frozen、partial 与 full 策略；记录可训练参数、墙钟时间、峰值内存、种子差异和 worst-group 或切片结果。查看结果前定义负迁移，并始终保留 scratch baseline。",
@@ -619,7 +666,7 @@ export const DEEP_LEARNING_MODULES = [
       ],
       deliverable: "一份源到目标迁移审计与策略决策",
       reviewGate:
-        "scratch baseline、源来源、冻结状态、资源成本、切片结果与许可限制都可独立审核。",
+        "scratch baseline、源模型来源信息、冻结状态、资源成本、切片结果与许可限制都可独立审核。",
       checkpointQuestion: "哪项结果能构成负迁移证据？",
       checkpointOptions: [
         "预训练模型的参数比任务 head 多",
@@ -638,7 +685,11 @@ export const DEEP_LEARNING_MODULES = [
     slug: "sequence-models-rnns-lstms",
     phaseId: "representation-systems",
     minutes: 70,
-    sourceIds: ["dl08-lstm-sequences"],
+    sourceIds: [
+      "dl07-lstm-paper",
+      "dl07-pytorch-lstm-2-13",
+      "dl07-pytorch-packed-sequence-2-13",
+    ],
     en: {
       title: "Sequence models, RNNs and LSTMs",
       summary:
@@ -649,10 +700,10 @@ export const DEEP_LEARNING_MODULES = [
         "Sequence-model audit with unrolled state diagram, mask tests, length slices, state-reset receipt, and error analysis",
       conceptHeading: "Recurrence carries state through ordered inputs",
       concept:
-        "An RNN applies a recurrent transition to the current input and prior hidden state. LSTM adds gates and a cell state designed to control information flow and mitigate some vanishing-gradient difficulties. Batching variable-length sequences introduces padding and masks, while bidirectionality, teacher forcing, and state persistence each change what information the model can use.",
+        "An RNN applies a recurrent transition to the current input and prior hidden state. LSTM adds gates and a cell state designed to control information flow and mitigate some vanishing-gradient difficulties. PyTorch's versioned LSTM and PackedSequence contracts define state shapes, bidirectionality, and packed variable-length inputs; task-loss masks and independence boundaries remain separate responsibilities.",
       methodHeading: "Test temporal assumptions directly",
       method:
-        "Use original bracket or event sequences with controlled dependencies and separate length ranges. Draw the unrolled recurrence, assert that padded positions do not affect the loss, reset state between independent examples, and compare performance by length and dependency distance. Include a simple non-recurrent baseline so that sequence complexity must earn its place.",
+        "Use original bracket or event sequences with controlled dependencies and separate length ranges. Draw the unrolled recurrence, declare any teacher-forcing policy, assert that padded positions do not affect the loss, reset state between independent examples, and compare performance by length and dependency distance. Include a simple non-recurrent baseline so that sequence complexity must earn its place.",
       boundaryHeading: "Gating does not solve every long dependency",
       boundary:
         "LSTM mitigates particular optimisation problems but does not guarantee retention, compositional reasoning, or extrapolation. A model can exploit padding, position, or teacher-forcing artifacts; a random split can leak near-duplicate sequences; and good average accuracy can hide collapse on longer or rare patterns.",
@@ -691,10 +742,10 @@ export const DEEP_LEARNING_MODULES = [
         "包含展开状态图、mask 测试、长度切片、状态重置收据与错误分析的序列模型审计",
       conceptHeading: "递归通过有序输入传递状态",
       concept:
-        "RNN 对当前输入和先前 hidden state 应用递归转换。LSTM 增加门与 cell state，以控制信息流并缓解部分梯度消失困难。对可变长度序列做 batch 需要 padding 与 mask，而双向结构、teacher forcing 与状态持久化都会改变模型能够使用的信息。",
+        "RNN 对当前输入和先前 hidden state 应用递归转换。LSTM 增加门与 cell state，以控制信息流并缓解部分梯度消失困难。PyTorch 的版本化 LSTM 与 PackedSequence 合同定义状态形状、双向结构和 packed 可变长度输入；任务损失 mask 与独立性边界仍需另行负责。",
       methodHeading: "直接测试时间假设",
       method:
-        "使用具有受控依赖和分离长度范围的原创括号或事件序列。画出展开递归，断言 padding 位置不影响损失，在独立样本之间重置状态，并按长度与依赖距离比较表现。加入简单非递归 baseline，使序列复杂度必须用结果证明价值。",
+        "使用具有受控依赖和分离长度范围的原创括号或事件序列。画出展开递归，声明 teacher-forcing 策略，断言 padding 位置不影响损失，在独立样本之间重置状态，并按长度与依赖距离比较表现。加入简单非递归 baseline，使序列复杂度必须用结果证明价值。",
       boundaryHeading: "门控不能解决所有长期依赖",
       boundary:
         "LSTM 缓解特定优化问题，但不保证记忆、组合推理或外推。模型可能利用 padding、位置或 teacher-forcing artifact；随机切分可能泄漏近重复序列；良好平均准确率也可能掩盖更长或稀有模式上的崩溃。",
@@ -728,7 +779,13 @@ export const DEEP_LEARNING_MODULES = [
     slug: "attention",
     phaseId: "representation-systems",
     minutes: 75,
-    sourceIds: ["dl09-attention"],
+    sourceIds: [
+      "dl08-bahdanau-attention-paper",
+      "dl08-attention-not-explanation-paper",
+      "dl08-attention-not-not-explanation-paper",
+      "dl09-transformer-paper",
+      "dl09-pytorch-transformer-2-13",
+    ],
     en: {
       title: "Attention",
       summary:
@@ -742,7 +799,7 @@ export const DEEP_LEARNING_MODULES = [
         "An attention mechanism forms compatibility scores between a query and keys, applies a mask where information must be unavailable, normalises scores into weights, and aggregates corresponding values. Additive and dot-product forms differ in score construction, while multi-head variants learn several projections. The resulting coefficients participate in computation rather than serving as an automatic explanation layer.",
       methodHeading: "Calculate first, interpret second",
       method:
-        "Use four small vectors to calculate scores, masked scores, softmax weights, and the weighted value sum. Check that prohibited positions receive no probability and that valid weights sum to one. Then swap an irrelevant token, perturb a high-weight token, and compare both weights and output; record whether the claimed interpretation survives.",
+        "Name the exact attention API and mask convention before calculating four small vectors. For the course worksheet, use an additive negative-infinity mask, reject an all-masked query row, require blocked probabilities to be zero within 1e-12, and require valid weights to sum to one within 1e-12. Then perturb tokens and compare weights and output without promoting the result to causal proof.",
       boundaryHeading: "A large weight is not a causal attribution",
       boundary:
         "Attention weights can change under equivalent or compensating representations, and model outputs depend on values, residual paths, later layers, and other heads. They do not by themselves establish why a prediction occurred, what would happen under intervention, or whether a human-readable rationale is faithful.",
@@ -751,7 +808,7 @@ export const DEEP_LEARNING_MODULES = [
         "Calculate one masked attention operation and challenge a proposed explanation with perturbations.",
       steps: [
         "Write the query, key, and value vectors and calculate all compatibility scores.",
-        "Apply the information-availability mask before normalisation and verify the probability sum.",
+        "Declare Boolean versus additive polarity, apply the mask before normalisation, reject an all-masked row, and verify blocked and valid probabilities within 1e-12.",
         "Compute the weighted output and reproduce it with code under a stated tolerance.",
         "Run two token perturbations and write an interpretation that does not overclaim causality.",
       ],
@@ -784,7 +841,7 @@ export const DEEP_LEARNING_MODULES = [
         "Attention 机制计算 query 与 key 的兼容性 score，在信息不可用处应用 mask，把 score 归一化为权重，再聚合对应 value。加性与点积形式的 score 构造不同，多头变体则学习多组投影。所得系数参与计算，而不是自动提供解释的层。",
       methodHeading: "先计算，再解释",
       method:
-        "用四个小向量计算 score、mask 后 score、softmax 权重与加权 value 和。检查禁止位置没有概率，且有效权重总和为一。随后交换无关 token、扰动高权重 token，同时比较权重与输出，并记录提出的解释是否仍成立。",
+        "计算四个小向量前先声明确切 attention API 与 mask 约定。课程工作表使用加性负无穷 mask，拒绝全部位置都被 mask 的 query 行，要求被禁位置概率在 1e-12 容差内为零，并要求有效权重和在 1e-12 容差内为一。随后扰动 token 并比较权重与输出，但不得把结果提升为因果证明。",
       boundaryHeading: "大权重不是因果归因",
       boundary:
         "attention 权重可在等价或补偿表示下变化，模型输出还依赖 value、残差路径、后续层与其他 head。它们本身不能证明预测为何发生、干预后会怎样，或人类可读理由是否忠实。",
@@ -792,7 +849,7 @@ export const DEEP_LEARNING_MODULES = [
       practiceBrief: "计算一次带 mask 的 attention 操作，并用扰动挑战一项解释。",
       steps: [
         "写出 query、key 与 value 向量，计算全部兼容性 score。",
-        "在归一化前应用信息可见性 mask，并验证概率总和。",
+        "声明 Boolean/加性极性，在归一化前应用 mask，拒绝全 mask 行，并在 1e-12 容差内验证被禁和有效概率。",
         "计算加权输出，并在声明容差下用代码复现。",
         "运行两项 token 扰动，写出不夸大因果性的解释。",
       ],
@@ -817,7 +874,7 @@ export const DEEP_LEARNING_MODULES = [
     slug: "transformer-encoder-decoder",
     phaseId: "transformers-and-adaptation",
     minutes: 75,
-    sourceIds: ["dl10-transformer"],
+    sourceIds: ["dl09-transformer-paper", "dl09-pytorch-transformer-2-13"],
     en: {
       title: "Transformer encoder and decoder",
       summary:
@@ -831,7 +888,7 @@ export const DEEP_LEARNING_MODULES = [
         "The original encoder–decoder Transformer combines token and positional representations with multi-head attention, feed-forward sublayers, residual connections, and normalisation. Encoder self-attention mixes permitted source positions; decoder causal self-attention restricts access to future targets; cross-attention connects decoder queries to encoder outputs. Concrete ordering and implementation details vary across model families.",
       methodHeading: "Treat each mask as a security-style policy",
       method:
-        "Write a truth table naming every query and key position that may interact, including padding and causal constraints. Assert mask shape, type, convention, and broadcast behavior at runtime. Create two target sequences with identical prefixes but different future tokens and prove logits for an earlier position remain unchanged; add a deliberately shifted target to catch label leakage.",
+        "Name the exact API first: in PyTorch 2.13, Boolean mask polarity differs between nn.Transformer and scaled_dot_product_attention. Write query-key truth tables, reject an all-masked query row, set evaluation mode with dropout disabled, and compare identical prefixes with changed future tokens exactly or within a declared tolerance. Add a shifted target and permissive mask as negative controls.",
       boundaryHeading: "A wrong mask can create silent future leakage",
       boundary:
         "Training metrics can look excellent when targets are shifted incorrectly or the causal mask exposes future information. The 2017 architecture does not specify every modern pre-norm, rotary-position, sparse-attention, or cache implementation. Complexity and memory depend on sequence length, batching, kernel, precision, and cache policy rather than on the word Transformer alone.",
@@ -840,8 +897,8 @@ export const DEEP_LEARNING_MODULES = [
         "Build a mask truth table and a regression test that fails when future information leaks.",
       steps: [
         "Draw encoder, decoder, residual, and cross-attention paths with tensor shapes.",
-        "Define padding and causal mask truth tables and assert their runtime shapes and conventions.",
-        "Change future target tokens while holding the prefix fixed and compare earlier logits exactly or within tolerance.",
+        "Define padding and causal truth tables, API-specific Boolean polarity, shape, dtype, broadcast behavior, and all-masked-row rejection.",
+        "Disable dropout in evaluation mode, change future targets while holding the prefix fixed, and compare earlier logits exactly or within a declared tolerance.",
         "Introduce an off-by-one target shift, demonstrate the failed leakage test, and save the repair receipt.",
       ],
       deliverable: "A mask contract and passing future-token leakage regression test",
@@ -873,7 +930,7 @@ export const DEEP_LEARNING_MODULES = [
         "原始 encoder–decoder Transformer 把 token 与位置表示同多头 attention、feed-forward 子层、残差连接和归一化结合。Encoder 自注意力混合允许的源位置；decoder causal 自注意力限制未来目标；cross-attention 把 decoder query 连接到 encoder 输出。具体顺序与实现细节会随模型家族变化。",
       methodHeading: "把每个 mask 当作类似安全策略的合同",
       method:
-        "写出真值表，列明每个 query 和 key 位置能否交互，包含 padding 与 causal 约束。运行时断言 mask 形状、类型、约定与广播行为。创建前缀相同、未来 token 不同的两个目标序列，证明较早位置 logits 保持不变；再加入故意错位的 target 以捕获标签泄漏。",
+        "先声明确切 API：在 PyTorch 2.13 中，nn.Transformer 与 scaled_dot_product_attention 的 Boolean mask 极性不同。写出 query-key 真值表，拒绝全 mask query 行，在关闭 dropout 的 evaluation mode 中比较前缀相同但未来 token 不同的序列，并要求较早 logits 精确或在声明容差内不变。再用错位 target 和过宽 mask 作为负对照。",
       boundaryHeading: "错误 mask 会造成静默未来泄漏",
       boundary:
         "当 target 错位或 causal mask 暴露未来信息时，训练指标可能看起来异常优秀。2017 年架构并不规定所有现代 pre-norm、旋转位置、稀疏 attention 或 cache 实现。复杂度与内存取决于序列长度、batch、kernel、精度和 cache 策略，而不是只取决于 Transformer 名称。",
@@ -881,8 +938,8 @@ export const DEEP_LEARNING_MODULES = [
       practiceBrief: "建立 mask 真值表和在未来信息泄漏时必然失败的回归测试。",
       steps: [
         "画出 encoder、decoder、残差与 cross-attention 路径及 tensor 形状。",
-        "定义 padding 与 causal mask 真值表，并断言运行时形状与约定。",
-        "保持前缀固定、改变未来目标 token，精确或在容差内比较较早 logits。",
+        "定义 padding/causal 真值表、API 专属 Boolean 极性、形状、类型、广播行为与全 mask 行拒绝规则。",
+        "在关闭 dropout 的 evaluation mode 中保持前缀固定、改变未来目标 token，并精确或在声明容差内比较较早 logits。",
         "引入错一位 target shift，展示泄漏测试失败并保存修复收据。",
       ],
       deliverable: "一份 mask 合同与通过的未来 token 泄漏回归测试",
@@ -906,7 +963,7 @@ export const DEEP_LEARNING_MODULES = [
     slug: "tokenisation-pretraining",
     phaseId: "transformers-and-adaptation",
     minutes: 75,
-    sourceIds: ["dl11-tokenisation-pretraining"],
+    sourceIds: ["dl10-sentencepiece-paper", "dl10-bert-paper"],
     en: {
       title: "Tokenisation and pretraining",
       summary:
@@ -995,7 +1052,7 @@ export const DEEP_LEARNING_MODULES = [
     slug: "fine-tuning-parameter-efficient-adaptation",
     phaseId: "transformers-and-adaptation",
     minutes: 65,
-    sourceIds: ["dl12-lora-peft"],
+    sourceIds: ["dl11-lora-paper", "dl11-peft-v0-20-0"],
     en: {
       title: "Fine-tuning and parameter-efficient adaptation",
       summary:
@@ -1085,36 +1142,37 @@ export const DEEP_LEARNING_MODULES = [
     minutes: 100,
     sourceIds: [
       "dl13-robustness",
-      "dl05-training-reproducibility",
+      "dl03-pytorch-training-state-2-13",
+      "dl12-calibration-paper",
       "ra12-model-cards",
     ],
     en: {
-      title: "Robustness, evaluation and training-card capstone",
+      title: "Robustness, evaluation and learner-final dossier",
       summary:
-        "Integrate clean, corruption, subgroup, shift, multi-seed, cost, provenance, and failure evidence into a training card that can support a no-train or no-deploy decision.",
+        "Integrate clean, corruption, subgroup-like, shift, multi-seed, resource, provenance, and failure evidence into a course-local dossier that can support a no-train or no-deploy decision.",
       objective:
-        "Evaluate a small model under an original corruption suite and deliver an eight-artifact training dossier with explicit limitations, stop conditions, and human approval boundary.",
+        "Evaluate the original foundation, visual, and sequence fixtures with at least three seeds and deliver the eight learner-final artifacts with explicit limitations, challenge, stop conditions, and human authority.",
       artifact:
-        "Eight-artifact training dossier with environment lock, training log, cost record, error slices, ablation, training card, limitations, and reproducibility receipt",
+        "Eight-artifact learner-final dossier: environment lock, run ledger, failure ledger, resource record, evaluation slices, training dossier, limitations, and reviewer decision",
       conceptHeading: "Robustness is a family of bounded evaluations",
       concept:
-        "Clean performance, synthetic corruptions, subgroup slices, distribution shifts, multiple seeds, ablations, calibration, and resource measurements answer different questions. A corruption benchmark such as ImageNet-C defines particular transformations and severities; it does not cover every natural shift, adversarial behavior, social harm, or downstream decision. A training card links the tested conditions to intended use and limitations.",
+        "Clean performance, synthetic corruptions, subgroup-like slices, distribution shifts, multiple seeds, ablations, calibration, and resource measurements answer different questions. ImageNet-C defines particular transformations and severities, while calibration and model-card reporting answer narrower, different questions. This course's training dossier adapts reporting ideas; it is not a published standard or certification.",
       methodHeading: "Build a claim–evidence–decision dossier",
       method:
-        "Version the original fixture, environment, code, seeds, architecture, budget, metrics, and corruption generator. Report clean and slice-level results with uncertainty, retain failed runs and representative errors, and connect every summary claim to a receipt. Define stop rules before final evaluation and require a named human reviewer to choose continue, revise, no-train, or no-deploy.",
+        "Version all three fixtures, environment, code, at least three seeds, architecture, budget, metrics, and transformations. Keep separate run, failure, and resource ledgers; report clean and slice results with uncertainty; connect every claim to module and run receipts. Predeclare stop rules and require a named human reviewer to challenge evidence and choose continue, revise, no-train, or no-deploy.",
       boundaryHeading: "Documentation and robustness scores do not authorize deployment",
       boundary:
-        "A high corruption score can coexist with subgroup harm, untested shifts, unsafe use, unclear rights, or excessive cost. A reproducible run only reconstructs the tested process; a training card can be incomplete or stale. Completion of this course and browser milestones grants no authority to train on real protected data or deploy a model into consequential decisions.",
+        "A high corruption score can coexist with subgroup harm, untested shifts, unsafe use, unclear rights, or excessive cost. Reproduction reconstructs only the tested process, and a dossier can be incomplete or stale. Passing course validators grants no authority to use protected real data or deploy into consequential decisions.",
       practiceTitle: "Defend a stop-or-release decision",
       practiceBrief:
         "Use the original synthetic fixture to assemble all eight artifacts and conduct an adversarial human review.",
       steps: [
         "Verify fixture, schema, environment, and code hashes before running the clean and corruption suites.",
         "Report multi-seed clean, corruption, subgroup, and failure slices alongside compute and energy-proxy receipts.",
-        "Complete the training card, limitations, ablation, errors, and reproducibility receipt with claim links.",
+        "Complete all eight learner-final artifacts and link every dossier claim to run, failure, resource, evaluation, module-artifact, or limitation evidence.",
         "Ask an independent reviewer to challenge one unsupported claim and record continue, revise, no-train, or no-deploy with reasons.",
       ],
-      deliverable: "A signed eight-artifact training dossier and human go/no-go record",
+      deliverable: "An eight-artifact learner-final dossier and named-human challenge/no-deploy record",
       reviewGate:
         "Every claim resolves to versioned evidence, at least one stop path is credible, unresolved rights and safety limits are visible, and only a named human records the decision.",
       checkpointQuestion: "When should a robustness result support a no-deploy decision?",
@@ -1128,34 +1186,34 @@ export const DEEP_LEARNING_MODULES = [
       checkpointExplanation:
         "Predeclared critical failures should stop automatic progression and trigger human review; aggregate clean performance does not cancel a failed safety boundary.",
       takeaway:
-        "Robustness evidence is condition-specific, and a training card is documentation; deployment remains a separate human-authority decision with a real no-go path.",
+        "Robustness evidence is condition-specific and the course dossier is documentation; deployment remains a separate human-authority decision with a real no-go path.",
     },
     zhHans: {
-      title: "鲁棒性评估与 training-card 结课项目",
+      title: "鲁棒性评估与学习者最终档案",
       summary:
-        "把干净、corruption、子群、漂移、多种子、成本、来源与失败证据整合为可支持 no-train 或 no-deploy 决策的训练卡。",
+        "把干净、corruption、类子群、漂移、多种子、资源、来源与失败证据整合为可支持 no-train 或 no-deploy 的课程本地档案。",
       objective:
-        "在原创 corruption suite 下评估小型模型，交付含显式限制、停止条件与人类批准边界的八产物训练档案。",
+        "用至少三个种子评估原创 foundation、visual 与 sequence fixture，交付含限制、challenge、停止条件与人类决定权的八项最终产物。",
       artifact:
-        "包含环境锁、训练日志、成本记录、错误切片、消融、training card、限制与可复现收据的八产物训练档案",
+        "八项学习者最终档案：环境锁、run ledger、failure ledger、resource record、评估切片、训练档案、限制与 reviewer decision",
       conceptHeading: "鲁棒性是一组有边界评估",
       concept:
-        "干净表现、合成 corruption、子群切片、分布变化、多种子、消融、校准与资源测量回答不同问题。ImageNet-C 等 corruption 基准定义特定转换和严重度，不覆盖所有自然漂移、对抗行为、社会伤害或下游决策。Training card 把所测条件连接到预期用途与限制。",
+        "干净表现、合成 corruption、类子群切片、分布变化、多种子、消融、校准与资源测量回答不同问题。ImageNet-C 定义特定转换与严重度，校准和模型卡报告则回答其他较窄问题。本课程训练档案借鉴报告思想，但不是发布标准或认证。",
       methodHeading: "建立主张–证据–决策档案",
       method:
-        "版本化原创 fixture、环境、代码、种子、架构、预算、指标与 corruption 生成器。带不确定性报告干净和切片结果，保留失败运行与代表性错误，把每项摘要主张连接到收据。最终评估前定义停止规则，并要求具名人类审查者选择继续、修订、no-train 或 no-deploy。",
+        "版本化三套原创 fixture、环境、代码、至少三个种子、架构、预算、指标与变换。分开保存 run、failure 与 resource ledger；带不确定性报告干净和切片结果；把每项主张连接到模块及运行收据。预先声明停止规则，并要求具名人类审查者挑战证据后选择继续、修订、no-train 或 no-deploy。",
       boundaryHeading: "文档与鲁棒分数不会授权部署",
       boundary:
-        "高 corruption 分数可与子群伤害、未测试漂移、不安全用途、权利不清或成本过高同时存在。可复现运行只重建所测过程；training card 也可能不完整或过期。完成本课程和浏览器里程碑不会授予用真实受保护数据训练或把模型部署到重大决策中的权限。",
+        "高 corruption 分数可与子群伤害、未测试漂移、不安全用途、权利不清或成本过高同时存在。复现只重建所测过程，档案也可能不完整或过期。通过课程 validator 不会授予使用受保护真实数据或部署到重大决策中的权限。",
       practiceTitle: "为停止或发布决策辩护",
       practiceBrief: "使用原创合成 fixture 组装八项产物，并进行对抗式人工审查。",
       steps: [
         "运行干净与 corruption suite 前，验证 fixture、schema、环境与代码哈希。",
         "报告多种子干净、corruption、子群与失败切片，并附计算与能耗代理收据。",
-        "完成 training card、限制、消融、错误与可复现收据，并连接主张。",
+        "完成八项学习者最终产物，并把每项档案主张连接到 run、failure、resource、评估、模块产物或限制证据。",
         "请独立审查者挑战一项不受支持主张，记录继续、修订、no-train 或 no-deploy 及理由。",
       ],
-      deliverable: "一份已签署八产物训练档案与人类 go/no-go 记录",
+      deliverable: "一份八项学习者最终档案与具名人类 challenge/no-deploy 记录",
       reviewGate:
         "每项主张都解析到版本化证据，至少一条停止路径真实可用，未解决权利与安全限制可见，且只有具名人类记录决策。",
       checkpointQuestion: "鲁棒性结果何时应支持 no-deploy 决策？",
@@ -1169,9 +1227,25 @@ export const DEEP_LEARNING_MODULES = [
       checkpointExplanation:
         "预先声明的关键失败应阻止自动推进并触发人工审查；总体干净表现不能抵消安全边界失败。",
       takeaway:
-        "鲁棒性证据受条件约束，training card 只是文档；部署仍是具备真实 no-go 路径的人类决定权事项。",
+        "鲁棒性证据受条件约束，课程档案只是文档；部署仍是具备真实 no-go 路径的人类决定权事项。",
     },
   }),
+] as const;
+
+/** Training-loop state is learned before optimizer/system ablations in v2. */
+export const DEEP_LEARNING_MODULES = [
+  DEEP_LEARNING_MODULES_AUTHORED[0],
+  DEEP_LEARNING_MODULES_AUTHORED[1],
+  DEEP_LEARNING_MODULES_AUTHORED[3],
+  DEEP_LEARNING_MODULES_AUTHORED[2],
+  DEEP_LEARNING_MODULES_AUTHORED[4],
+  DEEP_LEARNING_MODULES_AUTHORED[5],
+  DEEP_LEARNING_MODULES_AUTHORED[6],
+  DEEP_LEARNING_MODULES_AUTHORED[7],
+  DEEP_LEARNING_MODULES_AUTHORED[8],
+  DEEP_LEARNING_MODULES_AUTHORED[9],
+  DEEP_LEARNING_MODULES_AUTHORED[10],
+  DEEP_LEARNING_MODULES_AUTHORED[11],
 ] as const;
 
 export type DeepLearningModuleSlug =

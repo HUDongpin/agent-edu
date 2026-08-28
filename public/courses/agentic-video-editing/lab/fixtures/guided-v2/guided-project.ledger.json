@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.guided-project-ledger.v2",
+  "projectId": "course22-guided-video-project-v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "timebase": "30000/1001",
+  "deliveryTargetIds": [
+    "review-1080p",
+    "review-captioned"
+  ],
+  "files": {
+    "artifacts/01-creative-brief.json": "56f9d8437088141687848592b6e1bbfa6534735d58871c5fb6c37a6542373d0b",
+    "artifacts/02-media-manifest.json": "392f84cec7e9d7a5bbb843a41b3fdb879aa20b527c8e14809cc10ba25b49f801",
+    "artifacts/02-clock-receipt.json": "0e56dd7028b07fcefb4e0d28aaab65835df453d7d56f7b36df486421e66eee47",
+    "artifacts/03-transcript-shot-index.json": "7741cf834661914ad6d06e4cad086d122e31fd26c85cb045730fae9e25a4c1ff",
+    "artifacts/04-candidate-segments.json": "4ebd269db1f7919e8ed5d0c9f41bd2b275c7c682279b96a462cba010a8ddcd37",
+    "artifacts/05-edit-plan.json": "a5f2f95f0448cd64cd2c59ae96b5cbbb1c7f428efef743c117055e19b02fbaa9",
+    "artifacts/06-tool-permission-envelope.json": "a380a478c6725e0cccb84b1603ec15e3d4ec61bcb61bdd567d87f1d4e530de4b",
+    "artifacts/07-render-receipt.json": "9d403176f5c3ebd735cd75030c8d7b3f5e3b4e834caf7805368ebc1f7fa585d2",
+    "artifacts/08-delivery-matrix.json": "c1284b8146c5a6d6ad572333dd322b8b90f0bc1afd7c544b36d3fe79e46170bd",
+    "artifacts/08-variant-receipts.json": "7925f3a0ebe3a146e67252d572a3e312b4509ecc1c31e30c13f513a4e5eb9d78",
+    "artifacts/09-verification-report.json": "ae5fe7e4c6ab24feb16dc7529f44793971e5ed577a4c66b9ef43ecad65fbdd67",
+    "assets/camera-a.mp4": "df2a13f8c4c1aaf3d52ed3af2d804da662ef4be2455033ec103b3387b0f848bf",
+    "assets/room-audio.wav": "2fb40c54474612235e576ce2df973b163279be5eba7ea18feefed55ddd83157b",
+    "assets/camera-a.probe.json": "a6213438740b23f9288a47e721ff12e5bb9caa7466dd5b6a2718f9a6829ea6b7",
+    "assets/room-audio.probe.json": "e8ac1d886fb3578f480e5800a6e1f7aa98d03c3a9bf2baf337b85d4e4bb93433",
+    "artifacts/07-render-filter.txt": "60c3ff256ee375e8f83698541ebd9668d6092746ec31fa8abac2ba2258a38eda",
+    "outputs/candidate-render.mp4": "2770ac63e907506fd88100ae333e9c8737e7a5c4c65dd854b2a9eaefee19af0f",
+    "outputs/review-1080p.mp4": "c425a305101f5afdddd97afb069435f9a09ecfb8d1c313e02e8535255d75700b",
+    "outputs/review-captioned.mp4": "73ca60e9b1aec99dec0bd8e490e5852f7bded2ac8831bdb96a6283826255f6f8",
+    "outputs/review-captioned.vtt": "7fb5e902a46ce1726147b98f23959cff03f37b5ac6108df80b0366dc9ca977e0"
+  },
+  "boundary": "This ledger binds course-authored playable synthetic media, exact artifacts, and ffprobe evidence for offline learning; it does not authenticate a reviewer or grant publication approval."
+}

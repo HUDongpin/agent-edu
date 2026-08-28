@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "aicourse.public-fixtures.provenance.v1",
+  "courseId": "agentic-video-editing",
+  "fixtureSetVersion": "2.0.0",
+  "verifiedOn": "2026-08-28",
+  "rights": {
+    "basis": "original-project-fixture",
+    "repositoryLicense": "MIT",
+    "publicationEligible": true,
+    "containsThirdPartyCode": false,
+    "containsThirdPartyMedia": false,
+    "containsPersonalData": false,
+    "containsPrivateInput": false,
+    "containsModelOutput": false
+  },
+  "scope": {
+    "fictionalScenario": true,
+    "shipsSourceMedia": true,
+    "sourceMediaBoundary": "course-owned-synthetic-only",
+    "authorizesRealMediaUse": false,
+    "authorizesExecution": false,
+    "authorizesPublication": false,
+    "requiresNamedHumanReleaseDecision": true,
+    "unknownRightsDefault": "block"
+  },
+  "guidedProject": {
+    "ledgerPath": "lab/fixtures/guided-v2/guided-project.ledger.json",
+    "ledgerSha256": "9f5c1feba951051d9147ccb4ace1a6b86cf36ade58de593e4739bbb5834cd02e",
+    "archivePath": "lab/course22-guided-v2.zip",
+    "archiveSha256": "beeb72ceb9d859f3fe5dda5e331609a3cec54a0808914f15502ff935792a5356",
+    "playableSourceMedia": true,
+    "playableCpuRender": true,
+    "networkRequired": false,
+    "credentialsRequired": false,
+    "publicationAuthority": false
+  },
+  "files": [
+    {
+      "path": "creative-brief.fixture.json",
+      "sha256": "035bfd52b2a29392b88aaca357ca52510774094809d1598164203dfe6c209a27",
+      "mediaType": "application/json",
+      "origin": "original-project-fixture",
+      "purpose": "Fictional creative, authority, stop-condition, and acceptance contract."
+    },
+    {
+      "path": "media-manifest.fixture.json",
+      "sha256": "659e289e57edceb5608c6c85843d5b38fa423dda20129bccfe71aa9ef462ffdb",
+      "mediaType": "application/json",
+      "origin": "original-project-fixture",
+      "purpose": "Fail-closed intake example with no source media and deliberately unresolved rights."
+    },
+    {
+      "path": "edit-plan.schema.json",
+      "sha256": "ee610969ed51331e63b5e81ee6322930ba051a8d2b32177b885cd5502f55e2b9",
+      "mediaType": "application/schema+json",
+      "origin": "original-project-fixture",
+      "purpose": "Strict teaching schema for non-destructive, evidence-linked edit plans that remain subject to named-human review."
+    },
+    {
+      "path": "qc-checklist.md",
+      "sha256": "5ca0e47746b99e4002714729c5a42b28ce8df5df859feaf47cb52277c40dae28",
+      "mediaType": "text/markdown",
+      "origin": "original-project-fixture",
+      "purpose": "Bilingual technical, semantic, accessibility, rights, privacy, and named-release review record."
+    },
+    {
+      "path": "NOTICE.md",
+      "sha256": "82db1ce9d673f3fad70d76d02755d41b46b97c913bf5b4ec679f877b81d2965a",
+      "mediaType": "text/markdown",
+      "origin": "original-project-fixture",
+      "purpose": "License, no-copy, no-media, no-authority, and verification boundary."
+    }
+  ],
+  "integrityNote": "The five top-level public files are bound above; the guidedProject ledger separately binds every course-owned synthetic media, artifact, ffprobe record, caption, and output byte. This provenance file is intentionally not self-hashed. Integrity does not establish editorial quality, learner-media rights, reviewer identity, execution safety, or release approval."
+}

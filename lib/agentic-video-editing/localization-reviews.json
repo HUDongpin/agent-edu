@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "aicourse.localization-bundle-review.v1",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "bundles": [
+    {
+      "locale": "en",
+      "path": "lib/agentic-video-editing/copy/en.ts",
+      "sha256": "38b8f3e28b2766c3446d1faace2abe2b9f0a2da32df4cc444e8fd0993603a73a",
+      "reviewerId": null,
+      "reviewedAt": null,
+      "status": "pending"
+    },
+    {
+      "locale": "zh-Hans",
+      "path": "lib/agentic-video-editing/copy/zh-Hans.ts",
+      "sha256": "af8785b852b60654bea41066065eb32fa60c14000586cf4229dd443a6bf6da23",
+      "reviewerId": null,
+      "reviewedAt": null,
+      "status": "pending"
+    }
+  ],
+  "releaseDecision": "HOLD until both exact bundle hashes receive named-human review"
+}

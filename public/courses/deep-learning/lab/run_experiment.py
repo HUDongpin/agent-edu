@@ -9,20 +9,21 @@ import json
 import math
 import platform
 import random
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
 COURSE_ID = "deep-learning"
-COURSE_VERSION = "2026.08.26-v1"
-CAPSTONE_VERSION = "2026.08.26-capstone-v1"
-VALIDATOR_ID = "aicourse.deep-learning.validator.v1"
+COURSE_VERSION = "2026.08.28-v2"
+CAPSTONE_VERSION = "2026.08.28-reference-v2"
+VALIDATOR_ID = "aicourse.deep-learning.reference-validator.v1"
 SEED = 20260826
 EPOCHS = 800
 LEARNING_RATE = 0.18
 HIDDEN_UNITS = 4
 FIXTURE_HASHES = {
-    "fixtures/neural-training-fixture-v1.json": "70a3a7c10ef24a15df050434f34350e7283eba1be145ee2bedb5cb34e7d5cb6a",
-    "fixtures/neural-training-fixture-v1.schema.json": "cfd032a6bed0f5c97d138aabdb16d813b72251bd565c76ae883790182b1029f8",
+    "fixtures/neural-training-fixture-v1.json": "c5e38f16eeb4eab44693f483f06100808848f918251c3932ca574439194deb78",
+    "fixtures/neural-training-fixture-v1.schema.json": "9ace10751c0758db4a11ad1f3b65b702cf54330ed0b7b916ccce16376cee8787",
 }
 MILESTONE_EPOCHS = {1, 10, 50, 100, 200, 400, 800}
 
@@ -48,7 +49,9 @@ def verify_and_load_fixture(course_dir: Path) -> Tuple[Dict[str, Any], List[Dict
             raise ValueError("fixture checksum mismatch: {}: {}".format(relative_path, observed))
         receipts.append({"path": relative_path, "sha256": observed})
     data = json.loads((course_dir / "fixtures/neural-training-fixture-v1.json").read_text(encoding="utf-8"))
-    if data.get("schemaVersion") != "deep-learning.fixture.v1" or data.get("seed") != SEED:
+    if (data.get("schemaVersion") != "deep-learning.fixture.v1"
+            or data.get("fixtureId") != "ae-deep-learning-foundation-mlp-v1"
+            or data.get("seed") != SEED):
         raise ValueError("fixture version or seed does not match the locked course contract")
     records = data.get("records")
     if not isinstance(records, list) or len(records) != 12:
@@ -298,21 +301,25 @@ def build_submission(course_dir: Path, lab_dir: Path, output_dir: Path) -> Dict[
     outputs = [{"path": path.name, "sha256": sha256(path)} for path in (training_log_path, metrics_path, card_path)]
     environment_path = lab_dir / "environment.lock.json"
     return {
-        "schemaVersion": "aicourse.capstone-submission.v1",
+        "schemaVersion": "aicourse.deep-learning.reference-package.v2",
         "courseId": COURSE_ID,
         "courseVersion": COURSE_VERSION,
-        "capstoneVersion": CAPSTONE_VERSION,
+        "referenceVersion": CAPSTONE_VERSION,
         "validatorId": VALIDATOR_ID,
-        "generatedOn": "2026-08-26",
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "mode": "reference-example",
+        "capstoneEligible": False,
+        "independentReviewComplete": False,
+        "decision": "no-deploy",
         "artifacts": [
-            artifact("environment-lock", {"runtime": "CPython {}".format(platform.python_version()), "referenceRuntime": "CPython 3.9.6", "processor": "CPU", "acceleratorRequired": False, "networkRequired": False, "seed": SEED, "inputHashes": results["inputReceipts"], "environmentLockSha256": sha256(environment_path), "command": "python3 run_experiment.py --output-dir work"}),
+            artifact("environment-lock", {"runtime": "CPython {}".format(platform.python_version()), "referenceRuntime": "CPython 3.11.15", "processor": "CPU", "acceleratorRequired": False, "networkRequired": False, "seed": SEED, "inputHashes": results["inputReceipts"], "environmentLockSha256": sha256(environment_path), "command": "python3 run_experiment.py --output-dir work"}),
             artifact("training-log", {"architecture": "16-4-1-tanh-sigmoid", "epochs": EPOCHS, "learningRate": LEARNING_RATE, "milestones": results["milestones"], "gradientCheck": results["gradientCheck"], "outputPath": training_log_path.name, "outputSha256": sha256(training_log_path), "failedRunsRetained": True}),
             artifact("cost-energy-record", dict(results["costProxy"], limitations=["No wall-power instrumentation", "No embodied energy estimate", "Not comparable across runtimes or hardware"])),
             artifact("error-slices", {"slices": results["slices"], "baseline": results["models"]["orientation-rule-baseline"], "neural": results["models"]["tiny-neural-network"], "denominatorBoundary": "Two fixed test records per synthetic transformation", "limitations": ["tiny sample", "synthetic transformations", "not demographic subgroups", "no population inference"]}),
             artifact("ablation", dict(results["ablation"], causalBoundary="The matched local intervention supports only this fixture/configuration comparison.")),
             artifact("training-card", dict(card, outputPath=card_path.name, outputSha256=sha256(card_path), rightsBoundary="Original synthetic fixture; no third-party or personal data.")),
             artifact("limitations", {"knownFailures": ["No real-domain evaluation", "No accelerator determinism evidence", "No physical energy measurement"], "untestedConditions": ["larger images", "distribution shift beyond two authored transforms", "real populations", "adversarial inputs", "different Python math libraries"], "stopConditions": ["fixture or output hash mismatch", "gradient check failure", "critical slice regression", "rights boundary uncertainty", "missing independent review"], "owners": ["learner", "independent reviewer"], "decision": "no-deploy", "decisionReason": "A mechanics fixture cannot support an external deployment claim."}),
-            artifact("reproducibility-receipt", {"validatorId": VALIDATOR_ID, "command": "python3 validate.py --package work/submission.generated.json", "seed": SEED, "inputs": results["inputReceipts"], "outputs": outputs, "expectedResult": "PASS only before mutation", "reviewer": {"name": "Reference Review Boundary (not an external reviewer)", "role": "course-pack safeguard", "externalReviewComplete": False}, "challenge": "Mutate version, artifact identity, neural evidence, and output bytes; every mutation must fail.", "decision": "no-deploy", "signedOn": "2026-08-26"}),
+            artifact("reproducibility-receipt", {"validatorId": VALIDATOR_ID, "command": "python3 validate_reference.py --package work/submission.generated.json", "seed": SEED, "inputs": results["inputReceipts"], "outputs": outputs, "expectedResult": "REFERENCE_PASS only before mutation; never capstone completion", "reviewer": {"name": "Reference boundary (not an external reviewer)", "role": "course-pack safeguard", "externalReviewComplete": False}, "challenge": "Mutate version, artifact identity, neural evidence, and output bytes; every mutation must fail.", "decision": "no-deploy", "signedOn": datetime.now(timezone.utc).date().isoformat()}),
         ],
     }
 

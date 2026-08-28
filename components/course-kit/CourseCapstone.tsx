@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { isCourseKitEvidenceReceipt } from "@/lib/course-kit/evidence-receipt";
 import {
-  courseKitCapstoneArtifactKey,
-  courseKitCapstoneCompleteKey,
   courseKitCapstoneDraftKey,
   courseKitCapstoneVersionKey,
+  isCourseKitCapstoneArtifactComplete,
+  isCourseKitCapstoneComplete,
+  isCourseKitModuleComplete,
+  isCourseKitQuizComplete,
 } from "@/lib/course-kit/progress";
 import type {
   CourseKitMaterialisedCourse,
@@ -50,16 +52,16 @@ export function CourseCapstone({
   const { record } = useCourseKitProgress(config);
   const currentVersion =
     record[courseKitCapstoneVersionKey(config.courseId)] === capstone.version;
-  const complete =
-    currentVersion &&
-    record[courseKitCapstoneCompleteKey(config.courseId)] === true;
+  const complete = isCourseKitCapstoneComplete(record, config);
   const [attested, setAttested] = useState(false);
   const [persisted, setPersisted] = useState<boolean | null>(null);
-  const artifactsComplete = capstone.artifacts.every(
-    (artifact) =>
-      currentVersion &&
-      record[courseKitCapstoneArtifactKey(config.courseId, artifact.id)] ===
-        true,
+  const modulesComplete = config.moduleSlugs.every((moduleSlug) =>
+    isCourseKitModuleComplete(record, config, moduleSlug)
+  );
+  const quizComplete = isCourseKitQuizComplete(record, config);
+  const coursePrerequisitesComplete = modulesComplete && quizComplete;
+  const artifactsComplete = capstone.artifacts.every((artifact) =>
+    isCourseKitCapstoneArtifactComplete(record, config, artifact.id)
   );
 
   return (
@@ -141,11 +143,11 @@ export function CourseCapstone({
         <legend>{labels.capstoneArtifacts}</legend>
         <div className={styles.artifactChecklist}>
           {capstone.artifacts.map((artifact) => {
-            const checked =
-              currentVersion &&
-              record[
-                courseKitCapstoneArtifactKey(config.courseId, artifact.id)
-              ] === true;
+            const checked = isCourseKitCapstoneArtifactComplete(
+              record,
+              config,
+              artifact.id,
+            );
             const draft = currentVersion
               ? storedArtifactDraft(
                   record[
@@ -225,7 +227,12 @@ export function CourseCapstone({
       <div className={styles.capstoneActions}>
         <button
           type="button"
-          disabled={!artifactsComplete || (!attested && !complete) || complete}
+          disabled={
+            !coursePrerequisitesComplete
+            || !artifactsComplete
+            || (!attested && !complete)
+            || complete
+          }
           onClick={() => setPersisted(setCourseKitCapstoneComplete(config))}
         >
           {complete ? labels.capstoneComplete : labels.markCapstoneComplete}
@@ -233,7 +240,9 @@ export function CourseCapstone({
         <p role="status" aria-live="polite">
           {complete
             ? labels.capstoneComplete
-            : artifactsComplete && attested
+            : !coursePrerequisitesComplete
+              ? labels.completeCourseFirst
+              : artifactsComplete && attested
               ? persisted === false
                 ? labels.savedInMemory
                 : labels.browserStorageNote

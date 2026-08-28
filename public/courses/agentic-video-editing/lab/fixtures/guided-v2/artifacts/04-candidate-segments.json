@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.semantic-analysis-director.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "semantic-analysis-director",
+  "artifactId": "candidate-segments",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "transcript-shot-index": "7741cf834661914ad6d06e4cad086d122e31fd26c85cb045730fae9e25a4c1ff"
+  },
+  "payload": {
+    "candidateSchemaId": "aicourse.agentic-video-editing.candidate-segment.v2",
+    "lanes": [
+      {
+        "laneId": "manual-review",
+        "execution": "offline-human",
+        "enabled": true,
+        "provider": "Named course fixture reviewer",
+        "modelVersion": "not-applicable-offline",
+        "networkRequired": false,
+        "costUsd": 0,
+        "dataPath": "local evidence index only",
+        "authority": "offline-core-authority",
+        "candidates": [
+          {
+            "candidateId": "manual-introduction",
+            "assetId": "camera-a",
+            "startFrame": 0,
+            "endFrame": 750,
+            "reason": "Introduce the declared workshop purpose before the repair demonstration.",
+            "evidenceIds": [
+              "evidence-introduction"
+            ],
+            "confidence": 1,
+            "decision": "include"
+          },
+          {
+            "candidateId": "manual-safety",
+            "assetId": "camera-a",
+            "startFrame": 900,
+            "endFrame": 1650,
+            "reason": "Retain the complete safety demonstration without changing chronology.",
+            "evidenceIds": [
+              "evidence-safety"
+            ],
+            "confidence": 1,
+            "decision": "include"
+          }
+        ]
+      },
+      {
+        "laneId": "recorded-fixture",
+        "execution": "offline-recorded-fixture",
+        "enabled": true,
+        "provider": "AI Course recorded fixture",
+        "modelVersion": "course22-m4-recorded-v2",
+        "networkRequired": false,
+        "costUsd": 0,
+        "dataPath": "course owned recorded output only",
+        "authority": "offline-core-authority",
+        "candidates": [
+          {
+            "candidateId": "recorded-introduction",
+            "assetId": "camera-a",
+            "startFrame": 0,
+            "endFrame": 750,
+            "reason": "Introduce the declared workshop purpose before the repair demonstration.",
+            "evidenceIds": [
+              "evidence-introduction"
+            ],
+            "confidence": 0.94,
+            "decision": "include"
+          },
+          {
+            "candidateId": "recorded-safety",
+            "assetId": "camera-a",
+            "startFrame": 900,
+            "endFrame": 1650,
+            "reason": "Retain the complete safety demonstration without changing chronology.",
+            "evidenceIds": [
+              "evidence-safety"
+            ],
+            "confidence": 0.91,
+            "decision": "include"
+          }
+        ]
+      },
+      {
+        "laneId": "optional-live-model",
+        "execution": "disabled-by-default",
+        "enabled": false,
+        "provider": "not-configured",
+        "modelVersion": "not-configured",
+        "networkRequired": true,
+        "costUsd": 0,
+        "dataPath": "no-data-sent-disabled",
+        "authority": "not-granted",
+        "candidates": []
+      }
+    ],
+    "selectedLaneId": "recorded-fixture"
+  },
+  "limitations": [
+    "The recorded lane is a course-authored static fixture and is not evidence of a current provider response.",
+    "The optional live lane remains disabled so the complete core workflow requires no network, account, cost, or key."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "aicourse.deep-learning.readiness.v1",
+  "courseVersion": "2026.08.28-v2",
+  "matrixProduct": [[4, 4], [10, 8]],
+  "broadcastShape": [2, 4, 3],
+  "partialDerivative": 6,
+  "chainRuleDerivative": 12,
+  "stableSoftmaxMethod": "subtract-maximum-logit",
+  "splitBoundary": "test-set-used-once-after-model-selection",
+  "pythonTest": {"command": "python3 -m unittest", "exitCode": 0},
+  "decision": "ready"
+}

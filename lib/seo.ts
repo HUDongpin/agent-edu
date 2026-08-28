@@ -248,6 +248,19 @@ export const AGENT_ORCHESTRATION_MODULE_PAGES = [
   "agent-orchestration/production-orchestration-capstone/",
 ] as const;
 
+export const AGENTIC_VIDEO_EDITING_MODULE_PAGES = [
+  "agentic-video-editing/agentic-editing-contract/",
+  "agentic-video-editing/media-ingest-provenance/",
+  "agentic-video-editing/transcripts-shots-index/",
+  "agentic-video-editing/semantic-analysis-director/",
+  "agentic-video-editing/declarative-edit-plan/",
+  "agentic-video-editing/agent-tools-mcp/",
+  "agentic-video-editing/deterministic-rendering/",
+  "agentic-video-editing/captions-audio-formats/",
+  "agentic-video-editing/verification-human-review/",
+  "agentic-video-editing/production-capstone/",
+] as const;
+
 export const PAGES = [
   "",
   "courses/",
@@ -270,6 +283,7 @@ export const PAGES = [
   "ai-tutor/",
   "product-management/",
   "agent-orchestration/",
+  "agentic-video-editing/",
   ...CODEX_LESSON_PAGES,
   ...CLAUDE_LESSON_PAGES,
   ...CURSOR_LESSON_PAGES,
@@ -284,6 +298,7 @@ export const PAGES = [
   ...AI_TUTOR_MODULE_PAGES,
   ...PRODUCT_MANAGEMENT_MODULE_PAGES,
   ...AGENT_ORCHESTRATION_MODULE_PAGES,
+  ...AGENTIC_VIDEO_EDITING_MODULE_PAGES,
   ...COURSE_KIT_PAGES,
 ] as const;
 export type Page = (typeof PAGES)[number];
@@ -372,6 +387,14 @@ export function agentOrchestrationModulePage(slug: string): Page {
   const page = `agent-orchestration/${slug}/`;
   if (!(PAGES as readonly string[]).includes(page)) {
     throw new Error(`Unknown Agent Orchestration module route: ${slug}`);
+  }
+  return page as Page;
+}
+
+export function agenticVideoEditingModulePage(slug: string): Page {
+  const page = `agentic-video-editing/${slug}/`;
+  if (!(PAGES as readonly string[]).includes(page)) {
+    throw new Error(`Unknown Agentic Video Editing module route: ${slug}`);
   }
   return page as Page;
 }

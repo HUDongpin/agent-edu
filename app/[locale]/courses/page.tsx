@@ -20,6 +20,7 @@ import { CLAUDE_INCOME_COURSE } from "@/lib/claude-income";
 import { loadAiTutorCourse } from "@/lib/ai-tutor";
 import { loadProductManagementCourse } from "@/lib/product-management";
 import { loadAgentOrchestrationCourse } from "@/lib/agent-orchestration";
+import { loadAgenticVideoEditingCourse } from "@/lib/agentic-video-editing";
 import { SOFTWARE_ENGINEERING_LESSONS } from "@/lib/software-engineering";
 import { materialiseCourseKit } from "@/lib/course-kit/locale";
 import { COURSE_KIT_DEFINITIONS } from "@/lib/course-kit/registry";
@@ -58,6 +59,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     aiTutorCourse,
     productManagementCourse,
     agentOrchestrationCourse,
+    agenticVideoEditingCourse,
   ] = await Promise.all([
     loadCodexCopy(locale),
     loadClaudeCourse(locale),
@@ -69,6 +71,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     loadAiTutorCourse(locale),
     loadProductManagementCourse(locale),
     loadAgentOrchestrationCourse(locale),
+    loadAgenticVideoEditingCourse(locale),
   ]);
   const mcpCourse = await loadMcpCourse(locale);
   const courseKitCourses = COURSE_KIT_DEFINITIONS.map((definition) =>
@@ -212,6 +215,16 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     timeRequired: `PT${module.minutes}M`,
   }));
 
+  const courseTwentyTwoParts = agenticVideoEditingCourse.modules.map((module) => ({
+    "@type": "LearningResource",
+    position: module.order,
+    name: module.copy.title,
+    description: module.copy.summary,
+    url: `${urlFor(agenticVideoEditingCourse.contentLocale)}agentic-video-editing/${module.slug}/`,
+    inLanguage: agenticVideoEditingCourse.contentLocale,
+    timeRequired: `PT${module.minutes}M`,
+  }));
+
   const courseKitParts = new Map(
     courseKitCourses.map((course) => [
       course.id,
@@ -245,6 +258,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     "ai-tutor": courseThirteenParts,
     "product-management": courseFourteenParts,
     "agent-orchestration": courseFifteenParts,
+    "agentic-video-editing": courseTwentyTwoParts,
     ...Object.fromEntries(courseKitParts),
   };
 
@@ -263,6 +277,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
           : course.id === "ai-tutor" ? aiTutorCourse.contentLocale
           : course.id === "product-management" ? productManagementCourse.contentLocale
           : course.id === "agent-orchestration" ? agentOrchestrationCourse.contentLocale
+          : course.id === "agentic-video-editing" ? agenticVideoEditingCourse.contentLocale
           : locale);
       const courseUrl = courseKitCourse
         ? `${urlFor(courseKitCourse.locale.canonicalLocale)}${course.href.replace(/^\//, "")}`
@@ -278,6 +293,8 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
           ? `${urlFor(productManagementCourse.contentLocale)}${course.href.replace(/^\//, "")}`
         : course.id === "agent-orchestration"
           ? `${urlFor(agentOrchestrationCourse.contentLocale)}${course.href.replace(/^\//, "")}`
+        : course.id === "agentic-video-editing"
+          ? `${urlFor(agenticVideoEditingCourse.contentLocale)}${course.href.replace(/^\//, "")}`
         : course.id === "prompts"
           ? `${urlFor(promptCourse.contentLocale)}${course.href.replace(/^\//, "")}`
         : `${urlFor(locale)}${course.href.replace(/^\//, "")}`;
@@ -292,6 +309,7 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
           description: courseKitCourse?.copy.meta.summary
             ?? (course.id === "mcp" ? mcpCourse.summary : t(`c.${course.id}.blurb`)),
           url: courseUrl,
+          ...(course.id === "agentic-video-editing" ? { courseCode: "22" } : {}),
           provider: { "@id": `${SITE}/#org` },
           inLanguage: contentLocale,
           educationalLevel: courseKitCourse?.copy.meta.level

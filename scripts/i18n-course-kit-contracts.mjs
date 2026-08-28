@@ -121,6 +121,42 @@ function literalString(node, label) {
   return value.text;
 }
 
+function localModuleObject(file, node, label, seen = new Set()) {
+  const value = unwrap(node);
+  if (ts.isObjectLiteralExpression(value)) return value;
+  if (ts.isCallExpression(value) && value.arguments.length === 1) {
+    return localModuleObject(file, value.arguments[0], `${label} call argument`, seen);
+  }
+  if (ts.isElementAccessExpression(value)
+      && ts.isIdentifier(unwrap(value.expression))) {
+    const registryName = unwrap(value.expression).text;
+    if (seen.has(registryName)) {
+      throw new Error(`${label} contains a circular local module registry reference`);
+    }
+    const indexNode = unwrap(value.argumentExpression);
+    if (!ts.isNumericLiteral(indexNode)) {
+      throw new Error(`${label} local module registry index must be a numeric literal`);
+    }
+    const index = Number(indexNode.text);
+    const registry = variableInitializer(file, registryName);
+    if (!ts.isArrayLiteralExpression(registry)
+        || !Number.isInteger(index)
+        || index < 0
+        || index >= registry.elements.length) {
+      throw new Error(`${label} references an invalid local module registry index`);
+    }
+    const nextSeen = new Set(seen);
+    nextSeen.add(registryName);
+    return localModuleObject(
+      file,
+      registry.elements[index],
+      `${label} -> ${registryName}[${index}]`,
+      nextSeen,
+    );
+  }
+  throw new Error(`${label} must resolve to a local literal module object`);
+}
+
 function courseDefinitionObject(file, exportName) {
   const initializer = variableInitializer(file, exportName);
   if (!ts.isCallExpression(initializer) || initializer.arguments.length !== 1) {
@@ -155,10 +191,11 @@ function moduleSlugs(path, exportName) {
     throw new Error(`${exportName} must be a literal module array in ${path}`);
   }
   return initializer.elements.map((element, index) => {
-    const value = unwrap(element);
-    const moduleObject = ts.isCallExpression(value) && value.arguments.length === 1
-      ? unwrap(value.arguments[0])
-      : value;
+    const moduleObject = localModuleObject(
+      file,
+      element,
+      `${exportName}[${index}]`,
+    );
     return literalString(objectProperty(moduleObject, "slug"), `${exportName}[${index}].slug`);
   });
 }

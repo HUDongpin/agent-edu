@@ -3,6 +3,10 @@ import type {
   CourseKitMilestoneCount,
   CourseKitProgressClientConfig,
 } from "./types";
+import {
+  parseCourseKitEvidenceReceipt,
+  parseCourseKitModuleEvidenceReceipt,
+} from "./evidence-receipt";
 
 export const COURSE_KIT_PROGRESS_STORAGE_KEY = "ae.progress" as const;
 export const COURSE_KIT_PROGRESS_EVENT = "ae:course-kit:progress" as const;
@@ -21,6 +25,11 @@ export interface CourseKitProgressSummary {
   readonly total: CourseKitMilestoneCount;
   readonly percent: number;
   readonly next: CourseKitMilestone | null;
+  readonly evidenceBasis:
+    | "validated-artifact"
+    | "self-attested"
+    | "mixed"
+    | "legacy-local-record";
   readonly milestones: readonly (CourseKitMilestone & {
     readonly complete: boolean;
   })[];
@@ -67,12 +76,24 @@ export function courseKitQuizBestKey(courseId: string): string {
   return `${courseKitProgressPrefix(courseId)}quiz.best`;
 }
 
+export function courseKitQuizCurrentScoreKey(courseId: string): string {
+  return `${courseKitProgressPrefix(courseId)}quiz.current.score`;
+}
+
+export function courseKitQuizBestPassedKey(courseId: string): string {
+  return `${courseKitProgressPrefix(courseId)}quiz.best.passed`;
+}
+
 export function courseKitQuizPassedKey(courseId: string): string {
   return `${courseKitProgressPrefix(courseId)}quiz.passed`;
 }
 
 export function courseKitQuizDraftKey(courseId: string): string {
   return `${courseKitProgressPrefix(courseId)}quiz.draft`;
+}
+
+export function courseKitQuizFormKey(courseId: string): string {
+  return `${courseKitProgressPrefix(courseId)}quiz.form`;
 }
 
 export function courseKitCapstoneVersionKey(courseId: string): string {
@@ -111,6 +132,41 @@ export function createCourseKitProgressConfig(
   definition: CourseKitDefinition,
 ): CourseKitProgressClientConfig {
   const { manifest, quiz, capstone } = definition;
+  const moduleContracts = manifest.modules.map((module, index, modules) => {
+    const explicitlyDeclared = Boolean(
+      module.prerequisiteModuleSlugs
+      && module.producesArtifactIds?.length
+      && module.consumesArtifactIds
+      && module.artifactSchemaId
+      && module.validatorId
+      && module.validatorCommand
+      && module.completionMode,
+    );
+    return {
+      moduleSlug: module.slug,
+      prerequisiteModuleSlugs: module.prerequisiteModuleSlugs
+        ? [...module.prerequisiteModuleSlugs]
+        : index > 0
+          ? [modules[index - 1].slug]
+          : [],
+      producesArtifactIds: module.producesArtifactIds
+        ? [...module.producesArtifactIds]
+        : [module.slug],
+      consumesArtifactIds: module.consumesArtifactIds
+        ? [...module.consumesArtifactIds]
+        : [],
+      artifactSchemaId:
+        module.artifactSchemaId ?? capstone.evidenceContract.schemaId,
+      validatorId: module.validatorId ?? capstone.evidenceContract.validatorId,
+      validatorCommand:
+        module.validatorCommand ?? capstone.evidenceContract.validatorCommand,
+      // Course Kit v1 had no module-specific validator contract. Preserve its
+      // existing browser progress only as an explicitly labelled local
+      // self-attestation; v2 courses must declare validated-artifact metadata.
+      completionMode: module.completionMode ?? "self-attested",
+      explicitlyDeclared,
+    } as const;
+  });
   return {
     storageKey: COURSE_KIT_PROGRESS_STORAGE_KEY,
     courseId: manifest.id,
@@ -121,12 +177,13 @@ export function createCourseKitProgressConfig(
     resetEvent: courseKitProgressResetEvent(manifest.id),
     milestoneCount: manifest.milestoneCount,
     moduleSlugs: manifest.modules.map((module) => module.slug),
+    moduleContracts,
     quizVersion: quiz.version,
     capstoneVersion: capstone.version,
     capstoneArtifactIds: capstone.artifacts.map((artifact) => artifact.id),
     evidenceValidatorId: capstone.evidenceContract.validatorId,
     evidenceValidatorCommandPrefix:
-      `python public/courses/${manifest.id}/lab/validate.py --package `,
+      capstone.evidenceContract.validatorCommand.split("<")[0],
   };
 }
 
@@ -137,15 +194,190 @@ export function isCurrentCourseKitProgress(
   return record[config.progressVersionKey] === config.courseVersion;
 }
 
+export function isCourseKitCheckpointComplete(
+  record: CourseKitProgressRecord,
+  config: CourseKitProgressClientConfig,
+  moduleSlug: string,
+): boolean {
+  const checkpoint = record[courseKitCheckpointKey(config.courseId, moduleSlug)];
+  return Boolean(
+    isCurrentCourseKitProgress(record, config)
+    && checkpoint
+    && typeof checkpoint === "object"
+    && !Array.isArray(checkpoint)
+    && (checkpoint as { readonly correct?: unknown }).correct === true,
+  );
+}
+
+function moduleContract(
+  config: CourseKitProgressClientConfig,
+  moduleSlug: string,
+) {
+  return config.moduleContracts.find((contract) => contract.moduleSlug === moduleSlug);
+}
+
+function receiptText(record: CourseKitProgressRecord, key: string): string {
+  const receipt = record[key];
+  return typeof receipt === "string" ? receipt : "";
+}
+
+interface CourseKitModuleEvidenceState {
+  readonly artifactId: string;
+  readonly artifactSha256: string;
+}
+
+export function courseKitArtifactCompletionMarker(
+  artifactId: string,
+  sha256: string,
+): string {
+  return `${artifactId}:${sha256}`;
+}
+
+function evaluateCourseKitModuleEvidence(
+  record: CourseKitProgressRecord,
+  config: CourseKitProgressClientConfig,
+  moduleSlug: string,
+  visiting: Set<string>,
+  requireCompletionMarker: boolean,
+): CourseKitModuleEvidenceState | null {
+  const contract = moduleContract(config, moduleSlug);
+  if (!contract || visiting.has(moduleSlug)) return null;
+  if (!isCourseKitCheckpointComplete(record, config, moduleSlug)) return null;
+
+  visiting.add(moduleSlug);
+  try {
+    for (const prerequisite of contract.prerequisiteModuleSlugs) {
+      if (!evaluateCourseKitModuleEvidence(
+        record,
+        config,
+        prerequisite,
+        visiting,
+        true,
+      )) return null;
+    }
+
+    if (contract.completionMode === "self-attested") {
+      const marker = record[courseKitModuleCompleteKey(config.courseId, moduleSlug)];
+      return !requireCompletionMarker
+        || marker === "self-attested"
+        || (!contract.explicitlyDeclared && marker === true)
+        ? { artifactId: moduleSlug, artifactSha256: "self-attested" }
+        : null;
+    }
+
+    const rawReceipt = receiptText(
+      record,
+      courseKitModuleReceiptKey(config.courseId, moduleSlug),
+    );
+    let evidence: CourseKitModuleEvidenceState | null = null;
+    if (contract.explicitlyDeclared) {
+      const inputArtifactHashes: Record<string, string> = {};
+      for (const artifactId of contract.consumesArtifactIds) {
+        const producer = config.moduleContracts.find((candidate) =>
+          candidate.producesArtifactIds.includes(artifactId)
+        );
+        if (!producer) return null;
+        const producerEvidence = evaluateCourseKitModuleEvidence(
+          record,
+          config,
+          producer.moduleSlug,
+          visiting,
+          true,
+        );
+        if (!producerEvidence || producerEvidence.artifactId !== artifactId) {
+          return null;
+        }
+        inputArtifactHashes[artifactId] = producerEvidence.artifactSha256;
+      }
+      const parsed = parseCourseKitModuleEvidenceReceipt(rawReceipt, {
+        courseId: config.courseId,
+        courseVersion: config.courseVersion,
+        moduleSlug,
+        artifactIds: contract.producesArtifactIds,
+        inputArtifactIds: contract.consumesArtifactIds,
+        inputArtifactHashes,
+        artifactSchemaId: contract.artifactSchemaId,
+        validatorId: contract.validatorId,
+        validatorCommand: contract.validatorCommand,
+      });
+      if (parsed) {
+        evidence = {
+          artifactId: parsed.artifactId,
+          artifactSha256: parsed.artifactSha256,
+        };
+      }
+    } else {
+      const parsed = parseCourseKitEvidenceReceipt(rawReceipt, {
+        kind: "module-artifact",
+        courseId: config.courseId,
+        courseVersion: config.courseVersion,
+        artifactId: moduleSlug,
+        validatorId: contract.validatorId,
+        validatorCommandPrefix: contract.validatorCommand.split("<")[0].trimEnd(),
+      });
+      if (parsed) evidence = { artifactId: parsed.artifactId, artifactSha256: parsed.sha256 };
+    }
+    if (!evidence) return null;
+    if (requireCompletionMarker
+      && record[courseKitModuleCompleteKey(config.courseId, moduleSlug)] !==
+        courseKitArtifactCompletionMarker(
+          evidence.artifactId,
+          evidence.artifactSha256,
+        )) {
+      return null;
+    }
+    return evidence;
+  } finally {
+    visiting.delete(moduleSlug);
+  }
+}
+
+export function courseKitModuleEvidenceState(
+  record: CourseKitProgressRecord,
+  config: CourseKitProgressClientConfig,
+  moduleSlug: string,
+): CourseKitModuleEvidenceState | null {
+  if (!isCurrentCourseKitProgress(record, config)) return null;
+  return evaluateCourseKitModuleEvidence(
+    record,
+    config,
+    moduleSlug,
+    new Set<string>(),
+    false,
+  );
+}
+
+export function areCourseKitModulePrerequisitesComplete(
+  record: CourseKitProgressRecord,
+  config: CourseKitProgressClientConfig,
+  moduleSlug: string,
+): boolean {
+  const contract = moduleContract(config, moduleSlug);
+  if (!contract) return false;
+  return contract.prerequisiteModuleSlugs.every((prerequisite) =>
+    evaluateCourseKitModuleEvidence(
+      record,
+      config,
+      prerequisite,
+      new Set<string>(),
+      true,
+    ) !== null
+  );
+}
+
 export function isCourseKitModuleComplete(
   record: CourseKitProgressRecord,
   config: CourseKitProgressClientConfig,
   moduleSlug: string,
 ): boolean {
-  return (
-    isCurrentCourseKitProgress(record, config) &&
-    record[courseKitModuleCompleteKey(config.courseId, moduleSlug)] === true
-  );
+  return isCurrentCourseKitProgress(record, config)
+    && evaluateCourseKitModuleEvidence(
+      record,
+      config,
+      moduleSlug,
+      new Set<string>(),
+      true,
+    ) !== null;
 }
 
 export function isCourseKitQuizComplete(
@@ -165,14 +397,55 @@ export function isCourseKitCapstoneComplete(
 ): boolean {
   return (
     isCurrentCourseKitProgress(record, config) &&
+    config.moduleSlugs.every((moduleSlug) =>
+      isCourseKitModuleComplete(record, config, moduleSlug)
+    ) &&
+    isCourseKitQuizComplete(record, config) &&
     record[courseKitCapstoneVersionKey(config.courseId)] ===
       config.capstoneVersion &&
     record[courseKitCapstoneCompleteKey(config.courseId)] === true &&
     config.capstoneArtifactIds.every(
-      (artifactId) =>
-        record[courseKitCapstoneArtifactKey(config.courseId, artifactId)] ===
-        true,
+      (artifactId) => isCourseKitCapstoneArtifactComplete(
+        record,
+        config,
+        artifactId,
+      ),
     )
+  );
+}
+
+export function isCourseKitCapstoneArtifactComplete(
+  record: CourseKitProgressRecord,
+  config: CourseKitProgressClientConfig,
+  artifactId: string,
+): boolean {
+  if (!isCurrentCourseKitProgress(record, config)
+    || record[courseKitCapstoneVersionKey(config.courseId)] !==
+      config.capstoneVersion) return false;
+  const parsed = courseKitCapstoneArtifactEvidenceState(record, config, artifactId);
+  return Boolean(parsed)
+    && record[courseKitCapstoneArtifactKey(config.courseId, artifactId)] ===
+      courseKitArtifactCompletionMarker(artifactId, parsed?.sha256 ?? "");
+}
+
+export function courseKitCapstoneArtifactEvidenceState(
+  record: CourseKitProgressRecord,
+  config: CourseKitProgressClientConfig,
+  artifactId: string,
+) {
+  if (!isCurrentCourseKitProgress(record, config)
+    || record[courseKitCapstoneVersionKey(config.courseId)] !==
+      config.capstoneVersion) return null;
+  return parseCourseKitEvidenceReceipt(
+    receiptText(record, courseKitCapstoneDraftKey(config.courseId, artifactId)),
+    {
+      kind: "capstone-artifact",
+      courseId: config.courseId,
+      courseVersion: config.courseVersion,
+      artifactId,
+      validatorId: config.evidenceValidatorId,
+      validatorCommandPrefix: config.evidenceValidatorCommandPrefix,
+    },
   );
 }
 
@@ -208,12 +481,23 @@ export function courseKitProgressSummary(
         : next?.kind === "capstone"
           ? { kind: "capstone", id: "capstone" }
           : null;
+  const moduleEvidenceModes = new Set(
+    config.moduleContracts.map((contract) =>
+      contract.explicitlyDeclared
+        ? contract.completionMode
+        : "legacy-local-record"
+    ),
+  );
+  const evidenceBasis = moduleEvidenceModes.size === 1
+    ? [...moduleEvidenceModes][0]
+    : "mixed";
 
   return {
     completed,
     total: config.milestoneCount,
     percent: Math.round((completed / config.milestoneCount) * 100),
     next: nextMilestone,
+    evidenceBasis,
     milestones,
   };
 }

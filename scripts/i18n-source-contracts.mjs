@@ -282,6 +282,25 @@ const EXACT_TECHNICAL_LITERALS = new Map([
 function isTechnicalCodeLiteral(relativePath, node, text) {
   if (!TECHNICAL_CODE_FILES.has(relativePath) || !insideElement(node, new Set(["code", "pre"]))) return false;
   const value = text.trim().replace(/\s+/g, " ");
+  if (relativePath === "components/deep-learning/DeepLearningLab.tsx") {
+    const exactV2Fragments = new Set([
+      "module.*.v2",
+      "reference-validator.v1",
+      "validator.v2",
+      "aicourse.deep-learning.module.&lt;module-slug&gt;.v2",
+      "python3 run_modules.py --all --output-dir work/modules",
+      "python3 validate_reference.py --package work/reference/submission.generated.json",
+      "python3 validate_capstone.py --package work/learner-final.json",
+      "python3 validate_module.py --module",
+      "--package work/modules/",
+      ".json --receipt work/receipts/",
+      ".json",
+    ]);
+    if (exactV2Fragments.has(value)
+      || /^aicourse\.deep-learning\.(?:module\.\*|reference-validator|validator)\.v\d+$/.test(value)) {
+      return true;
+    }
+  }
   return /^aicourse\.(?:ai-python-data|machine-learning|deep-learning|production-ai)\.validator\.v1$/.test(value)
     || /^python3 (?:run_notebook|run_pipeline|run_experiment|run_capstone|validate|test_lab)\.py(?: --(?:output-dir work|package work\/submission\.generated\.json))?$/.test(value)
     || value === "--offline"
@@ -357,5 +376,5 @@ export function sourceLiteralDecision(policy, { relativePath, sourceFile, node, 
 export const SOURCE_LITERAL_EXPECTATIONS = Object.freeze({
   fallbackJsx: 315,
   fallbackAttributes: 24,
-  technicalJsx: 40,
+  technicalJsx: 46,
 });

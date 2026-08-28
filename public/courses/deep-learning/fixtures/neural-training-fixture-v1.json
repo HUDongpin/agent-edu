@@ -1,7 +1,7 @@
 {
   "schemaVersion": "deep-learning.fixture.v1",
-  "fixtureId": "ae-deep-learning-synthetic-lines-v1",
-  "createdOn": "2026-08-26",
+  "fixtureId": "ae-deep-learning-foundation-mlp-v1",
+  "createdOn": "2026-08-28",
   "origin": "Original deterministic synthetic educational data; no real people, measurements, or third-party records.",
   "seed": 20260826,
   "task": "Classify a 4x4 grid as containing a dominant horizontal or vertical line.",

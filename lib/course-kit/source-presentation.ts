@@ -85,6 +85,12 @@ export const COURSE_KIT_ZH_HANS_SOURCE_PRESENTATION_TRANSLATIONS = {
     "美国联邦指引",
   "PyTorch 2.13 documentation family; Adam paper version current at access":
     "PyTorch 2.13 文档系列；Adam 论文版本截至访问时为当前版本",
+  "PyTorch v2.13.0; release commit cf30153c4c131c8164ee7798e5022d810682e2cb":
+    "PyTorch v2.13.0；发布提交 cf30153c4c131c8164ee7798e5022d810682e2cb",
+  "Historical access-cutoff snapshot; pytorch/tutorials commit d445c1f91cadf17d0cd686a5541c2202a6c799d3":
+    "历史访问截止快照；pytorch/tutorials 提交 d445c1f91cadf17d0cd686a5541c2202a6c799d3",
+  "PEFT v0.20.0; annotated tag dcb81da6ad92be5a9f4e07795c09d55cf35a19d1; commit a5526d27a9d47d1e8264d5e1b1f96c0fdc79464e":
+    "PEFT v0.20.0；带注释标签 dcb81da6ad92be5a9f4e07795c09d55cf35a19d1；提交 a5526d27a9d47d1e8264d5e1b1f96c0fdc79464e",
   "New GRADE Book available since 2024; 2013 handbook is being phased out chapter by chapter":
     "新版 GRADE Book 自 2024 年起可用；2013 年手册正逐章停用",
   "rolling site; compatible specification and release must be pinned":

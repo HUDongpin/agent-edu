@@ -7,11 +7,11 @@
       "locales": {
         "en": {
           "status": "pending",
-          "copySha256": "f6c33055397d42dfb5803f94276a8a553f5cc9c0a98408d641b875d3e0a65c43"
+          "copySha256": "7d5ca8600f7ec58b72d47cf23404277c02a01826df39697dc991369aab81b5b6"
         },
         "zh-Hans": {
           "status": "pending",
-          "copySha256": "3fb3877d1e4ee37b00b34e61c40ec2900faa7fa6a65337b17e9acd6f49391529"
+          "copySha256": "62825a39821d2adad795c533f824d684197200880abb6e1db3c1483dff2bcd4c"
         }
       }
     },
@@ -20,11 +20,11 @@
       "locales": {
         "en": {
           "status": "pending",
-          "copySha256": "4338bcdc06adefe711086081f2cccd79e34e69571e2c10635bc4a18e742f6e37"
+          "copySha256": "37d79f88a3e999b07543245862c6bc0bb8e542c80d2f3cc8cd5f88021ec2ab1c"
         },
         "zh-Hans": {
           "status": "pending",
-          "copySha256": "f9e9fd2da92d666176f29781934e6129cd99e91ce5d34ea847505bab24c0b85e"
+          "copySha256": "aabc50d7fa29c5d01d554d2f752fb42ccfbb77b661e71d961671949564377783"
         }
       }
     },
@@ -33,11 +33,11 @@
       "locales": {
         "en": {
           "status": "pending",
-          "copySha256": "fbc549a8136ffb92d56ab0689225a4e5cbc2b105e2824270458b1d4c3f55c9c4"
+          "copySha256": "58f8a5742e607c9db72090bf54f53b31c7397daae3478073e3ebf1f7ee7387b8"
         },
         "zh-Hans": {
           "status": "pending",
-          "copySha256": "1d5507f72baefac544ff17606989e5c2bb7455b95e80477884a34fd2cf723239"
+          "copySha256": "24e7ea618b131aa83b491edc98320fc7a32087aeb38f75b6a6fb1c13b540104c"
         }
       }
     },
@@ -46,24 +46,24 @@
       "locales": {
         "en": {
           "status": "pending",
-          "copySha256": "27ad339295db16d58cd8ae6c4b05116cbe083cd04348309ceab31a9c0dc55f09"
+          "copySha256": "6edcafacf84d9035aed091ccd0d35e2609375f557103a87dceb084f382bc354d"
         },
         "zh-Hans": {
           "status": "pending",
-          "copySha256": "7cfa6444871635f5983b3104d294007ca226dc8f6404eb2c59188d7db61ddad7"
+          "copySha256": "c1babbeb3077f8d9ea519976bf711e7eaaf7e97d55c55badc5b89718fe7f42f7"
         }
       }
     },
     "deep-learning": {
-      "courseVersion": "2026.08.26-v1",
+      "courseVersion": "2026.08.28-v2",
       "locales": {
         "en": {
           "status": "pending",
-          "copySha256": "6eece793744303fb786ad360c6534d54bde4fcfe4dc6e39dbe792b644c391b8a"
+          "copySha256": "37e363681d57d5b75a8d4973a0bb6ed0c48f61959810960f6f7191015efa0b2a"
         },
         "zh-Hans": {
           "status": "pending",
-          "copySha256": "9ea64fc7d3971ed6bbae62d5214d4f1d6f79d1861bba0bd947d9dcd0e4b58e92"
+          "copySha256": "218e2f40b6c2cd483ba50a71be28a7fbe67d3b33ee3ee739f5ebca07a473ad84"
         }
       }
     },
@@ -72,11 +72,11 @@
       "locales": {
         "en": {
           "status": "pending",
-          "copySha256": "9ba1099c4434894e1b555bcb49f21d8539d36a12ec431d5c147f734f3e5d3538"
+          "copySha256": "a14630eef6064bb477d7099ac8586dbbe6ab4fd7cd2672459ae98cb548cee842"
         },
         "zh-Hans": {
           "status": "pending",
-          "copySha256": "15e27130f3400a4fed63602f9af5f92d9ecc7d86991a562ab64d299d30c1a712"
+          "copySha256": "a3e3fdf8e1149ecadb26994a908e4f13f0ec495ab5becbfd41b28d4173c5fe56"
         }
       }
     }

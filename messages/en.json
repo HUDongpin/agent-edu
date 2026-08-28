@@ -555,6 +555,11 @@
   "c.production-ai.level": "Intermediate to advanced",
   "c.production-ai.meta": "12 modules · 15 hours · final assessment and dual-system capstone",
   "c.production-ai.contentLanguage": "Course content: English",
+  "c.agentic-video-editing.title": "Agentic Video Editing",
+  "c.agentic-video-editing.blurb": "Design an auditable, select-only agentic video workflow from media provenance and offline analysis to permission-gated rendering, verification, and a human release decision.",
+  "c.agentic-video-editing.level": "Intermediate to advanced",
+  "c.agentic-video-editing.meta": "10 modules · 12 h 30 min · offline contract lab · readiness quiz and capstone",
+  "c.agentic-video-editing.contentLanguage": "Course content: English or Simplified Chinese",
   "c.agent-orchestration.title": "Agent Orchestration",
   "c.agent-orchestration.blurb": "Architect production-grade agent systems with explicit task graphs, delegation, state, budgets, recovery, authority, observability, evaluation, and rollout gates.",
   "c.agent-orchestration.level": "Intermediate to advanced",
@@ -566,6 +571,7 @@
   "cat.course19": "Course 19",
   "cat.course20": "Course 20",
   "cat.course21": "Course 21",
+  "cat.course22": "Course 22",
   "home.q5": "Where is my progress stored?",
   "home.a5": "Course milestones and your theme choice stay in this browser. There is no learner account. The site counts anonymous page views, but it does not receive your course progress or any API key you use in the Lab."
 }

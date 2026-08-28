@@ -31,7 +31,7 @@ const ABOUT_DYNAMIC_KEYS = [
 ];
 
 const CATALOG_DYNAMIC_KEYS = [
-  ...numbered(21).map((number) => `cat.course${number}`),
+  ...numbered(22).map((number) => `cat.course${number}`),
   ...["beginner", "intermediate", "advanced"].map((level) => `level.${level}`),
   ...["available", "soon"].map((status) => `status.${status}`),
 ];

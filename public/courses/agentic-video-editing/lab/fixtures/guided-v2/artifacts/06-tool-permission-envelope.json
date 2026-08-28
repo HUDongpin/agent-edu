@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.agent-tools-mcp.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "agent-tools-mcp",
+  "artifactId": "tool-permission-envelope",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "edit-plan": "a5f2f95f0448cd64cd2c59ae96b5cbbb1c7f428efef743c117055e19b02fbaa9"
+  },
+  "payload": {
+    "policyId": "guided-offline-tool-policy-v2",
+    "allowedReadRoots": [
+      "assets",
+      "artifacts"
+    ],
+    "allowedWriteRoots": [
+      "outputs"
+    ],
+    "permissions": {
+      "readSource": true,
+      "writeOutputs": true,
+      "overwriteOriginals": false,
+      "publish": false,
+      "delete": false
+    },
+    "network": {
+      "allowed": false,
+      "hosts": []
+    },
+    "paidServices": {
+      "allowed": false,
+      "maxCostUsd": 0
+    },
+    "secretHandling": {
+      "delivery": "host-secret-store-or-environment",
+      "promptChat": false,
+      "repository": false,
+      "receipts": false,
+      "logs": false,
+      "rotationAndRevocation": true
+    },
+    "timeoutSeconds": 90,
+    "retryPolicy": {
+      "maximumRetries": 2,
+      "backoff": "bounded-exponential"
+    },
+    "idempotencyKey": "guided-render-operation-v2",
+    "recoveryPlan": "Resume only from the last hash-validated plan and write every retry to a fresh candidate output before comparison.",
+    "logging": {
+      "redactSecrets": true,
+      "includeHashes": true,
+      "includeToolVersions": true
+    }
+  },
+  "limitations": [
+    "This policy grants no network, paid service, source overwrite, delete, upload, export-to-platform, or publish authority.",
+    "A validator can inspect declared authority and logs but cannot prove the host enforced permissions outside this fixture."
+  ]
+}

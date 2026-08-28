@@ -1,66 +1,70 @@
 #!/usr/bin/env python3
-"""Clean-run, positive, and destructive negative tests for the Course 20 pack."""
+"""Provision the locked Course 20 v2 test runtime, then run its offline suite."""
 
 from __future__ import annotations
 
-import copy
-import json
+import os
+import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
-from validate import validate_submission
+
+PYTHON = "3.11"
+TORCH = "2.13.0"
+NUMPY = "2.4.1"
 
 
-def write_json(path: Path, value: object) -> None:
-    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-
-
-def require_failure(name: str, value: object, path: Path) -> None:
-    write_json(path, value)
-    issues = validate_submission(path)
-    if not issues:
-        raise AssertionError("negative mutation unexpectedly passed: {}".format(name))
+def current_runtime_matches() -> bool:
+    if sys.version_info[:2] != (3, 11):
+        return False
+    try:
+        import numpy  # type: ignore
+        import torch  # type: ignore
+    except ImportError:
+        return False
+    return torch.__version__ == TORCH and numpy.__version__ == NUMPY
 
 
 def main() -> int:
     lab_dir = Path(__file__).resolve().parent
-    with tempfile.TemporaryDirectory(prefix="aicourse-deep-learning-") as temp:
-        work = Path(temp) / "work"
-        subprocess.run([sys.executable, str(lab_dir / "run_experiment.py"), "--output-dir", str(work)], cwd=str(lab_dir), check=True, capture_output=True, text=True)
-        submission_path = work / "submission.generated.json"
-        subprocess.run([sys.executable, str(lab_dir / "validate.py"), "--package", str(submission_path)], cwd=str(lab_dir), check=True, capture_output=True, text=True)
-        if validate_submission(submission_path):
-            raise AssertionError("clean generated submission did not pass in-process validation")
-        source = json.loads(submission_path.read_text(encoding="utf-8"))
-
-        wrong_version = copy.deepcopy(source)
-        wrong_version["courseVersion"] = "wrong-version"
-        require_failure("wrong course version", wrong_version, work / "mutated-version.json")
-
-        missing = copy.deepcopy(source)
-        missing["artifacts"].pop()
-        require_failure("missing artifact", missing, work / "mutated-missing.json")
-
-        wrong_id = copy.deepcopy(source)
-        wrong_id["artifacts"][3]["artifactId"] = "invented-slice"
-        require_failure("wrong artifact ID", wrong_id, work / "mutated-id.json")
-
-        wrong_training = copy.deepcopy(source)
-        wrong_training["artifacts"][1]["content"]["milestones"][-1]["validationAccuracy"] = -1
-        require_failure("changed neural evidence", wrong_training, work / "mutated-training.json")
-
-        metrics_path = work / "metrics.json"
-        original_metrics = metrics_path.read_bytes()
-        metrics_path.write_bytes(original_metrics + b" ")
-        issues = validate_submission(submission_path)
-        if not any("hash mismatch" in issue for issue in issues):
-            raise AssertionError("changed generated output did not fail its hash contract: {}".format(issues))
-        metrics_path.write_bytes(original_metrics)
-
-    print("aicourse.deep-learning.lab-tests.v1: PASS (1 clean + 5 negative)")
-    return 0
+    suite = lab_dir / "test_lab_v2.py"
+    if current_runtime_matches():
+        command = [sys.executable, str(suite), "-v"]
+    else:
+        uv = shutil.which("uv")
+        if not uv:
+            print(
+                "Course 20 v2 requires CPython 3.11, torch==2.13.0, and "
+                "numpy==2.4.1. Install the locked environment or provide uv.",
+                file=sys.stderr,
+            )
+            return 2
+        command = [
+            uv,
+            "run",
+            "--python",
+            PYTHON,
+            "--with",
+            f"torch=={TORCH}",
+            "--with",
+            f"numpy=={NUMPY}",
+            "python",
+            str(suite),
+            "-v",
+        ]
+    environment = {
+        **os.environ,
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONHASHSEED": "0",
+        "TZ": "UTC",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+    }
+    completed = subprocess.run(command, cwd=lab_dir, env=environment, check=False)
+    if completed.returncode == 0:
+        print("aicourse.deep-learning.lab-tests.v2: PASS (12 modules + reference/capstone negatives)")
+    return completed.returncode
 
 
 if __name__ == "__main__":

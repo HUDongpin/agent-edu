@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "aicourse.deep-learning.readiness.v1",
+  "courseVersion": "2026.08.28-v2",
+  "matrixProduct": [],
+  "broadcastShape": [],
+  "partialDerivative": 0,
+  "chainRuleDerivative": 0,
+  "stableSoftmaxMethod": "REPLACE",
+  "splitBoundary": "REPLACE",
+  "pythonTest": {"command": "python3 -m unittest", "exitCode": null},
+  "decision": "bridge"
+}

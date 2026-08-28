@@ -85,6 +85,11 @@ import {
   PRODUCTION_AI_PROGRESS_EVENT,
   productionAiProgressPercent,
 } from "./production-ai";
+import {
+  AGENTIC_VIDEO_EDITING_COURSE_MANIFEST,
+  AGENTIC_VIDEO_EDITING_PROGRESS_EVENT,
+  agenticVideoEditingProgressPercent,
+} from "./agentic-video-editing";
 
 export type Level = "beginner" | "intermediate" | "advanced";
 export type Format = "read" | "interactive" | "code";
@@ -133,10 +138,11 @@ export interface TopLevelCourse {
     | "ai-python-data"
     | "machine-learning"
     | "deep-learning"
-    | "production-ai";
+    | "production-ai"
+    | "agentic-video-editing";
   displayNumber:
     | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
-    | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21;
+    | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22;
   href: string;
   minutes: number;
   durationMinutes: number;
@@ -812,6 +818,32 @@ export const TOP_LEVEL_COURSES: TopLevelCourse[] = [
     progressEvent: PRODUCTION_AI_PROGRESS_EVENT,
     progress: (p) => productionAiProgressPercent(p),
   },
+  {
+    id: "agentic-video-editing",
+    displayNumber: 22,
+    href: "/agentic-video-editing/",
+    minutes: AGENTIC_VIDEO_EDITING_COURSE_MANIFEST.modules.reduce(
+      (sum, moduleManifest) => sum + moduleManifest.minutes,
+      0,
+    ),
+    durationMinutes: AGENTIC_VIDEO_EDITING_COURSE_MANIFEST.modules.reduce(
+      (sum, moduleManifest) => sum + moduleManifest.minutes,
+      0,
+    ),
+    status: "available",
+    hue: "var(--coral)",
+    level: "intermediate-to-advanced",
+    moduleIds: AGENTIC_VIDEO_EDITING_COURSE_MANIFEST.modules.map(
+      (moduleManifest) => moduleManifest.slug,
+    ),
+    outcomeKeys: [
+      "c.agentic-video-editing.blurb",
+      "c.agentic-video-editing.meta",
+    ],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: AGENTIC_VIDEO_EDITING_PROGRESS_EVENT,
+    progress: (progress) => agenticVideoEditingProgressPercent(progress),
+  },
 ];
 
 const agenticCourse = TOP_LEVEL_COURSES.find((course) => course.id === "agentic")!;
@@ -845,6 +877,9 @@ const aiPythonDataCourse = TOP_LEVEL_COURSES.find((course) => course.id === "ai-
 const machineLearningCourse = TOP_LEVEL_COURSES.find((course) => course.id === "machine-learning")!;
 const deepLearningCourse = TOP_LEVEL_COURSES.find((course) => course.id === "deep-learning")!;
 const productionAiCourse = TOP_LEVEL_COURSES.find((course) => course.id === "production-ai")!;
+const agenticVideoEditingCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "agentic-video-editing",
+)!;
 
 /**
  * The broad AI-learning directory.
@@ -1259,6 +1294,26 @@ export const CATALOG_COURSES: readonly CatalogCourse[] = [
     hue: productionAiCourse.hue,
     progressEvent: productionAiCourse.progressEvent,
     progress: productionAiCourse.progress,
+  },
+  {
+    id: "agentic-video-editing",
+    displayNumber: agenticVideoEditingCourse.displayNumber,
+    href: agenticVideoEditingCourse.href,
+    titleKey: "c.agentic-video-editing.title",
+    blurbKey: "c.agentic-video-editing.blurb",
+    metaKey: "c.agentic-video-editing.meta",
+    contentLanguageKey: "c.agentic-video-editing.contentLanguage",
+    topic: "ai-systems",
+    topicKey: "topic.aiSystems",
+    level: agenticVideoEditingCourse.level,
+    levelKey: "c.agentic-video-editing.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: agenticVideoEditingCourse.minutes,
+    status: agenticVideoEditingCourse.status,
+    hue: agenticVideoEditingCourse.hue,
+    progressEvent: agenticVideoEditingCourse.progressEvent,
+    progress: agenticVideoEditingCourse.progress,
   },
 ];
 

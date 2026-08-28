@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.media-ingest-provenance.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "media-ingest-provenance",
+  "artifactId": "clock-receipt",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "creative-brief": "56f9d8437088141687848592b6e1bbfa6534735d58871c5fb6c37a6542373d0b"
+  },
+  "payload": {
+    "timebase": {
+      "numerator": 30000,
+      "denominator": 1001,
+      "dropFrame": false
+    },
+    "assetClocks": [
+      {
+        "assetId": "camera-a",
+        "startFrame": 0,
+        "durationFrames": 1800,
+        "probeReceiptPath": "assets/camera-a.probe.json",
+        "probeReceiptSha256": "a6213438740b23f9288a47e721ff12e5bb9caa7466dd5b6a2718f9a6829ea6b7"
+      },
+      {
+        "assetId": "room-audio",
+        "startFrame": 0,
+        "durationFrames": 1800,
+        "probeReceiptPath": "assets/room-audio.probe.json",
+        "probeReceiptSha256": "e8ac1d886fb3578f480e5800a6e1f7aa98d03c3a9bf2baf337b85d4e4bb93433"
+      }
+    ],
+    "normalizationPolicy": "Resolve every transcript, shot, selection, and delivery duration to integer frames at the locked project timebase.",
+    "allBoundsPass": true
+  },
+  "limitations": [
+    "The receipt binds committed ffprobe observations to actual course-owned playable source bytes.",
+    "Frame normalization resolves the project clock but does not certify editorial meaning or publication readiness."
+  ]
+}

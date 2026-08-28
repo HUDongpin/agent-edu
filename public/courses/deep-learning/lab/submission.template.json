@@ -1,18 +1,249 @@
 {
-  "schemaVersion": "aicourse.capstone-submission.v1",
+  "schemaVersion": "aicourse.deep-learning.capstone.v2",
   "courseId": "deep-learning",
-  "courseVersion": "2026.08.26-v1",
-  "capstoneVersion": "2026.08.26-capstone-v1",
-  "validatorId": "aicourse.deep-learning.validator.v1",
-  "generatedOn": "2026-08-26",
+  "courseVersion": "2026.08.28-v2",
+  "capstoneVersion": "2026.08.28-capstone-v2",
+  "validatorId": "aicourse.deep-learning.validator.v2",
+  "generatedAt": "REPLACE_WITH_OFFSET_AWARE_ISO_8601_TIMESTAMP",
+  "mode": "learner-final",
+  "decision": "no-deploy",
   "artifacts": [
-    { "artifactId": "environment-lock", "content": { "runtime": "", "processor": "CPU", "seed": 20260826, "inputHashes": [], "environmentLockSha256": "" } },
-    { "artifactId": "training-log", "content": { "architecture": "16-4-1-tanh-sigmoid", "epochs": 800, "milestones": [], "outputPath": "training-log.json", "outputSha256": "" } },
-    { "artifactId": "cost-energy-record", "content": { "proxyType": "logical-operation-count", "estimatedMultiplyAdds": 0, "physicalEnergyMeasured": false, "limitations": [] } },
-    { "artifactId": "error-slices", "content": { "slices": [], "baseline": {}, "neural": {}, "limitations": [] } },
-    { "artifactId": "ablation", "content": { "change": "disable biases only", "matchedBudget": false, "reference": {}, "ablated": {} } },
-    { "artifactId": "training-card", "content": { "purpose": "", "models": [], "intendedUses": [], "excludedUses": [], "evidenceLinks": [] } },
-    { "artifactId": "limitations", "content": { "knownFailures": [], "untestedConditions": [], "stopConditions": [], "decision": "" } },
-    { "artifactId": "reproducibility-receipt", "content": { "validatorId": "aicourse.deep-learning.validator.v1", "command": "", "outputs": [], "reviewer": {}, "decision": "" } }
+    {
+      "artifactId": "environment-lock",
+      "content": {
+        "python": "REPLACE",
+        "torch": "REPLACE",
+        "platform": "REPLACE",
+        "hardware": "REPLACE",
+        "networkRequired": false,
+        "acceleratorRequired": false,
+        "codeSha256": "REPLACE_WITH_64_HEX_SHA256",
+        "dataSha256": "REPLACE_WITH_64_HEX_SHA256",
+        "configSha256": "REPLACE_WITH_64_HEX_SHA256",
+        "schemaSha256": "REPLACE_WITH_64_HEX_SHA256",
+        "rightsBoundary": "REPLACE_WITH_DATA_RIGHTS_AND_NO_NETWORK_BOUNDARY"
+      },
+      "sha256": "REPLACE_WITH_CANONICAL_CONTENT_SHA256"
+    },
+    {
+      "artifactId": "run-ledger",
+      "content": {
+        "runs": [
+          {
+            "runId": "REPLACE_WITH_STABLE_RUN_ID",
+            "modelFamily": "transformer",
+            "seed": 0,
+            "purpose": "primary",
+            "status": "completed",
+            "startedAt": "REPLACE_WITH_OFFSET_AWARE_START",
+            "endedAt": "REPLACE_WITH_LATER_OFFSET_AWARE_END",
+            "elapsedSeconds": 0,
+            "wallSeconds": 0,
+            "stopReason": "REPLACE",
+            "metricDefinition": "REPLACE",
+            "trainingMode": "REPLACE",
+            "evaluationMode": "REPLACE",
+            "checkpointSha256": "REPLACE_WITH_64_HEX_SHA256",
+            "configSha256": "REPLACE_WITH_ENVIRONMENT_CONFIG_SHA256",
+            "splitReceiptId": "REPLACE_WITH_STABLE_SPLIT_RECEIPT_ID",
+            "splitReceiptSha256": "REPLACE_WITH_64_HEX_SHA256",
+            "moduleReceiptIdsAndHashes": {
+              "training-state-receipt": "REPLACE_WITH_64_HEX_SHA256",
+              "optimisation-ablation-report": "REPLACE_WITH_64_HEX_SHA256",
+              "transformer-leakage-test": "REPLACE_WITH_64_HEX_SHA256",
+              "tokenisation-provenance-audit": "REPLACE_WITH_64_HEX_SHA256",
+              "adaptation-lifecycle-audit": "REPLACE_WITH_64_HEX_SHA256"
+            },
+            "command": "REPLACE_WITH_EXACT_COMMAND",
+            "outputSha256": "REPLACE_WITH_64_HEX_SHA256"
+          }
+        ],
+        "predeclaredAt": "REPLACE_WITH_TIMESTAMP_BEFORE_FIRST_RUN",
+        "checkpointResume": {
+          "sourceRunId": "REPLACE_WITH_PRIMARY_RUN_ID",
+          "resumedRunId": "REPLACE_WITH_RETAINED_RESUME_RUN_ID",
+          "checkpointSha256": "REPLACE_WITH_SOURCE_CHECKPOINT_SHA256",
+          "uninterruptedOutputSha256": "REPLACE_WITH_SOURCE_OUTPUT_SHA256",
+          "resumedOutputSha256": "REPLACE_WITH_RESUMED_OUTPUT_SHA256",
+          "freshProcess": false,
+          "equivalenceMode": "exact",
+          "tolerance": 0,
+          "maxAbsoluteDifference": 0,
+          "status": "REPLACE_AFTER_TEST",
+          "command": "REPLACE_WITH_FRESH_PROCESS_RESUME_COMMAND"
+        },
+        "uncertaintyMethod": "REPLACE_WITH_PREDECLARED_THREE_SEED_METHOD"
+      },
+      "sha256": "REPLACE_WITH_CANONICAL_CONTENT_SHA256"
+    },
+    {
+      "artifactId": "failure-ledger",
+      "content": {
+        "failures": [
+          {
+            "failureId": "REPLACE_WITH_STABLE_FAILURE_ID",
+            "runId": "REPLACE_WITH_NON_COMPLETED_RUN_ID_FROM_RUN_LEDGER",
+            "seed": 0,
+            "failureType": "REPLACE_WITH_STABLE_FAILURE_TYPE",
+            "observedSymptom": "REPLACE",
+            "triggeredInvariant": "REPLACE",
+            "evidencePath": "REPLACE_WITH_SAFE_RELATIVE_PATH",
+            "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256",
+            "recoveryAction": "REPLACE",
+            "disposition": "REPLACE",
+            "owner": "REPLACE"
+          }
+        ],
+        "failedRunsRetained": false,
+        "boundary": "REPLACE_WITH_EXCLUSION_AND_AGGREGATION_BOUNDARY"
+      },
+      "sha256": "REPLACE_WITH_CANONICAL_CONTENT_SHA256"
+    },
+    {
+      "artifactId": "resource-record",
+      "content": {
+        "hardware": "REPLACE",
+        "runtime": "REPLACE",
+        "measurementBoundary": "REPLACE_WITH_INCLUDED_AND_EXCLUDED_MEASUREMENT_BOUNDARY",
+        "executionAggregation": "sequential",
+        "wallSeconds": 0,
+        "peakMemoryBytes": 0,
+        "runCount": 0,
+        "failedRunCount": 0,
+        "monetaryCostEstimate": {
+          "amount": 0,
+          "currency": "REPLACE",
+          "basis": "REPLACE"
+        },
+        "monetaryCostUncertainty": {
+          "lowerBound": 0,
+          "upperBound": 0,
+          "basis": "REPLACE"
+        },
+        "energyProxy": {
+          "value": 0,
+          "unit": "REPLACE",
+          "method": "REPLACE",
+          "measurementBoundary": "REPLACE_WITH_PROXY_NOT_PHYSICAL_ENERGY_BOUNDARY"
+        },
+        "energyProxyUncertainty": {
+          "lowerBound": 0,
+          "upperBound": 0,
+          "basis": "REPLACE"
+        },
+        "supportsDecisions": [],
+        "doesNotSupportDecisions": []
+      },
+      "sha256": "REPLACE_WITH_CANONICAL_CONTENT_SHA256"
+    },
+    {
+      "artifactId": "evaluation-slices",
+      "content": {
+        "slices": [
+          {"sliceId": "clean", "sliceType": "clean", "denominator": 0, "metric": "REPLACE", "seedResults": [], "uncertainty": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "boundary": "REPLACE"},
+          {"sliceId": "corruption", "sliceType": "corruption", "denominator": 0, "metric": "REPLACE", "seedResults": [], "uncertainty": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "boundary": "REPLACE", "transformationReceipt": {"id": "REPLACE_WITH_STABLE_TRANSFORMATION_ID", "sha256": "REPLACE_WITH_64_HEX_SHA256"}},
+          {"sliceId": "held-out-length", "sliceType": "held-out-length", "denominator": 0, "metric": "REPLACE", "seedResults": [], "uncertainty": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "boundary": "REPLACE", "transformationReceipt": {"id": "REPLACE_WITH_STABLE_TRANSFORMATION_ID", "sha256": "REPLACE_WITH_64_HEX_SHA256"}},
+          {"sliceId": "synthetic-subgroup", "sliceType": "synthetic-subgroup", "denominator": 0, "metric": "REPLACE", "seedResults": [], "uncertainty": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "boundary": "REPLACE_WITH_NOT_A_DEMOGRAPHIC_GROUP_BOUNDARY", "transformationReceipt": {"id": "REPLACE_WITH_STABLE_TRANSFORMATION_ID", "sha256": "REPLACE_WITH_64_HEX_SHA256"}},
+          {"sliceId": "calibration", "sliceType": "calibration", "denominator": 0, "metric": "REPLACE", "seedResults": [], "uncertainty": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "boundary": "REPLACE", "transformationReceipt": {"id": "REPLACE_WITH_STABLE_TRANSFORMATION_ID", "sha256": "REPLACE_WITH_64_HEX_SHA256"}},
+          {"sliceId": "error-analysis", "sliceType": "error-analysis", "denominator": 0, "metric": "REPLACE", "seedResults": [], "uncertainty": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "boundary": "REPLACE", "transformationReceipt": {"id": "REPLACE_WITH_STABLE_TRANSFORMATION_ID", "sha256": "REPLACE_WITH_64_HEX_SHA256"}}
+        ],
+        "negativeCases": [
+          {"caseId": "causal-mask-leakage", "moduleArtifactId": "transformer-leakage-test", "injectedFault": "REPLACE", "expectedFailure": "REPLACE", "observedFailure": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "status": "REPLACE_AFTER_REJECTION"},
+          {"caseId": "unicode-normalization-round-trip", "moduleArtifactId": "tokenisation-provenance-audit", "injectedFault": "REPLACE", "expectedFailure": "REPLACE", "observedFailure": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "status": "REPLACE_AFTER_REJECTION"},
+          {"caseId": "tokenizer-version-drift", "moduleArtifactId": "tokenisation-provenance-audit", "injectedFault": "REPLACE", "expectedFailure": "REPLACE", "observedFailure": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "status": "REPLACE_AFTER_REJECTION"},
+          {"caseId": "lora-merge-equivalence", "moduleArtifactId": "adaptation-lifecycle-audit", "injectedFault": "REPLACE", "expectedFailure": "REPLACE", "observedFailure": "REPLACE", "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256", "status": "REPLACE_AFTER_REJECTION"}
+        ],
+        "calibrationMethod": "REPLACE_WITH_METHOD_BINS_AND_BOUNDARY",
+        "errorAnalysis": {
+          "representativeErrors": [
+            {"exampleId": "REPLACE_WITH_STABLE_EXAMPLE_ID", "observed": "REPLACE", "hypothesis": "REPLACE", "disposition": "REPLACE"}
+          ],
+          "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256"
+        },
+        "controlledAblation": {
+          "variableChanged": "REPLACE_WITH_EXACTLY_ONE_VARIABLE",
+          "fixedBudget": false,
+          "seedResults": [],
+          "evidenceSha256": "REPLACE_WITH_64_HEX_SHA256"
+        },
+        "seedLevelTraceRef": "run-ledger:runs",
+        "uncertaintySummary": "REPLACE",
+        "missingTests": [],
+        "generalisationLimits": []
+      },
+      "sha256": "REPLACE_WITH_CANONICAL_CONTENT_SHA256"
+    },
+    {
+      "artifactId": "training-dossier",
+      "content": {
+        "purpose": "REPLACE",
+        "primaryModel": "transformer",
+        "version": "REPLACE",
+        "architecture": "REPLACE",
+        "dataProvenance": "REPLACE",
+        "rightsBoundary": "REPLACE",
+        "optimisationSummary": "REPLACE",
+        "adaptationStrategy": "REPLACE",
+        "seeds": [],
+        "decision": "no-deploy",
+        "decisionReason": "REPLACE",
+        "intendedUses": [],
+        "excludedUses": [],
+        "owners": [],
+        "evidenceLinks": {
+          "run-ledger": "REPLACE_WITH_RUN_LEDGER_ARTIFACT_SHA256",
+          "failure-ledger": "REPLACE_WITH_FAILURE_LEDGER_ARTIFACT_SHA256",
+          "resource-record": "REPLACE_WITH_RESOURCE_RECORD_ARTIFACT_SHA256",
+          "evaluation-slices": "REPLACE_WITH_EVALUATION_SLICES_ARTIFACT_SHA256"
+        },
+        "claims": []
+      },
+      "sha256": "REPLACE_WITH_CANONICAL_CONTENT_SHA256"
+    },
+    {
+      "artifactId": "limitations",
+      "content": {
+        "knownFailures": [],
+        "untestedConditions": [],
+        "stopConditions": [],
+        "invalidUses": [],
+        "safetyMisuseRisks": [],
+        "remediationOwners": [],
+        "costCeiling": "REPLACE",
+        "dataRightsBoundary": "REPLACE",
+        "unresolvedRightsUncertainty": true
+      },
+      "sha256": "REPLACE_WITH_CANONICAL_CONTENT_SHA256"
+    },
+    {
+      "artifactId": "reviewer-decision",
+      "content": {
+        "reviewerName": "REPLACE_WITH_NAMED_HUMAN_REVIEWER",
+        "reviewerRole": "REPLACE",
+        "externalReviewComplete": false,
+        "reviewedArtifactIdsAndHashes": {
+          "environment-lock": "REPLACE_WITH_CURRENT_ARTIFACT_SHA256",
+          "run-ledger": "REPLACE_WITH_CURRENT_ARTIFACT_SHA256",
+          "failure-ledger": "REPLACE_WITH_CURRENT_ARTIFACT_SHA256",
+          "resource-record": "REPLACE_WITH_CURRENT_ARTIFACT_SHA256",
+          "evaluation-slices": "REPLACE_WITH_CURRENT_ARTIFACT_SHA256",
+          "training-dossier": "REPLACE_WITH_CURRENT_ARTIFACT_SHA256",
+          "limitations": "REPLACE_WITH_CURRENT_ARTIFACT_SHA256"
+        },
+        "cleanRoomCommands": [],
+        "cleanRoomTranscriptPath": "REPLACE_WITH_SAFE_RELATIVE_PATH",
+        "cleanRoomTranscriptSha256": "REPLACE_WITH_64_HEX_SHA256",
+        "rerunResults": [],
+        "failedChecks": [],
+        "unresolvedVariance": "REPLACE",
+        "remediation": "REPLACE",
+        "challenge": "REPLACE",
+        "rationale": "REPLACE",
+        "signedAt": "REPLACE_WITH_OFFSET_AWARE_TIMESTAMP",
+        "decision": "no-deploy",
+        "identityBoundary": "learner-supplied-not-authenticated-by-local-validator"
+      },
+      "sha256": "REPLACE_WITH_CANONICAL_CONTENT_SHA256"
+    }
   ]
 }

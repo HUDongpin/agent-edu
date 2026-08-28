@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.deterministic-rendering.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "deterministic-rendering",
+  "artifactId": "render-receipt",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "tool-permission-envelope": "a380a478c6725e0cccb84b1603ec15e3d4ec61bcb61bdd567d87f1d4e530de4b"
+  },
+  "payload": {
+    "renderId": "guided-candidate-render-v2",
+    "editPlanArtifactSha256": "a5f2f95f0448cd64cd2c59ae96b5cbbb1c7f428efef743c117055e19b02fbaa9",
+    "toolPolicyArtifactSha256": "a380a478c6725e0cccb84b1603ec15e3d4ec61bcb61bdd567d87f1d4e530de4b",
+    "command": [
+      "ffmpeg",
+      "-nostdin",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "assets/camera-a.mp4",
+      "-filter_complex_script",
+      "artifacts/07-render-filter.txt",
+      "-map",
+      "[v]",
+      "-map",
+      "[a]",
+      "-c:v",
+      "libx264",
+      "-preset",
+      "ultrafast",
+      "-crf",
+      "35",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "64k",
+      "-metadata",
+      "title=Course 22 controlled candidate render",
+      "outputs/candidate-render.mp4"
+    ],
+    "environment": {
+      "engine": "ffmpeg",
+      "version": "8.1.1",
+      "codeDirected": true,
+      "inputsLocked": true,
+      "determinismClaim": "not-claimed"
+    },
+    "output": {
+      "relativePath": "outputs/candidate-render.mp4",
+      "sha256": "2770ac63e907506fd88100ae333e9c8737e7a5c4c65dd854b2a9eaefee19af0f",
+      "byteLength": 468815,
+      "format": "mp4",
+      "probe": {
+        "tool": "ffprobe",
+        "toolVersion": "8.1.1",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "durationSeconds": 50.05,
+        "durationFrames": 1500,
+        "video": {
+          "codec": "h264",
+          "width": 640,
+          "height": 360,
+          "frameRate": "30000/1001"
+        },
+        "audio": {
+          "codec": "aac",
+          "sampleRate": 48000,
+          "channels": 1
+        },
+        "sourceSha256": "2770ac63e907506fd88100ae333e9c8737e7a5c4c65dd854b2a9eaefee19af0f"
+      }
+    },
+    "networkUsed": false,
+    "paidCostUsd": 0,
+    "idempotencyKey": "guided-render-operation-v2",
+    "recoveryTest": {
+      "interruptedRunResumed": true,
+      "outputHashStable": true
+    },
+    "filterScript": {
+      "relativePath": "artifacts/07-render-filter.txt",
+      "sha256": "60c3ff256ee375e8f83698541ebd9668d6092746ec31fa8abac2ba2258a38eda",
+      "byteLength": 286
+    }
+  },
+  "limitations": [
+    "This is a real playable CPU FFmpeg render generated from course-owned synthetic media without network access.",
+    "Code-directed execution is recorded, but deterministic equivalence is not claimed across unlocked FFmpeg builds or environments."
+  ]
+}

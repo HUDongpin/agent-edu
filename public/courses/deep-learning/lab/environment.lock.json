@@ -1,26 +1,54 @@
 {
-  "schemaVersion": "aicourse.python-environment-lock.v1",
+  "schemaVersion": "aicourse.python-environment-lock.v2",
   "courseId": "deep-learning",
-  "courseVersion": "2026.08.26-v1",
+  "courseVersion": "2026.08.28-v2",
+  "capturedAt": "2026-08-28T00:00:00+08:00",
   "referenceRuntime": {
     "implementation": "CPython",
-    "python": "3.9.6",
-    "stdlibOnly": true,
-    "networkRequired": false,
-    "acceleratorRequired": false,
-    "processor": "CPU"
+    "python": "3.11.15",
+    "torch": "2.13.0",
+    "numpy": "2.4.1",
+    "processor": "CPU",
+    "acceleratorUsed": false,
+    "networkRequiredDuringRun": false,
+    "platformScope": "macOS 14+ arm64 reference; every other platform must record its own resolved wheel hashes"
   },
-  "experiment": {
-    "seed": 20260826,
-    "architecture": "16-4-1-tanh-sigmoid",
-    "epochs": 800,
-    "learningRate": 0.18,
-    "ablation": "same seed, data, learning rate and epochs; hidden/output biases disabled"
+  "referenceWheels": [
+    {
+      "filename": "torch-2.13.0-cp311-cp311-macosx_14_0_arm64.whl",
+      "sha256": "e76f9bcecc52b8ff711239a2f7547d5353df95878ab232f0773c1d95928b92f8",
+      "url": "https://files.pythonhosted.org/packages/5b/fe/cba54dc58523434919b66f13a667e36e436deddd77ca519e96553617d4ec/torch-2.13.0-cp311-cp311-macosx_14_0_arm64.whl"
+    },
+    {
+      "filename": "numpy-2.4.1-cp311-cp311-macosx_14_0_arm64.whl",
+      "sha256": "09aa8a87e45b55a1c2c205d42e2808849ece5c484b2aab11fecabec3841cafba",
+      "url": "https://files.pythonhosted.org/packages/8e/ba/80fc0b1e3cb2fd5c6143f00f42eb67762aa043eaa05ca924ecc3222a7849/numpy-2.4.1-cp311-cp311-macosx_14_0_arm64.whl"
+    }
+  ],
+  "resolvedDependencyTree": {
+    "filelock": "3.32.4",
+    "fsspec": "2026.7.0",
+    "jinja2": "3.1.6",
+    "markupsafe": "3.0.3",
+    "mpmath": "1.3.0",
+    "networkx": "3.6.1",
+    "numpy": "2.4.1",
+    "setuptools": "84.0.0",
+    "sympy": "1.14.0",
+    "torch": "2.13.0",
+    "typing-extensions": "4.16.0"
   },
   "determinism": {
-    "locale": "C.UTF-8",
+    "seed": 20260828,
+    "torchUseDeterministicAlgorithms": true,
+    "torchThreads": 1,
+    "pythonHashSeed": "0",
     "timezone": "UTC",
-    "fixtureOrder": "authoritative",
-    "floatingPointReceipt": "rounded to 8 decimal places; other Python builds must report any observed variance"
+    "boundary": "Reproducible decisions are tested within declared tolerances; exact floating-point bytes are not promised across platforms, releases, or accelerators."
+  },
+  "releaseBudget": {
+    "fullRequiredCpuRunSeconds": 600,
+    "peakMemoryBytes": 2147483648,
+    "runtimeNetworkRequests": 0
   }
 }

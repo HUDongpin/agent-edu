@@ -1,7 +1,8 @@
 "use client";
 
-import { isCourseKitEvidenceReceipt } from "@/lib/course-kit/evidence-receipt";
 import {
+  areCourseKitModulePrerequisitesComplete,
+  courseKitModuleEvidenceState,
   courseKitCheckpointKey,
   courseKitModuleReceiptKey,
   isCourseKitModuleComplete,
@@ -42,21 +43,22 @@ export function ModuleCompletion({
     record[courseKitCheckpointKey(config.courseId, moduleSlug)],
   );
   const complete = isCourseKitModuleComplete(record, config, moduleSlug);
+  const prerequisitesComplete = areCourseKitModulePrerequisitesComplete(
+    record,
+    config,
+    moduleSlug,
+  );
   const receiptValue = record[config.progressVersionKey] === config.courseVersion
     ? record[courseKitModuleReceiptKey(config.courseId, moduleSlug)]
     : undefined;
   const receipt = typeof receiptValue === "string"
     ? receiptValue.slice(0, 4000)
     : "";
-  const receiptComplete = !requireStructuredReceipt
-    || isCourseKitEvidenceReceipt(receipt, {
-      kind: "module-artifact",
-      courseId: config.courseId,
-      courseVersion: config.courseVersion,
-      artifactId: moduleSlug,
-      validatorId: config.evidenceValidatorId,
-      validatorCommandPrefix: config.evidenceValidatorCommandPrefix,
-    });
+  const contract = config.moduleContracts.find((item) => item.moduleSlug === moduleSlug);
+  const structuredReceiptRequired = requireStructuredReceipt
+    && contract?.completionMode === "validated-artifact";
+  const receiptComplete = !structuredReceiptRequired
+    || courseKitModuleEvidenceState(record, config, moduleSlug) !== null;
 
   return (
     <section className={styles.completionPanel} aria-label={labels.moduleComplete}>
@@ -67,13 +69,15 @@ export function ModuleCompletion({
             ? storageAvailable === false
               ? labels.savedInMemory
               : labels.savedInBrowser
-            : checkpointComplete
-              ? receiptComplete
-                ? labels.browserStorageNote
-                : labels.completeReceiptFirst
-              : labels.completeCheckpointFirst}
+            : !checkpointComplete
+              ? labels.completeCheckpointFirst
+              : !prerequisitesComplete
+                ? labels.completePrerequisitesFirst
+                : receiptComplete
+                  ? labels.browserStorageNote
+                  : labels.completeReceiptFirst}
         </p>
-        {requireStructuredReceipt ? (
+        {structuredReceiptRequired ? (
           <label className={styles.moduleReceipt}>
             <span>{labels.evidenceReceiptLabel}</span>
             <textarea
@@ -91,11 +95,18 @@ export function ModuleCompletion({
             />
             <small>{labels.evidenceReceiptHelp}</small>
           </label>
-        ) : null}
+        ) : (
+          <small>{labels.localProgressBoundary}</small>
+        )}
       </div>
       <button
         type="button"
-        disabled={!checkpointComplete || !receiptComplete || complete}
+        disabled={
+          !checkpointComplete
+          || !prerequisitesComplete
+          || !receiptComplete
+          || complete
+        }
         onClick={() => setCourseKitModuleComplete(config, moduleSlug, true)}
       >
         {complete ? labels.moduleComplete : labels.markModuleComplete}

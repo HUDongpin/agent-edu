@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.captions-audio-formats.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "captions-audio-formats",
+  "artifactId": "variant-receipts",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {
+    "render-receipt": "9d403176f5c3ebd735cd75030c8d7b3f5e3b4e834caf7805368ebc1f7fa585d2"
+  },
+  "payload": {
+    "deliveryMatrixArtifactSha256": "c1284b8146c5a6d6ad572333dd322b8b90f0bc1afd7c544b36d3fe79e46170bd",
+    "receipts": [
+      {
+        "variantId": "review-1080p",
+        "outputPath": "outputs/review-1080p.mp4",
+        "sha256": "c425a305101f5afdddd97afb069435f9a09ecfb8d1c313e02e8535255d75700b",
+        "byteLength": 512266,
+        "probe": {
+          "tool": "ffprobe",
+          "toolVersion": "8.1.1",
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "durationSeconds": 50.05,
+          "durationFrames": 1500,
+          "video": {
+            "codec": "h264",
+            "width": 1920,
+            "height": 1080,
+            "frameRate": "30000/1001"
+          },
+          "audio": {
+            "codec": "aac",
+            "sampleRate": 48000,
+            "channels": 1
+          },
+          "sourceSha256": "c425a305101f5afdddd97afb069435f9a09ecfb8d1c313e02e8535255d75700b"
+        },
+        "captionReview": "human-reviewed-fixture",
+        "audioReview": "scoped-profile-reviewed",
+        "technicalPass": true
+      },
+      {
+        "variantId": "review-captioned",
+        "outputPath": "outputs/review-captioned.mp4",
+        "sha256": "73ca60e9b1aec99dec0bd8e490e5852f7bded2ac8831bdb96a6283826255f6f8",
+        "byteLength": 506159,
+        "probe": {
+          "tool": "ffprobe",
+          "toolVersion": "8.1.1",
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "durationSeconds": 50.05,
+          "durationFrames": 1500,
+          "video": {
+            "codec": "h264",
+            "width": 1080,
+            "height": 1920,
+            "frameRate": "30000/1001"
+          },
+          "audio": {
+            "codec": "aac",
+            "sampleRate": 48000,
+            "channels": 1
+          },
+          "sourceSha256": "73ca60e9b1aec99dec0bd8e490e5852f7bded2ac8831bdb96a6283826255f6f8"
+        },
+        "captionReview": "human-reviewed-fixture",
+        "audioReview": "scoped-profile-reviewed",
+        "technicalPass": true
+      }
+    ]
+  },
+  "limitations": [
+    "Variant hashes and ffprobe fields bind actual playable course-owned bytes but do not establish editorial truth or publication fitness.",
+    "Human-reviewed-fixture labels describe course authorship and cannot authenticate an external reviewer identity or review quality."
+  ]
+}

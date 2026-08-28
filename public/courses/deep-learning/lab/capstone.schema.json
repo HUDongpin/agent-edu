@@ -1,36 +1,459 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aicourse.top/courses/deep-learning/lab/capstone.schema.json",
-  "title": "Course 20 auditable neural-training capstone",
+  "title": "Course 20 v2 Transformer-backed learner final",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "courseId", "courseVersion", "capstoneVersion", "validatorId", "generatedOn", "artifacts"],
+  "required": ["schemaVersion", "courseId", "courseVersion", "capstoneVersion", "validatorId", "generatedAt", "mode", "decision", "artifacts"],
   "properties": {
-    "schemaVersion": { "const": "aicourse.capstone-submission.v1" },
-    "courseId": { "const": "deep-learning" },
-    "courseVersion": { "const": "2026.08.26-v1" },
-    "capstoneVersion": { "const": "2026.08.26-capstone-v1" },
-    "validatorId": { "const": "aicourse.deep-learning.validator.v1" },
-    "generatedOn": { "const": "2026-08-26" },
+    "schemaVersion": {"const": "aicourse.deep-learning.capstone.v2"},
+    "courseId": {"const": "deep-learning"},
+    "courseVersion": {"const": "2026.08.28-v2"},
+    "capstoneVersion": {"const": "2026.08.28-capstone-v2"},
+    "validatorId": {"const": "aicourse.deep-learning.validator.v2"},
+    "generatedAt": {"$ref": "#/$defs/offsetTimestamp"},
+    "mode": {"const": "learner-final"},
+    "decision": {"enum": ["no-train", "no-deploy"]},
     "artifacts": {
       "type": "array",
       "minItems": 8,
       "maxItems": 8,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["artifactId", "content"],
-        "properties": {
-          "artifactId": { "enum": ["environment-lock", "training-log", "cost-energy-record", "error-slices", "ablation", "training-card", "limitations", "reproducibility-receipt"] },
-          "content": { "type": "object", "minProperties": 4 }
-        }
-      }
+      "prefixItems": [
+        {"$ref": "#/$defs/environmentArtifact"},
+        {"$ref": "#/$defs/runLedgerArtifact"},
+        {"$ref": "#/$defs/failureLedgerArtifact"},
+        {"$ref": "#/$defs/resourceArtifact"},
+        {"$ref": "#/$defs/evaluationArtifact"},
+        {"$ref": "#/$defs/dossierArtifact"},
+        {"$ref": "#/$defs/limitationsArtifact"},
+        {"$ref": "#/$defs/reviewerArtifact"}
+      ],
+      "items": false
     }
   },
-  "x-schemaId": "aicourse.deep-learning.capstone.v1",
-  "x-validatorId": "aicourse.deep-learning.validator.v1",
-  "x-artifactIds": ["environment-lock", "training-log", "cost-energy-record", "error-slices", "ablation", "training-card", "limitations", "reproducibility-receipt"],
-  "x-requiredComparisons": ["orientation-rule-baseline", "tiny-neural-network", "no-bias-ablation"],
-  "x-requiredSlices": ["clean", "contrast-drop", "occlusion"],
-  "x-decisionBoundary": "no-deploy"
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1},
+    "stableId": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "safeRelativePath": {"type": "string", "minLength": 1, "maxLength": 500, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "offsetTimestamp": {"type": "string", "format": "date-time", "pattern": "(?:Z|[+-][0-9]{2}:[0-9]{2})$"},
+    "stringList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/nonEmptyString"}
+    },
+    "hashMap": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "#/$defs/stableId"},
+      "additionalProperties": {"$ref": "#/$defs/sha256"}
+    },
+    "artifactEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifactId", "content", "sha256"],
+      "properties": {
+        "artifactId": {"$ref": "#/$defs/stableId"},
+        "content": {"type": "object"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "environmentContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["python", "torch", "platform", "hardware", "networkRequired", "acceleratorRequired", "codeSha256", "dataSha256", "configSha256", "schemaSha256", "rightsBoundary"],
+      "properties": {
+        "python": {"$ref": "#/$defs/nonEmptyString"},
+        "torch": {"$ref": "#/$defs/nonEmptyString"},
+        "platform": {"$ref": "#/$defs/nonEmptyString"},
+        "hardware": {"$ref": "#/$defs/nonEmptyString"},
+        "networkRequired": {"const": false},
+        "acceleratorRequired": {"const": false},
+        "codeSha256": {"$ref": "#/$defs/sha256"},
+        "dataSha256": {"$ref": "#/$defs/sha256"},
+        "configSha256": {"$ref": "#/$defs/sha256"},
+        "schemaSha256": {"$ref": "#/$defs/sha256"},
+        "rightsBoundary": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "environmentArtifact": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactEnvelope"},
+        {"properties": {"artifactId": {"const": "environment-lock"}, "content": {"$ref": "#/$defs/environmentContent"}}}
+      ]
+    },
+    "runEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runId", "modelFamily", "seed", "purpose", "status", "startedAt", "endedAt", "elapsedSeconds", "wallSeconds", "stopReason", "metricDefinition", "trainingMode", "evaluationMode", "checkpointSha256", "configSha256", "splitReceiptId", "splitReceiptSha256", "moduleReceiptIdsAndHashes", "command", "outputSha256"],
+      "properties": {
+        "runId": {"$ref": "#/$defs/stableId"},
+        "modelFamily": {"enum": ["transformer", "rnn", "simple-baseline"]},
+        "seed": {"type": "integer"},
+        "purpose": {"enum": ["primary", "baseline", "checkpoint-resume", "negative-control"]},
+        "status": {"enum": ["completed", "failed", "interrupted", "rejected", "excluded"]},
+        "startedAt": {"$ref": "#/$defs/offsetTimestamp"},
+        "endedAt": {"$ref": "#/$defs/offsetTimestamp"},
+        "elapsedSeconds": {"type": "number", "exclusiveMinimum": 0},
+        "wallSeconds": {"type": "number", "exclusiveMinimum": 0},
+        "stopReason": {"$ref": "#/$defs/nonEmptyString"},
+        "metricDefinition": {"$ref": "#/$defs/nonEmptyString"},
+        "trainingMode": {"$ref": "#/$defs/nonEmptyString"},
+        "evaluationMode": {"$ref": "#/$defs/nonEmptyString"},
+        "checkpointSha256": {"$ref": "#/$defs/sha256"},
+        "configSha256": {"$ref": "#/$defs/sha256"},
+        "splitReceiptId": {"$ref": "#/$defs/stableId"},
+        "splitReceiptSha256": {"$ref": "#/$defs/sha256"},
+        "moduleReceiptIdsAndHashes": {"$ref": "#/$defs/hashMap"},
+        "command": {"$ref": "#/$defs/nonEmptyString"},
+        "outputSha256": {"$ref": "#/$defs/sha256"},
+        "parentRunId": {"$ref": "#/$defs/stableId"}
+      }
+    },
+    "checkpointResume": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceRunId", "resumedRunId", "checkpointSha256", "uninterruptedOutputSha256", "resumedOutputSha256", "freshProcess", "equivalenceMode", "tolerance", "maxAbsoluteDifference", "status", "command"],
+      "properties": {
+        "sourceRunId": {"$ref": "#/$defs/stableId"},
+        "resumedRunId": {"$ref": "#/$defs/stableId"},
+        "checkpointSha256": {"$ref": "#/$defs/sha256"},
+        "uninterruptedOutputSha256": {"$ref": "#/$defs/sha256"},
+        "resumedOutputSha256": {"$ref": "#/$defs/sha256"},
+        "freshProcess": {"const": true},
+        "equivalenceMode": {"enum": ["exact", "tolerance-bounded"]},
+        "tolerance": {"type": "number", "minimum": 0},
+        "maxAbsoluteDifference": {"type": "number", "minimum": 0},
+        "status": {"const": "pass"},
+        "command": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "runLedgerContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runs", "predeclaredAt", "checkpointResume", "uncertaintyMethod"],
+      "properties": {
+        "runs": {"type": "array", "minItems": 6, "items": {"$ref": "#/$defs/runEntry"}},
+        "predeclaredAt": {"$ref": "#/$defs/offsetTimestamp"},
+        "checkpointResume": {"$ref": "#/$defs/checkpointResume"},
+        "uncertaintyMethod": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "runLedgerArtifact": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactEnvelope"},
+        {"properties": {"artifactId": {"const": "run-ledger"}, "content": {"$ref": "#/$defs/runLedgerContent"}}}
+      ]
+    },
+    "failureEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["failureId", "runId", "seed", "failureType", "observedSymptom", "triggeredInvariant", "evidencePath", "evidenceSha256", "recoveryAction", "disposition", "owner"],
+      "properties": {
+        "failureId": {"$ref": "#/$defs/stableId"},
+        "runId": {"$ref": "#/$defs/stableId"},
+        "seed": {"type": "integer"},
+        "failureType": {"$ref": "#/$defs/stableId"},
+        "observedSymptom": {"$ref": "#/$defs/nonEmptyString"},
+        "triggeredInvariant": {"$ref": "#/$defs/nonEmptyString"},
+        "evidencePath": {"$ref": "#/$defs/safeRelativePath"},
+        "evidenceSha256": {"$ref": "#/$defs/sha256"},
+        "recoveryAction": {"$ref": "#/$defs/nonEmptyString"},
+        "disposition": {"$ref": "#/$defs/nonEmptyString"},
+        "owner": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "failureLedgerContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["failures", "failedRunsRetained", "boundary"],
+      "properties": {
+        "failures": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/failureEntry"}},
+        "failedRunsRetained": {"const": true},
+        "boundary": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "failureLedgerArtifact": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactEnvelope"},
+        {"properties": {"artifactId": {"const": "failure-ledger"}, "content": {"$ref": "#/$defs/failureLedgerContent"}}}
+      ]
+    },
+    "boundedEstimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lowerBound", "upperBound", "basis"],
+      "properties": {
+        "lowerBound": {"type": "number", "minimum": 0},
+        "upperBound": {"type": "number", "minimum": 0},
+        "basis": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "resourceContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hardware", "runtime", "measurementBoundary", "executionAggregation", "wallSeconds", "peakMemoryBytes", "runCount", "failedRunCount", "monetaryCostEstimate", "monetaryCostUncertainty", "energyProxy", "energyProxyUncertainty", "supportsDecisions", "doesNotSupportDecisions"],
+      "properties": {
+        "hardware": {"$ref": "#/$defs/nonEmptyString"},
+        "runtime": {"$ref": "#/$defs/nonEmptyString"},
+        "measurementBoundary": {"$ref": "#/$defs/nonEmptyString"},
+        "executionAggregation": {"const": "sequential"},
+        "wallSeconds": {"type": "number", "exclusiveMinimum": 0, "maximum": 600},
+        "peakMemoryBytes": {"type": "integer", "minimum": 1, "maximum": 2147483648},
+        "runCount": {"type": "integer", "minimum": 6},
+        "failedRunCount": {"type": "integer", "minimum": 1},
+        "monetaryCostEstimate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["amount", "currency", "basis"],
+          "properties": {
+            "amount": {"type": "number", "minimum": 0},
+            "currency": {"$ref": "#/$defs/nonEmptyString"},
+            "basis": {"$ref": "#/$defs/nonEmptyString"}
+          }
+        },
+        "monetaryCostUncertainty": {"$ref": "#/$defs/boundedEstimate"},
+        "energyProxy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "unit", "method", "measurementBoundary"],
+          "properties": {
+            "value": {"type": "number", "exclusiveMinimum": 0},
+            "unit": {"$ref": "#/$defs/nonEmptyString"},
+            "method": {"$ref": "#/$defs/nonEmptyString"},
+            "measurementBoundary": {"$ref": "#/$defs/nonEmptyString"}
+          }
+        },
+        "energyProxyUncertainty": {"$ref": "#/$defs/boundedEstimate"},
+        "supportsDecisions": {"$ref": "#/$defs/stringList"},
+        "doesNotSupportDecisions": {"$ref": "#/$defs/stringList"}
+      }
+    },
+    "resourceArtifact": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactEnvelope"},
+        {"properties": {"artifactId": {"const": "resource-record"}, "content": {"$ref": "#/$defs/resourceContent"}}}
+      ]
+    },
+    "transformationReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sha256"],
+      "properties": {"id": {"$ref": "#/$defs/stableId"}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "evaluationSlice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sliceId", "sliceType", "denominator", "metric", "seedResults", "uncertainty", "evidenceSha256", "boundary"],
+      "properties": {
+        "sliceId": {"$ref": "#/$defs/stableId"},
+        "sliceType": {"enum": ["clean", "corruption", "held-out-length", "synthetic-subgroup", "calibration", "error-analysis"]},
+        "denominator": {"type": "integer", "minimum": 1},
+        "metric": {"$ref": "#/$defs/nonEmptyString"},
+        "seedResults": {"type": "array", "minItems": 3, "items": {"type": "number"}},
+        "uncertainty": {"$ref": "#/$defs/nonEmptyString"},
+        "evidenceSha256": {"$ref": "#/$defs/sha256"},
+        "boundary": {"$ref": "#/$defs/nonEmptyString"},
+        "transformationReceipt": {"$ref": "#/$defs/transformationReceipt"}
+      }
+    },
+    "negativeCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["caseId", "moduleArtifactId", "injectedFault", "expectedFailure", "observedFailure", "evidenceSha256", "status"],
+      "properties": {
+        "caseId": {"enum": ["causal-mask-leakage", "unicode-normalization-round-trip", "tokenizer-version-drift", "lora-merge-equivalence"]},
+        "moduleArtifactId": {"enum": ["transformer-leakage-test", "tokenisation-provenance-audit", "adaptation-lifecycle-audit"]},
+        "injectedFault": {"$ref": "#/$defs/nonEmptyString"},
+        "expectedFailure": {"$ref": "#/$defs/nonEmptyString"},
+        "observedFailure": {"$ref": "#/$defs/nonEmptyString"},
+        "evidenceSha256": {"$ref": "#/$defs/sha256"},
+        "status": {"const": "rejected-as-expected"}
+      }
+    },
+    "evaluationContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slices", "negativeCases", "calibrationMethod", "errorAnalysis", "controlledAblation", "seedLevelTraceRef", "uncertaintySummary", "missingTests", "generalisationLimits"],
+      "properties": {
+        "slices": {"type": "array", "minItems": 6, "items": {"$ref": "#/$defs/evaluationSlice"}},
+        "negativeCases": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"$ref": "#/$defs/negativeCase"}},
+        "calibrationMethod": {"$ref": "#/$defs/nonEmptyString"},
+        "errorAnalysis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["representativeErrors", "evidenceSha256"],
+          "properties": {
+            "representativeErrors": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["exampleId", "observed", "hypothesis", "disposition"],
+                "properties": {
+                  "exampleId": {"$ref": "#/$defs/stableId"},
+                  "observed": {"$ref": "#/$defs/nonEmptyString"},
+                  "hypothesis": {"$ref": "#/$defs/nonEmptyString"},
+                  "disposition": {"$ref": "#/$defs/nonEmptyString"}
+                }
+              }
+            },
+            "evidenceSha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "controlledAblation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["variableChanged", "fixedBudget", "seedResults", "evidenceSha256"],
+          "properties": {
+            "variableChanged": {"$ref": "#/$defs/nonEmptyString"},
+            "fixedBudget": {"const": true},
+            "seedResults": {"type": "array", "minItems": 3, "items": {"type": "number"}},
+            "evidenceSha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "seedLevelTraceRef": {"const": "run-ledger:runs"},
+        "uncertaintySummary": {"$ref": "#/$defs/nonEmptyString"},
+        "missingTests": {"$ref": "#/$defs/stringList"},
+        "generalisationLimits": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmptyString"}}
+      }
+    },
+    "evaluationArtifact": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactEnvelope"},
+        {"properties": {"artifactId": {"const": "evaluation-slices"}, "content": {"$ref": "#/$defs/evaluationContent"}}}
+      ]
+    },
+    "dossierLinks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run-ledger", "failure-ledger", "resource-record", "evaluation-slices"],
+      "properties": {
+        "run-ledger": {"$ref": "#/$defs/sha256"},
+        "failure-ledger": {"$ref": "#/$defs/sha256"},
+        "resource-record": {"$ref": "#/$defs/sha256"},
+        "evaluation-slices": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "dossierContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purpose", "primaryModel", "version", "architecture", "dataProvenance", "rightsBoundary", "optimisationSummary", "adaptationStrategy", "seeds", "decision", "decisionReason", "intendedUses", "excludedUses", "owners", "evidenceLinks", "claims"],
+      "properties": {
+        "purpose": {"$ref": "#/$defs/nonEmptyString"},
+        "primaryModel": {"const": "transformer"},
+        "version": {"$ref": "#/$defs/nonEmptyString"},
+        "architecture": {"$ref": "#/$defs/nonEmptyString"},
+        "dataProvenance": {"$ref": "#/$defs/nonEmptyString"},
+        "rightsBoundary": {"$ref": "#/$defs/nonEmptyString"},
+        "optimisationSummary": {"$ref": "#/$defs/nonEmptyString"},
+        "adaptationStrategy": {"$ref": "#/$defs/nonEmptyString"},
+        "seeds": {"type": "array", "minItems": 3, "uniqueItems": true, "items": {"type": "integer"}},
+        "decision": {"enum": ["no-train", "no-deploy"]},
+        "decisionReason": {"$ref": "#/$defs/nonEmptyString"},
+        "intendedUses": {"$ref": "#/$defs/stringList"},
+        "excludedUses": {"$ref": "#/$defs/stringList"},
+        "owners": {"$ref": "#/$defs/stringList"},
+        "evidenceLinks": {"$ref": "#/$defs/dossierLinks"},
+        "claims": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["claimId", "claim", "evidenceArtifactId", "evidenceSha256"],
+            "properties": {
+              "claimId": {"$ref": "#/$defs/stableId"},
+              "claim": {"$ref": "#/$defs/nonEmptyString"},
+              "evidenceArtifactId": {"enum": ["run-ledger", "failure-ledger", "resource-record", "evaluation-slices"]},
+              "evidenceSha256": {"$ref": "#/$defs/sha256"}
+            }
+          }
+        }
+      }
+    },
+    "dossierArtifact": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactEnvelope"},
+        {"properties": {"artifactId": {"const": "training-dossier"}, "content": {"$ref": "#/$defs/dossierContent"}}}
+      ]
+    },
+    "limitationsContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["knownFailures", "untestedConditions", "stopConditions", "invalidUses", "safetyMisuseRisks", "remediationOwners", "costCeiling", "dataRightsBoundary", "unresolvedRightsUncertainty"],
+      "properties": {
+        "knownFailures": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "untestedConditions": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "stopConditions": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "invalidUses": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "safetyMisuseRisks": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "remediationOwners": {"$ref": "#/$defs/stringList"},
+        "costCeiling": {"$ref": "#/$defs/nonEmptyString"},
+        "dataRightsBoundary": {"$ref": "#/$defs/nonEmptyString"},
+        "unresolvedRightsUncertainty": {"type": "boolean"}
+      }
+    },
+    "limitationsArtifact": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactEnvelope"},
+        {"properties": {"artifactId": {"const": "limitations"}, "content": {"$ref": "#/$defs/limitationsContent"}}}
+      ]
+    },
+    "reviewedHashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["environment-lock", "run-ledger", "failure-ledger", "resource-record", "evaluation-slices", "training-dossier", "limitations"],
+      "properties": {
+        "environment-lock": {"$ref": "#/$defs/sha256"},
+        "run-ledger": {"$ref": "#/$defs/sha256"},
+        "failure-ledger": {"$ref": "#/$defs/sha256"},
+        "resource-record": {"$ref": "#/$defs/sha256"},
+        "evaluation-slices": {"$ref": "#/$defs/sha256"},
+        "training-dossier": {"$ref": "#/$defs/sha256"},
+        "limitations": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "reviewerContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewerName", "reviewerRole", "externalReviewComplete", "reviewedArtifactIdsAndHashes", "cleanRoomCommands", "cleanRoomTranscriptPath", "cleanRoomTranscriptSha256", "rerunResults", "failedChecks", "unresolvedVariance", "remediation", "challenge", "rationale", "signedAt", "decision", "identityBoundary"],
+      "properties": {
+        "reviewerName": {"$ref": "#/$defs/nonEmptyString"},
+        "reviewerRole": {"$ref": "#/$defs/nonEmptyString"},
+        "externalReviewComplete": {"const": true},
+        "reviewedArtifactIdsAndHashes": {"$ref": "#/$defs/reviewedHashes"},
+        "cleanRoomCommands": {"$ref": "#/$defs/stringList"},
+        "cleanRoomTranscriptPath": {"$ref": "#/$defs/safeRelativePath"},
+        "cleanRoomTranscriptSha256": {"$ref": "#/$defs/sha256"},
+        "rerunResults": {"$ref": "#/$defs/stringList"},
+        "failedChecks": {"$ref": "#/$defs/stringList"},
+        "unresolvedVariance": {"$ref": "#/$defs/nonEmptyString"},
+        "remediation": {"$ref": "#/$defs/nonEmptyString"},
+        "challenge": {"$ref": "#/$defs/nonEmptyString"},
+        "rationale": {"$ref": "#/$defs/nonEmptyString"},
+        "signedAt": {"$ref": "#/$defs/offsetTimestamp"},
+        "decision": {"enum": ["no-train", "no-deploy"]},
+        "identityBoundary": {"const": "learner-supplied-not-authenticated-by-local-validator"}
+      }
+    },
+    "reviewerArtifact": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactEnvelope"},
+        {"properties": {"artifactId": {"const": "reviewer-decision"}, "content": {"$ref": "#/$defs/reviewerContent"}}}
+      ]
+    }
+  },
+  "x-schemaId": "aicourse.deep-learning.capstone.v2",
+  "x-validatorId": "aicourse.deep-learning.validator.v2",
+  "x-artifactIds": ["environment-lock", "run-ledger", "failure-ledger", "resource-record", "evaluation-slices", "training-dossier", "limitations", "reviewer-decision"],
+  "x-minimumSeeds": 3,
+  "x-requiredLedgers": ["run-ledger", "failure-ledger", "resource-record"],
+  "x-requiredSliceTypes": ["clean", "corruption", "held-out-length", "synthetic-subgroup", "calibration", "error-analysis"],
+  "x-requiredNegativeCases": ["causal-mask-leakage", "unicode-normalization-round-trip", "tokenizer-version-drift", "lora-merge-equivalence"],
+  "x-requiresNamedReviewer": true,
+  "x-requiresChallenge": true,
+  "x-decisionBoundary": "no-train-or-no-deploy"
 }

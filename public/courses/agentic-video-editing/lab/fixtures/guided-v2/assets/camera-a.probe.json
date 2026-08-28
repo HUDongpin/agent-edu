@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "aicourse.ffprobe-receipt.v2",
+  "assetId": "camera-a",
+  "assetPath": "assets/camera-a.mp4",
+  "assetSha256": "df2a13f8c4c1aaf3d52ed3af2d804da662ef4be2455033ec103b3387b0f848bf",
+  "tool": "ffprobe",
+  "toolVersion": "8.1.1",
+  "container": "mov,mp4,m4a,3gp,3g2,mj2",
+  "durationSeconds": 60.06,
+  "durationFrames": 1800,
+  "video": {
+    "codec": "h264",
+    "width": 640,
+    "height": 360,
+    "frameRate": "30000/1001"
+  },
+  "audio": {
+    "codec": "aac",
+    "sampleRate": 48000,
+    "channels": 1
+  },
+  "projectTimebase": "30000/1001",
+  "networkUsed": false
+}

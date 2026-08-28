@@ -89,6 +89,103 @@
   font-weight: 600;
 }
 
+.claimLedger {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, #2563eb 10%, transparent), transparent 52%),
+    color-mix(in srgb, Canvas 97%, #2563eb 3%);
+}
+
+.claimList {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.claimItem {
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  border-inline-start: 4px solid #7c3aed;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, Canvas 95%, transparent);
+}
+
+.claimItem > p {
+  max-width: 76ch;
+  margin-block: 0.75rem;
+  line-height: 1.65;
+}
+
+.claimMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.8rem;
+  color: color-mix(in srgb, CanvasText 72%, transparent);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.claimMeta > span:first-child {
+  color: #6d28d9;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.claimMeta code {
+  overflow-wrap: anywhere;
+}
+
+.claimDetails {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.claimDetails > div {
+  display: grid;
+  gap: 0.2rem;
+  padding-block-start: 0.6rem;
+  border-block-start: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.claimDetails dt,
+.claimDetails dd {
+  margin: 0;
+}
+
+.claimDetails dt {
+  color: color-mix(in srgb, CanvasText 65%, transparent);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.claimDetails dd {
+  max-width: 82ch;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.claimDetails a {
+  display: inline-flex;
+  min-height: 44px;
+  max-width: 100%;
+  align-items: center;
+  padding-block: 0.2rem;
+  color: #6d28d9;
+  font-weight: 700;
+}
+
+.claimDetails a:focus-visible {
+  outline: 3px solid #7c3aed;
+  outline-offset: 3px;
+}
+
 @media (prefers-color-scheme: dark) {
-  .eyebrow { color: #c4b5fd; }
+  .eyebrow,
+  .claimMeta > span:first-child,
+  .claimDetails a { color: #c4b5fd; }
 }

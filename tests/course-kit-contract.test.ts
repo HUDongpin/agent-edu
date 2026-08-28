@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import test from "node:test";
 import {
   buildCourseKitCoverageMatrix,
@@ -6,6 +7,7 @@ import {
 } from "../lib/course-kit/coverage";
 import {
   COURSE_KIT_EVIDENCE_RECEIPT_SCHEMA,
+  COURSE_KIT_MODULE_EVIDENCE_RECEIPT_SCHEMA,
   isCourseKitEvidenceReceipt,
 } from "../lib/course-kit/evidence-receipt";
 import {
@@ -15,8 +17,12 @@ import {
 import {
   courseKitCapstoneArtifactKey,
   courseKitCapstoneCompleteKey,
+  courseKitCapstoneDraftKey,
   courseKitCapstoneVersionKey,
+  courseKitArtifactCompletionMarker,
+  courseKitCheckpointKey,
   courseKitModuleCompleteKey,
+  courseKitModuleReceiptKey,
   courseKitProgressPercent,
   courseKitQuizPassedKey,
   courseKitQuizVersionKey,
@@ -25,11 +31,13 @@ import {
 import {
   drawCourseKitQuizQuestions,
   gradeCourseKitQuiz,
+  selectCourseKitQuizFormQuestions,
 } from "../lib/course-kit/quiz";
 import { COURSE_KIT_DEFINITIONS } from "../lib/course-kit/registry";
 import {
   COURSE_KIT_COURSE_IDS,
   COURSE_KIT_COURSE_NUMBERS,
+  type CourseKitDefinition,
   type CourseKitOptionIndex,
 } from "../lib/course-kit/types";
 import { validateCourseKitDefinition } from "../lib/course-kit/validate";
@@ -43,6 +51,92 @@ const EXPECTED = [
   ["deep-learning", 20, 12, 900, 14],
   ["production-ai", 21, 12, 900, 14],
 ] as const;
+
+function fixtureHash(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function completedProgressFixture(definition: CourseKitDefinition): Record<string, unknown> {
+  const config = createCourseKitProgressConfig(definition);
+  const record: Record<string, unknown> = {
+    [config.progressVersionKey]: config.courseVersion,
+  };
+  const producedHashes = new Map<string, string>();
+  for (const contract of config.moduleContracts) {
+    const artifactId = contract.explicitlyDeclared
+      ? contract.producesArtifactIds[0]
+      : contract.moduleSlug;
+    const hash = fixtureHash(`${config.courseId}:${contract.moduleSlug}`);
+    record[courseKitCheckpointKey(config.courseId, contract.moduleSlug)] = {
+      choice: 0,
+      correct: true,
+    };
+    if (contract.explicitlyDeclared) {
+      const receipt = {
+          schemaVersion: COURSE_KIT_MODULE_EVIDENCE_RECEIPT_SCHEMA,
+          courseId: config.courseId,
+          courseVersion: config.courseVersion,
+          moduleSlug: contract.moduleSlug,
+          artifactId,
+          artifactPath: `artifacts/${artifactId}.json`,
+          artifactSha256: hash,
+          inputArtifactIdsAndHashes: Object.fromEntries(
+            contract.consumesArtifactIds.map((inputId) => [
+              inputId,
+              producedHashes.get(inputId),
+            ]),
+          ),
+          artifactSchemaId: contract.artifactSchemaId,
+          validatorId: contract.validatorId,
+          validatorVersion: contract.validatorId.match(/\.(v\d+)$/)?.[1],
+          executedCommand: contract.validatorCommand.replace(
+            /<[^>]+>/g,
+            `artifacts/${artifactId}.json`,
+          ),
+          validatedAt: "2026-08-28T00:00:00Z",
+          status: "pass",
+          limitations: ["Synthetic contract fixture; not learner evidence."],
+        };
+      record[courseKitModuleReceiptKey(config.courseId, contract.moduleSlug)] =
+        JSON.stringify(receipt);
+      record[courseKitModuleCompleteKey(config.courseId, contract.moduleSlug)] =
+        courseKitArtifactCompletionMarker(artifactId, hash);
+    } else {
+      // Course Kit v1 had no module-specific evidence contract. Preserve the
+      // local study record as self-attested without manufacturing a validator receipt.
+      record[courseKitModuleCompleteKey(config.courseId, contract.moduleSlug)] =
+        "self-attested";
+    }
+    for (const produced of contract.producesArtifactIds) producedHashes.set(produced, hash);
+  }
+  record[courseKitQuizVersionKey(config.courseId)] = config.quizVersion;
+  record[courseKitQuizPassedKey(config.courseId)] = true;
+  record[courseKitCapstoneVersionKey(config.courseId)] = config.capstoneVersion;
+  for (const artifactId of config.capstoneArtifactIds) {
+    const hash = fixtureHash(`${config.courseId}:capstone:${artifactId}`);
+    record[courseKitCapstoneDraftKey(config.courseId, artifactId)] = JSON.stringify({
+      schemaVersion: COURSE_KIT_EVIDENCE_RECEIPT_SCHEMA,
+      kind: "capstone-artifact",
+      courseId: config.courseId,
+      courseVersion: config.courseVersion,
+      artifactId,
+      artifactPath: `artifacts/${artifactId}.json`,
+      sha256: hash,
+      validator: {
+        id: config.evidenceValidatorId,
+        command: `${config.evidenceValidatorCommandPrefix}artifacts/${artifactId}.json`,
+        status: "pass",
+        checkedOn: "2026-08-28",
+      },
+      reviewer: { role: "test fixture", decision: "accept-with-limitations" },
+      limitations: ["Synthetic contract fixture; not learner evidence."],
+    });
+    record[courseKitCapstoneArtifactKey(config.courseId, artifactId)] =
+      courseKitArtifactCompletionMarker(artifactId, hash);
+  }
+  record[courseKitCapstoneCompleteKey(config.courseId)] = true;
+  return record;
+}
 
 test("Course Kit registry is exactly the locked Course 16–21 contract", () => {
   assert.deepEqual([...COURSE_KIT_COURSE_IDS], EXPECTED.map(([id]) => id));
@@ -92,11 +186,17 @@ test("seven shell locales fall back to English LTR without pretending to be tran
 test("the fixed draw includes every critical question and one wrong critical answer blocks passing", () => {
   for (const definition of COURSE_KIT_DEFINITIONS) {
     const course = materialiseCourseKit(definition, "en");
-    const draw = drawCourseKitQuizQuestions(
-      course.quiz.questions,
-      course.quiz.drawCount,
-      `${course.id}:${course.quiz.version}`,
-    );
+    const draw = course.quiz.forms
+      ? selectCourseKitQuizFormQuestions(
+          course.quiz.questions,
+          course.quiz.forms,
+          `${course.id}:${course.quiz.version}`,
+        )
+      : drawCourseKitQuizQuestions(
+          course.quiz.questions,
+          course.quiz.drawCount,
+          `${course.id}:${course.quiz.version}`,
+        );
     const criticalIds = course.quiz.questions
       .filter((question) => question.critical)
       .map((question) => question.id);
@@ -115,7 +215,7 @@ test("the fixed draw includes every critical question and one wrong critical ans
   }
 });
 
-test("progress is versioned and reaches 0, partial and 100 percent deterministically", () => {
+test("progress rejects isolated Booleans and reaches 100 only from bound evidence", () => {
   for (const definition of COURSE_KIT_DEFINITIONS) {
     const config = createCourseKitProgressConfig(definition);
     assert.equal(courseKitProgressPercent({}, config), 0);
@@ -123,28 +223,13 @@ test("progress is versioned and reaches 0, partial and 100 percent deterministic
       [config.progressVersionKey]: config.courseVersion,
       [courseKitModuleCompleteKey(config.courseId, config.moduleSlugs[0])]: true,
     };
-    assert.equal(
-      courseKitProgressPercent(partial, config),
-      Math.round(100 / config.milestoneCount),
-    );
+    assert.equal(courseKitProgressPercent(partial, config), 0);
     assert.equal(
       courseKitProgressPercent({ ...partial, [config.progressVersionKey]: "old-v0" }, config),
       0,
     );
 
-    const complete: Record<string, unknown> = {
-      [config.progressVersionKey]: config.courseVersion,
-      [courseKitQuizVersionKey(config.courseId)]: config.quizVersion,
-      [courseKitQuizPassedKey(config.courseId)]: true,
-      [courseKitCapstoneVersionKey(config.courseId)]: config.capstoneVersion,
-      [courseKitCapstoneCompleteKey(config.courseId)]: true,
-    };
-    for (const slug of config.moduleSlugs) {
-      complete[courseKitModuleCompleteKey(config.courseId, slug)] = true;
-    }
-    for (const artifactId of config.capstoneArtifactIds) {
-      complete[courseKitCapstoneArtifactKey(config.courseId, artifactId)] = true;
-    }
+    const complete = completedProgressFixture(definition);
     assert.equal(courseKitProgressPercent(complete, config), 100);
   }
 });
@@ -179,7 +264,7 @@ test("evidence receipts are bound to the exact course, version, artifact and kin
     schemaVersion: COURSE_KIT_EVIDENCE_RECEIPT_SCHEMA,
     ...binding,
     artifactPath: "artifacts/environment-receipt.json",
-    sha256: "0".repeat(64),
+    sha256: fixtureHash("course-kit-evidence-receipt"),
     validator: {
       id: "aicourse.ai-python-data.validator.v1",
       command: "python public/courses/ai-python-data/lab/validate.py --package artifacts/package.json",
@@ -190,6 +275,13 @@ test("evidence receipts are bound to the exact course, version, artifact and kin
     limitations: ["Fixture-only evidence; no external certification."],
   });
   assert.equal(isCourseKitEvidenceReceipt(receipt, binding), true);
+  assert.equal(
+    isCourseKitEvidenceReceipt(
+      JSON.stringify({ ...JSON.parse(receipt), sha256: "0".repeat(64) }),
+      binding,
+    ),
+    false,
+  );
   assert.equal(
     isCourseKitEvidenceReceipt(receipt, { ...binding, courseId: "machine-learning" }),
     false,

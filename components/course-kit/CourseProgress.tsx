@@ -52,6 +52,7 @@ export function CourseProgress({
         <span style={{ inlineSize: `${progress.percent}%` }} />
       </div>
       <p>{progressText}</p>
+      {!compact ? <small>{labels.localProgressBoundary}</small> : null}
       {!compact ? (
         <div className={styles.progressActions}>
           <p role="status" aria-live="polite">

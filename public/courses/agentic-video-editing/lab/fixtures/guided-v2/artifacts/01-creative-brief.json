@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.module.agentic-editing-contract.artifact.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "2.0.0",
+  "moduleSlug": "agentic-editing-contract",
+  "artifactId": "creative-brief",
+  "projectId": "course22-guided-video-project-v2",
+  "parents": {},
+  "payload": {
+    "title": "Course-owned repair workshop review cut",
+    "objective": "Create a concise internal-review sequence that preserves the order and meaning of the fictional safety demonstration.",
+    "audience": "Course learners and a named instructional reviewer working entirely offline.",
+    "successCriteria": [
+      "Introduce the fictional workshop purpose before the repair sequence begins.",
+      "Retain every safety qualification in its original chronological context.",
+      "Trace each selected frame range to a transcript, shot, or human-note locator.",
+      "Finish with a review invitation and never imply that publication occurred."
+    ],
+    "targetDurationFrames": {
+      "minimum": 1200,
+      "maximum": 2400
+    },
+    "deliveryTargetIds": [
+      "review-1080p",
+      "review-captioned"
+    ],
+    "rightsContract": {
+      "mediaUse": "authorized-for-declared-project",
+      "territories": [
+        "local course review"
+      ],
+      "termEndsOn": "2027-08-28",
+      "consentAndPrivacy": "cleared",
+      "decisionOwner": "AI Course fixture governance team"
+    },
+    "publicationAuthority": "named-human-only",
+    "stopConditions": [
+      "Stop when any source hash differs from the recorded fixity baseline.",
+      "Stop when an operation changes a qualification, chronology, or attribution.",
+      "Stop before any network, paid, export, upload, or publish action lacks authority.",
+      "Stop when the exact candidate version lacks a named human review decision."
+    ]
+  },
+  "limitations": [
+    "The course-owned fixture uses playable synthetic video, tone audio, and fictional text rather than personal or third-party media.",
+    "A validated creative brief demonstrates contract structure and never grants external publication authority."
+  ]
+}

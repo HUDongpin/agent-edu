@@ -7,8 +7,8 @@
   "required": ["schemaVersion", "fixtureId", "createdOn", "origin", "seed", "task", "labels", "splitPolicy", "records", "referenceClaims"],
   "properties": {
     "schemaVersion": {"const": "deep-learning.fixture.v1"},
-    "fixtureId": {"const": "ae-deep-learning-synthetic-lines-v1"},
-    "createdOn": {"const": "2026-08-26"},
+    "fixtureId": {"const": "ae-deep-learning-foundation-mlp-v1"},
+    "createdOn": {"const": "2026-08-28"},
     "origin": {"type": "string", "minLength": 20},
     "seed": {"const": 20260826},
     "task": {"type": "string", "minLength": 20},

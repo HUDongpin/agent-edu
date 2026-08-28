@@ -12,16 +12,20 @@ import {
   type CourseKitCourseNumber,
   type CourseKitCriticalCategory,
   type CourseKitDefinition,
+  type CourseKitEvidenceContract,
   type CourseKitEvidenceMode,
   type CourseKitFourOptions,
+  type CourseKitLocalizationReviewExtension,
   type CourseKitNonEmpty,
   type CourseKitOptionIndex,
   type CourseKitPracticeCopy,
   type CourseKitQuiz,
+  type CourseKitModuleCompletionMode,
   type CourseKitResponsibleAiGate,
   type CourseKitSourceRecord,
   type CourseKitTenModules,
   type CourseKitTwelveModules,
+  type CourseKitThreeQuizForms,
   type CourseKitUiCopy,
 } from "./types";
 import {
@@ -86,6 +90,13 @@ export interface CourseKitModuleAuthoringSeed<
   readonly phaseId: PhaseId;
   readonly minutes: number;
   readonly sourceIds: CourseKitNonEmpty<SourceId>;
+  readonly prerequisiteModuleSlugs?: readonly ModuleSlug[];
+  readonly producesArtifactIds?: CourseKitNonEmpty<string>;
+  readonly consumesArtifactIds?: readonly string[];
+  readonly artifactSchemaId?: string;
+  readonly validatorId?: string;
+  readonly validatorCommand?: string;
+  readonly completionMode?: CourseKitModuleCompletionMode;
   readonly copy: CourseKitBilingual<
     CourseKitModuleCopyAuthoringSeed<SourceId>
   >;
@@ -120,12 +131,16 @@ export interface CourseKitQuizQuestionCopyAuthoringSeed {
 export interface CourseKitQuizQuestionAuthoringSeed<
   QuestionId extends string = string,
   SourceId extends string = string,
+  ModuleSlug extends string = string,
 > {
   readonly id: QuestionId;
+  readonly moduleSlug?: ModuleSlug;
   readonly correctIndex: CourseKitOptionIndex;
   readonly sourceIds: CourseKitNonEmpty<SourceId>;
   readonly critical?: boolean;
   readonly criticalCategory?: CourseKitCriticalCategory;
+  readonly capabilityTags?: readonly string[];
+  readonly capabilityAssessmentMode?: "computational" | "diagnostic";
   readonly copy: CourseKitBilingual<CourseKitQuizQuestionCopyAuthoringSeed>;
 }
 
@@ -183,17 +198,20 @@ interface CourseKitManifestAuthoringSeed<
 }
 
 interface CourseKitAuthoringSeedBase<
+  ModuleSlug extends string,
   SourceId extends string,
   QuestionId extends string,
   ArtifactId extends string,
 > {
+  readonly localizationReviewExtension?: CourseKitLocalizationReviewExtension;
   readonly sources: CourseKitNonEmpty<CourseKitSourceAuthoringSeed<SourceId>>;
   readonly courseCopy: CourseKitBilingual<CourseKitLocaleAuthoringSeed>;
   readonly quiz: {
     readonly version: string;
     readonly questions: CourseKitNonEmpty<
-      CourseKitQuizQuestionAuthoringSeed<QuestionId, SourceId>
+      CourseKitQuizQuestionAuthoringSeed<QuestionId, SourceId, ModuleSlug>
     >;
+    readonly forms?: CourseKitThreeQuizForms<QuestionId>;
   };
   readonly capstone: {
     readonly version: string;
@@ -204,6 +222,8 @@ interface CourseKitAuthoringSeedBase<
       QuestionId,
       ArtifactId
     >;
+    readonly evidenceContract?: CourseKitEvidenceContract;
+    readonly referenceEvidenceContract?: CourseKitEvidenceContract;
   };
 }
 
@@ -215,6 +235,7 @@ export type CourseKitAuthoringSeed<
   QuestionId extends string = string,
   ArtifactId extends string = string,
 > = CourseKitAuthoringSeedBase<
+  ModuleSlug,
   SourceId,
   QuestionId,
   ArtifactId
@@ -295,7 +316,8 @@ export function buildModuleQuestionBank<
   } = {},
 ): CourseKitQuizQuestionAuthoringSeed<
   CourseKitGeneratedQuestionId<ModuleSlug>,
-  SourceId
+  SourceId,
+  ModuleSlug
 >[] {
   if (modules.length < 4) {
     throw new Error("Question-bank generation needs at least four modules.");
@@ -323,7 +345,8 @@ export function buildModuleQuestionBank<
   );
   const bank: CourseKitQuizQuestionAuthoringSeed<
     CourseKitGeneratedQuestionId<ModuleSlug>,
-    SourceId
+    SourceId,
+    ModuleSlug
   >[] = [];
 
   modules.forEach((module, moduleIndex) => {
@@ -339,6 +362,7 @@ export function buildModuleQuestionBank<
 
     bank.push({
       id: coreId,
+      moduleSlug: module.slug,
       correctIndex: module.copy.en.checkpoint.correctIndex,
       sourceIds: module.sourceIds,
       critical: criticalIds.has(coreId),
@@ -359,6 +383,7 @@ export function buildModuleQuestionBank<
 
     bank.push({
       id: evidenceId,
+      moduleSlug: module.slug,
       correctIndex: evidenceCorrectIndex,
       sourceIds: module.sourceIds,
       critical: criticalIds.has(evidenceId),
@@ -387,6 +412,7 @@ export function buildModuleQuestionBank<
 
     bank.push({
       id: boundaryId,
+      moduleSlug: module.slug,
       correctIndex: boundaryCorrectIndex,
       sourceIds: module.sourceIds,
       critical: criticalIds.has(boundaryId),
@@ -578,6 +604,13 @@ export function buildCourseKitDefinition<
     phaseId: module.phaseId,
     minutes: module.minutes,
     sourceIds: module.sourceIds,
+    prerequisiteModuleSlugs: module.prerequisiteModuleSlugs,
+    producesArtifactIds: module.producesArtifactIds,
+    consumesArtifactIds: module.consumesArtifactIds,
+    artifactSchemaId: module.artifactSchemaId,
+    validatorId: module.validatorId,
+    validatorCommand: module.validatorCommand,
+    completionMode: module.completionMode,
   }));
   const manifestPhases = seed.manifest.phases.map((phase, index) => ({
     id: phase.id,
@@ -608,18 +641,22 @@ export function buildCourseKitDefinition<
     };
   });
   const earlyCourse = seed.manifest.displayNumber <= 18;
-  const quiz: CourseKitQuiz<QuestionId, SourceId> = {
+  const quiz: CourseKitQuiz<QuestionId, SourceId, ModuleSlug> = {
     schemaVersion: COURSE_KIT_QUIZ_SCHEMA_VERSION,
     version: seed.quiz.version,
     drawCount: earlyCourse ? 12 : 16,
     passCount: earlyCourse ? 10 : 13,
     questions: seed.quiz.questions.map((question) => ({
       id: question.id,
+      moduleSlug: question.moduleSlug,
       correctIndex: question.correctIndex,
       sourceIds: question.sourceIds,
       critical: question.critical === true,
       criticalCategory: question.criticalCategory,
-    })) as unknown as CourseKitQuiz<QuestionId, SourceId>["questions"],
+      capabilityTags: question.capabilityTags,
+      capabilityAssessmentMode: question.capabilityAssessmentMode,
+    })) as unknown as CourseKitQuiz<QuestionId, SourceId, ModuleSlug>["questions"],
+    forms: seed.quiz.forms,
   };
   const capstone: CourseKitCapstone<ArtifactId, SourceId, QuestionId> = {
     schemaVersion: COURSE_KIT_CAPSTONE_SCHEMA_VERSION,
@@ -630,13 +667,14 @@ export function buildCourseKitDefinition<
       required: true as const,
     })) as unknown as CourseKitCapstone<ArtifactId, SourceId>["artifacts"],
     responsibleAiGate: seed.capstone.responsibleAiGate,
-    evidenceContract: {
+    evidenceContract: seed.capstone.evidenceContract ?? {
       schemaId: `aicourse.${seed.manifest.id}.capstone.v1`,
       schemaPath: `/courses/${seed.manifest.id}/lab/capstone.schema.json`,
       validatorId: `aicourse.${seed.manifest.id}.validator.v1`,
       validatorPath: `/courses/${seed.manifest.id}/lab/validate.py`,
       validatorCommand: `python public/courses/${seed.manifest.id}/lab/validate.py --package <artifact-package.json>`,
     },
+    referenceEvidenceContract: seed.capstone.referenceEvidenceContract,
   };
 
   const definition = {
@@ -661,6 +699,9 @@ export function buildCourseKitDefinition<
     },
     quiz,
     capstone,
+    ...(seed.localizationReviewExtension
+      ? { localizationReviewExtension: seed.localizationReviewExtension }
+      : {}),
   } as unknown as CourseKitDefinition<
     CourseId,
     ModuleSlug,

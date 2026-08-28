@@ -77,6 +77,13 @@ export function materialiseCourseKit(
       phaseTitle: phaseTitles.get(module.phaseId) ?? module.phaseId,
       minutes: module.minutes,
       sourceIds: [...module.sourceIds],
+      prerequisiteModuleSlugs: [...(module.prerequisiteModuleSlugs ?? [])],
+      producesArtifactIds: [...(module.producesArtifactIds ?? [module.slug])],
+      consumesArtifactIds: [...(module.consumesArtifactIds ?? [])],
+      artifactSchemaId: module.artifactSchemaId,
+      validatorId: module.validatorId,
+      validatorCommand: module.validatorCommand,
+      completionMode: module.completionMode,
       copy: copy.modules[module.slug],
       previousSlug: allModules[index - 1]?.slug,
       nextSlug: allModules[index + 1]?.slug,
@@ -118,6 +125,12 @@ export function materialiseCourseKit(
       title: copy.quiz.title,
       intro: copy.quiz.intro,
       questions,
+      forms: definition.quiz.forms
+        ? definition.quiz.forms.map((form) => ({
+            id: form.id,
+            questionIds: [...form.questionIds],
+          })) as unknown as CourseKitMaterialisedCourse["quiz"]["forms"]
+        : undefined,
     },
     capstone: {
       version: definition.capstone.version,
@@ -140,6 +153,9 @@ export function materialiseCourseKit(
           }
         : undefined,
       evidenceContract: { ...definition.capstone.evidenceContract },
+      referenceEvidenceContract: definition.capstone.referenceEvidenceContract
+        ? { ...definition.capstone.referenceEvidenceContract }
+        : undefined,
       attestation: copy.capstone.attestation,
       artifacts,
     },

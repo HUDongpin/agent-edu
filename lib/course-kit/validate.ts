@@ -15,6 +15,7 @@ import {
   RESPONSIBLE_AI_CROSS_COURSE_RUBRIC_ZH_HANS,
   RESPONSIBLE_AI_RUBRIC_VERSION,
 } from "./responsible-ai-rubric";
+import { validateCourseKitQuizForms } from "./quiz";
 
 export interface CourseKitValidationIssue {
   readonly path: string;
@@ -32,6 +33,20 @@ const ADVANCED_CRITICAL_CATEGORIES = [
   "rollback",
   "reproducibility",
 ] as const;
+const V2_SOURCE_KINDS = [
+  "research",
+  "official-documentation",
+  "open-standard",
+  "legal-policy",
+  "repository",
+  "community-issue",
+] as const;
+const V2_SOURCE_STABILITIES = [
+  "immutable",
+  "version-pinned",
+  "current-documentation",
+  "historical-snapshot",
+] as const;
 
 function unique(values: readonly string[]): boolean {
   return new Set(values).size === values.length;
@@ -41,6 +56,18 @@ function validDate(value: string): boolean {
   if (!ISO_DATE.test(value)) return false;
   const parsed = new Date(`${value}T00:00:00Z`);
   return !Number.isNaN(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+function validTimestamp(value: string): boolean {
+  const parsed = new Date(value);
+  return !Number.isNaN(parsed.valueOf())
+    && /T/.test(value)
+    && /(?:Z|[+-]\d{2}:\d{2})$/.test(value);
+}
+
+function isDeepLearningV2(definition: CourseKitDefinition): boolean {
+  return definition.manifest.id === "deep-learning"
+    && /(?:^|[-.])v2$/.test(definition.manifest.version);
 }
 
 function validHttpsUrl(value: string): boolean {
@@ -158,6 +185,7 @@ export function validateCourseKitDefinition(
 
   const moduleSlugs = manifest.modules.map((module) => module.slug);
   const phaseIds = manifest.phases.map((phase) => phase.id);
+  const deepLearningV2 = isDeepLearningV2(definition);
   if (!unique(moduleSlugs)) {
     issues.push({ path: "manifest.modules", message: "Module slugs must be unique." });
   }
@@ -178,6 +206,122 @@ export function validateCourseKitDefinition(
     }
     if (!Number.isInteger(module.minutes) || module.minutes < 1) {
       issues.push({ path: `${path}.minutes`, message: "Minutes must be a positive integer." });
+    }
+    const contractValues = [
+      module.prerequisiteModuleSlugs,
+      module.producesArtifactIds,
+      module.consumesArtifactIds,
+      module.artifactSchemaId,
+      module.validatorId,
+      module.validatorCommand,
+      module.completionMode,
+    ];
+    const hasAnyContractField = contractValues.some((value) => value !== undefined);
+    const hasCompleteContract = contractValues.every((value) => value !== undefined);
+    if (hasAnyContractField && !hasCompleteContract) {
+      issues.push({
+        path,
+        message: "A module evidence contract must declare all seven DAG, artifact, validator, and completion fields.",
+      });
+    }
+    if (deepLearningV2 && !hasCompleteContract) {
+      issues.push({
+        path,
+        message: "Deep Learning v2 requires an explicit module evidence contract.",
+      });
+    }
+    if (!hasCompleteContract) return;
+    if (!unique(module.prerequisiteModuleSlugs!)) {
+      issues.push({ path: `${path}.prerequisiteModuleSlugs`, message: "Prerequisite module slugs must be unique." });
+    }
+    for (const prerequisite of module.prerequisiteModuleSlugs!) {
+      const prerequisiteIndex = moduleSlugs.indexOf(prerequisite);
+      if (prerequisiteIndex < 0) {
+        issues.push({ path: `${path}.prerequisiteModuleSlugs`, message: `Unknown prerequisite module: ${prerequisite}.` });
+      } else if (prerequisiteIndex >= index) {
+        issues.push({ path: `${path}.prerequisiteModuleSlugs`, message: `${prerequisite} must precede ${module.slug} in the manifest DAG.` });
+      }
+    }
+    if (!module.producesArtifactIds!.length || !unique(module.producesArtifactIds!)) {
+      issues.push({ path: `${path}.producesArtifactIds`, message: "Produced artifact IDs must be a non-empty unique list." });
+    }
+    if (!unique(module.consumesArtifactIds!)) {
+      issues.push({ path: `${path}.consumesArtifactIds`, message: "Consumed artifact IDs must be unique." });
+    }
+    for (const artifactId of [
+      ...module.producesArtifactIds!,
+      ...module.consumesArtifactIds!,
+    ]) {
+      if (!SAFE_ID.test(artifactId)) {
+        issues.push({ path, message: `Artifact ID must be lowercase kebab-case: ${artifactId}.` });
+      }
+    }
+    if (!/^aicourse(?:\.[a-z0-9-]+)+\.v\d+$/.test(module.artifactSchemaId!)) {
+      issues.push({ path: `${path}.artifactSchemaId`, message: "Use a versioned aicourse artifact schema ID." });
+    }
+    if (!/^aicourse(?:\.[a-z0-9-]+)+\.v\d+$/.test(module.validatorId!)) {
+      issues.push({ path: `${path}.validatorId`, message: "Use a versioned aicourse validator ID." });
+    }
+    if (!module.validatorCommand!.trim() || /[\r\n]/.test(module.validatorCommand!)) {
+      issues.push({ path: `${path}.validatorCommand`, message: "Validator command must be a non-empty single line." });
+    }
+    if (!["validated-artifact", "self-attested"].includes(module.completionMode!)) {
+      issues.push({ path: `${path}.completionMode`, message: "completionMode must be validated-artifact or self-attested." });
+    }
+    if (deepLearningV2 && module.completionMode !== "validated-artifact") {
+      issues.push({ path: `${path}.completionMode`, message: "Deep Learning v2 modules must use validated-artifact completion." });
+    }
+  });
+
+  const artifactProducer = new Map<string, { readonly slug: string; readonly index: number }>();
+  const prerequisitesByModule = new Map(
+    manifest.modules.map((module) => [
+      module.slug,
+      module.prerequisiteModuleSlugs ?? [],
+    ] as const),
+  );
+  const dependsOn = (moduleSlug: string, prerequisiteSlug: string): boolean => {
+    const visited = new Set<string>();
+    const pending = [...(prerequisitesByModule.get(moduleSlug) ?? [])];
+    while (pending.length) {
+      const candidate = pending.pop()!;
+      if (candidate === prerequisiteSlug) return true;
+      if (visited.has(candidate)) continue;
+      visited.add(candidate);
+      pending.push(...(prerequisitesByModule.get(candidate) ?? []));
+    }
+    return false;
+  };
+  manifest.modules.forEach((module, moduleIndex) => {
+    for (const artifactId of module.producesArtifactIds ?? []) {
+      const existing = artifactProducer.get(artifactId);
+      if (existing) {
+        issues.push({
+          path: `manifest.modules[${moduleIndex}].producesArtifactIds`,
+          message: `${artifactId} is already produced by ${existing.slug}.`,
+        });
+      } else artifactProducer.set(artifactId, { slug: module.slug, index: moduleIndex });
+    }
+  });
+  manifest.modules.forEach((module, moduleIndex) => {
+    for (const artifactId of module.consumesArtifactIds ?? []) {
+      const producer = artifactProducer.get(artifactId);
+      if (!producer) {
+        issues.push({
+          path: `manifest.modules[${moduleIndex}].consumesArtifactIds`,
+          message: `${artifactId} has no manifest producer.`,
+        });
+      } else if (producer.index >= moduleIndex) {
+        issues.push({
+          path: `manifest.modules[${moduleIndex}].consumesArtifactIds`,
+          message: `${artifactId} is produced by a later module ${producer.slug}.`,
+        });
+      } else if (!dependsOn(module.slug, producer.slug)) {
+        issues.push({
+          path: `manifest.modules[${moduleIndex}].consumesArtifactIds`,
+          message: `${artifactId} comes from ${producer.slug}, which is not in ${module.slug}'s prerequisite DAG.`,
+        });
+      }
     }
   });
 
@@ -251,8 +395,45 @@ export function validateCourseKitDefinition(
         issues.push({ path: `${path}.evidenceUrls[${urlIndex}]`, message: "Evidence URLs must use HTTPS." });
       }
     });
-    if (!validDate(source.accessedOn)) {
+    if (!source.accessedAt && !source.accessedOn) {
+      issues.push({ path: `${path}.accessedAt`, message: "Record an ISO access timestamp or legacy access date." });
+    }
+    if (source.accessedAt && !validTimestamp(source.accessedAt)) {
+      issues.push({ path: `${path}.accessedAt`, message: "Use a real ISO 8601 timestamp with timezone." });
+    }
+    if (source.accessedOn && !validDate(source.accessedOn)) {
       issues.push({ path: `${path}.accessedOn`, message: "Use a real ISO access date." });
+    }
+    if (deepLearningV2 && !source.accessedAt) {
+      issues.push({ path: `${path}.accessedAt`, message: "Deep Learning v2 sources require accessedAt." });
+    }
+    if (deepLearningV2 && !V2_SOURCE_KINDS.includes(source.kind as (typeof V2_SOURCE_KINDS)[number])) {
+      issues.push({ path: `${path}.kind`, message: "Deep Learning v2 must use the six canonical source kinds." });
+    }
+    if (deepLearningV2 && !V2_SOURCE_STABILITIES.includes(source.stability as (typeof V2_SOURCE_STABILITIES)[number])) {
+      issues.push({ path: `${path}.stability`, message: "Deep Learning v2 must use the four canonical stability classes." });
+    }
+    if (source.immutableRef) {
+      if (!["versioned-url", "release-tag", "commit-sha", "content-sha256"].includes(source.immutableRef.kind)
+        || !source.immutableRef.value.trim()) {
+        issues.push({ path: `${path}.immutableRef`, message: "immutableRef needs a supported kind and non-empty value." });
+      }
+      if (source.immutableRef.url && !validHttpsUrl(source.immutableRef.url)) {
+        issues.push({ path: `${path}.immutableRef.url`, message: "immutableRef URL must use HTTPS." });
+      }
+      if (source.immutableRef.kind === "commit-sha"
+        && !/^[a-f0-9]{40}$/.test(source.immutableRef.value)) {
+        issues.push({ path: `${path}.immutableRef.value`, message: "A commit-sha immutableRef must be a full 40-character SHA." });
+      }
+      if (source.immutableRef.kind === "content-sha256"
+        && !/^[a-f0-9]{64}$/.test(source.immutableRef.value)) {
+        issues.push({ path: `${path}.immutableRef.value`, message: "A content-sha256 immutableRef must be 64 lowercase hex characters." });
+      }
+    }
+    if (deepLearningV2
+      && ["immutable", "version-pinned"].includes(source.stability)
+      && !source.immutableRef) {
+      issues.push({ path: `${path}.immutableRef`, message: "Immutable and version-pinned Deep Learning v2 sources require immutableRef." });
     }
     if (source.publishedOn && !validDate(source.publishedOn)) {
       issues.push({ path: `${path}.publishedOn`, message: "Use a real ISO publication date." });
@@ -381,27 +562,68 @@ export function validateCourseKitDefinition(
       });
     }
   });
+  if (deepLearningV2 && !quiz.forms) {
+    issues.push({
+      path: "quiz.forms",
+      message: "Deep Learning v2 requires three explicit stratified 16-question forms.",
+    });
+  }
+  if (quiz.forms) {
+    for (const finding of validateCourseKitQuizForms(
+      quiz.questions.map((question) => ({
+        id: question.id,
+        critical: question.critical === true,
+        moduleSlug: question.moduleSlug,
+      })),
+      quiz.forms,
+      quiz.drawCount,
+      moduleSlugs,
+    )) {
+      issues.push({ path: "quiz.forms", message: finding });
+    }
+  }
 
   if (!VERSION_TOKEN.test(capstone.version)) {
     issues.push({ path: "capstone.version", message: "Use a stable capstone version token containing a digit." });
   }
-  const expectedEvidenceContract = {
+  const legacyEvidenceContract = {
     schemaId: `aicourse.${manifest.id}.capstone.v1`,
     schemaPath: `/courses/${manifest.id}/lab/capstone.schema.json`,
     validatorId: `aicourse.${manifest.id}.validator.v1`,
     validatorPath: `/courses/${manifest.id}/lab/validate.py`,
     validatorCommand: `python public/courses/${manifest.id}/lab/validate.py --package <artifact-package.json>`,
   };
+  const deepLearningV2EvidenceContract = {
+    schemaId: "aicourse.deep-learning.capstone.v2",
+    schemaPath: "/courses/deep-learning/lab/capstone.schema.json",
+    validatorId: "aicourse.deep-learning.validator.v2",
+    validatorPath: "/courses/deep-learning/lab/validate_capstone.py",
+    validatorCommand: "python3 public/courses/deep-learning/lab/validate_capstone.py --package <learner-package.json> --receipt-dir <receipt-directory>",
+  };
+  const expectedEvidenceContract = deepLearningV2
+    ? deepLearningV2EvidenceContract
+    : legacyEvidenceContract;
   for (const [field, expected] of Object.entries(expectedEvidenceContract)) {
-    if (
-      capstone.evidenceContract[
-        field as keyof typeof capstone.evidenceContract
-      ] !== expected
-    ) {
-      issues.push({
-        path: `capstone.evidenceContract.${field}`,
-        message: `Expected ${expected}.`,
-      });
+    if (capstone.evidenceContract[field as keyof typeof capstone.evidenceContract] !== expected) {
+      issues.push({ path: `capstone.evidenceContract.${field}`, message: `Expected ${expected}.` });
+    }
+  }
+  if (deepLearningV2) {
+    const expectedReferenceContract = {
+      schemaId: "aicourse.deep-learning.reference-package.v2",
+      schemaPath: "/courses/deep-learning/lab/reference.schema.json",
+      validatorId: "aicourse.deep-learning.reference-validator.v1",
+      validatorPath: "/courses/deep-learning/lab/validate_reference.py",
+      validatorCommand: "python3 public/courses/deep-learning/lab/validate_reference.py --package <reference-package.json>",
+    };
+    if (!capstone.referenceEvidenceContract) {
+      issues.push({ path: "capstone.referenceEvidenceContract", message: "Deep Learning v2 requires a separate non-credential reference validator." });
+    } else {
+      for (const [field, expected] of Object.entries(expectedReferenceContract)) {
+        if (capstone.referenceEvidenceContract[field as keyof typeof capstone.referenceEvidenceContract] !== expected) {
+          issues.push({ path: `capstone.referenceEvidenceContract.${field}`, message: `Expected ${expected}.` });
+        }
+      }
     }
   }
   const artifactIds = capstone.artifacts.map((artifact) => artifact.id);

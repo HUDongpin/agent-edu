@@ -181,6 +181,7 @@ function CourseCard({
     "machine-learning",
     "deep-learning",
     "production-ai",
+    "agentic-video-editing",
   ].includes(course.id);
   const duration = course.metaKey
     ? t(course.metaKey)

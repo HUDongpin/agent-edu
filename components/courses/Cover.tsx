@@ -713,6 +713,7 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
     "machine-learning": styles.teaching,
     "deep-learning": styles.engineering,
     "production-ai": styles.engineering,
+    "agentic-video-editing": styles.engineering,
     "product-management": styles.claudeIncome,
     "agent-orchestration": styles.engineering,
     "responsible-ai": styles.responsible,
@@ -726,6 +727,8 @@ export default function Cover({ id, hue }: { id: string; hue: string }) {
         ? "agent-orchestration"
       : id === "production-ai"
           ? "mcp"
+        : id === "agentic-video-editing"
+          ? "software-engineering"
           : motifId;
   const variantClass = variantClasses[motifId] ?? styles.legacy;
   const artwork = id === "grok"

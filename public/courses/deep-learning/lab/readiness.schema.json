@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/deep-learning/lab/readiness.schema.json",
+  "title": "Course 20 non-milestone readiness diagnostic",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "courseVersion", "matrixProduct", "broadcastShape", "partialDerivative", "chainRuleDerivative", "stableSoftmaxMethod", "splitBoundary", "pythonTest", "decision"],
+  "properties": {
+    "schemaVersion": {"const": "aicourse.deep-learning.readiness.v1"},
+    "courseVersion": {"const": "2026.08.28-v2"},
+    "matrixProduct": {"type": "array"},
+    "broadcastShape": {"type": "array"},
+    "partialDerivative": {"type": "number"},
+    "chainRuleDerivative": {"type": "number"},
+    "stableSoftmaxMethod": {"type": "string"},
+    "splitBoundary": {"type": "string"},
+    "pythonTest": {"type": "object"},
+    "decision": {"enum": ["ready", "bridge"]}
+  }
+}

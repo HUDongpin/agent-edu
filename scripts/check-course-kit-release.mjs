@@ -156,8 +156,8 @@ const CONTRACTS = {
     titles: [
       "Tensors and computational graphs",
       "Backpropagation and autodiff",
-      "Optimisation, initialisation, normalisation and regularisation",
       "Training loops and debugging",
+      "Optimisation, initialisation, normalisation and regularisation",
       "CNNs and visual representations",
       "Transfer learning",
       "Sequence models, RNNs and LSTMs",
@@ -165,11 +165,11 @@ const CONTRACTS = {
       "Transformer encoder and decoder",
       "Tokenisation and pretraining",
       "Fine-tuning and parameter-efficient adaptation",
-      "Robustness, evaluation and training-card capstone",
+      "Robustness, evaluation and learner-final dossier",
     ],
     artifactIds: [
-      "environment-lock", "training-log", "cost-energy-record", "error-slices",
-      "ablation", "training-card", "limitations", "reproducibility-receipt",
+      "environment-lock", "run-ledger", "failure-ledger", "resource-record",
+      "evaluation-slices", "training-dossier", "limitations", "reviewer-decision",
     ],
   },
   "production-ai": {
@@ -251,8 +251,11 @@ const LAB_CONTRACTS = {
     localizedGuide: true,
     files: [
       "lab/README.md", "lab/README.zh-Hans.md", "lab/environment.lock.json", "lab/requirements.lock",
-      "lab/run_experiment.py", "lab/capstone.schema.json",
-      "lab/submission.template.json", "lab/test_lab.py", "lab/validate.py",
+      "lab/run_experiment.py", "lab/run_modules.py", "lab/capstone.schema.json",
+      "lab/reference.schema.json", "lab/readiness.schema.json", "lab/readiness.template.json",
+      "lab/readiness.reference.json", "lab/submission.template.json", "lab/test_lab.py", "lab/test_lab_v2.py",
+      "lab/validate_module.py", "lab/validate_reference.py", "lab/validate_capstone.py",
+      "lab/validate_readiness.py",
     ],
   },
   "production-ai": {
@@ -359,7 +362,13 @@ export function evaluateCourseKitLocalizationReview(
       add(`${courseId}/${locale} review entry is missing.`);
       continue;
     }
-    const observedHash = courseKitCopySha256(definition.copy[locale]);
+    const reviewBundle = definition.localizationReviewExtension
+      ? {
+          copy: definition.copy[locale],
+          extension: definition.localizationReviewExtension,
+        }
+      : definition.copy[locale];
+    const observedHash = courseKitCopySha256(reviewBundle);
     if (!/^[a-f0-9]{64}$/.test(review.copySha256 ?? "") || review.copySha256 !== observedHash) {
       add(`${courseId}/${locale} review hash does not match the exact current copy bundle (${observedHash}).`);
     }
@@ -514,7 +523,7 @@ function checkAssets(courseId, issues, root) {
   return { files: allFiles.length, hashed: covered.size };
 }
 
-function checkStaticUi(courseId, issues, root) {
+function checkStaticUi(courseId, definition, issues, root) {
   const routeDirectory = join(root, "app/[locale]", courseId);
   const expectedRouteFiles = [
     join(routeDirectory, "page.tsx"),
@@ -540,6 +549,10 @@ function checkStaticUi(courseId, issues, root) {
   ]
     .filter((path) => /\.tsx?$/.test(path));
   const uiText = uiFiles.map((path) => readFileSync(path, "utf8")).join("\n");
+  const sharedEvidenceText = [
+    join(root, "lib/course-kit/evidence-receipt.ts"),
+    join(root, "lib/course-kit/progress.ts"),
+  ].filter(existsSync).map((path) => readFileSync(path, "utf8")).join("\n");
   if (/<main(?:\s|>)/i.test(uiText)) {
     issue(issues, "ui", "Course kit must not create a nested second <main>.");
   }
@@ -549,16 +562,36 @@ function checkStaticUi(courseId, issues, root) {
   for (const token of [
     "requireStructuredReceipts = true",
     "requireStructuredReceipt = true",
-    'kind: "module-artifact"',
     'kind: "capstone-artifact"',
     "courseId: config.courseId",
     "courseVersion: config.courseVersion",
-    "artifactId: moduleSlug",
     "artifactId: artifact.id",
     "validatorId: config.evidenceValidatorId",
   ]) {
     if (!uiText.includes(token)) {
       issue(issues, "assessment", `Structured evidence completion gate is missing ${token}.`);
+    }
+  }
+  const deepLearningV2 = courseId === "deep-learning"
+    && /(?:^|[-.])v2$/.test(definition.manifest.version);
+  const moduleEvidenceTokens = deepLearningV2
+    ? [
+        "parseCourseKitModuleEvidenceReceipt",
+        "moduleSlug",
+        "artifactSha256",
+        "inputArtifactIdsAndHashes",
+        "artifactSchemaId",
+        "validatorId",
+        "executedCommand",
+      ]
+    : [
+        'kind: "module-artifact"',
+        "artifactId: moduleSlug",
+        "parseCourseKitEvidenceReceipt",
+      ];
+  for (const token of moduleEvidenceTokens) {
+    if (!sharedEvidenceText.includes(token)) {
+      issue(issues, "assessment", `Module evidence completion gate is missing ${token}.`);
     }
   }
 
@@ -615,7 +648,7 @@ function checkCourseDirectoryContract(courseId, issues, root) {
   }
 }
 
-function checkCourseLabContract(courseId, contract, issues, root) {
+function checkCourseLabContract(courseId, contract, definition, issues, root) {
   const labContract = LAB_CONTRACTS[courseId];
   if (!labContract) {
     issue(issues, "lab", `No executable lab contract is registered for ${courseId}.`);
@@ -636,7 +669,10 @@ function checkCourseLabContract(courseId, contract, issues, root) {
     if (/^\s*["']use client["']/m.test(component)) {
       issue(issues, "lab", `${labContract.component} must remain a Server Component.`);
     }
-    for (const token of [`/courses/${courseId}`, `aicourse.${courseId}.validator.v1`]) {
+    for (const token of [
+      `/courses/${courseId}`,
+      definition.capstone.evidenceContract.validatorId,
+    ]) {
       if (!component.includes(token)) {
         issue(issues, "lab", `${labContract.component} does not expose ${token}.`);
       }
@@ -666,8 +702,16 @@ function checkCourseLabContract(courseId, contract, issues, root) {
     }
   }
 
-  const schemaPath = join(coursePublicDirectory, "lab/capstone.schema.json");
-  const validatorPath = join(coursePublicDirectory, "lab/validate.py");
+  const schemaPath = join(
+    root,
+    "public",
+    definition.capstone.evidenceContract.schemaPath.replace(/^\//, ""),
+  );
+  const validatorPath = join(
+    root,
+    "public",
+    definition.capstone.evidenceContract.validatorPath.replace(/^\//, ""),
+  );
   if (!existsSync(schemaPath) || !existsSync(validatorPath)) return;
   let schema;
   try {
@@ -676,8 +720,8 @@ function checkCourseLabContract(courseId, contract, issues, root) {
     issue(issues, "lab", `capstone.schema.json is not valid JSON: ${error}`);
     return;
   }
-  const expectedSchemaId = `aicourse.${courseId}.capstone.v1`;
-  const expectedValidatorId = `aicourse.${courseId}.validator.v1`;
+  const expectedSchemaId = definition.capstone.evidenceContract.schemaId;
+  const expectedValidatorId = definition.capstone.evidenceContract.validatorId;
   if (schema["x-schemaId"] !== expectedSchemaId && schema.$id !== expectedSchemaId) {
     issue(issues, "lab", `capstone.schema.json does not declare exact schema ID ${expectedSchemaId}.`);
   }
@@ -700,34 +744,35 @@ function checkCourseLabContract(courseId, contract, issues, root) {
 
 function checkEvidenceContract(courseId, definition, issues, root) {
   const contract = definition.capstone.evidenceContract;
-  const expected = {
-    schemaId: `aicourse.${courseId}.capstone.v1`,
-    schemaPath: `/courses/${courseId}/lab/capstone.schema.json`,
-    validatorId: `aicourse.${courseId}.validator.v1`,
-    validatorPath: `/courses/${courseId}/lab/validate.py`,
-    validatorCommand: `python public/courses/${courseId}/lab/validate.py --package <artifact-package.json>`,
-  };
-  for (const [field, value] of Object.entries(expected)) {
-    if (contract?.[field] !== value) {
-      issue(issues, "assessment", `Evidence contract ${field} must equal ${value}.`);
-    }
-  }
-  for (const [field, publicPath] of [
-    ["schemaPath", contract?.schemaPath],
-    ["validatorPath", contract?.validatorPath],
-  ]) {
+  const contracts = [
+    ["learner", contract],
+    ...(definition.capstone.referenceEvidenceContract
+      ? [["reference", definition.capstone.referenceEvidenceContract]]
+      : []),
+  ];
+  for (const [contractKind, evidenceContract] of contracts) {
+    for (const [field, publicPath] of [
+      ["schemaPath", evidenceContract?.schemaPath],
+      ["validatorPath", evidenceContract?.validatorPath],
+    ]) {
     const path = typeof publicPath === "string"
       ? join(root, "public", publicPath.replace(/^\//, ""))
       : "";
     if (!path || !existsSync(path)) {
-      issue(issues, "assessment", `Evidence contract ${field} does not resolve to a published local asset.`);
+        issue(issues, "assessment", `${contractKind} evidence contract ${field} does not resolve to a published local asset.`);
+      }
     }
-  }
-  const validatorDiskPath = join(root, "public/courses", courseId, "lab/validate.py");
-  if (existsSync(validatorDiskPath)) {
-    const text = readFileSync(validatorDiskPath, "utf8");
-    if (!text.includes(expected.validatorId) || !text.includes(expected.schemaId)) {
-      issue(issues, "assessment", "Offline validator does not declare the exact validator and schema IDs.");
+    const validatorDiskPath = join(
+      root,
+      "public",
+      evidenceContract.validatorPath.replace(/^\//, ""),
+    );
+    if (existsSync(validatorDiskPath)) {
+      const text = readFileSync(validatorDiskPath, "utf8");
+      if (!text.includes(evidenceContract.validatorId)
+        || !text.includes(evidenceContract.schemaId)) {
+        issue(issues, "assessment", `${contractKind} validator does not declare its exact validator and schema IDs.`);
+      }
     }
   }
 }
@@ -841,8 +886,8 @@ function checkDefinition(courseId, definition, contract, issues) {
     if (!source.supports.trim() || !source.boundary.trim()) {
       issue(issues, "sources", `${source.id} lacks a precise supports/boundary contract.`);
     }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(source.accessedOn)) {
-      issue(issues, "sources", `${source.id} lacks an ISO access date.`);
+    if (!source.accessedAt && !/^\d{4}-\d{2}-\d{2}$/.test(source.accessedOn)) {
+      issue(issues, "sources", `${source.id} lacks an ISO access timestamp or legacy date.`);
     }
     if (!source.reuseStatus) issue(issues, "rights", `${source.id} lacks a reuse status.`);
     if (!source.conceptDomain?.trim()) issue(issues, "sources", `${source.id} lacks a concept domain.`);
@@ -866,23 +911,118 @@ function checkProgress(definition, helpers, issues) {
     [config.progressVersionKey]: config.courseVersion,
     [helpers.courseKitModuleCompleteKey(config.courseId, config.moduleSlugs[0])]: true,
   };
-  const expectedPartial = Math.round(100 / config.milestoneCount);
-  if (helpers.courseKitProgressPercent(partial, config) !== expectedPartial) {
-    issue(issues, "progress", `One milestone must equal ${expectedPartial}%.`);
+  if (helpers.courseKitProgressPercent(partial, config) !== 0) {
+    issue(issues, "progress", "An isolated module Boolean must not count as completion evidence.");
   }
   const oldVersion = { ...partial, [config.progressVersionKey]: "obsolete-v0" };
   if (helpers.courseKitProgressPercent(oldVersion, config) !== 0) {
     issue(issues, "progress", "Old-version completion must be invalidated to 0%.");
   }
   const complete = { [config.progressVersionKey]: config.courseVersion };
-  for (const slug of config.moduleSlugs) {
-    complete[helpers.courseKitModuleCompleteKey(config.courseId, slug)] = true;
+  const moduleHashes = new Map();
+  for (const moduleContract of config.moduleContracts) {
+    const hash = createHash("sha256")
+      .update(`${config.courseId}:${config.courseVersion}:${moduleContract.moduleSlug}`)
+      .digest("hex");
+    complete[helpers.courseKitCheckpointKey(config.courseId, moduleContract.moduleSlug)] = {
+      choice: 0,
+      correct: true,
+    };
+    const artifactId = moduleContract.explicitlyDeclared
+      ? moduleContract.producesArtifactIds[0]
+      : moduleContract.moduleSlug;
+    const receipt = moduleContract.explicitlyDeclared
+      ? {
+          schemaVersion: "aicourse.module-evidence-receipt.v2",
+          courseId: config.courseId,
+          courseVersion: config.courseVersion,
+          moduleSlug: moduleContract.moduleSlug,
+          artifactId,
+          artifactPath: `artifacts/${artifactId}.json`,
+          artifactSha256: hash,
+          inputArtifactIdsAndHashes: Object.fromEntries(
+            moduleContract.consumesArtifactIds.map((inputId) => [
+              inputId,
+              moduleHashes.get(inputId),
+            ]),
+          ),
+          artifactSchemaId: moduleContract.artifactSchemaId,
+          validatorId: moduleContract.validatorId,
+          validatorVersion: moduleContract.validatorId.match(/\.(v\d+)$/)?.[1],
+          executedCommand: moduleContract.validatorCommand.replace(
+            /<[^>]+>/g,
+            `artifacts/${artifactId}.json`,
+          ),
+          validatedAt: "2026-08-28T00:00:00Z",
+          status: "pass",
+          limitations: ["Synthetic release-gate fixture; not learner evidence."],
+        }
+      : {
+          schemaVersion: "aicourse.evidence-receipt.v1",
+          kind: "module-artifact",
+          courseId: config.courseId,
+          courseVersion: config.courseVersion,
+          artifactId,
+          artifactPath: `artifacts/${artifactId}.json`,
+          sha256: hash,
+          validator: {
+            id: moduleContract.validatorId,
+            command: moduleContract.validatorCommand.replace(
+              /<[^>]+>/g,
+              `artifacts/${artifactId}.json`,
+            ),
+            status: "pass",
+            checkedOn: "2026-08-28",
+          },
+          reviewer: {
+            role: "release-gate fixture",
+            decision: "accept-with-limitations",
+          },
+          limitations: ["Synthetic release-gate fixture; not learner evidence."],
+        };
+    complete[helpers.courseKitModuleReceiptKey(
+      config.courseId,
+      moduleContract.moduleSlug,
+    )] = JSON.stringify(receipt);
+    complete[helpers.courseKitModuleCompleteKey(
+      config.courseId,
+      moduleContract.moduleSlug,
+    )] = moduleContract.completionMode === "self-attested"
+      ? "self-attested"
+      : helpers.courseKitArtifactCompletionMarker(artifactId, hash);
+    for (const producedId of moduleContract.producesArtifactIds) {
+      moduleHashes.set(producedId, hash);
+    }
   }
   complete[helpers.courseKitQuizVersionKey(config.courseId)] = config.quizVersion;
   complete[helpers.courseKitQuizPassedKey(config.courseId)] = true;
   complete[helpers.courseKitCapstoneVersionKey(config.courseId)] = config.capstoneVersion;
   for (const id of config.capstoneArtifactIds) {
-    complete[helpers.courseKitCapstoneArtifactKey(config.courseId, id)] = true;
+    const hash = createHash("sha256")
+      .update(`${config.courseId}:${config.capstoneVersion}:${id}`)
+      .digest("hex");
+    complete[helpers.courseKitCapstoneDraftKey(config.courseId, id)] = JSON.stringify({
+      schemaVersion: "aicourse.evidence-receipt.v1",
+      kind: "capstone-artifact",
+      courseId: config.courseId,
+      courseVersion: config.courseVersion,
+      artifactId: id,
+      artifactPath: `artifacts/${id}.json`,
+      sha256: hash,
+      validator: {
+        id: config.evidenceValidatorId,
+        command: `${config.evidenceValidatorCommandPrefix}artifacts/${id}.json`,
+        status: "pass",
+        checkedOn: "2026-08-28",
+      },
+      reviewer: {
+        role: "release-gate fixture",
+        decision: "accept-with-limitations",
+      },
+      limitations: ["Synthetic release-gate fixture; not learner evidence."],
+    });
+    complete[helpers.courseKitCapstoneArtifactKey(config.courseId, id)] =
+      helpers.courseKitArtifactCompletionMarker(id, hash);
   }
   complete[helpers.courseKitCapstoneCompleteKey(config.courseId)] = true;
   if (helpers.courseKitProgressPercent(complete, config) !== 100) {
@@ -929,7 +1069,7 @@ export async function checkCourseKitRelease(
     requireLocalizationApproval,
   );
   checkEvidenceContract(courseId, definition, issues, root);
-  checkCourseLabContract(courseId, contract, issues, root);
+  checkCourseLabContract(courseId, contract, definition, issues, root);
   checkDefinition(courseId, definition, contract, issues);
   for (const item of validationModule.validateCourseKitDefinition(definition)) {
     issue(issues, "definition", `${item.path}: ${item.message}`);
@@ -940,11 +1080,38 @@ export async function checkCourseKitRelease(
   checkProgress(definition, progressModule, issues);
 
   const materialised = localeModule.materialiseCourseKit(definition, "en");
-  const draw = quizModule.drawCourseKitQuizQuestions(
-    materialised.quiz.questions,
-    materialised.quiz.drawCount,
-    `${courseId}:${materialised.quiz.version}`,
-  );
+  const draw = materialised.quiz.forms
+    ? quizModule.selectCourseKitQuizFormQuestions(
+        materialised.quiz.questions,
+        materialised.quiz.forms,
+        `${courseId}:${materialised.quiz.version}`,
+      )
+    : quizModule.drawCourseKitQuizQuestions(
+        materialised.quiz.questions,
+        materialised.quiz.drawCount,
+        `${courseId}:${materialised.quiz.version}`,
+      );
+  let quizCoverage;
+  if (courseId === "deep-learning") {
+    const authoredBank = courseModule.DEEP_LEARNING_QUESTION_BANK;
+    const authoredForms = courseModule.DEEP_LEARNING_QUIZ_FORMS;
+    const authoredById = new Map(authoredBank.map((question) => [question.id, question]));
+    const deliveredBank = definition.quiz.questions.map((question) => ({
+      ...authoredById.get(question.id),
+      ...question,
+    }));
+    for (const finding of courseModule.validateDeepLearningQuizCapabilityCoverage(
+      deliveredBank,
+      authoredForms,
+    )) {
+      issue(issues, "quiz", finding);
+    }
+    quizCoverage = courseModule.buildDeepLearningQuizCoverageReport(
+      deliveredBank,
+      authoredForms,
+      `${courseId}:${materialised.quiz.version}`,
+    );
+  }
   const criticalIds = definition.quiz.questions.filter((question) => question.critical).map((question) => question.id);
   if (!criticalIds.every((id) => draw.some((question) => question.id === id))) {
     issue(issues, "quiz", "The deterministic final draw omitted a critical question.");
@@ -970,7 +1137,7 @@ export async function checkCourseKitRelease(
   }
 
   const assetStats = checkAssets(courseId, issues, root);
-  checkStaticUi(courseId, issues, root);
+  checkStaticUi(courseId, definition, issues, root);
   return {
     courseId,
     ok: issues.length === 0,
@@ -986,6 +1153,7 @@ export async function checkCourseKitRelease(
       assets: assetStats.files,
       hashedAssets: assetStats.hashed,
     },
+    quizCoverage,
     issues,
   };
 }
@@ -999,19 +1167,42 @@ export async function checkAllCourseKitReleases(
   for (const courseId of selectedIds) {
     results.push(await checkCourseKitRelease(courseId, projectRoot, options));
   }
-  return { ok: results.every((result) => result.ok), results };
+  const ok = results.every((result) => result.ok);
+  const mode = options.requireLocalizationApproval === false ? "local" : "release";
+  return {
+    ok,
+    mode,
+    releaseEligible: mode === "release" && ok,
+    skippedGates: mode === "local" ? ["localization-approval"] : [],
+    results,
+  };
 }
 
-function format(result) {
+export function formatCourseKitReleaseResult(result) {
   const lines = [];
   for (const course of result.results) {
     const contract = course.contract;
     lines.push(
       `${course.courseId}: ${course.ok ? "PASS" : "FAIL"} — ${contract.modules} modules / ${contract.minutes} min / ${contract.questions} questions / ${contract.capstoneArtifacts} capstone artifacts / ${contract.hashedAssets} hashed assets`,
     );
+    if (course.quizCoverage) {
+      const coverage = course.quizCoverage;
+      lines.push(
+        `  quiz bank: ${coverage.bank.bankCoverageCount}/${coverage.bank.questionCount} questions; ${coverage.bank.capabilityQuestionCount} capability items`,
+        `  current delivered form: ${coverage.currentDeliveredForm.formId} — ${coverage.currentDeliveredForm.questionCount} questions / ${coverage.currentDeliveredForm.moduleCoverageCount} modules / ${coverage.currentDeliveredForm.capabilityQuestionCount} capability items`,
+        `  three-form union: ${coverage.threeFormUnion.bankCoverageCount}/${coverage.bank.questionCount} bank questions; per-form capability counts ${coverage.forms.map((form) => `${form.formId}=${form.capabilityQuestionCount}`).join(", ")}`,
+      );
+    }
     for (const item of course.issues) lines.push(`  [${item.gate}] ${item.message}`);
   }
-  lines.push(`course-kit release: ${result.ok ? "PASS" : "FAIL"}`);
+  if (result.mode === "local") {
+    lines.push(`course-kit local contract: ${result.ok ? "PASS" : "FAIL"}`);
+    lines.push(
+      `course-kit release: NOT EVALUATED — skipped gates: ${result.skippedGates.join(", ") || "none"}`,
+    );
+  } else {
+    lines.push(`course-kit release: ${result.ok ? "PASS" : "FAIL"}`);
+  }
   return lines.join("\n");
 }
 
@@ -1028,7 +1219,7 @@ if (invoked) {
       requireLocalizationApproval: !process.argv.includes("--local"),
     });
     if (process.argv.includes("--json")) console.log(JSON.stringify(result, null, 2));
-    else console.log(format(result));
+    else console.log(formatCourseKitReleaseResult(result));
     if (!result.ok) process.exitCode = 1;
   }
 }

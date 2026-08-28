@@ -6,17 +6,26 @@ import {
   courseKitCapstoneCompleteKey,
   courseKitCapstoneDraftKey,
   courseKitCapstoneVersionKey,
+  courseKitArtifactCompletionMarker,
+  courseKitCapstoneArtifactEvidenceState,
   courseKitCheckpointKey,
   courseKitModuleCompleteKey,
   courseKitModuleReceiptKey,
   courseKitQuizBestKey,
+  courseKitQuizBestPassedKey,
+  courseKitQuizCurrentScoreKey,
   courseKitQuizDraftKey,
+  courseKitQuizFormKey,
   courseKitQuizPassedKey,
   courseKitQuizVersionKey,
   courseKitProgressPrefix,
   COURSE_KIT_PROGRESS_EVENT,
   COURSE_KIT_PROGRESS_RESET_EVENT,
   invalidateCourseKitProgressRecord,
+  isCourseKitCapstoneArtifactComplete,
+  isCourseKitModuleComplete,
+  isCourseKitQuizComplete,
+  courseKitModuleEvidenceState,
 } from "@/lib/course-kit/progress";
 import type {
   CourseKitOptionIndex,
@@ -223,7 +232,22 @@ export function setCourseKitModuleComplete(
   complete: boolean,
 ): boolean {
   return updateCourseKitProgress(config, (record) => {
-    record[courseKitModuleCompleteKey(config.courseId, moduleSlug)] = complete;
+    const key = courseKitModuleCompleteKey(config.courseId, moduleSlug);
+    if (!complete) {
+      delete record[key];
+      return;
+    }
+    const evidence = courseKitModuleEvidenceState(record, config, moduleSlug);
+    if (!evidence) {
+      delete record[key];
+      return;
+    }
+    record[key] = evidence.artifactSha256 === "self-attested"
+      ? "self-attested"
+      : courseKitArtifactCompletionMarker(
+          evidence.artifactId,
+          evidence.artifactSha256,
+        );
   });
 }
 
@@ -236,6 +260,8 @@ export function setCourseKitModuleReceipt(
     const key = courseKitModuleReceiptKey(config.courseId, moduleSlug);
     if (receipt) record[key] = receipt.slice(0, 4000);
     else delete record[key];
+    delete record[courseKitModuleCompleteKey(config.courseId, moduleSlug)];
+    record[courseKitCapstoneCompleteKey(config.courseId)] = false;
   });
 }
 
@@ -243,27 +269,36 @@ export function recordCourseKitQuizAttempt(
   config: CourseKitProgressClientConfig,
   score: number,
   passed: boolean,
+  formId?: string,
 ): boolean {
   return updateCourseKitProgress(config, (record) => {
     const bestKey = courseKitQuizBestKey(config.courseId);
+    const bestPassedKey = courseKitQuizBestPassedKey(config.courseId);
+    const currentScoreKey = courseKitQuizCurrentScoreKey(config.courseId);
     const quizVersionKey = courseKitQuizVersionKey(config.courseId);
     const currentQuiz = record[quizVersionKey] === config.quizVersion;
     const previous =
       currentQuiz && typeof record[bestKey] === "number" ? record[bestKey] : 0;
     if (!currentQuiz) {
       delete record[bestKey];
+      delete record[bestPassedKey];
+      delete record[currentScoreKey];
       delete record[courseKitQuizPassedKey(config.courseId)];
     }
     record[quizVersionKey] = config.quizVersion;
+    if (formId) record[courseKitQuizFormKey(config.courseId)] = formId;
+    record[currentScoreKey] = score;
     record[bestKey] = Math.max(previous, score);
-    record[courseKitQuizPassedKey(config.courseId)] =
-      record[courseKitQuizPassedKey(config.courseId)] === true || passed;
+    record[courseKitQuizPassedKey(config.courseId)] = passed;
+    record[bestPassedKey] = record[bestPassedKey] === true || passed;
+    if (!passed) record[courseKitCapstoneCompleteKey(config.courseId)] = false;
   });
 }
 
 export function setCourseKitQuizDraft(
   config: CourseKitProgressClientConfig,
   answers: Readonly<Record<string, CourseKitOptionIndex>>,
+  formId?: string,
 ): boolean {
   return updateCourseKitProgress(config, (record) => {
     const versionKey = courseKitQuizVersionKey(config.courseId);
@@ -273,7 +308,22 @@ export function setCourseKitQuizDraft(
       }
     }
     record[versionKey] = config.quizVersion;
+    if (formId) record[courseKitQuizFormKey(config.courseId)] = formId;
     record[courseKitQuizDraftKey(config.courseId)] = { ...answers };
+  });
+}
+
+export function setCourseKitQuizForm(
+  config: CourseKitProgressClientConfig,
+  formId: string,
+): boolean {
+  return updateCourseKitProgress(config, (record) => {
+    record[courseKitQuizVersionKey(config.courseId)] = config.quizVersion;
+    record[courseKitQuizFormKey(config.courseId)] = formId;
+    delete record[courseKitQuizDraftKey(config.courseId)];
+    delete record[courseKitQuizCurrentScoreKey(config.courseId)];
+    record[courseKitQuizPassedKey(config.courseId)] = false;
+    record[courseKitCapstoneCompleteKey(config.courseId)] = false;
   });
 }
 
@@ -298,8 +348,26 @@ export function setCourseKitCapstoneArtifact(
       }
     }
     record[versionKey] = config.capstoneVersion;
-    record[courseKitCapstoneArtifactKey(config.courseId, artifactId)] = complete;
-    if (!complete) record[courseKitCapstoneCompleteKey(config.courseId)] = false;
+    const artifactKey = courseKitCapstoneArtifactKey(config.courseId, artifactId);
+    if (!complete) {
+      delete record[artifactKey];
+      record[courseKitCapstoneCompleteKey(config.courseId)] = false;
+      return;
+    }
+    const evidence = courseKitCapstoneArtifactEvidenceState(
+      record,
+      config,
+      artifactId,
+    );
+    if (evidence) {
+      record[artifactKey] = courseKitArtifactCompletionMarker(
+        artifactId,
+        evidence.sha256,
+      );
+    } else {
+      delete record[artifactKey];
+    }
+    record[courseKitCapstoneCompleteKey(config.courseId)] = false;
   });
 }
 
@@ -320,10 +388,8 @@ export function setCourseKitCapstoneDraft(
     const trimmed = draft.slice(0, 2000);
     if (trimmed) record[key] = trimmed;
     else delete record[key];
-    if (!trimmed.trim()) {
-      record[courseKitCapstoneArtifactKey(config.courseId, artifactId)] = false;
-      record[courseKitCapstoneCompleteKey(config.courseId)] = false;
-    }
+    delete record[courseKitCapstoneArtifactKey(config.courseId, artifactId)];
+    record[courseKitCapstoneCompleteKey(config.courseId)] = false;
   });
 }
 
@@ -338,12 +404,15 @@ export function setCourseKitCapstoneComplete(
       }
     }
     record[versionKey] = config.capstoneVersion;
-    const allComplete = config.capstoneArtifactIds.every(
-      (artifactId) =>
-        record[courseKitCapstoneArtifactKey(config.courseId, artifactId)] ===
-        true,
+    const allModulesComplete = config.moduleSlugs.every((moduleSlug) =>
+      isCourseKitModuleComplete(record, config, moduleSlug)
     );
-    record[courseKitCapstoneCompleteKey(config.courseId)] = allComplete;
+    const quizComplete = isCourseKitQuizComplete(record, config);
+    const allArtifactsComplete = config.capstoneArtifactIds.every((artifactId) =>
+      isCourseKitCapstoneArtifactComplete(record, config, artifactId)
+    );
+    record[courseKitCapstoneCompleteKey(config.courseId)] =
+      allModulesComplete && quizComplete && allArtifactsComplete;
   });
 }
 

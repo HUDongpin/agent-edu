@@ -9,6 +9,7 @@ import { MCP_LOCALES } from "@/lib/mcp";
 import { SOFTWARE_ENGINEERING_LOCALES } from "@/lib/software-engineering";
 import { isCourseKitPage } from "@/lib/course-kit/registry";
 import { COURSE_KIT_CONTENT_LOCALES } from "@/lib/course-kit/types";
+import { AGENTIC_VIDEO_EDITING_TRANSLATED_LOCALES } from "@/lib/agentic-video-editing";
 
 export const dynamic = "force-static";
 
@@ -41,6 +42,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ? MCP_LOCALES
       : page === "software-engineering/" || page.startsWith("software-engineering/")
       ? SOFTWARE_ENGINEERING_LOCALES
+      : page === "agentic-video-editing/" || page.startsWith("agentic-video-editing/")
+      ? AGENTIC_VIDEO_EDITING_TRANSLATED_LOCALES
       : isCourseKitPage(page)
       ? COURSE_KIT_CONTENT_LOCALES
       : page === "prompts/" || page.startsWith("prompts/")
@@ -52,7 +55,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return availableLocales.map((locale) => ({
       url: urlFor(locale, page),
       lastModified: new Date(
-        isCourseKitPage(page)
+        page === "agentic-video-editing/" || page.startsWith("agentic-video-editing/")
+          ? "2026-08-28"
+        : isCourseKitPage(page)
           ? "2026-08-26"
         : page === "rag/" || page.startsWith("rag/")
         || page === "mcp/" || page.startsWith("mcp/")

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "aicourse.deep-learning.sequence-fixture.v2",
+  "fixtureId": "ae-deep-learning-sequences-v2",
+  "createdOn": "2026-08-28",
+  "origin": "Original deterministic symbolic sequences and multilingual tokenizer probes authored for this course; no scraped corpus, personal data, or third-party text is included.",
+  "seed": 20260828,
+  "task": "Test padding and recurrent state boundaries, scaled dot-product attention, causal masking, a tiny Transformer language-model run, tokenizer normalization, and LoRA merge equivalence.",
+  "vocabulary": ["<pad>", "<bos>", "<eos>", "a", "b", "c", "d"],
+  "cyclePatterns": [
+    ["a", "b", "c", "d"],
+    ["d", "c", "b", "a"]
+  ],
+  "lengths": {"train": [4, 5, 6], "validation": [7], "test": [8, 10]},
+  "tokenizerProbes": [
+    {"id": "latin", "text": "Agentic AI"},
+    {"id": "simplified-chinese", "text": "智能体编排"},
+    {"id": "arabic", "text": "تنسيق الوكلاء"},
+    {"id": "compatibility", "text": "ＡＩ café"}
+  ],
+  "pretrainingObjective": "Autoregressive next-token prediction over only the two course-authored cycle patterns.",
+  "corpusBoundary": "The fixture is a mechanics corpus, not evidence about natural language quality, fairness, factuality, or deployment fitness.",
+  "rights": {
+    "containsPersonalData": false,
+    "containsThirdPartyCorpus": false,
+    "runtimeDownloadRequired": false,
+    "allowedUse": "Offline course mechanics and validator testing only."
+  }
+}
