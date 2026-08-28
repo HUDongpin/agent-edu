@@ -21,6 +21,7 @@ const MAX_SITEMAP_BYTES = 500 * 1024;
 const MAX_FAILURES = 250;
 const DEFAULT_CONCURRENCY = 12;
 const TRUSTED_OIDC_TOKEN = /^[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}$/;
+const REPORT_ONLY_CSP_DIAGNOSTIC = "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy.";
 
 function localizedPath(locale, route) {
   const page = route.replace(/^\/+|\/+$/g, "");
@@ -326,15 +327,8 @@ async function mapLimit(items, limit, callback) {
   await Promise.all(workers);
 }
 
-export async function installPreviewBrowserConsoleGuards(page) {
-  // Web Analytics is a Vercel platform surface, not an application runtime
-  // dependency. Keep its availability from masking application console errors
-  // while preserving every other console and page-error signal.
-  await page.route("**/_vercel/insights/**", (route) => route.fulfill({
-    status: 200,
-    contentType: "text/javascript",
-    body: "",
-  }));
+export function isExpectedReportOnlyCspDiagnostic(message) {
+  return message.type() === "error" && message.text() === REPORT_ONLY_CSP_DIAGNOSTIC;
 }
 
 async function verifyBrowserConsole(paths, previewOrigin, report, concurrency, trustedOidcToken) {
@@ -348,11 +342,15 @@ async function verifyBrowserConsole(paths, previewOrigin, report, concurrency, t
           ? { "x-vercel-trusted-oidc-idp-token": trustedOidcToken }
           : undefined,
       });
-      await installPreviewBrowserConsoleGuards(page);
       let consoleErrors = 0;
       let pageErrors = 0;
+      let reportOnlyCspDiagnostics = 0;
       page.on("console", (message) => {
-        if (message.type() === "error") consoleErrors += 1;
+        if (isExpectedReportOnlyCspDiagnostic(message)) {
+          reportOnlyCspDiagnostics += 1;
+        } else if (message.type() === "error") {
+          consoleErrors += 1;
+        }
       });
       page.on("pageerror", () => {
         pageErrors += 1;
@@ -364,6 +362,14 @@ async function verifyBrowserConsole(paths, previewOrigin, report, concurrency, t
         });
         if (response?.status() !== 200) addFailure(report, "browser-status", path);
         await page.waitForTimeout(50);
+        const reportOnlyPolicy = response?.headers()["content-security-policy-report-only"] ?? "";
+        if (reportOnlyCspDiagnostics > 0 && reportOnlyPolicy.includes("upgrade-insecure-requests")) {
+          report.checks.classifiedReportOnlyCspDiagnostics += reportOnlyCspDiagnostics;
+        } else {
+          // The exact browser diagnostic is expected only when the verified
+          // response actually carries the reviewed report-only directive.
+          consoleErrors += reportOnlyCspDiagnostics;
+        }
         if (consoleErrors > 0) addFailure(report, "browser-console-error", path, consoleErrors);
         if (pageErrors > 0) addFailure(report, "browser-page-error", path, pageErrors);
       } catch {
@@ -414,6 +420,7 @@ export async function verifyVercelPreview(options) {
       sitemapUrls: 0,
       sensitiveDocuments: 0,
       browserDocuments: 0,
+      classifiedReportOnlyCspDiagnostics: 0,
     },
     failures: [],
   };
@@ -615,7 +622,9 @@ if (invoked) {
     console.log(
       `Vercel Preview: ${report.status.toUpperCase()} — ${report.checks.publicRoutes} public, `
       + `${report.checks.negativeRoutes} blocked/unsupported, ${report.checks.sitemapUrls} sitemap, `
-      + `${report.checks.browserDocuments} browser-console documents; report ${output}`,
+      + `${report.checks.browserDocuments} browser-console documents, `
+      + `${report.checks.classifiedReportOnlyCspDiagnostics} classified report-only CSP diagnostics; `
+      + `report ${output}`,
     );
     if (report.status !== "pass") process.exitCode = 1;
   } catch (error) {

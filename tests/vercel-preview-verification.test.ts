@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   buildPreviewPlan,
-  installPreviewBrowserConsoleGuards,
+  isExpectedReportOnlyCspDiagnostic,
   previewRequestHeaders,
   validateTrustedOidcToken,
   validatePreviewTarget,
@@ -74,29 +74,18 @@ test("Preview OIDC access stays header-only and fails closed on malformed tokens
   );
 });
 
-test("Preview browser-console verification isolates Vercel Analytics from application errors", async () => {
-  let interceptedPattern = "";
-  let fulfilledResponse: Record<string, unknown> | undefined;
-  const page = {
-    async route(
-      pattern: string,
-      handler: (route: { fulfill(response: Record<string, unknown>): Promise<void> }) => Promise<void>,
-    ) {
-      interceptedPattern = pattern;
-      await handler({
-        async fulfill(response) {
-          fulfilledResponse = response;
-        },
-      });
-    },
-  };
-
-  await installPreviewBrowserConsoleGuards(page);
-
-  assert.equal(interceptedPattern, "**/_vercel/insights/**");
-  assert.deepEqual(fulfilledResponse, {
-    status: 200,
-    contentType: "text/javascript",
-    body: "",
-  });
+test("Preview browser-console verification narrowly classifies the reviewed report-only CSP diagnostic", () => {
+  const expected = "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy.";
+  assert.equal(isExpectedReportOnlyCspDiagnostic({
+    type: () => "error",
+    text: () => expected,
+  }), true);
+  assert.equal(isExpectedReportOnlyCspDiagnostic({
+    type: () => "warning",
+    text: () => expected,
+  }), false);
+  assert.equal(isExpectedReportOnlyCspDiagnostic({
+    type: () => "error",
+    text: () => `${expected} unexpected suffix`,
+  }), false);
 });
