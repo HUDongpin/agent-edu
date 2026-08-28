@@ -1041,7 +1041,7 @@ td.mono{font-family:var(--mono);font-size:12px}
   .hb .rail-list{flex-direction:row;overflow-x:auto;gap:0;padding:0 12px;scrollbar-width:none}
   .hb .rail-list::-webkit-scrollbar{display:none}
   .hb .rail-list::before{display:none}
-  .hb .rail-btn{grid-template-columns:auto;gap:0;padding:11px 12px;white-space:nowrap;border-radius:0;border-bottom:3px solid transparent}
+  .hb .rail-btn{grid-template-columns:auto;gap:0;padding:11px 12px;white-space:nowrap;border-radius:0;border-bottom:3px solid transparent;scroll-margin-block:2px}
   .hb .rail-btn .stn{display:none}
   .hb .rail-btn[aria-selected="true"]{border-bottom-color:var(--c)}
   .hb main{padding-top:22px}

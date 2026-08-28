@@ -202,7 +202,7 @@ function writeCuratedBundle(
     schemaVersion: "agent-edu.curated-browser-evidence.v1",
     kind: "curated-safe-browser-failure",
     provenance: {
-      sanitizerPolicy: "uniform-redaction-surface-v2",
+    sanitizerPolicy: "uniform-redaction-surface-v3",
       fixturePolicy: "public-fixed-safe-smoke-only",
       testIdSha256: "a".repeat(64),
       browserName: "chromium",
@@ -213,7 +213,7 @@ function writeCuratedBundle(
       "console.json": { contentType: "application/json", bytes: consoleFile.length, sha256: digest(consoleFile) },
       "screenshot.png": {
         contentType: "image/png",
-        sanitization: "uniform-redaction-surface-v2",
+        sanitization: "uniform-redaction-surface-v3",
         bytes: screenshot.length,
         sha256: digest(screenshot),
       },
@@ -647,6 +647,22 @@ test("the browser-unavailable fallback is a strict uniform redaction PNG", async
   });
 });
 
+test("a browser-sized redaction PNG contains no captured page or scrollbar pixels", async () => {
+  const redaction = createUniformRedactionPng({ width: 390, height: 900 });
+  assert.equal(redaction.readUInt32BE(16), 390);
+  assert.equal(redaction.readUInt32BE(20), 900);
+  assert.deepEqual(stripPngAncillaryChunks(redaction), redaction);
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, { screenshot: redaction });
+    const stats = await scanArtifactRoots([root], {
+      cwd: workspace,
+      curated: true,
+      requireRoots: true,
+    });
+    assert.equal(stats.files, 4);
+  });
+});
+
 test("required curated roots and manifests fail closed when missing", async () => {
   await inWorkspace(async ({ workspace, root }) => {
     await assert.rejects(
@@ -1059,11 +1075,11 @@ test("safe failure evidence is curated without raw Playwright outputs", () => {
   assert.match(config, /preserveOutput: "never"/);
   assert.match(config, /screenshot: "off"/);
   assert.match(config, /trace: "off"/);
-  assert.match(curatedEvidence, /uniform-redaction-surface-v2/);
+  assert.match(curatedEvidence, /uniform-redaction-surface-v3/);
   assert.match(fixture, /new URL\(request\.url\(\)\)\.origin/);
-  assert.match(fixture, /page\.locator\(`#\$\{REDACTION_SURFACE_ID\}`\)\.screenshot/);
-  assert.match(fixture, /scale: "css"/);
-  assert.match(fixture, /stripPngAncillaryChunks\(rawScreenshot\)/);
+  assert.match(fixture, /page\.viewportSize\(\)/);
+  assert.match(fixture, /createUniformRedactionPng\(viewport\)/);
+  assert.doesNotMatch(fixture, /\.screenshot\s*\(/);
   assert.match(fixture, /context\.route\("https:\/\/api\.deepseek\.com\/\*\*"/);
   assert.match(fixture, /createUniformRedactionPng\(\)/);
   assert.match(curatedEvidence, /structural-metadata-only-no-url-query-header-body-text/);

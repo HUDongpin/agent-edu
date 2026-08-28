@@ -24,22 +24,40 @@ function pngChunk(type: "IHDR" | "IDAT" | "IEND", data: Buffer) {
 }
 
 /**
- * A browser process can become unavailable while Playwright is unwinding a
- * failed test. Keep the evidence contract closed in that case by emitting a
- * deterministic, one-pixel version of the same uniform redaction surface.
- * No page, console, URL, error, or learner data enters this fallback image.
+ * Encode a deterministic redaction surface without accepting any browser
+ * pixels. A live page may preserve its safe viewport dimensions; unavailable
+ * pages use the one-pixel default. No page, console, URL, error, scrollbar, or
+ * learner data enters this image.
  */
-export function createUniformRedactionPng(): Buffer {
+export function createUniformRedactionPng(
+  size: Readonly<{ width: number; height: number }> = { width: 1, height: 1 },
+): Buffer {
+  const { width, height } = size;
+  if (
+    !Number.isInteger(width)
+    || !Number.isInteger(height)
+    || width < 1
+    || height < 1
+    || width > 2_048
+    || height > 2_048
+  ) {
+    failNormalization();
+  }
   const header = Buffer.alloc(13);
-  header.writeUInt32BE(1, 0);
-  header.writeUInt32BE(1, 4);
+  header.writeUInt32BE(width, 0);
+  header.writeUInt32BE(height, 4);
   header[8] = 8;
   header[9] = 6;
-  const scanline = Buffer.concat([Buffer.from([0]), REDACTION_RGBA]);
+  const row = Buffer.alloc(1 + width * REDACTION_RGBA.length);
+  for (let pixel = 0; pixel < width; pixel += 1) {
+    REDACTION_RGBA.copy(row, 1 + pixel * REDACTION_RGBA.length);
+  }
+  const scanlines = Buffer.alloc(row.length * height);
+  for (let y = 0; y < height; y += 1) row.copy(scanlines, y * row.length);
   return Buffer.concat([
     PNG_SIGNATURE,
     pngChunk("IHDR", header),
-    pngChunk("IDAT", deflateSync(scanline)),
+    pngChunk("IDAT", deflateSync(scanlines)),
     pngChunk("IEND", Buffer.alloc(0)),
   ]);
 }

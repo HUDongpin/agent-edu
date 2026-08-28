@@ -85,8 +85,8 @@ const screenshotDimensions = evidenceFiles
   .map((path) => readFileSync(resolve(evidenceRoot, path)))
   .map((png) => `${png.readUInt32BE(16)}x${png.readUInt32BE(20)}`)
   .sort();
-if (screenshotDimensions.join(",") !== "1280x720,1x1,1x1") {
-  throw new Error("safe failures did not exercise both browser and synthetic redaction capture paths");
+if (screenshotDimensions.join(",") !== "1x1,1x1,390x900") {
+  throw new Error("safe failures did not exercise browser-sized and one-pixel redaction paths");
 }
 for (const path of regularFiles(evidenceRoot)) {
   const bytes = readFileSync(path);

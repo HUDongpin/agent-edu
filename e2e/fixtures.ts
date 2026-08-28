@@ -16,10 +16,7 @@ import type {
 } from "./curated-evidence";
 import {
   createUniformRedactionPng,
-  stripPngAncillaryChunks,
 } from "./png-sanitizer";
-
-const REDACTION_SURFACE_ID = "agent-edu-browser-evidence-redaction-surface";
 
 /**
  * Every browser test starts with the paid Provider blocked. Tests that need a
@@ -89,35 +86,14 @@ export const test = base.extend<{ _curatedEvidence: void }>({
     }
     if (testInfo.status === testInfo.expectedStatus && !providerFailure) return;
 
-    // Capture only a fixed, text-free surface. The scanner independently
-    // decodes every PNG row and requires every pixel to be exactly #e5e7eb,
-    // so the manifest label cannot authorize an ordinary page screenshot.
+    // Persist no page pixels at all. The viewport size is safe structural
+    // metadata; every PNG pixel is encoded directly as #e5e7eb in Node.
+    // This also excludes browser scrollbars, which a DOM overlay cannot cover.
     let screenshot: Buffer;
     try {
-      await page.evaluate((surfaceId) => {
-        document.getElementById(surfaceId)?.remove();
-        const surface = document.createElement("div");
-        surface.id = surfaceId;
-        surface.setAttribute("aria-hidden", "true");
-        Object.assign(surface.style, {
-          position: "fixed",
-          inset: "0",
-          zIndex: "2147483647",
-          margin: "0",
-          padding: "0",
-          border: "0",
-          outline: "0",
-          background: "rgb(229, 231, 235)",
-        });
-        document.documentElement.appendChild(surface);
-      }, REDACTION_SURFACE_ID);
-      const rawScreenshot = await page.locator(`#${REDACTION_SURFACE_ID}`).screenshot({
-        animations: "disabled",
-        caret: "hide",
-        scale: "css",
-        type: "png",
-      });
-      screenshot = stripPngAncillaryChunks(rawScreenshot);
+      const viewport = page.isClosed() ? null : page.viewportSize();
+      if (!viewport) throw new Error("curated viewport unavailable");
+      screenshot = createUniformRedactionPng(viewport);
     } catch {
       screenshot = createUniformRedactionPng();
     }

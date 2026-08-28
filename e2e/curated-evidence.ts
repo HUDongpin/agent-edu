@@ -11,7 +11,7 @@ import {
 import { resolve } from "node:path";
 
 export const EVIDENCE_SCHEMA = "agent-edu.curated-browser-evidence.v1";
-export const SANITIZER_POLICY = "uniform-redaction-surface-v2";
+export const SANITIZER_POLICY = "uniform-redaction-surface-v3";
 export const FIXTURE_POLICY = "public-fixed-safe-smoke-only";
 export const PUBLIC_EVIDENCE_CONTRACT_ANNOTATION =
   "agent-edu-public-evidence-contract";
