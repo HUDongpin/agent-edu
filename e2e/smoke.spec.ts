@@ -79,6 +79,35 @@ async function expectActiveTabInsideRail(page: Page, id: string) {
   expect(tabBox!.y + tabBox!.height).toBeLessThanOrEqual(viewport.height + 1);
 }
 
+async function waitForDocumentScrollToSettle(page: Page) {
+  await page.evaluate(() => new Promise<void>((resolve) => {
+    let previousX = scrollX;
+    let previousY = scrollY;
+    let stableFrames = 0;
+    let observedFrames = 0;
+
+    const observe = () => {
+      const stable = Math.abs(scrollX - previousX) < 0.01
+        && Math.abs(scrollY - previousY) < 0.01;
+      stableFrames = stable ? stableFrames + 1 : 0;
+      previousX = scrollX;
+      previousY = scrollY;
+      observedFrames += 1;
+
+      // Observe long enough for a newly scheduled smooth scroll to start,
+      // then require four consecutive stationary frames. The hard ceiling
+      // keeps a browser regression from hanging the release gate forever.
+      if ((observedFrames >= 12 && stableFrames >= 4) || observedFrames >= 120) {
+        resolve();
+        return;
+      }
+      requestAnimationFrame(observe);
+    };
+
+    requestAnimationFrame(observe);
+  }));
+}
+
 test("the unprefixed root resolves to the English home", async ({ page }) => {
   const response = await page.goto("/");
   expect(response?.status()).toBe(200);
@@ -234,6 +263,7 @@ for (const width of ARABIC_MATRIX_WIDTHS) {
 
       await page.locator("#tab-compare").click();
       await expectActiveHandbookTab(page, "#tab-compare");
+      await waitForDocumentScrollToSettle(page);
       await expectActiveTabInsideRail(page, "#tab-compare");
       await expect(page.locator("#dialSvg")).toHaveCSS("direction", "ltr");
       await expectNoPageOverflow(page);

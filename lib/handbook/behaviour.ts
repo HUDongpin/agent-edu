@@ -121,7 +121,13 @@ function txt(s){ return document.createTextNode(s); }
   }
 
   tabs.forEach((t,idx)=>{
-    t.addEventListener('click',()=>{ t.focus(); show(t.dataset.p,{focus:false}); });
+    t.addEventListener('click',()=>{
+      t.focus();
+      // The handbook now lives below the course introduction. Its legacy
+      // scroll-to-document-top behaviour would therefore move a clicked
+      // mobile tab out of view instead of revealing the selected section.
+      show(t.dataset.p,{focus:false,preserveTabViewport:true});
+    });
     t.addEventListener('keydown',e=>{
       const vertical=rail.getAttribute('aria-orientation')==='vertical';
       const rtl=getComputedStyle(rail).direction==='rtl';

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   buildPreviewPlan,
+  installPreviewBrowserConsoleGuards,
   previewRequestHeaders,
   validateTrustedOidcToken,
   validatePreviewTarget,
@@ -71,4 +72,31 @@ test("Preview OIDC access stays header-only and fails closed on malformed tokens
     () => validateTrustedOidcToken("header.payload.signature\n"),
     /invalid format/,
   );
+});
+
+test("Preview browser-console verification isolates Vercel Analytics from application errors", async () => {
+  let interceptedPattern = "";
+  let fulfilledResponse: Record<string, unknown> | undefined;
+  const page = {
+    async route(
+      pattern: string,
+      handler: (route: { fulfill(response: Record<string, unknown>): Promise<void> }) => Promise<void>,
+    ) {
+      interceptedPattern = pattern;
+      await handler({
+        async fulfill(response) {
+          fulfilledResponse = response;
+        },
+      });
+    },
+  };
+
+  await installPreviewBrowserConsoleGuards(page);
+
+  assert.equal(interceptedPattern, "**/_vercel/insights/**");
+  assert.deepEqual(fulfilledResponse, {
+    status: 200,
+    contentType: "text/javascript",
+    body: "",
+  });
 });

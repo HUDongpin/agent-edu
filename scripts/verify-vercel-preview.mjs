@@ -326,6 +326,17 @@ async function mapLimit(items, limit, callback) {
   await Promise.all(workers);
 }
 
+export async function installPreviewBrowserConsoleGuards(page) {
+  // Web Analytics is a Vercel platform surface, not an application runtime
+  // dependency. Keep its availability from masking application console errors
+  // while preserving every other console and page-error signal.
+  await page.route("**/_vercel/insights/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "text/javascript",
+    body: "",
+  }));
+}
+
 async function verifyBrowserConsole(paths, previewOrigin, report, concurrency, trustedOidcToken) {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch();
@@ -337,6 +348,7 @@ async function verifyBrowserConsole(paths, previewOrigin, report, concurrency, t
           ? { "x-vercel-trusted-oidc-idp-token": trustedOidcToken }
           : undefined,
       });
+      await installPreviewBrowserConsoleGuards(page);
       let consoleErrors = 0;
       let pageErrors = 0;
       page.on("console", (message) => {
