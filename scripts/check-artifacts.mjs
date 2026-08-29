@@ -876,7 +876,7 @@ async function validateCuratedRoot(rootLabel, rootReal) {
   return pngPaths;
 }
 
-async function walk(root, rootLabel, rootReal, directory, stats, curatedPngPaths = new Set()) {
+async function walk(rootLabel, rootReal, directory, stats, curatedPngPaths = new Set()) {
   let entries;
   try {
     entries = await readdir(directory, { withFileTypes: true });
@@ -906,7 +906,7 @@ async function walk(root, rootLabel, rootReal, directory, stats, curatedPngPaths
       if (directoryReal !== path || !isInside(rootReal, directoryReal)) {
         fail("path-outside-root", label);
       }
-      await walk(root, rootLabel, rootReal, path, stats, curatedPngPaths);
+      await walk(rootLabel, rootReal, path, stats, curatedPngPaths);
       continue;
     }
     if (!info.isFile()) fail("non-regular-file", label);
@@ -980,7 +980,7 @@ export async function scanArtifactRoots(roots = DEFAULT_ARTIFACT_ROOTS, options 
     const curatedPngPaths = options.curated
       ? await validateCuratedRoot(rootLabel, rootReal)
       : new Set();
-    await walk(root, rootLabel, rootReal, rootReal, stats, curatedPngPaths);
+    await walk(rootLabel, rootReal, rootReal, stats, curatedPngPaths);
   }
   return stats;
 }

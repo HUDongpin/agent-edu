@@ -50,27 +50,26 @@ const fail = (m) => problems.push(m);
  * ------------------------------------------------------------------ */
 function lex(src) {
   const out = [];
-  let i = 0, line = 1;
+  let i = 0;
   while (i < src.length) {
     const c = src[i];
-    if (c === "\n") { line++; i++; continue; }
+    if (c === "\n") { i++; continue; }
     if (c === "/" && src[i + 1] === "/") { const e = src.indexOf("\n", i); i = e === -1 ? src.length : e; continue; }
     if (c === "/" && src[i + 1] === "*") {
       const e = src.indexOf("*/", i + 2);
       if (e === -1) { i = src.length; continue; }
-      line += (src.slice(i, e).match(/\n/g) || []).length; i = e + 2; continue;
+      i = e + 2; continue;
     }
     if (c === '"' || c === "'" || c === "`") {
-      const q = c, start = i, at = line; i++;
+      const q = c; i++;
       let v = "";
       while (i < src.length) {
         const d = src[i];
         if (d === "\\") { v += src.slice(i, i + 2); i += 2; continue; }
-        if (d === "\n") line++;
         if (d === q) { i++; break; }
         v += d; i++;
       }
-      out.push({ kind: "str", value: v, start, end: i, line: at });
+      out.push({ value: v });
       continue;
     }
     i++;

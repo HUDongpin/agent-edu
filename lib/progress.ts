@@ -12,9 +12,6 @@ export const LEGACY_PROGRESS_KEY = "ae.progress";
 export const LEGACY_SECTION_KEY = "tch.section";
 export const LEGACY_SEEN_KEY = "tch.seen";
 
-/** Kept temporarily for the Lab compatibility exports at the bottom. */
-export const PROG = LEGACY_PROGRESS_KEY;
-
 export const HANDBOOK_SECTION_IDS = [
   "start", "code", "prompt", "context", "loop", "graph",
   "harness", "evals", "security", "compare", "play",
@@ -63,7 +60,6 @@ export interface LabProgress {
   readonly completedSteps: readonly LabStep[];
   readonly completedCount: number;
   readonly totalSteps: number;
-  readonly rulesBest?: number;
   readonly evalRunsCompleted: number;
   readonly evalBest?: number;
   readonly suggestedTargetMet: boolean;
@@ -391,7 +387,6 @@ export function selectLabProgress(state: LearningStateV2): LabProgress {
     completedSteps,
     completedCount,
     totalSteps: LAB_STEPS.length,
-    ...(state.lab.rulesBest === undefined ? {} : { rulesBest: state.lab.rulesBest }),
     evalRunsCompleted: state.lab.evalRunsCompleted,
     ...(state.lab.evalBest === undefined ? {} : { evalBest: state.lab.evalBest }),
     suggestedTargetMet: state.lab.evalBest !== undefined && state.lab.evalBest >= 16,
@@ -692,51 +687,4 @@ export function recordLabStep(step: LabStep, evidence?: LabStepEvidence): Learni
 
 export function resetLearningState(scope: ResetScope): LearningStateV2 {
   return learningStore.resetLearningState(scope);
-}
-
-/* --------------------------------------------------------------------------
- * One-release compatibility for the Lab branch.
- *
- * These functions expose a legacy-shaped VIEW of v2 so the existing Lab stays
- * buildable while its separate trust-controls branch moves to recordLabStep.
- * They never read ae.progress after migration, and unknown/part2 writes are
- * deliberately ignored.
- * ------------------------------------------------------------------------ */
-
-function legacyView(state: LearningStateV2): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  if (state.lab.completedSteps.includes("first-call")) out.play0 = true;
-  if (state.lab.completedSteps.includes("rules")) out.play1 = true;
-  if (state.lab.completedSteps.includes("prompt-trial")) out.play2 = true;
-  if (state.lab.evalBest !== undefined) out.evalBest = state.lab.evalBest;
-  if (state.lab.evalBest !== undefined && state.lab.evalBest >= 16) out.play3 = true;
-  return out;
-}
-
-export function subscribeProgress(listener: () => void): () => void {
-  return subscribeLearningState(listener);
-}
-
-export function progressSnapshot(): string {
-  return JSON.stringify(legacyView(readLearningState()));
-}
-
-export function progressOnServer(): string {
-  return "{}";
-}
-
-export function readProgress(raw: string): Record<string, unknown> {
-  return legacyObject(raw);
-}
-
-export function mark(key: string, value: unknown = true): void {
-  if (key === "play0" && value === true) recordLabStep("first-call");
-  else if (key === "play1" && value === true) recordLabStep("rules");
-  else if (key === "play2" && value === true) recordLabStep("prompt-trial");
-  else if (key === "evalBest" && isIntegerIn(value, 0, 20)) {
-    recordLabStep("full-eval", { score: value });
-  } else if (key === "play3" && value === true) {
-    const state = readLearningState();
-    if (!state.lab.completedSteps.includes("full-eval")) recordLabStep("full-eval");
-  }
 }

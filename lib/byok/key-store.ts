@@ -141,11 +141,8 @@ export const keyStore = createKeyStore();
 export function getKey(): string { return keyStore.getKey(); }
 export function hasKey(): boolean { return keyStore.hasKey(); }
 export function hasKeyOnServer(): boolean { return false; }
-export function keySnapshot(): string { return keyStore.getKey(); }
-export function keySnapshotOnServer(): string { return ""; }
 export function keyStatusSnapshot(): KeyStatus { return keyStore.getStatus(); }
 export function keyStatusOnServer(): KeyStatus { return "empty"; }
 export function subscribeKey(listener: () => void): () => void { return keyStore.subscribe(listener); }
-export function setKey(value: string): boolean { return keyStore.save(value); }
 export function markKeyUnverified(): void { keyStore.markUnverified(); }
 export function forgetKey(): void { keyStore.forget(); }
