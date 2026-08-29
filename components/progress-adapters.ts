@@ -40,6 +40,7 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY,
   AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY,
   AI_TUTOR_PROGRESS_PROBE_KEY,
+  CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
   GROK_PROGRESS_PROBE_KEY,
   INCOME_PROGRESS_PROBE_KEY,
   PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
@@ -731,6 +732,7 @@ export function createAllProgressAdapters(
     milestoneAdapter(localeFor("codex"), {
       courseId: "codex",
       storageKey: CODEX_PROGRESS_STORAGE_KEY,
+      auxiliaryStorageKeys: [CODEX_CAPSTONE_DRAFT_STORAGE_KEY],
       progressEvent: CODEX_PROGRESS_EVENT,
       slugs: CODEX_PROGRESS_LESSON_SLUGS,
       read: readCodexProgress,

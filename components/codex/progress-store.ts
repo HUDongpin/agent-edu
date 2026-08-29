@@ -5,11 +5,13 @@ import {
   persistenceFailureReason as reasonForError,
 } from "@/lib/progress-persistence";
 import {
+  CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
   SHARED_PROGRESS_RESET_QUARANTINE_KEY,
 } from "@/lib/progress-storage-contract";
 
 export const COURSE_PROGRESS_STORAGE_KEY = "ae.progress";
 export const CODEX_PROGRESS_EVENT = "codex:progress-change";
+export const CODEX_PROGRESS_RESET_EVENT = "codex:progress-reset";
 
 export type CourseProgressRecord = Record<string, unknown>;
 export type CourseProgressUpdateResult = {
@@ -22,6 +24,31 @@ export type CourseProgressUpdateResult = {
 let memorySnapshot = "{}";
 let persistenceAvailable: boolean | null = null;
 let failureReason: PersistenceResult["reason"];
+
+function finishCodexReset(): boolean {
+  if (typeof window === "undefined") return false;
+  let sessionDraftCleared = false;
+  try {
+    window.sessionStorage.removeItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY);
+    sessionDraftCleared = window.sessionStorage.getItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY) === null;
+  } catch {
+    // Resetting mounted Course 2 state must not depend on session storage.
+  }
+  window.dispatchEvent(new Event(CODEX_PROGRESS_RESET_EVENT));
+  return sessionDraftCleared;
+}
+
+function includeSessionDraftReset(
+  result: CourseProgressUpdateResult,
+  sessionDraftCleared: boolean,
+): CourseProgressUpdateResult {
+  if (sessionDraftCleared) return result;
+  return {
+    ...result,
+    persisted: false,
+    reason: result.reason ?? "unavailable",
+  };
+}
 
 export function readCourseProgressSnapshot(): string {
   if (typeof window === "undefined") return memorySnapshot;
@@ -114,11 +141,12 @@ export function updateCourseProgress(
 }
 
 export function resetCodexProgress(): CourseProgressUpdateResult {
-  return updateCourseProgress((progress) => {
+  const result = updateCourseProgress((progress) => {
     for (const key of Object.keys(progress)) {
       if (key.startsWith("codex.")) delete progress[key];
     }
   });
+  return includeSessionDraftReset(result, finishCodexReset());
 }
 
 /**
@@ -147,23 +175,29 @@ export function resetAllCourseProgress(): CourseProgressUpdateResult {
       persistenceAvailable = reset.persisted;
       failureReason = reset.persisted ? undefined : reset.reason ?? "unavailable";
       window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
-      return {
+      return includeSessionDraftReset({
         progress,
         persisted: reset.persisted,
         ...(reset.persisted ? {} : { reason: failureReason }),
         ...(reset.quarantined ? { quarantined: true } : {}),
-      };
+      }, finishCodexReset());
     }
     window.localStorage.removeItem(COURSE_PROGRESS_STORAGE_KEY);
     persistenceAvailable = true;
     failureReason = undefined;
     window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
-    return { progress, persisted: true };
+    return includeSessionDraftReset(
+      { progress, persisted: true },
+      finishCodexReset(),
+    );
   } catch (error) {
     persistenceAvailable = false;
     failureReason = reasonForError(error);
     window.dispatchEvent(new Event(CODEX_PROGRESS_EVENT));
-    return { progress, persisted: false, reason: failureReason };
+    return includeSessionDraftReset(
+      { progress, persisted: false, reason: failureReason },
+      finishCodexReset(),
+    );
   }
 }
 

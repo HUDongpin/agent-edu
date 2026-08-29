@@ -16,9 +16,29 @@ import type { NextConfig } from "next";
  * NODE_ENV=production and exports the routes in config/route-manifest.json.
  */
 const isBuild = process.env.NODE_ENV === "production";
+const prepublicationCourse = process.env.AICOURSE_PREPUBLICATION_COURSE;
+
+if (prepublicationCourse !== undefined && prepublicationCourse !== "codex") {
+  throw new Error(
+    "AICOURSE_PREPUBLICATION_COURSE must be unset or exactly codex",
+  );
+}
+
+if (isBuild && prepublicationCourse === "codex") {
+  throw new Error(
+    "Course prepublication preview cannot run in a production or static-export build",
+  );
+}
 
 const nextConfig: NextConfig = {
   ...(isBuild ? { output: "export" as const } : {}),
+  pageExtensions: [
+    "tsx",
+    "ts",
+    "jsx",
+    "js",
+    ...(prepublicationCourse === "codex" ? ["prepublication.tsx"] : []),
+  ],
   typescript: {
     // Vercel deliberately omits course/ and secret-named scanner files from
     // the website upload. Keep the production type-check scoped to the code
@@ -29,6 +49,25 @@ const nextConfig: NextConfig = {
   experimental: { globalNotFound: true },
   trailingSlash: true,           // so /es/handbook/ resolves on plain file hosts
   images: { unoptimized: true }, // no image server in a static export
+  ...(prepublicationCourse === "codex"
+    ? {
+        async rewrites() {
+          return [
+            {
+              source: "/:locale/codex/:path*/",
+              has: [
+                {
+                  type: "header" as const,
+                  key: "x-aicourse-prepublication-course",
+                  value: "codex",
+                },
+              ],
+              destination: "/:locale/prepublication-course/codex/:path*/",
+            },
+          ];
+        },
+      }
+    : {}),
 };
 
 export default nextConfig;

@@ -17,6 +17,7 @@ import { CURSOR_PROGRESS_STORAGE_KEY } from "../lib/progress-topology";
 import { DEEPSEEK_KEY_STORAGE } from "../lib/byok/key-store";
 import { LAB_DRAFT_KEY } from "../lib/lab/draft";
 import {
+  CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
   CURSOR_PROGRESS_RESET_QUARANTINE_KEY,
   GROK_PROGRESS_RESET_QUARANTINE_KEY,
   RECENCY_RESET_QUARANTINE_KEY,
@@ -262,7 +263,12 @@ test("blocked progress adapters stay dormant until the generated registry publis
         adapter.readSummary().nextHref,
       ]),
       [
-        ["codex", "codex:progress-change", ["ae.progress"], EXPECTED_FIRST_HREFS.codex],
+        [
+          "codex",
+          "codex:progress-change",
+          ["ae.progress", CODEX_CAPSTONE_DRAFT_STORAGE_KEY],
+          EXPECTED_FIRST_HREFS.codex,
+        ],
         ["claude", "claude:progress-change", ["ae.progress"], EXPECTED_FIRST_HREFS.claude],
         ["cursor", "cursor:progress-change", ["aicourse.cursor.progress.v1"], EXPECTED_FIRST_HREFS.cursor],
       ],

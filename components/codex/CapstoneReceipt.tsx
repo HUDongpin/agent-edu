@@ -2,11 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
+  CODEX_CAPSTONE_DRAFT_MAX_LENGTH,
+  createCodexCapstoneDraft,
+  parseCodexCapstoneDraft,
+} from "@/lib/codex/capstone-draft";
+import {
+  formatCodexTemplate,
+  formatCodexVisibleInteger,
+  formatCodexVisiblePercent,
+} from "@/lib/codex/format";
+import {
   validateCodexCapstoneReceipt,
   type CodexCapstoneReceiptValidationCode,
-  type CodexCourseCopy,
-} from "@/lib/codex";
-import { updateCourseProgress } from "./progress-store";
+} from "@/lib/codex/capstone";
+import type { CodexCourseCopy, CodexLocale } from "@/lib/codex/types";
+import {
+  CODEX_PROGRESS_RESET_EVENT,
+  updateCourseProgress,
+} from "./progress-store";
+import LocalizedTemplate from "./LocalizedTemplate";
 import TechnicalText from "./TechnicalText";
 import useCourseProgress, { useCourseStorageAvailable } from "./useCourseProgress";
 import styles from "./CodexCourse.module.css";
@@ -48,15 +63,19 @@ export default function CapstoneReceipt({
   config,
   copy,
   labels,
+  locale,
 }: {
   config: Config;
   copy: CodexCourseCopy["capstone"];
   labels: CodexCourseCopy["ui"];
+  locale: CodexLocale;
 }) {
   const progress = useCourseProgress();
   const storageAvailable = useCourseStorageAvailable();
   const [input, setInput] = useState("");
   const [validationCode, setValidationCode] = useState<CodexCapstoneReceiptValidationCode | null>(null);
+  const [draftMessage, setDraftMessage] = useState("");
+  const [draftPersisted, setDraftPersisted] = useState(true);
   const verifiedHeading = useRef<HTMLHeadingElement>(null);
   const errorMessage = useRef<HTMLParagraphElement>(null);
   const completed = progress[CAPSTONE_PROGRESS_KEY] === true;
@@ -65,6 +84,96 @@ export default function CapstoneReceipt({
     if (validationCode === "valid") verifiedHeading.current?.focus();
     else if (validationCode) errorMessage.current?.focus();
   }, [validationCode]);
+
+  useEffect(() => {
+    try {
+      const stored = window.sessionStorage.getItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY);
+      if (!stored) return;
+      const restored = parseCodexCapstoneDraft(stored, {
+        receiptSchema: config.receiptSchema,
+        fixtureVersion: config.fixtureVersion,
+        fixtureSha256: config.fixtureSha256,
+      });
+      if (!restored) {
+        window.sessionStorage.removeItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY);
+        return;
+      }
+      const frame = window.requestAnimationFrame(() => {
+        setInput(restored);
+        setDraftMessage(labels.receiptDraftRestored);
+        setDraftPersisted(true);
+      });
+      return () => window.cancelAnimationFrame(frame);
+    } catch {
+      // Session storage is optional; component memory still preserves input.
+    }
+  }, [config.fixtureSha256, config.fixtureVersion, config.receiptSchema, labels.receiptDraftRestored]);
+
+  useEffect(() => {
+    const clearDraft = () => {
+      setInput("");
+      setValidationCode(null);
+      setDraftMessage("");
+      setDraftPersisted(true);
+      try {
+        window.sessionStorage.removeItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY);
+      } catch {
+        // Reset still clears mounted state when session storage is denied.
+      }
+    };
+    window.addEventListener(CODEX_PROGRESS_RESET_EVENT, clearDraft);
+    return () => window.removeEventListener(CODEX_PROGRESS_RESET_EVENT, clearDraft);
+  }, []);
+
+  useEffect(() => {
+    if (!completed || !storageAvailable) return;
+    try {
+      window.sessionStorage.removeItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY);
+      const frame = window.requestAnimationFrame(() => {
+        setInput("");
+        setDraftMessage("");
+        setDraftPersisted(true);
+      });
+      return () => window.cancelAnimationFrame(frame);
+    } catch {
+      // Persisted completion stays authoritative if optional cleanup fails.
+    }
+  }, [completed, storageAvailable]);
+
+  useEffect(() => {
+    if (!input || draftPersisted) return;
+    const warnBeforeDiscard = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warnBeforeDiscard);
+    return () => window.removeEventListener("beforeunload", warnBeforeDiscard);
+  }, [draftPersisted, input]);
+
+  function persistDraft(value: string) {
+    try {
+      if (!value) {
+        window.sessionStorage.removeItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY);
+        setDraftPersisted(true);
+        return;
+      }
+      const draft = createCodexCapstoneDraft(value, {
+        receiptSchema: config.receiptSchema,
+        fixtureVersion: config.fixtureVersion,
+        fixtureSha256: config.fixtureSha256,
+      });
+      window.sessionStorage.setItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      setDraftPersisted(true);
+    } catch {
+      setDraftPersisted(false);
+      // Never leave an older draft looking authoritative after a failed write.
+      try {
+        window.sessionStorage.removeItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY);
+      } catch {
+        // Preserve typed input in memory; beforeunload guards it.
+      }
+    }
+  }
 
   return (
     <section
@@ -82,18 +191,30 @@ export default function CapstoneReceipt({
 
       <p className={styles.capstoneScenario}><TechnicalText text={copy.scenario} /></p>
 
-      <ol className={styles.capstoneSteps}>
-        {copy.instructions.map((instruction) => <li key={instruction}><TechnicalText text={instruction} /></li>)}
+      <ol className={styles.capstoneSteps} role="list">
+        {copy.instructions.map((instruction, index) => (
+          <li key={instruction}>
+            <span className={styles.stepNumber} aria-hidden="true">
+              {formatCodexVisibleInteger(index + 1, locale)}
+            </span>
+            <span><TechnicalText text={instruction} /></span>
+          </li>
+        ))}
       </ol>
 
       <div className={styles.capstoneAssessment}>
         <section aria-labelledby="codex-capstone-artifacts-title">
           <h3 id="codex-capstone-artifacts-title">{labels.capstoneArtifacts}</h3>
-          <ol>
-            {config.artifactIds.map((id) => (
+          <ol role="list">
+            {config.artifactIds.map((id, index) => (
               <li key={id}>
-                <strong><TechnicalText text={copy.artifacts[id].title} /></strong>
-                <span><TechnicalText text={copy.artifacts[id].description} /></span>
+                <span className={styles.capstoneItemNumber} aria-hidden="true">
+                  {formatCodexVisibleInteger(index + 1, locale)}
+                </span>
+                <span>
+                  <strong><TechnicalText text={copy.artifacts[id].title} /></strong>
+                  <span><TechnicalText text={copy.artifacts[id].description} /></span>
+                </span>
               </li>
             ))}
           </ol>
@@ -101,14 +222,28 @@ export default function CapstoneReceipt({
         <section aria-labelledby="codex-capstone-rubric-title">
           <div className={styles.rubricHeading}>
             <h3 id="codex-capstone-rubric-title">{labels.rubric}</h3>
-            <span>{labels.passingScore}: {config.passingScore}</span>
+            <span>
+              {formatCodexTemplate(labels.passingScoreTemplate, {
+                score: formatCodexVisibleInteger(config.passingScore, locale),
+              })}
+            </span>
           </div>
-          <ol>
-            {config.rubric.map((item) => (
+          <ol role="list">
+            {config.rubric.map((item, index) => (
               <li key={item.id}>
-                <strong><TechnicalText text={copy.rubric[item.id].title} /></strong>
-                <span><TechnicalText text={copy.rubric[item.id].description} /></span>
-                <small>{item.weight}% {labels.weight}</small>
+                <span className={styles.capstoneItemNumber} aria-hidden="true">
+                  {formatCodexVisibleInteger(index + 1, locale)}
+                </span>
+                <span>
+                  <strong><TechnicalText text={copy.rubric[item.id].title} /></strong>
+                  <span><TechnicalText text={copy.rubric[item.id].description} /></span>
+                  <small>
+                    <LocalizedTemplate
+                      template={labels.rubricWeightTemplate}
+                      values={{ weight: formatCodexVisiblePercent(item.weight, locale) }}
+                    />
+                  </small>
+                </span>
               </li>
             ))}
           </ol>
@@ -120,14 +255,16 @@ export default function CapstoneReceipt({
       <div className={styles.fixtureDownload}>
         <div>
           <strong>{labels.downloadStarter}</strong>
-          <p><TechnicalText text={labels.receiptInstructions} /></p>
+          <p id="codex-capstone-receipt-instructions">
+            <TechnicalText text={labels.receiptInstructions} />
+          </p>
         </div>
         <a className={styles.primaryAction} href={STARTER_DOWNLOAD} download>
           {labels.downloadStarter}
         </a>
       </div>
 
-      <dl className={styles.receiptRequirements}>
+      <dl className={styles.receiptRequirements} id="codex-capstone-receipt-requirements">
         <div>
           <dt>{labels.receiptSchemaLabel}</dt>
           <dd dir="ltr">{config.receiptSchema}</dd>
@@ -142,7 +279,7 @@ export default function CapstoneReceipt({
         </div>
       </dl>
 
-      <div className={styles.requiredChecks}>
+      <div className={styles.requiredChecks} id="codex-capstone-required-checks">
         <strong>{labels.requiredChecksLabel}</strong>
         <ul>
           {config.requiredChecks.map((check) => <li key={check}><code dir="ltr">{check}</code></li>)}
@@ -152,6 +289,10 @@ export default function CapstoneReceipt({
       {!storageAvailable ? (
         <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p>
       ) : null}
+
+      <p className={draftMessage ? styles.resetStatus : styles.srOnly} role="status">
+        {draftMessage}
+      </p>
 
       {!completed ? (
         <form
@@ -168,27 +309,48 @@ export default function CapstoneReceipt({
             });
             // Preserve the pasted receipt in component memory when persistence is denied so
             // an ephemeral completion never destroys the learner's only copy.
-            if (result.persisted) setInput("");
+            if (result.persisted) {
+              setInput("");
+              setDraftMessage("");
+              setDraftPersisted(true);
+              try {
+                window.sessionStorage.removeItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY);
+              } catch {
+                // Persisted completion makes any stale draft non-authoritative.
+              }
+            }
           }}
         >
           <label htmlFor="codex-capstone-receipt-input">{labels.pasteReceipt}</label>
           <textarea
             id="codex-capstone-receipt-input"
             data-testid="codex-capstone-receipt-input"
+            name="codex-capstone-receipt"
             dir="ltr"
             rows={12}
+            maxLength={CODEX_CAPSTONE_DRAFT_MAX_LENGTH}
             value={input}
             required
             spellCheck={false}
             autoComplete="off"
+            aria-describedby={[
+              "codex-capstone-receipt-instructions",
+              "codex-capstone-receipt-requirements",
+              "codex-capstone-required-checks",
+              validationCode && validationCode !== "valid" ? "codex-capstone-receipt-error" : "",
+            ].filter(Boolean).join(" ")}
             onChange={(event) => {
-              setInput(event.target.value);
+              const value = event.target.value;
+              setInput(value);
+              persistDraft(value);
+              setDraftMessage("");
               if (validationCode) setValidationCode(null);
             }}
           />
           {validationCode && validationCode !== "valid" ? (
             <p
               className={styles.receiptError}
+              id="codex-capstone-receipt-error"
               ref={errorMessage}
               role="alert"
               tabIndex={-1}

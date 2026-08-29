@@ -1,5 +1,12 @@
 import Image from "next/image";
-import type { MaterializedCodexLesson } from "@/lib/codex";
+import {
+  formatCodexTemplate,
+  formatCodexUtcMediumDate,
+  formatCodexVisibleInteger,
+  type CodexCourseCopy,
+  type CodexLocale,
+  type MaterializedCodexLesson,
+} from "@/lib/codex";
 import TechnicalText from "./TechnicalText";
 import styles from "./CodexCourse.module.css";
 
@@ -7,10 +14,12 @@ type Figure = MaterializedCodexLesson["figures"][number];
 
 export default function CourseFigure({
   figure,
-  pendingLabel,
+  labels,
+  locale,
 }: {
   figure: Figure;
-  pendingLabel: string;
+  labels: Pick<CodexCourseCopy["ui"], "capturePending" | "pendingFigureAltTemplate">;
+  locale: CodexLocale;
 }) {
   const { manifest, copy } = figure;
   const captionId = `${manifest.id}-caption`;
@@ -25,13 +34,16 @@ export default function CourseFigure({
         <div
           className={styles.figurePending}
           role="img"
-          aria-label={`${pendingLabel}: ${copy.alt}`}
+          aria-label={formatCodexTemplate(labels.pendingFigureAltTemplate, {
+            status: labels.capturePending,
+            alt: copy.alt,
+          })}
           aria-describedby={captionId}
         >
           <span className={styles.figureNumber} aria-hidden="true">
-            {manifest.id.replace("fig-", "")}
+            {formatCodexVisibleInteger(Number(manifest.id.replace("fig-", "")), locale)}
           </span>
-          <strong><TechnicalText text={pendingLabel} /></strong>
+          <strong><TechnicalText text={labels.capturePending} /></strong>
         </div>
         <figcaption id={captionId}><TechnicalText text={copy.caption} /></figcaption>
       </figure>
@@ -83,7 +95,7 @@ export default function CourseFigure({
                 key={callout.id}
                 style={{ insetInlineStart: `${callout.xPercent}%`, insetBlockStart: `${callout.yPercent}%` }}
               >
-                {callout.number}
+                {formatCodexVisibleInteger(callout.number, locale)}
               </span>
             ))}
           </span>
@@ -93,15 +105,31 @@ export default function CourseFigure({
         <div>
           <TechnicalText text={copy.caption} />
           {callouts.length ? (
-            <ol className={styles.figureCalloutList}>
-              {callouts.map((callout) => <li key={callout.id}><TechnicalText text={callout.label} /></li>)}
+            <ol className={styles.figureCalloutList} role="list">
+              {callouts.map((callout) => (
+                <li key={callout.id}>
+                  <span aria-hidden="true">{formatCodexVisibleInteger(callout.number, locale)}</span>
+                  <TechnicalText text={callout.label} />
+                </li>
+              ))}
             </ol>
           ) : null}
         </div>
-        <small dir="ltr">
-          Codex {manifest.codexVersion} / <time dateTime={manifest.capturedOn}>{manifest.capturedOn}</time>
+        <small>
+          <span dir="ltr" translate="no">Codex {manifest.codexVersion}</span>
+          <time dateTime={manifest.capturedOn}>
+            {formatCodexUtcMediumDate(manifest.capturedOn, locale)}
+          </time>
           {manifest.thirdPartySourceUrl && manifest.thirdPartyLicense ? (
-            <> / <a href={manifest.thirdPartySourceUrl} target="_blank" rel="noopener noreferrer">{manifest.thirdPartyLicense}</a></>
+            <a
+              dir="ltr"
+              href={manifest.thirdPartySourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              translate="no"
+            >
+              {manifest.thirdPartyLicense}
+            </a>
           ) : null}
         </small>
       </figcaption>

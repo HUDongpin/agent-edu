@@ -1,13 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  isCodexQuizPassed,
-  type CodexCourseCopy,
-  type CodexLessonSlug,
-} from "@/lib/codex";
+  CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
+} from "@/lib/codex/capstone-draft";
+import { CODEX_QUIZ_DRAFT_STORAGE_KEY } from "@/lib/codex/quiz-draft";
 import {
+  formatCodexTemplate,
+  formatCodexVisiblePercent,
+} from "@/lib/codex/format";
+import { isCodexQuizPassed } from "@/lib/codex/quiz";
+import type {
+  CodexCourseCopy,
+  CodexLessonSlug,
+  CodexLocale,
+} from "@/lib/codex/types";
+import {
+  CODEX_PROGRESS_RESET_EVENT,
   lessonProgressKey,
   resetCodexProgress,
 } from "./progress-store";
@@ -19,21 +29,43 @@ type LessonLink = {
   readonly href: string;
 };
 
+function hasStoredCapstoneDraft(): boolean {
+  try {
+    return window.sessionStorage.getItem(CODEX_CAPSTONE_DRAFT_STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export default function CourseProgress({
   lessons,
   labels,
+  locale,
   startLabel,
   resumeLabel,
 }: {
   lessons: readonly LessonLink[];
   labels: CodexCourseCopy["ui"];
+  locale: CodexLocale;
   startLabel: string;
   resumeLabel: string;
 }) {
   const progress = useCourseProgress();
   const storageAvailable = useCourseStorageAvailable();
   const [resetMessage, setResetMessage] = useState("");
+  const [resetPersisted, setResetPersisted] = useState<boolean | null>(null);
+  const [resetFingerprint, setResetFingerprint] = useState<string | null>(null);
+  const [hasCapstoneDraft, setHasCapstoneDraft] = useState(false);
   const resetStatus = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const readCapstoneDraft = () => {
+      setHasCapstoneDraft(hasStoredCapstoneDraft());
+    };
+    readCapstoneDraft();
+    window.addEventListener(CODEX_PROGRESS_RESET_EVENT, readCapstoneDraft);
+    return () => window.removeEventListener(CODEX_PROGRESS_RESET_EVENT, readCapstoneDraft);
+  }, []);
 
   const state = useMemo(() => {
     const record = progress;
@@ -45,9 +77,10 @@ export default function CourseProgress({
     const incompleteLesson = lessons.find((lesson) => record[lessonProgressKey(lesson.slug)] !== true);
     const capstoneLesson = lessons.find((lesson) => lesson.slug === "automation-capstone");
     const nextAction = incompleteLesson
-      ?? (!quizPassed ? { href: "#codex-final-quiz-title" }
-        : !capstonePassed ? capstoneLesson
-          : null);
+      ? { ...incompleteLesson, kind: "lesson" as const }
+      : !quizPassed ? { href: "#codex-final-quiz-title", kind: "quiz" as const }
+        : !capstonePassed && capstoneLesson ? { ...capstoneLesson, kind: "capstone" as const }
+          : null;
 
     return {
       completed,
@@ -57,7 +90,18 @@ export default function CourseProgress({
     };
   }, [lessons, progress]);
 
-  const hasProgress = Object.keys(progress).some((key) => key.startsWith("codex."));
+  const hasProgress = hasCapstoneDraft
+    || Object.keys(progress).some((key) => key.startsWith("codex."));
+  const currentFingerprint = `${JSON.stringify(progress)}|${Number(hasCapstoneDraft)}`;
+  const visibleResetMessage = resetFingerprint === currentFingerprint
+    ? resetMessage
+    : "";
+  const formattedPercent = formatCodexVisiblePercent(state.percent, locale);
+  const nextLabel = state.nextAction?.kind === "quiz"
+    ? progress[CODEX_QUIZ_DRAFT_STORAGE_KEY] ? labels.continueQuiz : labels.beginQuiz
+    : state.nextAction?.kind === "capstone"
+      ? labels.capstonePath
+      : hasProgress ? resumeLabel : startLabel;
 
   return (
     <section
@@ -70,14 +114,18 @@ export default function CourseProgress({
           <h2 id="codex-course-progress-title">{labels.courseProgress}</h2>
           <p>{labels.browserStorageNote}</p>
         </div>
-        <output className={styles.progressValue} aria-live="polite">
-          <strong>{state.percent}%</strong>
+        <output
+          className={styles.progressValue}
+          aria-label={formatCodexTemplate(labels.completionPercentTemplate, { percent: formattedPercent })}
+          aria-live="polite"
+        >
+          <strong>{formattedPercent}</strong>
           <span>{labels.courseProgress}</span>
         </output>
       </div>
 
       {!storageAvailable ? (
-        <p className={styles.storageWarning}>{labels.storageUnavailable}</p>
+        <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p>
       ) : null}
 
       <progress
@@ -94,6 +142,7 @@ export default function CourseProgress({
             href={state.nextAction.href}
             onClick={(event) => {
               if (!state.nextAction?.href.startsWith("#")) return;
+              if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
               const target = document.querySelector<HTMLElement>(state.nextAction.href);
               if (!target) return;
               event.preventDefault();
@@ -102,7 +151,7 @@ export default function CourseProgress({
               target.scrollIntoView({ block: "start" });
             }}
           >
-            {hasProgress ? resumeLabel : startLabel}
+            {nextLabel}
             <span className={styles.arrow} aria-hidden="true">→</span>
           </Link>
         ) : null}
@@ -112,8 +161,14 @@ export default function CourseProgress({
           disabled={!hasProgress}
           onClick={() => {
             if (!window.confirm(labels.resetConfirm)) return;
-            resetCodexProgress();
-            setResetMessage(labels.resetDone);
+            const reset = resetCodexProgress();
+            const capstoneDraftRemaining = hasStoredCapstoneDraft();
+            setHasCapstoneDraft(capstoneDraftRemaining);
+            setResetFingerprint(
+              `${JSON.stringify(reset.progress)}|${Number(capstoneDraftRemaining)}`,
+            );
+            setResetPersisted(reset.persisted);
+            setResetMessage(reset.persisted ? labels.resetDone : labels.resetSessionOnly);
             window.requestAnimationFrame(() => resetStatus.current?.focus());
           }}
         >
@@ -121,12 +176,14 @@ export default function CourseProgress({
         </button>
       </div>
       <p
-        className={resetMessage ? styles.resetStatus : styles.srOnly}
+        className={visibleResetMessage
+          ? resetPersisted ? styles.resetStatus : styles.storageWarning
+          : styles.srOnly}
         ref={resetStatus}
         role="status"
         tabIndex={-1}
       >
-        {resetMessage}
+        {visibleResetMessage}
       </p>
     </section>
   );
