@@ -29,3 +29,24 @@ venv/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Playwright and evidence output. .gitignore lists these, but this file must
+# repeat them: a Vercel upload is the working directory, not the git tree.
+# playwright-report/, test-results/ and blob-report/ above are kept as guards
+# even though nothing produces them today: every playwright config overrides
+# outputDir and uses a non-file reporter.
+.playwright-raw/
+.playwright-private/
+.playwright-evidence-contract-safe/
+.playwright-evidence-contract-private/
+browser-evidence/
+.playwright-cli/
+
+# Local scratch, captures and review bundles. Not website source, and large.
+tmp/
+examples/
+output/
+outputs/
+notes/
+video-pilot/
+course_review_*/
