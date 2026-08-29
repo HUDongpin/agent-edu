@@ -8,27 +8,50 @@ The [handbook](https://aicourse.top/en/handbook/) gives you the mental model and
 
 Everything below runs from the **repo root** — the course shares the site's `package.json`, so there is nothing to install in this folder.
 
-```bash
-npm install
-export DEEPSEEK_API_KEY=your_key_here      # platform.deepseek.com/api_keys
-# ...or, if you'd rather run it on Claude:
-export ANTHROPIC_API_KEY=your_key_here     # console.anthropic.com
-npx tsx course/stage0-hello/run.ts
-```
-
-Each stage is a folder with a `README.md` and a `run.ts` containing one or two `TODO`s. Fill them in, run it, then grade yourself:
+Start with the deterministic path. It verifies Node, TypeScript and the local
+course seam without a key, network request or token spend:
 
 ```bash
-npx tsx course/check.ts 0      # or: npm run course 0
-```
-
-On a clean clone, prove the no-key path before editing anything:
-
-```bash
+npm ci
 npm run course:offline
 ```
 
-That command uses a deterministic scripted stand-in bundled with the course. It makes no Provider request and writes no private recording. It proves the local control flow, not real model quality or variation.
+Then open [`stage0-hello/run.ts`](stage0-hello/run.ts), fill in `QUESTION`,
+and prove the edited Stage 0 path offline before adding a credential:
+
+```bash
+npx tsx course/stage0-hello/run.ts --offline
+npx tsx course/check.ts 0 --offline
+```
+
+The Stage 0 report now says exactly what that proves: the offline path works;
+no live credential or network request was checked. If you choose to run live,
+set one key in the shell you are actually using, then repeat the run and check
+without `--offline`.
+
+macOS/Linux (`bash` or `zsh`):
+
+```bash
+export DEEPSEEK_API_KEY=your_key_here      # platform.deepseek.com/api_keys
+# or: export ANTHROPIC_API_KEY=your_key_here
+#     export CAFE_PROVIDER=anthropic
+npx tsx course/stage0-hello/run.ts
+npx tsx course/check.ts 0
+```
+
+Windows PowerShell:
+
+```powershell
+$env:DEEPSEEK_API_KEY = "your_key_here"
+# or: $env:ANTHROPIC_API_KEY = "your_key_here"
+#     $env:CAFE_PROVIDER = "anthropic"
+npx tsx course/stage0-hello/run.ts
+npx tsx course/check.ts 0
+```
+
+Each later stage is a folder with a `README.md` and a `run.ts` containing one
+or two `TODO`s. Fill them in, run the stage, then run its checker. The checker
+prints the next stage or transfer action when it passes.
 
 **No API key?** Add `--offline` to any command to use the scripted local stand-in after you fill that stage's `TODO`s. Every completed stage supports this path. Stage 2's lesson includes watching a real model answer the same question differently, which a deterministic stand-in cannot reproduce; if you later want that comparison, use a low-credit, revocable key of your own. Never borrow or share another person's credential.
 
@@ -42,8 +65,18 @@ The course runs on **DeepSeek** or on **Anthropic's Claude**, and not one line o
 
 ```bash
 export DEEPSEEK_API_KEY=your_key_here # default if both are set
-export CAFE_PROVIDER=anthropic      # force one
-export CAFE_MODEL=deepseek-v4-pro   # or a Provider-supported model
+export CAFE_PROVIDER=anthropic        # force one
+export CAFE_MODEL=deepseek-v4-pro     # or a Provider-supported model
+```
+
+PowerShell uses the same variable names:
+
+```powershell
+$env:DEEPSEEK_API_KEY = "your_key_here"
+$env:CAFE_PROVIDER = "anthropic"
+$env:CAFE_MODEL = "deepseek-v4-pro"
+# For Claude instead:
+$env:ANTHROPIC_API_KEY = "your_key_here"
 ```
 
 That works because DeepSeek publishes an **Anthropic-compatible endpoint**, so the same `@anthropic-ai/sdk` drives both with a different `baseURL`. Stages 5 and 6 build raw `tool_use` / `tool_result` blocks by hand and never notice.
@@ -63,7 +96,7 @@ This is what a provider abstraction is actually for. Not "swap the URL" — anyo
 
 | | Stage | You write | What it teaches |
 |---|---|---|---|
-| 0 | [hello](stage0-hello/) | one API call | your key works |
+| 0 | [call seam](stage0-hello/) | local call seam | local stand-in first, or a verified live response and network path |
 | 1 | [kiosk](stage1-kiosk/) | if/else rules | the wall that starts all of this |
 | 2 | [prompt](stage2-prompt/) | a system prompt | **the same question, five different answers** |
 | 3 | [evals](stage3-evals/) | wire up 20 cases | variable model output needs evals; deterministic code still needs unit tests |
@@ -73,9 +106,9 @@ This is what a provider abstraction is actually for. Not "swap the URL" — anyo
 | 7 | [graph](stage7-graph/) | a router and a reviewer | request vs guarantee |
 | 8 | [security](stage8-security/) | two defences | input that tries to give orders |
 
-**Evals come third on purpose.** Once you have a number, every later change is a measurement instead of an argument.
-
-**If you only do two stages: do 3 and 4.** Watching one number move from 7/20 to 19/20 because you told the model what it was selling is the single most useful thing here.
+**Evals come third on purpose.** Stage 3 depends on the prompt you build in
+Stage 2. Work through Stages 0–4 in order; then the Stage 3 and 4 comparison is
+a measurement instead of an argument.
 
 ## Your report card
 
@@ -84,13 +117,44 @@ npx tsx course/report.ts       # or: npm run report
 ```
 
 ```
-  3  evals      7/20  ← your baseline
-  4  context    19/20  with the menu in context
+  3  evals      7/20 latest · 9/20 best  ← baseline
+  4  context    19/20 latest/best with the menu in context
   ...
-  The only number that matters: 7/20 → 19/20 (+12)
+  Stage 9  transfer   not started · manual evidence state, not automatic mastery
+  Configuration-matched paired results: 7/20 → 19/20 (+12)
 ```
 
+The report retains the **latest** and **best** Eval scores separately, so a
+regression stays visible. It compares Stage 3 with Stage 4 only when the
+recorded mode, Provider, model, effort, Eval identity, source identity and
+denominator match; Stage 4 must also bind the current Stage 3 run, follow it in
+time and run within 24 hours. The report displays both timestamps. That makes
+the two runs configuration-matched and paired; it does not prove what caused
+the difference, because Provider aliases may drift and learner-edited prompt
+systems are deliberately outside the shared source fingerprint. Inspect the
+Stage 2–4 prompt diff before attributing a change to the menu or any other
+edit. Rerunning Stage 3 invalidates an older Stage 4 pairing. Older progress
+files still load, but their missing execution context is reported rather than
+invented.
+
 The 20 café cases deliberately **stop** at stage 4. An agent placing restock orders is not taking orders, so stages 5–8 report the measure that actually fits them — money spent unattended, drafts the reviewer stopped, the refund the cap held. Forcing one suite onto every stage would look tidier and tell you less.
+
+Stage 9 is manual evidence, not an automatic pass. Record only the bounded
+state that you can support:
+
+```bash
+npx tsx course/report.ts --stage9 artifact-assembled \
+  --artifact notes/agent-transfer-artifact.md \
+  --artifact notes/eval-results.json
+npx tsx course/report.ts --stage9 self-reviewed
+```
+
+The first command inventories regular files inside this repository and stores
+only their bounded relative paths, count, timestamp and a deterministic
+content hash—never their contents. `self-reviewed` re-hashes that same scope
+and is an explicit learner attestation that the rubric was applied; it does
+not certify mastery or deploy anything. A later missing or changed file
+invalidates the rendered review state until the material is recorded again.
 
 ## [Stage 9 — build your own](stage9-project/)
 

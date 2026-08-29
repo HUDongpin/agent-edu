@@ -1,5 +1,8 @@
 # Stage 3 — how do you test this?
 
+**Stage 3 of 10** · Previous: [Stage 2 — the first real model call](../stage2-prompt/README.md) ·
+[Course index](../README.md) · Next: [Stage 4 — give it the menu](../stage4-context/README.md)
+
 **Goal:** turn "it seems better" into a number. This is the stage that makes every later stage measurable, which is why it comes third and not last.
 
 ```bash
@@ -14,7 +17,12 @@ npx tsx course/check.ts 3
 
 ## What to notice
 
-You just scored your stage-2 prompt out of 20. **Write the number down.** Every remaining stage gets compared to it.
+You just scored your stage-2 prompt out of 20. The report stores this run as
+the latest result and keeps a separate best result. Stage 4 is compared with
+this run only when its recorded mode, Provider, model, effort, Eval and source
+identities match; later stages use measures appropriate to their own jobs.
+Even then, runtime comparability does not establish cause: inspect the learner
+prompt diff between Stages 2 and 4 before attributing the score movement.
 
 It will not be 20. Read the failures — most of them are prices, because the model has never seen your menu. You are about to fix that in stage 4 and watch the number move.
 
@@ -32,4 +40,7 @@ Twenty cases cannot detect a one-case difference. If a change takes you from 14 
 
 So: make changes big enough to see, or gather more cases. And when a real bug turns up in real use, **paste it into `CASES` before you fix it.** That is how the set becomes worth having, and it is the single habit that separates people who get good at this from people who keep guessing.
 
-**Next:** [stage 4 — give it the menu](../stage4-context/README.md)
+---
+
+**Stage 3 of 10** · Previous: [Stage 2 — the first real model call](../stage2-prompt/README.md) ·
+[Course index](../README.md) · Next: [Stage 4 — give it the menu](../stage4-context/README.md)

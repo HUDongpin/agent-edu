@@ -1,31 +1,64 @@
-# Stage 0 — one call
+# Stage 0 — prove the call seam
 
-**Goal:** prove your TypeScript entry point, Provider configuration and network work before anything else can confuse you. With `--offline`, the same preflight proves the local code path without a key or network call.
+**Stage 0 of 10** · Previous: [course setup](../README.md#before-you-start) ·
+[Course index](../README.md) · Next: [Stage 1 — the kiosk that can't](../stage1-kiosk/README.md)
+
+**Goal:** prove your TypeScript entry point and local call seam before anything
+else can confuse you. With `--offline`, the scripted stand-in proves only the
+local path. A live run separately proves the configured Provider returned a
+response over the network.
+
+Install exactly what the lockfile specifies and verify the bundled no-key seam:
 
 ```bash
 npm ci
+npm run course:offline
+```
+
+There is one `TODO` in `run.ts`. Fill in `QUESTION` **before** running Stage 0,
+then prove the edited code path without a key:
+
+```bash
+npx tsx course/stage0-hello/run.ts --offline
+npx tsx course/check.ts 0 --offline
+```
+
+That report evidence means “offline path works; live credential was not
+checked.” To verify a real credential and network response, configure one
+Provider and repeat both commands without `--offline`.
+
+macOS/Linux (`bash` or `zsh`):
+
+```bash
 export DEEPSEEK_API_KEY=your_key_here     # platform.deepseek.com/api_keys
 # or: export ANTHROPIC_API_KEY=your_key_here
 #     export CAFE_PROVIDER=anthropic
 npx tsx course/stage0-hello/run.ts
+npx tsx course/check.ts 0
 ```
 
-There is one `TODO` in `run.ts`. Fill it in and run it again.
+Windows PowerShell:
 
-```bash
+```powershell
+$env:DEEPSEEK_API_KEY = "your_key_here"
+# or: $env:ANTHROPIC_API_KEY = "your_key_here"
+#     $env:CAFE_PROVIDER = "anthropic"
+npx tsx course/stage0-hello/run.ts
 npx tsx course/check.ts 0
 ```
 
 ## What to notice
 
-The last line prints what the call cost. It will be a fraction of a cent. Keep an eye on it as the stages get bigger — by stage 3 you are making 20+ calls per run, and that is the point at which people who never look at the number get a surprise.
+Offline, the last line says that no tokens were spent. Live, it prints the
+measured usage and current estimate. Keep an eye on it as the stages get
+bigger—by Stage 3 you are making 20+ calls per run.
 
-If you have no API key, every stage uses the bundled scripted stand-in with `--offline`:
+Offline mode is the safe local seam, not evidence of live model behaviour. The
+single most important thing you can later observe in Stage 2 is a live model
+giving a *different answer to the same question*; a deterministic stand-in
+cannot show that variation.
 
-```bash
-npx tsx course/stage0-hello/run.ts --offline
-```
+---
 
-Offline mode is a fallback, not the course. The single most important thing you will see in stage 2 is a live model giving you a *different answer to the same question*, and a deterministic stand-in cannot show you that.
-
-**Next:** [stage 1 — the kiosk that can't](../stage1-kiosk/README.md)
+**Stage 0 of 10** · Previous: [course setup](../README.md#before-you-start) ·
+[Course index](../README.md) · Next: [Stage 1 — the kiosk that can't](../stage1-kiosk/README.md)

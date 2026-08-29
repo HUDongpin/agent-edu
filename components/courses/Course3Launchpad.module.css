@@ -1,0 +1,271 @@
+.heroBoundary {
+  max-width: 58ch;
+  margin: 22px auto 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--bg-2);
+  text-align: start;
+}
+
+.heroBoundary h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.heroBoundary p {
+  margin: 5px 0 0;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.sectionAnchor {
+  scroll-margin-top: 88px;
+}
+
+.shellChoices {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.shellChoice {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.shellChoice summary {
+  min-height: 44px;
+  padding: 10px 13px;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.shellChoice summary:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+.shellChoice > div {
+  padding: 0 12px 12px;
+}
+
+.shellChoice .command {
+  margin-top: 0;
+}
+
+.command {
+  min-width: 0;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-2);
+}
+
+.commandToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding-inline-start: 14px;
+  border-block-end: 1px solid var(--line);
+}
+
+.commandLabel {
+  min-width: 0;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.copyButton {
+  min-block-size: 44px;
+  min-inline-size: 44px;
+  padding: 8px 14px;
+  border: 0;
+  border-inline-start: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.copyButton:hover {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.copyButton:active {
+  transform: translateY(1px);
+}
+
+.copyButton:focus-visible,
+.command .commandScroll:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: -3px;
+}
+
+.command .commandScroll {
+  max-width: 100%;
+  overflow: auto;
+  margin: 0;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  direction: ltr;
+  font: 14px/1.65 var(--mono);
+  text-align: left;
+  unicode-bidi: isolate;
+  white-space: pre;
+}
+
+.commandStatus {
+  display: block;
+  min-height: 1.5em;
+  padding: 0 14px 8px;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.commandStatus:empty {
+  display: none;
+}
+
+.stageMap {
+  margin-top: 24px;
+}
+
+.stageMap > p {
+  max-width: 65ch;
+  margin: 9px auto 0;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.stageList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stageLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 52px;
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.stageLink:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.stageLink:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+.stageNumber {
+  color: var(--ink-3);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.stageCopy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stageTitle {
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.stageSlug {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-3);
+  direction: ltr;
+  font: 12px/1.4 var(--mono);
+  text-align: right;
+  text-overflow: ellipsis;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+
+.successActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.providerShells {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.providerShells .command {
+  margin-top: 0;
+}
+
+/* Four choices read as a deliberate 2 x 2 comparison at wide widths. The
+   shared auto-fit grid otherwise lands on an orphaned 3 + 1 composition. */
+@media (min-width: 900px) {
+  .providerGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .stageList {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stageLink {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .stageSlug {
+    max-width: 100%;
+    text-align: left;
+  }
+}
+
+@media print {
+  .copyButton,
+  .commandStatus {
+    display: none;
+  }
+
+  .command .commandScroll {
+    overflow: visible;
+    white-space: pre-wrap;
+  }
+}

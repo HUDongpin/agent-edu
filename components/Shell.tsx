@@ -31,9 +31,9 @@ export default async function Shell({
   const cov = await coverageMap();
   const p = (path: string) => `/${locale}${path}`;
 
-  const nav = [
+  const nav: Array<{ href: string; key: string; currentFor?: string[] }> = [
     { href: p("/"), key: "nav.home" },
-    { href: p("/courses/"), key: "nav.courses" },
+    { href: p("/courses/"), key: "nav.courses", currentFor: [p("/build/")] },
     { href: p("/handbook/"), key: "nav.handbook" },
     { href: p("/lab/"), key: "nav.lab" },
     { href: p("/about/"), key: "nav.about" },
@@ -54,7 +54,11 @@ export default async function Shell({
           </Link>
 
           <MobileNav label={t("nav.menu")}>
-            <NavLinks items={nav.map((n) => ({ href: n.href, label: t(n.key) }))} />
+            <NavLinks items={nav.map((n) => ({
+              href: n.href,
+              label: t(n.key),
+              currentFor: n.currentFor,
+            }))} />
             <Link href={p("/teach/")}>
               {t("nav.teach")}
             </Link>

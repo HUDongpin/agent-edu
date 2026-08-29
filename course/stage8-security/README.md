@@ -1,5 +1,8 @@
 # Stage 8 — when the input fights back
 
+**Stage 8 of 10** · Previous: [Stage 7 — guarantee the check happens](../stage7-graph/README.md) ·
+[Course index](../README.md) · Next: [Stage 9 — transfer project](../stage9-project/README.md)
+
 **Goal:** watch your own agent take orders from a stranger, then make that not matter.
 
 ```bash
@@ -34,4 +37,17 @@ The boundary is structural: **trust follows the source, not the sentence.** Text
 
 Anything that reads. A support agent reading tickets. A coding agent reading a dependency's README. A research agent reading search results. If it reads something a stranger can write, this stage applies to it.
 
-**Done.** Back to the [course index](../README.md) — and the honest last word is there.
+## Guided course handoff
+
+The guided stages 0–8 are complete. That is not the end of Course 3: the café
+was shared practice. Continue directly to the [Stage 9 transfer
+project](../stage9-project/README.md), where you assemble and review evidence
+for a domain you actually know.
+
+The Stage 9 report state is manual and separate from these checker results. A
+passed Stage 8 never marks the transfer project reviewed.
+
+---
+
+**Stage 8 of 10** · Previous: [Stage 7 — guarantee the check happens](../stage7-graph/README.md) ·
+[Course index](../README.md) · Next: [Stage 9 — transfer project](../stage9-project/README.md)

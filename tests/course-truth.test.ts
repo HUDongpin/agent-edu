@@ -4,6 +4,7 @@ import test from "node:test";
 
 const LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
 const BUILD_TRUTH_KEYS = ["track.3.desc", "c.build.blurb", "build.lede", "build.beforeTime"];
+const GUIDED_TO_TRANSFER_SEQUENCE = /0\s*(?:[-–~〜～]|à|إلى)\s*8[\s\S]*9/u;
 
 const VARIABLE_COST_TRUTH: Record<string, { lab: string; build: string }> = {
   en: { lab: "Provider charges vary", build: "offline or usage-based Provider calls" },
@@ -52,7 +53,11 @@ test("Part 3 names nine guided stages 0–8 and a distinct Stage 9 transfer proj
     for (const key of BUILD_TRUTH_KEYS) {
       const value = catalog[key];
       assert.equal(typeof value, "string", `${locale}:${key} must exist`);
-      assert.match(value, /0[^\d]{0,3}8[\s\S]*9/, `${locale}:${key} must distinguish 0–8 from 9`);
+      assert.match(
+        value,
+        GUIDED_TO_TRANSFER_SEQUENCE,
+        `${locale}:${key} must distinguish guided Stages 0–8 from transfer Stage 9`,
+      );
     }
   }
 

@@ -1,5 +1,8 @@
 # Stage 2 — the first real model call
 
+**Stage 2 of 10** · Previous: [Stage 1 — the kiosk that can't](../stage1-kiosk/README.md) ·
+[Course index](../README.md) · Next: [Stage 3 — how do you test this?](../stage3-evals/README.md)
+
 **Goal:** replace stage 1's rules with a prompt, and meet the thing that makes the next six stages necessary.
 
 ```bash
@@ -36,4 +39,7 @@ Where it doesn't, you write the apparatus. **DeepSeek accepts `output_config.for
 
 Look closely at what it charged for the flat white. You never told it the menu. Hold that thought until stage 4 — first you need a way to *measure* how wrong it is, which is stage 3.
 
-**Next:** [stage 3 — how do you test this?](../stage3-evals/README.md)
+---
+
+**Stage 2 of 10** · Previous: [Stage 1 — the kiosk that can't](../stage1-kiosk/README.md) ·
+[Course index](../README.md) · Next: [Stage 3 — how do you test this?](../stage3-evals/README.md)
