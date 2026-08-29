@@ -2,7 +2,10 @@
 
 - Date: 2026-08-28
 - Integration branch: `codex/course-20-22-curriculum-repair`
-- Integration baseline: `codex/complete-course-roadmap`
+- Integration baseline: archive tag
+  `archive/complete-course-roadmap-03d0c600-20260829`, peeled to exact SHA
+  `03d0c60017a29898bbc1db3ac3f259524f6170f6` (historical branch:
+  `codex/complete-course-roadmap`)
 - Frozen implementation commit: `c161549026dbb769c6be961164a40dc41eedae65`
 - Decision: **HOLD**
 - Production deployment: **not authorized**

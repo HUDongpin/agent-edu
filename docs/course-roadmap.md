@@ -2,11 +2,14 @@
 
 This document records the 22-course candidate being integrated on
 `codex/course-20-22-curriculum-repair`, using
-`codex/complete-course-roadmap` as its sole integration baseline. Course 20
-remains Deep Learning and Transformers, Course 21 remains Production AI and
-MLOps, and Agentic Video Editing is Course 22. It deliberately separates page
-completion, local contract validation, learner evidence, human review, release
-readiness and production availability.
+the immutable archive tag
+`archive/complete-course-roadmap-03d0c600-20260829`—peeled exact SHA
+`03d0c60017a29898bbc1db3ac3f259524f6170f6`—as its sole integration baseline.
+The historical branch name was `codex/complete-course-roadmap`; the archive tag
+is now the durable reference. Course 20 remains Deep Learning and Transformers,
+Course 21 remains Production AI and MLOps, and Agentic Video Editing is Course
+22. It deliberately separates page completion, local contract validation,
+learner evidence, human review, release readiness and production availability.
 
 ## Status contract
 
