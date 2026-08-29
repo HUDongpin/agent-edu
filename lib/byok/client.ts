@@ -368,17 +368,15 @@ export function createDeepSeekClient({
     }
 
     const scope = abortScope(signal, timeoutMs);
-    let dispatched = false;
     try {
       // Calling fetch is the observable dispatch boundary. There is no retry
       // loop here: one user action creates at most one network request.
-      dispatched = true;
       const response = await fetcher()(url, { ...init, signal: scope.signal });
       const parsed = await responseBody(response, requestedModel, scope.abort);
       return { response, body: parsed.value, bodyKind: parsed.kind };
     } catch (error) {
       if (error instanceof ProviderError) throw error;
-      const billing = dispatched ? "unknown-after-send" : "not-sent";
+      const billing: BillingState = "unknown-after-send";
       if (scope.didTimeout()) {
         throw new ProviderError("timeout", "The provider request timed out.", {
           billing,

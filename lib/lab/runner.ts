@@ -2,7 +2,6 @@ import { ProviderError, isProviderError } from "../byok/types";
 import { LAB_CONCURRENCY } from "./plans";
 
 export interface LabRunContext {
-  runId: string;
   signal: AbortSignal;
   /** Call immediately before every generator and judge request. */
   checkpoint(): void;
@@ -27,7 +26,7 @@ export interface LabRunOutcome<Result> {
 
 export interface LabRunOptions<Task extends LabRunTask<Result>, Result> {
   concurrency?: number;
-  onProgress?: (completed: number, total: number, runId: string) => void;
+  onProgress?: (completed: number, total: number) => void;
   onContentFailure: (error: unknown, task: Task, index: number) => Result;
 }
 
@@ -128,7 +127,6 @@ export class LabRunner {
       }
     };
     const context: LabRunContext = {
-      runId: state.runId,
       signal: state.controller.signal,
       checkpoint,
     };
@@ -178,7 +176,7 @@ export class LabRunner {
         results[index] = value;
         completedTasks++;
         if (this.active === state) {
-          options.onProgress?.(completedTasks, tasks.length, state.runId);
+          options.onProgress?.(completedTasks, tasks.length);
         }
       }
     };
