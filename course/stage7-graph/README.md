@@ -1,5 +1,8 @@
 # Stage 7 — guarantee the check happens
 
+**Stage 7 of 10** · Previous: [Stage 6 — the machine around it](../stage6-harness/README.md) ·
+[Course index](../README.md) · Next: [Stage 8 — when the input fights back](../stage8-security/README.md)
+
 **Goal:** stop hoping the model reviews its work, and make the review structurally unavoidable.
 
 ```bash
@@ -32,4 +35,7 @@ Notice this is ordinary TypeScript: functions, an `if`, and a loop with a retry 
 
 The map only handles cases you thought of. A message that is neither an order, a question, nor a complaint falls through your router and hits the default branch. Watch how the default behaves and decide whether you like it — because in production, that branch is where the surprises live.
 
-**Next:** [stage 8 — when the input fights back](../stage8-security/README.md)
+---
+
+**Stage 7 of 10** · Previous: [Stage 6 — the machine around it](../stage6-harness/README.md) ·
+[Course index](../README.md) · Next: [Stage 8 — when the input fights back](../stage8-security/README.md)

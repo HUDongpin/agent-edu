@@ -6,8 +6,8 @@
  * that, and from stage 4 on it is what this leans on.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { preflight } from "./cafe/llm";
-import { record } from "./report";
+import { EFFORT, MODEL, OFFLINE, PROVIDER, preflight } from "./cafe/llm";
+import { createExecutionContext, record } from "./report";
 
 const STAGES: Record<number, string> = {
   0: "stage0-hello", 1: "stage1-kiosk", 2: "stage2-prompt", 3: "stage3-evals",
@@ -16,17 +16,30 @@ const STAGES: Record<number, string> = {
 };
 const COSTS_MONEY = new Set([2, 3, 4, 5, 6, 7, 8]);
 
+function executionContext() {
+  // Called only after a stage has received every response it needs. A live
+  // record therefore means an SDK request returned successfully; offline
+  // records explicitly say that no network request was attempted.
+  return createExecutionContext({
+    offline: OFFLINE,
+    provider: PROVIDER,
+    model: MODEL,
+    effort: EFFORT,
+    networkResponseReceived: !OFFLINE,
+  });
+}
+
 const ok = (m: string) => console.log(`  PASS  ${m}`);
 function bad(m: string): never { console.log(`  FAIL  ${m}\n`); process.exit(1); }
 
 const CHECKS: Record<number, (m: any) => Promise<void>> = {
   async 0(m) {
     if (!m.QUESTION?.trim()) bad("QUESTION is still empty");
-    ok("you asked the model something");
+    ok("you wrote a question");
     const answer = await m.runQuestion();
     if (typeof answer !== "string" || !answer.trim()) bad("no answer came back");
-    ok("an answer came back");
-    record(0, { ok: true });
+    ok(OFFLINE ? "the local stand-in returned an answer" : "a live model response came back");
+    record(0, { ok: true }, executionContext());
   },
 
   async 1(m) {
@@ -59,10 +72,11 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     if (!order.items.length) bad("it ordered nothing");
     ok(`a clear order parses: ${order.items[0]?.name}`);
     const seen = new Set<string>();
-    for (let i = 0; i < 3; i++) {
+    const questions = 3;
+    for (let i = 0; i < questions; i++) {
       seen.add(JSON.stringify(await m.takeOrder("something warm for my kid, no coffee", i)));
     }
-    record(2, { distinct: seen.size });
+    record(2, { distinct: seen.size, questions }, executionContext());
   },
 
   async 3(m) {
@@ -70,18 +84,21 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     ok("the eval is pointed at your prompt");
     const { run, CASES } = await import("./cafe/evalset");
     const [score] = await run(m.SYSTEM_UNDER_TEST, { verbose: false });
-    record(3, { score });
+    record(3, { score, scoreTotal: CASES.length }, executionContext());
     ok(`it ran: ${score}/${CASES.length} — write that number down`);
-    ok("recorded. `npx tsx course/report.ts` shows it next to every later stage");
+    ok("recorded. `npx tsx course/report.ts` keeps the latest and best separately");
   },
 
   async 4(m) {
     if (!m.SYSTEM?.trim()) bad("SYSTEM is still empty");
-    const { run } = await import("./cafe/evalset");
+    const { CASES, run } = await import("./cafe/evalset");
     const [score, failures] = await run(m.takeOrder, { verbose: false });
-    if (score < 16) bad(`scored ${score}/20, wanted at least 16. Still failing: ${failures.join(", ")}`);
-    record(4, { score });
-    ok(`scored ${score}/20 with the menu in context`);
+    const target = Math.ceil(CASES.length * 0.8);
+    if (score < target) {
+      bad(`scored ${score}/${CASES.length}, wanted at least ${target}. Still failing: ${failures.join(", ")}`);
+    }
+    record(4, { score, scoreTotal: CASES.length }, executionContext());
+    ok(`scored ${score}/${CASES.length} with the menu in context`);
   },
 
   async 5(m) {
@@ -92,7 +109,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     ok(`placed ${orders.length} orders, recovering from a failed tool on the way`);
     if (!tools.LOG.length) bad("the manager was never emailed");
     ok("the manager was told");
-    record(5, { orders: orders.length });
+    record(5, { orders: orders.length }, executionContext());
   },
 
   async 6(m) {
@@ -103,7 +120,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
       bad(`spent $${allOn.spent.toFixed(2)} with the gate on — it is not gating`);
     }
     ok(`the gate held: $${allOn.spent.toFixed(2)} spent unattended`);
-    record(6, { gated: Number(allOn.spent.toFixed(2)) });
+    record(6, { gated: Number(allOn.spent.toFixed(2)) }, executionContext());
     const noGate = await m.runAgent({ ...m.ALL_ON, gate: false });
     if (noGate.spent <= allOn.spent) {
       console.log("  NOTE  the ungated run did not spend more this time. Run it again — " +
@@ -121,7 +138,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     ok("both paths ran");
     if (m.SENT.length !== 1) bad(`send() was called ${m.SENT.length} times on one message`);
     ok("exactly one reply was sent, and only via send()");
-    record(7, { blocked: unreviewed.trim() !== reviewed.trim() ? 1 : 0 });
+    record(7, { blocked: unreviewed.trim() !== reviewed.trim() ? 1 : 0 }, executionContext());
     if (unreviewed.trim() === reviewed.trim()) {
       console.log("  NOTE  both drafts came out the same this time. The guarantee still " +
         "holds — but re-run to see it bite.");
@@ -142,35 +159,51 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     ok("no address list left the building");
     const labelled = await m.handle(poisoned, { labelAsData: true, capTools: true });
     ok(`labelled run refunded $${labelled.refund_amount.toFixed(2)}`);
-    record(8, { capped: Number(capped.refund_amount.toFixed(2)) });
+    record(8, { capped: Number(capped.refund_amount.toFixed(2)) }, executionContext());
   },
 };
 
-const args = process.argv.slice(2).filter((a) => !a.startsWith("-"));
-const stage = Number(args[0]);
-if (!args.length || !(stage in STAGES)) {
-  console.log("usage: npx tsx course/check.ts <0-8> [--offline]");
-  process.exit(1);
+export function nextAction(stage: number): string {
+  if (stage === 8) {
+    return "Guided stages 0–8 complete. Next: Stage 9 transfer project — " +
+      "open course/stage9-project/README.md.";
+  }
+  const next = stage + 1;
+  return `Next: Stage ${next} — open course/${STAGES[next]}/README.md.`;
 }
-if (COSTS_MONEY.has(stage) && !process.argv.includes("--offline")) {
-  console.log(`\n  (stage ${stage} makes real API calls — pennies, but not free)`);
-}
-// Check the key BEFORE importing the stage. Without this a learner with no
-// key gets a stack trace from inside the SDK instead of a sentence telling
-// them what to do.
-if (COSTS_MONEY.has(stage) || stage === 0) {
-  try { preflight(); } catch (err) { console.log((err as Error).message); process.exit(1); }
-}
-console.log(`\nchecking stage ${stage}\n`);
-try {
-  await CHECKS[stage](await import(`./${STAGES[stage]}/run`));
-} catch (err) {
-  const msg = (err as Error).message;
-  if (/TODO/.test(msg)) {
-    console.log(`  TODO  ${msg}\n\n  Finish that one and run this again.\n`);
+
+async function main(): Promise<void> {
+  const args = process.argv.slice(2).filter((arg) => !arg.startsWith("-"));
+  const stage = Number(args[0]);
+  if (!args.length || !(stage in STAGES)) {
+    console.log("usage: npx tsx course/check.ts <0-8> [--offline]");
     process.exit(1);
   }
-  throw err;
+  if (COSTS_MONEY.has(stage) && !OFFLINE) {
+    console.log(`\n  (stage ${stage} makes real API calls — pennies, but not free)`);
+  }
+  // Check the key BEFORE importing the stage. Without this a learner with no
+  // key gets a stack trace from inside the SDK instead of a sentence telling
+  // them what to do.
+  if (COSTS_MONEY.has(stage) || stage === 0) {
+    try { preflight(); } catch (err) { console.log((err as Error).message); process.exit(1); }
+  }
+  console.log(`\nchecking stage ${stage}\n`);
+  try {
+    await CHECKS[stage](await import(`./${STAGES[stage]}/run`));
+  } catch (err) {
+    const msg = (err as Error).message;
+    if (/TODO/.test(msg)) {
+      console.log(`  TODO  ${msg}\n\n  Finish that one and run this again.\n`);
+      process.exit(1);
+    }
+    throw err;
+  }
+  console.log(`\n  stage ${stage} complete.`);
+  console.log(`  ${nextAction(stage)}\n`);
+  if ([3, 4, 8].includes(stage)) {
+    console.log("  (run `npx tsx course/report.ts` to see the whole picture)\n");
+  }
 }
-console.log(`\n  stage ${stage} complete.\n`);
-if ([3, 4, 8].includes(stage)) console.log("  (run `npx tsx course/report.ts` to see the whole picture)\n");
+
+if (import.meta.filename === process.argv[1]) await main();

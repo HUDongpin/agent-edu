@@ -1,5 +1,8 @@
 # Stage 4 — give it the menu
 
+**Stage 4 of 10** · Previous: [Stage 3 — how do you test this?](../stage3-evals/README.md) ·
+[Course index](../README.md) · Next: [Stage 5 — let it act](../stage5-loop/README.md)
+
 **Goal:** fix the failures from stage 3 by changing what the model can *see*, not how you ask.
 
 ```bash
@@ -19,6 +22,9 @@ npx tsx course/check.ts 4
 You did not write a better instruction. You gave the model a fact it could not have known. Most "the model is bad at this" turns out to be "the model was never told."
 
 Compare the two prompts side by side. Stage 2's was an instruction; stage 4's is an instruction plus a *briefing*.
+The report can establish that the two latest runs used matching runtime and
+Eval context. It cannot establish that the menu was the only learner edit;
+inspect this prompt diff before making that causal claim.
 
 ## Where this stops working
 
@@ -33,4 +39,7 @@ That is the actual discipline: not "give the model everything", but "give the mo
 
 Run `npx tsx course/stage4-context/run.ts` twice and compare the token counts it prints. Context is not free, and it is the line item that grows fastest as a system gets more capable. In stage 5, it grows on *every turn of a loop*.
 
-**Next:** [stage 5 — let it act](../stage5-loop/README.md)
+---
+
+**Stage 4 of 10** · Previous: [Stage 3 — how do you test this?](../stage3-evals/README.md) ·
+[Course index](../README.md) · Next: [Stage 5 — let it act](../stage5-loop/README.md)

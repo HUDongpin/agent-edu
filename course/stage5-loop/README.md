@@ -1,5 +1,8 @@
 # Stage 5 — let it act
 
+**Stage 5 of 10** · Previous: [Stage 4 — give it the menu](../stage4-context/README.md) ·
+[Course index](../README.md) · Next: [Stage 6 — the machine around it](../stage6-harness/README.md)
+
 **Goal:** write the agent loop yourself. Not a framework's loop — the twelve lines the frameworks wrap.
 
 ```bash
@@ -33,4 +36,7 @@ You are writing it manually once because the loop *is* the concept. After this s
 
 `MAX_STEPS` is not a safety blanket, it is the design. A loop without one can run all night on your money. Set it to 3 and run again: the job comes out half-done, coffee ordered and cups forgotten. **Choosing that trade-off is the engineering.**
 
-**Next:** [stage 6 — the machine around it](../stage6-harness/README.md)
+---
+
+**Stage 5 of 10** · Previous: [Stage 4 — give it the menu](../stage4-context/README.md) ·
+[Course index](../README.md) · Next: [Stage 6 — the machine around it](../stage6-harness/README.md)

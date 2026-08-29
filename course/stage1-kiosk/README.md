@@ -1,5 +1,8 @@
 # Stage 1 — the kiosk that can't
 
+**Stage 1 of 10** · Previous: [Stage 0 — prove the call seam](../stage0-hello/README.md) ·
+[Course index](../README.md) · Next: [Stage 2 — the first real model call](../stage2-prompt/README.md)
+
 **Goal:** feel the wall that makes all of this necessary. No model in this stage at all.
 
 ```bash
@@ -25,4 +28,7 @@ That second one is not a bug to fix. It is the finding. You *can* make it pass �
 
 Notice also what this code is unarguably good at: same input, same output, every time, for free, in under a millisecond. Do not throw that away in the next eight stages. Most of a real system should still look like this file.
 
-**Next:** [stage 2 — the first real model call](../stage2-prompt/README.md)
+---
+
+**Stage 1 of 10** · Previous: [Stage 0 — prove the call seam](../stage0-hello/README.md) ·
+[Course index](../README.md) · Next: [Stage 2 — the first real model call](../stage2-prompt/README.md)

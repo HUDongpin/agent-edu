@@ -29,7 +29,7 @@
     "test:smoke:safe": "PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/smoke.spec.ts --project=chromium",
     "test:smoke:private": "node scripts/run-private-playwright.mjs",
     "test:smoke": "npm run evidence:prepare && npm run test:smoke:safe && npm run test:smoke:private",
-    "test:compat": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/compat.spec.ts",
+    "test:compat": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/compat.spec.ts e2e/course3-phase1.spec.ts",
     "test:resilience": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/resilience.spec.ts --project=chromium",
     "test:evidence-contract": "node scripts/verify-browser-evidence.mjs",
     "vitals:lab": "node scripts/measure-lab-vitals.mjs",
