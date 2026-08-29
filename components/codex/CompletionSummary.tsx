@@ -1,11 +1,18 @@
 "use client";
 
 import {
+  formatCodexTemplate,
+  formatCodexVisiblePercent,
+} from "@/lib/codex/format";
+import {
   getCodexQuizBest,
   isCodexQuizPassed,
-  type CodexCourseCopy,
-  type CodexLessonSlug,
-} from "@/lib/codex";
+} from "@/lib/codex/quiz";
+import type {
+  CodexCourseCopy,
+  CodexLessonSlug,
+  CodexLocale,
+} from "@/lib/codex/types";
 import { lessonProgressKey } from "./progress-store";
 import useCourseProgress from "./useCourseProgress";
 import styles from "./CodexCourse.module.css";
@@ -13,11 +20,13 @@ import styles from "./CodexCourse.module.css";
 export default function CompletionSummary({
   courseTitle,
   courseVersion,
+  locale,
   lessonSlugs,
   labels,
 }: {
   courseTitle: string;
   courseVersion: string;
+  locale: CodexLocale;
   lessonSlugs: readonly CodexLessonSlug[];
   labels: CodexCourseCopy["ui"];
 }) {
@@ -27,6 +36,7 @@ export default function CompletionSummary({
   const capstonePassed = progress["codex.capstone.v1"] === true;
   const milestones = lessonCount + Number(quizPassed) + Number(capstonePassed);
   const quizBest = getCodexQuizBest(progress);
+  const completePercent = formatCodexVisiblePercent(100, locale);
 
   if (milestones !== 14) return null;
 
@@ -41,7 +51,11 @@ export default function CompletionSummary({
         <h2 id="codex-completion-summary-title">{labels.completionSummary}</h2>
         <p>{courseTitle}</p>
       </div>
-      <strong aria-label={`${labels.courseProgress}: 100%`}>100%</strong>
+      <strong
+        aria-label={formatCodexTemplate(labels.completionPercentTemplate, { percent: completePercent })}
+      >
+        {completePercent}
+      </strong>
       <button
         className={styles.secondaryAction}
         type="button"

@@ -113,7 +113,7 @@
     "sitemaps:generate": "node scripts/generate-sitemaps.mjs",
     "codex:fixture": "node scripts/build-codex-demo-archive.mjs",
     "cursor:fixture": "node scripts/build-cursor-demo-archive.mjs",
-    "test:codex": "playwright test tests/codex-course.spec.ts",
+    "test:codex": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test --config tests/codex-playwright.config.ts",
     "test:codex:export": "node scripts/test-codex-export.mjs",
     "test:claude": "playwright test tests/claude-course.spec.ts --workers=1",
     "test:cursor": "playwright test --config tests/cursor-playwright.config.ts --workers=1",

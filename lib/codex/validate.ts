@@ -54,16 +54,23 @@ const COPY_UI_KEYS = [
   "capstoneArtifacts", "capstoneReceipt", "artifactReady", "rubric",
   "rubricComplete", "passingScore", "weight", "status", "notStarted",
   "printReceipt", "browserStorageNote", "backToCourse", "allLessons",
-  "recordCompletion", "finalQuizTitle", "finalQuizIntro", "beginQuiz",
-  "nextQuestion", "retryQuiz", "bestScore", "passRequirement", "source",
+  "courseOutlineSummaryTemplate", "currentLesson", "completedLesson",
+  "recommendedNextLesson", "recordCompletion", "markIncomplete",
+  "finalQuizTitle", "finalQuizIntro", "beginQuiz", "continueQuiz",
+  "nextQuestion", "retryQuiz", "retakeQuiz", "quizInProgress",
+  "priorPassPreserved", "quizDraftRestored", "bestScore", "passRequirement", "source",
   "sourceVerifiedOn", "stars", "license", "storageUnavailable",
   "receiptInstructions", "receiptSchemaLabel", "fixtureVersionLabel",
-  "fixtureHashLabel", "requiredChecksLabel", "pasteReceipt", "verifyReceipt",
+  "fixtureHashLabel", "requiredChecksLabel", "pasteReceipt", "receiptDraftRestored",
+  "verifyReceipt",
   "receiptValid", "receiptInvalidJson", "receiptWrongSchema",
   "receiptWrongVersion", "receiptWrongHash", "receiptIncomplete", "downloadStarter",
   "completionSummary", "exportSummary", "finishQuiz", "questionProgressTemplate",
-  "scoreSummaryTemplate", "bestScoreTemplate", "resetConfirm", "resetDone",
-  "capstonePath",
+  "scoreSummaryTemplate", "bestScoreTemplate", "resetConfirm", "resetDone", "resetSessionOnly",
+  "capstonePath", "supportingSourceTemplate", "verifiedOnTemplate",
+  "pendingFigureAltTemplate", "passingScoreTemplate", "rubricWeightTemplate",
+  "completionPercentTemplate", "sourceRepositoryMetaTemplate",
+  "scrollableCodeTemplate", "scrollableComparison",
 ] as const;
 
 const COPY_LESSON_KEYS = [
@@ -406,14 +413,30 @@ export function validateCodexCopy(
 
   if (isRecord(copy.ui)) {
     const requiredTemplates = {
+      courseOutlineSummaryTemplate: "current|title|total",
+      finalQuizIntro: "passingCorrectAnswers|questionCount|questionsPerUnit",
+      passRequirement: "passingCorrectAnswers|questionCount",
       questionProgressTemplate: "current|total",
       scoreSummaryTemplate: "score|total",
       bestScoreTemplate: "score|total",
+      supportingSourceTemplate: "number|title",
+      verifiedOnTemplate: "date",
+      pendingFigureAltTemplate: "alt|status",
+      passingScoreTemplate: "score",
+      rubricWeightTemplate: "weight",
+      completionPercentTemplate: "percent",
+      sourceRepositoryMetaTemplate: "license|licenseLabel|stars",
+      scrollableCodeTemplate: "language",
+      scrollableComparison: "",
     } as const;
     for (const [key, expected] of Object.entries(requiredTemplates)) {
       const value = copy.ui[key];
       if (typeof value !== "string" || placeholderSignature(value) !== expected) {
-        issues.push({ locale, path: `$.ui.${key}`, message: `Template must contain exactly these placeholders: ${expected}.` });
+        issues.push({
+          locale,
+          path: `$.ui.${key}`,
+          message: `Template must contain exactly these placeholders: ${expected || "none"}.`,
+        });
       }
     }
   }

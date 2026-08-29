@@ -1,13 +1,18 @@
 import Link from "next/link";
 import {
   CODEX_CAPSTONE,
+  formatCodexTemplate,
+  formatCodexUtcMediumDate,
+  formatCodexVisibleInteger,
   type CodexCourseCopy,
   type MaterializedCodexCourse,
   type MaterializedCodexLesson,
 } from "@/lib/codex";
 import CapstoneReceipt from "./CapstoneReceipt";
+import CourseOutline from "./CourseOutline";
 import CourseFigure from "./CourseFigure";
 import LessonCompletion from "./LessonCompletion";
+import LocalizedTemplate from "./LocalizedTemplate";
 import TechnicalText from "./TechnicalText";
 import styles from "./CodexCourse.module.css";
 
@@ -58,6 +63,16 @@ export default function LessonView({
   const previous = lessonIndex > 0 ? lessons[lessonIndex - 1] : null;
   const next = lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null;
   const hrefFor = (slug: string) => `/${course.locale}/codex/${slug}/`;
+  const outlineUnits = course.units.map((unit) => ({
+    id: unit.id,
+    title: unit.copy.title,
+    lessons: unit.lessons.map((item) => ({
+      slug: item.slug,
+      order: item.order,
+      title: item.copy.title,
+      href: hrefFor(item.slug),
+    })),
+  }));
 
   return (
     <div
@@ -74,29 +89,12 @@ export default function LessonView({
       </nav>
 
       <div className={styles.lessonLayout}>
-        <aside className={styles.lessonRail}>
-          <nav aria-label={course.copy.ui.allLessons}>
-            <strong>{course.copy.ui.allLessons}</strong>
-            {course.units.map((unit) => (
-              <div className={styles.railUnit} key={unit.id}>
-                <p className={styles.railGroup}><TechnicalText text={unit.copy.title} /></p>
-                <ol>
-                  {unit.lessons.map((item) => (
-                    <li key={item.slug}>
-                      <Link
-                        href={hrefFor(item.slug)}
-                        aria-current={item.slug === lesson.slug ? "page" : undefined}
-                      >
-                        <span>{item.order}</span>
-                        <TechnicalText text={item.copy.title} />
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            ))}
-          </nav>
-        </aside>
+        <CourseOutline
+          units={outlineUnits}
+          activeSlug={lesson.slug}
+          locale={course.locale}
+          labels={course.copy.ui}
+        />
 
         <div className={styles.lessonMain}>
           <article>
@@ -107,11 +105,11 @@ export default function LessonView({
               <dl className={styles.lessonMeta}>
                 <div>
                   <dt>{course.copy.ui.minutes}</dt>
-                  <dd>{lesson.minutes}</dd>
+                  <dd>{formatCodexVisibleInteger(lesson.minutes, course.locale)}</dd>
                 </div>
                 <div>
                   <dt>{course.copy.ui.sources}</dt>
-                  <dd>{lesson.sources.length}</dd>
+                  <dd>{formatCodexVisibleInteger(lesson.sources.length, course.locale)}</dd>
                 </div>
               </dl>
             </header>
@@ -146,7 +144,16 @@ export default function LessonView({
                   }
                   case "code":
                     return (
-                      <pre className={styles.lessonCodeBlock} dir="ltr" key={`code-${block.language}-${block.code}`}>
+                      <pre
+                        aria-label={formatCodexTemplate(course.copy.ui.scrollableCodeTemplate, {
+                          language: block.language,
+                        })}
+                        className={styles.lessonCodeBlock}
+                        dir="ltr"
+                        key={`code-${block.language}-${block.code}`}
+                        role="region"
+                        tabIndex={0}
+                      >
                         <code data-language={block.language}>{block.code}</code>
                       </pre>
                     );
@@ -160,7 +167,13 @@ export default function LessonView({
                     const headers = block.columns.map((key) => localizedString(course.copy, key));
                     const rows = localizedTable(course.copy, block.copyKey, headers.length);
                     return (
-                      <div className={styles.lessonComparison} key={`comparison-${block.copyKey}`} tabIndex={0}>
+                      <div
+                        aria-label={course.copy.ui.scrollableComparison}
+                        className={styles.lessonComparison}
+                        key={`comparison-${block.copyKey}`}
+                        role="region"
+                        tabIndex={0}
+                      >
                         <table>
                           <thead><tr>{headers.map((header) => <th key={header} scope="col"><TechnicalText text={header} /></th>)}</tr></thead>
                           <tbody>
@@ -184,7 +197,8 @@ export default function LessonView({
                       <CourseFigure
                         key={`figure-${block.figureId}`}
                         figure={figure}
-                        pendingLabel={course.copy.ui.capturePending}
+                        labels={course.copy.ui}
+                        locale={course.locale}
                       />
                     ) : null;
                   }
@@ -205,11 +219,20 @@ export default function LessonView({
                   <p className={styles.kicker}>{course.copy.ui.practice}</p>
                   <h2 id="codex-practice-title">{lesson.copy.practice.title}</h2>
                 </div>
-                <span>{lesson.practice.estimatedMinutes} {course.copy.ui.minutes}</span>
+                <span>
+                  {formatCodexVisibleInteger(lesson.practice.estimatedMinutes, course.locale)} {course.copy.ui.minutes}
+                </span>
               </header>
               <p><TechnicalText text={lesson.copy.practice.brief} /></p>
-              <ol>
-                {lesson.copy.practice.steps.map((step) => <li key={step}><TechnicalText text={step} /></li>)}
+              <ol role="list">
+                {lesson.copy.practice.steps.map((step, index) => (
+                  <li key={step}>
+                    <span className={styles.stepNumber} aria-hidden="true">
+                      {formatCodexVisibleInteger(index + 1, course.locale)}
+                    </span>
+                    <span><TechnicalText text={step} /></span>
+                  </li>
+                ))}
               </ol>
               <div className={styles.evidenceList}>
                 <h3>{course.copy.ui.evidence}</h3>
@@ -237,8 +260,20 @@ export default function LessonView({
                 config={CODEX_CAPSTONE}
                 copy={course.copy.capstone}
                 labels={course.copy.ui}
+                locale={course.locale}
               />
             ) : null}
+
+            <LessonCompletion
+              slug={lesson.slug}
+              labels={course.copy.ui}
+              showStorageWarning={lesson.slug !== "automation-capstone"}
+              completionLinks={lesson.slug === "automation-capstone" ? {
+                course: `/${course.locale}/codex/`,
+                quiz: `/${course.locale}/codex/#codex-final-quiz-title`,
+                capstone: "#codex-capstone-title",
+              } : undefined}
+            />
 
             <section className={styles.sources} aria-labelledby="codex-sources-title">
               <h2 id="codex-sources-title">{course.copy.ui.sources}</h2>
@@ -251,13 +286,27 @@ export default function LessonView({
                     </a>
                     <p className={styles.sourceMeta}>
                       <span>
-                        {course.copy.ui.sourceVerifiedOn}{" "}
-                        <time dateTime={source.accessedOn} dir="ltr">{source.accessedOn}</time>
+                        <LocalizedTemplate
+                          template={course.copy.ui.verifiedOnTemplate}
+                          values={{
+                            date: (
+                              <time dateTime={source.accessedOn}>
+                                {formatCodexUtcMediumDate(source.accessedOn, course.locale)}
+                              </time>
+                            ),
+                          }}
+                        />
                       </span>
                       {source.kind !== "official-doc" ? (
-                        <span>
-                          {new Intl.NumberFormat(course.locale).format(source.stars)} {course.copy.ui.stars}
-                          {" · "}{course.copy.ui.license}: {source.license}
+                        <span dir="auto">
+                          <LocalizedTemplate
+                            template={course.copy.ui.sourceRepositoryMetaTemplate}
+                            values={{
+                              stars: formatCodexVisibleInteger(source.stars, course.locale),
+                              licenseLabel: course.copy.ui.license,
+                              license: <bdi dir="ltr">{source.license}</bdi>,
+                            }}
+                          />
                         </span>
                       ) : null}
                     </p>
@@ -265,8 +314,17 @@ export default function LessonView({
                       <div className={styles.supportingSources}>
                         <span>{course.copy.ui.source}</span>
                         {source.supportingAnchors.map((anchor, index) => (
-                          <a key={anchor} href={anchor} target="_blank" rel="noopener noreferrer">
-                            {index + 2}
+                          <a
+                            aria-label={formatCodexTemplate(course.copy.ui.supportingSourceTemplate, {
+                              number: formatCodexVisibleInteger(index + 2, course.locale),
+                              title: source.title,
+                            })}
+                            key={anchor}
+                            href={anchor}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {formatCodexVisibleInteger(index + 2, course.locale)}
                           </a>
                         ))}
                       </div>
@@ -275,12 +333,6 @@ export default function LessonView({
                 ))}
               </ol>
             </section>
-
-            <LessonCompletion
-              slug={lesson.slug}
-              labels={course.copy.ui}
-              showStorageWarning={lesson.slug !== "automation-capstone"}
-            />
 
             <nav className={styles.lessonPager} aria-label={course.copy.ui.lessons}>
               {previous ? (

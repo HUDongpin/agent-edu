@@ -75,8 +75,11 @@ export const PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY =
   "product-management.assessment.attempt.v1";
 export const AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY =
   "ae.progress.agent-orchestration-corrupt-backup";
+export const CODEX_CAPSTONE_DRAFT_STORAGE_KEY =
+  "aicourse.codex.capstone-draft.v1";
 
 export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
+  CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
   CORRUPT_LEARNING_BACKUP_KEY,
   RAG_CORRUPT_PROGRESS_BACKUP_KEY,
   AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY,

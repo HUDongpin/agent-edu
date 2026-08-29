@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 import { LOCALE_CODES, LOCALES, coverage, isLocale, metaFor, translator } from "../lib/i18n";
@@ -365,4 +366,129 @@ test("the published-course browser gate uses a closed all-engine spec allowlist"
     workflow,
     /published-courses:[\s\S]*?playwright install --with-deps chromium firefox webkit[\s\S]*?run: npm run test:published-courses/,
   );
+});
+
+test("Course 2 has a fail-closed prepublication browser gate without entering the published allowlist", () => {
+  const configPath = "tests/codex-playwright.config.ts";
+  const blockedSpecPath = "tests/codex-blocked-surface.spec.ts";
+  const dashboardAdapterPath = "app/[locale]/prepublication-course/[course]/page.prepublication.tsx";
+  const lessonAdapterPath = "app/[locale]/prepublication-course/[course]/[lesson]/page.prepublication.tsx";
+  for (const path of [configPath, blockedSpecPath, dashboardAdapterPath, lessonAdapterPath]) {
+    assert.equal(existsSync(path), true, `${path} must exist`);
+  }
+
+  const config = readFileSync(configPath, "utf8");
+  const blockedSpec = readFileSync(blockedSpecPath, "utf8");
+  const courseSpec = readFileSync("tests/codex-course.spec.ts", "utf8");
+  const dashboardAdapter = readFileSync(dashboardAdapterPath, "utf8");
+  const lessonAdapter = readFileSync(lessonAdapterPath, "utf8");
+  const nextConfig = readFileSync("next.config.ts", "utf8");
+  const publishedConfig = readFileSync("tests/published-playwright.config.ts", "utf8");
+  const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
+  const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
+    scripts: Record<string, string>;
+  };
+  const releaseManifest = JSON.parse(
+    readFileSync("config/course-release-manifest.json", "utf8"),
+  ) as { courses: Array<{ id: string; state: string }> };
+
+  assert.equal(
+    packageJson.scripts["test:codex"],
+    "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test --config tests/codex-playwright.config.ts",
+  );
+  assert.match(config, /testDir: "\."/);
+  assert.match(config, /"codex-course\.spec\.ts"/);
+  assert.match(config, /"codex-blocked-surface\.spec\.ts"/);
+  assert.match(config, /name: "safe-contract-chromium"/);
+  for (const engine of ["chromium", "firefox", "webkit"]) {
+    assert.match(config, new RegExp(`name: "${engine}"`));
+  }
+  assert.match(config, /x-aicourse-prepublication-course/);
+  assert.match(config, /AICOURSE_PREPUBLICATION_COURSE: "codex"/);
+  assert.match(config, /npm run dev -- --webpack --hostname 127\.0\.0\.1/);
+  assert.match(config, /Turbopack header-rewrite HMR incompatibility/);
+  assert.match(config, /reporter: \[\["\.\.\/e2e\/curated-evidence-reporter\.ts"\]\]/);
+  assert.match(config, /preserveOutput: "never"/);
+  assert.match(config, /screenshot: "off"/);
+  assert.match(config, /trace: "off"/);
+  assert.match(config, /video: "off"/);
+
+  assert.match(blockedSpec, /from "\.\.\/e2e\/fixtures"/);
+  assert.match(courseSpec, /from "\.\.\/e2e\/fixtures"/);
+  assert.doesNotMatch(
+    courseSpec,
+    /import\s*\{[^}]*\b(?:expect|test)\b[^}]*\}\s*from\s*"@playwright\/test"/,
+  );
+  assert.match(courseSpec, /browserName !== "chromium"/);
+
+  assert.match(nextConfig, /AICOURSE_PREPUBLICATION_COURSE/);
+  assert.match(nextConfig, /prepublicationCourse !== "codex"/);
+  assert.match(nextConfig, /isBuild && prepublicationCourse === "codex"/);
+  assert.match(
+    nextConfig,
+    /prepublicationCourse === "codex" \? \["prepublication\.tsx"\] : \[\]/,
+  );
+  assert.match(nextConfig, /source: "\/:locale\/codex\/:path\*\/"/);
+  assert.match(nextConfig, /key: "x-aicourse-prepublication-course"/);
+  assert.match(nextConfig, /value: "codex"/);
+  assert.match(
+    nextConfig,
+    /destination: "\/:locale\/prepublication-course\/codex\/:path\*\/"/,
+  );
+  assert.doesNotMatch(nextConfig, /NEXT_PUBLIC[^\n]*PREPUBLICATION/);
+
+  for (const adapter of [dashboardAdapter, lessonAdapter]) {
+    assert.match(adapter, /export const dynamicParams = false/);
+    assert.match(adapter, /AICOURSE_PREPUBLICATION_COURSE/);
+    assert.match(adapter, /CODEX_LOCALES/);
+    assert.match(adapter, /generateStaticParams/);
+    assert.match(adapter, /course !== "codex"/);
+    assert.match(adapter, /_blocked\/codex/);
+  }
+  assert.match(lessonAdapter, /CODEX_LESSON_SLUGS/);
+
+  assert.equal(publishedConfig.includes('"tests/codex-course.spec.ts"'), false);
+  assert.equal(
+    releaseManifest.courses.find((course) => course.id === "codex")?.state,
+    "blocked",
+  );
+  assert.match(
+    workflow,
+    /codex-prepublication:[\s\S]*?playwright install --with-deps chromium firefox webkit[\s\S]*?id: codex_browser[\s\S]*?run: npm run test:codex/,
+  );
+});
+
+test("Course 2 preview configuration rejects wrong values and every production build", () => {
+  const evaluateConfig = (
+    nodeEnv: "development" | "production",
+    previewValue: string | undefined,
+  ) => {
+    const env = { ...process.env, NODE_ENV: nodeEnv } as NodeJS.ProcessEnv;
+    if (previewValue === undefined) delete env.AICOURSE_PREPUBLICATION_COURSE;
+    else env.AICOURSE_PREPUBLICATION_COURSE = previewValue;
+    return spawnSync(
+      process.execPath,
+      [
+        "--import",
+        "tsx",
+        "--input-type=module",
+        "-e",
+        'const { default: config } = await import("./next.config.ts"); process.stdout.write(JSON.stringify(config.pageExtensions));',
+      ],
+      { cwd: process.cwd(), env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+    );
+  };
+
+  const ordinaryDevelopment = evaluateConfig("development", undefined);
+  const codexDevelopment = evaluateConfig("development", "codex");
+  assert.equal(ordinaryDevelopment.status, 0);
+  assert.deepEqual(JSON.parse(ordinaryDevelopment.stdout), ["tsx", "ts", "jsx", "js"]);
+  assert.equal(codexDevelopment.status, 0);
+  assert.deepEqual(JSON.parse(codexDevelopment.stdout), [
+    "tsx", "ts", "jsx", "js", "prepublication.tsx",
+  ]);
+  assert.equal(evaluateConfig("production", undefined).status, 0);
+  assert.notEqual(evaluateConfig("development", "").status, 0);
+  assert.notEqual(evaluateConfig("development", "claude").status, 0);
+  assert.notEqual(evaluateConfig("production", "codex").status, 0);
 });

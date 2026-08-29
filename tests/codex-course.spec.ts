@@ -1,4 +1,6 @@
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import type { Browser, Page } from "@playwright/test";
+import axe from "axe-core";
+import { expect, test } from "../e2e/fixtures";
 import {
   CODEX_CAPSTONE_FIXTURE_SHA256,
   CODEX_CAPSTONE_FIXTURE_VERSION,
@@ -38,13 +40,49 @@ const VALID_RECEIPT = {
   checks: Object.fromEntries(CODEX_CAPSTONE_REQUIRED_CHECKS.map((check) => [check, true])),
 };
 
+async function settleHydration(page: Page) {
+  await page.waitForLoadState("networkidle");
+  await page.evaluate(() => new Promise<void>((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  }));
+}
+
+async function gotoHydrated(page: Page, path: string) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const previousURL = page.url();
+    try {
+      const response = await page.goto(path);
+      await settleHydration(page);
+      return response;
+    } catch (error) {
+      // The loopback Webpack harness can perform one late first-compilation
+      // refresh of the exact page it just hydrated. Retry only that previous-
+      // URL refresh; redirects and every other navigation failure stay fatal.
+      const previousPageRefresh = attempt === 0
+        && previousURL !== "about:blank"
+        && error instanceof Error
+        && error.message.includes(`another navigation to "${previousURL}"`);
+      if (!previousPageRefresh) throw error;
+      await settleHydration(page);
+    }
+  }
+  throw new Error(`Unable to navigate to hydrated Course 2 route: ${path}`);
+}
+
 async function clearProgress(page: Page) {
-  await page.goto("/en/codex/");
+  await gotoHydrated(page, "/en/codex/");
   await page.evaluate(() => {
     localStorage.removeItem("ae.progress");
     localStorage.removeItem("tch.seen");
+    sessionStorage.removeItem("aicourse.codex.capstone-draft.v1");
+    window.dispatchEvent(new Event("codex:progress-change"));
+    window.dispatchEvent(new Event("codex:progress-reset"));
   });
-  await page.reload();
+  await page.evaluate(() => new Promise<void>((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  }));
+  await expect(page.locator('[data-testid="codex-course-progress"] progress'))
+    .toHaveAttribute("value", "0");
 }
 
 async function completeQuizAttempt(page: Page, correctAnswers: number) {
@@ -80,7 +118,9 @@ async function completeQuizAttempt(page: Page, correctAnswers: number) {
     }).click();
   }
 
-  await expect(page.locator('[data-testid="codex-final-quiz"] [role="status"]')).toBeVisible();
+  await expect(page.locator(
+    '[data-testid="codex-final-quiz"] [data-outcome][role="status"]',
+  )).toBeVisible();
   return { ids, units };
 }
 
@@ -119,7 +159,7 @@ test.describe("Codex static routes and hierarchy", () => {
     });
   }
 
-  test("course catalogue exposes Course 1 and Course 2 while preserving all Course 1 module links", async ({ page }) => {
+  test("course catalogue keeps blocked Course 2 visible and non-linkable while preserving Course 1 links", async ({ page }) => {
     await page.goto("/en/courses/");
     const releasedSection = page.locator(
       'section[aria-labelledby="catalog-released-courses-title"]',
@@ -144,14 +184,20 @@ test.describe("Codex static routes and hierarchy", () => {
     });
     await expect(agenticCard.getByRole("link", { name: "The Handbook", exact: true })).toHaveAttribute("href", "/en/handbook/");
     await expect(agenticCard.getByRole("link", { name: "The Lab", exact: true })).toHaveAttribute("href", "/en/lab/");
-    await expect(agenticCard.getByRole("link", { name: "Build an Agent", exact: true })).toHaveAttribute("href", /github\.com\/HUDongpin\/agent-edu/);
-    const codexCard = page.locator("li.catalog-course-card").filter({
+    await expect(agenticCard.getByRole("link", { name: "Build an Agent", exact: true })).toHaveAttribute("href", "/en/build/");
+    const codexCard = comingSoonSection.locator("li.catalog-course-card").filter({
       has: page.getByRole("heading", { name: "How to Use Codex" }),
     });
-    await expect(codexCard.locator("a.cinner")).toHaveAttribute("href", "/en/codex/");
+    await expect(codexCard).toHaveClass(/catalog-course-card-upcoming/);
+    await expect(codexCard.locator('.catalog-course-disabled[aria-disabled="true"]')).toBeVisible();
+    await expect(codexCard.locator("a[href]")).toHaveCount(0);
 
     expect((await page.request.get("/en/handbook/")).status()).toBe(200);
     expect((await page.request.get("/en/lab/")).status()).toBe(200);
+
+    const previewResponse = await page.goto("/en/codex/");
+    expect(previewResponse?.status()).toBe(200);
+    await expect(page.locator('[data-testid="codex-course-dashboard"]')).toBeVisible();
   });
 
   test("language switching preserves a Codex lesson slug and Arabic direction", async ({ page }) => {
@@ -175,14 +221,16 @@ test.describe.serial("private browser progress", () => {
     await expect(page.locator('[data-testid="codex-course-progress"] progress')).toHaveAttribute("value", "0");
 
     await page.evaluate(() => localStorage.setItem("ae.progress", JSON.stringify({ unrelated: true })));
-    await page.goto("/en/codex/meet-codex/");
-    await page.getByRole("button", { name: "Mark complete" }).click();
-    await expect(page.getByRole("button", { name: "Marked complete" })).toHaveAttribute("aria-disabled", "true");
-    await expect(page.getByRole("button", { name: "Marked complete" })).toBeFocused();
+    await gotoHydrated(page, "/en/codex/meet-codex/");
+    await page.getByRole("button", { name: "Mark complete" }).focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator('[data-testid="codex-lesson-completion-meet-codex"] strong[aria-live="polite"]'))
+      .toHaveText("Completed");
+    await expect(page.getByRole("button", { name: "Mark incomplete" })).toBeFocused();
     await page.reload();
-    await expect(page.getByRole("button", { name: "Marked complete" })).toHaveAttribute("aria-disabled", "true");
+    await expect(page.getByRole("button", { name: "Mark incomplete" })).toBeVisible();
 
-    await page.goto("/en/codex/");
+    await gotoHydrated(page, "/en/codex/");
     await expect(page.locator('[data-testid="codex-course-progress"] progress')).toHaveAttribute("value", "1");
     page.once("dialog", async (dialog) => {
       expect(dialog.message()).toBe("Reset all saved course progress?");
@@ -199,9 +247,65 @@ test.describe.serial("private browser progress", () => {
       play0: true,
       "codex.quizPassed": true,
     })));
-    await page.goto("/en/");
-    await page.getByRole("button", { name: "Reset progress" }).click();
+    await gotoHydrated(page, "/en/learning/");
+    await expect(page.locator(".learning-dashboard")).toHaveAttribute("aria-busy", "false");
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Clear all progress" }).click();
+    await expect(page.getByRole("status")).toContainText(
+      "All active learning progress on this device was cleared.",
+    );
     expect(await page.evaluate(() => localStorage.getItem("ae.progress"))).toBeNull();
+  });
+
+  test("reversible completion updates dashboard and lesson-outline completed and next markers", async ({ page }) => {
+    await clearProgress(page);
+    await gotoHydrated(page, "/en/codex/meet-codex/");
+    const completion = page.locator('[data-testid="codex-lesson-completion-meet-codex"]');
+    const markComplete = completion.getByRole("button", { name: "Mark complete" });
+    await markComplete.focus();
+    await page.keyboard.press("Enter");
+    const markIncomplete = completion.getByRole("button", { name: "Mark incomplete" });
+    await expect(completion.locator('strong[aria-live="polite"]')).toHaveText("Completed");
+    await expect(markIncomplete).toBeFocused();
+
+    const outline = page.locator('aside nav[aria-label="All lessons"]');
+    const currentOutlineLesson = outline.locator('a[href="/en/codex/meet-codex/"]');
+    await expect(currentOutlineLesson).toHaveAttribute("aria-current", "page");
+    await expect(currentOutlineLesson).toHaveAttribute("data-complete", "true");
+    await expect(currentOutlineLesson).toContainText("✓");
+    const nextOutlineLesson = outline.locator('a[href="/en/codex/task-contracts/"]');
+    await expect(nextOutlineLesson).toHaveAttribute("data-state", "next");
+    await expect(nextOutlineLesson).toContainText("Recommended next lesson");
+
+    await markIncomplete.focus();
+    await page.keyboard.press("Enter");
+    await expect(completion.getByRole("button", { name: "Mark complete" })).toBeVisible();
+    await expect(completion.locator('strong[aria-live="polite"]')).toHaveText("Mark complete");
+    await expect(currentOutlineLesson).not.toHaveAttribute("data-complete", "true");
+
+    await completion.getByRole("button", { name: "Mark complete" }).click();
+    await gotoHydrated(page, "/en/codex/");
+    const curriculum = page.locator('section[aria-labelledby="codex-curriculum-title"]');
+    const completedRow = curriculum.locator("li").filter({
+      has: page.locator('a[href="/en/codex/meet-codex/"]'),
+    });
+    const nextRow = curriculum.locator("li").filter({
+      has: page.locator('a[href="/en/codex/task-contracts/"]'),
+    });
+    await expect(completedRow).toHaveAttribute("data-state", "completed");
+    await expect(completedRow).toContainText("Completed lesson");
+    await expect(nextRow).toHaveAttribute("data-state", "next");
+    await expect(nextRow).toContainText("Recommended next lesson");
+
+    const reset = page.getByRole("button", { name: "Reset progress" });
+    await expect(reset).toBeEnabled();
+    page.once("dialog", (dialog) => dialog.accept());
+    await reset.click();
+    await expect(page.getByText("Course progress reset.")).toBeFocused();
+    await expect(completedRow).toHaveAttribute("data-state", "next");
+    await expect(completedRow).toContainText("Recommended next lesson");
+    await expect(nextRow).toHaveAttribute("data-state", "remaining");
+    await expect(reset).toBeDisabled();
   });
 
   test("storage denial keeps the course usable and announces that progress is not saved", async ({ browser }) => {
@@ -234,17 +338,17 @@ test.describe.serial("private browser progress", () => {
       };
     });
 
-    await page.goto("/en/codex/meet-codex/");
+    await gotoHydrated(page, "/en/codex/meet-codex/");
     await page.getByRole("button", { name: "Mark complete" }).click();
-    await expect(page.getByRole("button", { name: "Marked complete" })).toHaveAttribute("aria-disabled", "true");
+    await expect(page.getByRole("button", { name: "Mark incomplete" })).toBeVisible();
 
-    await page.locator('a[href="/en/"]').first().click();
-    await expect(page).toHaveURL(/\/en\/$/);
-    await page.getByRole("button", { name: "Reset progress" }).click();
+    await gotoHydrated(page, "/en/learning/");
+    await expect(page.locator(".learning-dashboard")).toHaveAttribute("aria-busy", "false");
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Clear all progress" }).click();
     expect(await page.evaluate(() => localStorage.getItem("ae.progress"))).toBeNull();
 
-    await page.locator('a[href="/en/courses/"]').first().click();
-    await page.locator('a[href="/en/codex/"]').first().click();
+    await gotoHydrated(page, "/en/codex/");
     await expect(page.locator('[data-testid="codex-course-progress"] progress')).toHaveAttribute("value", "0");
     await context.close();
   });
@@ -313,23 +417,27 @@ test.describe.serial("private browser progress", () => {
     });
     const page = await context.newPage();
 
-    await page.goto("/en/codex/meet-codex/");
-    await page.getByRole("button", { name: "Mark complete" }).click();
-    const marked = page.getByRole("button", { name: "Marked complete" });
-    await expect(marked).toHaveAttribute("aria-disabled", "true");
+    await gotoHydrated(page, "/en/codex/meet-codex/");
+    await page.getByRole("button", { name: "Mark complete" }).focus();
+    await page.keyboard.press("Enter");
+    const marked = page.getByRole("button", { name: "Mark incomplete" });
+    await expect(marked).toBeVisible();
     await expect(marked).toBeFocused();
     await expect(page.getByRole("status")).toContainText("progress and completion will not be saved");
 
     await page.reload();
-    await expect(page.getByRole("button", { name: "Mark complete" })).not.toHaveAttribute("aria-disabled", "true");
+    await expect(page.getByRole("button", { name: "Mark complete" })).toBeVisible();
 
-    await page.goto("/en/codex/automation-capstone/");
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
     await page.locator('[data-testid="codex-capstone-receipt-input"]').fill(JSON.stringify(VALID_RECEIPT));
     await page.getByRole("button", { name: "Verify receipt" }).click();
     await expect(page.locator('[data-testid="codex-capstone-receipt"]')).toBeVisible();
     await expect(page.locator('[data-testid="codex-capstone-receipt"] small')).toContainText("progress and completion will not be saved");
-    await expect(page.getByRole("status")).toHaveCount(1);
-    await expect(page.getByRole("status")).toContainText("progress and completion will not be saved");
+    const storageWarning = page.getByRole("status").filter({
+      hasText: "progress and completion will not be saved",
+    });
+    await expect(storageWarning).toHaveCount(1);
+    await expect(storageWarning).toBeVisible();
 
     await page.reload();
     await expect(page.locator('[data-testid="codex-capstone-receipt"]')).toHaveCount(0);
@@ -339,10 +447,119 @@ test.describe.serial("private browser progress", () => {
 });
 
 test.describe.serial("final quiz", () => {
+  test("reload restores the exact in-progress question and Course reset clears the active attempt", async ({ page }) => {
+    await clearProgress(page);
+    const quiz = page.locator('[data-testid="codex-final-quiz"]');
+    await quiz.getByRole("button", { name: "Begin quiz" }).click();
+
+    const firstQuestion = quiz.locator("form[data-question-id]");
+    const firstId = await firstQuestion.getAttribute("data-question-id");
+    expect(firstId).toBeTruthy();
+    await firstQuestion.locator('input[type="radio"]').first().check();
+    await firstQuestion.getByRole("button", { name: "Check answer" }).click();
+    await firstQuestion.getByRole("button", { name: "Next question" }).click();
+
+    const secondQuestion = quiz.locator("form[data-question-id]");
+    const secondId = await secondQuestion.getAttribute("data-question-id");
+    expect(secondId).toBeTruthy();
+    expect(secondId).not.toBe(firstId);
+    await secondQuestion.locator('input[type="radio"]').nth(2).check();
+
+    const draft = await page.evaluate(() => (
+      JSON.parse(localStorage.getItem("ae.progress") || "{}")["codex.quizDraft.v1"]
+    ));
+    expect(draft).toMatchObject({
+      version: 1,
+      bankVersion: "1",
+      questionIndex: 1,
+      selectedIndex: 2,
+    });
+    expect(draft.questionIds).toHaveLength(12);
+    expect(draft.questionIds.slice(0, 2)).toEqual([firstId, secondId]);
+    expect(Object.keys(draft.answers)).toEqual([firstId]);
+
+    await page.reload();
+    await expect(quiz.getByRole("button", { name: "Continue quiz" })).toBeVisible();
+    await expect(quiz.getByText("Quiz in progress", { exact: true }).first()).toBeVisible();
+    await quiz.getByRole("button", { name: "Continue quiz" }).click();
+    const restoredQuestion = quiz.locator(`form[data-question-id="${secondId}"]`);
+    await expect(restoredQuestion).toBeVisible();
+    await expect(restoredQuestion.locator('input[type="radio"]').nth(2)).toBeChecked();
+    await expect(quiz.locator('[role="status"][aria-live="polite"]'))
+      .toHaveText("Your in-progress quiz was restored.");
+
+    page.once("dialog", async (dialog) => {
+      expect(dialog.message()).toBe("Reset all saved course progress?");
+      await dialog.accept();
+    });
+    await page.getByRole("button", { name: "Reset progress" }).click();
+    await expect(page.getByText("Course progress reset.")).toBeFocused();
+    await expect(quiz.getByRole("button", { name: "Begin quiz" })).toBeVisible();
+    await expect(quiz.locator("form[data-question-id]")).toHaveCount(0);
+    const afterReset = await page.evaluate(() => (
+      JSON.parse(localStorage.getItem("ae.progress") || "{}")["codex.quizDraft.v1"]
+    ));
+    expect(afterReset).toBeUndefined();
+
+    await quiz.getByRole("button", { name: "Begin quiz" }).click();
+    await expect(quiz.locator("form[data-question-id]")).toBeVisible();
+    await expect(page.getByText("Course progress reset.", { exact: true })).toHaveCount(0);
+  });
+
+  test("a Course reset in another tab clears the active quiz without stale-control resurrection", async ({ context, page }) => {
+    await clearProgress(page);
+    const resetPage = await context.newPage();
+    await gotoHydrated(resetPage, "/en/codex/");
+
+    const quiz = page.locator('[data-testid="codex-final-quiz"]');
+    await quiz.getByRole("button", { name: "Begin quiz" }).click();
+    const activeQuestion = quiz.locator("form[data-question-id]");
+    await expect(activeQuestion).toBeVisible();
+    await activeQuestion.locator('input[type="radio"]').nth(1).focus();
+    await page.keyboard.press("Space");
+    expect(await page.evaluate(() => (
+      JSON.parse(localStorage.getItem("ae.progress") || "{}")["codex.quizDraft.v1"]
+    ))).toBeTruthy();
+
+    const reset = resetPage.getByRole("button", { name: "Reset progress" });
+    await expect(reset).toBeEnabled();
+    resetPage.once("dialog", (dialog) => dialog.accept());
+    await reset.click();
+    await expect(resetPage.getByText("Course progress reset.")).toBeFocused();
+
+    await expect(activeQuestion).toHaveCount(0);
+    await expect(quiz.getByRole("button", { name: "Begin quiz" })).toBeVisible();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("Enter");
+    await expect(activeQuestion).toHaveCount(0);
+    expect(await page.evaluate(() => (
+      JSON.parse(localStorage.getItem("ae.progress") || "{}")["codex.quizDraft.v1"]
+    ))).toBeUndefined();
+    await resetPage.close();
+  });
+
+  test("a fresh zero-of-twelve attempt is an explicit needs-review result", async ({ page }) => {
+    await clearProgress(page);
+    const quiz = page.locator('[data-testid="codex-final-quiz"]');
+    await quiz.getByRole("button", { name: "Begin quiz" }).click();
+    await completeQuizAttempt(page, 0);
+
+    const result = quiz.locator('[data-outcome="needs-review"]');
+    await expect(result).toBeVisible();
+    await expect(result).toContainText("Score: 0 of 12");
+    await expect(result).toContainText("Review the lesson and try again");
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+    expect(saved["codex.quizBest"]).toBe(0);
+    expect(saved["codex.quizPassed"]).toBe(false);
+    expect(saved["codex.quizDraft.v1"]).toBeUndefined();
+  });
+
   test("fails at 9 of 12 and passes at the exact 10 of 12 boundary", async ({ page }) => {
     await clearProgress(page);
     await page.getByRole("button", { name: "Begin quiz" }).click();
     await completeQuizAttempt(page, 9);
+    await expect(page.locator('[data-testid="codex-final-quiz"] [data-outcome="needs-review"]'))
+      .toBeVisible();
     await expect(page.getByText("Review the lesson and try again")).toBeVisible();
     let saved = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(saved["codex.quizBest"]).toBe(9);
@@ -350,6 +567,8 @@ test.describe.serial("final quiz", () => {
 
     await page.getByRole("button", { name: "Retry quiz" }).click();
     await completeQuizAttempt(page, 10);
+    await expect(page.locator('[data-testid="codex-final-quiz"] [data-outcome="passed"]'))
+      .toBeVisible();
     await expect(page.getByText("Knowledge check passed")).toBeVisible();
     saved = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(saved["codex.quizBest"]).toBe(10);
@@ -377,23 +596,118 @@ test.describe.serial("final quiz", () => {
     expect(saved["codex.quizPassed"]).toBe(true);
     expect(saved["codex.quizBankVersion"]).toBe("1");
 
-    await page.getByRole("button", { name: "Retry quiz" }).click();
+    await page.getByRole("button", { name: "Retake quiz" }).click();
     const second = await completeQuizAttempt(page, 0);
     expect(second.ids.join("|")).not.toBe(first.ids.join("|"));
     expect([...second.ids].sort().join("|")).not.toBe([...first.ids].sort().join("|"));
+    const preservedResult = page.locator(
+      '[data-testid="codex-final-quiz"] [data-outcome="prior-pass-preserved"]',
+    );
+    await expect(preservedResult).toBeVisible();
+    await expect(preservedResult).toContainText("Score: 0 of 12");
+    await expect(preservedResult).toContainText("Your earlier passing result is still preserved.");
     const afterRetry = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(afterRetry["codex.quizBest"]).toBe(12);
     expect(afterRetry["codex.quizPassed"]).toBe(true);
 
     await page.reload();
+    await expect(page.locator('[data-testid="codex-final-quiz"] [data-outcome="passed"]'))
+      .toBeVisible();
     await expect(page.getByText("Best score: 12 of 12")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Retake quiz" })).toBeVisible();
   });
 });
 
 test.describe.serial("capstone receipt", () => {
+  test("restores the exact session draft after reload and Course reset clears it", async ({ page }) => {
+    await clearProgress(page);
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
+    const input = page.locator('[data-testid="codex-capstone-receipt-input"]');
+    const draftText = '{\n  "checks": {"tests": true}\n}';
+    await input.fill(draftText);
+
+    const storedDraft = await page.evaluate(() => JSON.parse(
+      sessionStorage.getItem("aicourse.codex.capstone-draft.v1") || "null",
+    ));
+    expect(Object.keys(storedDraft).sort()).toEqual([
+      "fixtureSha256",
+      "fixtureVersion",
+      "input",
+      "receiptSchema",
+      "version",
+    ]);
+    expect(storedDraft).toMatchObject({
+      version: 1,
+      receiptSchema: CODEX_CAPSTONE_RECEIPT_SCHEMA,
+      fixtureVersion: CODEX_CAPSTONE_FIXTURE_VERSION,
+      fixtureSha256: CODEX_CAPSTONE_FIXTURE_SHA256,
+      input: draftText,
+    });
+
+    const acceptDialog = (dialog: { accept(): Promise<void> }) => {
+      void dialog.accept();
+    };
+    page.on("dialog", acceptDialog);
+    await page.reload();
+    await settleHydration(page);
+    page.off("dialog", acceptDialog);
+    await expect(input).toHaveValue(draftText);
+    await expect(page.getByRole("status")).toContainText(
+      "Your capstone receipt draft was restored.",
+    );
+
+    page.on("dialog", acceptDialog);
+    await gotoHydrated(page, "/en/codex/");
+    page.off("dialog", acceptDialog);
+    const reset = page.getByRole("button", { name: "Reset progress" });
+    await expect(reset).toBeEnabled();
+    page.once("dialog", (dialog) => dialog.accept());
+    await reset.click();
+    await expect(page.getByText("Course progress reset.")).toBeFocused();
+    expect(await page.evaluate(() => (
+      sessionStorage.getItem("aicourse.codex.capstone-draft.v1")
+    ))).toBeNull();
+
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
+    await expect(input).toHaveValue("");
+    await expect(page.getByText("Your capstone receipt draft was restored."))
+      .toHaveCount(0);
+  });
+
+  test("Lesson 12 completion hands off from capstone to quiz to course", async ({ page }) => {
+    await clearProgress(page);
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
+    const completion = page.locator(
+      '[data-testid="codex-lesson-completion-automation-capstone"]',
+    );
+    await completion.getByRole("button", { name: "Mark complete" }).click();
+    await expect(completion.getByRole("button", { name: "Mark incomplete" })).toBeVisible();
+    await expect(completion.locator('strong[aria-live="polite"]')).toHaveText("Completed");
+    await expect(completion.getByRole("link", { name: "Capstone path" }))
+      .toHaveAttribute("href", "#codex-capstone-title");
+
+    await page.locator('[data-testid="codex-capstone-receipt-input"]')
+      .fill(JSON.stringify(VALID_RECEIPT));
+    await page.getByRole("button", { name: "Verify receipt" }).click();
+    await expect(page.locator('[data-testid="codex-capstone-receipt"]')).toBeVisible();
+    await expect(completion.getByRole("link", { name: "Begin quiz" }))
+      .toHaveAttribute("href", "/en/codex/#codex-final-quiz-title");
+
+    await page.evaluate(() => {
+      const progress = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      progress["codex.quizBest"] = 10;
+      progress["codex.quizPassed"] = true;
+      progress["codex.quizBankVersion"] = "1";
+      localStorage.setItem("ae.progress", JSON.stringify(progress));
+      window.dispatchEvent(new Event("codex:progress-change"));
+    });
+    await expect(completion.getByRole("link", { name: "Back to course" }))
+      .toHaveAttribute("href", "/en/codex/");
+  });
+
   test("rejects wrong-version, incomplete, and tampered receipts before accepting the exact fixture", async ({ page }) => {
     await clearProgress(page);
-    await page.goto("/en/codex/automation-capstone/");
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
     const input = page.locator('[data-testid="codex-capstone-receipt-input"]');
     const submit = page.getByRole("button", { name: "Verify receipt" });
 
@@ -429,7 +743,7 @@ test.describe.serial("capstone receipt", () => {
 
   test("starter download and receipt controls follow keyboard order", async ({ page }) => {
     await clearProgress(page);
-    await page.goto("/en/codex/automation-capstone/");
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
     const download = page.getByRole("link", { name: "Download starter project" });
     const input = page.locator('[data-testid="codex-capstone-receipt-input"]');
     const submit = page.getByRole("button", { name: "Verify receipt" });
@@ -439,13 +753,105 @@ test.describe.serial("capstone receipt", () => {
     await page.keyboard.press("Tab");
     await expect(input).toBeFocused();
     await page.keyboard.type("{");
-    await page.keyboard.press("Tab");
+    expect(await submit.evaluate((element) => (element as HTMLButtonElement).tabIndex)).toBe(0);
+    expect(await page.locator('[data-testid="codex-capstone"]').evaluate((root) => {
+      const textarea = root.querySelector('[data-testid="codex-capstone-receipt-input"]');
+      const button = root.querySelector('form button[type="submit"]');
+      return Boolean(
+        textarea
+        && button
+        && (textarea.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING),
+      );
+    })).toBe(true);
+    await submit.focus();
     await expect(submit).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByText("This is not valid JSON.")).toBeFocused();
   });
 });
 
 test.describe("accessibility, responsive layout, and static metadata", () => {
-  for (const width of [390, 768, 1440]) {
+  test("dashboard, compact outline, quiz feedback and result, and capstone error have no automated WCAG A or AA violations", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "The committed axe-core state sweep runs once in Chromium");
+
+    const expectNoViolations = async (state: string) => {
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+      });
+      await page.addScriptTag({ content: axe.source });
+      const violations = await page.evaluate(async () => {
+        const axeApi = (window as unknown as {
+          axe: {
+            run: (
+              root: Document,
+              options: Readonly<Record<string, unknown>>,
+            ) => Promise<{
+              violations: readonly {
+                id: string;
+                impact: string | null;
+                nodes: readonly { target: readonly string[] }[];
+              }[];
+            }>;
+          };
+        }).axe;
+        const results = await axeApi.run(document, {
+          runOnly: {
+            type: "tag",
+            values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"],
+          },
+          resultTypes: ["violations"],
+        });
+        return results.violations.map((violation) => ({
+          id: violation.id,
+          impact: violation.impact,
+          targets: violation.nodes.map((node) => node.target),
+        }));
+      });
+      expect(violations, state).toEqual([]);
+    };
+
+    await clearProgress(page);
+    await expectNoViolations("Course 2 dashboard");
+
+    await page.setViewportSize({ width: 320, height: 640 });
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
+    const compactOutline = page.locator("details").filter({
+      has: page.locator("summary").filter({ hasText: "All lessons" }),
+    }).first();
+    await compactOutline.locator("summary").click();
+    await expect(compactOutline).toHaveAttribute("open", "");
+    await expectNoViolations("opened compact Course 2 lesson outline");
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await gotoHydrated(page, "/en/codex/");
+    const quiz = page.locator('[data-testid="codex-final-quiz"]');
+    await quiz.getByRole("button", { name: "Begin quiz" }).click();
+    const question = quiz.locator("form[data-question-id]");
+    await question.locator('input[type="radio"]').first().check();
+    await question.getByRole("button", { name: "Check answer" }).click();
+    await expect(question.locator('[role="status"]')).toBeFocused();
+    await expectNoViolations("active Course 2 quiz feedback");
+
+    await page.evaluate(() => {
+      localStorage.setItem("ae.progress", JSON.stringify({
+        "codex.quizBest": 0,
+        "codex.quizPassed": false,
+        "codex.quizBankVersion": "1",
+      }));
+      window.dispatchEvent(new Event("codex:progress-change"));
+      window.dispatchEvent(new Event("codex:progress-reset"));
+    });
+    await expect(quiz.locator('[data-outcome="needs-review"]')).toBeVisible();
+    await expectNoViolations("Course 2 quiz result");
+
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
+    await page.locator('[data-testid="codex-capstone-receipt-input"]').fill("{");
+    await page.getByRole("button", { name: "Verify receipt" }).click();
+    await expect(page.getByText("This is not valid JSON.")).toBeFocused();
+    await expectNoViolations("Course 2 capstone validation error");
+  });
+
+  for (const width of [320, 390, 768, 1440]) {
     test(`dashboard and lesson do not overflow at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       for (const path of [
@@ -485,15 +891,17 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
     const objective = page.locator('section[aria-labelledby="codex-objective-title"]');
     await expect(objective.locator('code[dir="ltr"]')).toContainText(["/review", "codex exec"]);
 
-    await page.goto("/ar/codex/automation-capstone/");
+    await gotoHydrated(page, "/ar/codex/automation-capstone/");
     const capstoneTechnical = page.locator('[data-testid="codex-capstone"] ol').first().locator('code[dir="ltr"]');
     await expect(capstoneTechnical).toContainText(["npm ci", "CourseList.tsx"]);
     const code = page.locator('[data-testid="codex-capstone"] code[dir="ltr"]').first();
     expect(await code.evaluate((element) => getComputedStyle(element).direction)).toBe("ltr");
     await expect(page.locator('[data-testid="codex-capstone-receipt-input"]')).toHaveAttribute("dir", "ltr");
 
-    await page.evaluate(() => localStorage.setItem("ae.progress", JSON.stringify({ "codex.capstone.v1": true })));
-    await page.reload();
+    await page.locator('[data-testid="codex-capstone-receipt-input"]')
+      .fill(JSON.stringify(VALID_RECEIPT));
+    await page.locator('[data-testid="codex-capstone"] form button[type="submit"]').click();
+    await expect(page.locator('[data-testid="codex-capstone-receipt"]')).toBeVisible();
     for (const width of [390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       const layout = await page.evaluate(() => {
@@ -551,7 +959,7 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
         },
       });
     });
-    await page.goto("/ar/codex/");
+    await gotoHydrated(page, "/ar/codex/");
     const quiz = page.locator('[data-testid="codex-final-quiz"]');
     await quiz.getByRole("button").click();
     for (let index = 0; index < 2; index += 1) {
@@ -566,7 +974,7 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
   });
 
   test("lesson navigation and a quiz response work from the keyboard", async ({ page }) => {
-    await page.goto("/en/codex/meet-codex/");
+    await gotoHydrated(page, "/en/codex/meet-codex/");
     const railLink = page.locator('aside nav a[href="/en/codex/task-contracts/"]');
     await railLink.focus();
     await page.keyboard.press("Enter");
@@ -577,7 +985,7 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/en\/codex\/environments-permissions\/$/);
 
-    await page.goto("/en/codex/");
+    await gotoHydrated(page, "/en/codex/");
     const begin = page.getByRole("button", { name: "Begin quiz" });
     await begin.focus();
     await page.keyboard.press("Enter");
@@ -591,8 +999,11 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
     await page.keyboard.press("Enter");
     const feedback = question.locator('[role="status"]');
     await expect(feedback).toBeFocused();
-    await page.keyboard.press("Tab");
-    await expect(feedback.locator("a").first()).toBeFocused();
+    const sourceLink = feedback.locator("a").first();
+    await expect(sourceLink).toHaveAttribute("href", /^https:\/\//);
+    expect(await sourceLink.evaluate((element) => (element as HTMLAnchorElement).tabIndex)).toBe(0);
+    await sourceLink.focus();
+    await expect(sourceLink).toBeFocused();
   });
 
   test("all 24 figure fallbacks remain semantic without JavaScript and available images are local", async ({ browser }) => {
@@ -624,9 +1035,10 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
     });
   });
 
-  test("a verified capstone prints as one isolated, light, readable receipt", async ({ page }) => {
+  test("a verified capstone prints as one isolated, light, readable receipt", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "Playwright page.pdf() is Chromium-only");
     await clearProgress(page);
-    await page.goto("/en/codex/automation-capstone/");
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
     await page.locator('[data-testid="codex-capstone-receipt-input"]').fill(JSON.stringify(VALID_RECEIPT));
     await page.getByRole("button", { name: "Verify receipt" }).click();
     await expect(page.locator('[data-testid="codex-capstone-receipt"]')).toBeVisible();
@@ -649,7 +1061,8 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
     expect(pageObjects).toBe(1);
   });
 
-  test("printed lessons retain their evidence sources and verification metadata", async ({ page }) => {
+  test("printed lessons retain their evidence sources and verification metadata", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "Playwright page.pdf() is Chromium-only");
     await page.goto("/en/codex/meet-codex/");
     await page.emulateMedia({ media: "print", colorScheme: "light" });
     const sources = page.locator('section[aria-labelledby="codex-sources-title"]');
@@ -690,16 +1103,55 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
     expect(JSON.stringify(jsonLd)).toContain('"@type":"BreadcrumbList"');
   });
 
-  test("sitemap contains all 117 localized Codex URLs without shrinking the original baseline", async ({ request }) => {
+  test("the compact outline is closed by default, reveals the active lesson, and keeps 44px targets", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await clearProgress(page);
+    await page.evaluate((slugs) => {
+      localStorage.setItem("ae.progress", JSON.stringify(Object.fromEntries(
+        slugs.map((slug) => [`codex.lesson.${slug}`, true]),
+      )));
+      window.dispatchEvent(new Event("codex:progress-change"));
+    }, LESSON_SLUGS.slice(0, -1));
+    await gotoHydrated(page, "/en/codex/automation-capstone/");
+
+    const compactOutline = page.locator("details").filter({
+      has: page.locator("summary").filter({ hasText: "All lessons" }),
+    }).first();
+    const summary = compactOutline.locator("summary");
+    const activeLesson = compactOutline.locator('a[aria-current="page"]');
+    await expect(compactOutline).toBeVisible();
+    await expect(compactOutline).not.toHaveAttribute("open", "");
+    await expect(summary).toContainText("Lesson 12 of 12");
+    await expect(activeLesson).toBeHidden();
+    expect((await summary.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+
+    await summary.click();
+    await expect(compactOutline).toHaveAttribute("open", "");
+    await expect(activeLesson).toBeVisible();
+    await expect(activeLesson).toHaveAttribute("href", "/en/codex/automation-capstone/");
+    await expect.poll(() => activeLesson.evaluate((element) => {
+      const scroller = element.closest("nav")?.parentElement;
+      if (!scroller) return false;
+      const linkRect = element.getBoundingClientRect();
+      const scrollRect = scroller.getBoundingClientRect();
+      return linkRect.top >= scrollRect.top - 1 && linkRect.bottom <= scrollRect.bottom + 1;
+    })).toBe(true);
+    const targetHeights = await compactOutline.locator("summary, a[href]")
+      .evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
+    expect(targetHeights.length).toBeGreaterThan(12);
+    expect(targetHeights.every((height) => height >= 44)).toBe(true);
+  });
+
+  test("public sitemap contains no blocked Codex URLs during prepublication", async ({ request }) => {
     const response = await request.get("/sitemap.xml");
     expect(response.status()).toBe(200);
     const xml = await response.text();
     const allUrls = xml.match(/<loc>[^<]+<\/loc>/g) || [];
     const codexUrls = allUrls.filter((entry) => /\/codex(?:\/|&lt;)/.test(entry));
-    expect(allUrls.length).toBeGreaterThanOrEqual(162);
-    expect(codexUrls).toHaveLength(117);
-    expect(xml).toContain("https://aicourse.top/en/codex/");
-    expect(xml).toContain("https://aicourse.top/ar/codex/automation-capstone/");
+    expect(allUrls.length).toBeGreaterThan(0);
+    expect(codexUrls).toHaveLength(0);
+    expect(xml).not.toContain("https://aicourse.top/en/codex/");
+    expect(xml).not.toContain("https://aicourse.top/ar/codex/automation-capstone/");
   });
 });
 
@@ -737,5 +1189,6 @@ async function assertNoJsFigureFallback(
       await expect(figure.locator("figcaption")).not.toBeEmpty();
     }
   }
+
   await context.close();
 }

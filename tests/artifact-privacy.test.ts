@@ -875,21 +875,21 @@ test("CI uploads browser evidence only after the privacy scanner succeeds", () =
     packageJson.scripts?.["artifacts:check"],
     "node scripts/check-artifacts.mjs --curated --require-root browser-evidence",
   );
-  assert.equal((workflow.match(/id: artifact_privacy/g) ?? []).length, 3);
-  assert.equal((workflow.match(/run: npm run artifacts:check/g) ?? []).length, 3);
+  assert.equal((workflow.match(/id: artifact_privacy/g) ?? []).length, 4);
+  assert.equal((workflow.match(/run: npm run artifacts:check/g) ?? []).length, 4);
   const pinnedUploadArtifact =
     "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a";
-  assert.equal(workflow.split(pinnedUploadArtifact).length - 1, 5);
+  assert.equal(workflow.split(pinnedUploadArtifact).length - 1, 6);
   assert.equal(
     (
       workflow.match(
         /if: \$\{\{ failure\(\) && [^\n]*steps\.artifact_privacy\.outcome == 'success' \}\}\n\s+uses: actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/g,
       ) ?? []
     ).length,
-    3,
+    4,
   );
-  assert.equal((workflow.match(/path: browser-evidence\//g) ?? []).length, 3);
-  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 5);
+  assert.equal((workflow.match(/path: browser-evidence\//g) ?? []).length, 4);
+  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 6);
   assert.match(
     workflow,
     /if: \$\{\{ always\(\) \}\}[\s\S]{0,240}name: vercel-preview-verification[\s\S]{0,160}path: tmp\/release\/vercel-preview-verification\.json/,
@@ -905,12 +905,17 @@ test("CI uploads browser evidence only after the privacy scanner succeeds", () =
     "compat_browser",
     "resilience_browser",
     "published_browser",
+    "codex_browser",
   ]) {
     assert.match(workflow, new RegExp(`id: ${stepId}`));
   }
   assert.match(
     workflow,
     /if: \$\{\{ failure\(\) && steps\.published_browser\.outcome == 'failure' \}\}/,
+  );
+  assert.match(
+    workflow,
+    /if: \$\{\{ failure\(\) && steps\.codex_browser\.outcome == 'failure' \}\}/,
   );
   assert.doesNotMatch(
     workflow,
@@ -1020,6 +1025,10 @@ test("safe failure evidence is curated without raw Playwright outputs", () => {
     new URL("./mcp-playwright.config.ts", import.meta.url),
     "utf8",
   );
+  const codexConfig = readFileSync(
+    new URL("./codex-playwright.config.ts", import.meta.url),
+    "utf8",
+  );
   const privateContract = readFileSync(
     new URL("../e2e-contract/intentional-private-failure.spec.ts", import.meta.url),
     "utf8",
@@ -1056,7 +1065,13 @@ test("safe failure evidence is curated without raw Playwright outputs", () => {
     new URL("../scripts/verify-browser-evidence.mjs", import.meta.url),
     "utf8",
   );
-  for (const publicConfig of [config, evidenceSafeConfig, publishedConfig, mcpConfig]) {
+  for (const publicConfig of [
+    config,
+    evidenceSafeConfig,
+    publishedConfig,
+    mcpConfig,
+    codexConfig,
+  ]) {
     assert.match(
       publicConfig,
       /reporter: \[\["(?:\.\.\/|\.\/)e2e\/curated-evidence-reporter\.ts"\]\]/,

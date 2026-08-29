@@ -3,11 +3,15 @@ import {
   CODEX_FINAL_QUIZ,
   CODEX_QUIZ_BY_ID,
   CODEX_SOURCE_BY_ID,
+  formatCodexUtcMediumDate,
+  formatCodexVisibleInteger,
   type MaterializedCodexCourse,
 } from "@/lib/codex";
 import CompletionSummary from "./CompletionSummary";
+import CourseCurriculum from "./CourseCurriculum";
 import CourseProgress from "./CourseProgress";
 import FinalQuiz, { type FinalQuizQuestion } from "./FinalQuiz";
+import LocalizedTemplate from "./LocalizedTemplate";
 import TechnicalText from "./TechnicalText";
 import styles from "./CodexCourse.module.css";
 
@@ -54,15 +58,15 @@ export default function CourseDashboard({
           <dl>
             <div>
               <dt>{course.copy.ui.lessons}</dt>
-              <dd>{lessons.length}</dd>
+              <dd>{formatCodexVisibleInteger(lessons.length, course.locale)}</dd>
             </div>
             <div>
               <dt>{course.copy.ui.practice}</dt>
-              <dd>{lessons.length}</dd>
+              <dd>{formatCodexVisibleInteger(lessons.length, course.locale)}</dd>
             </div>
             <div>
               <dt>{course.copy.ui.quiz}</dt>
-              <dd>{CODEX_FINAL_QUIZ.questionCount}</dd>
+              <dd>{formatCodexVisibleInteger(CODEX_FINAL_QUIZ.questionCount, course.locale)}</dd>
             </div>
           </dl>
         </aside>
@@ -74,6 +78,7 @@ export default function CourseDashboard({
           href: hrefFor(lesson.slug),
         }))}
         labels={course.copy.ui}
+        locale={course.locale}
         startLabel={course.copy.meta.startCta}
         resumeLabel={course.copy.meta.resumeCta}
       />
@@ -84,53 +89,42 @@ export default function CourseDashboard({
           <h2 id="codex-capstone-path-title"><TechnicalText text={course.copy.capstone.title} /></h2>
           <p><TechnicalText text={course.copy.capstone.summary} /></p>
         </div>
-        <Link className={styles.primaryAction} href={hrefFor(capstone.slug)}>
+        <Link className={styles.secondaryAction} href={hrefFor(capstone.slug)}>
           {course.copy.ui.capstonePath}
           <span className={styles.arrow} aria-hidden="true">→</span>
         </Link>
       </aside>
 
-      <section className={styles.curriculum} aria-labelledby="codex-curriculum-title">
-        <header>
-          <h2 id="codex-curriculum-title">{course.copy.ui.allLessons}</h2>
-        </header>
+      <CourseCurriculum
+        locale={course.locale}
+        labels={course.copy.ui}
+        units={course.units.map((unit) => ({
+          id: unit.id,
+          order: unit.order,
+          title: unit.copy.title,
+          summary: unit.copy.summary,
+          lessons: unit.lessons.map((lesson) => ({
+            slug: lesson.slug,
+            order: lesson.order,
+            title: lesson.copy.title,
+            summary: lesson.copy.summary,
+            minutes: lesson.minutes,
+            href: hrefFor(lesson.slug),
+          })),
+        }))}
+      />
 
-        <div className={styles.unitList}>
-          {course.units.map((unit) => (
-            <section className={styles.unit} key={unit.id} aria-labelledby={`${unit.id}-title`}>
-              <div className={styles.unitHeading}>
-                <span aria-hidden="true">{unit.order}</span>
-                <div>
-                  <h3 id={`${unit.id}-title`}><TechnicalText text={unit.copy.title} /></h3>
-                  <p><TechnicalText text={unit.copy.summary} /></p>
-                </div>
-              </div>
-              <ol className={styles.lessonList}>
-                {unit.lessons.map((lesson) => (
-                  <li key={lesson.slug}>
-                    <Link href={hrefFor(lesson.slug)}>
-                      <span className={styles.lessonOrder}>{lesson.order}</span>
-                      <span className={styles.lessonCopy}>
-                        <strong><TechnicalText text={lesson.copy.title} /></strong>
-                        <span><TechnicalText text={lesson.copy.summary} /></span>
-                      </span>
-                      <span className={styles.lessonTime}>
-                        {lesson.minutes} {course.copy.ui.minutes}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ))}
-        </div>
-      </section>
-
-      <FinalQuiz bank={quizBank} config={CODEX_FINAL_QUIZ} labels={course.copy.ui} />
+      <FinalQuiz
+        bank={quizBank}
+        config={CODEX_FINAL_QUIZ}
+        labels={course.copy.ui}
+        locale={course.locale}
+      />
 
       <CompletionSummary
         courseTitle={course.copy.meta.title}
         courseVersion={course.manifest.version}
+        locale={course.locale}
         lessonSlugs={lessons.map((lesson) => lesson.slug)}
         labels={course.copy.ui}
       />
@@ -139,10 +133,16 @@ export default function CourseDashboard({
         <h2 id="codex-course-sources-title">{course.copy.ui.sources}</h2>
         <p><TechnicalText text={course.copy.meta.sourceNote} /></p>
         <p>
-          <strong>{course.copy.ui.sourceVerifiedOn}:{" "}</strong>
-          <time dateTime={course.manifest.sourceSnapshotOn} dir="ltr">
-            {course.manifest.sourceSnapshotOn}
-          </time>
+          <LocalizedTemplate
+            template={course.copy.ui.verifiedOnTemplate}
+            values={{
+              date: (
+                <time dateTime={course.manifest.sourceSnapshotOn}>
+                  {formatCodexUtcMediumDate(course.manifest.sourceSnapshotOn, course.locale)}
+                </time>
+              ),
+            }}
+          />
         </p>
         <p><TechnicalText text={course.copy.meta.figureNote} /></p>
       </aside>

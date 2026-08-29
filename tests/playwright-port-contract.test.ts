@@ -9,6 +9,7 @@ const PORT_AWARE_CONFIGS = [
   "playwright.private.config.ts",
   "playwright.evidence-safe.config.ts",
   "playwright.evidence-private.config.ts",
+  "tests/codex-playwright.config.ts",
   "tests/published-playwright.config.ts",
 ] as const;
 
@@ -39,7 +40,14 @@ test("every release Playwright config derives its server and browser URL from on
     const source = readFileSync(path, "utf8");
     assert.match(source, /PLAYWRIGHT_TEST_ORIGIN/);
     assert.match(source, /PLAYWRIGHT_TEST_HOME_URL/);
-    assert.match(source, /baseURL: PLAYWRIGHT_TEST_ORIGIN/);
+    if (path === "tests/codex-playwright.config.ts") {
+      assert.match(
+        source,
+        /const baseURL = externalBaseURL \?\? PLAYWRIGHT_TEST_ORIGIN/,
+      );
+    } else {
+      assert.match(source, /baseURL: PLAYWRIGHT_TEST_ORIGIN/);
+    }
     assert.match(source, /url: PLAYWRIGHT_TEST_HOME_URL/);
     assert.match(source, /reuseExistingServer: false/);
   }
