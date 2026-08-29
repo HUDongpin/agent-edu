@@ -256,12 +256,6 @@
         "key": "w.context.used",
         "locales": ["es", "fr"],
         "reason": "The token-meter format and placeholders are intentionally unchanged."
-      },
-      {
-        "catalog": "widgets",
-        "key": "w.progress.sections",
-        "locales": ["fr"],
-        "reason": "sections is the same correctly spelled French plural noun."
       }
     ]
   },

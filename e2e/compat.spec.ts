@@ -86,3 +86,38 @@ test("the mobile menu reaches Teach in two interactions and exposes its download
   expect(await downloadResponse.text()).toContain("npm run course:offline");
   await expectNoHorizontalOverflow(page);
 });
+
+test("the keyboard-opened mobile menu enters its first visible link on forward Tab", async ({
+  browserName,
+  page,
+}) => {
+  await page.setViewportSize(VIEWPORTS[0]);
+  const home = await page.goto("/en/");
+  expect(home?.status()).toBe(200);
+
+  const menu = page.getByRole("navigation", { name: "Menu" });
+  const toggle = page.getByRole("button", { name: "Menu" });
+  const firstLink = menu.getByRole("link").first();
+
+  await toggle.focus();
+  await page.keyboard.press("Enter");
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(firstLink).toBeVisible();
+  const menuId = await menu.getAttribute("id");
+  expect(menuId).toBeTruthy();
+  await expect(toggle).toHaveAttribute("aria-controls", menuId!);
+
+  // WebKit follows Safari's macOS default: Option+Tab includes links in the
+  // tab order when full-keyboard navigation is not enabled in browser prefs.
+  await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+  await expect(firstLink).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(toggle).toBeFocused();
+
+  await page.keyboard.press("Enter");
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await page.mouse.click(VIEWPORTS[0].width - 1, VIEWPORTS[0].height - 1);
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+});

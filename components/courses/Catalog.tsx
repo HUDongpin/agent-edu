@@ -9,6 +9,7 @@ import {
   type Format, type Level, type Status, type Topic,
 } from "@/lib/courses";
 import {
+  HANDBOOK_SECTION_IDS,
   readLearningState,
   readLearningStateOnServer,
   selectCourseProgress,
@@ -100,7 +101,15 @@ export default function Catalog({ locale }: { locale: string }) {
           {shown.map((c) => {
             const progress = selectCourseProgress(learning, c.id);
             const soon = c.status === "soon";
-            const href = c.external ? c.href : `/${locale}${c.href}`;
+            const nextHandbookSection = c.id === "handbook" && progress.kind === "tracked"
+              ? HANDBOOK_SECTION_IDS.find((section) =>
+                  !learning.handbook.visitedSections.includes(section))
+              : undefined;
+            const handbookHash = c.id === "handbook" && progress.kind === "tracked" &&
+              progress.status === "in-progress"
+              ? `#${nextHandbookSection ?? "play"}`
+              : "";
+            const href = c.external ? c.href : `/${locale}${c.href}${handbookHash}`;
             const inner = (
               <>
                 <Cover id={c.id} hue={c.hue} />
@@ -135,12 +144,28 @@ export default function Catalog({ locale }: { locale: string }) {
                       </span>
                     ) : progress.kind === "tracked" ? (
                       <>
-                        <div className="cprog"
-                          title={`${progress.current} ${t("ui.of")} ${progress.total} · ${t("cat.progress")}`}>
-                          <div className="cbar">
-                            <span style={{ width: `${progress.percent}%`, background: c.hue }} />
+                        <div className="cprogress">
+                          {progress.courseId === "handbook" && progress.assessmentSubmitted && (
+                            <span className="cassessment">✓ {t("ui.assessmentSubmitted")}</span>
+                          )}
+                          <div className="cprog"
+                            title={`${t(progress.courseId === "handbook" ? "ui.sectionsExplored" : "cat.progress")} · ` +
+                              `${progress.current} ${t("ui.of")} ${progress.total}`}>
+                            <div
+                              className="cbar"
+                              role="progressbar"
+                              aria-label={t(progress.courseId === "handbook" ? "ui.sectionsExplored" : "cat.progress")}
+                              aria-valuemin={0}
+                              aria-valuemax={progress.total}
+                              aria-valuenow={progress.current}
+                            >
+                              <span style={{ width: `${progress.percent}%`, background: c.hue }} />
+                            </div>
+                            <span className="cpct">
+                              {progress.courseId === "handbook" && `${t("ui.sectionsExplored")} `}
+                              {progress.current}/{progress.total}
+                            </span>
                           </div>
-                          <span className="cpct">{progress.current}/{progress.total}</span>
                         </div>
                         <span className="cgo" style={{ color: c.hue }}>
                           {cta(progress)} <span className="arrow">→</span>
