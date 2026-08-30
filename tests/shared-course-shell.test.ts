@@ -5,6 +5,7 @@ import { PUBLISHED_COURSE_SURFACES } from "../lib/release-surface";
 import {
   PENDING_COURSE_SHELL_PROGRESS,
   loadCourseShellProgress,
+  shouldTransferCourseShellFocus,
 } from "../components/course-shell/CourseShellProgress";
 
 const serverDashboardByCourse = new Map<string, string>([
@@ -27,7 +28,7 @@ const journeyByCourse = new Map<string, string>([
   ["github", "components/github/CourseProgress.tsx"],
   ["prompts", "components/prompts/PromptInteractions.tsx"],
   ["software-engineering", "components/software-engineering/CourseProgress.tsx"],
-  ["rag", "components/rag/RagInteractions.tsx"],
+  ["rag", "components/course-shell/CourseShellProgress.tsx"],
   ["mcp", "components/mcp/CourseProgress.tsx"],
   ["make-money-with-codex", "components/make-money-with-codex/CourseProgress.tsx"],
   ["claude-income", "components/claude-income/DashboardProgress.tsx"],
@@ -126,6 +127,29 @@ test("CourseShell progress starts pending and fails closed for every loader boun
       readSummary: () => ({ state: "in-progress", percent: 42, nextHref: "/en/grok/next/" }),
     }],
   })), { state: "in-progress", percent: 42, nextHref: "/en/grok/next/" });
+});
+
+test("CourseShell transfers fragment focus only for an unmodified primary activation", () => {
+  const activation = {
+    altKey: false,
+    button: 0,
+    ctrlKey: false,
+    currentTarget: { target: "" },
+    defaultPrevented: false,
+    metaKey: false,
+    shiftKey: false,
+  };
+  assert.equal(shouldTransferCourseShellFocus(activation), true);
+  assert.equal(shouldTransferCourseShellFocus({ ...activation, defaultPrevented: true }), false);
+  assert.equal(shouldTransferCourseShellFocus({ ...activation, button: 1 }), false);
+  assert.equal(shouldTransferCourseShellFocus({ ...activation, ctrlKey: true }), false);
+  assert.equal(shouldTransferCourseShellFocus({ ...activation, metaKey: true }), false);
+  assert.equal(shouldTransferCourseShellFocus({ ...activation, shiftKey: true }), false);
+  assert.equal(shouldTransferCourseShellFocus({ ...activation, altKey: true }), false);
+  assert.equal(shouldTransferCourseShellFocus({
+    ...activation,
+    currentTarget: { target: "_blank" },
+  }), false);
 });
 
 test("every published dashboard exposes exactly one designated journey CTA implementation", () => {

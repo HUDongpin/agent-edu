@@ -65,6 +65,9 @@ export default function RetrievalLab({ copy, locale }: { copy: RagCourseCopy["la
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }), [locale]);
+  const integer = useMemo(() => new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 0,
+  }), [locale]);
 
   useEffect(() => {
     if (!hydrated || urlReady) return;
@@ -137,6 +140,7 @@ export default function RetrievalLab({ copy, locale }: { copy: RagCourseCopy["la
     <section
       className={`${base.promptStudio} ${styles.retrievalLab}`}
       aria-labelledby="rag-lab-title"
+      aria-busy={!hydrated}
       data-rag-hydrated={hydrated ? "true" : "false"}
       data-rag-url-ready={urlReady ? "true" : "false"}
     >
@@ -202,8 +206,8 @@ export default function RetrievalLab({ copy, locale }: { copy: RagCourseCopy["la
         {candidates.map((candidate) => (
           <li className={candidate.included ? styles.candidateIncluded : styles.candidateExcluded} key={candidate.id}>
             <div className={styles.candidateMeta}>
-              <span>#{candidate.rank}</span>
-              <strong>{candidate.id}</strong>
+              <span dir="ltr" translate="no">#{candidate.rank}</span>
+              <strong dir="ltr" translate="no">{candidate.id}</strong>
               <small>{copy.sourceScore}: {decimal.format(candidate.score)}</small>
               <em>{candidate.included ? copy.included : copy.excluded}</em>
             </div>
@@ -213,11 +217,11 @@ export default function RetrievalLab({ copy, locale }: { copy: RagCourseCopy["la
         ))}
       </ol>
 
-      <div className={styles.labOutput} role="status" aria-live="polite" aria-atomic="true">
+      <div className={styles.labOutput}>
         <div>
           <span>{copy.selectedContext}</span>
-          <strong>{selected.length} / {candidates.length}</strong>
-          <small>{selected.map((candidate) => candidate.id).join(" · ") || "∅"}</small>
+          <strong>{integer.format(selected.length)} / {integer.format(candidates.length)}</strong>
+          <small dir="ltr" translate="no">{selected.map((candidate) => candidate.id).join(", ") || "∅"}</small>
         </div>
         <div>
           <span>{copy.answerPreview}</span>
@@ -227,6 +231,12 @@ export default function RetrievalLab({ copy, locale }: { copy: RagCourseCopy["la
           ) : null}
         </div>
       </div>
+      <p className={base.srOnly} role="status" aria-live="polite">
+        {copy.selectedContext}: {integer.format(selected.length)} / {integer.format(candidates.length)}. {answer}
+        {citedCandidates.length > 0
+          ? ` ${citedCandidates.map((candidate) => `[${candidate.id}]`).join(" ")}`
+          : ""}
+      </p>
     </section>
   );
 }

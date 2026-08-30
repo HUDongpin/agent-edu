@@ -121,7 +121,7 @@ export default function RagFigure({
         <div className={styles.figureProvenance}>
           <a href={asset.upstreamUrl} target="_blank" rel="noopener noreferrer">{labels.source}</a>
           <a href="/courses/rag/NOTICE.md" target="_blank" rel="noopener noreferrer">{labels.rightsNotice}</a>
-          <code>{asset.upstreamCommit.slice(0, 12)}</code>
+          <code translate="no">{asset.upstreamCommit.slice(0, 12)}</code>
         </div>
       ) : null}
     </figure>

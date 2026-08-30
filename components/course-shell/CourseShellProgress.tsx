@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { MouseEvent } from "react";
 import type { PublicCourseId } from "@/lib/public-release-surface";
 import {
   loadPublishedProgressAdapters,
@@ -32,6 +33,27 @@ interface AdapterSummary {
   readonly state: unknown;
   readonly percent: unknown;
   readonly nextHref: unknown;
+}
+
+interface CourseShellLinkActivation {
+  readonly altKey: boolean;
+  readonly button: number;
+  readonly ctrlKey: boolean;
+  readonly currentTarget: { readonly target: string };
+  readonly defaultPrevented: boolean;
+  readonly metaKey: boolean;
+  readonly shiftKey: boolean;
+}
+
+export function shouldTransferCourseShellFocus(event: CourseShellLinkActivation): boolean {
+  const target = event.currentTarget.target.toLowerCase();
+  return !event.defaultPrevented
+    && event.button === 0
+    && !event.altKey
+    && !event.ctrlKey
+    && !event.metaKey
+    && !event.shiftKey
+    && (target === "" || target === "_self");
 }
 
 interface ProgressAdapter {
@@ -202,6 +224,17 @@ export default function CourseShellProgress({
   const label = progressLabel(snapshot, labels);
   const interactive = snapshot.state !== "pending" && snapshot.state !== "unavailable";
 
+  function focusSamePageTarget(event: MouseEvent<HTMLAnchorElement>) {
+    if (!shouldTransferCourseShellFocus(event)) return;
+    if (!snapshot.nextHref) return;
+    const destination = new URL(snapshot.nextHref, window.location.href);
+    if (destination.pathname !== window.location.pathname || !destination.hash) return;
+    window.requestAnimationFrame(() => {
+      const target = document.getElementById(decodeURIComponent(destination.hash.slice(1)));
+      target?.focus();
+    });
+  }
+
   return (
     <div
       className="course-shell-progress"
@@ -226,7 +259,12 @@ export default function CourseShellProgress({
         </div>
       ) : null}
       {interactive && snapshot.nextHref ? (
-        <Link className="btn primary course-shell-action" href={snapshot.nextHref}>
+        <Link
+          className="btn primary course-shell-action"
+          href={snapshot.nextHref}
+          data-course-journey-action={courseId === "rag" ? "" : undefined}
+          onClick={focusSamePageTarget}
+        >
           {actionLabel(snapshot, labels)}
           <span className="arrow" aria-hidden="true">→</span>
         </Link>

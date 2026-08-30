@@ -947,6 +947,9 @@ function validateInteractionContracts(copy) {
   const figure = readText("components/rag/RagFigure.tsx");
   const lessonView = readText("components/rag/LessonView.tsx");
   const progress = readText("components/rag/progress-store.ts");
+  const progressAdapters = readText("components/progress-adapters.ts");
+  const courseShellProgress = readText("components/course-shell/CourseShellProgress.tsx");
+  const courseMap = readText("components/rag/CourseMap.tsx");
   const progressStorageContract = readText("lib/progress-storage-contract.ts");
 
   for (const marker of [
@@ -985,8 +988,13 @@ function validateInteractionContracts(copy) {
   if (/const\s+\w*CORRUPT\w*BACKUP\w*\s*=/.test(progress)) {
     fail("progress implementation: RAG must import, not redeclare, its corrupt-backup key");
   }
-  for (const marker of ["lessons.length + 2", "practices + quiz + capstone", "ragPracticeKey(lesson.slug)"]) {
-    if (!interactions.includes(marker)) fail(`progress implementation: 14 equal milestones require ${marker}`);
+  for (const marker of [
+    "slugs: RAG_PROGRESS_LESSON_SLUGS",
+    "record[ragPracticeKey(slug)] === true",
+    "record[RAG_QUIZ_PASSED_KEY] === true",
+    "record[RAG_CAPSTONE_KEY] === true",
+  ]) {
+    if (!progressAdapters.includes(marker)) fail(`progress implementation: 14-milestone adapter requires ${marker}`);
   }
   if (!interactions.includes("window.addEventListener(RAG_RESET_EVENT")) {
     fail("progress implementation: quiz and capstone local state must subscribe to the scoped reset event");
@@ -994,8 +1002,8 @@ function validateInteractionContracts(copy) {
   for (const marker of ["parseQuizDraft", "RAG_QUIZ_DRAFT_KEY", "RAG_CAPSTONE_DRAFT_KEY", "delete record[RAG_QUIZ_DRAFT_KEY]", "delete record[RAG_CAPSTONE_DRAFT_KEY]"]) {
     if (!interactions.includes(marker)) fail(`draft persistence: missing scoped marker ${marker}`);
   }
-  if (!interactions.includes('aria-labelledby="rag-progress-title"')) {
-    fail("progress implementation: native progress element must expose the visible Course progress name");
+  if (!courseShellProgress.includes('role="progressbar"') || !courseShellProgress.includes("labels.progress")) {
+    fail("progress implementation: the single shared progress bar must expose the visible Course progress name");
   }
   for (const marker of ["queueMicrotask(notify)", "() => true", "() => false"]) {
     if (!hydration.includes(marker)) fail(`hydration implementation: missing client-readiness marker ${marker}`);
@@ -1006,8 +1014,14 @@ function validateInteractionContracts(copy) {
   for (const marker of ["checkpoint.sourceId", "lesson.sources.find", "data-testid=\"rag-catalog-label\"", "lang={course.locale}"]) {
     if (!dashboard.includes(marker)) fail(`dashboard: explicit checkpoint evidence or localized catalog label is missing ${marker}`);
   }
-  for (const marker of ["state.nextHref?.startsWith", "window.requestAnimationFrame", "document.querySelector<HTMLElement>", "tabIndex={-1}"]) {
-    if (!interactions.includes(marker)) fail(`progress fragment navigation: missing focus-transfer marker ${marker}`);
+  for (const marker of ["destination.hash", "window.requestAnimationFrame", "document.getElementById", "target?.focus()", "tabIndex={-1}"]) {
+    if (!`${courseShellProgress}\n${interactions}`.includes(marker)) fail(`progress fragment navigation: missing focus-transfer marker ${marker}`);
+  }
+  if (!courseShellProgress.includes("data-course-journey-action") || /<CourseProgress(?:\s|>)/.test(dashboard)) {
+    fail("dashboard journey: Course 9 must expose exactly one shared-shell progress action");
+  }
+  for (const marker of ["data-lesson-progress-state", 'aria-current={lesson.slug === currentSlug ? "page"', "RagCurriculumMap", "RagLessonCourseMap"]) {
+    if (!`${courseMap}\n${dashboard}\n${lessonView}`.includes(marker)) fail(`course map progress: missing ${marker}`);
   }
 
   for (const marker of [
@@ -1037,8 +1051,8 @@ function validateInteractionContracts(copy) {
   for (const marker of ["heroRaster.upstreamUrl", 'href="/courses/rag/NOTICE.md"', 'fetchPriority="high"', "heroRaster.upstreamCommit"]) {
     if (!dashboard.includes(marker)) fail(`dashboard hero figure: missing provenance or priority marker ${marker}`);
   }
-  if (!dashboard.includes('role="group"') || !figure.includes("labels.openOriginal") || !lessonView.includes("estimatedLessonTime")) {
-    fail("accessibility copy: hero principles, original-image action, and lesson-duration label must be explicit");
+  if (!dashboard.includes("course.copy.ui.courseNavigation") || !figure.includes("labels.openOriginal") || !lessonView.includes("estimatedLessonTime")) {
+    fail("accessibility copy: dashboard navigation, original-image action, and lesson-duration label must be explicit");
   }
   for (const marker of ["<table>", "<caption", '<th scope="col">', '<th scope="row">', "<ol>{copy.transcript.map"]) {
     if (!figure.includes(marker)) fail(`retrieval scoreboard: missing semantic table marker ${marker}`);
@@ -1175,6 +1189,8 @@ function validateRoutesAndIntegration() {
     "components/rag/RagFigure.tsx",
     "components/rag/RetrievalLab.tsx",
     "components/rag/RagInteractions.tsx",
+    "components/rag/CourseMap.tsx",
+    "components/rag/useRagProgress.ts",
     "components/rag/useRagHydrated.ts",
     "components/rag/progress-store.ts",
     "components/rag/RagCourse.module.css",

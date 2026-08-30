@@ -30,11 +30,13 @@ export default async function CourseShell({
   courseId,
   locale,
   showBreadcrumb = true,
+  showHeading = true,
   standalone = false,
 }: {
   readonly courseId: PublicCourseId;
   readonly locale: string;
   readonly showBreadcrumb?: boolean;
+  readonly showHeading?: boolean;
   readonly standalone?: boolean;
 }) {
   const release = PUBLISHED_CATALOG_COURSES.find(({ course }) => course.id === courseId);
@@ -88,10 +90,12 @@ export default async function CourseShell({
         </nav>
       ) : null}
 
-      <div className="course-shell-heading">
-        <span className="eyebrow">{t("courseShell.overview")}</span>
-        <p className="course-shell-title">{t(course.titleKey)}</p>
-      </div>
+      {showHeading ? (
+        <div className="course-shell-heading">
+          <span className="eyebrow">{t("courseShell.overview")}</span>
+          <p className="course-shell-title">{t(course.titleKey)}</p>
+        </div>
+      ) : null}
 
       <dl className="shared-course-facts" aria-label={t(course.titleKey)}>
         <div data-course-shell-field="status">

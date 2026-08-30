@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
+import axe from "axe-core";
 import { expect, test } from "../e2e/fixtures";
 import { RAG_FIGURES } from "../lib/rag/figures";
 import { RAG_COURSE_MANIFEST } from "../lib/rag/manifest";
@@ -64,6 +65,13 @@ async function clearRagProgress(page: Page) {
   await expect(page.locator('[data-rag-hydrated="true"]')).toBeAttached();
 }
 
+async function openRagProgressTools(page: Page) {
+  const tools = page.getByTestId("rag-progress-tools");
+  if ((await tools.getAttribute("open")) === null) await tools.locator("summary").click();
+  await expect(tools).toHaveAttribute("open", "");
+  return tools;
+}
+
 async function completeQuizAttempt(page: Page, correctAnswers: number) {
   const seen = new Set<string>();
 
@@ -113,6 +121,33 @@ function durationToMilliseconds(value: string): number {
   return value.trim().endsWith("ms") ? Number.parseFloat(value) : Number.parseFloat(value) * 1000;
 }
 
+async function seriousAxeViolations(page: Page) {
+  await page.evaluate(() => {
+    for (const animation of document.getAnimations()) animation.finish();
+  });
+  await page.addScriptTag({ content: axe.source });
+  return page.evaluate(async () => {
+    const axeApi = (window as unknown as {
+      axe: {
+        run(root: Document, options: Record<string, unknown>): Promise<{
+          violations: { id: string; impact: string | null; nodes: { target: string[] }[] }[];
+        }>;
+      };
+    }).axe;
+    const result = await axeApi.run(document, {
+      resultTypes: ["violations"],
+      runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] },
+    });
+    return result.violations
+      .filter((violation) => violation.impact === "critical" || violation.impact === "serious")
+      .map((violation) => ({
+        id: violation.id,
+        impact: violation.impact,
+        nodes: violation.nodes.map((node) => node.target),
+      }));
+  });
+}
+
 test.describe("Course 9 dashboard, catalogue, and routes", () => {
   test("dashboard identifies Course 9 and links the complete four-unit curriculum", async ({ page }) => {
     const response = await page.goto(DASHBOARD);
@@ -127,7 +162,7 @@ test.describe("Course 9 dashboard, catalogue, and routes", () => {
     })).toBeVisible();
     await expect(dashboard.getByText(/Course 9/).first()).toBeVisible();
     await expect(dashboard.getByText("12", { exact: true }).first()).toBeVisible();
-    await expect(dashboard.getByText("780", { exact: true })).toBeVisible();
+    await expect(dashboard.getByText("780 min", { exact: true })).toBeVisible();
     await expect(dashboard.getByText("5", { exact: true })).toBeVisible();
     const heroImage = dashboard.locator('img[src="/courses/rag/figures/claude-support-rag-ui.png"]');
     await expect(heroImage).toBeVisible();
@@ -135,8 +170,10 @@ test.describe("Course 9 dashboard, catalogue, and routes", () => {
     await expect(dashboard.locator('a[href="/courses/rag/NOTICE.md"]')).toHaveText(ragCopy.ui.rightsNotice);
     await expect(dashboard.locator('code')).toHaveText("5264b729deda");
     await expect(dashboard.getByText(/not the consumer Claude\.ai interface/i)).toBeVisible();
-    await expect(dashboard.getByRole("group", { name: ragCopy.ui.successCriteria })).toBeVisible();
-    await expect(dashboard.getByRole("progressbar", { name: ragCopy.ui.courseProgress })).toBeVisible();
+    await expect(dashboard.getByRole("navigation", { name: ragCopy.ui.courseNavigation })).toBeVisible();
+    await expect(dashboard.getByRole("progressbar", { name: /Progress:/ })).toHaveCount(1);
+    await expect(dashboard.locator("[data-course-journey-action]"))
+      .toHaveAttribute("href", "/en/rag/choose-rag/");
 
     const lessonLinks = dashboard.locator(
       'section[aria-labelledby="rag-curriculum-title"] ol > li > a',
@@ -163,7 +200,7 @@ test.describe("Course 9 dashboard, catalogue, and routes", () => {
     await expect(rag.getByRole("heading", { level: 2 })).toHaveText(
       "Retrieval-Augmented Generation (RAG)",
     );
-    await expect(rag.locator("a.cinner")).toHaveAttribute("href", "/en/rag/");
+    await expect(rag.locator("a.cinner")).toHaveAttribute("href", "/en/rag/choose-rag/");
     await expect(rag.getByRole("progressbar")).toHaveAttribute("aria-valuemax", "100");
 
     await page.getByRole("searchbox", { name: "Search" }).fill("retrieval-augmented");
@@ -176,7 +213,20 @@ test.describe("Course 9 dashboard, catalogue, and routes", () => {
     await page.goto("/ar/courses/");
     const arabicRag = page.locator("#retrieval-augmented-generation");
     await expect(arabicRag.getByText("محتوى الدورة: الإنجليزية", { exact: true })).toHaveCount(0);
-    await expect(arabicRag.locator("a.cinner")).toHaveAttribute("href", "/ar/rag/");
+    await expect(arabicRag.locator("a.cinner")).toHaveAttribute("href", "/ar/rag/choose-rag/");
+  });
+
+  test("catalogue Resume opens the exact next Course 9 lesson", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    await page.evaluate(() => {
+      localStorage.setItem("ae.progress", JSON.stringify({
+        "rag.lesson.choose-rag.practice": true,
+      }));
+    });
+    await page.goto("/en/courses/");
+    const rag = page.locator("#retrieval-augmented-generation");
+    await expect(rag.locator("a.cinner")).toHaveAttribute("href", "/en/rag/trace-the-pipeline/");
+    await expect(rag.locator(".catalog-course-action")).toContainText(/Resume/i);
   });
 
   for (const lesson of RAG_COURSE_MANIFEST.lessons) {
@@ -392,11 +442,11 @@ test.describe("deterministic Retrieval Lab", () => {
     });
 
     const rows = lab.locator("ol > li");
-    const outcome = lab.locator('div[role="status"][aria-atomic="true"]');
+    const outcome = lab.locator('div[class*="labOutput"]');
     await expect(rows).toHaveCount(4);
     expect(await rows.locator("div strong").allTextContents()).toEqual(["C1", "C2", "C3", "C4"]);
     await expect(lab.getByText("3 / 4", { exact: true })).toBeVisible();
-    await expect(lab.getByText("C1 · C2 · C3", { exact: true })).toBeVisible();
+    await expect(lab.getByText("C1, C2, C3", { exact: true })).toBeVisible();
     await expect(lab.getByText(ragCopy.lab.scenarios[0].answer, { exact: true })).toBeVisible();
     await expect(outcome.getByText("[C1]", { exact: true })).toBeVisible();
 
@@ -482,6 +532,29 @@ test.describe("deterministic Retrieval Lab", () => {
 });
 
 test.describe("private progress, checkpoints, final quiz, and capstone", () => {
+  test("course maps expose completed lessons and the next unfinished lesson", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    await page.evaluate(() => {
+      localStorage.setItem("ae.progress", JSON.stringify({
+        "rag.lesson.choose-rag.practice": true,
+        "rag.lesson.corpus-contract.practice": true,
+      }));
+    });
+    await page.reload();
+
+    const curriculum = page.locator('section[aria-labelledby="rag-curriculum-title"]');
+    await expect(curriculum.locator('li[data-lesson-progress-state="complete"]')).toHaveCount(2);
+    await expect(curriculum.locator('li[data-lesson-progress-state="next"] a'))
+      .toHaveAttribute("href", "/en/rag/trace-the-pipeline/");
+    await expect(curriculum.getByText(ragCopy.ui.completeStatus, { exact: true })).toHaveCount(2);
+
+    await page.goto("/en/rag/corpus-contract/");
+    const desktopMap = page.locator('div[class*="lessonRail"]');
+    await expect(desktopMap.locator('li[data-lesson-progress-state="complete"]')).toHaveCount(2);
+    await expect(desktopMap.locator('a[aria-current="page"]'))
+      .toHaveAttribute("href", "/en/rag/corpus-contract/");
+  });
+
   test("practice persists and Course 9 reset preserves unrelated local progress", async ({ page }) => {
     await clearRagProgress(page);
     await page.evaluate(() => {
@@ -494,11 +567,11 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
 
     await page.goto("/en/rag/choose-rag/");
     await page.getByRole("button", { name: ragCopy.ui.markPracticeComplete }).click();
-    await expect(page.getByRole("button", { name: ragCopy.ui.markedPracticeComplete }))
-      .toBeDisabled();
+    await expect(page.getByRole("button", { name: ragCopy.ui.undoPracticeComplete }))
+      .toBeEnabled();
     await page.reload();
-    await expect(page.getByRole("button", { name: ragCopy.ui.markedPracticeComplete }))
-      .toBeDisabled();
+    await expect(page.getByRole("button", { name: ragCopy.ui.undoPracticeComplete }))
+      .toBeEnabled();
 
     let stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(stored["rag.lesson.choose-rag.practice"]).toBe(true);
@@ -506,10 +579,9 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     expect(stored["codex.lesson.meet-codex"]).toBe(true);
 
     await page.goto(DASHBOARD);
-    await expect(page.locator('section[aria-labelledby="rag-progress-title"] progress'))
-      .toHaveAttribute("value", "1");
-    await expect(page.locator('section[aria-labelledby="rag-progress-title"] progress'))
-      .toHaveAttribute("max", "14");
+    await expect(page.getByRole("progressbar", { name: /Progress:/ }))
+      .toHaveAttribute("aria-valuenow", "7");
+    await openRagProgressTools(page);
     page.once("dialog", async (dialog) => {
       expect(dialog.message()).toBe(ragCopy.ui.resetConfirm);
       await dialog.accept();
@@ -528,6 +600,24 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     });
   });
 
+  test("undoing one practice preserves every other Course 9 milestone", async ({ page }) => {
+    await page.goto("/en/rag/choose-rag/");
+    await page.evaluate(() => {
+      localStorage.setItem("ae.progress", JSON.stringify({
+        "rag.lesson.choose-rag.practice": true,
+        "rag.lesson.trace-the-pipeline.practice": true,
+        "rag.quiz.best": 8,
+      }));
+    });
+    await page.reload();
+    await page.getByRole("button", { name: ragCopy.ui.undoPracticeComplete }).click();
+    await expect(page.getByRole("button", { name: ragCopy.ui.markPracticeComplete })).toBeEnabled();
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+    expect(stored["rag.lesson.choose-rag.practice"]).toBeUndefined();
+    expect(stored["rag.lesson.trace-the-pipeline.practice"]).toBe(true);
+    expect(stored["rag.quiz.best"]).toBe(8);
+  });
+
   test("all twelve practices plus quiz and capstone produce exactly fourteen milestones", async ({ page }) => {
     await page.goto(DASHBOARD);
     await page.evaluate((slugs) => {
@@ -540,11 +630,9 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     }, RAG_LESSON_SLUGS);
     await page.reload();
 
-    const progress = page.locator('section[aria-labelledby="rag-progress-title"]');
-    await expect(progress.locator("progress")).toHaveAttribute("value", "14");
-    await expect(progress.locator("progress")).toHaveAttribute("max", "14");
-    await expect(progress.locator("output strong")).toHaveText("100%");
-    await expect(progress.getByText("14 / 14", { exact: true })).toBeVisible();
+    const progress = page.locator(".course-shell-progress");
+    await expect(progress.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "100");
+    await expect(progress.locator("[data-course-journey-action]")).toContainText(/Review/i);
   });
 
   test("progress fragment CTAs move keyboard focus into the quiz and capstone", async ({ page }) => {
@@ -556,8 +644,8 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     }, RAG_LESSON_SLUGS);
     await page.reload();
 
-    const progress = page.locator('section[aria-labelledby="rag-progress-title"]');
-    const quizLink = progress.locator('a[href="#rag-final-quiz"]');
+    const progress = page.locator(".course-shell-progress");
+    const quizLink = progress.locator('a[href="/en/rag/#rag-final-quiz"]');
     await quizLink.focus();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#rag-final-quiz$/);
@@ -572,7 +660,7 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
       localStorage.setItem("ae.progress", JSON.stringify(stored));
       window.dispatchEvent(new CustomEvent("aicourse:rag-progress"));
     });
-    const capstoneLink = progress.locator('a[href="#rag-capstone"]');
+    const capstoneLink = progress.locator('a[href="/en/rag/#rag-capstone"]');
     await capstoneLink.focus();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#rag-capstone$/);
@@ -586,6 +674,10 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     const checkpoint = page.locator('section[aria-labelledby="checkpoint-choose-rag-title"]');
     const options = checkpoint.locator('input[type="radio"]');
     await expect(options).toHaveCount(4);
+
+    await checkpoint.getByRole("button", { name: ragCopy.ui.checkAnswer }).click();
+    await expect(checkpoint.getByRole("alert")).toHaveText(ragCopy.ui.selectAnswer);
+    await expect(options.first()).toBeFocused();
 
     await options.nth(0).check();
     await checkpoint.getByRole("button", { name: ragCopy.ui.checkAnswer }).focus();
@@ -614,9 +706,24 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     await clearRagProgress(page);
     await page.getByRole("button", { name: ragCopy.ui.beginQuiz }).click();
     await expect(page.locator("#rag-final-quiz form h3")).toBeFocused();
+    await page.locator("#rag-final-quiz form").getByRole("button", { name: ragCopy.ui.checkAnswer }).click();
+    await expect(page.locator("#rag-final-quiz form").getByRole("alert"))
+      .toHaveText(ragCopy.ui.selectAnswer);
+    await expect(page.locator("#rag-final-quiz form input[type=radio]").first()).toBeFocused();
     await completeQuizAttempt(page, 8);
     await expect(page.getByText("Score: 8 of 12", { exact: true })).toBeVisible();
     await expect(page.getByText(ragCopy.ui.quizNeedsReview, { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: ragCopy.ui.reviewMissedAnswers }).click();
+    const review = page.locator("#rag-final-quiz").getByRole("heading", { level: 3 });
+    await expect(review).toBeFocused();
+    await expect(page.getByRole("button", { name: ragCopy.ui.previousMissedQuestion })).toBeDisabled();
+    await expect(page.getByRole("button", { name: ragCopy.ui.nextMissedQuestion })).toBeEnabled();
+    await expect(page.locator("#rag-final-quiz").getByText(ragCopy.ui.correctAnswer, { exact: true }))
+      .toBeVisible();
+    await expect(page.locator("#rag-final-quiz").getByRole("link", { name: new RegExp(`^${ragCopy.ui.source}:`) }))
+      .toBeVisible();
+    await page.getByRole("button", { name: ragCopy.ui.backToResults }).click();
+    await expect(page.locator("#rag-final-quiz").getByRole("status")).toBeFocused();
 
     let stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(stored["rag.quiz.best"]).toBe(8);
@@ -660,6 +767,31 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     await expect(form.getByText("Question 2 of 12", { exact: true })).toBeVisible();
   });
 
+  test("invalid persisted quiz scores fail closed without crashing or poisoning the next score", async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.goto(DASHBOARD);
+    await page.evaluate((slugs) => {
+      localStorage.setItem("ae.progress", JSON.stringify({
+        ...Object.fromEntries(slugs.map((slug) => [`rag.lesson.${slug}.practice`, true])),
+        "rag.quiz.best": 1.5,
+        "rag.quiz.passed": true,
+      }));
+    }, RAG_LESSON_SLUGS);
+    await page.reload();
+    await expect(page.getByText(
+      ragCopy.ui.bestScore.replace("{score}", "0").replace("{total}", "12"),
+      { exact: true },
+    )).toBeVisible();
+    await expect(page.locator('[data-course-shell-field="progress"] a'))
+      .toHaveAttribute("href", "/en/rag/#rag-final-quiz");
+
+    await page.getByRole("button", { name: ragCopy.ui.beginQuiz }).click();
+    await completeQuizAttempt(page, 1);
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+    expect(stored["rag.quiz.best"]).toBe(1);
+    expect(stored["rag.quiz.passed"]).toBeUndefined();
+  });
+
   test("capstone completion requires all nine release artifacts and persists locally", async ({ page }) => {
     await clearRagProgress(page);
     const capstone = page.locator('section#rag-capstone');
@@ -690,16 +822,28 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     }
     await expect(record).toBeEnabled();
     await record.click();
-    await expect(capstone.getByRole("button", { name: ragCopy.ui.capstoneComplete })).toBeDisabled();
+    await expect(capstone.getByRole("button", { name: ragCopy.ui.reopenCapstone })).toBeEnabled();
     await expect(capstone.getByRole("status")).toHaveText(ragCopy.ui.capstoneComplete);
     await expect(capstone.getByRole("status")).toBeFocused();
     for (let index = 0; index < ragCopy.capstone.required.length; index += 1) {
       await expect(checks.nth(index)).toBeDisabled();
     }
 
-    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+    let stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(stored["rag.capstone.v1"]).toBe(true);
     expect(stored["rag.capstone.draft.v1"]).toBeUndefined();
+
+    await capstone.getByRole("button", { name: ragCopy.ui.reopenCapstone }).click();
+    await expect(checks.first()).toBeFocused();
+    for (let index = 0; index < ragCopy.capstone.required.length; index += 1) {
+      await expect(checks.nth(index)).toBeEnabled();
+      await expect(checks.nth(index)).toBeChecked();
+    }
+    stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+    expect(stored["rag.capstone.v1"]).toBeUndefined();
+    expect(stored["rag.capstone.draft.v1"].checked).toEqual(
+      ragCopy.capstone.required.map(() => true),
+    );
   });
 
   test("Course 9 reset clears live quiz and capstone state as well as persisted milestones", async ({ page }) => {
@@ -715,11 +859,12 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
       await checks.nth(index).check();
     }
     await capstone.getByRole("button", { name: ragCopy.ui.recordCapstone }).click();
-    await expect(capstone.getByRole("button", { name: ragCopy.ui.capstoneComplete })).toBeDisabled();
+    await expect(capstone.getByRole("button", { name: ragCopy.ui.reopenCapstone })).toBeEnabled();
 
     page.once("dialog", async (dialog) => {
       await dialog.accept();
     });
+    await openRagProgressTools(page);
     await page.getByRole("button", { name: ragCopy.ui.resetProgress }).click();
 
     await expect(page.getByText(ragCopy.ui.resetDone, { exact: true })).toBeFocused();
@@ -731,7 +876,7 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
       await expect(checks.nth(index)).not.toBeChecked();
       await expect(checks.nth(index)).toBeEnabled();
     }
-    await expect(page.locator('section[aria-labelledby="rag-progress-title"] progress')).toHaveAttribute("value", "0");
+    await expect(page.getByRole("progressbar", { name: /Progress:/ })).toHaveAttribute("aria-valuenow", "0");
 
     await page.evaluate(() => {
       const progress = JSON.parse(localStorage.getItem("ae.progress") || "{}");
@@ -764,8 +909,8 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
     await expect(warning).toBeVisible();
     await expect(warning).toHaveAttribute("role", "status");
     await page.getByRole("button", { name: ragCopy.ui.markPracticeComplete }).click();
-    await expect(page.getByRole("button", { name: ragCopy.ui.markedPracticeComplete }))
-      .toBeDisabled();
+    await expect(page.getByRole("button", { name: ragCopy.ui.undoPracticeComplete }))
+      .toBeEnabled();
     await expect(page.getByTestId("rag-lesson-choose-rag")).toBeVisible();
   });
 
@@ -785,8 +930,8 @@ test.describe("private progress, checkpoints, final quiz, and capstone", () => {
 
     await page.goto("/en/rag/choose-rag/");
     await page.getByRole("button", { name: ragCopy.ui.markPracticeComplete }).click();
-    await expect(page.getByRole("button", { name: ragCopy.ui.markedPracticeComplete }))
-      .toBeDisabled();
+    await expect(page.getByRole("button", { name: ragCopy.ui.undoPracticeComplete }))
+      .toBeEnabled();
     expect(await page.evaluate(() => localStorage.getItem("ae.progress"))).toBe(malformed);
   });
 });
@@ -899,6 +1044,20 @@ test.describe("locale boundaries, SEO, accessibility, and responsive rendering",
     }
   });
 
+  test("dashboard, lesson navigation, lab, quiz validation, and capstone have no serious axe findings", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto(DASHBOARD);
+    expect(await seriousAxeViolations(page), "dashboard").toEqual([]);
+
+    await page.goto("/en/rag/retrieval-engineering/");
+    expect(await seriousAxeViolations(page), "retrieval lesson and lab").toEqual([]);
+
+    await page.goto(DASHBOARD);
+    await page.getByRole("button", { name: ragCopy.ui.beginQuiz }).click();
+    await page.locator("#rag-final-quiz form").getByRole("button", { name: ragCopy.ui.checkAnswer }).click();
+    expect(await seriousAxeViolations(page), "quiz validation and capstone").toEqual([]);
+  });
+
   test("lab controls, image alternatives, transcripts, and links expose accessible names", async ({ page }) => {
     await page.goto("/en/rag/retrieval-engineering/");
     const lesson = page.getByTestId("rag-lesson-retrieval-engineering");
@@ -908,6 +1067,9 @@ test.describe("locale boundaries, SEO, accessibility, and responsive rendering",
     const scenarioSelect = lab.getByRole("combobox", { name: ragCopy.lab.scenarioLabel });
     await expect(scenarioSelect).toBeVisible();
     await expect(scenarioSelect).toHaveAttribute("name", "rag-scenario");
+    await expect(lab.getByRole("status")).toContainText(ragCopy.lab.scenarios[0].answer);
+    await scenarioSelect.selectOption(ragCopy.lab.scenarios[1].id);
+    await expect(lab.getByRole("status")).toContainText(ragCopy.lab.scenarios[1].answer);
     await expect(scenarioSelect).toHaveAttribute("autocomplete", "off");
     await expect(lab.getByRole("group", { name: ragCopy.lab.strategyLabel })).toBeVisible();
     await expect(lab.getByRole("radio", { name: ragCopy.lab.dense })).toBeVisible();
@@ -937,6 +1099,7 @@ test.describe("locale boundaries, SEO, accessibility, and responsive rendering",
     const page = await context.newPage();
     const response = await page.goto("/en/rag/ground-and-cite/");
     expect(response?.status()).toBe(200);
+    await expect(page.getByText(ragCopy.ui.interactiveRequiresJavaScript, { exact: true })).toBeVisible();
     const figure = page.locator('[data-figure-id="claude-support-rag-ui"]');
     await expect(figure.locator("img")).toBeVisible();
     await expect(figure.locator("figcaption")).toBeVisible();
@@ -944,7 +1107,27 @@ test.describe("locale boundaries, SEO, accessibility, and responsive rendering",
     await context.close();
   });
 
-  for (const width of [390, 768]) {
+  test("the mobile course map remains available deep into a long lesson", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/en/rag/production-capstone/");
+    await page.evaluate(() => window.scrollTo(0, Math.min(2600, document.body.scrollHeight / 2)));
+    const map = page.locator("details[class*='mobileCourseMap']");
+    await expect(map).toBeVisible();
+    await expect(map).toHaveCSS("position", "sticky");
+    const box = await map.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.y).toBeLessThan(100);
+    await map.locator("summary").click();
+    await expect(map).toHaveAttribute("open", "");
+    const firstLink = map.locator("nav a").first();
+    expect((await firstLink.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+    await expect(map.locator('a[aria-current="page"] span[class*="railLessonTitle"]'))
+      .toHaveCSS("font-size", "13px");
+    await expect(map.locator('span[class*="lessonState"]').first())
+      .toHaveCSS("font-size", "10px");
+  });
+
+  for (const width of [320, 390, 768]) {
     test(`dashboard, lab, and Arabic capstone do not overflow at ${width}px`, async ({ page }) => {
       test.setTimeout(60_000);
       for (const path of [

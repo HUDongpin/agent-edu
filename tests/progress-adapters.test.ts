@@ -13,7 +13,10 @@ import { projectPublicCourseSurface } from "../scripts/sync-course-public-surfac
 import { GROK_LESSON_SLUGS } from "../lib/grok";
 import { GITHUB_LESSON_SLUGS } from "../lib/github";
 import { EMPTY_LEARNING_STATE, LEARNING_KEY } from "../lib/progress";
-import { CURSOR_PROGRESS_STORAGE_KEY } from "../lib/progress-topology";
+import {
+  CURSOR_PROGRESS_STORAGE_KEY,
+  RAG_PROGRESS_LESSON_SLUGS,
+} from "../lib/progress-topology";
 import { DEEPSEEK_KEY_STORAGE } from "../lib/byok/key-store";
 import { LAB_DRAFT_KEY } from "../lib/lab/draft";
 import {
@@ -40,7 +43,11 @@ import {
 import { updateCourseProgress as updateGithubProgress } from "../components/github/progress-store";
 import { updatePromptProgress } from "../components/prompts/progress-store";
 import { updateSoftwareEngineeringProgress } from "../components/software-engineering/progress-store";
-import { updateRagProgress } from "../components/rag/progress-store";
+import {
+  RAG_QUIZ_BEST_KEY,
+  RAG_QUIZ_PASSED_KEY,
+  updateRagProgress,
+} from "../components/rag/progress-store";
 import { updateMcpProgress } from "../components/mcp/progress-store";
 import { updateIncomeRecord } from "../components/make-money-with-codex/progress-store";
 import { updateProgress as updateClaudeIncomeProgress } from "../components/claude-income/progress-store";
@@ -505,6 +512,28 @@ test("a published adapter resumes the first incomplete lesson, not the dashboard
       GITHUB_LESSON_SLUGS.map((slug) => [`github.lesson.${slug}`, true]),
     )));
     assert.equal(github.readSummary().nextHref, "/en/github/#github-final-quiz-title");
+
+    const rag = createPublishedProgressAdapters("en").find(
+      (adapter) => adapter.courseId === "rag",
+    );
+    assert.ok(rag);
+    storage.setItem("ae.progress", JSON.stringify({
+      ...Object.fromEntries(RAG_PROGRESS_LESSON_SLUGS.map(
+        (slug) => [`rag.lesson.${slug}.practice`, true],
+      )),
+      [RAG_QUIZ_BEST_KEY]: 1.5,
+      [RAG_QUIZ_PASSED_KEY]: true,
+    }));
+    assert.equal(rag.readSummary().nextHref, "/en/rag/#rag-final-quiz");
+
+    storage.setItem("ae.progress", JSON.stringify({
+      ...Object.fromEntries(RAG_PROGRESS_LESSON_SLUGS.map(
+        (slug) => [`rag.lesson.${slug}.practice`, true],
+      )),
+      [RAG_QUIZ_BEST_KEY]: 9,
+      [RAG_QUIZ_PASSED_KEY]: true,
+    }));
+    assert.equal(rag.readSummary().nextHref, "/en/rag/#rag-capstone");
   } finally {
     if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
     else Reflect.deleteProperty(globalThis, "window");

@@ -1,67 +1,40 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { RagCheckpointCopy, RagCourseCopy, RagLessonSlug } from "@/lib/rag";
+import { formatDeterministicInteger } from "@/lib/deterministic-format";
 import {
   RAG_CAPSTONE_DRAFT_KEY,
   RAG_CAPSTONE_KEY,
-  RAG_PROGRESS_EVENT,
   RAG_RESET_EVENT,
   RAG_QUIZ_BEST_KEY,
   RAG_QUIZ_DRAFT_KEY,
   RAG_QUIZ_PASSED_KEY,
-  isRagProgressStorageAvailable,
   ragPracticeKey,
-  readRagProgress,
   resetRagProgress,
   updateRagProgress,
-  type RagProgressRecord,
 } from "./progress-store";
 import useRagHydrated from "./useRagHydrated";
+import useRagProgress from "./useRagProgress";
 import styles from "../prompts/PromptCourse.module.css";
+import courseStyles from "./RagCourse.module.css";
 import { useI18n } from "../I18nProvider";
 
 type Labels = RagCourseCopy["ui"];
 
-function format(template: string, values: Record<string, number>): string {
+function format(template: string, values: Record<string, string | number>): string {
   return template.replace(/\{([^}]+)\}/g, (match, key: string) => (
     Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : match
   ));
 }
 
-function subscribe(notify: () => void): () => void {
-  window.addEventListener(RAG_PROGRESS_EVENT, notify);
-  window.addEventListener("storage", notify);
-  window.addEventListener("focus", notify);
-  return () => {
-    window.removeEventListener(RAG_PROGRESS_EVENT, notify);
-    window.removeEventListener("storage", notify);
-    window.removeEventListener("focus", notify);
-  };
-}
-
-function progressSnapshot(): string {
-  return JSON.stringify(readRagProgress());
-}
-
-function useRagProgress() {
-  const serialised = useSyncExternalStore(subscribe, progressSnapshot, () => "{}");
-  const storageAvailable = useSyncExternalStore(
-    subscribe,
-    isRagProgressStorageAvailable,
-    () => true,
-  );
-  let progress: RagProgressRecord = {};
-  try {
-    const value: unknown = JSON.parse(serialised);
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      progress = value as RagProgressRecord;
-    }
-  } catch {
-    progress = {};
-  }
-  return { progress, storageAvailable };
+function validQuizBest(value: unknown, questionCount: number): number {
+  return typeof value === "number"
+    && Number.isSafeInteger(value)
+    && value >= 0
+    && value <= questionCount
+    ? value
+    : 0;
 }
 
 export function PracticeCompletion({ slug, labels }: { slug: RagLessonSlug; labels: Labels }) {
@@ -71,7 +44,7 @@ export function PracticeCompletion({ slug, labels }: { slug: RagLessonSlug; labe
   const complete = progress[key] === true;
 
   return (
-    <section className={styles.completion} aria-label={labels.courseProgress}>
+    <section className={styles.completion} aria-label={labels.courseProgress} aria-busy={!hydrated}>
       <div>
         <strong aria-live="polite">
           {complete ? labels.practiceComplete : labels.markPracticeComplete}
@@ -82,48 +55,26 @@ export function PracticeCompletion({ slug, labels }: { slug: RagLessonSlug; labe
       <button
         className={complete ? styles.completeButton : styles.primaryButton}
         type="button"
-        disabled={!hydrated || complete}
+        disabled={!hydrated}
         onClick={() => {
-          if (complete) return;
-          updateRagProgress((record) => { record[key] = true; });
+          updateRagProgress((record) => {
+            if (complete) delete record[key];
+            else record[key] = true;
+          });
         }}
       >
-        {complete ? labels.markedPracticeComplete : labels.markPracticeComplete}
+        {complete ? labels.undoPracticeComplete : labels.markPracticeComplete}
       </button>
     </section>
   );
 }
 
-export function CourseProgress({
-  lessons,
-  labels,
-  startLabel,
-  resumeLabel,
-}: {
-  lessons: readonly { slug: RagLessonSlug; href: string }[];
-  labels: Labels;
-  startLabel: string;
-  resumeLabel: string;
-}) {
-  const { t } = useI18n();
+export function CourseProgressTools({ labels }: { labels: Labels }) {
   const { progress, storageAvailable } = useRagProgress();
   const hydrated = useRagHydrated();
   const [resetStatus, setResetStatus] = useState("");
   const [resetCount, setResetCount] = useState(0);
   const resetStatusRef = useRef<HTMLParagraphElement>(null);
-  const state = useMemo(() => {
-    const practices = lessons.filter((lesson) => progress[ragPracticeKey(lesson.slug)] === true).length;
-    const quiz = progress[RAG_QUIZ_PASSED_KEY] === true ? 1 : 0;
-    const capstone = progress[RAG_CAPSTONE_KEY] === true ? 1 : 0;
-    const complete = practices + quiz + capstone;
-    const total = lessons.length + 2;
-    const nextLesson = lessons.find((lesson) => progress[ragPracticeKey(lesson.slug)] !== true);
-    const courseCompleted = complete === total;
-    const nextHref = courseCompleted
-      ? lessons[0]?.href ?? null
-      : nextLesson?.href ?? (quiz ? "#rag-capstone" : "#rag-final-quiz");
-    return { complete, total, courseCompleted, percent: Math.round((complete / total) * 100), nextHref };
-  }, [lessons, progress]);
   const hasProgress = Object.keys(progress).some((key) => key.startsWith("rag."));
 
   useEffect(() => {
@@ -131,46 +82,15 @@ export function CourseProgress({
   }, [resetCount]);
 
   return (
-    <section
-      className={styles.progressPanel}
-      aria-labelledby="rag-progress-title"
+    <details
+      className={courseStyles.progressTools}
+      data-testid="rag-progress-tools"
       data-rag-hydrated={hydrated ? "true" : "false"}
     >
-      <div className={styles.progressHeading}>
-        <div>
-          <h2 id="rag-progress-title">{labels.courseProgress}</h2>
-          <p>{labels.browserStorageNote}</p>
-        </div>
-        <output className={styles.progressValue} aria-live="polite">
-          <strong>{state.percent}%</strong>
-          <span>{state.complete} / {state.total}</span>
-        </output>
-      </div>
-      {!storageAvailable ? <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p> : null}
-      <progress
-        aria-labelledby="rag-progress-title"
-        className={styles.progressBar}
-        max={state.total}
-        value={state.complete}
-      >
-        {state.percent}%
-      </progress>
-      <div className={styles.actionRow}>
-        {state.nextHref ? (
-          <Link
-            className={styles.primaryButton}
-            href={state.nextHref}
-            data-course-journey-action
-            onClick={() => {
-              if (!state.nextHref?.startsWith("#")) return;
-              window.requestAnimationFrame(() => {
-                document.querySelector<HTMLElement>(state.nextHref!)?.focus();
-              });
-            }}
-          >
-            {state.courseCompleted ? t("cat.review") : hasProgress ? resumeLabel : startLabel}<span aria-hidden="true">→</span>
-          </Link>
-        ) : null}
+      <summary>{labels.manageProgress}</summary>
+      <div className={courseStyles.progressToolsBody}>
+        <p>{labels.browserStorageNote}</p>
+        {!storageAvailable ? <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p> : null}
         <button
           className={styles.secondaryButton}
           type="button"
@@ -184,17 +104,17 @@ export function CourseProgress({
         >
           {labels.resetProgress}
         </button>
+        <p
+          className={`${resetStatus ? styles.resetStatus : styles.srOnly} ${styles.focusTarget}`}
+          key={resetCount}
+          ref={resetStatusRef}
+          role="status"
+          tabIndex={-1}
+        >
+          {resetStatus}
+        </p>
       </div>
-      <p
-        className={`${resetStatus ? styles.resetStatus : styles.srOnly} ${styles.focusTarget}`}
-        key={resetCount}
-        ref={resetStatusRef}
-        role="status"
-        tabIndex={-1}
-      >
-        {resetStatus}
-      </p>
-    </section>
+    </details>
   );
 }
 
@@ -210,6 +130,7 @@ export function LessonCheckpoint({
   const hydrated = useRagHydrated();
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
+  const [selectionError, setSelectionError] = useState(false);
   const firstOptionRef = useRef<HTMLInputElement>(null);
   const feedbackRef = useRef<HTMLDivElement>(null);
   const focusOptionsAfterRetry = useRef(false);
@@ -225,11 +146,20 @@ export function LessonCheckpoint({
   }, [checked]);
 
   return (
-    <section className={styles.checkpoint} aria-labelledby={`${id}-title`}>
+    <section className={styles.checkpoint} aria-labelledby={`${id}-title`} aria-busy={!hydrated}>
       <p className={styles.kicker}>{labels.checkpoint}</p>
       <h2 id={`${id}-title`}>{checkpoint.question}</h2>
-      <form onSubmit={(event) => { event.preventDefault(); if (selected !== null) setChecked(true); }}>
-        <fieldset>
+      <form onSubmit={(event) => {
+        event.preventDefault();
+        if (selected === null) {
+          setSelectionError(true);
+          firstOptionRef.current?.focus();
+          return;
+        }
+        setSelectionError(false);
+        setChecked(true);
+      }}>
+        <fieldset aria-describedby={selectionError ? `${id}-selection-error` : undefined}>
           <legend className={styles.srOnly}>{checkpoint.question}</legend>
           {checkpoint.options.map((option, index) => (
             <label
@@ -247,14 +177,22 @@ export function LessonCheckpoint({
                 value={index}
                 checked={selected === index}
                 disabled={!hydrated || checked}
-                onChange={() => setSelected(index)}
+                onChange={() => {
+                  setSelected(index);
+                  setSelectionError(false);
+                }}
               />
               <span>{option}</span>
             </label>
           ))}
         </fieldset>
+        {selectionError ? (
+          <p className={courseStyles.selectionError} id={`${id}-selection-error`} role="alert">
+            {labels.selectAnswer}
+          </p>
+        ) : null}
         {!checked ? (
-          <button className={styles.primaryButton} type="submit" disabled={!hydrated || selected === null}>
+          <button className={styles.primaryButton} type="submit" disabled={!hydrated}>
             {labels.checkAnswer}
           </button>
         ) : (
@@ -273,6 +211,7 @@ export function LessonCheckpoint({
                 onClick={() => {
                   focusOptionsAfterRetry.current = true;
                   setSelected(null);
+                  setSelectionError(false);
                   setChecked(false);
                 }}
               >
@@ -322,6 +261,7 @@ function parseQuizDraft(value: unknown, questions: readonly RagQuizQuestion[]): 
 }
 
 export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQuestion[]; labels: Labels }) {
+  const { locale } = useI18n();
   const { progress, storageAvailable } = useRagProgress();
   const hydrated = useRagHydrated();
   const [active, setActive] = useState(false);
@@ -329,15 +269,20 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [score, setScore] = useState<number | null>(null);
+  const [selectionError, setSelectionError] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
+  const [reviewIndex, setReviewIndex] = useState(0);
   const questionHeadingRef = useRef<HTMLHeadingElement>(null);
   const questionFeedbackRef = useRef<HTMLDivElement>(null);
   const quizResultRef = useRef<HTMLDivElement>(null);
+  const reviewHeadingRef = useRef<HTMLHeadingElement>(null);
   const current = questions[index];
   const answered = current ? answers[current.id] !== undefined : false;
-  const savedBest = typeof progress[RAG_QUIZ_BEST_KEY] === "number"
-    ? progress[RAG_QUIZ_BEST_KEY] as number
-    : 0;
+  const savedBest = validQuizBest(progress[RAG_QUIZ_BEST_KEY], questions.length);
   const best = Math.max(savedBest, score ?? 0);
+  const number = (value: number) => formatDeterministicInteger(value, locale);
+  const missedQuestions = questions.filter((question) => answers[question.id] === false);
+  const reviewQuestion = missedQuestions[reviewIndex];
 
   useEffect(() => {
     function resetAttempt() {
@@ -346,6 +291,9 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
       setSelected(null);
       setAnswers({});
       setScore(null);
+      setSelectionError(false);
+      setReviewing(false);
+      setReviewIndex(0);
     }
     window.addEventListener(RAG_RESET_EVENT, resetAttempt);
     return () => window.removeEventListener(RAG_RESET_EVENT, resetAttempt);
@@ -353,14 +301,16 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
 
   useEffect(() => {
     if (!active) return;
-    if (score !== null) {
+    if (score !== null && reviewing) {
+      reviewHeadingRef.current?.focus();
+    } else if (score !== null) {
       quizResultRef.current?.focus();
     } else if (answered) {
       questionFeedbackRef.current?.focus();
     } else {
       questionHeadingRef.current?.focus();
     }
-  }, [active, answered, index, score]);
+  }, [active, answered, index, reviewing, reviewIndex, score]);
 
   useEffect(() => {
     if (!hydrated || !active) return;
@@ -387,6 +337,9 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
     setSelected(draft?.selected ?? null);
     setAnswers(draft ? { ...draft.answers } : {});
     setScore(null);
+    setSelectionError(false);
+    setReviewing(false);
+    setReviewIndex(0);
     if (!draft) {
       updateRagProgress((record) => { delete record[RAG_QUIZ_DRAFT_KEY]; });
     }
@@ -397,16 +350,17 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
     if (index < questions.length - 1) {
       setIndex((value) => value + 1);
       setSelected(null);
+      setSelectionError(false);
       return;
     }
     const finalScore = Object.values(answers).filter(Boolean).length;
     setScore(finalScore);
     updateRagProgress((record) => {
-      const previousBest = typeof record[RAG_QUIZ_BEST_KEY] === "number"
-        ? record[RAG_QUIZ_BEST_KEY] as number
-        : 0;
-      record[RAG_QUIZ_BEST_KEY] = Math.max(previousBest, finalScore);
-      if (finalScore >= 9) record[RAG_QUIZ_PASSED_KEY] = true;
+      const previousBest = validQuizBest(record[RAG_QUIZ_BEST_KEY], questions.length);
+      const nextBest = Math.max(previousBest, finalScore);
+      record[RAG_QUIZ_BEST_KEY] = nextBest;
+      if (finalScore >= 9 || previousBest >= 9) record[RAG_QUIZ_PASSED_KEY] = true;
+      else delete record[RAG_QUIZ_PASSED_KEY];
       delete record[RAG_QUIZ_DRAFT_KEY];
     });
   }
@@ -416,6 +370,7 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
       className={`${styles.finalQuiz} ${styles.focusTarget}`}
       id="rag-final-quiz"
       aria-labelledby="rag-final-quiz-title"
+      aria-busy={!hydrated}
       tabIndex={-1}
     >
       <header className={styles.quizHeader}>
@@ -426,7 +381,7 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
         </div>
         <div className={styles.quizRequirement}>
           <strong>{labels.passRequirement}</strong>
-          <span>{format(labels.bestScore, { score: best, total: questions.length })}</span>
+          <span>{format(labels.bestScore, { score: number(best), total: number(questions.length) })}</span>
         </div>
       </header>
       {!storageAvailable ? <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p> : null}
@@ -440,6 +395,52 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
         >
           {labels.beginQuiz}
         </button>
+      ) : score !== null && reviewing && reviewQuestion ? (
+        <div className={`${courseStyles.quizReview} ${styles.focusTarget}`}>
+          <div className={styles.quizMeta}>
+            <span>{format(labels.questionProgress, {
+              current: number(reviewIndex + 1),
+              total: number(missedQuestions.length),
+            })}</span>
+            <span>{reviewQuestion.unitTitle}</span>
+          </div>
+          <h3 className={styles.focusTarget} ref={reviewHeadingRef} tabIndex={-1}>
+            {reviewQuestion.question}
+          </h3>
+          <div className={styles.correctFeedback}>
+            <strong>{labels.correctAnswer}</strong>
+            <p>{reviewQuestion.options[reviewQuestion.correctIndex]}</p>
+            <p>{reviewQuestion.explanation}</p>
+            <a href={reviewQuestion.sourceUrl} target="_blank" rel="noopener noreferrer">
+              {labels.source}: {reviewQuestion.sourceTitle}
+            </a>
+          </div>
+          <div className={courseStyles.quizReviewActions}>
+            <button
+              className={styles.secondaryButton}
+              type="button"
+              disabled={reviewIndex === 0}
+              onClick={() => setReviewIndex((value) => Math.max(0, value - 1))}
+            >
+              {labels.previousMissedQuestion}
+            </button>
+            <button
+              className={styles.secondaryButton}
+              type="button"
+              disabled={reviewIndex === missedQuestions.length - 1}
+              onClick={() => setReviewIndex((value) => Math.min(missedQuestions.length - 1, value + 1))}
+            >
+              {labels.nextMissedQuestion}
+            </button>
+            <button
+              className={styles.primaryButton}
+              type="button"
+              onClick={() => setReviewing(false)}
+            >
+              {labels.backToResults}
+            </button>
+          </div>
+        </div>
       ) : score !== null ? (
         <div
           className={`${score >= 9 ? styles.correctFeedback : styles.incorrectFeedback} ${styles.focusTarget}`}
@@ -447,25 +448,48 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
           role="status"
           tabIndex={-1}
         >
-          <strong>{format(labels.scoreSummary, { score, total: questions.length })}</strong>
+          <strong>{format(labels.scoreSummary, { score: number(score), total: number(questions.length) })}</strong>
           <p>{score >= 9 ? labels.quizPassed : labels.quizNeedsReview}</p>
-          <button className={styles.secondaryButton} type="button" onClick={begin}>{labels.retryQuiz}</button>
+          <div className={courseStyles.quizResultActions}>
+            {missedQuestions.length > 0 ? (
+              <button
+                className={styles.primaryButton}
+                type="button"
+                onClick={() => {
+                  setReviewIndex(0);
+                  setReviewing(true);
+                }}
+              >
+                {labels.reviewMissedAnswers}
+              </button>
+            ) : null}
+            <button className={styles.secondaryButton} type="button" onClick={begin}>{labels.retryQuiz}</button>
+          </div>
         </div>
       ) : current ? (
         <form
           className={styles.quizQuestion}
           onSubmit={(event) => {
             event.preventDefault();
-            if (selected === null || answered) return;
+            if (answered) return;
+            if (selected === null) {
+              setSelectionError(true);
+              event.currentTarget.querySelector<HTMLInputElement>('input[type="radio"]')?.focus();
+              return;
+            }
+            setSelectionError(false);
             setAnswers((existing) => ({ ...existing, [current.id]: selected === current.correctIndex }));
           }}
         >
           <div className={styles.quizMeta}>
-            <span>{format(labels.questionProgress, { current: index + 1, total: questions.length })}</span>
+            <span>{format(labels.questionProgress, {
+              current: number(index + 1),
+              total: number(questions.length),
+            })}</span>
             <span>{current.unitTitle}</span>
           </div>
           <h3 className={styles.focusTarget} ref={questionHeadingRef} tabIndex={-1}>{current.question}</h3>
-          <fieldset>
+          <fieldset aria-describedby={selectionError ? `${current.id}-selection-error` : undefined}>
             <legend className={styles.srOnly}>{current.question}</legend>
             {current.options.map((option, optionIndex) => (
               <label
@@ -482,14 +506,22 @@ export function FinalQuiz({ questions, labels }: { questions: readonly RagQuizQu
                   value={optionIndex}
                   checked={selected === optionIndex}
                   disabled={answered}
-                  onChange={() => setSelected(optionIndex)}
+                  onChange={() => {
+                    setSelected(optionIndex);
+                    setSelectionError(false);
+                  }}
                 />
                 <span>{option}</span>
               </label>
             ))}
           </fieldset>
+          {selectionError ? (
+            <p className={courseStyles.selectionError} id={`${current.id}-selection-error`} role="alert">
+              {labels.selectAnswer}
+            </p>
+          ) : null}
           {!answered ? (
-            <button className={styles.primaryButton} type="submit" disabled={selected === null}>
+            <button className={styles.primaryButton} type="submit">
               {labels.checkAnswer}
             </button>
           ) : (
@@ -531,7 +563,10 @@ export function CapstoneChecklist({
   const recorded = progress[RAG_CAPSTONE_KEY] === true;
   const previousRecorded = useRef(recorded);
   const recordRequested = useRef(false);
+  const reopenRequested = useRef(false);
   const recordedStatusRef = useRef<HTMLParagraphElement>(null);
+  const firstArtifactRef = useRef<HTMLInputElement>(null);
+  const [statusText, setStatusText] = useState("");
   const allChecked = required.every((_item, index) => checked[index]);
 
   useEffect(() => {
@@ -570,18 +605,35 @@ export function CapstoneChecklist({
   }, [checked, draftReady, hydrated, recorded, required]);
 
   useEffect(() => {
-    if (previousRecorded.current && !recorded) setChecked({});
+    if (previousRecorded.current && !recorded) {
+      if (reopenRequested.current) {
+        reopenRequested.current = false;
+        setChecked(Object.fromEntries(required.map((_item, index) => [index, true])));
+        window.requestAnimationFrame(() => firstArtifactRef.current?.focus());
+      } else {
+        setChecked({});
+      }
+    }
     if (recordRequested.current && recorded) {
       recordRequested.current = false;
-      recordedStatusRef.current?.focus();
+      setStatusText(labels.capstoneComplete);
     }
     previousRecorded.current = recorded;
-  }, [recorded]);
+  }, [labels.capstoneComplete, recorded, required]);
+
+  useEffect(() => {
+    if (recorded && statusText === labels.capstoneComplete) {
+      recordedStatusRef.current?.focus();
+    }
+  }, [labels.capstoneComplete, recorded, statusText]);
 
   useEffect(() => {
     function resetChecklist() {
       setChecked({});
       setDraftReady(true);
+      setStatusText("");
+      reopenRequested.current = false;
+      recordRequested.current = false;
     }
     window.addEventListener(RAG_RESET_EVENT, resetChecklist);
     return () => window.removeEventListener(RAG_RESET_EVENT, resetChecklist);
@@ -592,6 +644,7 @@ export function CapstoneChecklist({
       className={`${styles.capstone} ${styles.focusTarget}`}
       id="rag-capstone"
       aria-labelledby="rag-capstone-title"
+      aria-busy={!hydrated}
       tabIndex={-1}
     >
       <p className={styles.kicker}>{labels.capstone}</p>
@@ -602,6 +655,7 @@ export function CapstoneChecklist({
           {required.map((item, index) => (
             <label className={styles.capstoneItem} key={item}>
               <input
+                ref={index === 0 ? firstArtifactRef : undefined}
                 type="checkbox"
                 tabIndex={0}
                 name={`rag-capstone-artifact-${index + 1}`}
@@ -620,23 +674,44 @@ export function CapstoneChecklist({
         </div>
       </div>
       {!storageAvailable ? <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p> : null}
-      <button
-        className={recorded ? styles.completeButton : styles.primaryButton}
-        type="button"
-        disabled={!hydrated || recorded || !allChecked}
-        onClick={() => {
-          recordRequested.current = true;
-          updateRagProgress((record) => {
-            record[RAG_CAPSTONE_KEY] = true;
-            delete record[RAG_CAPSTONE_DRAFT_KEY];
-          });
-        }}
-      >
-        {recorded ? labels.capstoneComplete : labels.recordCapstone}
-      </button>
       {recorded ? (
+        <button
+          className={styles.secondaryButton}
+          type="button"
+          disabled={!hydrated}
+          onClick={() => {
+            reopenRequested.current = true;
+            setStatusText(labels.capstoneReopened);
+            updateRagProgress((record) => {
+              delete record[RAG_CAPSTONE_KEY];
+              record[RAG_CAPSTONE_DRAFT_KEY] = {
+                version: 1,
+                checked: required.map(() => true),
+              };
+            });
+          }}
+        >
+          {labels.reopenCapstone}
+        </button>
+      ) : (
+        <button
+          className={styles.primaryButton}
+          type="button"
+          disabled={!hydrated || !allChecked}
+          onClick={() => {
+            recordRequested.current = true;
+            updateRagProgress((record) => {
+              record[RAG_CAPSTONE_KEY] = true;
+              delete record[RAG_CAPSTONE_DRAFT_KEY];
+            });
+          }}
+        >
+          {labels.recordCapstone}
+        </button>
+      )}
+      {statusText ? (
         <p className={`${styles.resetStatus} ${styles.focusTarget}`} ref={recordedStatusRef} role="status" tabIndex={-1}>
-          {labels.capstoneComplete}
+          {statusText}
         </p>
       ) : null}
     </section>
