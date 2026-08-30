@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import {
-  CourseKitDashboardRoute,
-  courseKitMetadata,
+  CourseKitAssessmentRoute,
+  courseKitMilestoneMetadata,
 } from "@/components/course-kit/CourseRoute";
 import { AGENTIC_QUANT_TRADING_COURSE } from "@/lib/agentic-quant-trading";
 
@@ -12,24 +12,19 @@ export const dynamicParams = false;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return courseKitMetadata({
+  return courseKitMilestoneMetadata({
     definition: AGENTIC_QUANT_TRADING_COURSE,
     locale,
+    section: "assessment",
   });
 }
 
-export default async function AgenticQuantTradingPage({ params }: Props) {
+export default async function AgenticQuantTradingAssessmentPage({ params }: Props) {
   const { locale } = await params;
   return (
-    <CourseKitDashboardRoute
+    <CourseKitAssessmentRoute
       definition={AGENTIC_QUANT_TRADING_COURSE}
       locale={locale}
-      requireStructuredReceipts
-      sectionHrefs={{
-        assessment: `/${locale}/agentic-quant-trading/assessment/`,
-        capstone: `/${locale}/agentic-quant-trading/capstone/`,
-        sources: `/${locale}/agentic-quant-trading/sources/`,
-      }}
     />
   );
 }

@@ -5,52 +5,12 @@ import type {
   CourseKitMaterialisedModule,
 } from "@/lib/course-kit/types";
 import { CourseLanguageNotice } from "./CourseLanguageNotice";
+import { CourseModuleMap } from "./CourseJourney";
 import { CourseProgress } from "./CourseProgress";
 import { ModuleCheckpoint } from "./ModuleCheckpoint";
 import { ModuleCompletion } from "./ModuleCompletion";
 import { SourceRegister } from "./SourceRegister";
 import styles from "./CourseKit.module.css";
-
-function ModuleMap({
-  course,
-  activeSlug,
-  courseHref,
-}: {
-  readonly course: CourseKitMaterialisedCourse;
-  readonly activeSlug: string;
-  readonly courseHref: string;
-}) {
-  return (
-    <ol className={styles.courseMapList}>
-      {course.phases.map((phase) => (
-        <li key={phase.id}>
-          <strong>{phase.title}</strong>
-          <ol>
-            {phase.moduleSlugs.map((slug) => {
-              const courseModule = course.modules.find(
-                (candidate) => candidate.slug === slug,
-              );
-              if (!courseModule) return null;
-              return (
-                <li key={slug}>
-                  <Link
-                    href={`${courseHref}${slug}/`}
-                    aria-current={slug === activeSlug ? "page" : undefined}
-                  >
-                    <span aria-hidden="true">
-                      {String(courseModule.order).padStart(2, "0")}
-                    </span>
-                    <span>{courseModule.copy.title}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ol>
-        </li>
-      ))}
-    </ol>
-  );
-}
 
 export interface CourseModuleViewProps {
   readonly course: CourseKitMaterialisedCourse;
@@ -60,6 +20,10 @@ export interface CourseModuleViewProps {
   readonly supplement?: ReactNode;
   /** Require a reviewable hash-and-validator receipt before completion. */
   readonly requireStructuredReceipt?: boolean;
+  /** Dedicated destination after the final module, such as an assessment route. */
+  readonly afterModulesHref?: string;
+  readonly afterModulesTitle?: string;
+  readonly capstoneHref?: string;
 }
 
 export function ModuleView({
@@ -68,6 +32,9 @@ export function ModuleView({
   coursePath = course.id,
   supplement,
   requireStructuredReceipt = false,
+  afterModulesHref,
+  afterModulesTitle,
+  capstoneHref,
 }: CourseModuleViewProps) {
   const courseHref = `/${course.locale.requestedLocale}/${coursePath}/`;
   const previous = module.previousSlug
@@ -76,9 +43,23 @@ export function ModuleView({
   const next = module.nextSlug
     ? course.modules.find((candidate) => candidate.slug === module.nextSlug)
     : undefined;
-  const moduleSources = module.sourceIds
+  const renderedSourceIds = new Set([
+    ...module.sourceIds,
+    ...module.copy.sections.flatMap((section) => section.sourceIds),
+  ]);
+  const moduleSources = [...renderedSourceIds]
     .map((sourceId) => course.sources.find((source) => source.id === sourceId))
     .filter((source): source is NonNullable<typeof source> => Boolean(source));
+  const journeyPhases = course.phases.map((phase) => ({
+    id: phase.id,
+    title: phase.title,
+    modules: phase.moduleSlugs.flatMap((slug) => {
+      const candidate = course.modules.find((courseModule) => courseModule.slug === slug);
+      return candidate
+        ? [{ slug: candidate.slug, order: candidate.order, title: candidate.copy.title }]
+        : [];
+    }),
+  }));
 
   return (
     <div
@@ -90,7 +71,10 @@ export function ModuleView({
     >
       <CourseLanguageNotice course={course} />
 
-      <nav className={styles.breadcrumb} aria-label={course.copy.ui.courseMap}>
+      <nav
+        className={styles.breadcrumb}
+        aria-label={`${course.copy.ui.course}: ${course.copy.ui.backToCourse}`}
+      >
         <Link href={courseHref}>
           <span aria-hidden="true">←</span>
           {course.copy.ui.backToCourse}
@@ -108,15 +92,31 @@ export function ModuleView({
             {module.order}/{course.modules.length}
           </span>
         </summary>
-        <nav aria-label={course.copy.ui.modules}>
-          <ModuleMap course={course} activeSlug={module.slug} courseHref={courseHref} />
+        <nav aria-label={`${course.copy.ui.courseMap}: ${course.copy.ui.modules}`}>
+          <CourseModuleMap
+            phases={journeyPhases}
+            activeSlug={module.slug}
+            courseHref={courseHref}
+            config={course.progress}
+            labels={course.copy.ui}
+            assessmentHref={afterModulesHref}
+            capstoneHref={capstoneHref}
+          />
         </nav>
       </details>
 
       <div className={styles.moduleLayout}>
         <aside className={styles.moduleSidebar}>
-          <nav aria-label={course.copy.ui.modules}>
-            <ModuleMap course={course} activeSlug={module.slug} courseHref={courseHref} />
+          <nav aria-label={`${course.copy.ui.courseMap}: ${course.copy.ui.modules}`}>
+            <CourseModuleMap
+              phases={journeyPhases}
+              activeSlug={module.slug}
+              courseHref={courseHref}
+              config={course.progress}
+              labels={course.copy.ui}
+              assessmentHref={afterModulesHref}
+              capstoneHref={capstoneHref}
+            />
           </nav>
           <CourseProgress config={course.progress} labels={course.copy.ui} compact />
         </aside>
@@ -177,7 +177,9 @@ export function ModuleView({
                 <p className={styles.sourceLinks}>
                   {section.sourceIds.map((sourceId) => (
                     <a href={`#source-${sourceId}`} key={sourceId}>
-                      {course.copy.ui.source}: {sourceId}
+                      {course.copy.ui.source}: {
+                        course.sources.find((source) => source.id === sourceId)?.title ?? sourceId
+                      }
                     </a>
                   ))}
                 </p>
@@ -234,6 +236,7 @@ export function ModuleView({
             sources={moduleSources}
             labels={course.copy.ui}
             titleId={`${module.slug}-sources-title`}
+            locale={course.locale.contentLocale}
           />
 
           <ModuleCompletion
@@ -243,19 +246,30 @@ export function ModuleView({
             requireStructuredReceipt={requireStructuredReceipt}
           />
 
-          <nav className={styles.modulePager} aria-label={course.copy.ui.modules}>
+          <nav
+            className={styles.modulePager}
+            aria-label={`${course.copy.ui.previous} / ${course.copy.ui.next}`}
+          >
             {previous ? (
               <Link href={`${courseHref}${previous.slug}/`} rel="prev">
                 <span>{course.copy.ui.previous}</span>
                 <strong>{previous.copy.title}</strong>
               </Link>
             ) : (
-              <span />
+              <Link href={courseHref} rel="prev">
+                <span>{course.copy.ui.backToCourse}</span>
+                <strong>{course.copy.meta.title}</strong>
+              </Link>
             )}
             {next ? (
               <Link href={`${courseHref}${next.slug}/`} rel="next">
                 <span>{course.copy.ui.next}</span>
                 <strong>{next.copy.title}</strong>
+              </Link>
+            ) : afterModulesHref ? (
+              <Link href={afterModulesHref} rel="next">
+                <span>{course.copy.ui.next}</span>
+                <strong>{afterModulesTitle ?? course.copy.ui.finalAssessment}</strong>
               </Link>
             ) : (
               <Link href={courseHref}>
