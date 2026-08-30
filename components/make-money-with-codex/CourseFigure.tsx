@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import type { CodexIncomeFigure } from "@/lib/make-money-with-codex";
 import styles from "./IncomeCourse.module.css";
 
@@ -14,6 +14,16 @@ export default function CourseFigure({
   const captionId = `${figure.id}${instanceId ? `-${instanceId}` : ""}-caption`;
   const testId = `income-figure-${figure.id}${instanceId ? `-${instanceId}` : ""}`;
   const officialRepositoryImage = figure.captureMethod === "official-repository-image";
+  const { props: imageProps } = getImageProps({
+    src: figure.src,
+    alt: figure.alt,
+    width: figure.width,
+    height: figure.height,
+    loading: eager ? "eager" : "lazy",
+    fetchPriority: eager ? "high" : "auto",
+    sizes: "(max-width: 900px) calc(100vw - 40px), 760px",
+    unoptimized: true,
+  });
   const surfaceLabel = figure.surface === "codex-cli"
     ? officialRepositoryImage
       ? "Official historical Codex CLI illustration"
@@ -33,17 +43,8 @@ export default function CourseFigure({
     >
       <picture>
         <source srcSet={figure.webp} type="image/webp" />
-        <Image
-          src={figure.src}
-          alt={figure.alt}
-          width={figure.width}
-          height={figure.height}
-          loading={eager ? "eager" : "lazy"}
-          fetchPriority={eager ? "high" : "auto"}
-          sizes="(max-width: 900px) calc(100vw - 40px), 760px"
-          unoptimized
-          aria-describedby={captionId}
-        />
+        {/* getImageProps is the Next.js 16 static-export pattern for a custom picture source. */}
+        <img {...imageProps} alt={figure.alt} aria-describedby={captionId} />
       </picture>
       <figcaption id={captionId}>
         <p className={styles.figureType}>{surfaceLabel}</p>

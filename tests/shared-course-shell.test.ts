@@ -26,7 +26,7 @@ const journeyByCourse = new Map<string, string>([
   ["software-engineering", "components/software-engineering/CourseProgress.tsx"],
   ["rag", "components/rag/RagInteractions.tsx"],
   ["mcp", "components/mcp/CourseProgress.tsx"],
-  ["make-money-with-codex", "components/make-money-with-codex/CourseProgress.tsx"],
+  ["make-money-with-codex", "components/make-money-with-codex/CourseJourneyAction.tsx"],
   ["claude-income", "components/claude-income/DashboardProgress.tsx"],
   ["ai-tutor", "components/ai-tutor/Interactions.tsx"],
   ["product-management", "components/product-management/Interactions.tsx"],

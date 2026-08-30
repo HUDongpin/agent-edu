@@ -10,7 +10,12 @@ export default function EvidenceBadge({
 }) {
   const label = EVIDENCE_LABELS[value];
   return (
-    <span className={styles.evidenceBadge} data-evidence-class={value} title={label.meaning}>
+    <span
+      className={styles.evidenceBadge}
+      data-evidence-class={value}
+      title={label.meaning}
+      aria-label={`${long ? label.title : label.short}: ${label.meaning}`}
+    >
       {long ? label.title : label.short}
     </span>
   );

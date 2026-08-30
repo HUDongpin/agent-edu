@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { setIncomeCapstone } from "./progress-store";
 import useIncomeProgress, { useIncomeHydrated, useIncomeStorageAvailable } from "./useIncomeProgress";
 import styles from "./IncomeCourse.module.css";
@@ -20,7 +21,7 @@ const items = [
   "Go, revise, or stop decision plus retrospective",
 ] as const;
 
-export default function CapstoneChecklist() {
+export default function CapstoneChecklist({ courseHref }: { courseHref: string }) {
   const progress = useIncomeProgress();
   const hydrated = useIncomeHydrated();
   const storageAvailable = useIncomeStorageAvailable();
@@ -33,7 +34,7 @@ export default function CapstoneChecklist() {
         <h2 id="income-capstone-checklist-title">Codex Revenue Evidence Pack</h2>
         <p>All thirteen artefacts are required. A sale is optional; fabricated commercial evidence is a failure.</p>
       </header>
-      <output className={styles.checklistProgress} aria-live="polite">
+      <output className={styles.checklistProgress} role="status" aria-live="polite" aria-atomic="true">
         <strong>{count}</strong><span> / {items.length} evidence items</span>
       </output>
       <ul className={styles.capstoneChecks}>
@@ -56,9 +57,21 @@ export default function CapstoneChecklist() {
           </li>
         ))}
       </ul>
-      <p className={progress.capstoneReady ? styles.capstoneReady : styles.capstonePending} role="status">
+      <p
+        className={progress.capstoneReady ? styles.capstoneReady : styles.capstonePending}
+        role="status"
+        aria-atomic="true"
+      >
         {progress.capstoneReady ? "Evidence pack complete. Run the final claim audit before publication." : "Complete every evidence item before calling the capstone ready."}
       </p>
+      {progress.capstoneReady ? (
+        <div className={styles.toolActions}>
+          <Link className={styles.primaryButton} href={`${courseHref}#income-knowledge-check`}>
+            {progress.quizPassed ? "Review the final claim audit" : "Run the final claim audit"}
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      ) : null}
       {!storageAvailable ? <p className={styles.storageWarning} role="status">Browser storage is unavailable. Use the list as a manual checklist.</p> : null}
     </section>
   );

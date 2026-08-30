@@ -364,7 +364,12 @@ function CourseCard({
     );
   }
 
-  const href = course.targetHref ?? "#";
+  const resumeHref = progressPercent !== null
+    && progressPercent > 0
+    && progress?.nextHref
+    ? withPublicCourseReturnLocale(progress.nextHref, locale)
+    : null;
+  const href = resumeHref ?? course.targetHref ?? "#";
   return (
     <li id={anchorId} className={cardClass} data-course-id={course.id}>
       {course.external ? (

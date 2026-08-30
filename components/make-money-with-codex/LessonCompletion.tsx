@@ -25,7 +25,7 @@ export default function LessonCompletion({ slug }: { slug: CodexIncomeLessonSlug
         aria-pressed={complete}
         onClick={() => setIncomeLesson(slug, !complete)}
       >
-        {complete ? "Marked complete" : "Mark lesson complete"}
+        {complete ? "Mark lesson incomplete" : "Mark lesson complete"}
       </button>
     </section>
   );

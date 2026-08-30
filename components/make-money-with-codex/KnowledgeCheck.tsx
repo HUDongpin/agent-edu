@@ -1,28 +1,57 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   CODEX_INCOME_SOURCE_BY_ID,
   type CodexIncomeQuizQuestion,
 } from "@/lib/make-money-with-codex";
 import { setIncomeQuiz } from "./progress-store";
+import useSessionDraft from "./useSessionDraft";
 import useIncomeProgress, { useIncomeStorageAvailable } from "./useIncomeProgress";
 import styles from "./IncomeCourse.module.css";
+
+const EMPTY_ANSWERS: Record<string, number> = {};
 
 export default function KnowledgeCheck({
   questions,
   passingScore,
   locale,
+  capstoneHref,
 }: {
   questions: readonly CodexIncomeQuizQuestion[];
   passingScore: number;
   locale: string;
+  capstoneHref: string;
 }) {
   const progress = useIncomeProgress();
   const storageAvailable = useIncomeStorageAvailable();
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const parseAnswers = useCallback((value: unknown): Record<string, number> | null => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+    const record = value as Record<string, unknown>;
+    const restored: Record<string, number> = {};
+    for (const question of questions) {
+      const answer = record[question.id];
+      if (typeof answer === "number" && Number.isInteger(answer) && answer >= 0 && answer < question.options.length) {
+        restored[question.id] = answer;
+      }
+    }
+    return restored;
+  }, [questions]);
+  const {
+    value: answers,
+    setValue: setAnswers,
+    clear: clearAnswers,
+    status: draftStatus,
+  } = useSessionDraft({
+    storageKey: "aicourse.course11.quiz-answers.v1",
+    initialValue: EMPTY_ANSWERS,
+    parse: parseAnswers,
+  });
   const [submitted, setSubmitted] = useState(false);
+  const [persisted, setPersisted] = useState<boolean | null>(null);
   const resultHeading = useRef<HTMLHeadingElement>(null);
+  const firstOption = useRef<HTMLInputElement>(null);
   const number = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const score = questions.reduce(
     (total, question) => total + Number(answers[question.id] === question.correctIndex),
@@ -37,6 +66,7 @@ export default function KnowledgeCheck({
       id="income-knowledge-check"
       aria-labelledby="income-knowledge-check-title"
       data-testid="income-knowledge-check"
+      tabIndex={-1}
     >
       <header className={styles.quizHeader}>
         <div>
@@ -50,6 +80,12 @@ export default function KnowledgeCheck({
         </div>
       </header>
 
+      <p className={styles.draftNote} role={draftStatus === "unavailable" ? "status" : undefined}>
+        {draftStatus === "unavailable"
+          ? "Answer autosave is unavailable. Finish this attempt before leaving the page."
+          : "Unsubmitted answers autosave in this tab session and are never uploaded."}
+      </p>
+
       {!storageAvailable ? (
         <p className={styles.storageWarning} role="status">Persistent browser storage is unavailable. This attempt still works in memory for the current page session.</p>
       ) : null}
@@ -59,7 +95,7 @@ export default function KnowledgeCheck({
           event.preventDefault();
           if (!complete) return;
           setSubmitted(true);
-          setIncomeQuiz(score, passed);
+          setPersisted(setIncomeQuiz(score, passed));
           window.requestAnimationFrame(() => resultHeading.current?.focus());
         }}
       >
@@ -68,7 +104,7 @@ export default function KnowledgeCheck({
             const selected = answers[question.id];
             return (
               <li key={question.id} data-question-id={question.id}>
-                <fieldset>
+                <fieldset aria-describedby={submitted ? `${question.id}-feedback` : undefined}>
                   <legend>
                     <span>{String(questionIndex + 1).padStart(2, "0")}</span>
                     {question.question}
@@ -77,6 +113,9 @@ export default function KnowledgeCheck({
                     {question.options.map((option, optionIndex) => {
                       const isCorrect = submitted && optionIndex === question.correctIndex;
                       const isIncorrect = submitted && selected === optionIndex && !isCorrect;
+                      const answerStatus = isCorrect
+                        ? selected === optionIndex ? "Correct answer. Your answer." : "Correct answer."
+                        : isIncorrect ? "Your answer. Incorrect." : null;
                       return (
                         <label
                           key={option}
@@ -90,16 +129,24 @@ export default function KnowledgeCheck({
                             checked={selected === optionIndex}
                             disabled={submitted}
                             required
+                            ref={questionIndex === 0 && optionIndex === 0 ? firstOption : undefined}
                             onChange={() => setAnswers((current) => ({ ...current, [question.id]: optionIndex }))}
                           />
-                          <span>{option}</span>
+                          <span>
+                            {option}
+                            {answerStatus ? <strong className={styles.quizOptionStatus}>{answerStatus}</strong> : null}
+                          </span>
                         </label>
                       );
                     })}
                   </div>
                 </fieldset>
                 {submitted ? (
-                  <div className={styles.quizFeedback} data-correct={selected === question.correctIndex || undefined}>
+                  <div
+                    className={styles.quizFeedback}
+                    id={`${question.id}-feedback`}
+                    data-correct={selected === question.correctIndex || undefined}
+                  >
                     <strong>{selected === question.correctIndex ? "Correct." : "Review this boundary."}</strong>
                     <p>{question.explanation}</p>
                     <p className={styles.quizCitations}>
@@ -118,17 +165,34 @@ export default function KnowledgeCheck({
         {submitted ? (
           <section className={passed ? styles.quizPassed : styles.quizReview} role="status">
             <h3 ref={resultHeading} tabIndex={-1}>{passed ? "Evidence check passed" : "Review the missed boundaries"}</h3>
-            <p>You answered {number.format(score)} of {number.format(questions.length)} correctly. {passed ? "Your pass is saved locally." : `You need ${number.format(passingScore)} correct answers.`}</p>
-            <button
-              className={styles.secondaryButton}
-              type="button"
-              onClick={() => {
-                setAnswers({});
-                setSubmitted(false);
-              }}
-            >
-              Start a fresh attempt
-            </button>
+            <p>
+              You answered {number.format(score)} of {number.format(questions.length)} correctly. {passed
+                ? persisted
+                  ? "Your pass is saved in this browser."
+                  : "Your pass is available for this page session, but browser storage could not be updated."
+                : `You need ${number.format(passingScore)} correct answers.`}
+            </p>
+            <div className={styles.toolActions}>
+              {passed ? (
+                <Link className={styles.primaryButton} href={`${capstoneHref}#income-capstone-checklist-title`}>
+                  Review the capstone evidence pack <span aria-hidden="true">→</span>
+                </Link>
+              ) : null}
+              <button
+                className={styles.secondaryButton}
+                type="button"
+                onClick={() => {
+                  clearAnswers();
+                  setSubmitted(false);
+                  setPersisted(null);
+                  window.requestAnimationFrame(() => {
+                    window.requestAnimationFrame(() => firstOption.current?.focus());
+                  });
+                }}
+              >
+                Start a fresh attempt
+              </button>
+            </div>
           </section>
         ) : (
           <div className={styles.quizSubmit}>

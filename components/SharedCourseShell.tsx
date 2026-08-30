@@ -43,6 +43,8 @@ export default function SharedCourseShell({
   return (
     <aside
       className={`${standalone ? "shellwrap " : ""}shared-course-shell`}
+      lang={locale}
+      dir={metaFor(locale).dir}
       data-course-shell={courseId}
       data-course-publication-state={surface.state}
       data-course-level={course.level}
