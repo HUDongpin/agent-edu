@@ -103,7 +103,9 @@ Every string lives in [`messages/`](messages/) — one flat JSON file per langua
 
 ## Contributing a section
 
-New sections are genuinely welcome — *tool design*, *cost engineering* and *human-in-the-loop design* are already named as gaps in the catalogue. Here's the whole recipe.
+New sections are genuinely welcome. Here's the whole recipe.
+
+**Looking for the three courses the catalogue lists as coming soon?** *Tool design*, *cost engineering* and *human-in-the-loop design* are each specified in [`docs/course-briefs/`](docs/course-briefs/) — scope, outline, the boundary against what the site already teaches, and the four catalogue strings each one needs. They are standalone courses rather than handbook sections, so the recipe below is not the route to them; each brief names its own.
 
 **1. Claim a colour.** Three tokens in each of the **three** theme blocks in `app/globals.css` — `:root`, the `prefers-color-scheme: dark` block, **and** `:root[data-theme="dark"]`. All three, or your section goes invisible for anyone who toggled the theme by hand. The handbook's own hues are in the second set of blocks, under the `the handbook` banner comment.
 
