@@ -6,6 +6,7 @@ import type {
 import {
   ModuleCheckpoint,
   ModuleCompletion,
+  ModuleNavigator,
   PracticeWorkbench,
 } from "./Interactions";
 import styles from "./CreatorOpsCourse.module.css";
@@ -27,12 +28,25 @@ const CREATOR_OPS_LAB_RESOURCES: Readonly<Record<string, readonly string[]>> = {
   ],
 };
 
+const LAB_RESOURCE_LABELS: Readonly<Record<string, Readonly<Record<"en" | "zh-Hans", string>>>> = {
+  "README.md": { en: "Lab instructions", "zh-Hans": "实验说明" },
+  "fault-injections.json": { en: "Failure rehearsal scenarios", "zh-Hans": "故障演练情境" },
+  "manifest.sha256": { en: "Fixture integrity checksums", "zh-Hans": "样例完整性校验值" },
+  "mock-publish-scenarios.json": { en: "Mock publishing scenarios", "zh-Hans": "模拟发布情境" },
+  "source-fixtures/README.md": { en: "Source fixture guide", "zh-Hans": "来源样例指南" },
+  "source-fixtures/creator-suite-method-note.md": { en: "Research method note", "zh-Hans": "研究方法说明" },
+  "synthetic-events.csv": { en: "Synthetic analytics events", "zh-Hans": "合成分析事件" },
+  "synthetic-feedback.jsonl": { en: "Synthetic audience feedback", "zh-Hans": "合成受众反馈" },
+};
+
 export default function ModuleView({
   course,
   module,
+  catalogLabel,
 }: {
   course: MaterializedCreatorOpsCourse;
   module: MaterializedCreatorOpsModule;
+  catalogLabel: string;
 }) {
   const ui = course.copy.ui;
   const index = course.modules.findIndex((candidate) => candidate.slug === module.slug);
@@ -40,6 +54,11 @@ export default function ModuleView({
   const next = index < course.modules.length - 1 ? course.modules[index + 1] : null;
   const hrefFor = (slug: string) => `/${course.locale}/creator-ops/${slug}/`;
   const labResources = CREATOR_OPS_LAB_RESOURCES[module.slug] ?? [];
+  const navigationItems = course.modules.map((candidate) => ({
+    slug: candidate.slug,
+    order: candidate.order,
+    title: candidate.copy.title,
+  }));
 
   return (
     <div
@@ -50,11 +69,17 @@ export default function ModuleView({
     >
       <div className={`${styles.shell} ${styles.moduleShell}`}>
         <nav className={styles.breadcrumb} aria-label={ui.breadcrumb}>
-          <Link href={`/${course.locale}/courses/`}>{ui.course}</Link>
+          <Link
+            href={`/${course.locale}/courses/`}
+            lang={course.locale}
+            dir={course.locale === "ar" ? "rtl" : "ltr"}
+          >
+            {catalogLabel}
+          </Link>
           <span aria-hidden="true">/</span>
           <Link href={`/${course.locale}/creator-ops/`}>{course.copy.meta.shortTitle}</Link>
           <span aria-hidden="true">/</span>
-          <span>{ui.module} {module.order}</span>
+          <span aria-current="page">{ui.module} {module.order}</span>
         </nav>
 
         <aside className={styles.languageNotice} aria-label={ui.language}>
@@ -80,18 +105,23 @@ export default function ModuleView({
           </aside>
         </header>
 
-        <nav className={styles.moduleRail} aria-label={ui.modules}>
-          {course.modules.map((candidate) => (
-            <Link
-              key={candidate.slug}
-              href={hrefFor(candidate.slug)}
-              aria-current={candidate.slug === module.slug ? "page" : undefined}
-              aria-label={`${ui.module} ${candidate.order}: ${candidate.copy.title}`}
-              title={candidate.copy.title}
-            >
-              {String(candidate.order).padStart(2, "0")}
-            </Link>
+        <ModuleNavigator
+          locale={course.locale}
+          currentSlug={module.slug}
+          modules={navigationItems}
+          labels={ui}
+        />
+
+        <nav className={styles.moduleContents} aria-label={ui.onThisPage}>
+          <strong>{ui.onThisPage}</strong>
+          {module.copy.sections.map((section, sectionIndex) => (
+            <a key={section.heading} href={`#section-${sectionIndex + 1}`}>
+              {String(sectionIndex + 1).padStart(2, "0")} {section.heading}
+            </a>
           ))}
+          <a href={`#${module.slug}-practice-title`}>{ui.practice}</a>
+          <a href={`#${module.slug}-checkpoint`}>{ui.checkpoint}</a>
+          <a href={`#${module.slug}-completion`}>{ui.markComplete}</a>
         </nav>
 
         <article className={styles.lessonBody}>
@@ -120,7 +150,7 @@ export default function ModuleView({
           ))}
         </article>
 
-        <section className={styles.practiceSection} aria-labelledby={`${module.slug}-practice-title`}>
+        <section id={`${module.slug}-practice`} className={styles.practiceSection} aria-labelledby={`${module.slug}-practice-title`}>
           <header>
             <p className={styles.sectionLabel}>{ui.practice}</p>
             <h2 id={`${module.slug}-practice-title`}>{module.copy.practice.title}</h2>
@@ -137,7 +167,10 @@ export default function ModuleView({
               <ul>
                 {labResources.map((resource) => (
                   <li key={resource}>
-                    <a href={`${CREATOR_OPS_LAB_ROOT}/${resource}`}>{resource}</a>
+                    <a href={`${CREATOR_OPS_LAB_ROOT}/${resource}`}>
+                      <strong>{LAB_RESOURCE_LABELS[resource]?.[course.contentLocale] ?? resource}</strong>
+                      <code translate="no">{resource}</code>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -154,20 +187,47 @@ export default function ModuleView({
           <p>{module.copy.takeaway}</p>
         </aside>
 
-        <section className={styles.moduleSources} aria-labelledby={`${module.slug}-sources`}>
-          <header>
-            <p className={styles.sectionLabel}>{ui.sourceRegister}</p>
-            <h2 id={`${module.slug}-sources`}>{ui.sources}</h2>
-          </header>
+        <nav className={styles.lessonPager} aria-label={`${ui.previous} / ${ui.next}`}>
+          {previous ? (
+            <Link href={hrefFor(previous.slug)}>
+              <span>← {ui.previous}</span><strong>{previous.copy.title}</strong>
+            </Link>
+          ) : <span />}
+          {next ? (
+            <Link href={hrefFor(next.slug)}>
+              <span>{ui.next} →</span><strong>{next.copy.title}</strong>
+            </Link>
+          ) : (
+            <Link href={`/${course.locale}/creator-ops/#final-assessment`}>
+              <span>{ui.next} →</span><strong>{course.copy.finalAssessment.title}</strong>
+            </Link>
+          )}
+        </nav>
+
+        <h2
+          id={`${module.slug}-sources-title`}
+          className={styles.srOnly}
+          data-testid="creator-ops-module-sources-title"
+        >
+          {ui.sourceRegister}: {ui.sources}
+        </h2>
+        <details className={styles.moduleSources} aria-labelledby={`${module.slug}-sources-title`}>
+          <summary id={`${module.slug}-sources`}>
+            <span>
+              <small>{ui.sourceRegister}</small>
+              <strong>{ui.sources}</strong>
+            </span>
+            <b>{module.sources.length}</b>
+          </summary>
           <div className={styles.moduleSourceGrid}>
             {module.sources.map((source) => (
               <article key={source.id} data-decision={source.decision}>
                 <div className={styles.sourceTopline}>
                   <span>{course.copy.sourceDecisions[source.decision]}</span>
-                  <code>{source.id}</code>
+                  <code translate="no">{source.id}</code>
                 </div>
                 <h3>
-                  <a href={source.url} rel="noopener noreferrer">
+                  <a href={source.url} rel="noopener noreferrer" translate="no">
                     {source.repository} <span aria-hidden="true">↗</span>
                   </a>
                 </h3>
@@ -189,37 +249,23 @@ export default function ModuleView({
                     <dt>{ui.revision}</dt>
                     <dd>
                       <a href={`${source.url}/commit/${source.revision}`} rel="noopener noreferrer">
-                        <code>{source.revision.slice(0, 12)}</code>
+                        <code translate="no">{source.revision.slice(0, 12)}</code>
                       </a>
-                      {` · ${source.committedAt.slice(0, 10)}`}
+                      {" · "}<time dateTime={source.committedAt}>{source.committedAt.slice(0, 10)}</time>
                     </dd>
                   </div>
                   <div><dt>{ui.supports}</dt><dd>{source.supports[course.contentLocale]}</dd></div>
                   <div><dt>{ui.boundary}</dt><dd>{source.boundary[course.contentLocale]}</dd></div>
-                  <div><dt>{ui.snapshot}</dt><dd>{source.snapshot} · {source.accessedOn}</dd></div>
+                  <div>
+                    <dt>{ui.snapshot}</dt>
+                    <dd>{source.snapshot} · <time dateTime={source.accessedOn}>{source.accessedOn}</time></dd>
+                  </div>
                 </dl>
                 <p>{course.copy.sourceDecisions[source.decision]}</p>
               </article>
             ))}
           </div>
-        </section>
-
-        <nav className={styles.lessonPager} aria-label={`${ui.previous} / ${ui.next}`}>
-          {previous ? (
-            <Link href={hrefFor(previous.slug)}>
-              <span>← {ui.previous}</span><strong>{previous.copy.title}</strong>
-            </Link>
-          ) : <span />}
-          {next ? (
-            <Link href={hrefFor(next.slug)}>
-              <span>{ui.next} →</span><strong>{next.copy.title}</strong>
-            </Link>
-          ) : (
-            <Link href={`/${course.locale}/creator-ops/`}>
-              <span>{ui.backToCourse} →</span><strong>{course.copy.finalAssessment.title}</strong>
-            </Link>
-          )}
-        </nav>
+        </details>
       </div>
     </div>
   );

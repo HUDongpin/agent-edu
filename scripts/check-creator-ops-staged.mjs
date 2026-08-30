@@ -18,6 +18,18 @@ function invariant(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function requireTokens(path, tokens) {
+  const source = readFileSync(path, "utf8");
+  const relativePath = path.slice(ROOT.length + 1);
+  for (const token of tokens) {
+    invariant(
+      source.includes(token),
+      `${relativePath} is missing the mapped Course 16 UX contract token: ${token}`,
+    );
+  }
+  return source;
+}
+
 function sha256(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
@@ -43,6 +55,73 @@ function verifyStagedAssetManifest() {
       `staged creator-ops asset hash mismatch: ${relativePath}`,
     );
   }
+}
+
+function verifyMappedUiUxContract() {
+  requireTokens(resolve(STAGED_SOURCE_ROOT, "components/CourseDashboard.tsx"), [
+    "CourseFragmentFocusManager",
+    "CoursePrimaryAction",
+    "splitCourseTitle",
+    "courseJumpNav",
+    'id="curriculum" tabIndex={-1}',
+    'id="capstone" tabIndex={-1}',
+    'id="source-atlas" tabIndex={-1}',
+    "moduleLinks={navigationItems}",
+    "course.manifest.authoredOn",
+  ]);
+  requireTokens(resolve(STAGED_SOURCE_ROOT, "components/Interactions.tsx"), [
+    "nextCreatorOpsStep",
+    "export function CoursePrimaryAction",
+    "export function ModuleNavigator",
+    "aria-busy={!ready}",
+    'name={draftId}',
+    'autoComplete="off"',
+    "checkpointPassedEarlier",
+    "assessmentEarlierPass",
+    "creator-ops-question-feedback",
+  ]);
+  requireTokens(resolve(STAGED_SOURCE_ROOT, "components/ModuleView.tsx"), [
+    "catalogLabel: string",
+    "<ModuleNavigator",
+    "LAB_RESOURCE_LABELS",
+    "moduleContents",
+    "lessonPager",
+    'translate="no"',
+  ]);
+  requireTokens(resolve(STAGED_SOURCE_ROOT, "components/CreatorOpsCourse.module.css"), [
+    "color-scheme: light",
+    ':global(:root[data-theme="dark"]) .root',
+    ".courseJumpNav",
+    ".progressModules",
+    ".moduleNavigator",
+    ".moduleContents",
+    ".lessonPager",
+    "min-height: 44px",
+    "@media (prefers-reduced-motion: reduce)",
+    "@media print",
+  ]);
+  requireTokens(resolve(STAGED_SOURCE_ROOT, "lib/progress.ts"), [
+    'CREATOR_OPS_PROGRESS_VERSION = "1.0.2:progress-v1"',
+    "isCompatibleCreatorOpsProgressVersion",
+    "export function nextCreatorOpsStep",
+  ]);
+  for (const locale of ["en", "zh-Hans"]) {
+    const copy = requireTokens(resolve(STAGED_SOURCE_ROOT, `lib/copy/${locale}.ts`), [
+      "courseNavigation",
+      "onThisPage",
+      "progressLoading",
+      "checkpointPassedEarlier",
+      "assessmentEarlierPass",
+      "reviewCourse",
+    ]);
+    invariant(
+      !/[—–]/u.test(copy),
+      `staging/course-src/creator-ops/lib/copy/${locale}.ts must use sentence punctuation instead of em/en dashes`,
+    );
+  }
+  requireTokens(resolve(STAGED_ROUTE_ROOT, "[module]/page.tsx"), [
+    'catalogLabel={t("nav.courses")}',
+  ]);
 }
 
 export function checkCreatorOpsStaged() {
@@ -105,6 +184,7 @@ export function checkCreatorOpsStaged() {
   invariant(!seoSource.includes('"creator-ops/"'), "SEO projection must exclude creator-ops");
   invariant(!sitemapSource.includes("creator-ops"), "sitemap source must exclude creator-ops");
   verifyStagedAssetManifest();
+  verifyMappedUiUxContract();
 
   return {
     state: CREATOR_OPS_COURSE_MANIFEST.releaseState,
@@ -112,6 +192,7 @@ export function checkCreatorOpsStaged() {
     modules: CREATOR_OPS_COURSE_MANIFEST.modules.length,
     publicRoutes: 0,
     publicAssets: 0,
+    uiUxContract: "mapped",
   };
 }
 

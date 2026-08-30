@@ -91,7 +91,7 @@ export default async function CreatorOpsModulePage({ params }: Props) {
   return (
     <>
       <JsonLd data={data} />
-      <ModuleView course={course} module={current} />
+      <ModuleView course={course} module={current} catalogLabel={t("nav.courses")} />
     </>
   );
 }

@@ -9,5 +9,6 @@ test("course 16 remains fully staged while public intake is frozen", () => {
     modules: 10,
     publicRoutes: 0,
     publicAssets: 0,
+    uiUxContract: "mapped",
   });
 });
