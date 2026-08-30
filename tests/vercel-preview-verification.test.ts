@@ -12,6 +12,7 @@ import {
   inspectReleaseMetadataResponse,
   parseArguments,
   previewRequestHeaders,
+  readBoundedResponseText,
   releaseMetadataTextFindings,
   routeOriginBoundRequest,
   securityHeaderFindings,
@@ -217,6 +218,42 @@ test("release metadata response is bounded, typed, and byte-canonical", async ()
       "content-length": String(16 * 1024 + 1),
     },
   }), target)).findings.includes("release-metadata-size"));
+});
+
+test("release metadata streaming stops at the byte limit even without an honest length", async () => {
+  for (const declaredLength of [undefined, "1"]) {
+    let pulls = 0;
+    let cancelled = false;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulls += 1;
+        controller.enqueue(new Uint8Array(1024));
+        if (pulls === 128) controller.close();
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+    const headers: Record<string, string> = {};
+    if (declaredLength !== undefined) headers["content-length"] = declaredLength;
+    const result = await readBoundedResponseText(new Response(body, { headers }));
+    assert.equal(result.finding, "release-metadata-size");
+    assert.ok(pulls <= 17, `expected an early bounded stop, received ${pulls} chunks`);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(cancelled, true);
+  }
+});
+
+test("release metadata streaming has a finite deadline for a non-terminating body", async () => {
+  const body = new ReadableStream<Uint8Array>({
+    pull() {
+      return new Promise(() => {});
+    },
+  });
+  const startedAt = Date.now();
+  const result = await readBoundedResponseText(new Response(body), 16 * 1024, 20);
+  assert.equal(result.finding, "release-metadata-timeout");
+  assert.ok(Date.now() - startedAt < 500);
 });
 
 test("CSP header verification is exact for report-only and enforced stages", () => {

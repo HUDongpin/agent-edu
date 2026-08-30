@@ -24,6 +24,7 @@ const GIT_SHA = /^[0-9a-f]{40}$/;
 const DEPLOYMENT_ID = /^dpl_[A-Za-z0-9]{8,124}$/;
 const MAX_SITEMAP_BYTES = 500 * 1024;
 const MAX_RELEASE_METADATA_BYTES = 16 * 1024;
+const RELEASE_METADATA_READ_TIMEOUT_MS = 5_000;
 const MAX_FAILURES = 250;
 const DEFAULT_CONCURRENCY = 12;
 const TRUSTED_OIDC_TOKEN = /^[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}$/;
@@ -318,6 +319,64 @@ export function releaseMetadataTextFindings(text, target) {
   return { metadata, findings };
 }
 
+export async function readBoundedResponseText(
+  response,
+  maximumBytes = MAX_RELEASE_METADATA_BYTES,
+  timeoutMs = RELEASE_METADATA_READ_TIMEOUT_MS,
+) {
+  if (!Number.isInteger(maximumBytes) || maximumBytes < 1) {
+    throw new Error("response byte limit must be a positive integer");
+  }
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1) {
+    throw new Error("response read timeout must be a positive integer");
+  }
+  if (response.body === null) return { text: "", finding: undefined };
+
+  const reader = response.body.getReader();
+  const chunks = [];
+  let receivedBytes = 0;
+  let timeoutHandle;
+  const timedRead = (async () => {
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        receivedBytes += value.byteLength;
+        if (receivedBytes > maximumBytes) {
+          void reader.cancel("release metadata exceeded its byte limit").catch(() => {});
+          return { text: undefined, finding: "release-metadata-size" };
+        }
+        chunks.push(value);
+      }
+      const bytes = Buffer.concat(
+        chunks.map((chunk) => Buffer.from(chunk.buffer, chunk.byteOffset, chunk.byteLength)),
+        receivedBytes,
+      );
+      try {
+        return {
+          text: new TextDecoder("utf-8", { fatal: true }).decode(bytes),
+          finding: undefined,
+        };
+      } catch {
+        return { text: undefined, finding: "release-metadata-encoding" };
+      }
+    } catch {
+      return { text: undefined, finding: "release-metadata-body" };
+    }
+  })();
+  const timeout = new Promise((resolveTimeout) => {
+    timeoutHandle = setTimeout(() => {
+      void reader.cancel("release metadata read timed out").catch(() => {});
+      resolveTimeout({ text: undefined, finding: "release-metadata-timeout" });
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([timedRead, timeout]);
+  } finally {
+    clearTimeout(timeoutHandle);
+  }
+}
+
 export async function inspectReleaseMetadataResponse(response, target) {
   const findings = [];
   const contentType = (response.headers.get("content-type") ?? "")
@@ -332,17 +391,17 @@ export async function inspectReleaseMetadataResponse(response, target) {
       findings.push("release-metadata-content-length");
     } else if (Number(declaredLength) > MAX_RELEASE_METADATA_BYTES) {
       findings.push("release-metadata-size");
-      await response.body?.cancel();
+      void response.body?.cancel("release metadata exceeded its declared byte limit").catch(() => {});
       return { metadata: undefined, findings };
     }
   }
 
-  const text = await response.text();
-  if (Buffer.byteLength(text) > MAX_RELEASE_METADATA_BYTES) {
-    findings.push("release-metadata-size");
+  const bounded = await readBoundedResponseText(response);
+  if (bounded.finding !== undefined || bounded.text === undefined) {
+    findings.push(bounded.finding ?? "release-metadata-body");
     return { metadata: undefined, findings };
   }
-  const inspected = releaseMetadataTextFindings(text, target);
+  const inspected = releaseMetadataTextFindings(bounded.text, target);
   return { metadata: inspected.metadata, findings: [...findings, ...inspected.findings] };
 }
 
