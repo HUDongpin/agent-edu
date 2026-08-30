@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY,
   SOFTWARE_ENGINEERING_SOURCE_BY_ID,
+  parseSoftwareEngineeringAssessmentDraft,
+  type SoftwareEngineeringAssessmentDraft,
   type SoftwareEngineeringLocaleCopy,
   type SoftwareEngineeringQuestion,
   type SoftwareEngineeringUnitId,
@@ -25,8 +28,6 @@ type AssessmentConfig = {
   readonly passedStorageKey: string;
   readonly versionStorageKey: string;
 };
-
-type Answer = { readonly selectedIndex: number; readonly correct: boolean };
 
 function randomIndex(max: number): number {
   if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
@@ -103,16 +104,28 @@ export default function FinalAssessment({
 }) {
   const progress = useSoftwareEngineeringProgress();
   const storageAvailable = useSoftwareEngineeringStorageAvailable();
-  const [attempt, setAttempt] = useState<SoftwareEngineeringQuestion[]>([]);
-  const [previousAttempt, setPreviousAttempt] = useState<SoftwareEngineeringQuestion[]>([]);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [completedScore, setCompletedScore] = useState<number | null>(null);
-  const heading = useRef<HTMLHeadingElement>(null);
+  const previousAttempt = useRef<SoftwareEngineeringQuestion[]>([]);
+  const assessmentHeading = useRef<HTMLHeadingElement>(null);
+  const questionHeading = useRef<HTMLHeadingElement>(null);
   const feedback = useRef<HTMLDivElement>(null);
+  const draft = parseSoftwareEngineeringAssessmentDraft(
+    progress[SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY],
+    bank,
+    config,
+  );
+  const bankById = useMemo(
+    () => new Map(bank.map((question) => [question.id, question])),
+    [bank],
+  );
+  const attempt = draft?.questionIds.map((id) => bankById.get(id)!) ?? [];
+  const questionIndex = draft?.questionIndex ?? 0;
+  const selectedIndex = draft?.selectedIndex ?? null;
   const current = attempt[questionIndex];
-  const currentAnswer = current ? answers[current.id] : undefined;
+  const currentAnswer = current ? draft?.answerSelections[current.id] : undefined;
+  const currentAnswerCorrect = current !== undefined
+    && currentAnswer !== undefined
+    && currentAnswer === current.correctIndex;
   const versionMatches = progress[config.versionStorageKey] === config.bankVersion;
   const storedBest = versionMatches ? validScore(progress[config.bestScoreStorageKey], config.questionCount) : 0;
   const best = Math.max(storedBest, completedScore ?? 0);
@@ -127,16 +140,47 @@ export default function FinalAssessment({
   }, [bank, config.questionCount, config.questionsPerUnit]);
 
   useEffect(() => {
-    if (currentAnswer || completedScore !== null) feedback.current?.focus();
-  }, [currentAnswer, completedScore]);
+    if (currentAnswer !== undefined || completedScore !== null) feedback.current?.focus();
+  }, [completedScore, currentAnswer]);
+
+  useEffect(() => {
+    const focusAssessmentHeading = () => assessmentHeading.current?.focus();
+    const focusFromHash = () => {
+      if (window.location.hash === "#final-assessment") {
+        focusAssessmentHeading();
+      }
+    };
+    const focusFromAssessmentLink = (event: MouseEvent) => {
+      if (event.button !== 0
+        || event.metaKey
+        || event.ctrlKey
+        || event.shiftKey
+        || event.altKey) return;
+      const target = event.target instanceof Element ? event.target : null;
+      const anchor = target?.closest<HTMLAnchorElement>("a[href]");
+      if (!anchor) return;
+      const destination = new URL(anchor.href, window.location.href);
+      if (destination.origin !== window.location.origin
+        || destination.pathname !== window.location.pathname
+        || destination.hash !== "#final-assessment") return;
+      window.requestAnimationFrame(focusAssessmentHeading);
+    };
+
+    focusFromHash();
+    window.addEventListener("hashchange", focusFromHash);
+    // Capture the activation before CourseLocaleReturn rewrites a fallback
+    // course URL and stops normal propagation. Query changes do not alter the
+    // assessment target, so the heading should still receive focus.
+    document.addEventListener("click", focusFromAssessmentLink, true);
+    return () => {
+      window.removeEventListener("hashchange", focusFromHash);
+      document.removeEventListener("click", focusFromAssessmentLink, true);
+    };
+  }, []);
 
   useEffect(() => {
     const resetAssessment = () => {
-      setAttempt([]);
-      setPreviousAttempt([]);
-      setQuestionIndex(0);
-      setSelectedIndex(null);
-      setAnswers({});
+      previousAttempt.current = [];
       setCompletedScore(null);
     };
     window.addEventListener(SOFTWARE_ENGINEERING_PROGRESS_RESET_EVENT, resetAssessment);
@@ -146,18 +190,34 @@ export default function FinalAssessment({
   }, []);
 
   function beginAttempt() {
-    const next = selectAttempt(bank, config.questionsPerUnit, previousAttempt);
-    setAttempt(next);
-    setPreviousAttempt(next);
-    setQuestionIndex(0);
-    setSelectedIndex(null);
-    setAnswers({});
+    const next = selectAttempt(bank, config.questionsPerUnit, previousAttempt.current);
+    if (!next.length) return;
+    previousAttempt.current = next;
     setCompletedScore(null);
-    window.requestAnimationFrame(() => heading.current?.focus());
+    updateSoftwareEngineeringProgress((record) => {
+      record[SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY] = {
+        version: 1,
+        bankVersion: config.bankVersion,
+        questionIds: next.map((question) => question.id),
+        questionIndex: 0,
+        selectedIndex: null,
+        answerSelections: {},
+      } satisfies SoftwareEngineeringAssessmentDraft;
+    });
+    window.requestAnimationFrame(() => questionHeading.current?.focus());
   }
 
-  function finish(nextAnswers: Record<string, Answer>) {
-    const score = Object.values(nextAnswers).filter((answer) => answer.correct).length;
+  function saveDraft(nextDraft: SoftwareEngineeringAssessmentDraft) {
+    updateSoftwareEngineeringProgress((record) => {
+      record[SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY] = nextDraft;
+    });
+  }
+
+  function finish(answerSelections: Readonly<Record<string, number>>) {
+    const score = attempt.filter(
+      (question) => answerSelections[question.id] === question.correctIndex,
+    ).length;
+    previousAttempt.current = attempt;
     setCompletedScore(score);
     updateSoftwareEngineeringProgress((record) => {
       const sameVersion = record[config.versionStorageKey] === config.bankVersion;
@@ -166,6 +226,7 @@ export default function FinalAssessment({
       record[config.passedStorageKey] = score >= config.passingCorrectAnswers
         || (sameVersion && record[config.passedStorageKey] === true);
       record[config.versionStorageKey] = config.bankVersion;
+      delete record[SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY];
     });
   }
 
@@ -174,7 +235,9 @@ export default function FinalAssessment({
       <header className={styles.quizHeader}>
         <div>
           <p className={styles.kicker}>{labels.finalAssessment}</p>
-          <h2 id="final-assessment-title">{labels.finalAssessment}</h2>
+          <h2 id="final-assessment-title" ref={assessmentHeading} tabIndex={-1}>
+            {labels.finalAssessment}
+          </h2>
           <p>{labels.assessmentIntro}</p>
         </div>
         <div className={styles.quizRequirement}>
@@ -185,16 +248,16 @@ export default function FinalAssessment({
 
       {!storageAvailable ? <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p> : null}
 
-      {!attempt.length ? (
-        <button className={styles.primaryButton} type="button" disabled={!bankReady} onClick={beginAttempt}>
-          {labels.beginAssessment}
-        </button>
-      ) : completedScore !== null ? (
+      {completedScore !== null ? (
         <div className={completedScore >= config.passingCorrectAnswers ? styles.correctFeedback : styles.incorrectFeedback} role="status" tabIndex={-1} ref={feedback}>
           <strong>{completedScore} / {config.questionCount}</strong>
           <p>{completedScore >= config.passingCorrectAnswers ? labels.quizPassed : labels.quizNeedsReview}</p>
           <button className={styles.secondaryButton} type="button" onClick={beginAttempt}>{labels.retryAssessment}</button>
         </div>
+      ) : !attempt.length ? (
+        <button className={styles.primaryButton} type="button" disabled={!bankReady} onClick={beginAttempt}>
+          {labels.beginAssessment}
+        </button>
       ) : current ? (
         <form
           className={styles.quizQuestion}
@@ -202,25 +265,28 @@ export default function FinalAssessment({
           data-unit-id={current.unitId}
           onSubmit={(event) => {
             event.preventDefault();
-            if (selectedIndex === null || currentAnswer) return;
-            setAnswers((existing) => ({
-              ...existing,
-              [current.id]: { selectedIndex, correct: selectedIndex === current.correctIndex },
-            }));
+            if (!draft || selectedIndex === null || currentAnswer !== undefined) return;
+            saveDraft({
+              ...draft,
+              answerSelections: {
+                ...draft.answerSelections,
+                [current.id]: selectedIndex,
+              },
+            });
           }}
         >
           <div className={styles.quizMeta}>
             <span>{labels.questionProgress}: {questionIndex + 1} / {config.questionCount}</span>
             <span>{unitTitles[current.unitId]}</span>
           </div>
-          <h3 tabIndex={-1} ref={heading} lang="en" dir="ltr">{current.question}</h3>
+          <h3 tabIndex={-1} ref={questionHeading} lang="en" dir="ltr">{current.question}</h3>
           <fieldset lang="en" dir="ltr">
             <legend className={styles.srOnly}>{current.question}</legend>
             {current.options.map((option, optionIndex) => (
               <label
-                className={currentAnswer && optionIndex === current.correctIndex
+                className={currentAnswer !== undefined && optionIndex === current.correctIndex
                   ? styles.correctOption
-                  : currentAnswer && optionIndex === currentAnswer.selectedIndex
+                  : currentAnswer !== undefined && optionIndex === currentAnswer
                     ? styles.incorrectOption
                     : styles.option}
                 key={`${current.id}-${optionIndex}`}
@@ -230,19 +296,22 @@ export default function FinalAssessment({
                   name={current.id}
                   value={optionIndex}
                   checked={selectedIndex === optionIndex}
-                  disabled={Boolean(currentAnswer)}
+                  disabled={currentAnswer !== undefined}
                   required
-                  onChange={() => setSelectedIndex(optionIndex)}
+                  onChange={() => {
+                    if (!draft) return;
+                    saveDraft({ ...draft, selectedIndex: optionIndex });
+                  }}
                 />
                 <span>{option}</span>
               </label>
             ))}
           </fieldset>
-          {!currentAnswer ? (
+          {currentAnswer === undefined ? (
             <button className={styles.primaryButton} type="submit" disabled={selectedIndex === null}>{labels.checkAnswer}</button>
           ) : (
-            <div className={currentAnswer.correct ? styles.correctFeedback : styles.incorrectFeedback} role="status" tabIndex={-1} ref={feedback}>
-              <strong>{currentAnswer.correct ? labels.correct : labels.incorrect}</strong>
+            <div className={currentAnswerCorrect ? styles.correctFeedback : styles.incorrectFeedback} role="status" tabIndex={-1} ref={feedback}>
+              <strong>{currentAnswerCorrect ? labels.correct : labels.incorrect}</strong>
               <p lang="en" dir="ltr">{current.explanation}</p>
               {current.sourceIds.map((sourceId) => {
                 const source = SOFTWARE_ENGINEERING_SOURCE_BY_ID[sourceId];
@@ -256,13 +325,16 @@ export default function FinalAssessment({
                 className={styles.primaryButton}
                 type="button"
                 onClick={() => {
-                  const nextAnswers = { ...answers, [current.id]: currentAnswer };
+                  if (!draft) return;
                   if (questionIndex < attempt.length - 1) {
-                    setQuestionIndex((index) => index + 1);
-                    setSelectedIndex(null);
-                    window.requestAnimationFrame(() => heading.current?.focus());
+                    saveDraft({
+                      ...draft,
+                      questionIndex: questionIndex + 1,
+                      selectedIndex: null,
+                    });
+                    window.requestAnimationFrame(() => questionHeading.current?.focus());
                   } else {
-                    finish(nextAnswers);
+                    finish(draft.answerSelections);
                   }
                 }}
               >

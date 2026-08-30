@@ -356,6 +356,10 @@ test("the published-course browser gate uses a closed all-engine spec allowlist"
     packageJson.scripts["test:published-courses"],
     "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test --config tests/published-playwright.config.ts",
   );
+  assert.equal(
+    packageJson.scripts["test:software-engineering"],
+    "playwright test tests/software-engineering-course.spec.ts --config tests/published-playwright.config.ts --workers=1",
+  );
   assert.match(
     workflow,
     /published-courses:[\s\S]*?playwright install --with-deps chromium firefox webkit[\s\S]*?run: npm run test:published-courses/,

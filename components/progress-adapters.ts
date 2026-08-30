@@ -5,6 +5,13 @@ import {
   type PublicCourseSurface,
 } from "@/lib/public-release-surface";
 import {
+  SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY,
+  SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY,
+  hasSoftwareEngineeringAssessmentDraftActivity,
+  hasSoftwareEngineeringCapstoneDraftActivity,
+} from "@/lib/software-engineering/drafts";
+import { softwareEngineeringNextHref } from "@/lib/software-engineering/journey";
+import {
   type PersistenceResult,
   type ProgressAdapterCourseId,
   type ProgressStoreSummary,
@@ -507,6 +514,7 @@ interface MilestoneAdapterOptions<Slug extends string> {
   readonly capstoneHref: (locale: string) => string;
   readonly assessmentOrder?: "quiz-first" | "capstone-first";
   readonly hasProgress: (record: ProgressRecord) => boolean;
+  readonly resolveNextHref?: (record: ProgressRecord, locale: string) => string;
   readonly reset: () => PersistenceResult | Promise<PersistenceResult>;
   readonly isPersistent: () => boolean;
 }
@@ -543,11 +551,12 @@ function milestoneAdapter<Slug extends string>(
             : !capstoneComplete
               ? options.capstoneHref(locale)
               : root;
-        const nextHref = percent >= 100
+        const fallbackNextHref = percent >= 100
           ? root
           : next
             ? lessonHref(locale, options.courseId, next)
             : assessmentHref;
+        const nextHref = options.resolveNextHref?.(record, locale) ?? fallbackNextHref;
         return summary(percent, options.hasProgress(record), nextHref);
       });
     },
@@ -851,6 +860,24 @@ export function createAllProgressAdapters(
       capstoneHref: (currentLocale) => `/${currentLocale}/software-engineering/capstone-safe-change/`,
       hasProgress: (record) => Object.keys(record).some(
         (key) => key.startsWith(SOFTWARE_ENGINEERING_PROGRESS_PREFIX),
+      ),
+      resolveNextHref: (record, currentLocale) => softwareEngineeringNextHref(
+        currentLocale,
+        {
+          completedLessonSlugs: SOFTWARE_ENGINEERING_PROGRESS_LESSON_SLUGS.filter(
+            (slug) => record[softwareEngineeringLessonKey(slug)] === true,
+          ),
+          assessmentComplete: isSoftwareEngineeringProgressQuizPassed(record),
+          capstoneComplete: isSoftwareEngineeringProgressCapstoneComplete(
+            record[SOFTWARE_ENGINEERING_CAPSTONE_KEY],
+          ),
+          assessmentDraftActive: hasSoftwareEngineeringAssessmentDraftActivity(
+            record[SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY],
+          ),
+          capstoneDraftActive: hasSoftwareEngineeringCapstoneDraftActivity(
+            record[SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY],
+          ),
+        },
       ),
       reset: resetSoftwareEngineeringProgressAfterGlobalReset,
       isPersistent: isSoftwareEngineeringStorageAvailable,

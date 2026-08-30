@@ -4,7 +4,15 @@ import {
   type MaterializedSoftwareEngineeringCourse,
   type MaterializedSoftwareEngineeringLesson,
 } from "@/lib/software-engineering";
+import {
+  SOFTWARE_ENGINEERING_ASSESSMENT_ID,
+  SOFTWARE_ENGINEERING_CAPSTONE_ID,
+  SOFTWARE_ENGINEERING_CAPSTONE_LESSON_SLUG,
+  SOFTWARE_ENGINEERING_CORE_LESSON_SLUGS,
+  softwareEngineeringCourseHref,
+} from "@/lib/software-engineering/journey";
 import CapstoneEvidence from "./CapstoneEvidence";
+import CourseJourneyMap from "./CourseJourneyMap";
 import CourseFigure from "./CourseFigure";
 import LessonCheckpoint from "./LessonCheckpoint";
 import LessonCompletion from "./LessonCompletion";
@@ -22,20 +30,11 @@ export default function LessonView({
   const previous = lessonIndex > 0 ? lessons[lessonIndex - 1] : null;
   const next = lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null;
   const hrefFor = (slug: string) => `/${course.locale}/software-engineering/${slug}/`;
+  const assessmentHref = `${softwareEngineeringCourseHref(course.locale)}#${SOFTWARE_ENGINEERING_ASSESSMENT_ID}`;
+  const nextIsAssessment = lesson.slug
+    === SOFTWARE_ENGINEERING_CORE_LESSON_SLUGS[SOFTWARE_ENGINEERING_CORE_LESSON_SLUGS.length - 1];
+  const previousIsAssessment = lesson.slug === SOFTWARE_ENGINEERING_CAPSTONE_LESSON_SLUG;
   const localizedText = { lang: course.locale, dir: "auto" as const };
-
-  const courseMap = (
-    <ol>
-      {lessons.map((entry) => (
-        <li key={entry.slug}>
-          <Link href={hrefFor(entry.slug)} aria-current={entry.slug === lesson.slug ? "page" : undefined}>
-            <span>{String(entry.order).padStart(2, "0")}</span>
-            <span {...localizedText}>{entry.localizedTitle}</span>
-          </Link>
-        </li>
-      ))}
-    </ol>
-  );
 
   return (
     <div
@@ -53,18 +52,30 @@ export default function LessonView({
         <span aria-current="page" {...localizedText}>{lesson.localizedTitle}</span>
       </nav>
 
-      <details className={styles.mobileCourseMap}>
-        <summary>{course.copy.ui.lessons} {lesson.order} / {lessons.length} · {course.copy.ui.openCourseMap}</summary>
-        <nav aria-label={course.copy.ui.allLessons}>{courseMap}</nav>
-      </details>
-
       <div className={styles.lessonLayout}>
-        <aside className={styles.lessonRail}>
-          <nav aria-label={course.copy.ui.allLessons}>
-            <strong>{course.copy.ui.allLessons}</strong>
-            {courseMap}
-          </nav>
-        </aside>
+        <CourseJourneyMap
+          units={course.units.map((unit) => ({
+            id: unit.id,
+            order: unit.order,
+            title: unit.localizedTitle,
+            lessons: unit.lessons.map((entry) => ({
+              slug: entry.slug,
+              order: entry.order,
+              title: entry.localizedTitle,
+              href: hrefFor(entry.slug),
+            })),
+          }))}
+          currentSlug={lesson.slug}
+          currentOrder={lesson.order}
+          locale={course.locale}
+          labels={{
+            allLessons: course.copy.ui.allLessons,
+            completed: course.copy.ui.completed,
+            finalAssessment: course.copy.ui.finalAssessment,
+            lessons: course.copy.ui.lessons,
+            openCourseMap: course.copy.ui.openCourseMap,
+          }}
+        />
 
         <div className={styles.lessonMain}>
           <article>
@@ -137,38 +148,32 @@ export default function LessonView({
             </aside>
 
             {lesson.slug === "capstone-safe-change" ? (
-              <CapstoneEvidence
-                config={SOFTWARE_ENGINEERING_CAPSTONE}
-                labels={course.copy.ui}
-                locale={course.locale}
-              />
+              <div id={SOFTWARE_ENGINEERING_CAPSTONE_ID} className={styles.capstoneAnchor}>
+                <CapstoneEvidence
+                  config={SOFTWARE_ENGINEERING_CAPSTONE}
+                  labels={course.copy.ui}
+                  locale={course.locale}
+                />
+              </div>
             ) : null}
-
-            <section className={styles.sources} aria-labelledby="software-engineering-sources-title">
-              <h2 id="software-engineering-sources-title">{course.copy.ui.sources}</h2>
-              <ol>
-                {lesson.sources.map((source) => (
-                  <li key={source.id} lang="en" dir="ltr">
-                    <a href={source.url} target="_blank" rel="noopener noreferrer">
-                      <strong>{source.title}</strong>
-                      <span>{source.publisher} · {source.kind} · {source.accessedOn} · {source.licence}</span>
-                      <span>{source.evidenceUse}</span>
-                      <span>{source.caveat}</span>
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </section>
 
             <LessonCompletion slug={lesson.slug} labels={course.copy.ui} />
 
             <nav className={styles.lessonPager} aria-label={course.copy.ui.lessons} data-course-lesson-nav>
-              {previous ? (
+              {previousIsAssessment ? (
+                <Link href={assessmentHref} rel="prev">
+                  <span>{course.copy.ui.previous}</span><strong>{course.copy.ui.finalAssessment}</strong>
+                </Link>
+              ) : previous ? (
                 <Link href={hrefFor(previous.slug)} rel="prev">
                   <span>{course.copy.ui.previous}</span><strong {...localizedText}>{previous.localizedTitle}</strong>
                 </Link>
               ) : <span />}
-              {next ? (
+              {nextIsAssessment ? (
+                <Link href={assessmentHref} rel="next">
+                  <span>{course.copy.ui.next}</span><strong>{course.copy.ui.finalAssessment}</strong>
+                </Link>
+              ) : next ? (
                 <Link href={hrefFor(next.slug)} rel="next">
                   <span>{course.copy.ui.next}</span><strong {...localizedText}>{next.localizedTitle}</strong>
                 </Link>
@@ -178,6 +183,28 @@ export default function LessonView({
                 </Link>
               )}
             </nav>
+
+            <details className={styles.sourcesDisclosure}>
+              <summary>
+                <span>{course.copy.ui.sources}</span>
+                <span>{lesson.sources.length}</span>
+              </summary>
+              <section className={styles.sources} aria-labelledby="software-engineering-sources-title">
+                <h2 id="software-engineering-sources-title">{course.copy.ui.sources}</h2>
+                <ol>
+                  {lesson.sources.map((source) => (
+                    <li key={source.id} lang="en" dir="ltr">
+                      <a href={source.url} target="_blank" rel="noopener noreferrer">
+                        <strong>{source.title}</strong>
+                        <span>{source.publisher} · {source.kind} · {source.accessedOn} · {source.licence}</span>
+                        <span>{source.evidenceUse}</span>
+                        <span>{source.caveat}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            </details>
           </article>
         </div>
       </div>

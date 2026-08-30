@@ -155,10 +155,12 @@ export default function CourseShellProgress({
   courseId,
   locale,
   labels,
+  designateJourneyAction = false,
 }: {
   readonly courseId: PublicCourseId;
   readonly locale: string;
   readonly labels: CourseShellProgressLabels;
+  readonly designateJourneyAction?: boolean;
 }) {
   const importProgressAdapters = useProgressAdaptersImporter();
   const [snapshot, setSnapshot] = useState<CourseShellProgressSnapshot>(
@@ -201,6 +203,13 @@ export default function CourseShellProgress({
 
   const label = progressLabel(snapshot, labels);
   const interactive = snapshot.state !== "pending" && snapshot.state !== "unavailable";
+  const formattedPercent = snapshot.percent === null
+    ? null
+    : new Intl.NumberFormat(locale, {
+      style: "percent",
+      maximumFractionDigits: 0,
+    }).format(snapshot.percent / 100);
+  const visibleStatus = formattedPercent ? `${label} · ${formattedPercent}` : label;
 
   return (
     <div
@@ -211,13 +220,13 @@ export default function CourseShellProgress({
     >
       <div className="course-shell-progress-heading">
         <strong>{labels.progress}</strong>
-        <span role="status" aria-live="polite">{label}</span>
+        <span role="status" aria-live="polite">{visibleStatus}</span>
       </div>
       {interactive && snapshot.percent !== null ? (
         <div
           className="progbar"
           role="progressbar"
-          aria-label={`${labels.progress}: ${label}`}
+          aria-label={`${labels.progress}: ${visibleStatus}`}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={snapshot.percent}
@@ -226,7 +235,11 @@ export default function CourseShellProgress({
         </div>
       ) : null}
       {interactive && snapshot.nextHref ? (
-        <Link className="btn primary course-shell-action" href={snapshot.nextHref}>
+        <Link
+          className="btn primary course-shell-action"
+          href={snapshot.nextHref}
+          data-course-journey-action={designateJourneyAction ? true : undefined}
+        >
           {actionLabel(snapshot, labels)}
           <span className="arrow" aria-hidden="true">→</span>
         </Link>

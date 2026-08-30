@@ -5,8 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { LOCALES, LOCALE_CODES, metaFor } from "@/lib/i18n";
 import {
   PUBLIC_PUBLISHED_COURSE_SURFACES,
+  publicCourseHrefFor,
   withPublicCourseReturnLocale,
-  type PublicContentLocale,
 } from "@/lib/public-release-surface";
 import { useI18n } from "./I18nProvider";
 import Icon from "./Icon";
@@ -72,26 +72,25 @@ export default function LanguageMenu() {
     // explicit return path instead of manufacturing a translated 404 route.
     const rest = pathname.split("/").filter(Boolean);
     if (LOCALE_CODES.includes(rest[0])) rest.shift();
-    const courseRoot = rest[0] ? `/${rest[0]}/` : null;
-    const courseSurface = courseRoot
-      ? PUBLIC_PUBLISHED_COURSE_SURFACES.find((surface) => surface.href === courseRoot)
-      : null;
-    const targetLocale = courseSurface
-      && !courseSurface.contentLocales.includes(code as PublicContentLocale)
-      ? courseSurface.primaryLocale ?? code
-      : code;
+    const pathWithoutLocale = `/${rest.join("/")}${rest.length ? "/" : ""}`;
+    const hash = window.location.hash;
+    const course = PUBLIC_PUBLISHED_COURSE_SURFACES.find(({ href }) => (
+      href && (pathWithoutLocale === href || pathWithoutLocale.startsWith(href))
+    ));
+    let destination = `/${code}${pathWithoutLocale}${hash}`;
+    if (course) {
+      const courseHref = publicCourseHrefFor(course.id, code);
+      if (!courseHref || !course.href) return;
+      const childSuffix = pathWithoutLocale.slice(course.href.length);
+      destination = withPublicCourseReturnLocale(`${courseHref}${childSuffix}${hash}`, code);
+    }
     try {
       localStorage.setItem("ae.lang", code);
     } catch {
       /* private browsing */
     }
     setOpen(false);
-    const target = `/${targetLocale}/${rest.join("/")}${rest.length ? "/" : ""}`;
-    router.push(
-      courseSurface && targetLocale !== code
-        ? withPublicCourseReturnLocale(target, code)
-        : target,
-    );
+    router.push(destination);
   }
 
   return (

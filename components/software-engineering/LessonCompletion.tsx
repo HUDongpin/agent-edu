@@ -35,7 +35,7 @@ export default function LessonCompletion({
       <button
         type="button"
         className={complete ? styles.completeButton : styles.primaryButton}
-        disabled={complete}
+        aria-disabled={complete || undefined}
         onClick={() => {
           if (complete) return;
           updateSoftwareEngineeringProgress((record) => { record[key] = true; });

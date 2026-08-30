@@ -5,6 +5,8 @@ export * from "./coverage";
 export * from "./overview";
 export * from "./curriculum";
 export * from "./manifest";
+export * from "./journey";
 export * from "./quiz";
 export * from "./capstone";
+export * from "./drafts";
 export * from "./load";
