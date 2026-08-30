@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LOCALES, LOCALE_CODES, metaFor } from "@/lib/i18n";
+import { publicLocaleSwitchHref } from "@/lib/public-release-surface";
 import { useI18n } from "./I18nProvider";
 import Icon from "./Icon";
 
@@ -62,16 +63,14 @@ export default function LanguageMenu() {
   }
 
   function switchTo(code: string) {
-    // swap only the locale segment, so you stay on the page you were reading
-    const rest = pathname.split("/").filter(Boolean);
-    if (LOCALE_CODES.includes(rest[0])) rest.shift();
+    const href = publicLocaleSwitchHref(pathname, code);
     try {
       localStorage.setItem("ae.lang", code);
     } catch {
       /* private browsing */
     }
     setOpen(false);
-    router.push(`/${code}/${rest.join("/")}${rest.length ? "/" : ""}`);
+    router.push(href);
   }
 
   return (

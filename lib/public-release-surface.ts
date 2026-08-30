@@ -91,3 +91,38 @@ export function withPublicCourseReturnLocale(
 export const PUBLIC_PUBLISHED_COURSE_SURFACES = PUBLIC_COURSE_SURFACES.filter(
   (course) => course.state === "published",
 );
+
+/**
+ * Build the destination for an explicit shell-language change.
+ *
+ * Core pages and courses published in the requested locale retain their path.
+ * If a course has no content in that locale, return the learner to the target
+ * locale's catalog instead of constructing a route that cannot exist.
+ */
+export function publicLocaleSwitchHref(
+  pathname: string,
+  requestedLocale: string,
+): string {
+  if (!PUBLIC_SITE_LOCALES.includes(requestedLocale as PublicContentLocale)) {
+    return pathname;
+  }
+
+  const segments = pathname.split("/").filter(Boolean);
+  if (PUBLIC_SITE_LOCALES.includes(segments[0] as PublicContentLocale)) {
+    segments.shift();
+  }
+
+  const courseRoot = segments[0] ? `/${segments[0]}/` : null;
+  const course = courseRoot
+    ? PUBLIC_PUBLISHED_COURSE_SURFACES.find((surface) => surface.href === courseRoot)
+    : undefined;
+
+  if (
+    course
+    && !course.contentLocales.includes(requestedLocale as PublicContentLocale)
+  ) {
+    return `/${requestedLocale}/courses/`;
+  }
+
+  return `/${requestedLocale}/${segments.join("/")}${segments.length ? "/" : ""}`;
+}

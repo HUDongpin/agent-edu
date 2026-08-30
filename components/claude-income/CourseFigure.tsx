@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { ClaudeIncomeFigure } from "@/lib/claude-income";
+import ExternalLinkCue from "./ExternalLinkCue";
 import styles from "./ClaudeIncomeCourse.module.css";
 
 function uniqueDecodedWidths(figure: ClaudeIncomeFigure) {
@@ -40,7 +41,8 @@ export default function CourseFigure({
         className={styles.figureImage}
         href={figure.src}
         aria-describedby={captionId}
-        title="Open the full resolution image"
+        target="_blank"
+        rel="noopener noreferrer"
       >
         <picture>
           {srcSet ? (
@@ -60,6 +62,10 @@ export default function CourseFigure({
             unoptimized
           />
         </picture>
+        <span className={styles.figureOpenAction}>
+          <span>Open full-resolution figure</span>
+          <ExternalLinkCue />
+        </span>
       </a>
       <figcaption id={captionId}>
         <p>{figure.caption}</p>
@@ -86,7 +92,7 @@ export default function CourseFigure({
         </ul>
         <a className={styles.sourceLink} href={figure.sourceUrl} target="_blank" rel="noopener noreferrer">
           Open the related official guidance
-          <span aria-hidden="true">↗</span>
+          <ExternalLinkCue />
         </a>
       </figcaption>
     </figure>

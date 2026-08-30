@@ -15,11 +15,13 @@ import { useI18n } from "./I18nProvider";
 export default function SharedCourseShell({
   courseId,
   locale,
+  landmarkLabel,
   showBreadcrumb = true,
   standalone = false,
 }: {
   courseId: PublicCourseId;
   locale: string;
+  landmarkLabel?: string;
   showBreadcrumb?: boolean;
   standalone?: boolean;
 }) {
@@ -42,6 +44,7 @@ export default function SharedCourseShell({
 
   return (
     <aside
+      aria-label={landmarkLabel}
       className={`${standalone ? "shellwrap " : ""}shared-course-shell`}
       data-course-shell={courseId}
       data-course-publication-state={surface.state}
