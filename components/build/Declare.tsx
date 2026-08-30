@@ -41,7 +41,16 @@ export default function Declare() {
         >
           {done ? t("build.declaredCta") : t("build.declareCta")}
         </button>
-        {done && <span className="declared-note">✓ {t("build.declaredNote")}</span>}
+        {/*
+          Always present so it is a live region before it has anything to say —
+          a span rendered only once `done` flips announces nothing in most
+          screen readers. The tick is decorative; the sentence carries the
+          meaning, and it must therefore read correctly on its own, without the
+          paragraph above it.
+        */}
+        <span className="declared-note" role="status">
+          {done ? <><span aria-hidden="true">✓ </span>{t("build.declaredNote")}</> : null}
+        </span>
       </div>
     </div>
   );
