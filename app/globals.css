@@ -12,6 +12,7 @@
    whole layout for Arabic without a second stylesheet. */
 
 :root{
+  color-scheme:light;
   /* neutrals */
   --bg:#F8F7F3; --bg-2:#EFF2F2; --card:#FFFFFF;
   --ink:#142033; --ink-2:#3C4658; --ink-3:#626B79;
@@ -56,6 +57,7 @@
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
+    color-scheme:dark;
     --bg:#12151F; --bg-2:#171B27; --card:#191D2B;
     --ink:#EAEDF8; --ink-2:#BFC6DA; --ink-3:#98A0B8;
     --line:#2C3244; --line-2:#232838;
@@ -71,6 +73,7 @@
   }
 }
 :root[data-theme="dark"]{
+  color-scheme:dark;
   --bg:#12151F; --bg-2:#171B27; --card:#191D2B;
   --ink:#EAEDF8; --ink-2:#BFC6DA; --ink-3:#98A0B8;
   --line:#2C3244; --line-2:#232838;

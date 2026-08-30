@@ -25,7 +25,9 @@ export default function PromptExample({
         </div>
         <div className={styles.strongPrompt}>
           <span>{labels.strongPrompt}</span>
-          <pre dir="ltr"><code>{prompt.text}</code></pre>
+          <pre dir="ltr" tabIndex={0} aria-label={labels.strongPrompt}>
+            <code>{prompt.text}</code>
+          </pre>
         </div>
       </div>
       <details className={styles.promptAnalysis}>

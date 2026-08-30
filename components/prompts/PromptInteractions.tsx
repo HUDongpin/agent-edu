@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   PromptCapstoneRubricCopy,
   PromptCheckpointCopy,
@@ -9,21 +9,26 @@ import type {
   PromptFinalQuizQuestionCopy,
   PromptLessonSlug,
 } from "@/lib/prompts";
-import { promptCapstoneScoresPass } from "@/lib/prompts";
+import { isPromptCapstonePassed, promptCapstoneScoresPass } from "@/lib/prompts";
 import {
   PROMPT_CAPSTONE_KEY,
   PROMPT_CAPSTONE_REQUIRED_KEY,
   PROMPT_CAPSTONE_SCORES_KEY,
-  PROMPT_PROGRESS_EVENT,
+  PROMPT_QUIZ_BANK_VERSION,
   PROMPT_QUIZ_BEST_KEY,
+  PROMPT_QUIZ_DRAFT_KEY,
   PROMPT_QUIZ_PASSED_KEY,
-  isPromptProgressStorageAvailable,
+  PROMPT_QUIZ_VERSION_KEY,
+  PROMPT_PROGRESS_RESET_EVENT,
+  isCurrentPromptQuizResult,
+  isPromptQuizPassed,
+  storedPromptQuizBest,
   promptPracticeKey,
   readPromptProgress,
   resetPromptProgress,
   updatePromptProgress,
-  type PromptProgressRecord,
 } from "./progress-store";
+import { usePromptProgress } from "./usePromptProgress";
 import styles from "./PromptCourse.module.css";
 import { useI18n } from "../I18nProvider";
 
@@ -41,38 +46,6 @@ function indexedRecord(value: unknown): Record<string, unknown> {
     : {};
 }
 
-function subscribePromptProgress(notify: () => void): () => void {
-  window.addEventListener(PROMPT_PROGRESS_EVENT, notify);
-  window.addEventListener("storage", notify);
-  window.addEventListener("focus", notify);
-  return () => {
-    window.removeEventListener(PROMPT_PROGRESS_EVENT, notify);
-    window.removeEventListener("storage", notify);
-    window.removeEventListener("focus", notify);
-  };
-}
-
-function progressSnapshot(): string {
-  return JSON.stringify(readPromptProgress());
-}
-
-function storageSnapshot(): boolean {
-  return isPromptProgressStorageAvailable();
-}
-
-function usePromptProgress() {
-  const serialized = useSyncExternalStore(subscribePromptProgress, progressSnapshot, () => "{}");
-  const storageAvailable = useSyncExternalStore(subscribePromptProgress, storageSnapshot, () => true);
-  let progress: PromptProgressRecord = {};
-  try {
-    const value: unknown = JSON.parse(serialized);
-    if (value && typeof value === "object" && !Array.isArray(value)) progress = value as PromptProgressRecord;
-  } catch {
-    progress = {};
-  }
-  return { progress, storageAvailable };
-}
-
 export function CopyPrompt({
   text,
   labels,
@@ -80,7 +53,7 @@ export function CopyPrompt({
   text: string;
   labels: Labels;
 }) {
-  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => {
@@ -88,23 +61,34 @@ export function CopyPrompt({
   }, []);
 
   return (
-    <button
-      className={styles.copyButton}
-      type="button"
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(text);
-          setCopied(true);
-          if (timer.current) clearTimeout(timer.current);
-          timer.current = setTimeout(() => setCopied(false), 1800);
-        } catch {
-          setCopied(false);
-        }
-      }}
-    >
-      <span aria-hidden="true">{copied ? "✓" : "□"}</span>
-      <span aria-live="polite">{copied ? labels.copied : labels.copyPrompt}</span>
-    </button>
+    <div className={styles.copyAction}>
+      <button
+        className={styles.copyButton}
+        type="button"
+        onClick={async () => {
+          if (timer.current) {
+            clearTimeout(timer.current);
+            timer.current = null;
+          }
+          try {
+            await navigator.clipboard.writeText(text);
+            setStatus("copied");
+            timer.current = setTimeout(() => setStatus("idle"), 1800);
+          } catch {
+            setStatus("failed");
+          }
+        }}
+      >
+        {status === "copied" ? labels.copied : labels.copyPrompt}
+      </button>
+      <span
+        className={status === "failed" ? styles.copyError : styles.srOnly}
+        role="status"
+        aria-live="polite"
+      >
+        {status === "failed" ? labels.copyFailed : status === "copied" ? labels.copied : ""}
+      </span>
+    </div>
   );
 }
 
@@ -131,15 +115,15 @@ export function PracticeCompletion({
       <button
         className={complete ? styles.completeButton : styles.primaryButton}
         type="button"
-        aria-disabled={complete || undefined}
+        aria-pressed={complete}
         onClick={() => {
-          if (complete) return;
           updatePromptProgress((record) => {
-            record[key] = true;
+            if (complete) delete record[key];
+            else record[key] = true;
           });
         }}
       >
-        {complete ? labels.markedPracticeComplete : labels.markPracticeComplete}
+        {complete ? labels.markPracticeIncomplete : labels.markPracticeComplete}
       </button>
     </section>
   );
@@ -162,8 +146,8 @@ export function CourseProgress({
 
   const state = useMemo(() => {
     const completePractices = lessons.filter((lesson) => progress[promptPracticeKey(lesson.slug)] === true).length;
-    const quiz = progress[PROMPT_QUIZ_PASSED_KEY] === true ? 1 : 0;
-    const capstone = progress[PROMPT_CAPSTONE_KEY] === true ? 1 : 0;
+    const quiz = isPromptQuizPassed(progress) ? 1 : 0;
+    const capstone = isPromptCapstonePassed(progress) ? 1 : 0;
     const complete = completePractices + quiz + capstone;
     const total = lessons.length + 2;
     const nextLesson = lessons.find((lesson) => progress[promptPracticeKey(lesson.slug)] !== true);
@@ -171,8 +155,25 @@ export function CourseProgress({
     const nextHref = courseCompleted
       ? lessons[0]?.href ?? null
       : nextLesson?.href
-        ?? (quiz ? lessons.at(-1)?.href ?? null : "#prompts-final-quiz");
-    return { complete, total, courseCompleted, percent: Math.round((complete / total) * 100), nextHref };
+        ?? (capstone ? "#prompts-final-quiz" : lessons.at(-1)?.href ?? null);
+    const nextStep = courseCompleted
+      ? "review"
+      : nextLesson
+        ? "lesson"
+        : capstone
+          ? "quiz"
+          : "capstone";
+    return {
+      capstone,
+      complete,
+      completePractices,
+      courseCompleted,
+      nextHref,
+      nextStep,
+      percent: Math.round((complete / total) * 100),
+      quiz,
+      total,
+    };
   }, [lessons, progress]);
 
   const hasProgress = Object.keys(progress).some((key) => key.startsWith("prompts."));
@@ -193,10 +194,40 @@ export function CourseProgress({
       <progress className={styles.progressBar} max={state.total} value={state.complete}>
         {state.percent}%
       </progress>
+      <div className={styles.progressSteps} aria-label={labels.courseProgress}>
+        <div data-complete={state.completePractices === lessons.length ? "true" : "false"}>
+          <span>{labels.lessons}</span>
+          <strong>{state.completePractices} / {lessons.length}</strong>
+        </div>
+        <div data-complete={state.capstone ? "true" : "false"}>
+          <span>{labels.capstone}</span>
+          <strong>{state.capstone} / 1</strong>
+        </div>
+        <div data-complete={state.quiz ? "true" : "false"}>
+          <span>{labels.finalQuiz}</span>
+          <strong>{state.quiz} / 1</strong>
+        </div>
+      </div>
       <div className={styles.actionRow}>
         {state.nextHref ? (
-          <Link className={styles.primaryButton} href={state.nextHref} data-course-journey-action>
-            {state.courseCompleted ? t("cat.review") : hasProgress ? resumeLabel : startLabel}<span aria-hidden="true">→</span>
+          <Link
+            className={styles.primaryButton}
+            href={state.nextHref}
+            data-course-journey-action
+            onClick={state.nextStep === "quiz" ? () => {
+              requestAnimationFrame(() => document.getElementById("prompts-final-quiz-title")?.focus());
+            } : undefined}
+          >
+            {state.nextStep === "review"
+              ? t("cat.review")
+              : state.nextStep === "quiz"
+                ? labels.finalQuiz
+                : state.nextStep === "capstone"
+                  ? labels.capstoneStatus
+                  : hasProgress
+                    ? resumeLabel
+                    : startLabel}
+            <span aria-hidden="true">→</span>
           </Link>
         ) : null}
         <button
@@ -205,8 +236,8 @@ export function CourseProgress({
           disabled={!hasProgress}
           onClick={() => {
             if (!window.confirm(labels.resetConfirm)) return;
-            resetPromptProgress();
-            setResetStatus(labels.resetDone);
+            const persisted = resetPromptProgress();
+            setResetStatus(persisted ? labels.resetDone : labels.resetSessionOnly);
           }}
         >
           {labels.resetProgress}
@@ -230,7 +261,13 @@ export function LessonCheckpoint({
 }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
+  const feedbackRef = useRef<HTMLDivElement>(null);
+  const firstOptionRef = useRef<HTMLInputElement>(null);
   const correct = selected === checkpoint.correctIndex;
+
+  useEffect(() => {
+    if (checked) feedbackRef.current?.focus();
+  }, [checked]);
 
   return (
     <section className={styles.checkpoint} aria-labelledby={`${id}-title`}>
@@ -249,6 +286,7 @@ export function LessonCheckpoint({
               key={option}
             >
               <input
+                ref={index === 0 ? firstOptionRef : undefined}
                 type="radio"
                 name={`${id}-answer`}
                 value={index}
@@ -266,11 +304,24 @@ export function LessonCheckpoint({
             {labels.checkAnswer}
           </button>
         ) : (
-          <div className={correct ? styles.correctFeedback : styles.incorrectFeedback} role="status" tabIndex={-1}>
+          <div
+            ref={feedbackRef}
+            className={`${correct ? styles.correctFeedback : styles.incorrectFeedback} ${styles.focusTarget}`}
+            role="status"
+            tabIndex={-1}
+          >
             <strong>{correct ? labels.correct : labels.incorrect}</strong>
             <p>{checkpoint.explanation}</p>
             {!correct ? (
-              <button className={styles.secondaryButton} type="button" onClick={() => { setSelected(null); setChecked(false); }}>
+              <button
+                className={styles.secondaryButton}
+                type="button"
+                onClick={() => {
+                  setSelected(null);
+                  setChecked(false);
+                  requestAnimationFrame(() => firstOptionRef.current?.focus());
+                }}
+              >
                 {labels.retryQuiz}
               </button>
             ) : null}
@@ -287,6 +338,41 @@ export type PromptQuizQuestion = PromptFinalQuizQuestionCopy & {
   readonly sourceUrl: string;
 };
 
+type PromptQuizDraft = {
+  readonly bankVersion: typeof PROMPT_QUIZ_BANK_VERSION;
+  readonly questionId: string;
+  readonly selected: number | null;
+  readonly answers: Record<string, boolean>;
+};
+
+function parseQuizDraft(
+  value: unknown,
+  questions: readonly PromptQuizQuestion[],
+): PromptQuizDraft | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const draft = value as Record<string, unknown>;
+  const draftQuestion = questions.find((question) => question.id === String(draft.questionId));
+  const questionIds = new Set(questions.map((question) => question.id));
+  if (draft.bankVersion !== PROMPT_QUIZ_BANK_VERSION || !draftQuestion) {
+    return null;
+  }
+  if (draft.selected !== null && (
+    !Number.isInteger(draft.selected)
+    || Number(draft.selected) < 0
+    || Number(draft.selected) >= draftQuestion.options.length
+  )) return null;
+  if (!draft.answers || typeof draft.answers !== "object" || Array.isArray(draft.answers)) return null;
+  const answers = Object.fromEntries(
+    Object.entries(draft.answers).filter(([id, answer]) => questionIds.has(id) && typeof answer === "boolean"),
+  ) as Record<string, boolean>;
+  return {
+    bankVersion: PROMPT_QUIZ_BANK_VERSION,
+    questionId: String(draft.questionId),
+    selected: draft.selected === null ? null : Number(draft.selected),
+    answers,
+  };
+}
+
 export function FinalQuiz({
   questions,
   passScore,
@@ -302,14 +388,83 @@ export function FinalQuiz({
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [score, setScore] = useState<number | null>(null);
+  const focusTargetRef = useRef<HTMLDivElement | HTMLHeadingElement>(null);
+  const restoreFrameRef = useRef<number | null>(null);
+  const resetGenerationRef = useRef(0);
   const current = questions[index];
   const answered = current ? answers[current.id] !== undefined : false;
-  const savedBest = typeof progress[PROMPT_QUIZ_BEST_KEY] === "number"
-    ? progress[PROMPT_QUIZ_BEST_KEY] as number
-    : 0;
+  const savedBest = storedPromptQuizBest(progress) ?? 0;
   const best = Math.max(savedBest, score ?? 0);
 
+  useEffect(() => {
+    const record = readPromptProgress();
+    const draft = parseQuizDraft(record[PROMPT_QUIZ_DRAFT_KEY], questions);
+    if (!draft) {
+      if (record[PROMPT_QUIZ_DRAFT_KEY] !== undefined) {
+        updatePromptProgress((next) => { delete next[PROMPT_QUIZ_DRAFT_KEY]; });
+      }
+      return;
+    }
+    const restoredIndex = questions.findIndex((question) => question.id === draft.questionId);
+    if (restoredIndex < 0) return;
+    const resetGeneration = resetGenerationRef.current;
+    const frame = requestAnimationFrame(() => {
+      restoreFrameRef.current = null;
+      if (resetGenerationRef.current !== resetGeneration) return;
+      setIndex(restoredIndex);
+      setSelected(draft.selected);
+      setAnswers(draft.answers);
+      setScore(null);
+      setActive(true);
+    });
+    restoreFrameRef.current = frame;
+    return () => {
+      cancelAnimationFrame(frame);
+      if (restoreFrameRef.current === frame) restoreFrameRef.current = null;
+    };
+  }, [questions]);
+
+  useEffect(() => {
+    if (!active || score !== null || !current) return;
+    updatePromptProgress((record) => {
+      record[PROMPT_QUIZ_DRAFT_KEY] = {
+        bankVersion: PROMPT_QUIZ_BANK_VERSION,
+        questionId: current.id,
+        selected,
+        answers,
+      } satisfies PromptQuizDraft;
+    });
+  }, [active, answers, current, score, selected]);
+
+  useEffect(() => {
+    if (!active) return;
+    const frame = requestAnimationFrame(() => focusTargetRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [active, answered, index, score]);
+
+  useEffect(() => {
+    const resetAttempt = () => {
+      resetGenerationRef.current += 1;
+      if (restoreFrameRef.current !== null) {
+        cancelAnimationFrame(restoreFrameRef.current);
+        restoreFrameRef.current = null;
+      }
+      setActive(false);
+      setIndex(0);
+      setSelected(null);
+      setAnswers({});
+      setScore(null);
+    };
+    window.addEventListener(PROMPT_PROGRESS_RESET_EVENT, resetAttempt);
+    return () => window.removeEventListener(PROMPT_PROGRESS_RESET_EVENT, resetAttempt);
+  }, []);
+
   function begin() {
+    resetGenerationRef.current += 1;
+    if (restoreFrameRef.current !== null) {
+      cancelAnimationFrame(restoreFrameRef.current);
+      restoreFrameRef.current = null;
+    }
     setActive(true);
     setIndex(0);
     setSelected(null);
@@ -322,7 +477,9 @@ export function FinalQuiz({
       <header className={styles.quizHeader}>
         <div>
           <p className={styles.kicker}>{labels.finalQuiz}</p>
-          <h2 id="prompts-final-quiz-title">{labels.finalQuiz}</h2>
+          <h2 id="prompts-final-quiz-title" className={styles.focusTarget} tabIndex={-1}>
+            {labels.finalQuiz}
+          </h2>
           <p>{labels.quizIntro}</p>
         </div>
         <div className={styles.quizRequirement}>
@@ -334,7 +491,12 @@ export function FinalQuiz({
       {!active ? (
         <button className={styles.primaryButton} type="button" onClick={begin}>{labels.beginQuiz}</button>
       ) : score !== null ? (
-        <div className={score >= passScore ? styles.correctFeedback : styles.incorrectFeedback} role="status">
+        <div
+          ref={focusTargetRef}
+          className={`${score >= passScore ? styles.correctFeedback : styles.incorrectFeedback} ${styles.focusTarget}`}
+          role="status"
+          tabIndex={-1}
+        >
           <strong>{format(labels.scoreSummary, { score, total: questions.length })}</strong>
           <p>{score >= passScore ? labels.quizPassed : labels.quizNeedsReview}</p>
           <button className={styles.secondaryButton} type="button" onClick={begin}>{labels.retryQuiz}</button>
@@ -352,7 +514,13 @@ export function FinalQuiz({
             <span>{format(labels.questionProgress, { current: index + 1, total: questions.length })}</span>
             <span>{current.unitTitle}</span>
           </div>
-          <h3>{current.question}</h3>
+          <h3
+            ref={!answered ? focusTargetRef : undefined}
+            className={styles.focusTarget}
+            tabIndex={-1}
+          >
+            {current.question}
+          </h3>
           <fieldset>
             <legend className={styles.srOnly}>{current.question}</legend>
             {current.options.map((option, optionIndex) => (
@@ -380,8 +548,16 @@ export function FinalQuiz({
           {!answered ? (
             <button className={styles.primaryButton} type="submit">{labels.checkAnswer}</button>
           ) : (
-            <div className={answers[current.id] ? styles.correctFeedback : styles.incorrectFeedback} role="status">
+            <div
+              ref={focusTargetRef}
+              className={`${answers[current.id] ? styles.correctFeedback : styles.incorrectFeedback} ${styles.focusTarget}`}
+              role="status"
+              tabIndex={-1}
+            >
               <strong>{answers[current.id] ? labels.correct : labels.incorrect}</strong>
+              {!answers[current.id] && selected !== null ? (
+                <p className={styles.misconceptionFeedback}>{current.misconceptions[selected]}</p>
+              ) : null}
               <p>{current.explanation}</p>
               <a href={current.sourceUrl} target="_blank" rel="noopener noreferrer">
                 {labels.source}: {current.sourceTitle}
@@ -398,11 +574,13 @@ export function FinalQuiz({
                   const finalScore = Object.values(answers).filter(Boolean).length;
                   setScore(finalScore);
                   updatePromptProgress((record) => {
-                    const prior = typeof record[PROMPT_QUIZ_BEST_KEY] === "number"
-                      ? record[PROMPT_QUIZ_BEST_KEY] as number
-                      : 0;
+                    const sameBank = isCurrentPromptQuizResult(record);
+                    const prior = sameBank ? storedPromptQuizBest(record) ?? 0 : 0;
+                    record[PROMPT_QUIZ_VERSION_KEY] = PROMPT_QUIZ_BANK_VERSION;
                     record[PROMPT_QUIZ_BEST_KEY] = Math.max(prior, finalScore);
-                    record[PROMPT_QUIZ_PASSED_KEY] = finalScore >= passScore || record[PROMPT_QUIZ_PASSED_KEY] === true;
+                    record[PROMPT_QUIZ_PASSED_KEY] = finalScore >= passScore
+                      || (sameBank && isPromptQuizPassed(record));
+                    delete record[PROMPT_QUIZ_DRAFT_KEY];
                   });
                 }}
               >
@@ -432,7 +610,7 @@ export function CapstoneChecklist({
   const { progress, storageAvailable } = usePromptProgress();
   const checked = indexedRecord(progress[PROMPT_CAPSTONE_REQUIRED_KEY]);
   const scores = indexedRecord(progress[PROMPT_CAPSTONE_SCORES_KEY]);
-  const complete = progress[PROMPT_CAPSTONE_KEY] === true;
+  const complete = isPromptCapstonePassed(progress);
   const allChecked = required.every((_, index) => checked[String(index)] === true);
   const numericScores = rubric.map((_, index) => scores[String(index)]);
   const allScored = numericScores.every((score) => Number.isInteger(score) && Number(score) >= 0 && Number(score) <= 2);
@@ -526,15 +704,20 @@ export function CapstoneChecklist({
         className={complete ? styles.completeButton : styles.primaryButton}
         type="button"
         disabled={!canRecord && !complete}
-        aria-disabled={complete || undefined}
         onClick={() => {
-          if (complete || !canRecord) return;
+          if (complete) {
+            updatePromptProgress((record) => {
+              record[PROMPT_CAPSTONE_KEY] = false;
+            });
+            return;
+          }
+          if (!canRecord) return;
           updatePromptProgress((record) => {
             record[PROMPT_CAPSTONE_KEY] = true;
           });
         }}
       >
-        {complete ? labels.capstoneComplete : labels.recordCapstone}
+        {complete ? labels.reopenCapstone : labels.recordCapstone}
       </button>
     </section>
   );
