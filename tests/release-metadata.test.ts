@@ -78,3 +78,16 @@ test("production metadata also requires exact deployment bindings", () => {
     env: { VERCEL_GIT_COMMIT_SHA: SHA, VERCEL_ENV: "production" },
   }), /Production builds require VERCEL_DEPLOYMENT_ID and VERCEL_URL/);
 });
+
+test("the official Vercel development environment remains explicit", () => {
+  assert.deepEqual(releaseMetadata({
+    commitSha: SHA,
+    env: { VERCEL_ENV: "development" },
+  }), {
+    schema: "agent-edu.release-build.v1",
+    commitSha: SHA,
+    environment: "development",
+    deploymentId: null,
+    deploymentUrl: null,
+  });
+});

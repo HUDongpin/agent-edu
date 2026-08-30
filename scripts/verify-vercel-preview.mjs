@@ -2,7 +2,7 @@
 
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve, sep } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   assertAlternateContract,
@@ -12,21 +12,23 @@ import {
   internalPagePath,
 } from "./check-routes.mjs";
 import { contentFindings } from "./check-secrets.mjs";
+import {
+  assertCspConfiguration,
+  CANONICAL_CSP_POLICY,
+  CSP_HEADER_BY_STAGE,
+} from "./check-csp.mjs";
 import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 const SITE_ORIGIN = "https://aicourse.top";
 const GIT_SHA = /^[0-9a-f]{40}$/;
 const DEPLOYMENT_ID = /^dpl_[A-Za-z0-9]{8,124}$/;
 const MAX_SITEMAP_BYTES = 500 * 1024;
+const MAX_RELEASE_METADATA_BYTES = 16 * 1024;
 const MAX_FAILURES = 250;
 const DEFAULT_CONCURRENCY = 12;
 const TRUSTED_OIDC_TOKEN = /^[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}$/;
 const REPORT_ONLY_CSP_DIAGNOSTIC = "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy.";
 const DEPLOYMENT_ENVIRONMENTS = new Set(["preview", "production"]);
-const CSP_HEADER_BY_STAGE = {
-  "report-only": "content-security-policy-report-only",
-  enforced: "content-security-policy",
-};
 
 function localizedPath(locale, route) {
   const page = route.replace(/^\/+|\/+$/g, "");
@@ -127,6 +129,55 @@ export function buildPreviewPlan(releaseSurface, routeManifest) {
     expectedSitemapUrls: sortedUnique([...contracts.keys()].map(canonicalUrl)),
     siteLocales: new Set(releaseSurface.siteLocales),
   };
+}
+
+/**
+ * @param {{
+ *   projectRoot: string,
+ *   commitSha: string,
+ *   execFile?: (
+ *     file: string,
+ *     args: readonly string[],
+ *     options: import("node:child_process").ExecFileSyncOptionsWithStringEncoding,
+ *   ) => string,
+ * }} options
+ */
+export function assertCleanExactCheckout({ projectRoot, commitSha, execFile }) {
+  const runExecFile = execFile ?? execFileSync;
+  const checkoutCommit = runExecFile("git", ["rev-parse", "HEAD"], {
+    cwd: projectRoot,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  }).trim();
+  if (checkoutCommit !== commitSha) {
+    throw new Error("checkout HEAD does not match the deployment commit");
+  }
+  const status = runExecFile("git", ["status", "--porcelain=v1", "--untracked-files=all"], {
+    cwd: projectRoot,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  }).trim();
+  if (status !== "") {
+    throw new Error("checkout must be clean before deriving the release verification plan");
+  }
+}
+
+export function assertTargetCspStage(stageConfig, vercelConfig, targetStage) {
+  assertCspConfiguration(stageConfig, vercelConfig);
+  if (stageConfig.stage !== targetStage) {
+    throw new Error(
+      `deployment verifier CSP stage ${targetStage} does not match the clean checkout stage ${stageConfig.stage}`,
+    );
+  }
+}
+
+function assertCheckoutCspStage(projectRoot, targetStage) {
+  const stageConfig = JSON.parse(readFileSync(
+    join(projectRoot, "config", "csp-stage.json"),
+    "utf8",
+  ));
+  const vercelConfig = JSON.parse(readFileSync(join(projectRoot, "vercel.json"), "utf8"));
+  assertTargetCspStage(stageConfig, vercelConfig, targetStage);
 }
 
 /**
@@ -232,11 +283,76 @@ export function validatePreviewTarget({ previewUrl, deploymentId, commitSha }, o
 }
 
 export function deploymentMetadataMatches(metadata, target) {
-  return metadata?.schema === "agent-edu.release-build.v1"
+  const expectedKeys = ["commitSha", "deploymentId", "deploymentUrl", "environment", "schema"];
+  return metadata !== null
+    && typeof metadata === "object"
+    && !Array.isArray(metadata)
+    && Object.keys(metadata).sort().join("\n") === expectedKeys.join("\n")
+    && metadata?.schema === "agent-edu.release-build.v1"
     && metadata?.commitSha === target.commitSha
     && metadata?.environment === target.environment
     && metadata?.deploymentId === target.deploymentId
     && metadata?.deploymentUrl === target.metadataDeploymentUrl;
+}
+
+export function releaseMetadataTextFindings(text, target) {
+  const findings = contentFindings(text).map((finding) => `sensitive-${finding.id}`);
+  let metadata;
+  try {
+    metadata = JSON.parse(text);
+  } catch {
+    findings.push("release-metadata-json");
+    return { metadata: undefined, findings };
+  }
+  if (text !== `${JSON.stringify(metadata, null, 2)}\n`) {
+    findings.push("release-metadata-canonical");
+  }
+  if (!deploymentMetadataMatches(metadata, target)) findings.push("release-metadata-binding");
+  return { metadata, findings };
+}
+
+export async function inspectReleaseMetadataResponse(response, target) {
+  const findings = [];
+  const contentType = (response.headers.get("content-type") ?? "")
+    .split(";", 1)[0]
+    .trim()
+    .toLowerCase();
+  if (contentType !== "application/json") findings.push("release-metadata-content-type");
+
+  const declaredLength = response.headers.get("content-length");
+  if (declaredLength !== null) {
+    if (!/^(0|[1-9][0-9]*)$/.test(declaredLength)) {
+      findings.push("release-metadata-content-length");
+    } else if (Number(declaredLength) > MAX_RELEASE_METADATA_BYTES) {
+      findings.push("release-metadata-size");
+      await response.body?.cancel();
+      return { metadata: undefined, findings };
+    }
+  }
+
+  const text = await response.text();
+  if (Buffer.byteLength(text) > MAX_RELEASE_METADATA_BYTES) {
+    findings.push("release-metadata-size");
+    return { metadata: undefined, findings };
+  }
+  const inspected = releaseMetadataTextFindings(text, target);
+  return { metadata: inspected.metadata, findings: [...findings, ...inspected.findings] };
+}
+
+export function deploymentMetadataPairFindings(customMetadata, uniqueMetadata, target) {
+  if (uniqueMetadata === undefined) return ["unique-deployment-metadata-missing"];
+  const findings = [];
+  if (!deploymentMetadataMatches(customMetadata, target)) {
+    findings.push("custom-domain-metadata-binding");
+  }
+  if (!deploymentMetadataMatches(uniqueMetadata, target)) {
+    findings.push("unique-deployment-metadata-binding");
+  }
+  const fields = ["schema", "commitSha", "environment", "deploymentId", "deploymentUrl"];
+  if (fields.some((field) => customMetadata?.[field] !== uniqueMetadata?.[field])) {
+    findings.push("production-metadata-origins-diverge");
+  }
+  return findings;
 }
 
 export function validateTrustedOidcToken(value) {
@@ -307,28 +423,34 @@ export function cspHeaderFindings(headers, cspStage) {
     ? CSP_HEADER_BY_STAGE.enforced
     : CSP_HEADER_BY_STAGE["report-only"];
   const csp = headers.get(expectedHeader) ?? "";
-  for (const directive of ["default-src 'self'", "frame-ancestors 'none'", "object-src 'none'"]) {
-    if (!csp.includes(directive)) findings.push({ code: `header-csp-${cspStage}`, detail: directive });
+  if (csp !== CANONICAL_CSP_POLICY) {
+    findings.push({ code: `header-csp-${cspStage}`, detail: "reviewed-baseline-mismatch" });
   }
   if ((headers.get(oppositeHeader) ?? "").trim() !== "") {
-    findings.push({ code: "header-csp-stage-conflict", detail: oppositeHeader });
+    findings.push({ code: "header-csp-stage-conflict", detail: oppositeHeader.toLowerCase() });
   }
+  return findings;
+}
+
+export function securityHeaderFindings(headers, cspStage) {
+  const findings = [];
+  if ((headers.get("x-content-type-options") ?? "").trim().toLowerCase() !== "nosniff") {
+    findings.push({ code: "header-nosniff" });
+  }
+  if ((headers.get("referrer-policy") ?? "").trim().toLowerCase() !== "no-referrer") {
+    findings.push({ code: "header-referrer-policy" });
+  }
+  if ((headers.get("x-frame-options") ?? "").trim().toUpperCase() !== "DENY") {
+    findings.push({ code: "header-frame-protection" });
+  }
+  findings.push(...cspHeaderFindings(headers, cspStage));
   return findings;
 }
 
 function checkHeaders(response, path, report, cspStage) {
   const headers = response.headers;
-  if ((headers.get("x-content-type-options") ?? "").toLowerCase() !== "nosniff") {
-    addFailure(report, "header-nosniff", path);
-  }
-  if (!(headers.get("referrer-policy") ?? "").toLowerCase().split(/\s*,\s*/).includes("no-referrer")) {
-    addFailure(report, "header-referrer-policy", path);
-  }
-  if ((headers.get("x-frame-options") ?? "").toUpperCase() !== "DENY") {
-    addFailure(report, "header-frame-protection", path);
-  }
-  for (const finding of cspHeaderFindings(headers, cspStage)) {
-    addFailure(report, finding.code, path, finding.detail);
+  for (const finding of securityHeaderFindings(headers, cspStage)) {
+    addFailure(report, finding.code, path, "detail" in finding ? finding.detail : undefined);
   }
 }
 
@@ -443,6 +565,28 @@ export function isExpectedReportOnlyCspDiagnostic(message) {
   return message.type() === "error" && message.text() === REPORT_ONLY_CSP_DIAGNOSTIC;
 }
 
+export async function routeOriginBoundRequest(route, deploymentOrigin, trustedOidcToken) {
+  const request = route.request();
+  const headers = { ...request.headers() };
+  for (const key of Object.keys(headers)) {
+    if (key.toLowerCase() === "x-vercel-trusted-oidc-idp-token") delete headers[key];
+  }
+  let requestOrigin;
+  try {
+    requestOrigin = new URL(request.url()).origin;
+  } catch {
+    await route.continue({ headers });
+    return;
+  }
+  if (trustedOidcToken && requestOrigin === deploymentOrigin) {
+    headers["x-vercel-trusted-oidc-idp-token"] = trustedOidcToken;
+    const response = await route.fetch({ headers, maxRedirects: 0 });
+    await route.fulfill({ response });
+    return;
+  }
+  await route.continue({ headers });
+}
+
 async function verifyBrowserConsole(
   paths,
   deploymentOrigin,
@@ -457,10 +601,14 @@ async function verifyBrowserConsole(
     await mapLimit(paths, Math.min(concurrency, 4), async (path) => {
       const page = await browser.newPage({
         serviceWorkers: "block",
-        extraHTTPHeaders: trustedOidcToken
-          ? { "x-vercel-trusted-oidc-idp-token": trustedOidcToken }
-          : undefined,
       });
+      if (trustedOidcToken) {
+        await page.route("**/*", (route) => routeOriginBoundRequest(
+          route,
+          deploymentOrigin,
+          trustedOidcToken,
+        ));
+      }
       let consoleErrors = 0;
       let pageErrors = 0;
       let reportOnlyCspDiagnostics = 0;
@@ -520,8 +668,13 @@ export async function verifyVercelPreview(options) {
   if (target.environment === "production" && trustedOidcToken) {
     throw new Error("production verification must not transmit a Preview OIDC token");
   }
+  if (target.environment === "production" && options.browserConsole !== true) {
+    throw new Error("production verification requires the full browser-console matrix");
+  }
   const requestHeaders = previewRequestHeaders(trustedOidcToken);
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
+  assertCleanExactCheckout({ projectRoot, commitSha: target.commitSha });
+  assertCheckoutCspStage(projectRoot, target.cspStage);
   const releaseArtifacts = assertReleaseArtifactsCurrent({ projectRoot });
   const releaseSurface = options.releaseSurface ?? releaseArtifacts.releaseSurface;
   const routeManifest = options.routeManifest ?? JSON.parse(readFileSync(
@@ -562,20 +715,8 @@ export async function verifyVercelPreview(options) {
   };
 
   try {
-    const checkoutCommit = execFileSync("git", ["rev-parse", "HEAD"], {
-      cwd: projectRoot,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
-    if (checkoutCommit !== target.commitSha) {
-      addFailure(report, "checkout-commit-binding", "[repository]");
-    }
-  } catch {
-    addFailure(report, "checkout-commit-binding", "[repository]");
-  }
-
-  try {
     const metadataPath = "/.well-known/release.json";
+    let customMetadata;
     const metadataResponse = await fetchResponse(
       fetchImpl,
       `${target.origin}${metadataPath}`,
@@ -585,17 +726,45 @@ export async function verifyVercelPreview(options) {
       addFailure(report, "release-metadata-status", metadataPath, metadataResponse.status);
     } else {
       checkHeaders(metadataResponse, metadataPath, report, target.cspStage);
-      let metadata;
-      try {
-        metadata = await metadataResponse.json();
-      } catch {
-        addFailure(report, "release-metadata-json", metadataPath);
-      }
-      if (!deploymentMetadataMatches(metadata, target)) {
-        addFailure(report, "release-metadata-binding", metadataPath);
+      const inspected = await inspectReleaseMetadataResponse(metadataResponse, target);
+      customMetadata = inspected.metadata;
+      for (const code of inspected.findings) {
+        addFailure(report, code, metadataPath);
       }
     }
     report.checks.releaseMetadata = 1;
+    if (target.environment === "production") {
+      let uniqueMetadata;
+      const uniqueMetadataResponse = await fetchResponse(
+        fetchImpl,
+        `${target.metadataDeploymentUrl}${metadataPath}`,
+        previewRequestHeaders(undefined),
+      );
+      if (uniqueMetadataResponse.status !== 200) {
+        addFailure(
+          report,
+          "unique-release-metadata-status",
+          metadataPath,
+          uniqueMetadataResponse.status,
+        );
+      } else {
+        checkHeaders(uniqueMetadataResponse, metadataPath, report, target.cspStage);
+        const inspected = await inspectReleaseMetadataResponse(uniqueMetadataResponse, target);
+        uniqueMetadata = inspected.metadata;
+        for (const code of inspected.findings) {
+          const uniqueCode = code === "release-metadata-json"
+            ? "unique-release-metadata-json"
+            : code === "release-metadata-binding"
+              ? "unique-release-metadata-binding"
+              : code;
+          addFailure(report, uniqueCode, metadataPath);
+        }
+      }
+      for (const code of deploymentMetadataPairFindings(customMetadata, uniqueMetadata, target)) {
+        addFailure(report, code, metadataPath);
+      }
+      report.checks.releaseMetadata = 2;
+    }
 
     await mapLimit(plan.publicPaths, concurrency, async (path) => {
       let response;
@@ -718,14 +887,17 @@ export function writePreviewReport(report, output, options = {}) {
   return target;
 }
 
-function parseArguments(argv) {
+export function parseArguments(argv) {
   const values = {
     browserConsole: false,
     environment: "preview",
     cspStage: "report-only",
   };
+  const seen = new Set();
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
+    if (seen.has(arg)) throw new Error(`duplicate deployment verifier argument: ${arg}`);
+    seen.add(arg);
     if (arg === "--browser-console") {
       values.browserConsole = true;
       continue;

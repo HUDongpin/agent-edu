@@ -41,8 +41,8 @@ export function releaseMetadata(options = {}) {
   const environment = typeof env.VERCEL_ENV === "string" && env.VERCEL_ENV.length > 0
     ? env.VERCEL_ENV
     : "local";
-  if (!["local", "preview", "production"].includes(environment)) {
-    throw new Error("VERCEL_ENV must be local, preview, or production");
+  if (!["local", "development", "preview", "production"].includes(environment)) {
+    throw new Error("VERCEL_ENV must be local, development, preview, or production");
   }
   const deploymentId = env.VERCEL_DEPLOYMENT_ID || null;
   if (deploymentId !== null && !DEPLOYMENT_ID.test(deploymentId)) {
