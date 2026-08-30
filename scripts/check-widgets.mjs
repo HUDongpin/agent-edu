@@ -17,7 +17,9 @@
  *      site passes, in English and in every translation
  *   3  a plural carries the categories its language actually needs
  *   4  every id `behaviour.ts` queries still exists in `markup.ts`
- *   5  the count of strings still hard-coded only ever goes down
+ *   5  every panel's back/forward pair matches the rail's own order, so
+ *      following "Next" still reaches every section
+ *   6  the count of strings still hard-coded only ever goes down
  *
  * Run by `npm run widgets:check`, alongside `handbook:check`.
  */
@@ -378,7 +380,62 @@ if (markupIds.size === 0) {
 }
 
 /* ------------------------------------------------------------------ *
- * 5 — the ratchet
+ * 5 — the section chain still walks the rail
+ *
+ * The rail is the progression: eleven tabs, numbered, in the order a reader
+ * is meant to meet them. Every panel repeats that order in its own two
+ * buttons, and until now nothing held the two in step. When the harness,
+ * evals and security block was added after graph the old graph->compare
+ * edge was left in place, so "Next" walked past three sections and
+ * #railCount promised a total that following the buttons could never reach.
+ * Reading the diff would not have caught it — each button is well-formed on
+ * its own, and the defect only exists in the walk.
+ * ------------------------------------------------------------------ */
+const railOrder = [...String(markup).matchAll(/class="rail-btn"[\s\S]*?data-p="(\w+)"/g)]
+  .map((m) => m[1]);
+
+/* The back/forward pair of one panel, in document order. Scoped to the
+   section that owns it: every panel has a .section-nav, so an unscoped
+   search would answer with whichever one came first in the file. */
+function sectionNav(name) {
+  const at = String(markup).indexOf(`id="p-${name}"`);
+  if (at === -1) return null;
+  const next = String(markup).indexOf("<section", at);
+  const scope = String(markup).slice(at, next === -1 ? undefined : next);
+  const nav = /<div class="section-nav">([\s\S]*?)<\/div>/.exec(scope);
+  return nav ? [...nav[1].matchAll(/data-goto="(\w+)"/g)].map((m) => m[1]) : null;
+}
+
+const chain = [];
+if (railOrder.length < 2) {
+  if (markupIds.size) fail("could not read the rail order out of markup.ts — the chain check did not run");
+} else {
+  railOrder.forEach((name, i) => {
+    if (i === 0) return; // the hub opens the sequence; it has no back/forward pair
+    const nav = sectionNav(name);
+    if (!nav || nav.length < 2) { chain.push(`p-${name} has no back/forward pair`); return; }
+    const wantBack = railOrder[i - 1];
+    const wantFwd = i + 1 < railOrder.length ? railOrder[i + 1] : railOrder[0];
+    if (nav[0] !== wantBack) chain.push(`p-${name} back goes to ${nav[0]}, the rail says ${wantBack}`);
+    if (nav[1] !== wantFwd) chain.push(`p-${name} forward goes to ${nav[1]}, the rail says ${wantFwd}`);
+  });
+
+  /* Stated as the reader experiences it, so a rail entry that nothing links
+     to reads as unreachable rather than as an off-by-one somewhere. */
+  const walked = new Set([railOrder[0]]);
+  let cur = railOrder[1];
+  while (cur && !walked.has(cur)) { walked.add(cur); cur = sectionNav(cur)?.[1]; }
+  const unreached = railOrder.filter((r) => !walked.has(r));
+  if (unreached.length) {
+    chain.push(`following "Next" from ${railOrder[0]} never reaches: ${unreached.join(", ")}`);
+  }
+
+  if (chain.length) fail(`the section chain does not match the rail — ${chain.join("; ")}`);
+  else notes.push(`${railOrder.length} sections chain forwards and back in rail order`);
+}
+
+/* ------------------------------------------------------------------ *
+ * 6 — the ratchet
  * ------------------------------------------------------------------ */
 const NOISE = [
   /^var\(--/, /^-soft\)?$/, /^translate\(/, /^\)\s*rotate/, /^text-anchor:/,

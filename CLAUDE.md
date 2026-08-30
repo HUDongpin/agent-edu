@@ -67,5 +67,9 @@ British spelling. Sentence case in headings. Prefer deleting a widget over addin
 one. Do not rewrite existing copy to satisfy a linter.
 
 ## Before you say you're done
-`npm run build` must pass and still emit 50 pages. Never commit `All API Keys.docx`
+`npm run build` must pass and still emit the same number of pages as HEAD —
+67 at the time of writing. Count them with `find out -name '*.html' | wc -l`;
+the 68 Next prints is route entries, not emitted files, and the two will not
+agree. Compare against a build of HEAD rather than against a number in here,
+which is how this line came to be wrong before. Never commit `All API Keys.docx`
 or anything matching the secrets block in `.gitignore`.
