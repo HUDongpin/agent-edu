@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LOCALES, LOCALE_CODES, metaFor } from "@/lib/i18n";
+import {
+  PUBLIC_PUBLISHED_COURSE_SURFACES,
+  withPublicCourseReturnLocale,
+  type PublicContentLocale,
+} from "@/lib/public-release-surface";
 import { useI18n } from "./I18nProvider";
 import Icon from "./Icon";
 
@@ -62,16 +67,31 @@ export default function LanguageMenu() {
   }
 
   function switchTo(code: string) {
-    // swap only the locale segment, so you stay on the page you were reading
+    // Keep the learner on the same page when that content locale exists. For
+    // an English-only course, preserve the requested site language as an
+    // explicit return path instead of manufacturing a translated 404 route.
     const rest = pathname.split("/").filter(Boolean);
     if (LOCALE_CODES.includes(rest[0])) rest.shift();
+    const courseRoot = rest[0] ? `/${rest[0]}/` : null;
+    const courseSurface = courseRoot
+      ? PUBLIC_PUBLISHED_COURSE_SURFACES.find((surface) => surface.href === courseRoot)
+      : null;
+    const targetLocale = courseSurface
+      && !courseSurface.contentLocales.includes(code as PublicContentLocale)
+      ? courseSurface.primaryLocale ?? code
+      : code;
     try {
       localStorage.setItem("ae.lang", code);
     } catch {
       /* private browsing */
     }
     setOpen(false);
-    router.push(`/${code}/${rest.join("/")}${rest.length ? "/" : ""}`);
+    const target = `/${targetLocale}/${rest.join("/")}${rest.length ? "/" : ""}`;
+    router.push(
+      courseSurface && targetLocale !== code
+        ? withPublicCourseReturnLocale(target, code)
+        : target,
+    );
   }
 
   return (

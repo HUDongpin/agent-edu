@@ -123,11 +123,11 @@ import {
   resetGithubProgressAfterGlobalReset,
 } from "./github/progress-store";
 import {
-  PROMPT_CAPSTONE_KEY,
   PROMPT_PROGRESS_EVENT,
   PROMPT_PROGRESS_PREFIX,
   PROMPT_PROGRESS_STORAGE_KEY,
-  PROMPT_QUIZ_PASSED_KEY,
+  isPromptCapstonePassed,
+  isPromptQuizPassed,
   isPromptProgressStorageAvailable,
   promptPracticeKey,
   readPromptProgress,
@@ -505,6 +505,7 @@ interface MilestoneAdapterOptions<Slug extends string> {
   readonly capstoneComplete: (record: ProgressRecord) => boolean;
   readonly quizHref: (locale: string) => string;
   readonly capstoneHref: (locale: string) => string;
+  readonly assessmentOrder?: "quiz-first" | "capstone-first";
   readonly hasProgress: (record: ProgressRecord) => boolean;
   readonly reset: () => PersistenceResult | Promise<PersistenceResult>;
   readonly isPersistent: () => boolean;
@@ -522,22 +523,31 @@ function milestoneAdapter<Slug extends string>(
     readSummary() {
       return readFailClosed(options.isPersistent, () => {
         const record = options.read();
+        const quizComplete = options.quizComplete(record);
+        const capstoneComplete = options.capstoneComplete(record);
         const completed = options.slugs.filter(
           (slug) => options.lessonComplete(record, slug),
         ).length
-          + Number(options.quizComplete(record))
-          + Number(options.capstoneComplete(record));
+          + Number(quizComplete)
+          + Number(capstoneComplete);
         const percent = Math.round((completed / (options.slugs.length + 2)) * 100);
         const next = options.slugs.find((slug) => !options.lessonComplete(record, slug));
+        const assessmentHref = options.assessmentOrder === "capstone-first"
+          ? !capstoneComplete
+            ? options.capstoneHref(locale)
+            : !quizComplete
+              ? options.quizHref(locale)
+              : root
+          : !quizComplete
+            ? options.quizHref(locale)
+            : !capstoneComplete
+              ? options.capstoneHref(locale)
+              : root;
         const nextHref = percent >= 100
           ? root
           : next
             ? lessonHref(locale, options.courseId, next)
-            : !options.quizComplete(record)
-              ? options.quizHref(locale)
-              : !options.capstoneComplete(record)
-                ? options.capstoneHref(locale)
-                : root;
+            : assessmentHref;
         return summary(percent, options.hasProgress(record), nextHref);
       });
     },
@@ -817,10 +827,11 @@ export function createAllProgressAdapters(
       slugs: PROMPT_PROGRESS_LESSON_SLUGS,
       read: readPromptProgress,
       lessonComplete: (record, slug) => record[promptPracticeKey(slug)] === true,
-      quizComplete: (record) => record[PROMPT_QUIZ_PASSED_KEY] === true,
-      capstoneComplete: (record) => record[PROMPT_CAPSTONE_KEY] === true,
+      quizComplete: isPromptQuizPassed,
+      capstoneComplete: isPromptCapstonePassed,
       quizHref: (currentLocale) => `/${currentLocale}/prompts/#prompts-final-quiz`,
       capstoneHref: (currentLocale) => `/${currentLocale}/prompts/capstone-prompt-packet/`,
+      assessmentOrder: "capstone-first",
       hasProgress: (record) => Object.keys(record).some((key) => key.startsWith(PROMPT_PROGRESS_PREFIX)),
       reset: resetPromptProgressAfterGlobalReset,
       isPersistent: isPromptProgressStorageAvailable,

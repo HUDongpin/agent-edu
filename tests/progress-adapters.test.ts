@@ -13,7 +13,23 @@ import { projectPublicCourseSurface } from "../scripts/sync-course-public-surfac
 import { GROK_LESSON_SLUGS } from "../lib/grok";
 import { GITHUB_LESSON_SLUGS } from "../lib/github";
 import { EMPTY_LEARNING_STATE, LEARNING_KEY } from "../lib/progress";
-import { CURSOR_PROGRESS_STORAGE_KEY } from "../lib/progress-topology";
+import {
+  CURSOR_PROGRESS_STORAGE_KEY,
+  PROMPT_PROGRESS_LESSON_SLUGS,
+} from "../lib/progress-topology";
+import {
+  PROMPT_CAPSTONE_REQUIRED_COUNT,
+  PROMPT_CAPSTONE_RUBRIC_COUNT,
+} from "../lib/prompts/capstone";
+import {
+  PROMPT_CAPSTONE_KEY,
+  PROMPT_CAPSTONE_REQUIRED_KEY,
+  PROMPT_CAPSTONE_SCORES_KEY,
+  PROMPT_QUIZ_BANK_VERSION,
+  PROMPT_QUIZ_BEST_KEY,
+  PROMPT_QUIZ_PASSED_KEY,
+  PROMPT_QUIZ_VERSION_KEY,
+} from "../lib/prompts/progress-keys";
 import { DEEPSEEK_KEY_STORAGE } from "../lib/byok/key-store";
 import { LAB_DRAFT_KEY } from "../lib/lab/draft";
 import {
@@ -38,7 +54,11 @@ import {
   updateGrokProgress,
 } from "../components/grok/progress-store";
 import { updateCourseProgress as updateGithubProgress } from "../components/github/progress-store";
-import { updatePromptProgress } from "../components/prompts/progress-store";
+import {
+  readPromptProgress,
+  updatePromptProgress,
+  writePromptProgress,
+} from "../components/prompts/progress-store";
 import { updateSoftwareEngineeringProgress } from "../components/software-engineering/progress-store";
 import { updateRagProgress } from "../components/rag/progress-store";
 import { updateMcpProgress } from "../components/mcp/progress-store";
@@ -457,6 +477,90 @@ test("a fresh learner gets the exact first lesson for every published course", (
       assert.equal(current.percent, 0, adapter.courseId);
       assert.equal(current.nextHref, EXPECTED_FIRST_HREFS[adapter.courseId], adapter.courseId);
     }
+  } finally {
+    if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) {
+      Object.defineProperty(globalThis, "localStorage", { configurable: true, value: previousLocalStorage });
+    } else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) {
+      Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
+    } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("Course 7 adapter keeps the capstone before the versioned final knowledge check", () => {
+  const storage = new MemoryStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  try {
+    const record: Record<string, unknown> = Object.fromEntries(
+      PROMPT_PROGRESS_LESSON_SLUGS.map((slug) => [`prompts.lesson.${slug}.practice`, true]),
+    );
+    storage.setItem("ae.progress", JSON.stringify(record));
+    const prompts = createPublishedProgressAdapters("en").find(
+      (adapter) => adapter.courseId === "prompts",
+    );
+    assert.ok(prompts);
+    assert.deepEqual(prompts.readSummary(), {
+      state: "in-progress",
+      percent: 82,
+      nextHref: "/en/prompts/capstone-prompt-packet/",
+    });
+
+    record[PROMPT_CAPSTONE_REQUIRED_KEY] = Object.fromEntries(
+      Array.from({ length: PROMPT_CAPSTONE_REQUIRED_COUNT }, (_, index) => [index, true]),
+    );
+    record[PROMPT_CAPSTONE_SCORES_KEY] = Object.fromEntries(
+      Array.from({ length: PROMPT_CAPSTONE_RUBRIC_COUNT }, (_, index) => [index, 2]),
+    );
+    record[PROMPT_CAPSTONE_KEY] = true;
+    storage.setItem("ae.progress", JSON.stringify(record));
+    assert.deepEqual(prompts.readSummary(), {
+      state: "in-progress",
+      percent: 91,
+      nextHref: "/en/prompts/#prompts-final-quiz",
+    });
+
+    record[PROMPT_QUIZ_VERSION_KEY] = PROMPT_QUIZ_BANK_VERSION;
+    record[PROMPT_QUIZ_BEST_KEY] = 7;
+    record[PROMPT_QUIZ_PASSED_KEY] = true;
+    storage.setItem("ae.progress", JSON.stringify(record));
+    assert.deepEqual(prompts.readSummary(), {
+      state: "completed",
+      percent: 100,
+      nextHref: "/en/prompts/",
+    });
+
+    const stalePromptSnapshot = readPromptProgress();
+    storage.setItem("ae.progress", JSON.stringify({
+      ...record,
+      "github.concurrent-write": true,
+      unrelated: "newer shared value",
+    }));
+    stalePromptSnapshot[`prompts.lesson.${PROMPT_PROGRESS_LESSON_SLUGS[0]}.practice`] = false;
+    assert.equal(writePromptProgress(stalePromptSnapshot), true);
+    const merged = JSON.parse(storage.getItem("ae.progress") || "{}") as Record<string, unknown>;
+    assert.equal(merged["github.concurrent-write"], true);
+    assert.equal(merged.unrelated, "newer shared value");
+    assert.equal(
+      merged[`prompts.lesson.${PROMPT_PROGRESS_LESSON_SLUGS[0]}.practice`],
+      false,
+    );
   } finally {
     if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
     else Reflect.deleteProperty(globalThis, "window");

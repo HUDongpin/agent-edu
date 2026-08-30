@@ -4,4 +4,3 @@ export * from "./figures";
 export * from "./manifest";
 export * from "./load";
 export * from "./progress-keys";
-export * from "./capstone";

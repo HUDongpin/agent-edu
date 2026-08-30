@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PROMPT_SOURCE_BY_ID, type MaterializedPromptCourse } from "@/lib/prompts";
-import { CapstoneChecklist, CourseProgress, FinalQuiz, type PromptQuizQuestion } from "./PromptInteractions";
+import { CourseProgress, FinalQuiz, type PromptQuizQuestion } from "./PromptInteractions";
+import { PromptCurriculum, type PromptNavigationUnit } from "./PromptNavigation";
 import styles from "./PromptCourse.module.css";
 import CourseShell from "../course-shell/CourseShell";
 
@@ -25,8 +26,23 @@ export default function CourseDashboard({
   const totalMinutes = lessons.reduce((sum, lesson) => sum + lesson.minutes, 0)
     + course.manifest.finalQuizMinutes;
   const workbench = lessons.find((lesson) => lesson.figureKind === "workbench")?.figure.raster;
+  const capstoneLesson = lessons.find((lesson) => lesson.slug === "capstone-prompt-packet");
+  const navigationUnits: PromptNavigationUnit[] = course.units.map((unit) => ({
+    id: unit.id,
+    order: unit.order,
+    title: unit.copy.title,
+    summary: unit.copy.summary,
+    lessons: unit.lessons.map((lesson) => ({
+      slug: lesson.slug,
+      order: lesson.order,
+      title: lesson.copy.title,
+      summary: lesson.copy.summary,
+      minutes: lesson.minutes,
+    })),
+  }));
 
   if (!workbench) throw new Error("Course 7 workbench figure is unavailable.");
+  if (!capstoneLesson) throw new Error("Course 7 capstone lesson is unavailable.");
 
   return (
     <div
@@ -43,10 +59,10 @@ export default function CourseDashboard({
           <h1>{course.copy.meta.title}</h1>
           <p className={styles.heroSummary}>{course.copy.meta.summary}</p>
           <p className={styles.heroAudience}>{course.copy.meta.audience}</p>
-          <div className={styles.heroPrinciples} aria-label={course.copy.ui.successCriteria}>
-            <span>{course.copy.ui.heroPrinciple1}</span>
-            <span>{course.copy.ui.heroPrinciple2}</span>
-            <span>{course.copy.ui.heroPrinciple3}</span>
+          <div className={styles.heroPrinciples} role="list" aria-label={course.copy.ui.successCriteria}>
+            <span role="listitem">{course.copy.ui.heroPrinciple1}</span>
+            <span role="listitem">{course.copy.ui.heroPrinciple2}</span>
+            <span role="listitem">{course.copy.ui.heroPrinciple3}</span>
           </div>
         </div>
         <figure className={styles.heroImage}>
@@ -86,45 +102,23 @@ export default function CourseDashboard({
           <h2 id="prompts-curriculum-title">{course.copy.ui.curriculumTitle}</h2>
           <p>{course.copy.ui.curriculumIntro}</p>
         </header>
-        <div className={styles.unitList}>
-          {course.units.map((unit) => (
-            <section className={styles.unit} key={unit.id} aria-labelledby={`${unit.id}-title`}>
-              <div className={styles.unitHeading}>
-                <span>{String(unit.order).padStart(2, "0")}</span>
-                <div>
-                  <h3 id={`${unit.id}-title`}>{unit.copy.title}</h3>
-                  <p>{unit.copy.summary}</p>
-                </div>
-              </div>
-              <ol className={styles.lessonList}>
-                {unit.lessons.map((lesson) => (
-                  <li key={lesson.slug}>
-                    <Link href={hrefFor(lesson.slug)}>
-                      <span className={styles.lessonOrder}>{String(lesson.order).padStart(2, "0")}</span>
-                      <span className={styles.lessonCopy}>
-                        <strong>{lesson.copy.title}</strong>
-                        <span>{lesson.copy.summary}</span>
-                      </span>
-                      <span className={styles.lessonTime}>{lesson.minutes} {course.copy.ui.minutes}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ))}
-        </div>
+        <PromptCurriculum units={navigationUnits} locale={course.locale} labels={course.copy.ui} />
       </section>
 
+      <section className={styles.capstoneOverview} aria-labelledby="prompts-capstone-overview-title">
+        <div>
+          <p className={styles.kicker}>{course.copy.ui.capstone}</p>
+          <h2 id="prompts-capstone-overview-title">{course.copy.capstone.title}</h2>
+          <p>{course.copy.capstone.summary}</p>
+          <p className={styles.capstoneRule}>{course.copy.ui.capstonePassRule}</p>
+        </div>
+        <Link className={styles.primaryButton} href={hrefFor(capstoneLesson.slug)}>
+          {course.copy.ui.openCapstone}<span aria-hidden="true">→</span>
+        </Link>
+      </section>
       <FinalQuiz
         questions={quizQuestions}
         passScore={course.copy.finalQuiz.passScore}
-        labels={course.copy.ui}
-      />
-      <CapstoneChecklist
-        required={course.copy.capstone.required}
-        rubric={course.copy.capstone.rubric}
-        passScore={course.copy.capstone.passScore}
-        maxScore={course.copy.capstone.maxScore}
         labels={course.copy.ui}
       />
 

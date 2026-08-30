@@ -48,7 +48,10 @@ import {
 } from "./make-money-with-codex/types";
 import { MCP_ASSESSMENT_VERSION, MCP_LESSONS } from "./mcp";
 import { PROMPT_COURSE_MANIFEST } from "./prompts/manifest";
-import { PROMPT_CAPSTONE_KEY, PROMPT_QUIZ_PASSED_KEY } from "./prompts/progress-keys";
+import {
+  isPromptCapstonePassed,
+  isPromptQuizPassed,
+} from "./prompts/progress-keys";
 import { RAG_COURSE_MANIFEST } from "./rag/manifest";
 import { SOFTWARE_ENGINEERING_COURSE_MANIFEST } from "./software-engineering/manifest";
 import { isSoftwareEngineeringCapstoneSubmission } from "./software-engineering/capstone";
@@ -266,8 +269,8 @@ export const PROMPT_PRACTICE_PROGRESS_KEYS = PROMPT_COURSE_MANIFEST.lessons.map(
 
 export function promptProgress(p: Record<string, unknown>): number {
   const practices = PROMPT_PRACTICE_PROGRESS_KEYS.filter((key) => p[key] === true).length;
-  const quiz = p[PROMPT_QUIZ_PASSED_KEY] === true ? 1 : 0;
-  const capstone = p[PROMPT_CAPSTONE_KEY] === true ? 1 : 0;
+  const quiz = isPromptQuizPassed(p) ? 1 : 0;
+  const capstone = isPromptCapstonePassed(p) ? 1 : 0;
   return clamp(
     ((practices + quiz + capstone) / (PROMPT_PRACTICE_PROGRESS_KEYS.length + 2)) * 100,
   );

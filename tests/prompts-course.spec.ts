@@ -4,6 +4,26 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "../e2e/fixtures";
 import { PROMPT_FIGURES } from "../lib/prompts/figures";
 import {
+  PROMPT_CAPSTONE_REQUIRED_COUNT,
+  PROMPT_CAPSTONE_RUBRIC_COUNT,
+  isPromptCapstonePassed,
+  normalizePromptCapstoneProgress,
+} from "../lib/prompts/capstone";
+import {
+  PROMPT_CAPSTONE_KEY,
+  PROMPT_CAPSTONE_REQUIRED_KEY,
+  PROMPT_CAPSTONE_SCORES_KEY,
+  PROMPT_LEGACY_UNVERSIONED_QUIZ_BANK_VERSION,
+  PROMPT_QUIZ_BANK_VERSION,
+  PROMPT_QUIZ_BEST_KEY,
+  PROMPT_QUIZ_MAX_SCORE,
+  PROMPT_QUIZ_PASSED_KEY,
+  PROMPT_QUIZ_VERSION_KEY,
+  isCurrentPromptQuizResult,
+  isLegacyPromptQuizResultForBank,
+  isPromptQuizPassed,
+} from "../lib/prompts/progress-keys";
+import {
   PROMPT_LESSON_SLUGS,
   type PromptCourseCopy,
 } from "../lib/prompts/types";
@@ -48,6 +68,16 @@ const FINAL_QUIZ_ANSWER_KEY = [
 
 const FINAL_QUIZ_IDS = FINAL_QUIZ_ANSWER_KEY.map(([id]) => id);
 const FINAL_QUIZ_CORRECT_INDEX = new Map<string, number>(FINAL_QUIZ_ANSWER_KEY);
+
+const COMPLETE_CAPSTONE_PROGRESS = {
+  [PROMPT_CAPSTONE_REQUIRED_KEY]: Object.fromEntries(
+    Array.from({ length: PROMPT_CAPSTONE_REQUIRED_COUNT }, (_, index) => [index, true]),
+  ),
+  [PROMPT_CAPSTONE_SCORES_KEY]: Object.fromEntries(
+    Array.from({ length: PROMPT_CAPSTONE_RUBRIC_COUNT }, (_, index) => [index, 2]),
+  ),
+  [PROMPT_CAPSTONE_KEY]: true,
+} as const;
 
 const SEMANTIC_RELATIONSHIPS = {
   pipeline: {
@@ -110,6 +140,10 @@ async function completeQuizAttempt(page: Page, correctAnswers: number) {
     const feedback = form.getByRole("status");
     await expect(feedback).toBeVisible();
     await expect(feedback.getByText(index < correctAnswers ? "Correct" : "Not yet", { exact: true })).toBeVisible();
+    if (index >= correctAnswers) {
+      const question = promptCopy.finalQuiz.questions.find((item) => item.id === questionId);
+      await expect(feedback).toContainText(question!.misconceptions[selected]);
+    }
     await expect(feedback.getByRole("link", { name: /^Source:/ })).toHaveAttribute("href", /^https:\/\//);
     await feedback.getByRole("button", {
       name: index === FINAL_QUIZ_IDS.length - 1
@@ -139,6 +173,11 @@ test.describe("Course 7 dashboard and lesson routes", () => {
     await expect(lessonLinks).toHaveCount(9);
     expect(await lessonLinks.evaluateAll((links) => links.map((link) => link.getAttribute("href"))))
       .toEqual(PROMPT_LESSON_SLUGS.map((slug) => `/en/prompts/${slug}/`));
+    await expect(dashboard.locator('section[aria-labelledby="prompt-capstone-title"]')).toHaveCount(0);
+    await expect(dashboard.getByRole("link", { name: "Open capstone lesson" })).toHaveAttribute(
+      "href",
+      "/en/prompts/capstone-prompt-packet/",
+    );
   });
 
   test("dashboard publishes a version-matched offline fixture pack", async ({ page, request }) => {
@@ -196,6 +235,12 @@ test.describe("Course 7 dashboard and lesson routes", () => {
       await expect(lesson.getByRole("button", { name: "Check answer" })).toBeEnabled();
       await expect(lesson.locator("figure[data-figure-kind]")).toHaveCount(1);
       await expect(lesson.locator('section[aria-labelledby="prompt-sources-title"] li').first()).toBeVisible();
+      if (PROMPT_LESSON_SLUGS.indexOf(slug) >= 2) {
+        await expect(
+          lesson.locator('section[aria-labelledby="prompt-practice-title"]')
+            .getByRole("link", { name: "Download the offline fixture pack" }),
+        ).toHaveAttribute("href", "/courses/prompts/course-7-fixture-pack-v1.json");
+      }
     });
   }
 });
@@ -326,6 +371,45 @@ test.describe("original raster and semantic teaching figures", () => {
       ))).toBe(expectedPrompt);
     }
   });
+
+  test("clipboard failure explains the manual recovery path", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { writeText: async () => { throw new DOMException("denied"); } },
+      });
+    });
+    await page.goto("/en/prompts/prompts-are-specifications/");
+    await page.getByRole("button", { name: "Copy prompt" }).click();
+    await expect(page.getByRole("status")).toContainText(
+      "Copy failed. Select the prompt text and copy it manually.",
+    );
+    await expect(page.getByRole("button", { name: "Copy prompt" })).toBeEnabled();
+  });
+
+  test("a later clipboard failure is not hidden by an earlier success timer", async ({ page }) => {
+    await page.addInitScript(() => {
+      let calls = 0;
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async () => {
+            calls += 1;
+            if (calls > 1) throw new DOMException("denied");
+          },
+        },
+      });
+    });
+    await page.goto("/en/prompts/prompts-are-specifications/");
+    const copy = page.locator("button").filter({ hasText: /^(Copy prompt|Copied)$/ }).first();
+    await copy.click();
+    await expect(copy).toHaveText("Copied");
+    await copy.click();
+    const recovery = page.getByRole("status").filter({ hasText: "Copy failed" });
+    await expect(recovery).toBeVisible();
+    await page.waitForTimeout(1_900);
+    await expect(recovery).toContainText("Select the prompt text and copy it manually.");
+  });
 });
 
 test.describe("Course 7 accessibility contract", () => {
@@ -396,10 +480,93 @@ test.describe("Course 7 accessibility contract", () => {
       expect(focused.outlineWidth).not.toBe("0px");
     });
   }
+
+  test("scrollable prompt text is keyboard reachable with a visible focus treatment", async ({ page }) => {
+    await page.goto("/en/prompts/six-part-prompt/");
+    const prompt = page.locator('pre[aria-label="Testable prompt"]');
+    await expect(prompt).toHaveAttribute("tabindex", "0");
+    await prompt.focus();
+    await expect(prompt).toBeFocused();
+    expect(await prompt.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe("none");
+  });
+
+  test("long lessons expose direct links to their core learning tasks", async ({ page }) => {
+    await page.goto("/en/prompts/prompts-are-specifications/");
+    const contents = page.getByRole("navigation", { name: "In this lesson" });
+    await expect(contents.getByRole("link")).toHaveCount(5);
+    expect(await contents.getByRole("link").evaluateAll((links) => links.map((link) => link.getAttribute("href"))))
+      .toEqual([
+        "#lesson-objective-title",
+        "#real-prompt-title",
+        "#prompt-practice-title",
+        "#checkpoint-prompts-are-specifications-title",
+        "#prompt-sources-title",
+      ]);
+  });
+
+  test("the long capstone lesson links directly to its evidence rubric", async ({ page }) => {
+    await page.goto("/en/prompts/capstone-prompt-packet/");
+    const contents = page.getByRole("navigation", { name: "In this lesson" });
+    await expect(contents.getByRole("link")).toHaveCount(6);
+    await expect(contents.getByRole("link", { name: "Capstone evidence packet" }))
+      .toHaveAttribute("href", "#prompt-capstone-title");
+    await contents.getByRole("link", { name: "Capstone evidence packet" }).click();
+    await expect(page).toHaveURL(/#prompt-capstone-title$/);
+    const heading = page.locator("#prompt-capstone-title");
+    expect(await heading.evaluate((element) => element.getBoundingClientRect().top))
+      .toBeGreaterThanOrEqual(0);
+  });
+
+  test("client lesson navigation keeps the focused lesson heading visibly outlined", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    await page.getByRole("link", { name: /Start with lesson 1/ }).click();
+    const heading = page.getByRole("heading", {
+      level: 1,
+      name: "Prompts are specifications, not magic spells",
+    });
+    await expect(heading).toBeFocused();
+    const outline = await heading.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { style: style.outlineStyle, width: style.outlineWidth };
+    });
+    expect(outline.style).not.toBe("none");
+    expect(outline.width).not.toBe("0px");
+  });
+
+  test("formative and final assessment transitions move focus to new content", async ({ page }) => {
+    await page.goto("/en/prompts/prompts-are-specifications/");
+    const checkpoint = page.locator('section[aria-labelledby^="checkpoint-"]');
+    await checkpoint.locator('input[type="radio"]').nth(1).check();
+    await checkpoint.getByRole("button", { name: "Check answer" }).click();
+    await expect(checkpoint.getByRole("status")).toBeFocused();
+
+    await page.goto(DASHBOARD);
+    await page.getByRole("button", { name: "Begin knowledge check" }).click();
+    const quiz = page.locator("#prompts-final-quiz");
+    await expect(quiz.locator("h3")).toBeFocused();
+    await quiz.locator('input[type="radio"]').nth(FINAL_QUIZ_ANSWER_KEY[0][1]).check();
+    await quiz.getByRole("button", { name: "Check answer" }).click();
+    await expect(quiz.getByRole("status")).toBeFocused();
+    await quiz.getByRole("button", { name: "Next question" }).click();
+    await expect(quiz.locator("h3")).toBeFocused();
+    await expect(quiz.locator("h3")).toContainText(promptCopy.finalQuiz.questions[1].question);
+  });
+
+  test("manual theme selection also themes native browser controls", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    await page.getByRole("button", { name: "Switch to the dark theme" }).click();
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).colorScheme))
+      .toBe("dark");
+    await page.getByRole("button", { name: "Switch to the light theme" }).click();
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).colorScheme))
+      .toBe("light");
+  });
 });
 
 test.describe("private Course 7 progress and assessment", () => {
   test("final quiz uses an independent transfer bank and fixed answer key", () => {
+    expect(FINAL_QUIZ_IDS).toHaveLength(PROMPT_QUIZ_MAX_SCORE);
+    expect(promptCopy.finalQuiz.passScore).toBe(7);
     expect(promptCopy.finalQuiz.questions.map((question) => [question.id, question.correctIndex]))
       .toEqual(FINAL_QUIZ_ANSWER_KEY.map(([id, correctIndex]) => [id, correctIndex]));
     const formativeQuestions = new Set(
@@ -411,6 +578,79 @@ test.describe("private Course 7 progress and assessment", () => {
       expect(question.sourceId).toBeTruthy();
       expect(question.claimId).toBeTruthy();
     }
+  });
+
+  test("quiz credit preserves the exact legacy bank and rejects stale or malformed results", () => {
+    const validLegacy = {
+      [PROMPT_QUIZ_BEST_KEY]: 7,
+      [PROMPT_QUIZ_PASSED_KEY]: true,
+    };
+    expect(PROMPT_QUIZ_BANK_VERSION).toBe(PROMPT_LEGACY_UNVERSIONED_QUIZ_BANK_VERSION);
+    expect(isLegacyPromptQuizResultForBank(validLegacy, PROMPT_QUIZ_BANK_VERSION)).toBe(true);
+    expect(isLegacyPromptQuizResultForBank(validLegacy, "future-bank.v2")).toBe(false);
+    expect(isCurrentPromptQuizResult(validLegacy)).toBe(true);
+    expect(isPromptQuizPassed(validLegacy)).toBe(true);
+
+    const invalidBestScores = [-1, 7.5, PROMPT_QUIZ_MAX_SCORE + 1, "7", null];
+    for (const best of invalidBestScores) {
+      const malformed = {
+        [PROMPT_QUIZ_VERSION_KEY]: PROMPT_QUIZ_BANK_VERSION,
+        [PROMPT_QUIZ_BEST_KEY]: best,
+        [PROMPT_QUIZ_PASSED_KEY]: true,
+      };
+      expect(isCurrentPromptQuizResult(malformed)).toBe(false);
+      expect(isPromptQuizPassed(malformed)).toBe(false);
+    }
+
+    expect(isPromptQuizPassed({
+      [PROMPT_QUIZ_VERSION_KEY]: "stale-bank.v0",
+      [PROMPT_QUIZ_BEST_KEY]: 9,
+      [PROMPT_QUIZ_PASSED_KEY]: true,
+    })).toBe(false);
+    expect(isPromptQuizPassed({
+      [PROMPT_QUIZ_VERSION_KEY]: PROMPT_QUIZ_BANK_VERSION,
+      [PROMPT_QUIZ_BEST_KEY]: 0,
+      [PROMPT_QUIZ_PASSED_KEY]: true,
+    })).toBe(false);
+  });
+
+  test("capstone credit requires the complete current evidence shape and normalizes retired indexes", () => {
+    expect(isPromptCapstonePassed(COMPLETE_CAPSTONE_PROGRESS)).toBe(true);
+
+    const malformedRecords: Record<string, unknown>[] = [
+      { [PROMPT_CAPSTONE_KEY]: true },
+      {
+        ...COMPLETE_CAPSTONE_PROGRESS,
+        [PROMPT_CAPSTONE_REQUIRED_KEY]: { 0: true, 1: true, 2: true, 3: true, 4: true },
+      },
+      {
+        ...COMPLETE_CAPSTONE_PROGRESS,
+        [PROMPT_CAPSTONE_SCORES_KEY]: { 0: 0, 1: 2, 2: 2, 3: 2, 4: 2 },
+      },
+      {
+        ...COMPLETE_CAPSTONE_PROGRESS,
+        [PROMPT_CAPSTONE_SCORES_KEY]: { 0: "2", 1: 2, 2: 2, 3: 2, 4: 2 },
+      },
+      { ...COMPLETE_CAPSTONE_PROGRESS, [PROMPT_CAPSTONE_KEY]: false, "prompts.capstone.v1": true },
+    ];
+    for (const malformed of malformedRecords) {
+      expect(isPromptCapstonePassed(malformed)).toBe(false);
+    }
+
+    const withRetiredIndexes: Record<string, unknown> = {
+      ...COMPLETE_CAPSTONE_PROGRESS,
+      [PROMPT_CAPSTONE_REQUIRED_KEY]: {
+        ...COMPLETE_CAPSTONE_PROGRESS[PROMPT_CAPSTONE_REQUIRED_KEY],
+        6: true,
+      },
+      [PROMPT_CAPSTONE_SCORES_KEY]: {
+        ...COMPLETE_CAPSTONE_PROGRESS[PROMPT_CAPSTONE_SCORES_KEY],
+        5: 2,
+      },
+    };
+    expect(isPromptCapstonePassed(withRetiredIndexes)).toBe(false);
+    expect(normalizePromptCapstoneProgress(withRetiredIndexes)).toBe(true);
+    expect(isPromptCapstonePassed(withRetiredIndexes)).toBe(true);
   });
 
   test("practice persists and Course 7 reset preserves unrelated progress", async ({ context }) => {
@@ -434,13 +674,17 @@ test.describe("private Course 7 progress and assessment", () => {
         .getByRole("button", { name: "I completed the practice" })
         .click();
       await expect(
-        practicePage.getByRole("button", { name: "Practice recorded" }),
-      ).toHaveAttribute("aria-disabled", "true");
+        practicePage.getByRole("button", { name: "Mark practice incomplete" }),
+      ).toHaveAttribute("aria-pressed", "true");
       const reloadResponse = await practicePage.reload();
       expect(reloadResponse?.status()).toBe(200);
       await expect(
-        practicePage.getByRole("button", { name: "Practice recorded" }),
-      ).toHaveAttribute("aria-disabled", "true");
+        practicePage.getByRole("button", { name: "Mark practice incomplete" }),
+      ).toHaveAttribute("aria-pressed", "true");
+      await practicePage.getByRole("button", { name: "Mark practice incomplete" }).click();
+      await expect(practicePage.getByRole("button", { name: "I completed the practice" }))
+        .toHaveAttribute("aria-pressed", "false");
+      await practicePage.getByRole("button", { name: "I completed the practice" }).click();
 
       const stored = await practicePage.evaluate(
         () => JSON.parse(localStorage.getItem("ae.progress") || "{}"),
@@ -462,6 +706,9 @@ test.describe("private Course 7 progress and assessment", () => {
           .getByTestId("prompts-course-dashboard")
           .locator("progress"),
       ).toHaveAttribute("value", "1");
+      await expect(
+        dashboardPage.locator('a[href="/en/prompts/prompts-are-specifications/"] [data-complete="true"]'),
+      ).toHaveCount(1);
       dashboardPage.once("dialog", async (dialog) => {
         expect(dialog.message()).toBe("Reset only your saved Course 7 progress?");
         await dialog.accept();
@@ -489,6 +736,80 @@ test.describe("private Course 7 progress and assessment", () => {
     }
   });
 
+  test("Course 7 reset cancels mounted quiz drafts and finished results", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    const quiz = page.locator("#prompts-final-quiz");
+    const reset = page.getByRole("button", { name: "Reset Course 7 progress" });
+    const confirmReset = async () => {
+      page.once("dialog", async (dialog) => {
+        expect(dialog.message()).toBe("Reset only your saved Course 7 progress?");
+        await dialog.accept();
+      });
+      await reset.click();
+      await expect(page.getByText("Course 7 progress reset.", { exact: true })).toBeVisible();
+      await expect(quiz.getByRole("button", { name: "Begin knowledge check" })).toBeVisible();
+      await expect.poll(() => page.evaluate(() => Object.keys(
+        JSON.parse(localStorage.getItem("ae.progress") || "{}"),
+      ).filter((key) => key.startsWith("prompts.")))).toEqual([]);
+    };
+
+    await quiz.getByRole("button", { name: "Begin knowledge check" }).click();
+    await quiz.locator('input[type="radio"]').first().check();
+    await expect.poll(() => page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      return record["prompts.quiz.draft.v1"]?.selected;
+    })).toBe(0);
+    await confirmReset();
+    await page.waitForTimeout(50);
+    expect(await page.evaluate(() => Object.keys(
+      JSON.parse(localStorage.getItem("ae.progress") || "{}"),
+    ).some((key) => key.startsWith("prompts.")))).toBe(false);
+
+    await quiz.getByRole("button", { name: "Begin knowledge check" }).click();
+    await completeQuizAttempt(page, 7);
+    await expect(page.getByText("Knowledge check passed", { exact: true })).toBeVisible();
+    await confirmReset();
+    await expect(page.getByText(/Score: 7 of 9/)).toHaveCount(0);
+  });
+
+  test("a reset write failure is reported as session-only and never as durable", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    await page.evaluate(() => {
+      localStorage.setItem("ae.progress", JSON.stringify({
+        "prompts.lesson.prompts-are-specifications.practice": true,
+      }));
+    });
+    await page.reload();
+    await expect(page.locator('section[aria-labelledby="prompts-progress-title"] progress'))
+      .toHaveAttribute("value", "1");
+
+    await page.evaluate(() => {
+      const target = window as Window & {
+        __promptOriginalSetItem?: typeof Storage.prototype.setItem;
+      };
+      target.__promptOriginalSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function setItem(key: string, value: string) {
+        if (key === "ae.progress") throw new DOMException("quota", "QuotaExceededError");
+        return target.__promptOriginalSetItem!.call(this, key, value);
+      };
+    });
+    page.once("dialog", async (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Reset Course 7 progress" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Progress was cleared for this session" }))
+      .toContainText("Reloading may restore the saved record.");
+    await expect(page.getByText(/Browser storage is unavailable/).first()).toBeVisible();
+
+    await page.evaluate(() => {
+      const target = window as Window & {
+        __promptOriginalSetItem?: typeof Storage.prototype.setItem;
+      };
+      if (target.__promptOriginalSetItem) Storage.prototype.setItem = target.__promptOriginalSetItem;
+    });
+    await page.reload();
+    await expect(page.locator('section[aria-labelledby="prompts-progress-title"] progress'))
+      .toHaveAttribute("value", "1");
+  });
+
   test("storage denial is disclosed while practice remains usable in memory", async ({ page }) => {
     await page.addInitScript(() => {
       Object.defineProperty(Storage.prototype, "getItem", {
@@ -504,9 +825,82 @@ test.describe("private Course 7 progress and assessment", () => {
     await page.goto("/en/prompts/prompts-are-specifications/");
     await expect(page.getByText(/Browser storage is unavailable/)).toBeVisible();
     await page.getByRole("button", { name: "I completed the practice" }).click();
-    await expect(page.getByRole("button", { name: "Practice recorded" }))
-      .toHaveAttribute("aria-disabled", "true");
+    await expect(page.getByRole("button", { name: "Mark practice incomplete" }))
+      .toHaveAttribute("aria-pressed", "true");
     await expect(page.getByTestId("prompts-lesson-prompts-are-specifications")).toBeVisible();
+  });
+
+  test("course progress names the capstone and final knowledge check destinations", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    await page.evaluate((slugs) => {
+      localStorage.setItem("ae.progress", JSON.stringify(Object.fromEntries(slugs.map((slug) => [
+        `prompts.lesson.${slug}.practice`,
+        true,
+      ]))));
+    }, PROMPT_LESSON_SLUGS);
+    await page.reload();
+
+    const journey = page.locator('section[aria-labelledby="prompts-progress-title"]');
+    await expect(journey.getByRole("link", { name: /Capstone evidence packet/ })).toHaveAttribute(
+      "href",
+      "/en/prompts/capstone-prompt-packet/",
+    );
+    await expect(journey).toContainText("9 / 9");
+    await expect(journey).toContainText("0 / 1");
+
+    await page.evaluate((capstone) => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      Object.assign(record, capstone);
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+      window.dispatchEvent(new Event("aicourse:prompts-progress"));
+    }, COMPLETE_CAPSTONE_PROGRESS);
+    await expect(journey.getByRole("link", { name: /Final knowledge check/ })).toHaveAttribute(
+      "href",
+      "#prompts-final-quiz",
+    );
+    await journey.getByRole("link", { name: /Final knowledge check/ }).click();
+    await expect(page.locator("#prompts-final-quiz-title")).toBeFocused();
+  });
+
+  test("a valid result from the unchanged unversioned quiz bank keeps its credit and migrates lazily", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    await page.evaluate(({ slugs, capstone, quiz }) => {
+      const record = Object.fromEntries(slugs.map((slug) => [
+        `prompts.lesson.${slug}.practice`,
+        true,
+      ]));
+      Object.assign(record, capstone, quiz);
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+    }, {
+      slugs: PROMPT_LESSON_SLUGS,
+      capstone: COMPLETE_CAPSTONE_PROGRESS,
+      quiz: {
+        [PROMPT_QUIZ_BEST_KEY]: 7,
+        [PROMPT_QUIZ_PASSED_KEY]: true,
+      },
+    });
+    await page.reload();
+
+    const journey = page.locator('section[aria-labelledby="prompts-progress-title"]');
+    await expect(journey.locator("progress")).toHaveAttribute("value", "11");
+    await expect(journey.getByRole("link", { name: "Review" })).toBeVisible();
+    expect(await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      return record["prompts.quiz.version"];
+    })).toBeUndefined();
+
+    await page.goto("/en/prompts/prompts-are-specifications/");
+    await page.getByRole("button", { name: "Mark practice incomplete" }).click();
+    expect(await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      return record["prompts.quiz.version"];
+    })).toBe(PROMPT_QUIZ_BANK_VERSION);
+    await page.getByRole("button", { name: "I completed the practice" }).click();
+
+    await page.goto("/en/courses/");
+    await expect(page.locator("#how-to-write-prompts").getByRole("progressbar", {
+      name: "How to Write Prompts: progress",
+    })).toHaveAttribute("aria-valuenow", "100");
   });
 
   test("six of nine fails and the exact seven-of-nine boundary passes", async ({ page }) => {
@@ -518,6 +912,7 @@ test.describe("private Course 7 progress and assessment", () => {
     await expect(page.getByText("Review the explanations and try again", { exact: true })).toBeVisible();
 
     let stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+    expect(stored["prompts.quiz.version"]).toBe("2026-08-23.v1");
     expect(stored["prompts.quiz.best"]).toBe(6);
     expect(stored["prompts.quiz.passed"]).toBe(false);
 
@@ -531,9 +926,36 @@ test.describe("private Course 7 progress and assessment", () => {
     expect(stored["prompts.quiz.passed"]).toBe(true);
   });
 
-  test("capstone requires every artefact, an 8-of-10 score, and no criterion scored zero", async ({ page }) => {
+  test("an in-progress knowledge check resumes the exact question after refresh", async ({ page }) => {
     await page.goto(DASHBOARD);
+    await page.getByRole("button", { name: "Begin knowledge check" }).click();
+    const quiz = page.locator("#prompts-final-quiz");
+    await quiz.locator('input[type="radio"]').nth(FINAL_QUIZ_ANSWER_KEY[0][1]).check();
+    await quiz.getByRole("button", { name: "Check answer" }).click();
+    await quiz.getByRole("button", { name: "Next question" }).click();
+    await quiz.locator('input[type="radio"]').nth(2).check();
+
+    await expect.poll(() => page.evaluate(() => {
+      const progress = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      return progress["prompts.quiz.draft.v1"]?.questionId;
+    })).toBe(FINAL_QUIZ_IDS[1]);
+
+    await page.reload();
+    await expect(quiz.locator("h3")).toContainText(promptCopy.finalQuiz.questions[1].question);
+    await expect(quiz.locator('input[type="radio"]').nth(2)).toBeChecked();
+    await expect(quiz.locator("h3")).toBeFocused();
+  });
+
+  test("capstone requires every artefact, an 8-of-10 score, and no criterion scored zero", async ({ page }) => {
+    await page.goto("/en/prompts/capstone-prompt-packet/");
     const capstone = page.locator('section[aria-labelledby="prompt-capstone-title"]').first();
+    expect(await capstone.evaluate((element) => {
+      const completion = document.querySelector('button[aria-pressed]')?.closest("section");
+      return Boolean(
+        completion
+        && (element.compareDocumentPosition(completion) & Node.DOCUMENT_POSITION_FOLLOWING),
+      );
+    })).toBe(true);
     const recordButton = capstone.getByRole("button", { name: "Record self-attested pass" });
     await expect(recordButton).toBeDisabled();
     await expect(capstone.getByText(
@@ -572,8 +994,7 @@ test.describe("private Course 7 progress and assessment", () => {
     await expect(capstone.getByText("Rubric score: 10 / 10", { exact: true })).toBeVisible();
     await expect(recordButton).toBeEnabled();
     await recordButton.click();
-    await expect(capstone.getByRole("button", { name: "Self-attested capstone pass recorded" }))
-      .toHaveAttribute("aria-disabled", "true");
+    await expect(capstone.getByRole("button", { name: "Edit self-assessment" })).toBeEnabled();
 
     let stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(stored["prompts.capstone.v2.passed"]).toBe(true);
@@ -584,10 +1005,35 @@ test.describe("private Course 7 progress and assessment", () => {
     const restored = page.locator('section[aria-labelledby="prompt-capstone-title"]').first();
     await expect(restored.locator('input[type="checkbox"]:checked')).toHaveCount(6);
     await expect(restored.locator('input[type="radio"]:checked')).toHaveCount(5);
-    await expect(restored.getByRole("button", { name: "Self-attested capstone pass recorded" }))
-      .toHaveAttribute("aria-disabled", "true");
+    const edit = restored.getByRole("button", { name: "Edit self-assessment" });
+    await expect(edit).toBeEnabled();
     stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(stored["prompts.capstone.v2.passed"]).toBe(true);
+    await edit.click();
+    await expect(restored.getByRole("button", { name: "Record self-attested pass" })).toBeEnabled();
+    await expect(restored.locator('input[type="checkbox"]:checked')).toHaveCount(6);
+    await expect(restored.locator('input[type="radio"]:checked')).toHaveCount(5);
+    stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+    expect(stored["prompts.capstone.v2.passed"]).toBe(false);
+  });
+
+  test("retired capstone indexes are normalized without forcing a full course reset", async ({ page }) => {
+    await page.goto("/en/prompts/capstone-prompt-packet/");
+    await page.evaluate((capstone) => {
+      const record = structuredClone(capstone) as Record<string, unknown>;
+      (record["prompts.capstone.v2.required"] as Record<string, unknown>)["6"] = true;
+      (record["prompts.capstone.v2.scores"] as Record<string, unknown>)["5"] = 2;
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+    }, COMPLETE_CAPSTONE_PROGRESS);
+    await page.reload();
+
+    const capstone = page.locator('section[aria-labelledby="prompt-capstone-title"]').first();
+    await expect(capstone.getByRole("button", { name: "Edit self-assessment" })).toBeEnabled();
+    await capstone.getByRole("button", { name: "Edit self-assessment" }).click();
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+    expect(Object.keys(stored["prompts.capstone.v2.required"])).toEqual(["0", "1", "2", "3", "4", "5"]);
+    expect(Object.keys(stored["prompts.capstone.v2.scores"])).toEqual(["0", "1", "2", "3", "4"]);
+    await expect(capstone.getByRole("button", { name: "Record self-attested pass" })).toBeEnabled();
   });
 });
 
@@ -613,6 +1059,7 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
   });
 
   test("unsupported locale course URLs 404 while localized catalogues link to English", async ({ page }) => {
+    test.setTimeout(90_000);
     for (const { code } of LOCALES.filter((locale) => locale.code !== "en")) {
       for (const suffix of ["", "grounding-and-safety/"]) {
         const path = `/${code}/prompts/${suffix}`;
@@ -631,6 +1078,24 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
       await expect(card.locator('bdi[lang="en"][dir="ltr"]')).not.toHaveCount(0);
       await expect(card.locator('a[href="/en/prompts/?fromLocale=ar"]')).toBeVisible();
     });
+  });
+
+  test("language switching on an English-only lesson preserves the course and a truthful return path", async ({ page }) => {
+    await page.goto("/en/prompts/grounding-and-safety/");
+    await page.getByRole("button", { name: "Language: English" }).click();
+    await page.getByRole("menuitem").filter({ hasText: "العربية" }).click();
+
+    await expect(page).toHaveURL(/\/en\/prompts\/grounding-and-safety\/\?fromLocale=ar$/);
+    await expect(page.getByTestId("prompts-lesson-grounding-and-safety")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Return to the course catalogue/ })).toHaveAttribute(
+      "href",
+      "/ar/courses/",
+    );
+    expect(await page.evaluate(() => localStorage.getItem("ae.lang"))).toBe("ar");
+
+    await page.locator('[data-course-lesson-nav] a[rel="next"]').click();
+    await expect(page).toHaveURL(/\/en\/prompts\/capstone-prompt-packet\/\?fromLocale=ar$/);
+    await expect(page.getByTestId("prompts-lesson-capstone-prompt-packet")).toBeVisible();
   });
 
   test("English-only course shells canonicalize to English and do not advertise untranslated hreflang variants", async ({ page }) => {
@@ -684,7 +1149,7 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
     );
   });
 
-  for (const width of [390, 768, 1440]) {
+  for (const width of [320, 390, 768, 1440]) {
     test(`dashboard and representative lessons do not overflow at ${width}px`, async ({ page }) => {
       test.setTimeout(60_000);
       for (const path of [
@@ -704,6 +1169,61 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
       }
     });
   }
+
+  test("mobile course map stays truthful and uses touch-sized navigation", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await page.goto("/en/prompts/prompts-are-specifications/");
+    const map = page.locator("[data-course-mobile-map]");
+    const summary = map.locator("summary");
+    await expect(summary).toContainText("Open course map");
+    await page.evaluate(() => window.scrollTo(0, 1_000));
+    await expect.poll(() => summary.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.top >= 0 && rect.bottom <= window.innerHeight;
+    })).toBe(true);
+    await summary.click();
+    await expect(summary).toContainText("Close course map");
+    expect(await summary.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return document.activeElement === element
+        && rect.top >= 0
+        && rect.bottom <= window.innerHeight;
+    })).toBe(true);
+    expect(await map.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.top >= 0 && rect.bottom <= window.innerHeight;
+    })).toBe(true);
+    const sizes = await map.locator("summary, nav a").evaluateAll((elements) => elements.map((element) => {
+      const rect = element.getBoundingClientRect();
+      return { height: rect.height, width: rect.width };
+    }));
+    expect(sizes.every(({ height, width }) => height >= 44 && width >= 44)).toBe(true);
+    expect(await map.locator("nav a").first().locator(":scope > span").nth(1).evaluate((element) => (
+      Number.parseFloat(getComputedStyle(element).fontSize)
+    ))).toBeGreaterThanOrEqual(14);
+    await map.locator("nav a").last().focus();
+    await page.keyboard.press("Tab");
+    await expect(summary).toContainText("Open course map");
+    const focusedAfterMap = page.locator(":focus");
+    await expect.poll(() => focusedAfterMap.evaluate((element) => {
+      const target = element.getBoundingClientRect();
+      const sticky = document.querySelector("[data-course-mobile-map]")!.getBoundingClientRect();
+      return target.top >= sticky.bottom && target.bottom <= window.innerHeight;
+    })).toBe(true);
+
+    await summary.click();
+    await expect(summary).toContainText("Close course map");
+    await page.keyboard.press("Escape");
+    await expect(summary).toContainText("Open course map");
+    await expect(summary).toBeFocused();
+    const completion = page.getByRole("button", { name: "I completed the practice" });
+    await completion.focus();
+    await expect.poll(() => completion.evaluate((element) => {
+      const target = element.getBoundingClientRect();
+      const sticky = document.querySelector("[data-course-mobile-map]")!.getBoundingClientRect();
+      return target.top >= sticky.bottom && target.bottom <= window.innerHeight;
+    })).toBe(true);
+  });
 
   test("catalogue keeps Course 6 immediately before Course 7 and prompt search finds it", async ({ page }) => {
     await page.goto("/en/courses/");
@@ -748,15 +1268,22 @@ test.describe("localization, metadata, catalogue, and discovery", () => {
 
   test("all 11 current milestones yield 100 percent on the catalogue and home", async ({ page }) => {
     await page.goto(DASHBOARD);
-    await page.evaluate((slugs) => {
-      const complete = Object.fromEntries(slugs.map((slug) => [
+    await page.evaluate(({ slugs, capstone, quiz }) => {
+      const complete: Record<string, unknown> = Object.fromEntries(slugs.map((slug) => [
         `prompts.lesson.${slug}.practice`,
         true,
       ]));
-      complete["prompts.quiz.passed"] = true;
-      complete["prompts.capstone.v2.passed"] = true;
+      Object.assign(complete, capstone, quiz);
       localStorage.setItem("ae.progress", JSON.stringify(complete));
-    }, PROMPT_LESSON_SLUGS);
+    }, {
+      slugs: PROMPT_LESSON_SLUGS,
+      capstone: COMPLETE_CAPSTONE_PROGRESS,
+      quiz: {
+        [PROMPT_QUIZ_VERSION_KEY]: PROMPT_QUIZ_BANK_VERSION,
+        [PROMPT_QUIZ_BEST_KEY]: PROMPT_QUIZ_MAX_SCORE,
+        [PROMPT_QUIZ_PASSED_KEY]: true,
+      },
+    });
 
     await page.goto("/en/courses/");
     const course7 = page.locator("#how-to-write-prompts");

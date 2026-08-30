@@ -3,6 +3,11 @@ import type { MaterializedPromptCourse, MaterializedPromptLesson } from "@/lib/p
 import PromptExample from "./PromptExample";
 import PromptFigure from "./PromptFigure";
 import { CapstoneChecklist, LessonCheckpoint, PracticeCompletion } from "./PromptInteractions";
+import {
+  MobilePromptLessonMap,
+  PromptLessonMap,
+  type PromptNavigationLesson,
+} from "./PromptNavigation";
 import styles from "./PromptCourse.module.css";
 
 export default function LessonView({
@@ -17,18 +22,14 @@ export default function LessonView({
   const previous = lessonIndex > 0 ? lessons[lessonIndex - 1] : null;
   const next = lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null;
   const hrefFor = (slug: string) => `/${course.locale}/prompts/${slug}/`;
-
-  const courseMap = (
-    <ol>
-      {lessons.map((item) => (
-        <li key={item.slug}>
-          <Link href={hrefFor(item.slug)} aria-current={item.slug === lesson.slug ? "page" : undefined}>
-            <span>{String(item.order).padStart(2, "0")}</span>{item.copy.title}
-          </Link>
-        </li>
-      ))}
-    </ol>
-  );
+  const sourceDate = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" });
+  const navigationLessons: PromptNavigationLesson[] = lessons.map((item) => ({
+    slug: item.slug,
+    order: item.order,
+    title: item.copy.title,
+    summary: item.copy.summary,
+    minutes: item.minutes,
+  }));
 
   return (
     <div
@@ -44,16 +45,24 @@ export default function LessonView({
         <span aria-current="page" data-audit-truncation="breadcrumb-current">{lesson.copy.title}</span>
       </nav>
 
-      <details className={styles.mobileCourseMap}>
-        <summary>{course.copy.ui.lesson} {lesson.order} / {lessons.length} · {course.copy.ui.openCourseMap}</summary>
-        <nav aria-label={course.copy.ui.allLessons}>{courseMap}</nav>
-      </details>
+      <MobilePromptLessonMap
+        lessons={navigationLessons}
+        locale={course.locale}
+        currentSlug={lesson.slug}
+        currentOrder={lesson.order}
+        labels={course.copy.ui}
+      />
 
       <div className={styles.lessonLayout}>
         <aside className={styles.lessonRail}>
           <nav aria-label={course.copy.ui.allLessons}>
             <strong>{course.copy.ui.allLessons}</strong>
-            {courseMap}
+            <PromptLessonMap
+              lessons={navigationLessons}
+              locale={course.locale}
+              currentSlug={lesson.slug}
+              labels={course.copy.ui}
+            />
           </nav>
         </aside>
 
@@ -68,6 +77,20 @@ export default function LessonView({
                 <div><dt>{course.copy.ui.sources}</dt><dd>{lesson.sources.length}</dd></div>
               </dl>
             </header>
+
+            <nav className={styles.lessonContents} aria-label={course.copy.ui.inThisLesson}>
+              <strong>{course.copy.ui.inThisLesson}</strong>
+              <div>
+                <a href="#lesson-objective-title">{course.copy.ui.objective}</a>
+                <a href="#real-prompt-title">{course.copy.ui.promptLabel}</a>
+                <a href="#prompt-practice-title">{course.copy.ui.practice}</a>
+                <a href={`#checkpoint-${lesson.slug}-title`}>{course.copy.ui.checkpoint}</a>
+                {lesson.slug === "capstone-prompt-packet" ? (
+                  <a href="#prompt-capstone-title">{course.copy.ui.capstoneStatus}</a>
+                ) : null}
+                <a href="#prompt-sources-title">{course.copy.ui.sources}</a>
+              </div>
+            </nav>
 
             <section className={styles.objective} aria-labelledby="lesson-objective-title">
               <h2 id="lesson-objective-title">{course.copy.ui.objective}</h2>
@@ -99,7 +122,18 @@ export default function LessonView({
                   <p className={styles.kicker}>{course.copy.ui.practice}</p>
                   <h2 id="prompt-practice-title">{lesson.copy.practice.title}</h2>
                 </div>
-                <span>{course.copy.ui.estimatedLessonTime}: {lesson.minutes} {course.copy.ui.minutes}</span>
+                <div className={styles.practiceTools}>
+                  <span>{course.copy.ui.estimatedLessonTime}: {lesson.minutes} {course.copy.ui.minutes}</span>
+                  {lesson.order >= 3 ? (
+                    <a
+                      className={styles.fixtureLink}
+                      href="/courses/prompts/course-7-fixture-pack-v1.json"
+                      download
+                    >
+                      {course.copy.ui.fixturePack}
+                    </a>
+                  ) : null}
+                </div>
               </header>
               <p>{lesson.copy.practice.brief}</p>
               <ol>{lesson.copy.practice.steps.map((step) => <li key={step}>{step}</li>)}</ol>
@@ -131,6 +165,8 @@ export default function LessonView({
               />
             ) : null}
 
+            <PracticeCompletion slug={lesson.slug} labels={course.copy.ui} />
+
             <section className={styles.sources} aria-labelledby="prompt-sources-title">
               <h2 id="prompt-sources-title">{course.copy.ui.sources}</h2>
               <ol>
@@ -138,14 +174,16 @@ export default function LessonView({
                   <li key={source.id}>
                     <a href={source.exactAnchor} target="_blank" rel="noopener noreferrer">
                       <strong>{source.title}</strong>
-                      <span>{source.publisher} · {source.accessedOn}</span>
+                      <span>
+                        {source.publisher} · <time dateTime={source.accessedOn}>
+                          {sourceDate.format(new Date(`${source.accessedOn}T00:00:00Z`))}
+                        </time>
+                      </span>
                     </a>
                   </li>
                 ))}
               </ol>
             </section>
-
-            <PracticeCompletion slug={lesson.slug} labels={course.copy.ui} />
 
             <nav className={styles.lessonPager} aria-label={course.copy.ui.lessons} data-course-lesson-nav>
               {previous ? (
@@ -158,8 +196,8 @@ export default function LessonView({
                   <span>{course.copy.ui.next}</span><strong>{next.copy.title}</strong>
                 </Link>
               ) : (
-                <Link href={`/${course.locale}/prompts/`}>
-                  <span>{course.copy.ui.backToCourse}</span><strong>{course.copy.meta.title}</strong>
+                <Link href={`/${course.locale}/prompts/#prompts-final-quiz`}>
+                  <span>{course.copy.ui.next}</span><strong>{course.copy.ui.finalQuiz}</strong>
                 </Link>
               )}
             </nav>
