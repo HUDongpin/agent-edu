@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useSyncExternalStore } from "react";
+import { useId, useMemo, useSyncExternalStore } from "react";
 import type { GrokCourseCopy } from "@/lib/grok/types";
 import { selectGrokJourney, type GrokJourneyLesson } from "./course-journey";
 import {
@@ -51,6 +51,7 @@ export default function CourseHeroAction({
     () => selectGrokJourney(progress, lessons, Boolean(attempt)),
     [attempt, lessons, progress],
   );
+  const contextId = useId();
 
   if (!journey.nextHref) return null;
   const actionLabel = attempt
@@ -63,16 +64,18 @@ export default function CourseHeroAction({
     <Link
       className={styles.primaryAction}
       href={journey.nextHref}
+      aria-label={actionLabel}
+      aria-describedby={contextId}
       data-course-journey-action
       data-testid="grok-hero-journey-action"
     >
       {actionLabel}
-      <span className={styles.srOnly}>
+      <span className={styles.srOnly} id={contextId}>
         {attempt
           ? ` — ${labels.quizAttemptAvailable
             .replace("{current}", numberFormat.format(attempt.questionIndex + 1))
             .replace("{total}", numberFormat.format(attemptConfig.optionCounts.length))}`
-          : ` — ${labels.courseProgress}: ${numberFormat.format(journey.completed)} ${labels.of} ${numberFormat.format(journey.total)}`}
+          : ` — ${labels.courseProgress}: ${numberFormat.format(journey.completed)} / ${numberFormat.format(journey.total)}`}
       </span>
       <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
     </Link>
