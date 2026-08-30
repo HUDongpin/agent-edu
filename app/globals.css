@@ -16,7 +16,7 @@
   /* neutrals */
   --bg:#F8F7F3; --bg-2:#EFF2F2; --card:#FFFFFF;
   --ink:#142033; --ink-2:#3C4658; --ink-3:#626B79;
-  --line:#D8DEDF; --line-2:#E9ECEB;
+  --line:#D8DEDF; --line-2:#E9ECEB; --control-border:#7B848E;
 
   /* brand */
   --brand:#26456F; --brand-2:#33578A; --brand-soft:#E8EEF6; --brand-line:#A9C0D8;
@@ -60,7 +60,7 @@
     color-scheme:dark;
     --bg:#12151F; --bg-2:#171B27; --card:#191D2B;
     --ink:#EAEDF8; --ink-2:#BFC6DA; --ink-3:#98A0B8;
-    --line:#2C3244; --line-2:#232838;
+    --line:#2C3244; --line-2:#232838; --control-border:#6C7690;
     --brand:#8FB4DA; --brand-2:#A8C6E4; --brand-soft:#1B2636; --brand-line:#3B5573;
     --gold:#E5BC72; --gold-mark:#E5BC72; --gold-soft:#33270F; --gold-line:#6E5522;
     --green:#8FCCAC; --green-soft:#152A20; --green-line:#2F5C45;
@@ -76,7 +76,7 @@
   color-scheme:dark;
   --bg:#12151F; --bg-2:#171B27; --card:#191D2B;
   --ink:#EAEDF8; --ink-2:#BFC6DA; --ink-3:#98A0B8;
-  --line:#2C3244; --line-2:#232838;
+  --line:#2C3244; --line-2:#232838; --control-border:#6C7690;
   --brand:#8FB4DA; --brand-2:#A8C6E4; --brand-soft:#1B2636; --brand-line:#3B5573;
   --gold:#E5BC72; --gold-mark:#E5BC72; --gold-soft:#33270F; --gold-line:#6E5522;
   --green:#8FCCAC; --green-soft:#152A20; --green-line:#2F5C45;

@@ -76,6 +76,8 @@ export default async function CourseShell({
   return (
     <section
       className={`${standalone ? "shellwrap " : ""}shared-course-shell`}
+      lang={locale}
+      dir={metaFor(locale).dir}
       aria-label={`${t("courseShell.overview")}: ${t(course.titleKey)}`}
       data-course-shell={courseId}
       data-course-publication-state={surface.state}

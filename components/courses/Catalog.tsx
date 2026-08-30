@@ -549,9 +549,12 @@ function CourseCard({
     );
   }
 
-  const href = isRag && progress?.state !== "unavailable" && progress?.nextHref
-    ? progress.nextHref
-    : course.targetHref ?? "#";
+  const resumeHref = progress?.state !== "unavailable"
+    && progress?.nextHref
+    && (isRag || (progressPercent !== null && progressPercent > 0))
+    ? withPublicCourseReturnLocale(progress.nextHref, locale)
+    : null;
+  const href = resumeHref ?? course.targetHref ?? "#";
   return (
     <li
       id={anchorId}

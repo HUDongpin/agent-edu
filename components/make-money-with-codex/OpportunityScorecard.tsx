@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import useSessionDraft from "./useSessionDraft";
 import styles from "./IncomeCourse.module.css";
 
 const positiveFields = [
@@ -30,10 +31,40 @@ const emptyEvidence = Object.fromEntries(
   [...positiveFields, ...riskFields].map(([key]) => [key, ""]),
 ) as ScoreEvidence;
 
+type ScoreDraft = { readonly scores: Scores; readonly candidate: string; readonly evidence: ScoreEvidence };
+const emptyDraft: ScoreDraft = { scores: emptyScores, candidate: "", evidence: emptyEvidence };
+
+function parseScoreDraft(value: unknown): ScoreDraft | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const rawScores = record.scores;
+  const rawEvidence = record.evidence;
+  if (!rawScores || typeof rawScores !== "object" || Array.isArray(rawScores)) return null;
+  if (!rawEvidence || typeof rawEvidence !== "object" || Array.isArray(rawEvidence)) return null;
+  const scores = { ...emptyScores };
+  const evidence = { ...emptyEvidence };
+  for (const [key] of [...positiveFields, ...riskFields]) {
+    const score = (rawScores as Record<string, unknown>)[key];
+    const note = (rawEvidence as Record<string, unknown>)[key];
+    if (typeof score === "number" && Number.isInteger(score) && score >= 0 && score <= 5) {
+      scores[key] = score;
+    }
+    if (typeof note === "string") evidence[key] = note;
+  }
+  return {
+    scores,
+    candidate: typeof record.candidate === "string" ? record.candidate : "",
+    evidence,
+  };
+}
+
 export default function OpportunityScorecard() {
-  const [scores, setScores] = useState<Scores>(emptyScores);
-  const [candidate, setCandidate] = useState("");
-  const [evidence, setEvidence] = useState<ScoreEvidence>(emptyEvidence);
+  const { value: draft, setValue: setDraft, clear, status } = useSessionDraft({
+    storageKey: "aicourse.course11.scorecard.v1",
+    initialValue: emptyDraft,
+    parse: parseScoreDraft,
+  });
+  const { scores, candidate, evidence } = draft;
   const score = useMemo(() => {
     const positive = positiveFields.reduce((sum, [key]) => sum + scores[key], 0);
     const risk = riskFields.reduce((sum, [key]) => sum + scores[key], 0);
@@ -62,9 +93,9 @@ export default function OpportunityScorecard() {
               max="5"
               step="1"
               value={scores[key]}
-              onChange={(event) => setScores((current) => ({
+              onChange={(event) => setDraft((current) => ({
                 ...current,
-                [key]: Number(event.target.value),
+                scores: { ...current.scores, [key]: Number(event.target.value) },
               }))}
               aria-describedby={`${id}-help`}
             />
@@ -82,7 +113,10 @@ export default function OpportunityScorecard() {
             autoComplete="off"
             rows={2}
             value={evidence[key]}
-            onChange={(event) => setEvidence((current) => ({ ...current, [key]: event.target.value }))}
+            onChange={(event) => setDraft((current) => ({
+              ...current,
+              evidence: { ...current.evidence, [key]: event.target.value },
+            }))}
             placeholder={kind === "signal"
               ? "Observation, source, date, and what it does not prove"
               : "Failure mode, evidence, owner, and mitigation"}
@@ -99,6 +133,11 @@ export default function OpportunityScorecard() {
         <h2 id="income-scorecard-title">Opportunity scorecard</h2>
         <p>Evaluate one candidate at a time, then save or print the result before scoring the next. Scores organise assumptions; they do not prove demand.</p>
       </header>
+      <p className={styles.draftNote} role={status === "unavailable" ? "status" : undefined}>
+        {status === "unavailable"
+          ? "Draft autosave is unavailable. Print or save this lesson before leaving."
+          : "Draft autosaves in this tab session. It is never uploaded; clear it before sharing the device."}
+      </p>
       <label className={styles.toolWideField} htmlFor="income-score-candidate">
         <span>Candidate name</span>
         <input
@@ -106,7 +145,7 @@ export default function OpportunityScorecard() {
           name="make-money-with-codex-score-candidate"
           autoComplete="off"
           value={candidate}
-          onChange={(event) => setCandidate(event.target.value)}
+          onChange={(event) => setDraft((current) => ({ ...current, candidate: event.target.value }))}
           placeholder="For example: fixed-scope accessibility audit"
         />
       </label>
@@ -120,11 +159,14 @@ export default function OpportunityScorecard() {
           {riskFields.map((item) => field(item, "risk"))}
         </fieldset>
       </div>
-      <div className={styles.toolResult} aria-live="polite">
+      <div className={styles.toolResult}>
         <span>{candidate.trim() || "Unnamed candidate"} · priority score</span>
         <strong>{score} / 100</strong>
         <p>{interpretation}</p>
       </div>
+      <p className={styles.srOnly} role="status" aria-live="polite" aria-atomic="true">
+        Priority score {score} of 100. {interpretation}
+      </p>
       <details className={styles.formulaNote}>
         <summary>Formula and evidence rule</summary>
         <p><code>score = clamp(0, 100, round((positive total / 35) × 100 - (risk total / 15) × 30))</code></p>
@@ -135,10 +177,10 @@ export default function OpportunityScorecard() {
         <button
           className={styles.secondaryButton}
           type="button"
+          disabled={!candidate.trim() && Object.values(scores).every((value) => value === 0) && Object.values(evidence).every((value) => !value.trim())}
           onClick={() => {
-            setCandidate("");
-            setScores(emptyScores);
-            setEvidence(emptyEvidence);
+            if (!window.confirm("Clear this candidate and its evidence? This cannot be undone.")) return;
+            clear();
           }}
         >
           Clear for next candidate

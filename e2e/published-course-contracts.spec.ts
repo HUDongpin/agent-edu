@@ -8,6 +8,10 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY,
 } from "../lib/agent-orchestration";
 import { MAKE_MONEY_WITH_CODEX_COURSE } from "../lib/make-money-with-codex";
+import {
+  MAKE_MONEY_PROGRESS_LESSON_SLUGS,
+  MAKE_MONEY_PROGRESS_SCHEMA,
+} from "../lib/progress-topology";
 import { expect, test } from "./fixtures";
 
 const SITE = "https://aicourse.top";
@@ -155,7 +159,7 @@ test("Make Money with Codex reports same-tab completion and resumes the exact ne
   await expect(button).toBeEnabled();
   await button.click();
   await expect(button).toHaveAttribute("aria-pressed", "true");
-  await expect(button).toHaveAccessibleName("Marked complete");
+  await expect(button).toHaveAccessibleName("Mark lesson incomplete");
 
   await page.locator('header a[href="/en/learning/"]').click();
   await expect(page).toHaveURL(/\/en\/learning\/$/);
@@ -167,4 +171,152 @@ test("Make Money with Codex reports same-tab completion and resumes the exact ne
   await action.click();
   await expect(page).toHaveURL(new RegExp(`${secondHref}$`));
   await expect(page.locator("main h1").first()).toBeFocused();
+});
+
+test("Make Money with Codex exposes the late active lesson through a compact mobile outline", async ({ page }) => {
+  const lesson = MAKE_MONEY_WITH_CODEX_COURSE.lessons.at(-1)!;
+  await page.setViewportSize({ width: 390, height: 844 });
+  const response = await page.goto(`/en/make-money-with-codex/${lesson.slug}/`);
+  expect(response?.status()).toBe(200);
+
+  const outline = page.locator("[data-course-mobile-outline]");
+  const summary = outline.locator("summary");
+  await expect(outline).toBeVisible();
+  await expect(summary).toContainText(`Lesson ${lesson.order} / ${MAKE_MONEY_WITH_CODEX_COURSE.lessons.length}`);
+  await expect(summary).toContainText(lesson.title);
+  await expect(page.locator("[data-course-desktop-outline]")).toBeHidden();
+
+  await summary.click();
+  const active = outline.locator('a[aria-current="page"]');
+  await expect(active).toBeVisible();
+  await expect(active).toContainText(lesson.title);
+  await expect.poll(async () => {
+    const activeBox = await active.boundingBox();
+    const navBox = await outline.locator("nav").boundingBox();
+    return Boolean(
+      activeBox
+      && navBox
+      && activeBox.y >= navBox.y
+      && activeBox.y + activeBox.height <= navBox.y + navBox.height + 1,
+    );
+  }).toBe(true);
+
+  const targetHeights = await outline.locator("nav a").evaluateAll((links) =>
+    links.map((link) => link.getBoundingClientRect().height),
+  );
+  expect(Math.min(...targetHeights)).toBeGreaterThanOrEqual(44);
+  await expectNoHorizontalOverflow(page);
+});
+
+test("Make Money with Codex routes the final lesson to the final evidence check", async ({ page }) => {
+  const lesson = MAKE_MONEY_WITH_CODEX_COURSE.lessons.at(-1)!;
+  const response = await page.goto(`/en/make-money-with-codex/${lesson.slug}/`);
+  expect(response?.status()).toBe(200);
+  const finalAction = page.locator("[data-course-lesson-nav] a").last();
+  await expect(finalAction).toHaveAttribute(
+    "href",
+    "/en/make-money-with-codex/#income-knowledge-check",
+  );
+});
+
+test("Make Money with Codex focuses the quiz when it is the hero resume target", async ({ page }) => {
+  const progress: Record<string, unknown> = {
+    [MAKE_MONEY_PROGRESS_SCHEMA.courseVersionKey]: MAKE_MONEY_PROGRESS_SCHEMA.courseVersion,
+    "make-money-with-codex.capstone.checks": Array.from(
+      { length: MAKE_MONEY_PROGRESS_SCHEMA.capstoneItemCount },
+      () => true,
+    ),
+    "make-money-with-codex.capstone.v1": true,
+  };
+  for (const slug of MAKE_MONEY_PROGRESS_LESSON_SLUGS) {
+    progress[`make-money-with-codex.lesson.${slug}`] = true;
+  }
+  await page.addInitScript((value) => {
+    localStorage.setItem("ae.progress", JSON.stringify(value));
+  }, progress);
+
+  const response = await page.goto("/en/make-money-with-codex/");
+  expect(response?.status()).toBe(200);
+  const journey = page.locator("[data-course-journey-action]");
+  await expect(journey).toHaveAccessibleName("Resume course");
+  await expect(journey).toHaveAttribute(
+    "href",
+    "/en/make-money-with-codex/#income-knowledge-check",
+  );
+  await journey.click();
+  await expect(page).toHaveURL(/#income-knowledge-check$/);
+  await expect(page.getByTestId("income-knowledge-check")).toBeFocused();
+});
+
+test("Make Money with Codex restores a scorecard draft and protects its clear action", async ({ page }) => {
+  const lesson = MAKE_MONEY_WITH_CODEX_COURSE.lessons.find(
+    (candidate) => candidate.slug === "choose-market-wedge",
+  )!;
+  const response = await page.goto(`/en/make-money-with-codex/${lesson.slug}/`);
+  expect(response?.status()).toBe(200);
+
+  const candidate = page.getByLabel("Candidate name");
+  await candidate.fill("Synthetic accessibility review");
+  await expect.poll(() => page.evaluate(() =>
+    sessionStorage.getItem("aicourse.course11.scorecard.v1"),
+  )).toContain("Synthetic accessibility review");
+
+  await page.locator("main a[rel=next]").click();
+  await expect(page).toHaveURL(/\/en\/make-money-with-codex\/validate-before-building\/$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/en\/make-money-with-codex\/choose-market-wedge\/$/);
+  const restoredCandidate = page.getByLabel("Candidate name");
+  await expect(restoredCandidate).toHaveValue("Synthetic accessibility review");
+
+  const clear = page.getByRole("button", { name: "Clear for next candidate" });
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await clear.click();
+  await expect(restoredCandidate).toHaveValue("Synthetic accessibility review");
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await clear.click();
+  await expect(restoredCandidate).toHaveValue("");
+});
+
+test("Make Money with Codex identifies correct answers and restores focus on retry", async ({ page }) => {
+  const response = await page.goto("/en/make-money-with-codex/#income-knowledge-check");
+  expect(response?.status()).toBe(200);
+  const assessment = page.getByTestId("income-knowledge-check");
+  const fieldsets = assessment.locator("fieldset");
+  await expect(fieldsets).toHaveCount(MAKE_MONEY_WITH_CODEX_COURSE.quiz.length);
+  for (let index = 0; index < MAKE_MONEY_WITH_CODEX_COURSE.quiz.length; index += 1) {
+    await fieldsets.nth(index).locator('input[type="radio"]').first().check();
+  }
+  await assessment.getByRole("button", { name: "Check every answer" }).click();
+
+  const result = assessment.getByRole("heading", {
+    name: /Evidence check passed|Review the missed boundaries/,
+  });
+  await expect(result).toBeFocused();
+  await expect(assessment.getByText("Correct answer.", { exact: false }).first()).toBeVisible();
+
+  await assessment.getByRole("button", { name: "Start a fresh attempt" }).click();
+  const firstOption = fieldsets.first().locator('input[type="radio"]').first();
+  await expect(firstOption).toBeFocused();
+  await expect(firstOption).toBeInViewport();
+});
+
+test("Course 11 catalog Resume opens the exact next lesson", async ({ page }) => {
+  const first = MAKE_MONEY_WITH_CODEX_COURSE.lessons[0];
+  const second = MAKE_MONEY_WITH_CODEX_COURSE.lessons[1];
+  await page.addInitScript(({ version, firstSlug }) => {
+    localStorage.setItem("ae.progress", JSON.stringify({
+      "make-money-with-codex.course.version": version,
+      [`make-money-with-codex.lesson.${firstSlug}`]: true,
+    }));
+  }, { version: MAKE_MONEY_WITH_CODEX_COURSE.version, firstSlug: first.slug });
+
+  const response = await page.goto("/en/courses/");
+  expect(response?.status()).toBe(200);
+  const card = page.locator('[data-course-id="make-money-with-codex"] > a');
+  await expect(card).toHaveAttribute(
+    "href",
+    `/en/make-money-with-codex/${second.slug}/`,
+  );
+  await expect(card).toContainText("Resume");
 });

@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   calculateCodexIncomeMargin,
   type CodexIncomeMarginInputs,
 } from "@/lib/make-money-with-codex/economics";
+import useSessionDraft from "./useSessionDraft";
 import styles from "./IncomeCourse.module.css";
 
 const defaults: CodexIncomeMarginInputs = {
@@ -35,9 +36,29 @@ const numericFields = [
 
 const percentageKeys = new Set<string>(["utilisation", "overhead", "reserve", "riskBuffer"]);
 
+function parseMarginDraft(value: unknown): CodexIncomeMarginInputs | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const restored = { ...defaults };
+  if (typeof record.currency === "string") restored.currency = record.currency;
+  if (typeof record.observedOn === "string") restored.observedOn = record.observedOn;
+  for (const [key] of numericFields) {
+    const candidate = record[key];
+    if (typeof candidate === "number" && Number.isFinite(candidate)) restored[key] = candidate;
+  }
+  return restored;
+}
+
 export default function MarginCalculator({ locale = "en" }: { locale?: string }) {
-  const [inputs, setInputs] = useState<CodexIncomeMarginInputs>(defaults);
+  const { value: inputs, setValue: setInputs, clear, status } = useSessionDraft({
+    storageKey: "aicourse.course11.margin.v1",
+    initialValue: defaults,
+    parse: parseMarginDraft,
+  });
   const analysis = useMemo(() => calculateCodexIncomeMargin(inputs), [inputs]);
+  const changed = numericFields.some(([key]) => inputs[key] !== defaults[key])
+    || inputs.currency !== defaults.currency
+    || inputs.observedOn !== defaults.observedOn;
 
   const formatter = useMemo(() => {
     try {
@@ -54,6 +75,11 @@ export default function MarginCalculator({ locale = "en" }: { locale?: string })
         <h2 id="income-margin-title">Price-floor and downside calculator</h2>
         <p>The pre-filled values are a fictional worked example. Replace them with dated local inputs. This educational model is not financial, tax, accounting, or legal advice.</p>
       </header>
+      <p className={styles.draftNote} role={status === "unavailable" ? "status" : undefined}>
+        {status === "unavailable"
+          ? "Scenario autosave is unavailable. Print or record the result before leaving."
+          : "Scenario inputs autosave in this tab session. They are never uploaded; reset them before sharing the device."}
+      </p>
       <div className={styles.calculatorGrid}>
         <label htmlFor="income-currency">
           <span>ISO currency code</span>
@@ -99,7 +125,7 @@ export default function MarginCalculator({ locale = "en" }: { locale?: string })
         ))}
       </div>
       {analysis.result ? (
-        <div className={styles.marginResults} aria-live="polite">
+        <div className={styles.marginResults}>
           <p className={styles.resultDate}>Scenario uses costs recorded <time dateTime={inputs.observedOn}>{inputs.observedOn}</time>.</p>
           <div><span>Annual revenue requirement</span><strong>{formatter.format(analysis.result.annualRevenueRequirement)}</strong></div>
           <div><span>Sustainable hourly floor</span><strong>{formatter.format(analysis.result.hourlyFloor)}</strong></div>
@@ -116,6 +142,12 @@ export default function MarginCalculator({ locale = "en" }: { locale?: string })
           <ul>{analysis.errors.map((error) => <li key={error}>{error}</li>)}</ul>
         </div>
       )}
+      {analysis.result ? (
+        <p className={styles.srOnly} role="status" aria-live="polite" aria-atomic="true">
+          Scenario recalculated. Base project floor {formatter.format(analysis.result.projectFloor)}.
+          Quote cushion {formatter.format(analysis.result.cushion)}.
+        </p>
+      ) : null}
       <details className={styles.formulaNote}>
         <summary>Formula and assumptions</summary>
         <p><code>annual revenue requirement = take-home / (1 - overhead rate - reserve rate)</code></p>
@@ -124,7 +156,17 @@ export default function MarginCalculator({ locale = "en" }: { locale?: string })
         <p><code>project floor = (hourly floor × project hours + grossed-up direct costs) × (1 + risk buffer)</code></p>
         <p>Overhead and reserve are portions of collected revenue, so fixed direct costs are grossed up before the risk buffer. The downside model increases project hours by 50%, fixed direct costs by 25%, and uses at least a 25% risk buffer. It is scenario maths, not a prediction.</p>
       </details>
-      <button className={styles.secondaryButton} type="button" onClick={() => setInputs(defaults)}>Reset example</button>
+      <button
+        className={styles.secondaryButton}
+        type="button"
+        disabled={!changed}
+        onClick={() => {
+          if (!window.confirm("Reset every scenario input to the fictional example?")) return;
+          clear();
+        }}
+      >
+        Reset example
+      </button>
     </section>
   );
 }

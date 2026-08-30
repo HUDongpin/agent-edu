@@ -9,6 +9,7 @@ import {
   type CodexIncomeLocaleCopy,
 } from "@/lib/make-money-with-codex";
 import CourseFigure from "./CourseFigure";
+import CourseJourneyAction from "./CourseJourneyAction";
 import CourseProgress from "./CourseProgress";
 import EvidenceBadge from "./EvidenceBadge";
 import KnowledgeCheck from "./KnowledgeCheck";
@@ -29,11 +30,13 @@ export default function CourseDashboard({
   copy: CodexIncomeLocaleCopy;
 }) {
   const course = MAKE_MONEY_WITH_CODEX_COURSE;
+  const courseHref = `/${locale}/make-money-with-codex/`;
   const hrefFor = (slug: string) => `/${locale}/make-money-with-codex/${slug}/`;
   const heroFigure = MAKE_MONEY_WITH_CODEX_FIGURE_BY_ID["fig-1"];
-  const realUiFigures = MAKE_MONEY_WITH_CODEX_FIGURES.filter(
+  const authenticFigures = MAKE_MONEY_WITH_CODEX_FIGURES.filter(
     (figure) => figure.surface === "codex-app" || figure.surface === "codex-cli",
   );
+  const atlasFigures = authenticFigures.filter((figure) => figure.id !== heroFigure.id);
   const artifactFigures = MAKE_MONEY_WITH_CODEX_FIGURES.filter(
     (figure) => figure.surface === "product-output" || figure.surface === "repository-handoff",
   );
@@ -55,6 +58,15 @@ export default function CourseDashboard({
           <h1 id="income-course-title" {...localizedText}>{copy.meta.title}</h1>
           <p className={styles.heroSummary} lang="en">{course.summary}</p>
           <div className={styles.heroActions}>
+            <CourseJourneyAction
+              courseHref={courseHref}
+              startLabel={copy.ui.startCourse}
+              locale={locale}
+              lessons={course.lessons.map((lesson) => ({
+                slug: lesson.slug,
+                href: hrefFor(lesson.slug),
+              }))}
+            />
             <a className={styles.secondaryButton} href="#income-curriculum" {...localizedText}>{copy.ui.inspectLessons}</a>
           </div>
           <p className={styles.heroNonPromise} lang="en">{course.nonPromise}</p>
@@ -70,10 +82,14 @@ export default function CourseDashboard({
         <span>{copy.meta.languageNotice}</span>
       </aside>
 
-      <section className={`shellwrap ${styles.factRail}`} aria-label={copy.meta.title} {...localizedText}>
+      <section
+        className={`shellwrap ${styles.factRail}`}
+        aria-label={`${copy.ui.course} 11 · ${copy.ui.guidedWork}`}
+        {...localizedText}
+      >
         <div><strong>{course.lessons.length}</strong><span>{copy.ui.lessons}</span></div>
         <div><strong lang="en" dir="ltr">{durationLabel(MAKE_MONEY_WITH_CODEX_TOTAL_MINUTES)}</strong><span>{copy.ui.guidedWork}</span></div>
-        <div><strong>{realUiFigures.length}</strong><span>{copy.ui.authenticUi}</span></div>
+        <div><strong>{authenticFigures.length}</strong><span>{copy.ui.authenticUi}</span></div>
         <div><strong><time dateTime={course.verifiedOn}>{course.verifiedOn}</time></strong><span>{copy.ui.evidenceVerified}</span></div>
       </section>
 
@@ -100,6 +116,7 @@ export default function CourseDashboard({
         <CourseProgress
           locale={locale}
           resetConfirm={copy.ui.resetConfirm}
+          startLabel={copy.ui.startCourse}
           lessons={course.lessons.map((lesson) => ({
             slug: lesson.slug,
             title: copy.lessons[lesson.slug].title,
@@ -108,7 +125,12 @@ export default function CourseDashboard({
         />
       </div>
 
-      <section className={`shellwrap ${styles.curriculum}`} id="income-curriculum" aria-labelledby="income-curriculum-title">
+      <section
+        className={`shellwrap ${styles.curriculum}`}
+        id="income-curriculum"
+        aria-labelledby="income-curriculum-title"
+        tabIndex={-1}
+      >
         <header className={styles.sectionHeader}>
           <div>
             <p className={styles.kicker} {...localizedText}>{copy.ui.curriculum}</p>
@@ -169,10 +191,10 @@ export default function CourseDashboard({
             <p className={styles.kicker}>Visual evidence atlas</p>
             <h2 id="income-ui-atlas-title">Know what the image actually shows.</h2>
           </div>
-          <p>Two figures show current Codex app UI, one is an official historical CLI illustration, and one renders an actual CLI transcript. Five additional figures are synthetic product-output or repository-handoff fixtures and are never labelled as Codex UI.</p>
+          <p>Across the course, two figures show current Codex app UI, one is an official historical CLI illustration, and one renders an actual CLI transcript. The hero already shows the first app capture, so this atlas does not repeat it. Five additional figures are synthetic product-output or repository-handoff fixtures and are never labelled as Codex UI.</p>
         </header>
         <div className={styles.figureGrid}>
-          {realUiFigures.map((figure) => <CourseFigure key={figure.id} figure={figure} />)}
+          {atlasFigures.map((figure) => <CourseFigure key={figure.id} figure={figure} />)}
         </div>
         <details className={styles.artifactDrawer}>
           <summary>Inspect {artifactFigures.length} downstream output and handoff figures</summary>
@@ -183,7 +205,12 @@ export default function CourseDashboard({
       </section>
 
       <div className="shellwrap" lang="en">
-        <KnowledgeCheck questions={course.quiz} passingScore={course.passingScore} locale="en" />
+        <KnowledgeCheck
+          questions={course.quiz}
+          passingScore={course.passingScore}
+          locale="en"
+          capstoneHref={hrefFor("launch-capstone")}
+        />
       </div>
 
       <section className={`shellwrap ${styles.integrityPanel}`} aria-labelledby="income-integrity-title" lang="en">

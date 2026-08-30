@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { CodexIncomeLessonSlug } from "@/lib/make-money-with-codex";
+import { selectIncomeJourney } from "./journey";
 import { resetIncomeProgress } from "./progress-store";
 import useIncomeProgress, { useIncomeHydrated, useIncomeStorageAvailable } from "./useIncomeProgress";
 import styles from "./IncomeCourse.module.css";
@@ -13,38 +14,23 @@ export default function CourseProgress({
   lessons,
   locale,
   resetConfirm,
+  startLabel,
 }: {
   lessons: readonly LessonLink[];
   locale: string;
   resetConfirm: string;
+  startLabel: string;
 }) {
   const progress = useIncomeProgress();
   const hydrated = useIncomeHydrated();
   const storageAvailable = useIncomeStorageAvailable();
   const localizedDirection: "ltr" | "rtl" = locale === "ar" ? "rtl" : "ltr";
   const [message, setMessage] = useState("");
-  const state = useMemo(() => {
-    const lessonCount = lessons.filter((lesson) => progress.lessons[lesson.slug]).length;
-    const completed = lessonCount + Number(progress.quizPassed) + Number(progress.capstoneReady);
-    const total = lessons.length + 2;
-    const courseCompleted = completed >= total;
-    const next = lessons.find((lesson) => !progress.lessons[lesson.slug]);
-    return {
-      completed,
-      total,
-      courseCompleted,
-      hasAnyProgress: lessonCount > 0
-        || progress.quizBest > 0
-        || progress.quizPassed
-        || progress.capstoneChecks.some(Boolean)
-        || progress.capstoneReady,
-      nextHref: courseCompleted
-        ? lessons[0]?.href ?? "#income-curriculum"
-        : next?.href ?? (!progress.quizPassed
-          ? "#income-knowledge-check"
-          : lessons.at(-1)?.href ?? "#income-knowledge-check"),
-    };
-  }, [lessons, progress]);
+  const courseHref = `/${locale}/make-money-with-codex/`;
+  const state = useMemo(
+    () => selectIncomeJourney(lessons, progress, courseHref),
+    [courseHref, lessons, progress],
+  );
 
   return (
     <section className={styles.progressPanel} aria-labelledby="income-progress-title" data-testid="income-course-progress">
@@ -53,30 +39,70 @@ export default function CourseProgress({
           <p className={styles.toolKicker} lang="en">Private browser progress</p>
           <h2 id="income-progress-title" lang="en">Your evidence path</h2>
         </div>
-        <output aria-live="polite" lang="en"><strong>{state.completed}</strong><span> / {state.total} milestones</span></output>
+        <output role="status" aria-live="polite" aria-atomic="true" lang="en">
+          <strong>{state.completed}</strong><span> / {state.total} milestones</span>
+        </output>
       </div>
       <ol className={styles.progressSegments} aria-label="Course progress" lang="en">
-        {lessons.map((lesson, index) => (
-          <li key={lesson.slug} data-complete={progress.lessons[lesson.slug] || undefined}>
-            <Link href={lesson.href} aria-label={`${index + 1}. ${lesson.title}`} lang={locale} dir={localizedDirection}>{String(index + 1).padStart(2, "0")}</Link>
-          </li>
-        ))}
-        <li data-complete={progress.quizPassed || undefined}><a href="#income-knowledge-check" aria-label="Knowledge check" lang="en">Q</a></li>
-        <li data-complete={progress.capstoneReady || undefined}><Link href={lessons.at(-1)?.href ?? "#"} aria-label="Capstone" lang="en">C</Link></li>
+        {lessons.map((lesson, index) => {
+          const complete = progress.lessons[lesson.slug] === true;
+          return (
+            <li key={lesson.slug} data-complete={complete || undefined}>
+              <Link
+                href={lesson.href}
+                aria-label={`${index + 1}. ${lesson.title}. ${complete ? "Complete" : "Not complete"}`}
+                lang={locale}
+                dir={localizedDirection}
+              >
+                {String(index + 1).padStart(2, "0")}
+                <span className={styles.progressState} aria-hidden="true">{complete ? "✓" : ""}</span>
+              </Link>
+            </li>
+          );
+        })}
+        <li data-complete={progress.capstoneReady || undefined}>
+          <Link
+            href={state.capstoneHref}
+            aria-label={`Capstone. ${progress.capstoneReady ? "Complete" : "Not complete"}`}
+            lang="en"
+          >
+            C<span className={styles.progressState} aria-hidden="true">{progress.capstoneReady ? "✓" : ""}</span>
+          </Link>
+        </li>
+        <li data-complete={progress.quizPassed || undefined}>
+          <a
+            href="#income-knowledge-check"
+            aria-label={`Final evidence check. ${progress.quizPassed ? "Complete" : "Not complete"}`}
+            lang="en"
+          >
+            Q<span className={styles.progressState} aria-hidden="true">{progress.quizPassed ? "✓" : ""}</span>
+          </a>
+        </li>
       </ol>
-      {!storageAvailable ? <p className={styles.storageWarning} role="status" lang="en">Browser storage is unavailable. All course content and tools still work.</p> : null}
+      {!storageAvailable ? (
+        <p className={styles.storageWarning} role="status" lang="en">
+          Browser storage is unavailable. All course content and tools still work. {" "}
+          <Link href={`/${locale}/learning/`}>Open My Learning to inspect or reset local data.</Link>
+        </p>
+      ) : null}
       <div className={styles.progressActions}>
         <Link
           className={styles.primaryButton}
           href={state.nextHref}
           lang="en"
-          data-course-journey-action
+          onClick={() => {
+            const target = new URL(state.nextHref, window.location.href);
+            if (!target.hash || target.pathname !== window.location.pathname) return;
+            window.requestAnimationFrame(() => {
+              document.querySelector<HTMLElement>(target.hash)?.focus();
+            });
+          }}
         >
           {state.courseCompleted
             ? "Review course"
             : state.hasAnyProgress
               ? "Resume course"
-              : "Start the evidence path"}
+              : startLabel}
           <span aria-hidden="true">→</span>
         </Link>
         <button
@@ -88,10 +114,8 @@ export default function CourseProgress({
             if (!window.confirm(resetConfirm)) return;
             const reset = resetIncomeProgress();
             setMessage(reset
-              ? storageAvailable
-                ? "Course 11 progress reset."
-                : "In-memory Course 11 progress reset. Browser storage remains unavailable."
-              : "Progress could not be reset.");
+              ? "Course 11 progress reset."
+              : "Course 11 session progress reset, but browser storage could not be updated.");
           }}
         >
           Reset progress

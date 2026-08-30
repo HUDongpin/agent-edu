@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import CopyPrompt from "./CopyPrompt";
+import useSessionDraft from "./useSessionDraft";
 import styles from "./IncomeCourse.module.css";
 
 const fields = [
@@ -20,8 +21,22 @@ type FieldKey = (typeof fields)[number][0];
 type Values = Record<FieldKey, string>;
 const empty = Object.fromEntries(fields.map(([key]) => [key, ""])) as Values;
 
+function parseOfferDraft(value: unknown): Values | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const restored = { ...empty };
+  for (const [key] of fields) {
+    if (typeof record[key] === "string") restored[key] = record[key];
+  }
+  return restored;
+}
+
 export default function OfferBuilder() {
-  const [values, setValues] = useState<Values>(empty);
+  const { value: values, setValue: setValues, clear, status } = useSessionDraft({
+    storageKey: "aicourse.course11.offer.v1",
+    initialValue: empty,
+    parse: parseOfferDraft,
+  });
   const [copyResetKey, setCopyResetKey] = useState(0);
   const taskContract = useMemo(() => [
     `BUYER: ${values.buyer || "[Named buyer]"}`,
@@ -43,6 +58,11 @@ export default function OfferBuilder() {
         <p>Draft the buyer-facing outcome and the execution boundary in one place. This is an educational scope aid, not a legal contract.</p>
       </header>
       <p className={styles.toolWarning}><strong>Use synthetic or authorised content only.</strong> Do not paste credentials, personal data, private client records, proprietary source code, or contract terms you are not authorised to process.</p>
+      <p className={styles.draftNote} role={status === "unavailable" ? "status" : undefined}>
+        {status === "unavailable"
+          ? "Draft autosave is unavailable. Copy the contract before leaving this lesson."
+          : "Draft autosaves in this tab session. It is never uploaded; clear it before sharing the device."}
+      </p>
       <div className={styles.offerFields}>
         {fields.map(([key, label, help]) => (
           <label htmlFor={`income-offer-${key}`} key={key}>
@@ -64,8 +84,10 @@ export default function OfferBuilder() {
       <button
         className={styles.secondaryButton}
         type="button"
+        disabled={Object.values(values).every((value) => !value.trim())}
         onClick={() => {
-          setValues(empty);
+          if (!window.confirm("Clear every field in this builder? This cannot be undone.")) return;
+          clear();
           setCopyResetKey((current) => current + 1);
         }}
       >

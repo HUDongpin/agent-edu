@@ -9,6 +9,7 @@ import {
 import CapstoneChecklist from "./CapstoneChecklist";
 import CopyPrompt from "./CopyPrompt";
 import CourseFigure from "./CourseFigure";
+import CourseOutline from "./CourseOutline";
 import EvidenceBadge from "./EvidenceBadge";
 import LessonCompletion from "./LessonCompletion";
 import MarginCalculator from "./MarginCalculator";
@@ -16,11 +17,11 @@ import OfferBuilder from "./OfferBuilder";
 import OpportunityScorecard from "./OpportunityScorecard";
 import styles from "./IncomeCourse.module.css";
 
-function LessonTool({ lesson }: { lesson: CodexIncomeLesson }) {
+function LessonTool({ lesson, courseHref }: { lesson: CodexIncomeLesson; courseHref: string }) {
   if (lesson.slug === "choose-market-wedge") return <OpportunityScorecard />;
   if (lesson.slug === "write-commercial-spec") return <OfferBuilder />;
   if (lesson.slug === "price-for-margin") return <MarginCalculator locale="en" />;
-  if (lesson.slug === "launch-capstone") return <CapstoneChecklist />;
+  if (lesson.slug === "launch-capstone") return <CapstoneChecklist courseHref={courseHref} />;
   return null;
 }
 
@@ -46,30 +47,38 @@ export default function LessonView({
   return (
     <div className={`${styles.lessonPage} en-content`} dir="ltr" data-testid={`income-lesson-${lesson.slug}`}>
       <div className={`shellwrap ${styles.lessonShell}`}>
-        <nav className={styles.lessonRail} aria-label={copy.ui.courseOutline} {...localizedText}>
-          <Link className={styles.railCourseLink} href={courseHref}>{copy.ui.course} 11</Link>
-          <p>{localizedUnitTitle}</p>
-          <ol>
-            {course.lessons.map((item) => (
-              <li key={item.slug} data-current={item.slug === lesson.slug || undefined}>
-                <Link href={hrefFor(item.slug)} aria-current={item.slug === lesson.slug ? "page" : undefined}>
-                  <span>{String(item.order).padStart(2, "0")}</span>
-                  <span>{copy.lessons[item.slug].title}</span>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </nav>
+        <CourseOutline
+          courseHref={courseHref}
+          lessons={course.lessons.map((item) => ({
+            slug: item.slug,
+            order: item.order,
+            title: copy.lessons[item.slug].title,
+            href: hrefFor(item.slug),
+          }))}
+          currentSlug={lesson.slug}
+          currentUnitTitle={localizedUnitTitle}
+          locale={locale}
+          labels={{
+            course: copy.ui.course,
+            lesson: copy.ui.lesson,
+            courseOutline: copy.ui.courseOutline,
+          }}
+        />
 
         <article className={styles.lessonArticle}>
-          <nav className={styles.breadcrumbs} aria-label={copy.ui.courseOutline} {...localizedText}>
+          <nav
+            className={styles.breadcrumbs}
+            aria-label={`${copy.ui.courses}: ${copy.ui.lesson} ${lesson.order}`}
+            {...localizedText}
+          >
             <Link href={`/${locale}/courses/`}>{copy.ui.courses}</Link><span aria-hidden="true">/</span>
             <Link href={courseHref}>{copy.meta.shortTitle}</Link><span aria-hidden="true">/</span>
             <span aria-current="page">{copy.ui.lesson} {lesson.order}</span>
           </nav>
 
           <aside className={styles.compactLanguageNotice} role="note" {...localizedText}>
-            {copy.meta.languageNotice} {copy.ui.evidenceVerified}: <time dateTime={course.verifiedOn}>{course.verifiedOn}</time>
+            <span>{copy.meta.languageNotice} {copy.ui.evidenceVerified}:</span>
+            <time dateTime={course.verifiedOn} dir="ltr">{course.verifiedOn}</time>
           </aside>
 
           <header className={styles.lessonHero}>
@@ -102,13 +111,13 @@ export default function LessonView({
                 {section.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
                 {section.bullets ? <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul> : null}
                 {section.example ? (
-                  <aside className={styles.exampleCard}>
+                  <div className={styles.exampleCard}>
                     <span>{section.example.label}</span>
                     <h3>{section.example.title}</h3>
                     <p>{section.example.text}</p>
-                  </aside>
+                  </div>
                 ) : null}
-                {section.warning ? <p className={styles.warningCard}><strong>Guardrail</strong>{section.warning}</p> : null}
+                {section.warning ? <p className={styles.warningCard}><strong>Guardrail</strong>{" "}{section.warning}</p> : null}
               </div>
               {section.figureId ? <CourseFigure figure={MAKE_MONEY_WITH_CODEX_FIGURE_BY_ID[section.figureId]} /> : null}
             </section>
@@ -135,7 +144,7 @@ export default function LessonView({
             <p className={styles.practiceGuardrail}><strong>Non-negotiable:</strong> {lesson.practice.guardrail}</p>
           </section>
 
-          <div lang="en"><LessonTool lesson={lesson} /></div>
+          <div lang="en"><LessonTool lesson={lesson} courseHref={courseHref} /></div>
 
           <section className={styles.checkpoint} aria-labelledby="income-checkpoint-title" lang="en">
             <p className={styles.kicker}>Decision checkpoint</p>
@@ -181,14 +190,19 @@ export default function LessonView({
 
           <div lang="en"><LessonCompletion slug={lesson.slug} /></div>
 
-          <nav className={styles.lessonPager} aria-label={copy.ui.courseOutline} data-course-lesson-nav {...localizedText}>
+          <nav
+            className={styles.lessonPager}
+            aria-label={`${copy.ui.previous} / ${copy.ui.next}`}
+            data-course-lesson-nav
+            {...localizedText}
+          >
             {previous ? (
               <Link href={hrefFor(previous.slug)} rel="prev"><span>{copy.ui.previous}</span><strong>{copy.lessons[previous.slug].title}</strong></Link>
             ) : <span />}
             {next ? (
               <Link href={hrefFor(next.slug)} rel="next"><span>{copy.ui.next}</span><strong>{copy.lessons[next.slug].title}</strong></Link>
             ) : (
-              <Link href={courseHref}><span>{copy.ui.courseDashboard}</span><strong>{copy.ui.reviewEvidencePath}</strong></Link>
+              <Link href={`${courseHref}#income-knowledge-check`}><span>{copy.ui.courseDashboard}</span><strong>{copy.ui.reviewEvidencePath}</strong></Link>
             )}
           </nav>
         </article>

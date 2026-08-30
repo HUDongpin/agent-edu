@@ -376,7 +376,7 @@ const FRESH_DASHBOARD_CTA_CONTRACTS = [
   {
     id: "make-money-with-codex",
     path: "/en/make-money-with-codex/",
-    label: /^Start the evidence path$/,
+    label: /^Start with the evidence boundary$/,
     href: "/en/make-money-with-codex/money-not-magic/",
   },
   {
@@ -488,7 +488,7 @@ const STATEFUL_DASHBOARD_CTA_CONTRACTS: readonly StatefulDashboardCtaContract[] 
     path: "/en/make-money-with-codex/",
     storageKey: "ae.progress",
     fresh: {
-      label: /^Start the evidence path$/,
+      label: /^Start with the evidence boundary$/,
       href: "/en/make-money-with-codex/money-not-magic/",
     },
     inProgress: {

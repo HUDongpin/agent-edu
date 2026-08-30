@@ -122,11 +122,20 @@
 .secondaryButton:focus-visible,
 .completedButton:focus-visible,
 .lessonRail a:focus-visible,
+.mobileLessonOutline summary:focus-visible,
+.mobileLessonNav a:focus-visible,
 .unitCard a:focus-visible,
+.progressSegments a:focus-visible,
+.breadcrumbs a:focus-visible,
 .lessonPager a:focus-visible,
 .figureLinks a:focus-visible,
 .sources a:focus-visible,
+.courseFigure summary:focus-visible,
+.artifactDrawer summary:focus-visible,
+.checkpoint summary:focus-visible,
+.promptBox pre:focus-visible,
 .promptBox button:focus-visible,
+.capstoneChecks label:has(input:focus-visible),
 .quizOptions label:has(input:focus-visible) {
   outline: 3px solid var(--gold);
   outline-offset: 3px;
@@ -192,9 +201,20 @@
 }
 
 .compactLanguageNotice {
-  width: fit-content;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  width: 100%;
   margin-block-end: 26px;
   padding-inline: 12px;
+}
+
+.compactLanguageNotice time {
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+  unicode-bidi: isolate;
+  white-space: nowrap;
 }
 
 .languageNotice strong,
@@ -381,8 +401,9 @@
 }
 
 .progressSegments a {
+  position: relative;
   display: grid;
-  min-height: 42px;
+  min-height: 44px;
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 7px;
@@ -391,6 +412,15 @@
   font-family: var(--mono);
   font-size: 11px;
   text-decoration: none;
+}
+
+.progressState {
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-end: 4px;
+  color: var(--income-accent);
+  font-size: 9px;
+  line-height: 1;
 }
 
 .progressSegments li[data-complete] a {
@@ -409,6 +439,16 @@
   padding: 10px 13px;
   color: var(--ink-2);
   font-size: 13px;
+}
+
+.draftNote {
+  margin: 14px 0 0;
+  border: 1px solid var(--income-line);
+  border-radius: 8px;
+  background: var(--income-soft);
+  padding: 9px 12px;
+  color: var(--ink-2);
+  font-size: 12px;
 }
 
 .unitGrid {
@@ -642,6 +682,9 @@
 .formulaNote summary,
 .artifactDrawer summary,
 .checkpoint summary {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
   color: var(--income-accent);
   font-weight: 760;
   cursor: pointer;
@@ -758,7 +801,7 @@
   gap: 9px;
   align-items: start;
   min-height: 50px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--control-border);
   border-radius: 8px;
   padding: 10px 11px;
   color: var(--ink-2);
@@ -785,6 +828,14 @@
   flex: 0 0 auto;
   margin-block-start: 4px;
   accent-color: var(--income-accent);
+}
+
+.quizOptionStatus {
+  display: block;
+  margin-block-start: 4px;
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .quizFeedback {
@@ -908,8 +959,10 @@
 
 .lessonRail a {
   display: grid;
-  grid-template-columns: 25px minmax(0, 1fr);
+  grid-template-columns: 25px minmax(0, 1fr) 16px;
   gap: 7px;
+  align-items: center;
+  min-height: 44px;
   border-radius: 7px;
   padding: 8px 7px;
   color: var(--ink-3);
@@ -918,12 +971,129 @@
   text-decoration: none;
 }
 
-.lessonRail a span:first-child {
+.outlineNumber {
   font-family: var(--mono);
   font-size: 9px;
 }
 
+.outlineState {
+  color: var(--income-accent);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
 .lessonRail li[data-current] a {
+  background: var(--income-soft);
+  color: var(--income-accent);
+  font-weight: 760;
+}
+
+.lessonRail li[data-complete]:not([data-current]) a {
+  color: var(--ink-2);
+}
+
+.mobileLessonOutline {
+  display: none;
+}
+
+.mobileLessonOutline > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 14px;
+  align-items: center;
+  min-height: 64px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  padding: 11px 13px;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+  touch-action: manipulation;
+}
+
+.mobileLessonOutline > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mobileOutlineMeta {
+  color: var(--income-accent);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.mobileLessonOutline > summary strong {
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.mobileOutlineAction {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  color: var(--income-accent);
+  font-size: 11px;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.mobileOutlineAction::after {
+  content: " +";
+}
+
+.mobileLessonOutline[open] .mobileOutlineAction::after {
+  content: " −";
+}
+
+.mobileLessonNav {
+  max-height: min(62dvh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--line);
+  border-block-start: 0;
+  border-radius: 0 0 10px 10px;
+  background: var(--card);
+  padding: 6px;
+}
+
+.mobileLessonNav ol {
+  display: grid;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mobileCourseLink {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  border-block-end: 1px solid var(--line);
+  padding: 8px 9px;
+  color: var(--income-accent);
+  font-weight: 760;
+  text-decoration: none;
+}
+
+.mobileLessonNav ol a {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 20px;
+  gap: 8px;
+  align-items: center;
+  min-height: 48px;
+  border-radius: 7px;
+  padding: 8px 9px;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.35;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.mobileLessonNav li[data-current] a {
   background: var(--income-soft);
   color: var(--income-accent);
   font-weight: 760;
@@ -1191,8 +1361,9 @@
 }
 
 .promptBox button {
-  min-height: 42px;
-  margin: 0 0 13px 13px;
+  min-height: 44px;
+  margin-block: 0 13px;
+  margin-inline: 13px 0;
   border: 1px solid color-mix(in srgb, var(--bg) 50%, transparent);
   border-radius: 7px;
   background: transparent;
@@ -1280,7 +1451,7 @@
 .toolWideField input {
   width: 100%;
   min-width: 0;
-  border: 1px solid var(--line);
+  border: 1px solid var(--control-border);
   border-radius: 8px;
   background: var(--bg);
   padding: 9px 10px;
@@ -1432,10 +1603,23 @@
   display: flex;
   gap: 10px;
   height: 100%;
-  border: 1px solid var(--line);
+  min-height: 44px;
+  border: 1px solid var(--control-border);
   border-radius: 8px;
   padding: 11px;
   cursor: pointer;
+}
+
+.primaryButton,
+.secondaryButton,
+.completedButton,
+.progressSegments a,
+.unitCard a,
+.lessonPager a,
+.promptBox button,
+.quizOptions label,
+.capstoneChecks label {
+  touch-action: manipulation;
 }
 
 .capstoneChecks input {
@@ -1667,26 +1851,16 @@
 
   .lessonShell {
     grid-template-columns: minmax(0, 760px);
+    gap: 0;
   }
 
   .lessonRail {
-    position: static;
-    max-height: none;
-    border-inline-end: 0;
-    border-block-end: 1px solid var(--line);
-    padding: 0 0 14px;
+    display: none;
   }
 
-  .lessonRail ol {
-    display: flex;
-    gap: 5px;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-  }
-
-  .lessonRail li {
-    flex: 0 0 172px;
-    scroll-snap-align: start;
+  .mobileLessonOutline {
+    display: block;
+    margin-block-end: 24px;
   }
 }
 
@@ -1779,6 +1953,14 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .scoreLayout input,
+  .scoreLayout textarea,
+  .calculatorGrid input,
+  .offerFields textarea,
+  .toolWideField input {
+    font-size: 16px;
+  }
+
   .lessonMeta {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1799,9 +1981,48 @@
 }
 
 @media (max-width: 480px) {
+  .coursePage :global(.shared-course-shell) {
+    gap: 6px;
+    margin-block: 8px;
+    padding-block: 8px;
+  }
+
+  .coursePage :global(.shared-course-facts) {
+    gap: 6px;
+  }
+
+  .coursePage :global(.shared-course-facts span) {
+    min-height: 28px;
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+
+  .coursePage :global(.shared-course-storage-note) {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
   .courseHero,
   .lessonShell {
     padding-inline: 14px;
+  }
+
+  .courseHero {
+    padding-block-start: 20px;
+  }
+
+  .courseHero h1 {
+    font-size: clamp(36px, 11.5vw, 50px);
+  }
+
+  .heroSummary {
+    margin-block-start: 16px;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .heroActions {
+    margin-block-start: 20px;
   }
 
   .primaryButton,
@@ -1860,6 +2081,7 @@
   }
 
   .lessonRail,
+  .mobileLessonOutline,
   .heroActions,
   .progressActions,
   .lessonPager,

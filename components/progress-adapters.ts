@@ -677,9 +677,9 @@ function makeMoneyAdapter(locale: string): ProgressStoreAdapter {
           ? `/${locale}/make-money-with-codex/`
           : next
             ? `/${locale}/make-money-with-codex/${next}/`
-            : !progress.quizPassed
-              ? `/${locale}/make-money-with-codex/#income-knowledge-check`
-              : `/${locale}/make-money-with-codex/launch-capstone/`;
+            : !progress.capstoneReady
+              ? `/${locale}/make-money-with-codex/launch-capstone/#income-capstone-checklist-title`
+              : `/${locale}/make-money-with-codex/#income-knowledge-check`;
         return summary(percent, hasProgress, nextHref);
       });
     },
