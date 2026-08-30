@@ -73,9 +73,12 @@ export const AI_TUTOR_UI_KEYS = [
   "resetDone",
   "resetDoneMemory",
   "markModuleComplete",
+  "markModuleIncomplete",
   "markedModuleComplete",
   "moduleComplete",
   "moduleIncomplete",
+  "artifactAttestation",
+  "artifactAttestationHelp",
   "finalAssessment",
   "finalAssessmentTitle",
   "finalAssessmentIntro",
@@ -123,6 +126,7 @@ export const AI_TUTOR_UI_KEYS = [
   "next",
   "backToCourse",
   "openCourseMap",
+  "onThisPage",
   "phase",
   "evidenceBoundary",
   "courseIntegrity",
@@ -138,6 +142,7 @@ export const AI_TUTOR_UI_KEYS = [
   "artifactWithValue",
   "minutesWithValue",
   "accessedOn",
+  "opensInNewTab",
 ] as const;
 
 export type AiTutorLocale = (typeof AI_TUTOR_LOCALES)[number];

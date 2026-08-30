@@ -43,6 +43,17 @@ export default function CourseDashboard({
           <p className={base.kicker}>{course.copy.meta.kicker}</p>
           <h1>{course.copy.meta.title}</h1>
           <p className={base.heroSummary}>{course.copy.meta.summary}</p>
+          <CourseProgress
+            compact
+            modules={course.modules.map((module) => ({
+              slug: module.slug,
+              href: hrefFor(module.slug),
+              title: module.copy.title,
+            }))}
+            labels={course.copy.ui}
+            startLabel={course.copy.meta.startCta}
+            resumeLabel={course.copy.meta.resumeCta}
+          />
           <p className={base.heroAudience}>{course.copy.meta.audience}</p>
           <div className={base.heroPrinciples} role="list" aria-label={course.copy.ui.learningOutcomes}>
             {course.copy.principles.map((principle) => (
@@ -50,7 +61,7 @@ export default function CourseDashboard({
             ))}
           </div>
         </div>
-        <ConceptMap manifest={course.manifest} copy={course.copy} />
+        <ConceptMap manifest={course.manifest} copy={course.copy} hrefFor={hrefFor} />
       </header>
 
       <section className={base.courseFacts} aria-label={course.copy.meta.title}>
@@ -60,17 +71,11 @@ export default function CourseDashboard({
         <p><strong>{course.copy.ui.evidenceBoundary}:</strong> {course.copy.meta.evidenceNote}</p>
       </section>
 
-      <CourseProgress
-        modules={course.modules.map((module) => ({
-          slug: module.slug,
-          href: hrefFor(module.slug),
-        }))}
-        labels={course.copy.ui}
-        startLabel={course.copy.meta.startCta}
-        resumeLabel={course.copy.meta.resumeCta}
-      />
-
-      <section className={styles.outcomes} aria-labelledby="ai-tutor-outcomes-title">
+      <section
+        className={styles.outcomes}
+        id="ai-tutor-outcomes"
+        aria-labelledby="ai-tutor-outcomes-title"
+      >
         <header>
           <p className={base.kicker}>{course.copy.ui.learningOutcomes}</p>
           <h2 id="ai-tutor-outcomes-title">{course.copy.ui.learningOutcomesTitle}</h2>
@@ -85,7 +90,11 @@ export default function CourseDashboard({
         </ol>
       </section>
 
-      <section className={base.curriculum} aria-labelledby="ai-tutor-curriculum-title">
+      <section
+        className={base.curriculum}
+        id="ai-tutor-curriculum"
+        aria-labelledby="ai-tutor-curriculum-title"
+      >
         <header>
           <p className={base.kicker}>{course.copy.ui.allModules}</p>
           <h2 id="ai-tutor-curriculum-title">{course.copy.ui.curriculumTitle}</h2>

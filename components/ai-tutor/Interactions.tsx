@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   AI_TUTOR_CAPSTONE_KEY,
+  AI_TUTOR_CAPSTONE_DRAFT_KEY,
   AI_TUTOR_PROGRESS_EVENT,
   AI_TUTOR_PROGRESS_MILESTONES,
   AI_TUTOR_PROGRESS_RESET_EVENT,
   AI_TUTOR_PROGRESS_VERSION_KEY,
   AI_TUTOR_QUIZ_BEST_KEY,
   AI_TUTOR_QUIZ_PASSED_KEY,
+  aiTutorModuleArtifactKey,
+  aiTutorModuleCheckpointKey,
   aiTutorModuleProgressKey,
   formatAiTutorMessage,
   isCurrentAiTutorProgress,
@@ -29,6 +32,26 @@ import styles from "./AiTutorCourse.module.css";
 import { useI18n } from "../I18nProvider";
 
 type Labels = AiTutorCourseCopy["ui"];
+
+type AiTutorCapstoneDraft = {
+  checked: boolean[];
+  attested: boolean;
+};
+
+function readCapstoneDraft(value: unknown, length: number): AiTutorCapstoneDraft {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return { checked: Array.from({ length }, () => false), attested: false };
+  }
+  const candidate = value as { version?: unknown; checked?: unknown; attested?: unknown };
+  if (candidate.version !== 1 || !Array.isArray(candidate.checked)) {
+    return { checked: Array.from({ length }, () => false), attested: false };
+  }
+  const checked = candidate.checked;
+  return {
+    checked: Array.from({ length }, (_, index) => checked[index] === true),
+    attested: candidate.attested === true,
+  };
+}
 
 function subscribe(notify: () => void): () => void {
   window.addEventListener(AI_TUTOR_PROGRESS_EVENT, notify);
@@ -81,12 +104,17 @@ export function ModuleCompletion({
 }) {
   const { progress, storageAvailable } = useAiTutorProgress();
   const key = aiTutorModuleProgressKey(slug);
+  const checkpointKey = aiTutorModuleCheckpointKey(slug);
+  const artifactKey = aiTutorModuleArtifactKey(slug);
   const complete = progress[key] === true;
+  const checkpointComplete = progress[checkpointKey] === true;
+  const artifactReady = progress[artifactKey] === true;
+  const ready = checkpointComplete && artifactReady;
   const statusRef = useRef<HTMLParagraphElement>(null);
-  const [announcement, setAnnouncement] = useState(0);
+  const [announcement, setAnnouncement] = useState("");
 
   useEffect(() => {
-    if (announcement > 0) statusRef.current?.focus();
+    if (announcement) statusRef.current?.focus();
   }, [announcement]);
 
   return (
@@ -100,28 +128,52 @@ export function ModuleCompletion({
           <p className={base.storageWarning} role="status">{labels.storageUnavailable}</p>
         ) : null}
       </div>
+      <div className={styles.completionEvidence}>
+        <p data-ready={checkpointComplete ? "true" : "false"}>
+          <span aria-hidden="true">{checkpointComplete ? "✓" : "○"}</span>
+          <strong>{labels.checkpoint}</strong>
+          <span>{checkpointComplete ? labels.correct : labels.incorrect}</span>
+        </p>
+        <label className={styles.artifactAttestation}>
+          <input
+            type="checkbox"
+            checked={artifactReady}
+            disabled={complete}
+            onChange={(event) => {
+              updateAiTutorProgress((record) => {
+                if (event.target.checked) record[artifactKey] = true;
+                else delete record[artifactKey];
+              });
+            }}
+          />
+          <span>
+            <strong>{labels.artifactAttestation}</strong>
+            <small>{labels.artifactAttestationHelp}</small>
+          </span>
+        </label>
+      </div>
       <button
-        className={complete ? base.completeButton : base.primaryButton}
+        className={complete ? base.secondaryButton : base.primaryButton}
         type="button"
-        aria-disabled={complete || undefined}
+        disabled={!complete && !ready}
         onClick={() => {
-          if (complete) return;
+          if (!complete && !ready) return;
           updateAiTutorProgress((record) => {
-            record[key] = true;
+            if (complete) delete record[key];
+            else record[key] = true;
           });
-          setAnnouncement((value) => value + 1);
+          setAnnouncement(complete ? labels.moduleIncomplete : labels.moduleComplete);
         }}
       >
-        {complete ? labels.markedModuleComplete : labels.markModuleComplete}
+        {complete ? labels.markModuleIncomplete : labels.markModuleComplete}
       </button>
       <p
-        className={styles.srOnly}
-        key={announcement}
+        className={`${styles.srOnly} ${base.focusTarget}`}
         ref={statusRef}
         role="status"
         tabIndex={-1}
       >
-        {announcement ? labels.moduleComplete : ""}
+        {announcement}
       </p>
     </section>
   );
@@ -132,11 +184,13 @@ export function CourseProgress({
   labels,
   startLabel,
   resumeLabel,
+  compact = false,
 }: {
-  modules: readonly { slug: AiTutorModuleSlug; href: string }[];
+  modules: readonly { slug: AiTutorModuleSlug; href: string; title: string }[];
   labels: Labels;
   startLabel: string;
   resumeLabel: string;
+  compact?: boolean;
 }) {
   const { t } = useI18n();
   const { progress, storageAvailable } = useAiTutorProgress();
@@ -147,9 +201,9 @@ export function CourseProgress({
     const moduleCount = modules.filter(
       (module) => progress[aiTutorModuleProgressKey(module.slug)] === true,
     ).length;
-    const quiz = progress[AI_TUTOR_QUIZ_PASSED_KEY] === true ? 1 : 0;
-    const capstone = progress[AI_TUTOR_CAPSTONE_KEY] === true ? 1 : 0;
-    const complete = moduleCount + quiz + capstone;
+    const quizPassed = progress[AI_TUTOR_QUIZ_PASSED_KEY] === true;
+    const capstoneComplete = progress[AI_TUTOR_CAPSTONE_KEY] === true;
+    const complete = moduleCount + Number(quizPassed) + Number(capstoneComplete);
     const nextModule = modules.find(
       (module) => progress[aiTutorModuleProgressKey(module.slug)] !== true,
     );
@@ -157,14 +211,21 @@ export function CourseProgress({
     const nextHref = courseCompleted
       ? modules[0]?.href ?? null
       : nextModule?.href
-        ?? (quiz ? "#ai-tutor-capstone" : "#ai-tutor-final-assessment");
+        ?? (quizPassed ? "#ai-tutor-capstone" : "#ai-tutor-final-assessment");
     return {
+      capstoneComplete,
       complete,
       courseCompleted,
+      moduleCount,
+      nextTitle: courseCompleted
+        ? modules[0]?.title
+        : nextModule?.title
+          ?? (quizPassed ? labels.capstone : labels.finalAssessmentTitle),
       percent: Math.round((complete / AI_TUTOR_PROGRESS_MILESTONES) * 100),
+      quizPassed,
       nextHref,
     };
-  }, [modules, progress]);
+  }, [labels.capstone, labels.finalAssessmentTitle, modules, progress]);
   const hasProgress = Object.keys(progress).some(
     (key) => key.startsWith("ai-tutor.") && key !== AI_TUTOR_PROGRESS_VERSION_KEY,
   );
@@ -174,7 +235,10 @@ export function CourseProgress({
   }, [resetCount]);
 
   return (
-    <section className={base.progressPanel} aria-labelledby="ai-tutor-progress-title">
+    <section
+      className={`${base.progressPanel} ${compact ? styles.heroProgress : ""}`}
+      aria-labelledby="ai-tutor-progress-title"
+    >
       <div className={base.progressHeading}>
         <div>
           <h2 id="ai-tutor-progress-title">{labels.courseProgress}</h2>
@@ -201,7 +265,17 @@ export function CourseProgress({
       </progress>
       <div className={base.actionRow}>
         {state.nextHref ? (
-          <Link className={base.primaryButton} href={state.nextHref} data-course-journey-action>
+          <Link
+            className={base.primaryButton}
+            href={state.nextHref}
+            data-course-journey-action
+            onClick={() => {
+              if (!state.nextHref?.startsWith("#")) return;
+              window.requestAnimationFrame(() => {
+                document.querySelector<HTMLElement>(state.nextHref!)?.focus();
+              });
+            }}
+          >
             {state.courseCompleted ? t("cat.review") : hasProgress ? resumeLabel : startLabel}<span aria-hidden="true">→</span>
           </Link>
         ) : null}
@@ -219,6 +293,23 @@ export function CourseProgress({
           {labels.resetProgress}
         </button>
       </div>
+      <dl className={styles.progressMilestones}>
+        <div><dt>{labels.modules}</dt><dd>{state.moduleCount} / {modules.length}</dd></div>
+        <div>
+          <dt>{labels.finalAssessment}</dt>
+          <dd>{state.quizPassed ? labels.assessmentPassed : labels.incorrect}</dd>
+        </div>
+        <div>
+          <dt>{labels.capstone}</dt>
+          <dd>{state.capstoneComplete ? labels.capstoneComplete : labels.incorrect}</dd>
+        </div>
+      </dl>
+      {state.nextTitle ? (
+        <p className={styles.nextUp}>
+          <strong>{labels.next}</strong>
+          <span>{state.nextTitle}</span>
+        </p>
+      ) : null}
       <p
         className={`${resetStatus ? base.resetStatus : styles.srOnly} ${base.focusTarget}`}
         key={resetCount}
@@ -236,10 +327,12 @@ export function ModuleCheckpoint({
   checkpoint,
   labels,
   id,
+  slug,
 }: {
   checkpoint: AiTutorCheckpointCopy;
   labels: Labels;
   id: string;
+  slug: AiTutorModuleSlug;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
@@ -257,12 +350,18 @@ export function ModuleCheckpoint({
   }, [checked]);
 
   return (
-    <section className={base.checkpoint} aria-labelledby={`${id}-title`}>
+    <section className={base.checkpoint} id={id} aria-labelledby={`${id}-title`}>
       <p className={base.kicker}>{labels.checkpoint}</p>
       <h2 id={`${id}-title`}>{checkpoint.question}</h2>
       <form onSubmit={(event) => {
         event.preventDefault();
-        if (selected !== null) setChecked(true);
+        if (selected === null) return;
+        setChecked(true);
+        if (correct) {
+          updateAiTutorProgress((record) => {
+            record[aiTutorModuleCheckpointKey(slug)] = true;
+          });
+        }
       }}>
         <fieldset>
           <legend className={styles.srOnly}>{checkpoint.question}</legend>
@@ -348,6 +447,7 @@ export function FinalAssessment({
   const savedBest = typeof progress[AI_TUTOR_QUIZ_BEST_KEY] === "number"
     ? progress[AI_TUTOR_QUIZ_BEST_KEY] as number
     : 0;
+  const savedPassed = progress[AI_TUTOR_QUIZ_PASSED_KEY] === true;
   const best = Math.max(savedBest, result?.score ?? 0);
 
   useEffect(() => {
@@ -406,7 +506,7 @@ export function FinalAssessment({
 
   return (
     <section
-      className={base.finalQuiz}
+      className={`${base.finalQuiz} ${base.focusTarget}`}
       id="ai-tutor-final-assessment"
       aria-labelledby="ai-tutor-final-assessment-title"
       tabIndex={-1}
@@ -429,10 +529,12 @@ export function FinalAssessment({
           <button className={base.primaryButton} type="button" onClick={begin}>
             {labels.startAssessment}
           </button>
-          <span className={base.quizMeta}>{formatAiTutorMessage(labels.bestScorePosition, {
-            best,
-            total: questions.length,
-          })}</span>
+          <span className={base.quizMeta}>
+            {savedPassed ? labels.assessmentPassed : formatAiTutorMessage(labels.bestScorePosition, {
+              best,
+              total: questions.length,
+            })}
+          </span>
         </div>
       ) : result ? (
         <div
@@ -522,27 +624,22 @@ export function CapstoneChecklist({
 }) {
   const { progress, storageAvailable } = useAiTutorProgress();
   const alreadyComplete = progress[AI_TUTOR_CAPSTONE_KEY] === true;
-  const [checked, setChecked] = useState<boolean[]>(() => artifacts.map(() => alreadyComplete));
-  const [attested, setAttested] = useState(alreadyComplete);
+  const draft = readCapstoneDraft(progress[AI_TUTOR_CAPSTONE_DRAFT_KEY], artifacts.length);
+  const checked = draft.checked.map((value) => alreadyComplete || value);
+  const attested = alreadyComplete || draft.attested;
+  const recordRequested = useRef(false);
   const statusRef = useRef<HTMLDivElement>(null);
   const allReady = checked.every(Boolean) && attested;
 
   useEffect(() => {
-    function resetChecklist() {
-      setChecked(artifacts.map(() => false));
-      setAttested(false);
-    }
-    window.addEventListener(AI_TUTOR_PROGRESS_RESET_EVENT, resetChecklist);
-    return () => window.removeEventListener(AI_TUTOR_PROGRESS_RESET_EVENT, resetChecklist);
-  }, [artifacts]);
-
-  useEffect(() => {
-    if (alreadyComplete) statusRef.current?.focus();
+    if (!recordRequested.current || !alreadyComplete) return;
+    recordRequested.current = false;
+    statusRef.current?.focus();
   }, [alreadyComplete]);
 
   return (
     <section
-      className={base.capstone}
+      className={`${base.capstone} ${base.focusTarget}`}
       id="ai-tutor-capstone"
       aria-labelledby="ai-tutor-capstone-checklist-title"
       tabIndex={-1}
@@ -560,9 +657,19 @@ export function CapstoneChecklist({
               checked={checked[index]}
               disabled={alreadyComplete}
               onChange={(event) => {
-                const next = [...checked];
-                next[index] = event.target.checked;
-                setChecked(next);
+                updateAiTutorProgress((record) => {
+                  const current = readCapstoneDraft(
+                    record[AI_TUTOR_CAPSTONE_DRAFT_KEY],
+                    artifacts.length,
+                  );
+                  const nextChecked = [...current.checked];
+                  nextChecked[index] = event.target.checked;
+                  record[AI_TUTOR_CAPSTONE_DRAFT_KEY] = {
+                    version: 1,
+                    checked: nextChecked,
+                    attested: current.attested,
+                  };
+                });
               }}
             />
             <span><strong>{String(index + 1).padStart(2, "0")}</strong>{artifact}</span>
@@ -574,7 +681,19 @@ export function CapstoneChecklist({
           type="checkbox"
           checked={attested}
           disabled={alreadyComplete}
-          onChange={(event) => setAttested(event.target.checked)}
+          onChange={(event) => {
+            updateAiTutorProgress((record) => {
+              const current = readCapstoneDraft(
+                record[AI_TUTOR_CAPSTONE_DRAFT_KEY],
+                artifacts.length,
+              );
+              record[AI_TUTOR_CAPSTONE_DRAFT_KEY] = {
+                version: 1,
+                checked: current.checked,
+                attested: event.target.checked,
+              };
+            });
+          }}
         />
         <span>{statement}</span>
       </label>
@@ -584,8 +703,10 @@ export function CapstoneChecklist({
           type="button"
           disabled={!allReady || alreadyComplete}
           onClick={() => {
+            recordRequested.current = true;
             updateAiTutorProgress((record) => {
               record[AI_TUTOR_CAPSTONE_KEY] = true;
+              delete record[AI_TUTOR_CAPSTONE_DRAFT_KEY];
             });
           }}
         >
@@ -593,7 +714,7 @@ export function CapstoneChecklist({
         </button>
       </div>
       <div
-        className={alreadyComplete ? base.correctFeedback : styles.srOnly}
+        className={`${alreadyComplete ? base.correctFeedback : styles.srOnly} ${base.focusTarget}`}
         ref={statusRef}
         role="status"
         tabIndex={-1}

@@ -9,10 +9,19 @@ export const AI_TUTOR_PROGRESS_RESET_EVENT = "ai-tutor:progress-reset";
 export const AI_TUTOR_QUIZ_BEST_KEY = "ai-tutor.quiz.best";
 export const AI_TUTOR_QUIZ_PASSED_KEY = "ai-tutor.quiz.passed";
 export const AI_TUTOR_CAPSTONE_KEY = "ai-tutor.capstone.v1";
+export const AI_TUTOR_CAPSTONE_DRAFT_KEY = "ai-tutor.capstone.draft.v1";
 export const AI_TUTOR_PROGRESS_MILESTONES = AI_TUTOR_COURSE_MANIFEST.modules.length + 2;
 
 export function aiTutorModuleProgressKey(slug: AiTutorModuleSlug): string {
   return `ai-tutor.module.${slug}.complete`;
+}
+
+export function aiTutorModuleCheckpointKey(slug: AiTutorModuleSlug): string {
+  return `ai-tutor.module.${slug}.checkpoint`;
+}
+
+export function aiTutorModuleArtifactKey(slug: AiTutorModuleSlug): string {
+  return `ai-tutor.module.${slug}.artifact-reviewed`;
 }
 
 export function isCurrentAiTutorProgress(progress: Record<string, unknown>): boolean {

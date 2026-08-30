@@ -29,14 +29,21 @@ function ModuleMap({
 }) {
   return (
     <ol>
-      {course.modules.map((module) => (
-        <li key={module.slug}>
-          <Link
-            href={`/${course.locale}/ai-tutor/${module.slug}/`}
-            aria-current={module.slug === activeSlug ? "page" : undefined}
-          >
-            <span>{String(module.order).padStart(2, "0")}</span>{module.copy.title}
-          </Link>
+      {course.phases.map((phase) => (
+        <li className={styles.moduleMapPhase} key={phase.id}>
+          <span>{String(phase.order).padStart(2, "0")} {phase.copy.title}</span>
+          <ol>
+            {phase.modules.map((module) => (
+              <li key={module.slug}>
+                <Link
+                  href={`/${course.locale}/ai-tutor/${module.slug}/`}
+                  aria-current={module.slug === activeSlug ? "page" : undefined}
+                >
+                  <span>{String(module.order).padStart(2, "0")}</span>{module.copy.title}
+                </Link>
+              </li>
+            ))}
+          </ol>
         </li>
       ))}
     </ol>
@@ -108,14 +115,16 @@ export default function ModuleView({
               <p className={base.kicker}>{module.copy.kicker}</p>
               <h1>{module.copy.title}</h1>
               <p className={base.lessonSummary}>{module.copy.summary}</p>
-              <dl>
+              <dl className={styles.moduleFacts}>
                 <div><dt>{course.copy.ui.minutes}</dt><dd>{module.minutes}</dd></div>
                 <div>
                   <dt>{course.copy.ui.phase}</dt>
-                  <dd>{formatAiTutorMessage(course.copy.ui.phasePosition, {
-                    current: phase.order,
-                    total: course.phases.length,
-                  })}</dd>
+                  <dd>
+                    {phase.copy.title} · {formatAiTutorMessage(course.copy.ui.phasePosition, {
+                      current: phase.order,
+                      total: course.phases.length,
+                    })}
+                  </dd>
                 </div>
                 <div><dt>{course.copy.ui.sources}</dt><dd>{module.sources.length}</dd></div>
               </dl>
@@ -126,7 +135,11 @@ export default function ModuleView({
               </p>
             </header>
 
-            <section className={base.objective} aria-labelledby="ai-tutor-module-objective-title">
+            <section
+              className={base.objective}
+              id="ai-tutor-module-objective"
+              aria-labelledby="ai-tutor-module-objective-title"
+            >
               <p className={base.kicker}>{course.copy.ui.objective}</p>
               <h2 id="ai-tutor-module-objective-title">{course.copy.ui.objectiveTitle}</h2>
               <p>{module.copy.objective}</p>
@@ -137,16 +150,40 @@ export default function ModuleView({
               copy={course.copy}
               activeSlug={module.slug}
               compact
+              hrefFor={hrefFor}
             />
+
+            <nav className={styles.onPageNav} aria-label={course.copy.ui.onThisPage}>
+              <strong>{course.copy.ui.onThisPage}</strong>
+              <ol>
+                {module.copy.sections.map((section, sectionIndex) => (
+                  <li key={section.heading}>
+                    <a href={`#ai-tutor-section-${sectionIndex + 1}`}>
+                      {String(sectionIndex + 1).padStart(2, "0")} {section.heading}
+                    </a>
+                  </li>
+                ))}
+                <li><a href="#ai-tutor-system-contract">04 {course.copy.ui.systemContract}</a></li>
+                <li><a href="#ai-tutor-workshop">05 {course.copy.ui.workshop}</a></li>
+                <li><a href={`#ai-tutor-checkpoint-${module.slug}`}>06 {course.copy.ui.checkpoint}</a></li>
+                <li><a href="#ai-tutor-sources">07 {course.copy.ui.sources}</a></li>
+                <li>
+                  <a href={`#ai-tutor-completion-${module.slug}`}>
+                    08 {course.copy.ui.markedModuleComplete}
+                  </a>
+                </li>
+              </ol>
+            </nav>
 
             {module.copy.sections.map((section, sectionIndex) => (
               <section
                 className={base.proseSection}
-                aria-labelledby={`ai-tutor-section-${sectionIndex}`}
+                id={`ai-tutor-section-${sectionIndex + 1}`}
+                aria-labelledby={`ai-tutor-section-${sectionIndex + 1}-title`}
                 key={section.heading}
               >
                 <p className={styles.sectionNumber}>{String(sectionIndex + 1).padStart(2, "0")}</p>
-                <h2 id={`ai-tutor-section-${sectionIndex}`}>{section.heading}</h2>
+                <h2 id={`ai-tutor-section-${sectionIndex + 1}-title`}>{section.heading}</h2>
                 {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
                 {section.bullets?.length ? (
                   <ul className={styles.proseList}>
@@ -160,7 +197,10 @@ export default function ModuleView({
                     return (
                       <span key={source.id}>
                         {sourceIndex ? ", " : ""}
-                        <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a>
+                        <a href={source.url} target="_blank" rel="noopener noreferrer">
+                          {source.title}
+                          <span className={styles.srOnly}> ({course.copy.ui.opensInNewTab})</span>
+                        </a>
                       </span>
                     );
                   })}
@@ -168,7 +208,11 @@ export default function ModuleView({
               </section>
             ))}
 
-            <section className={styles.systemContract} aria-labelledby="ai-tutor-system-contract-title">
+            <section
+              className={styles.systemContract}
+              id="ai-tutor-system-contract"
+              aria-labelledby="ai-tutor-system-contract-title"
+            >
               <header>
                 <p className={base.kicker}>{course.copy.ui.systemContract}</p>
                 <h2 id="ai-tutor-system-contract-title">{course.copy.ui.systemContractTitle}</h2>
@@ -183,7 +227,11 @@ export default function ModuleView({
               </ol>
             </section>
 
-            <section className={`${base.practice} ${styles.workshop}`} aria-labelledby="ai-tutor-workshop-title">
+            <section
+              className={`${base.practice} ${styles.workshop}`}
+              id="ai-tutor-workshop"
+              aria-labelledby="ai-tutor-workshop-title"
+            >
               <header>
                 <div>
                   <p className={base.kicker}>{course.copy.ui.workshop}</p>
@@ -212,6 +260,7 @@ export default function ModuleView({
               checkpoint={module.copy.checkpoint}
               labels={course.copy.ui}
               id={`ai-tutor-checkpoint-${module.slug}`}
+              slug={module.slug}
             />
 
             <aside className={styles.takeaway}>
@@ -219,7 +268,11 @@ export default function ModuleView({
               <p>{module.copy.takeaway}</p>
             </aside>
 
-            <section className={`${base.sources} ${styles.sources}`} aria-labelledby="ai-tutor-sources-title">
+            <section
+              className={`${base.sources} ${styles.sources}`}
+              id="ai-tutor-sources"
+              aria-labelledby="ai-tutor-sources-title"
+            >
               <p className={base.kicker}>{course.copy.ui.evidenceBoundary}</p>
               <h2 id="ai-tutor-sources-title">{course.copy.ui.sources}</h2>
               <ol>
@@ -228,11 +281,13 @@ export default function ModuleView({
                     <div>
                       <a href={source.url} target="_blank" rel="noopener noreferrer">
                         <strong>{source.title}</strong>
+                        <span aria-hidden="true">↗</span>
+                        <span className={styles.srOnly}> ({course.copy.ui.opensInNewTab})</span>
                       </a>
                       <span>{source.publisher}</span>
-                      <span>{formatAiTutorMessage(course.copy.ui.accessedOn, {
+                      <time dateTime={source.accessedOn}>{formatAiTutorMessage(course.copy.ui.accessedOn, {
                         date: source.accessedOn,
-                      })}</span>
+                      })}</time>
                       <em>{evidenceTypeLabel(source.evidenceType, course.copy.ui)}</em>
                     </div>
                     <p><strong>{course.copy.ui.supports}:</strong> {course.copy.sourceAnnotations[source.id].supports}</p>
@@ -242,7 +297,9 @@ export default function ModuleView({
               </ol>
             </section>
 
-            <ModuleCompletion slug={module.slug} labels={course.copy.ui} />
+            <div id={`ai-tutor-completion-${module.slug}`} className={styles.completionAnchor}>
+              <ModuleCompletion slug={module.slug} labels={course.copy.ui} />
+            </div>
 
             <nav className={base.lessonPager} aria-label={course.copy.ui.allModules} data-course-lesson-nav>
               {previous ? (
@@ -255,8 +312,9 @@ export default function ModuleView({
                   <span>{course.copy.ui.next}</span><strong>{next.copy.title}</strong>
                 </Link>
               ) : (
-                <Link href={`/${course.locale}/ai-tutor/`}>
-                  <span>{course.copy.ui.backToCourse}</span><strong>{course.copy.meta.title}</strong>
+                <Link href={`/${course.locale}/ai-tutor/#ai-tutor-final-assessment`}>
+                  <span>{course.copy.ui.finalAssessment}</span>
+                  <strong>{course.copy.ui.finalAssessmentTitle}</strong>
                 </Link>
               )}
             </nav>

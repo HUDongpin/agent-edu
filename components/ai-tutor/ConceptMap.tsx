@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type {
   AiTutorCourseCopy,
   AiTutorCourseManifest,
@@ -10,11 +11,13 @@ export default function ConceptMap({
   copy,
   activeSlug,
   compact = false,
+  hrefFor,
 }: {
   manifest: AiTutorCourseManifest;
   copy: AiTutorCourseCopy;
   activeSlug?: AiTutorModuleSlug;
   compact?: boolean;
+  hrefFor?: (slug: AiTutorModuleSlug) => string;
 }) {
   const visibleEdges = compact && activeSlug
     ? manifest.conceptEdges.filter((edge) => edge.from === activeSlug || edge.to === activeSlug)
@@ -34,28 +37,41 @@ export default function ConceptMap({
       </figcaption>
       <div className={styles.conceptCanvas}>
         <div className={styles.conceptCenter}>
-          <span>∞</span>
+          <span aria-hidden="true">∞</span>
           <strong>{copy.conceptMap.center}</strong>
         </div>
         <ol className={styles.conceptNodes}>
           {manifest.modules.map((module) => {
             const node = copy.conceptMap.nodes[module.slug];
+            const content = (
+              <>
+                <span>{String(module.order).padStart(2, "0")}</span>
+                <strong>{node.shortTitle}</strong>
+                {!compact ? <small>{node.role}</small> : null}
+              </>
+            );
             return (
               <li
                 className={module.slug === activeSlug ? styles.activeConceptNode : undefined}
                 data-module-order={module.order}
                 key={module.slug}
               >
-                <span>{String(module.order).padStart(2, "0")}</span>
-                <strong>{node.shortTitle}</strong>
-                {!compact ? <small>{node.role}</small> : null}
+                {hrefFor ? (
+                  <Link
+                    className={styles.conceptNode}
+                    href={hrefFor(module.slug)}
+                    aria-current={module.slug === activeSlug ? "page" : undefined}
+                  >
+                    {content}
+                  </Link>
+                ) : <div className={styles.conceptNode}>{content}</div>}
               </li>
             );
           })}
         </ol>
       </div>
-      <div className={styles.relationshipLedger} aria-label={copy.ui.relation}>
-          <p className={styles.relationshipLabel}>{copy.ui.relation}</p>
+      <details className={styles.relationshipLedger}>
+          <summary className={styles.relationshipLabel}>{copy.ui.relation}</summary>
           <ol>
             {visibleEdges.map((edge) => (
               <li key={`${edge.from}-${edge.to}`}>
@@ -68,7 +84,7 @@ export default function ConceptMap({
               </li>
             ))}
           </ol>
-      </div>
+      </details>
       <p className={styles.teacherBoundary}>{copy.conceptMap.teacherBoundary}</p>
     </figure>
   );
