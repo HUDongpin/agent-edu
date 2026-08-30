@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import type { GrokCourseCopy, GrokLessonSlug } from "@/lib/grok/types";
 import { updateGrokProgress } from "./progress-store";
 import useGrokProgress, { useGrokHydrated, useGrokStorageAvailable } from "./useGrokProgress";
@@ -16,6 +17,11 @@ export default function LessonCompletion({
   const hydrated = useGrokHydrated();
   const storageAvailable = useGrokStorageAvailable();
   const complete = progress.lessons[slug] === true;
+
+  useEffect(() => {
+    if (progress.lastVisitedLesson === slug) return;
+    updateGrokProgress((current) => ({ ...current, lastVisitedLesson: slug }));
+  }, [progress.lastVisitedLesson, slug]);
 
   return (
     <section

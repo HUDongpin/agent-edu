@@ -23,7 +23,7 @@ const serverDashboardByCourse = new Map<string, string>([
 
 const journeyByCourse = new Map<string, string>([
   ["agentic", "components/handbook/CourseJourney.tsx"],
-  ["grok", "components/grok/CourseProgress.tsx"],
+  ["grok", "components/grok/CourseHeroAction.tsx"],
   ["github", "components/github/CourseProgress.tsx"],
   ["prompts", "components/prompts/PromptInteractions.tsx"],
   ["software-engineering", "components/software-engineering/CourseProgress.tsx"],

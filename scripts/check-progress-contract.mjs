@@ -257,7 +257,9 @@ function resolveStorageKeyToken(token, text) {
 const progressStorageFiles = files.filter(({ path }) =>
   path === join(ROOT, "lib", "progress.ts")
     || path === RECENCY
-    || path.endsWith("/progress-store.ts"));
+    || path.endsWith("/progress-store.ts")
+    || path.endsWith("/grok/quiz-attempt-store.ts")
+    || path.endsWith("/grok/task-contract-draft-store.ts"));
 for (const { path, text } of progressStorageFiles) {
   for (const match of text.matchAll(
     /(?:window\.)?(localStorage|sessionStorage)\.(?:getItem|setItem|removeItem)\(\s*(\w+|["'`][^"'`]+["'`])/g,

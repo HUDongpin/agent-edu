@@ -41,6 +41,8 @@ import {
   AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY,
   AI_TUTOR_PROGRESS_PROBE_KEY,
   GROK_PROGRESS_PROBE_KEY,
+  GROK_QUIZ_ATTEMPT_KEY,
+  GROK_TASK_CONTRACT_DRAFT_KEY,
   INCOME_PROGRESS_PROBE_KEY,
   PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
   PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
@@ -588,7 +590,12 @@ function agenticAdapter(locale: string): ProgressStoreAdapter {
 function grokAdapter(locale: string): ProgressStoreAdapter {
   return {
     courseId: "grok",
-    storageKeys: [GROK_PROGRESS_KEY, GROK_PROGRESS_PROBE_KEY],
+    storageKeys: [
+      GROK_PROGRESS_KEY,
+      GROK_PROGRESS_PROBE_KEY,
+      GROK_QUIZ_ATTEMPT_KEY,
+      GROK_TASK_CONTRACT_DRAFT_KEY,
+    ],
     progressEvent: GROK_PROGRESS_EVENT,
     readSummary() {
       return readFailClosed(grokStorageAvailable, () => {
@@ -597,8 +604,15 @@ function grokAdapter(locale: string): ProgressStoreAdapter {
           (slug) => progress.lessons[slug],
         ).length + Number(progress.quizPassed) + Number(progress.capstoneReady);
         const percent = Math.round((completed / (GROK_PROGRESS_LESSON_SLUGS.length + 2)) * 100);
-        const next = GROK_PROGRESS_LESSON_SLUGS.find((slug) => !progress.lessons[slug]);
-        const hasProgress = Object.values(progress.lessons).some(Boolean)
+        const lastVisited = progress.lastVisitedLesson
+          && GROK_PROGRESS_LESSON_SLUGS.includes(progress.lastVisitedLesson)
+          && !progress.lessons[progress.lastVisitedLesson]
+          ? progress.lastVisitedLesson
+          : undefined;
+        const next = lastVisited
+          ?? GROK_PROGRESS_LESSON_SLUGS.find((slug) => !progress.lessons[slug]);
+        const hasProgress = Boolean(progress.lastVisitedLesson)
+          || Object.values(progress.lessons).some(Boolean)
           || progress.quizBest > 0
           || progress.quizPassed
           || progress.capstoneChecks.some(Boolean)

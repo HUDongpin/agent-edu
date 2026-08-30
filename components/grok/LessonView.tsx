@@ -3,6 +3,7 @@ import type { MaterializedGrokCourse, MaterializedGrokLesson } from "@/lib/grok"
 import CapstoneChecklist from "./CapstoneChecklist";
 import CopyPrompt from "./CopyPrompt";
 import CourseFigure from "./CourseFigure";
+import LessonCourseMap from "./LessonCourseMap";
 import LessonCompletion from "./LessonCompletion";
 import TaskContractBuilder from "./TaskContractBuilder";
 import styles from "./GrokCourse.module.css";
@@ -17,10 +18,6 @@ export default function LessonView({
   const lessons = course.units.flatMap((unit) => unit.lessons);
   const lessonIndex = lessons.findIndex((candidate) => candidate.slug === lesson.slug);
   const numberFormat = new Intl.NumberFormat(course.locale);
-  const twoDigitFormat = new Intl.NumberFormat(course.locale, {
-    minimumIntegerDigits: 2,
-    useGrouping: false,
-  });
   const dateFormat = new Intl.DateTimeFormat(course.locale, {
     year: "numeric",
     month: "short",
@@ -31,6 +28,16 @@ export default function LessonView({
   const previous = lessonIndex > 0 ? lessons[lessonIndex - 1] : null;
   const next = lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null;
   const hrefFor = (slug: string) => `/${course.locale}/grok/${slug}/`;
+  const courseMapUnits = course.units.map((unit) => ({
+    id: unit.id,
+    title: unit.copy.title,
+    lessons: unit.lessons.map((item) => ({
+      slug: item.slug,
+      order: item.order,
+      title: item.copy.title,
+      href: hrefFor(item.slug),
+    })),
+  }));
 
   return (
     <div
@@ -38,35 +45,21 @@ export default function LessonView({
       data-testid={`grok-lesson-${lesson.slug}`}
     >
       <nav className={styles.breadcrumbs} aria-label={course.copy.ui.backCourse}>
-        <Link href={`/${course.locale}/grok/`}>← {course.copy.ui.backCourse}</Link>
+        <Link href={`/${course.locale}/grok/`}>
+          <span className={styles.directionArrow} aria-hidden="true">←</span>
+          {course.copy.ui.backCourse}
+        </Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page" data-audit-truncation="breadcrumb-current">{lesson.copy.title}</span>
       </nav>
 
       <div className={styles.lessonLayout}>
-        <aside className={styles.lessonRail}>
-          <nav aria-label={course.copy.ui.allLessons}>
-            <strong>{course.copy.ui.allLessons}</strong>
-            {course.units.map((unit) => (
-              <details key={unit.id} open={unit.id === lesson.unitId}>
-                <summary>{unit.copy.title}</summary>
-                <ol>
-                  {unit.lessons.map((item) => (
-                    <li key={item.slug}>
-                      <Link
-                        href={hrefFor(item.slug)}
-                        aria-current={item.slug === lesson.slug ? "page" : undefined}
-                      >
-                        <span>{twoDigitFormat.format(item.order)}</span>
-                        {item.copy.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              </details>
-            ))}
-          </nav>
-        </aside>
+        <LessonCourseMap
+          locale={course.locale}
+          units={courseMapUnits}
+          currentSlug={lesson.slug}
+          labels={course.copy.ui}
+        />
 
         <article className={styles.lessonArticle}>
           <header className={styles.lessonHero}>
