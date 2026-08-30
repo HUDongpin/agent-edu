@@ -28,6 +28,15 @@ function sourceKindLabel(kind: ProductManagementSourceKind): string {
   return "Industry practice";
 }
 
+function accessDate(locale: string, isoDate: string): string {
+  const date = new Date(`${isoDate}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  }).format(date);
+}
+
 function ModuleMap({
   course,
   activeSlug,
@@ -72,6 +81,14 @@ export default function ModuleView({
   const phase = course.phases.find((item) => item.id === module.phaseId);
   const courseHref = `/${course.locale}/product-management/`;
   const hrefFor = (slug: string) => `/${course.locale}/product-management/${slug}/`;
+  const decisionIndex = module.copy.sections.length + 1;
+  const riceIndex = module.slug === "prioritization-roadmaps-portfolio"
+    ? decisionIndex + 1
+    : null;
+  const practiceIndex = (riceIndex ?? decisionIndex) + 1;
+  const checkpointIndex = practiceIndex + 1;
+  const completionIndex = checkpointIndex + 1;
+  const sourcesIndex = completionIndex + 1;
 
   if (!phase) return null;
 
@@ -99,8 +116,13 @@ export default function ModuleView({
 
       <details className={styles.mobileCourseMap}>
         <summary>
-          <span>{label(course.copy.ui, "tableOfContents", "Course map")}</span>
-          <span>{module.order} / {course.modules.length}</span>
+          <span className={styles.mobileMapTitle}>
+            <strong>{label(course.copy.ui, "tableOfContents", "Course map")}</strong>
+            <small>{module.copy.title}</small>
+          </span>
+          <span className={styles.mobileMapPosition}>
+            {label(course.copy.ui, "module", "Module")} {module.order} / {course.modules.length}
+          </span>
         </summary>
         <nav aria-label="All course modules">
           <ModuleMap course={course} activeSlug={module.slug} />
@@ -154,7 +176,7 @@ export default function ModuleView({
             </section>
 
             <nav className={styles.onPageNav} aria-label="On this page">
-              <span>Decision notebook</span>
+              <span>On this module</span>
               <ol>
                 {module.copy.sections.map((section, sectionIndex) => (
                   <li key={section.heading}>
@@ -163,9 +185,38 @@ export default function ModuleView({
                     </a>
                   </li>
                 ))}
-                <li><a href="#module-decision">04 Decision frame</a></li>
-                <li><a href="#module-practice">05 Applied practice</a></li>
-                <li><a href="#module-sources">06 Source register</a></li>
+                <li>
+                  <a href="#module-decision">
+                    {String(decisionIndex).padStart(2, "0")} Decision frame
+                  </a>
+                </li>
+                {riceIndex ? (
+                  <li>
+                    <a href="#module-rice">
+                      {String(riceIndex).padStart(2, "0")} RICE calculator
+                    </a>
+                  </li>
+                ) : null}
+                <li>
+                  <a href="#module-practice">
+                    {String(practiceIndex).padStart(2, "0")} Applied practice
+                  </a>
+                </li>
+                <li>
+                  <a href="#module-checkpoint">
+                    {String(checkpointIndex).padStart(2, "0")} Checkpoint
+                  </a>
+                </li>
+                <li>
+                  <a href="#module-completion">
+                    {String(completionIndex).padStart(2, "0")} Complete module
+                  </a>
+                </li>
+                <li>
+                  <a href="#module-sources">
+                    {String(sourcesIndex).padStart(2, "0")} Source register
+                  </a>
+                </li>
               </ol>
             </nav>
 
@@ -203,6 +254,7 @@ export default function ModuleView({
                               {sourceIndex ? " · " : ""}
                               <a href={source.url} target="_blank" rel="noopener noreferrer">
                                 {source.title}
+                                <span className={styles.srOnly}> (opens in a new tab)</span>
                               </a>
                             </span>
                           ))}
@@ -300,6 +352,12 @@ export default function ModuleView({
               <p>{module.copy.takeaway}</p>
             </aside>
 
+            <ModuleCompletion
+              slug={module.slug}
+              template={module.copy.practice.template}
+              labels={course.copy.ui}
+            />
+
             <section
               className={styles.sources}
               id="module-sources"
@@ -312,42 +370,50 @@ export default function ModuleView({
                   These records support specific teaching claims. Each boundary states what the source cannot establish by itself.
                 </p>
               </header>
-              <ol>
-                {module.sources.map((source, sourceIndex) => (
-                  <li key={source.id}>
-                    <span className={styles.sourceNumber}>
-                      {String(sourceIndex + 1).padStart(2, "0")}
-                    </span>
-                    <div>
-                      <header>
-                        <a href={source.url} target="_blank" rel="noopener noreferrer">
-                          {source.title}
-                          <span aria-hidden="true">↗</span>
-                        </a>
-                        <div className={styles.sourceMeta}>
-                          <span>{source.publisher}</span>
-                          <span>{sourceKindLabel(source.kind)}</span>
-                          <span>Accessed {source.accessedOn}</span>
-                          {source.license ? <span>License: {source.license}</span> : null}
-                        </div>
-                      </header>
-                      <dl className={styles.sourceNotes}>
-                        <div>
-                          <dt>Supports</dt>
-                          <dd>{source.supports}</dd>
-                        </div>
-                        <div>
-                          <dt>Boundary</dt>
-                          <dd>{source.boundary}</dd>
-                        </div>
-                      </dl>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              <details className={styles.sourceDisclosure}>
+                <summary>
+                  <span>
+                    <strong>{module.sources.length} linked records</strong>
+                    <small>Support and limitation notes for every source</small>
+                  </span>
+                  <span>Show register</span>
+                </summary>
+                <ol>
+                  {module.sources.map((source, sourceIndex) => (
+                    <li key={source.id}>
+                      <span className={styles.sourceNumber}>
+                        {String(sourceIndex + 1).padStart(2, "0")}
+                      </span>
+                      <div>
+                        <header>
+                          <a href={source.url} target="_blank" rel="noopener noreferrer">
+                            {source.title}
+                            <span aria-hidden="true">↗</span>
+                            <span className={styles.srOnly}> (opens in a new tab)</span>
+                          </a>
+                          <div className={styles.sourceMeta}>
+                            <span>{source.publisher}</span>
+                            <span>{sourceKindLabel(source.kind)}</span>
+                            <span>Accessed {accessDate(course.contentLocale, source.accessedOn)}</span>
+                            {source.license ? <span>License: {source.license}</span> : null}
+                          </div>
+                        </header>
+                        <dl className={styles.sourceNotes}>
+                          <div>
+                            <dt>Supports</dt>
+                            <dd>{source.supports}</dd>
+                          </div>
+                          <div>
+                            <dt>Boundary</dt>
+                            <dd>{source.boundary}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </details>
             </section>
-
-            <ModuleCompletion slug={module.slug} labels={course.copy.ui} />
 
             <nav className={styles.modulePager} aria-label="Module navigation" data-course-lesson-nav>
               {previous ? (

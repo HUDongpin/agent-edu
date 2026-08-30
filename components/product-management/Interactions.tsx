@@ -33,9 +33,15 @@ import {
   updateProductManagementProgress,
   type ProductManagementProgressRecord,
 } from "./progress-store";
+import { PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY } from "@/lib/progress-storage-contract";
 import styles from "./ProductManagementCourse.module.css";
 
 type Labels = ProductManagementCourseCopy["ui"];
+type JourneyModule = {
+  slug: ProductManagementModuleSlug;
+  href: string;
+  title: string;
+};
 
 const CAPSTONE_ITEM_PREFIX = "product-management.capstone.item.";
 const CAPSTONE_ATTESTED_KEY = "product-management.capstone.attested";
@@ -115,6 +121,96 @@ function StorageWarning({ labels }: { labels: Labels }) {
   );
 }
 
+function productManagementJourneyState(
+  progress: ProductManagementProgressRecord,
+  modules: readonly JourneyModule[],
+) {
+  const completedModules = modules.filter(
+    (module) => progress[productManagementModuleProgressKey(module.slug)] === true,
+  ).length;
+  const assessmentPassed = progress[PRODUCT_MANAGEMENT_QUIZ_PASSED_KEY] === true;
+  const capstoneComplete = progress[PRODUCT_MANAGEMENT_CAPSTONE_KEY] === true;
+  const completedMilestones = completedModules
+    + Number(assessmentPassed)
+    + Number(capstoneComplete);
+  const nextModule = modules.find(
+    (module) => progress[productManagementModuleProgressKey(module.slug)] !== true,
+  );
+  const nextKind = nextModule
+    ? "module"
+    : !assessmentPassed
+      ? "assessment"
+      : !capstoneComplete
+        ? "capstone"
+        : "review";
+  const nextHref = nextModule?.href
+    ?? (nextKind === "assessment"
+      ? "#product-management-final-assessment"
+      : nextKind === "capstone"
+        ? "#product-management-capstone"
+        : null);
+  const hasProgress = Object.keys(progress).some(
+    (key) => key.startsWith(PRODUCT_MANAGEMENT_PROGRESS_PREFIX)
+      && key !== PRODUCT_MANAGEMENT_PROGRESS_VERSION_KEY,
+  );
+
+  return {
+    assessmentPassed,
+    capstoneComplete,
+    completedMilestones,
+    completedModules,
+    hasProgress,
+    nextHref,
+    nextKind,
+    nextTitle: nextModule?.title,
+    percent: Math.round(
+      (completedMilestones / PRODUCT_MANAGEMENT_PROGRESS_MILESTONES) * 100,
+    ),
+  };
+}
+
+export function CourseHeroActions({
+  modules,
+  labels,
+  startLabel,
+  resumeLabel,
+  reviewLabel,
+  mapLabel,
+}: {
+  modules: readonly JourneyModule[];
+  labels: Labels;
+  startLabel: string;
+  resumeLabel: string;
+  reviewLabel: string;
+  mapLabel: string;
+}) {
+  const { progress } = useProductManagementProgress();
+  const state = useMemo(
+    () => productManagementJourneyState(progress, modules),
+    [modules, progress],
+  );
+  const href = state.nextHref ?? modules[0]?.href;
+  const actionLabel = state.nextKind === "review"
+    ? reviewLabel
+    : state.hasProgress
+      ? resumeLabel
+      : startLabel;
+
+  return (
+    <div className={styles.heroActions}>
+      {href ? (
+        <Link className={styles.primaryButton} href={href}>
+          {actionLabel}
+          <span aria-hidden="true">→</span>
+        </Link>
+      ) : null}
+      <a className={styles.secondaryButton} href="#product-management-curriculum">
+        {mapLabel || label(labels, "tableOfContents", "Explore the course map")}
+      </a>
+    </div>
+  );
+}
+
 export function CourseProgress({
   modules,
   labels,
@@ -122,11 +218,7 @@ export function CourseProgress({
   resumeLabel,
   reviewLabel,
 }: {
-  modules: readonly {
-    slug: ProductManagementModuleSlug;
-    href: string;
-    title: string;
-  }[];
+  modules: readonly JourneyModule[];
   labels: Labels;
   startLabel: string;
   resumeLabel: string;
@@ -136,42 +228,16 @@ export function CourseProgress({
   const [resetMessage, setResetMessage] = useState("");
   const resetStatusRef = useRef<HTMLParagraphElement>(null);
 
-  const state = useMemo(() => {
-    const completedModules = modules.filter(
-      (module) => progress[productManagementModuleProgressKey(module.slug)] === true,
-    ).length;
-    const assessmentPassed = progress[PRODUCT_MANAGEMENT_QUIZ_PASSED_KEY] === true;
-    const capstoneComplete = progress[PRODUCT_MANAGEMENT_CAPSTONE_KEY] === true;
-    const completedMilestones = completedModules
-      + Number(assessmentPassed)
-      + Number(capstoneComplete);
-    const nextModule = modules.find(
-      (module) => progress[productManagementModuleProgressKey(module.slug)] !== true,
-    );
-    const nextHref = nextModule?.href
-      ?? (!assessmentPassed
-        ? "#product-management-final-assessment"
-        : !capstoneComplete
-          ? "#product-management-capstone"
-          : null);
-
-    return {
-      assessmentPassed,
-      capstoneComplete,
-      completedMilestones,
-      completedModules,
-      nextHref,
-      nextTitle: nextModule?.title,
-      percent: Math.round(
-        (completedMilestones / PRODUCT_MANAGEMENT_PROGRESS_MILESTONES) * 100,
-      ),
-    };
-  }, [modules, progress]);
-
-  const hasProgress = Object.keys(progress).some(
-    (key) => key.startsWith(PRODUCT_MANAGEMENT_PROGRESS_PREFIX)
-      && key !== PRODUCT_MANAGEMENT_PROGRESS_VERSION_KEY,
+  const state = useMemo(
+    () => productManagementJourneyState(progress, modules),
+    [modules, progress],
   );
+  const nextTitle = state.nextTitle
+    ?? (state.nextKind === "assessment"
+      ? label(labels, "finalAssessment", "Final assessment")
+      : state.nextKind === "capstone"
+        ? label(labels, "capstone", "Capstone review")
+        : null);
 
   useEffect(() => {
     if (resetMessage) resetStatusRef.current?.focus();
@@ -180,6 +246,7 @@ export function CourseProgress({
   return (
     <section
       className={styles.progressPanel}
+      id="product-management-progress"
       aria-labelledby="product-management-progress-title"
     >
       <header className={styles.progressHeader}>
@@ -194,7 +261,7 @@ export function CourseProgress({
             {label(
               labels,
               "browserStorageNote",
-              "Saved locally in this browser. No account or upload is required.",
+              "Complete each module, pass the assessment, and record the capstone to fill this learning ledger.",
             )}
           </p>
         </div>
@@ -249,7 +316,7 @@ export function CourseProgress({
       <div className={styles.actionRow}>
         {state.nextHref || modules[0] ? (
           <Link className={styles.primaryButton} href={state.nextHref ?? modules[0].href} data-course-journey-action>
-            {state.nextHref ? (hasProgress ? resumeLabel : startLabel) : reviewLabel}
+            {state.nextHref ? (state.hasProgress ? resumeLabel : startLabel) : reviewLabel}
             <span aria-hidden="true">→</span>
           </Link>
         ) : (
@@ -260,7 +327,7 @@ export function CourseProgress({
         <button
           className={styles.secondaryButton}
           type="button"
-          disabled={!hasProgress}
+          disabled={!state.hasProgress}
           onClick={() => {
             if (!window.confirm(label(
               labels,
@@ -281,10 +348,10 @@ export function CourseProgress({
         </button>
       </div>
 
-      {state.nextTitle ? (
+      {nextTitle ? (
         <p className={styles.nextUp}>
           <strong>{label(labels, "nextUp", "Next")}</strong>
-          <span>{state.nextTitle}</span>
+          <span>{nextTitle}</span>
         </p>
       ) : null}
 
@@ -302,9 +369,11 @@ export function CourseProgress({
 
 export function ModuleCompletion({
   slug,
+  template,
   labels,
 }: {
   slug: ProductManagementModuleSlug;
+  template: string;
   labels: Labels;
 }) {
   const { progress, storageAvailable } = useProductManagementProgress();
@@ -312,33 +381,44 @@ export function ModuleCompletion({
   const complete = progress[key] === true;
   const checkpointComplete = progress[productManagementCheckpointKey(slug)] === true;
   const savedArtifact = progress[artifactKey(slug)];
-  const artifactComplete = typeof savedArtifact === "string"
-    && savedArtifact.trim().length > 0;
-  const readyToComplete = checkpointComplete && artifactComplete;
+  const artifactAuthored = typeof savedArtifact === "string"
+    && savedArtifact.trim().length > 0
+    && savedArtifact.trim() !== template.trim();
+  const readyToComplete = checkpointComplete && artifactAuthored;
   const [announcement, setAnnouncement] = useState("");
-  const statusRef = useRef<HTMLParagraphElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    if (announcement) statusRef.current?.focus();
+    if (announcement) headingRef.current?.focus();
   }, [announcement]);
 
   return (
-    <section className={styles.moduleCompletion} aria-labelledby={`completion-${slug}`}>
+    <section
+      className={styles.moduleCompletion}
+      id="module-completion"
+      aria-labelledby={`completion-${slug}`}
+    >
       <div>
         <p className={styles.sectionLabel}>
           {label(labels, "moduleRecord", "Module record")}
         </p>
-        <h2 id={`completion-${slug}`}>
+        <h2 id={`completion-${slug}`} ref={headingRef} tabIndex={-1}>
           {complete
             ? label(labels, "moduleComplete", "Module complete")
             : label(labels, "moduleIncomplete", "Ready to close this module?")}
         </h2>
         <p>
-          {label(
-            labels,
-            "completionInstruction",
-            "Pass the checkpoint and save a non-empty practice artifact to unlock completion.",
-          )}
+          {complete
+            ? label(
+                labels,
+                "completionRecorded",
+                "Your checkpoint and authored artifact are recorded. Continue when you are ready.",
+              )
+            : label(
+                labels,
+                "completionInstruction",
+                "Pass the checkpoint, then edit and save the practice artifact to unlock completion.",
+              )}
         </p>
         <ul className={styles.completionRequirements} aria-label="Completion requirements">
           <li data-complete={checkpointComplete || undefined}>
@@ -347,11 +427,11 @@ export function ModuleCompletion({
               ? label(labels, "checkpointRequirement", "Checkpoint passed")
               : label(labels, "checkpointPending", "Checkpoint not yet passed")}
           </li>
-          <li data-complete={artifactComplete || undefined}>
-            <span aria-hidden="true">{artifactComplete ? "✓" : "○"}</span>
-            {artifactComplete
-              ? label(labels, "artifactRequirement", "Non-empty artifact saved")
-              : label(labels, "artifactPending", "Non-empty artifact not yet saved")}
+          <li data-complete={artifactAuthored || undefined}>
+            <span aria-hidden="true">{artifactAuthored ? "✓" : "○"}</span>
+            {artifactAuthored
+              ? label(labels, "artifactRequirement", "Authored artifact saved")
+              : label(labels, "artifactPending", "Edit and save the artifact template")}
           </li>
         </ul>
         {!storageAvailable ? <StorageWarning labels={labels} /> : null}
@@ -374,9 +454,7 @@ export function ModuleCompletion({
       </button>
       <p
         className={styles.srOnly}
-        ref={statusRef}
         role="status"
-        tabIndex={-1}
       >
         {announcement}
       </p>
@@ -402,6 +480,7 @@ export function ModuleCheckpoint({
   const correct = selected === checkpoint.correctIndex;
   const recorded = progress[productManagementCheckpointKey(slug)] === true;
   const titleId = `product-management-checkpoint-${slug}`;
+  const feedbackId = `${titleId}-feedback`;
 
   useEffect(() => {
     if (checked) feedbackRef.current?.focus();
@@ -412,7 +491,7 @@ export function ModuleCheckpoint({
   }, [checked]);
 
   return (
-    <section className={styles.checkpoint} aria-labelledby={titleId}>
+    <section className={styles.checkpoint} id="module-checkpoint" aria-labelledby={titleId}>
       <p className={styles.sectionLabel}>
         {label(labels, "checkpoint", "Decision checkpoint")}
       </p>
@@ -434,7 +513,7 @@ export function ModuleCheckpoint({
           }
         }}
       >
-        <fieldset>
+        <fieldset aria-describedby={checked ? feedbackId : undefined}>
           <legend className={styles.srOnly}>{checkpoint.question}</legend>
           <div className={styles.optionList}>
             {checkpoint.options.map((option, index) => {
@@ -454,7 +533,19 @@ export function ModuleCheckpoint({
                     disabled={checked}
                     onChange={() => setSelected(index)}
                   />
-                  <span>{option}</span>
+                  <span className={styles.optionCopy}>
+                    <span>{option}</span>
+                    {checked && index === checkpoint.correctIndex ? (
+                      <strong className={styles.correctAnswerBadge}>
+                        {label(labels, "correctAnswer", "Correct answer")}
+                      </strong>
+                    ) : null}
+                    {checked && index === selected && index !== checkpoint.correctIndex ? (
+                      <strong className={styles.yourAnswerBadge}>
+                        {label(labels, "yourAnswer", "Your answer")}
+                      </strong>
+                    ) : null}
+                  </span>
                 </label>
               );
             })}
@@ -472,6 +563,7 @@ export function ModuleCheckpoint({
         ) : (
           <div
             className={correct ? styles.correctFeedback : styles.incorrectFeedback}
+            id={feedbackId}
             ref={feedbackRef}
             role="status"
             tabIndex={-1}
@@ -506,6 +598,28 @@ function artifactKey(slug: ProductManagementModuleSlug): string {
   return `${ARTIFACT_PREFIX}${slug}.draft`;
 }
 
+function isAuthoredArtifact(draft: string, template: string): boolean {
+  return draft.trim().length > 0 && draft.trim() !== template.trim();
+}
+
+function persistArtifactDraft(
+  slug: ProductManagementModuleSlug,
+  key: string,
+  draft: string,
+  template: string,
+) {
+  const authored = isAuthoredArtifact(draft, template);
+  const persisted = updateProductManagementProgress((record) => {
+    if (authored) {
+      record[key] = draft;
+    } else {
+      delete record[key];
+      delete record[productManagementModuleProgressKey(slug)];
+    }
+  });
+  return { authored, persisted };
+}
+
 async function copyText(text: string): Promise<void> {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
@@ -537,19 +651,86 @@ export function ArtifactWorkbench({
   const key = artifactKey(slug);
   const storedDraft = typeof progress[key] === "string" ? progress[key] as string : null;
   const [draft, setDraft] = useState(practice.template);
+  const [draftInitialized, setDraftInitialized] = useState(false);
   const [status, setStatus] = useState("");
   const lastStored = useRef<string | null | undefined>(undefined);
-  const statusRef = useRef<HTMLParagraphElement>(null);
+  const baselineDraft = storedDraft ?? practice.template;
+  const dirty = draftInitialized && draft !== baselineDraft;
+  const latestDraftRef = useRef(draft);
+  const dirtyRef = useRef(dirty);
 
   useEffect(() => {
-    if (lastStored.current === storedDraft) return;
-    lastStored.current = storedDraft;
-    setDraft(storedDraft ?? practice.template);
-  }, [practice.template, storedDraft]);
+    const frame = window.requestAnimationFrame(() => {
+      const previousStored = lastStored.current;
+      if (previousStored === storedDraft) {
+        setDraftInitialized(true);
+        return;
+      }
+      const firstSync = previousStored === undefined;
+      const storedDraftWasRemoved = previousStored !== undefined
+        && previousStored !== null
+        && storedDraft === null;
+      lastStored.current = storedDraft;
+      if (firstSync
+        || storedDraftWasRemoved
+        || draft === (previousStored ?? practice.template)) {
+        const nextDraft = storedDraft ?? practice.template;
+        latestDraftRef.current = nextDraft;
+        dirtyRef.current = false;
+        setDraft(nextDraft);
+      }
+      setDraftInitialized(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [draft, practice.template, storedDraft]);
 
   useEffect(() => {
-    if (status) statusRef.current?.focus();
-  }, [status]);
+    function resetDraft() {
+      lastStored.current = null;
+      latestDraftRef.current = practice.template;
+      dirtyRef.current = false;
+      setDraft(practice.template);
+      setStatus("");
+    }
+    window.addEventListener(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT, resetDraft);
+    return () => window.removeEventListener(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT, resetDraft);
+  }, [practice.template]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const timer = window.setTimeout(() => {
+      const { authored, persisted } = persistArtifactDraft(
+        slug,
+        key,
+        draft,
+        practice.template,
+      );
+      dirtyRef.current = false;
+      setStatus(authored
+        ? persisted
+          ? label(labels, "artifactAutosaved", "Changes autosaved in this browser.")
+          : label(labels, "artifactAutosavedMemory", "Changes autosaved for this tab.")
+        : label(
+            labels,
+            "artifactNeedsEditing",
+            "Edit the template before completing this module.",
+          ));
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, [dirty, draft, key, labels, practice.template, slug]);
+
+  useEffect(() => {
+    function flushDraft() {
+      if (!dirtyRef.current) return;
+      persistArtifactDraft(slug, key, latestDraftRef.current, practice.template);
+      dirtyRef.current = false;
+    }
+    window.addEventListener("pagehide", flushDraft);
+    return () => {
+      window.removeEventListener("pagehide", flushDraft);
+      flushDraft();
+    };
+  }, [key, practice.template, slug]);
 
   function announce(message: string): void {
     setStatus("");
@@ -565,10 +746,12 @@ export function ArtifactWorkbench({
           </p>
           <h3 id={`artifact-${slug}-title`}>{practice.artifact}</h3>
         </div>
-        <span className={storedDraft === null ? styles.unsavedState : styles.savedState}>
-          {storedDraft === null
-            ? label(labels, "templateState", "Template")
-            : label(labels, "savedLocally", "Saved locally")}
+        <span className={dirty || storedDraft === null ? styles.unsavedState : styles.savedState}>
+          {dirty
+            ? label(labels, "savingChanges", "Saving…")
+            : storedDraft === null
+              ? label(labels, "templateState", "Template")
+              : label(labels, "savedLocally", "Saved locally")}
         </span>
       </header>
 
@@ -578,15 +761,22 @@ export function ArtifactWorkbench({
       <textarea
         id={`artifact-${slug}-editor`}
         className={styles.artifactEditor}
+        name={`product-management-artifact-${slug}`}
+        autoComplete="off"
         value={draft}
-        spellCheck="true"
-        onChange={(event) => setDraft(event.target.value)}
+        spellCheck
+        onChange={(event) => {
+          const nextDraft = event.target.value;
+          latestDraftRef.current = nextDraft;
+          dirtyRef.current = draftInitialized && nextDraft !== baselineDraft;
+          setDraft(nextDraft);
+        }}
       />
       <p className={styles.editorHint}>
         {label(
           labels,
           "artifactStorageNote",
-          "Save stores this draft only in your browser. Copy or download it before switching devices.",
+          "Changes autosave only in this browser. Copy or download the draft before switching devices.",
         )}
       </p>
       {!storageAvailable ? <StorageWarning labels={labels} /> : null}
@@ -596,20 +786,18 @@ export function ArtifactWorkbench({
           className={styles.primaryButton}
           type="button"
           onClick={() => {
-            const emptyDraft = draft.trim().length === 0;
-            const persisted = updateProductManagementProgress((record) => {
-              if (emptyDraft) {
-                delete record[key];
-                delete record[productManagementModuleProgressKey(slug)];
-              } else {
-                record[key] = draft;
-              }
-            });
-            if (emptyDraft) {
+            const { authored, persisted } = persistArtifactDraft(
+              slug,
+              key,
+              draft,
+              practice.template,
+            );
+            dirtyRef.current = false;
+            if (!authored) {
               announce(label(
                 labels,
-                "emptyArtifactRemoved",
-                "Empty draft was not saved. The module is open again.",
+                "artifactNeedsEditing",
+                "Edit the template before completing this module.",
               ));
             } else {
               announce(persisted
@@ -665,6 +853,8 @@ export function ArtifactWorkbench({
               delete record[key];
               delete record[productManagementModuleProgressKey(slug)];
             });
+            latestDraftRef.current = practice.template;
+            dirtyRef.current = false;
             setDraft(practice.template);
             announce(label(labels, "templateRestored", "Original template restored."));
           }}
@@ -675,9 +865,7 @@ export function ArtifactWorkbench({
 
       <p
         className={status ? styles.artifactStatus : styles.srOnly}
-        ref={statusRef}
         role="status"
-        tabIndex={-1}
       >
         {status}
       </p>
@@ -686,6 +874,54 @@ export function ArtifactWorkbench({
 }
 
 export type ProductManagementAssessmentQuestion = ProductManagementFinalQuestionCopy;
+
+type ProductManagementAssessmentAttempt = {
+  version: 1;
+  index: number;
+  answers: Record<string, boolean>;
+};
+
+function readAssessmentAttempt(
+  questions: readonly ProductManagementAssessmentQuestion[],
+): ProductManagementAssessmentAttempt | null {
+  try {
+    const parsed: unknown = JSON.parse(
+      sessionStorage.getItem(PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY) || "null",
+    );
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+    const candidate = parsed as Record<string, unknown>;
+    if (candidate.version !== 1
+      || typeof candidate.index !== "number"
+      || !Number.isInteger(candidate.index)
+      || candidate.index < 0
+      || candidate.index >= questions.length
+      || !candidate.answers
+      || typeof candidate.answers !== "object"
+      || Array.isArray(candidate.answers)) return null;
+    const allowedIds = new Set(questions.map((question) => question.id));
+    const answers = Object.fromEntries(
+      Object.entries(candidate.answers as Record<string, unknown>).filter(
+        ([id, value]) => allowedIds.has(id) && typeof value === "boolean",
+      ),
+    ) as Record<string, boolean>;
+    return { version: 1, index: candidate.index, answers };
+  } catch {
+    return null;
+  }
+}
+
+function writeAssessmentAttempt(attempt: ProductManagementAssessmentAttempt | null): void {
+  try {
+    if (attempt) {
+      sessionStorage.setItem(
+        PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
+        JSON.stringify(attempt),
+      );
+    } else sessionStorage.removeItem(PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY);
+  } catch {
+    // The assessment remains usable when this tab cannot persist session state.
+  }
+}
 
 export function FinalAssessment({
   questions,
@@ -706,6 +942,7 @@ export function FinalAssessment({
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
+  const [savedAttempt, setSavedAttempt] = useState<ProductManagementAssessmentAttempt | null>(null);
   const [result, setResult] = useState<{
     correct: number;
     percent: number;
@@ -721,14 +958,25 @@ export function FinalAssessment({
     : 0;
   const best = Math.max(savedBest, result?.percent ?? 0);
   const alreadyPassed = progress[PRODUCT_MANAGEMENT_QUIZ_PASSED_KEY] === true;
+  const requiredCorrect = Math.ceil((passPercent / 100) * questions.length);
+  const feedbackId = current ? `assessment-${current.id}-feedback` : undefined;
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setSavedAttempt(readAssessmentAttempt(questions));
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [questions]);
 
   useEffect(() => {
     function resetAttempt() {
+      writeAssessmentAttempt(null);
       setActive(false);
       setIndex(0);
       setSelected(null);
       setChecked(false);
       setAnswers({});
+      setSavedAttempt(null);
       setResult(null);
     }
     window.addEventListener(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT, resetAttempt);
@@ -742,12 +990,14 @@ export function FinalAssessment({
     else questionRef.current?.focus();
   }, [active, checked, index, result]);
 
-  function begin(): void {
+  function begin(attempt: ProductManagementAssessmentAttempt | null = null): void {
+    if (!attempt) writeAssessmentAttempt(null);
     setActive(true);
-    setIndex(0);
+    setIndex(attempt?.index ?? 0);
     setSelected(null);
     setChecked(false);
-    setAnswers({});
+    setAnswers(attempt?.answers ?? {});
+    setSavedAttempt(null);
     setResult(null);
   }
 
@@ -755,6 +1005,8 @@ export function FinalAssessment({
     if (!current || selected === null) return;
     const nextAnswers = { ...answers, [current.id]: correct };
     if (index < questions.length - 1) {
+      const attempt = { version: 1, index: index + 1, answers: nextAnswers } as const;
+      writeAssessmentAttempt(attempt);
       setAnswers(nextAnswers);
       setIndex((value) => value + 1);
       setSelected(null);
@@ -769,6 +1021,8 @@ export function FinalAssessment({
     const passed = percent >= passPercent;
     setAnswers(nextAnswers);
     setResult({ correct: correctCount, percent, passed });
+    writeAssessmentAttempt(null);
+    setSavedAttempt(null);
     updateProductManagementProgress((record) => {
       const priorBest = typeof record[PRODUCT_MANAGEMENT_QUIZ_BEST_KEY] === "number"
         ? record[PRODUCT_MANAGEMENT_QUIZ_BEST_KEY] as number
@@ -796,8 +1050,8 @@ export function FinalAssessment({
           <p>{summary}</p>
         </div>
         <div className={styles.passRule}>
-          <strong>{passPercent}%</strong>
-          <span>{label(labels, "passRule", "required to pass")}</span>
+          <strong>{requiredCorrect} / {questions.length}</strong>
+          <span>{passPercent}% {label(labels, "passRule", "required to pass")}</span>
         </div>
       </header>
 
@@ -810,9 +1064,29 @@ export function FinalAssessment({
 
       {!active ? (
         <div className={styles.assessmentStart}>
-          <button className={styles.primaryButton} type="button" onClick={begin}>
-            {label(labels, "startAssessment", "Start assessment")}
-          </button>
+          <div className={styles.assessmentActions}>
+            {savedAttempt ? (
+              <button
+                className={styles.primaryButton}
+                type="button"
+                onClick={() => begin(savedAttempt)}
+              >
+                {interpolate(
+                  label(labels, "resumeAssessment", "Resume question {current}"),
+                  { current: savedAttempt.index + 1 },
+                )}
+              </button>
+            ) : (
+              <button className={styles.primaryButton} type="button" onClick={() => begin()}>
+                {label(labels, "startAssessment", "Start assessment")}
+              </button>
+            )}
+            {savedAttempt ? (
+              <button className={styles.secondaryButton} type="button" onClick={() => begin()}>
+                {label(labels, "restartAssessment", "Start a new attempt")}
+              </button>
+            ) : null}
+          </div>
           <span>
             {interpolate(
               label(labels, "bestScorePosition", "Best score: {best}%"),
@@ -847,12 +1121,23 @@ export function FinalAssessment({
               },
             )}
           </p>
-          <button className={styles.secondaryButton} type="button" onClick={begin}>
+          <button className={styles.secondaryButton} type="button" onClick={() => begin()}>
             {label(labels, "retryAssessment", "Try another attempt")}
           </button>
         </div>
       ) : current ? (
         <div className={styles.assessmentQuestion}>
+          <progress
+            className={`${styles.progressBar} ${styles.assessmentProgress}`}
+            max={questions.length}
+            value={index + 1}
+            aria-label={interpolate(
+              label(labels, "assessmentProgress", "Assessment question {current} of {total}"),
+              { current: index + 1, total: questions.length },
+            )}
+          >
+            {index + 1} / {questions.length}
+          </progress>
           <p className={styles.questionPosition}>
             {interpolate(
               label(
@@ -868,7 +1153,7 @@ export function FinalAssessment({
             )}
           </p>
           <h3 ref={questionRef} tabIndex={-1}>{current.question}</h3>
-          <fieldset>
+          <fieldset aria-describedby={checked ? feedbackId : undefined}>
             <legend className={styles.srOnly}>{current.question}</legend>
             <div className={styles.optionList}>
               {current.options.map((option, optionIndex) => {
@@ -887,7 +1172,19 @@ export function FinalAssessment({
                       disabled={checked}
                       onChange={() => setSelected(optionIndex)}
                     />
-                    <span>{option}</span>
+                    <span className={styles.optionCopy}>
+                      <span>{option}</span>
+                      {checked && optionIndex === current.correctIndex ? (
+                        <strong className={styles.correctAnswerBadge}>
+                          {label(labels, "correctAnswer", "Correct answer")}
+                        </strong>
+                      ) : null}
+                      {checked && optionIndex === selected && optionIndex !== current.correctIndex ? (
+                        <strong className={styles.yourAnswerBadge}>
+                          {label(labels, "yourAnswer", "Your answer")}
+                        </strong>
+                      ) : null}
+                    </span>
                   </label>
                 );
               })}
@@ -906,6 +1203,7 @@ export function FinalAssessment({
           ) : (
             <div
               className={correct ? styles.correctFeedback : styles.incorrectFeedback}
+              id={feedbackId}
               ref={feedbackRef}
               role="status"
               tabIndex={-1}
@@ -976,11 +1274,13 @@ export function CapstoneChecklist({
           <label className={styles.capstoneItem} key={artifact}>
             <input
               type="checkbox"
+              name={`product-management-capstone-item-${index + 1}`}
               checked={checked[index]}
               disabled={alreadyComplete}
               onChange={(event) => {
                 updateProductManagementProgress((record) => {
-                  record[`${CAPSTONE_ITEM_PREFIX}${index}`] = event.target.checked;
+                  if (event.target.checked) record[`${CAPSTONE_ITEM_PREFIX}${index}`] = true;
+                  else delete record[`${CAPSTONE_ITEM_PREFIX}${index}`];
                 });
               }}
             />
@@ -995,11 +1295,13 @@ export function CapstoneChecklist({
       <label className={styles.attestation}>
         <input
           type="checkbox"
+          name="product-management-capstone-attestation"
           checked={attested}
           disabled={alreadyComplete}
           onChange={(event) => {
             updateProductManagementProgress((record) => {
-              record[CAPSTONE_ATTESTED_KEY] = event.target.checked;
+              if (event.target.checked) record[CAPSTONE_ATTESTED_KEY] = true;
+              else delete record[CAPSTONE_ATTESTED_KEY];
             });
           }}
         />
@@ -1007,20 +1309,32 @@ export function CapstoneChecklist({
       </label>
 
       <div className={styles.actionRow}>
-        <button
-          className={alreadyComplete ? styles.completeButton : styles.primaryButton}
-          type="button"
-          disabled={!allReady || alreadyComplete}
-          onClick={() => {
-            updateProductManagementProgress((record) => {
-              record[PRODUCT_MANAGEMENT_CAPSTONE_KEY] = true;
-            });
-          }}
-        >
-          {alreadyComplete
-            ? label(labels, "capstoneComplete", "Capstone recorded")
-            : label(labels, "markCapstoneComplete", "Record capstone review")}
-        </button>
+        {alreadyComplete ? (
+          <button
+            className={styles.secondaryButton}
+            type="button"
+            onClick={() => {
+              updateProductManagementProgress((record) => {
+                delete record[PRODUCT_MANAGEMENT_CAPSTONE_KEY];
+              });
+            }}
+          >
+            {label(labels, "reopenCapstone", "Reopen capstone review")}
+          </button>
+        ) : (
+          <button
+            className={styles.primaryButton}
+            type="button"
+            disabled={!allReady}
+            onClick={() => {
+              updateProductManagementProgress((record) => {
+                record[PRODUCT_MANAGEMENT_CAPSTONE_KEY] = true;
+              });
+            }}
+          >
+            {label(labels, "markCapstoneComplete", "Record capstone review")}
+          </button>
+        )}
         <span className={styles.checklistCount} aria-live="polite">
           {checked.filter(Boolean).length} / {artifacts.length}
         </span>
@@ -1067,12 +1381,26 @@ export function RiceCalculator({ labels }: { labels: Labels }) {
   const impact = Number(values.impact);
   const confidence = Number(values.confidence);
   const effort = Number(values.effort);
-  const valid = [reach, impact, confidence, effort].every(Number.isFinite)
-    && reach >= 0
-    && impact >= 0
-    && confidence >= 0
-    && confidence <= 100
-    && effort > 0
+  const errors: Partial<Record<keyof RiceValues, string>> = {};
+  if (values.reach && (!Number.isFinite(reach) || reach < 0)) {
+    errors.reach = label(labels, "reachError", "Reach must be 0 or more.");
+  }
+  if (values.impact && (!Number.isFinite(impact) || impact < 0)) {
+    errors.impact = label(labels, "impactError", "Impact must be 0 or more.");
+  }
+  if (values.confidence
+    && (!Number.isFinite(confidence) || confidence < 0 || confidence > 100)) {
+    errors.confidence = label(
+      labels,
+      "confidenceError",
+      "Confidence must be between 0 and 100.",
+    );
+  }
+  if (values.effort && (!Number.isFinite(effort) || effort <= 0)) {
+    errors.effort = label(labels, "effortError", "Effort must be greater than 0.");
+  }
+  const firstError = Object.values(errors)[0];
+  const valid = Object.keys(errors).length === 0
     && Object.values(values).every((value) => value.trim() !== "");
   const score = valid ? (reach * impact * (confidence / 100)) / effort : null;
 
@@ -1084,7 +1412,11 @@ export function RiceCalculator({ labels }: { labels: Labels }) {
   }
 
   return (
-    <section className={styles.riceCalculator} aria-labelledby="rice-calculator-title">
+    <section
+      className={styles.riceCalculator}
+      id="module-rice"
+      aria-labelledby="rice-calculator-title"
+    >
       <header>
         <p className={styles.sectionLabel}>
           {label(labels, "decisionTool", "Decision tool")}
@@ -1103,49 +1435,77 @@ export function RiceCalculator({ labels }: { labels: Labels }) {
       <div className={styles.riceFields}>
         <label>
           <span>{label(labels, "reach", "Reach")}</span>
-          <small>{label(labels, "reachHint", "Same population and time period for every candidate")}</small>
+          <small id="rice-reach-help" className={errors.reach ? styles.fieldError : undefined}>
+            {errors.reach ?? label(labels, "reachHint", "Same population and time period for every candidate")}
+          </small>
           <input
+            id="rice-reach"
+            name="rice-reach"
             type="number"
             min="0"
             step="any"
             inputMode="decimal"
+            autoComplete="off"
+            aria-describedby="rice-reach-help"
+            aria-invalid={Boolean(errors.reach)}
             value={values.reach}
             onChange={(event) => updateField("reach", event.target.value)}
           />
         </label>
         <label>
           <span>{label(labels, "impact", "Impact")}</span>
-          <small>{label(labels, "impactHint", "Relative impact per person")}</small>
+          <small id="rice-impact-help" className={errors.impact ? styles.fieldError : undefined}>
+            {errors.impact ?? label(labels, "impactHint", "Relative impact per person")}
+          </small>
           <input
+            id="rice-impact"
+            name="rice-impact"
             type="number"
             min="0"
             step="any"
             inputMode="decimal"
+            autoComplete="off"
+            aria-describedby="rice-impact-help"
+            aria-invalid={Boolean(errors.impact)}
             value={values.impact}
             onChange={(event) => updateField("impact", event.target.value)}
           />
         </label>
         <label>
           <span>{label(labels, "confidence", "Confidence")}</span>
-          <small>{label(labels, "confidenceHint", "Evidence confidence, 0 to 100%")}</small>
+          <small id="rice-confidence-help" className={errors.confidence ? styles.fieldError : undefined}>
+            {errors.confidence ?? label(labels, "confidenceHint", "Evidence confidence, 0 to 100%")}
+          </small>
           <input
+            id="rice-confidence"
+            name="rice-confidence"
             type="number"
             min="0"
             max="100"
             step="any"
             inputMode="decimal"
+            autoComplete="off"
+            aria-describedby="rice-confidence-help"
+            aria-invalid={Boolean(errors.confidence)}
             value={values.confidence}
             onChange={(event) => updateField("confidence", event.target.value)}
           />
         </label>
         <label>
           <span>{label(labels, "effort", "Effort")}</span>
-          <small>{label(labels, "effortHint", "Total team effort in one shared unit, such as person-months")}</small>
+          <small id="rice-effort-help" className={errors.effort ? styles.fieldError : undefined}>
+            {errors.effort ?? label(labels, "effortHint", "Total team effort in one shared unit, such as person-months")}
+          </small>
           <input
+            id="rice-effort"
+            name="rice-effort"
             type="number"
             min="0.01"
             step="any"
             inputMode="decimal"
+            autoComplete="off"
+            aria-describedby="rice-effort-help"
+            aria-invalid={Boolean(errors.effort)}
             value={values.effort}
             onChange={(event) => updateField("effort", event.target.value)}
           />
@@ -1153,9 +1513,9 @@ export function RiceCalculator({ labels }: { labels: Labels }) {
       </div>
       <div className={styles.riceResult}>
         <span>({label(labels, "reach", "Reach")} × {label(labels, "impact", "Impact")} × ({label(labels, "confidence", "Confidence")}% ÷ 100)) ÷ {label(labels, "effort", "Effort")}</span>
-        <output aria-live="polite">
+        <output className={firstError ? styles.riceErrorOutput : undefined} aria-live="polite">
           {score === null
-            ? label(labels, "enterAssumptions", "Enter assumptions")
+            ? firstError ?? label(labels, "enterAssumptions", "Enter assumptions")
             : new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(score)}
         </output>
         <button

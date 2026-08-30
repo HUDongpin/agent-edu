@@ -2,7 +2,8 @@
  * Closed ownership contract for every browser-storage key used by progress.
  *
  * Durable keys hold learner state. Ephemeral local keys are capability probes;
- * ephemeral session keys are recovery copies of quarantined corrupt records.
+ * ephemeral session keys are tab-scoped resume receipts or recovery copies of
+ * quarantined corrupt records.
  * Ordinary course updates must never overwrite a corrupt durable record.
  */
 export const PROGRESS_LOCAL_DURABLE_KEYS = [
@@ -65,6 +66,8 @@ export const AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY =
   "ae.progress.ai-tutor-corrupt-backup";
 export const PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY =
   "ae.progress.product-management-corrupt-backup";
+export const PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY =
+  "product-management.assessment.attempt.v1";
 export const AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY =
   "ae.progress.agent-orchestration-corrupt-backup";
 
@@ -73,6 +76,7 @@ export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
   RAG_CORRUPT_PROGRESS_BACKUP_KEY,
   AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY,
   PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
+  PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
   AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY,
 ] as const;
 

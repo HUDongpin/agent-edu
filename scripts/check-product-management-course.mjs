@@ -148,6 +148,7 @@ function checkFilesAndRoutes() {
     "components/product-management/Interactions.tsx",
     "components/product-management/ModuleView.tsx",
     "components/product-management/progress-store.ts",
+    "tests/product-management-course.spec.ts",
     "lib/product-management/copy/en.ts",
     "lib/product-management/format.ts",
     "lib/product-management/index.ts",
@@ -231,9 +232,9 @@ function checkFilesAndRoutes() {
   }
   requireTokens("components/product-management/Interactions.tsx", [
     '"Checkpoint not yet passed"',
-    '"Non-empty artifact not yet saved"',
+    '"Edit and save the artifact template"',
     "delete record[productManagementModuleProgressKey(slug)]",
-    '"Empty draft was not saved. The module is open again."',
+    '"Edit the template before completing this module."',
   ]);
   for (const [path, text] of [
     ["components/product-management/CourseDashboard.tsx", dashboard],
