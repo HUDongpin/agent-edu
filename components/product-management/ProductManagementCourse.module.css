@@ -31,8 +31,9 @@
   outline-offset: 3px;
 }
 
-.root :where(button, summary) {
+.root :where(a, button, summary) {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .coursePage {
@@ -88,6 +89,7 @@
 .topBreadcrumb a,
 .backLink a {
   display: inline-flex;
+  min-height: 44px;
   align-items: center;
   gap: 7px;
   color: var(--ink);
@@ -163,7 +165,7 @@
 }
 
 .heroActions {
-  margin-block: 26px 36px;
+  margin-block: 20px 28px;
 }
 
 .primaryButton,
@@ -215,7 +217,7 @@
 }
 
 .textButton {
-  min-height: 40px;
+  min-height: 44px;
   border: 0;
   background: transparent;
   color: var(--ink-2);
@@ -383,7 +385,9 @@
 
 .courseFacts dl {
   display: flex;
+  width: 100%;
   flex-wrap: wrap;
+  justify-content: space-between;
   gap: clamp(20px, 5vw, 60px);
   margin: 0;
 }
@@ -436,6 +440,13 @@
 .progressPanel {
   margin-block: 48px 88px;
   padding: clamp(22px, 4vw, 38px);
+  scroll-margin-block-start: calc(var(--topbar-h) + 20px);
+}
+
+.riceCalculator,
+.checkpoint,
+.moduleCompletion {
+  scroll-margin-block-start: calc(var(--topbar-h) + 24px);
 }
 
 .progressHeader,
@@ -869,9 +880,19 @@
   font-size: 0.78rem;
 }
 
+.assessmentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .assessmentQuestion {
   max-width: 790px;
   margin-block-start: 28px;
+}
+
+.assessmentProgress {
+  margin-block-end: 18px;
 }
 
 .assessmentQuestion h3,
@@ -932,6 +953,33 @@
 .incorrectOption {
   border-color: var(--red-line);
   background: var(--red-soft);
+}
+
+.optionCopy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 10px;
+  align-items: baseline;
+}
+
+.correctAnswerBadge,
+.yourAnswerBadge {
+  display: inline-flex;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.025em;
+  line-height: 1.35;
+}
+
+.correctAnswerBadge {
+  color: var(--green);
+}
+
+.yourAnswerBadge {
+  color: var(--red);
 }
 
 .correctFeedback,
@@ -1212,6 +1260,10 @@
   font-weight: 720;
 }
 
+.mapPhase a[aria-current="page"] > span:first-child {
+  color: currentColor;
+}
+
 .moduleMain {
   min-width: 0;
 }
@@ -1331,6 +1383,9 @@
 }
 
 .onPageNav a {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
   color: var(--ink-2);
   font-size: 0.8rem;
   text-decoration: none;
@@ -1660,18 +1715,66 @@
 
 .sources {
   max-width: 930px;
-  margin-block: 90px;
+  margin-block: 48px 36px;
   scroll-margin-block-start: calc(var(--topbar-h) + 24px);
 }
 
-.sources > ol {
+.sourceDisclosure {
+  margin-block-start: 22px;
+  border-block: var(--pm-rule-strong);
+}
+
+.sourceDisclosure > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  min-height: 64px;
+  padding: 12px 2px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.sourceDisclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.sourceDisclosure > summary > span:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.sourceDisclosure > summary strong {
+  color: var(--ink);
+  font-size: 0.94rem;
+}
+
+.sourceDisclosure > summary small,
+.sourceDisclosure > summary > span:last-child {
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+}
+
+.sourceDisclosure > summary > span:last-child::after {
+  margin-inline-start: 8px;
+  color: var(--pm-accent);
+  content: "+";
+  font-size: 1rem;
+}
+
+.sourceDisclosure[open] > summary > span:last-child::after {
+  content: "−";
+}
+
+.sourceDisclosure > ol {
   margin: 0;
-  border-block-start: var(--pm-rule-strong);
+  border-block-start: var(--pm-rule);
   padding: 0;
   list-style: none;
 }
 
-.sources > ol > li {
+.sourceDisclosure > ol > li {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);
   gap: 14px;
@@ -1869,6 +1972,11 @@
   line-height: 1.35;
 }
 
+.riceFields .fieldError {
+  color: var(--red);
+  font-weight: 700;
+}
+
 .riceFields input {
   width: 100%;
   min-height: 44px;
@@ -1900,6 +2008,15 @@
   font-size: 1.8rem;
   font-weight: 780;
   text-align: end;
+}
+
+.riceResult .riceErrorOutput {
+  max-width: 230px;
+  color: var(--red);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .srOnly {
@@ -1960,26 +2077,104 @@
 
   .mobileCourseMap {
     display: block;
+    position: sticky;
+    z-index: 30;
+    inset-block-start: var(--topbar-h);
     margin-block-end: 24px;
     border: 1px solid var(--line);
     border-radius: 9px;
     background: var(--card);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 9%, transparent);
   }
 
   .mobileCourseMap > summary {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 12px;
+    align-items: center;
+    min-height: 54px;
     padding: 12px 14px;
     cursor: pointer;
-    font-weight: 700;
+    list-style: none;
+  }
+
+  .mobileCourseMap > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobileMapTitle {
+    display: grid;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .mobileMapTitle strong {
+    color: var(--ink);
+    font-size: 0.9rem;
+  }
+
+  .mobileMapTitle small {
+    overflow: hidden;
+    color: var(--ink-3);
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileMapPosition {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ink-2);
+    font-family: var(--mono);
+    font-size: 0.69rem;
+    white-space: nowrap;
+  }
+
+  .mobileMapPosition::after {
+    margin-inline-start: 8px;
+    color: var(--pm-accent);
+    content: "+";
+    font-size: 1rem;
+  }
+
+  .mobileCourseMap[open] .mobileMapPosition::after {
+    content: "−";
   }
 
   .mobileCourseMap nav {
     max-height: 58vh;
     overflow: auto;
+    overscroll-behavior: contain;
     border-block-start: var(--pm-rule);
     padding: 6px 14px 16px;
+  }
+
+  .mobileCourseMap .mapPhase a {
+    min-height: 44px;
+    align-items: center;
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+
+  .modulePage :where(
+    .proseSection,
+    .decisionFrame,
+    .practice,
+    .riceCalculator,
+    .checkpoint,
+    .moduleCompletion,
+    .sources
+  ) {
+    scroll-margin-block-start: calc(var(--topbar-h) + 78px);
+  }
+}
+
+@media (pointer: coarse) {
+  .mapPhase a {
+    min-height: 44px;
+    align-items: center;
+    padding-block: 8px;
   }
 }
 
@@ -2080,7 +2275,7 @@
   }
 
   .heroCopy h1 {
-    font-size: clamp(2.5rem, 14vw, 4rem);
+    font-size: clamp(2.35rem, 11.4vw, 3.5rem);
   }
 
   .heroActions,
@@ -2090,7 +2285,8 @@
   }
 
   .heroActions > *,
-  .artifactActions > * {
+  .artifactActions > *,
+  .assessmentActions > * {
     width: 100%;
   }
 
@@ -2184,5 +2380,13 @@
   .riceCalculator {
     box-shadow: none;
     break-inside: avoid;
+  }
+
+  .sourceDisclosure > summary {
+    display: none !important;
+  }
+
+  .sourceDisclosure > ol {
+    display: block !important;
   }
 }

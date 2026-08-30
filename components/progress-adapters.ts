@@ -52,6 +52,7 @@ import {
   GROK_QUIZ_ATTEMPT_KEY,
   GROK_TASK_CONTRACT_DRAFT_KEY,
   INCOME_PROGRESS_PROBE_KEY,
+  PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
   PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
   PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
   PROMPT_PROGRESS_PROBE_KEY,
@@ -285,6 +286,11 @@ function isSoftwareEngineeringProgressQuizPassed(record: ProgressRecord): boolea
     && Number.isInteger(best)
     && best >= SOFTWARE_ENGINEERING_PROGRESS_QUIZ.passingCorrectAnswers
     && best <= SOFTWARE_ENGINEERING_PROGRESS_QUIZ.questionCount;
+}
+
+function isCurrentProductManagementProgressRecord(record: ProgressRecord): boolean {
+  return record[PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.versionKey]
+    === PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.version;
 }
 
 function hasEveryExpectedValue(
@@ -953,18 +959,24 @@ export function createAllProgressAdapters(
       auxiliaryStorageKeys: [
         PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
         PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
+        PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
       ],
       progressEvent: PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.progressEvent,
       slugs: PRODUCT_MANAGEMENT_PROGRESS_MODULE_SLUGS,
       read: readProductManagementProgress,
-      lessonComplete: (record, slug) => record[productManagementProgressModuleKey(slug)] === true,
-      quizComplete: (record) => record[PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.quizPassedKey] === true,
-      capstoneComplete: (record) => record[PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.capstoneKey] === true,
+      lessonComplete: (record, slug) => isCurrentProductManagementProgressRecord(record)
+        && record[productManagementProgressModuleKey(slug)] === true,
+      quizComplete: (record) => isCurrentProductManagementProgressRecord(record)
+        && record[PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.quizPassedKey] === true,
+      capstoneComplete: (record) => isCurrentProductManagementProgressRecord(record)
+        && record[PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.capstoneKey] === true,
       quizHref: (currentLocale) => `/${currentLocale}/product-management/#product-management-final-assessment`,
       capstoneHref: (currentLocale) => `/${currentLocale}/product-management/#product-management-capstone`,
-      hasProgress: (record) => Object.keys(record).some(
-        (key) => key.startsWith(PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.prefix),
-      ),
+      hasProgress: (record) => isCurrentProductManagementProgressRecord(record)
+        && Object.keys(record).some(
+          (key) => key.startsWith(PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.prefix)
+            && key !== PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.versionKey,
+        ),
       reset: resetProductManagementProgressAfterGlobalReset,
       isPersistent: isProductManagementStorageAvailable,
     }),

@@ -16,6 +16,7 @@ const publishedTestFiles = [
   "tests/github-course.spec.ts",
   "tests/grok-course.spec.ts",
   "tests/mcp-course.spec.ts",
+  "tests/product-management-course.spec.ts",
   "tests/prompts-course.spec.ts",
   "tests/rag-course.spec.ts",
   "tests/software-engineering-course.spec.ts",

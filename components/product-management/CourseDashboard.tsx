@@ -6,6 +6,7 @@ import {
 } from "@/lib/product-management";
 import {
   CapstoneChecklist,
+  CourseHeroActions,
   CourseProgress,
   FinalAssessment,
   type ProductManagementAssessmentQuestion,
@@ -38,7 +39,11 @@ export default function CourseDashboard({
 }) {
   const hrefFor = (slug: string) => `/${course.locale}/product-management/${slug}/`;
   const courseHref = `/${course.locale}/product-management/`;
-  const totalMinutes = course.modules.reduce((sum, module) => sum + module.minutes, 0);
+  const journeyModules = course.modules.map((module) => ({
+    slug: module.slug,
+    href: hrefFor(module.slug),
+    title: module.copy.title,
+  }));
   const uniqueSources = Array.from(
     new Map(
       course.modules.flatMap((module) => module.sources).map((source) => [source.id, source]),
@@ -68,7 +73,7 @@ export default function CourseDashboard({
           {catalogLabel}
         </Link>
         <span aria-hidden="true">/</span>
-        <span aria-current="page">{label(course.copy.ui, "module", "Course")} 14</span>
+        <span aria-current="page">{label(course.copy.ui, "course", "Course")} 14</span>
       </nav>
       <CourseShell courseId="product-management" locale={course.locale} showBreadcrumb={false} />
 
@@ -77,13 +82,17 @@ export default function CourseDashboard({
           <p className={styles.kicker}>{course.copy.meta.kicker}</p>
           <h1>{course.copy.meta.title}</h1>
           <p className={styles.heroSummary}>{course.copy.meta.summary}</p>
-          <p className={styles.heroAudience}>{course.copy.meta.audience}</p>
 
-          <div className={styles.heroActions}>
-            <a className={styles.secondaryButton} href="#product-management-curriculum">
-              {label(course.copy.ui, "tableOfContents", "Explore the course map")}
-            </a>
-          </div>
+          <CourseHeroActions
+            modules={journeyModules}
+            labels={course.copy.ui}
+            startLabel={course.copy.meta.startCta}
+            resumeLabel={course.copy.meta.resumeCta}
+            reviewLabel={course.copy.meta.reviewCta}
+            mapLabel={label(course.copy.ui, "tableOfContents", "Explore the course map")}
+          />
+
+          <p className={styles.heroAudience}>{course.copy.meta.audience}</p>
 
           <ul className={styles.principleList} aria-label="Course operating principles">
             {course.copy.principles.map((principle) => (
@@ -129,10 +138,6 @@ export default function CourseDashboard({
             <dd>{course.modules.length}</dd>
           </div>
           <div>
-            <dt>{label(course.copy.ui, "minutes", "Minutes")}</dt>
-            <dd>{totalMinutes}</dd>
-          </div>
-          <div>
             <dt>{label(course.copy.ui, "phase", "Stages")}</dt>
             <dd>{course.phases.length}</dd>
           </div>
@@ -140,19 +145,15 @@ export default function CourseDashboard({
             <dt>{label(course.copy.ui, "conceptMap", "Domains")}</dt>
             <dd>{PRODUCT_MANAGEMENT_CONCEPT_DOMAIN_IDS.length}</dd>
           </div>
+          <div>
+            <dt>{label(course.copy.ui, "milestones", "Milestones")}</dt>
+            <dd>{course.modules.length + 2}</dd>
+          </div>
         </dl>
-        <p>
-          <strong>{course.copy.meta.level}</strong>
-          <span>{course.copy.meta.duration}</span>
-        </p>
       </section>
 
       <CourseProgress
-        modules={course.modules.map((module) => ({
-          slug: module.slug,
-          href: hrefFor(module.slug),
-          title: module.copy.title,
-        }))}
+        modules={journeyModules}
         labels={course.copy.ui}
         startLabel={course.copy.meta.startCta}
         resumeLabel={course.copy.meta.resumeCta}

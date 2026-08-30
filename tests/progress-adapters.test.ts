@@ -12,6 +12,12 @@ import { progressRegistryIntegrationErrors } from "../scripts/lib/progress-regis
 import { projectPublicCourseSurface } from "../scripts/sync-course-public-surface.mjs";
 import { GROK_LESSON_SLUGS } from "../lib/grok";
 import { GITHUB_LESSON_SLUGS } from "../lib/github";
+import {
+  PRODUCT_MANAGEMENT_PROGRESS_VERSION,
+  PRODUCT_MANAGEMENT_PROGRESS_VERSION_KEY,
+  productManagementModuleProgressKey,
+} from "../lib/product-management/progress";
+import { PRODUCT_MANAGEMENT_COURSE_MANIFEST } from "../lib/product-management/manifest";
 import { EMPTY_LEARNING_STATE, LEARNING_KEY } from "../lib/progress";
 import {
   CURSOR_PROGRESS_STORAGE_KEY,
@@ -571,6 +577,76 @@ test("Course 7 adapter keeps the capstone before the versioned final knowledge c
       merged[`prompts.lesson.${PROMPT_PROGRESS_LESSON_SLUGS[0]}.practice`],
       false,
     );
+  } finally {
+    if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) {
+      Object.defineProperty(globalThis, "localStorage", { configurable: true, value: previousLocalStorage });
+    } else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) {
+      Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
+    } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("Course 14 public progress ignores version-only and stale records", () => {
+  const storage = new MemoryStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  try {
+    const adapter = createPublishedProgressAdapters("en").find(
+      (candidate) => candidate.courseId === "product-management",
+    );
+    assert.ok(adapter);
+
+    storage.setItem("ae.progress", JSON.stringify({
+      [PRODUCT_MANAGEMENT_PROGRESS_VERSION_KEY]: PRODUCT_MANAGEMENT_PROGRESS_VERSION,
+    }));
+    assert.deepEqual(adapter.readSummary(), {
+      state: "not-started",
+      percent: 0,
+      nextHref: EXPECTED_FIRST_HREFS["product-management"],
+    });
+
+    const firstSlug = PRODUCT_MANAGEMENT_COURSE_MANIFEST.modules[0].slug;
+    const staleRecord = JSON.stringify({
+      [PRODUCT_MANAGEMENT_PROGRESS_VERSION_KEY]: "stale-course-version",
+      [productManagementModuleProgressKey(firstSlug)]: true,
+      "product-management.quiz.passed": true,
+      "product-management.capstone.v1": true,
+      "github.lesson.start-secure": true,
+    });
+    storage.setItem("ae.progress", staleRecord);
+    assert.deepEqual(adapter.readSummary(), {
+      state: "not-started",
+      percent: 0,
+      nextHref: EXPECTED_FIRST_HREFS["product-management"],
+    });
+    assert.equal(storage.getItem("ae.progress"), staleRecord, "read remains non-mutating");
+
+    storage.setItem("ae.progress", JSON.stringify({
+      [PRODUCT_MANAGEMENT_PROGRESS_VERSION_KEY]: PRODUCT_MANAGEMENT_PROGRESS_VERSION,
+      [productManagementModuleProgressKey(firstSlug)]: true,
+    }));
+    assert.deepEqual(adapter.readSummary(), {
+      state: "in-progress",
+      percent: 6,
+      nextHref: "/en/product-management/vision-strategy-business-model/",
+    });
   } finally {
     if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
     else Reflect.deleteProperty(globalThis, "window");

@@ -4,6 +4,7 @@ import {
 import type { PersistenceResult } from "@/lib/public-progress-contract";
 import { verifySharedProgressReset } from "@/lib/progress-persistence";
 import {
+  PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
   PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
   PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
 } from "@/lib/progress-storage-contract";
@@ -29,6 +30,15 @@ export type ProductManagementProgressRecord = Record<string, unknown>;
 
 let memoryProgress: ProductManagementProgressRecord = {};
 let storageAvailable: boolean | null = null;
+
+function clearAssessmentAttempt(): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY);
+  } catch {
+    // The progress reset still completes when session storage is unavailable.
+  }
+}
 
 function holdCorruptProgress(raw: string | null): void {
   memoryProgress = {};
@@ -136,6 +146,7 @@ export function resetProductManagementProgress(): boolean {
     if (key.startsWith(PRODUCT_MANAGEMENT_PROGRESS_PREFIX)) delete record[key];
   }
   const persisted = writeProductManagementProgress(record);
+  clearAssessmentAttempt();
   window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT));
   return persisted;
 }
@@ -147,6 +158,7 @@ export function resetProductManagementProgressAfterGlobalReset(): PersistenceRes
     ? { persisted: false, reason: "unavailable" } as const
     : verifySharedProgressReset(localStorage, PRODUCT_MANAGEMENT_PROGRESS_STORAGE_KEY);
   storageAvailable = result.persisted;
+  clearAssessmentAttempt();
   window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_EVENT));
   window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT));
   return result;
