@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { MaterializedRagCourse, MaterializedRagLesson } from "@/lib/rag";
+import { formatDeterministicInteger } from "@/lib/deterministic-format";
+import { RagLessonCourseMap, type RagCourseMapLesson } from "./CourseMap";
 import RagFigure from "./RagFigure";
 import RetrievalLab from "./RetrievalLab";
 import { CapstoneChecklist, LessonCheckpoint, PracticeCompletion } from "./RagInteractions";
@@ -38,21 +40,33 @@ export default function LessonView({
   const hrefFor = (slug: string) => `/${course.locale}/rag/${slug}/`;
   const direction = course.contentLocale === "ar" ? "rtl" : "ltr";
   const backArrow = direction === "rtl" ? "→" : "←";
+  const number = (value: number) => formatDeterministicInteger(value, course.contentLocale);
+  const twoDigit = (value: number) => number(value).padStart(
+    2,
+    course.contentLocale === "ar" ? "٠" : "0",
+  );
   const sourceDate = new Intl.DateTimeFormat(course.contentLocale, {
     dateStyle: "medium",
     timeZone: "UTC",
   });
 
+  const courseMapLessons: readonly RagCourseMapLesson[] = lessons.map((item) => ({
+    slug: item.slug,
+    href: hrefFor(item.slug),
+    orderLabel: twoDigit(item.order),
+    title: item.copy.title,
+    summary: item.copy.summary,
+    minutesLabel: `${number(item.minutes)} ${course.copy.ui.minutes}`,
+  }));
   const courseMap = (
-    <ol>
-      {lessons.map((item) => (
-        <li key={item.slug}>
-          <Link href={hrefFor(item.slug)} aria-current={item.slug === lesson.slug ? "page" : undefined}>
-            <span>{String(item.order).padStart(2, "0")}</span>{item.copy.title}
-          </Link>
-        </li>
-      ))}
-    </ol>
+    <RagLessonCourseMap
+      lessons={courseMapLessons}
+      currentSlug={lesson.slug}
+      labels={{
+        complete: course.copy.ui.completeStatus,
+        next: course.copy.ui.nextStatus,
+      }}
+    />
   );
 
   return (
@@ -62,14 +76,22 @@ export default function LessonView({
       dir={direction}
       data-testid={`rag-lesson-${lesson.slug}`}
     >
-      <nav className={base.breadcrumbs} aria-label={course.copy.ui.breadcrumb}>
+      <noscript>
+        <p className={styles.noScriptNotice}>{course.copy.ui.interactiveRequiresJavaScript}</p>
+      </noscript>
+
+      <nav className={`${base.breadcrumbs} ${styles.breadcrumbs}`} aria-label={course.copy.ui.breadcrumb}>
         <Link className={styles.breadcrumbCourseLink} href={`/${course.locale}/rag/`}><span aria-hidden="true">{backArrow}</span>{course.copy.ui.backToCourse}</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page" data-audit-truncation="breadcrumb-current">{lesson.copy.title}</span>
       </nav>
 
-      <details className={base.mobileCourseMap}>
-        <summary>{course.copy.ui.lesson} {lesson.order} / {lessons.length} · {course.copy.ui.openCourseMap}</summary>
+      <details className={`${base.mobileCourseMap} ${styles.mobileCourseMap}`}>
+        <summary>
+          <span>{course.copy.ui.lesson} {number(lesson.order)} / {number(lessons.length)}</span>
+          <strong>{lesson.copy.title}</strong>
+          <span>{course.copy.ui.openCourseMap}</span>
+        </summary>
         <nav aria-label={course.copy.ui.allLessons}>{courseMap}</nav>
       </details>
 
@@ -83,14 +105,15 @@ export default function LessonView({
 
         <div className={base.lessonMain}>
           <article>
-            <header className={base.lessonHero}>
+            <header className={`${base.lessonHero} ${styles.lessonHero}`}>
               <p className={base.kicker}>{lesson.copy.kicker}</p>
               <h1>{lesson.copy.title}</h1>
               <p className={base.lessonSummary}>{lesson.copy.summary}</p>
               <dl>
-                <div><dt>{course.copy.ui.minutes}</dt><dd>{lesson.minutes}</dd></div>
-                <div><dt>{course.copy.ui.sources}</dt><dd>{lesson.sources.length}</dd></div>
-                <div><dt>{course.copy.ui.concepts}</dt><dd>{lesson.conceptIds.length}</dd></div>
+                <div><dt>{course.copy.ui.lesson}</dt><dd>{number(lesson.order)} / {number(lessons.length)}</dd></div>
+                <div><dt>{course.copy.ui.minutes}</dt><dd>{number(lesson.minutes)}</dd></div>
+                <div><dt>{course.copy.ui.sources}</dt><dd>{number(lesson.sources.length)}</dd></div>
+                <div><dt>{course.copy.ui.concepts}</dt><dd>{number(lesson.conceptIds.length)}</dd></div>
               </dl>
             </header>
 
@@ -124,7 +147,7 @@ export default function LessonView({
                   <p className={base.kicker}>{course.copy.ui.practice}</p>
                   <h2 id="rag-practice-title">{lesson.copy.practice.title}</h2>
                 </div>
-                <span>{course.copy.ui.estimatedLessonTime}: {lesson.minutes} {course.copy.ui.minutes}</span>
+                <span>{course.copy.ui.estimatedLessonTime}: {number(lesson.minutes)} {course.copy.ui.minutes}</span>
               </header>
               <p>{lesson.copy.practice.brief}</p>
               <ol>{lesson.copy.practice.steps.map((step) => <li key={step}>{step}</li>)}</ol>
@@ -153,7 +176,7 @@ export default function LessonView({
                   <li key={source.id}>
                     <a href={source.exactAnchor} target="_blank" rel="noopener noreferrer">
                       <strong>{source.title}</strong>
-                      <span>{source.publisher} · <time dateTime={source.accessedOn}>{sourceDate.format(new Date(`${source.accessedOn}T00:00:00Z`))}</time></span>
+                      <span>{source.publisher}<span aria-hidden="true">, </span><time dateTime={source.accessedOn}>{sourceDate.format(new Date(`${source.accessedOn}T00:00:00Z`))}</time></span>
                       <em data-evidence-label={source.evidenceLabel}>{evidenceLabel(source.evidenceLabel, course.copy.ui)}</em>
                     </a>
                   </li>

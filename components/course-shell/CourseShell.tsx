@@ -30,12 +30,14 @@ export default async function CourseShell({
   courseId,
   locale,
   showBreadcrumb = true,
+  showHeading = true,
   standalone = false,
   compact = false,
 }: {
   readonly courseId: PublicCourseId;
   readonly locale: string;
   readonly showBreadcrumb?: boolean;
+  readonly showHeading?: boolean;
   readonly standalone?: boolean;
   /** Keeps the platform facts and journey CTA while a bespoke dashboard supplies the H1. */
   readonly compact?: boolean;
@@ -92,7 +94,7 @@ export default async function CourseShell({
         </nav>
       ) : null}
 
-      {!compact ? (
+      {showHeading && !compact ? (
         <div className="course-shell-heading">
           <span className="eyebrow">{t("courseShell.overview")}</span>
           <p className="course-shell-title">{t(course.titleKey)}</p>

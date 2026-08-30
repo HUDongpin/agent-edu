@@ -155,6 +155,7 @@ import {
   RAG_PROGRESS_EVENT,
   RAG_PROGRESS_PREFIX,
   RAG_PROGRESS_STORAGE_KEY,
+  RAG_QUIZ_BEST_KEY,
   RAG_QUIZ_PASSED_KEY,
   isRagProgressStorageAvailable,
   ragPracticeKey,
@@ -890,7 +891,11 @@ export function createAllProgressAdapters(
       slugs: RAG_PROGRESS_LESSON_SLUGS,
       read: readRagProgress,
       lessonComplete: (record, slug) => record[ragPracticeKey(slug)] === true,
-      quizComplete: (record) => record[RAG_QUIZ_PASSED_KEY] === true,
+      quizComplete: (record) => record[RAG_QUIZ_PASSED_KEY] === true
+        && typeof record[RAG_QUIZ_BEST_KEY] === "number"
+        && Number.isSafeInteger(record[RAG_QUIZ_BEST_KEY])
+        && (record[RAG_QUIZ_BEST_KEY] as number) >= 9
+        && (record[RAG_QUIZ_BEST_KEY] as number) <= RAG_PROGRESS_LESSON_SLUGS.length,
       capstoneComplete: (record) => record[RAG_CAPSTONE_KEY] === true,
       quizHref: (currentLocale) => `/${currentLocale}/rag/#rag-final-quiz`,
       capstoneHref: (currentLocale) => `/${currentLocale}/rag/#rag-capstone`,

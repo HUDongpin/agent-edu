@@ -549,7 +549,9 @@ function CourseCard({
     );
   }
 
-  const href = course.targetHref ?? "#";
+  const href = isRag && progress?.state !== "unavailable" && progress?.nextHref
+    ? progress.nextHref
+    : course.targetHref ?? "#";
   return (
     <li
       id={anchorId}

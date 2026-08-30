@@ -29,10 +29,14 @@
     "allLessons": "Kursübersicht",
     "openCourseMap": "Kursübersicht öffnen",
     "practiceComplete": "Übung abgeschlossen",
+    "completeStatus": "Erledigt",
+    "nextStatus": "Als Nächstes",
     "markPracticeComplete": "Übung als abgeschlossen markieren",
     "markedPracticeComplete": "Übung erfasst",
+    "undoPracticeComplete": "Übungsabschluss rückgängig machen",
     "courseProgress": "Kursfortschritt",
-    "browserStorageNote": "Der Übungsfortschritt bleibt ausschließlich in diesem Browser gespeichert.",
+    "manageProgress": "Fortschritt von Kurs 9 verwalten",
+    "browserStorageNote": "Lektionsabschlüsse, Entwürfe und Ergebnisse der Wissensprüfung sowie die Abschlusscheckliste bleiben nur in diesem Browser gespeichert. Ihre Übungstexte und Dateien werden nie gespeichert.",
     "storageUnavailable": "Der Browserspeicher ist nicht verfügbar. Der Kurs bleibt nutzbar, doch der Fortschritt wird nach dieser Sitzung nicht gespeichert.",
     "resetProgress": "Fortschritt von Kurs 9 zurücksetzen",
     "resetConfirm": "Nur deinen gespeicherten Fortschritt für Kurs 9 zurücksetzen?",
@@ -60,6 +64,7 @@
     "quizIntro": "Beantworte 12 Szenariofragen. Neun richtige Antworten reichen zum Bestehen. Dein bestes Ergebnis bleibt in diesem Browser gespeichert.",
     "beginQuiz": "Wissensprüfung beginnen",
     "checkAnswer": "Antwort prüfen",
+    "selectAnswer": "Wähle 1 Antwort aus und prüfe sie dann.",
     "nextQuestion": "Nächste Frage",
     "finishQuiz": "Wissensprüfung abschließen",
     "retryQuiz": "Neuen Versuch starten",
@@ -71,11 +76,20 @@
     "passRequirement": "9 von 12 richtigen Antworten erforderlich",
     "quizPassed": "Wissensprüfung bestanden",
     "quizNeedsReview": "Lies die Erklärungen und versuche es erneut",
+    "reviewMissedAnswers": "Falsche Antworten prüfen",
+    "correctAnswer": "Richtige Antwort",
+    "backToResults": "Zurück zu den Ergebnissen",
+    "previousMissedQuestion": "Vorherige falsch beantwortete Frage",
+    "nextMissedQuestion": "Nächste falsch beantwortete Frage",
     "capstone": "Produktionsnahes Abschlussprojekt",
     "capstoneStatus": "RAG-Evidenzpaket",
     "capstoneComplete": "Abschlusspaket erfasst",
     "recordCapstone": "Vollständiges Evidenzpaket erfassen",
+    "reopenCapstone": "Abschlusscheckliste erneut öffnen",
+    "capstoneReopened": "Die Abschlusscheckliste wurde erneut geöffnet.",
     "courseIntegrity": "Wie dieser Kurs Vertrauen verdient",
+    "courseNavigation": "Kursabschnitte",
+    "interactiveRequiresJavaScript": "Die Lektüre bleibt ohne JavaScript verfügbar. Interaktive Labore, Wissensprüfungen und das Speichern des Fortschritts benötigen JavaScript.",
     "heroPrinciple1": "Abrufen",
     "heroPrinciple2": "Belegen",
     "heroPrinciple3": "Nachweisen",
@@ -109,7 +123,7 @@
   "lessons": {
     "choose-rag": {
       "kicker": "Einheit 1 · Systemauswahl",
-      "title": "Wähle RAG – oder etwas Einfacheres",
+      "title": "Wähle RAG oder etwas Einfacheres",
       "summary": "RAG ist zuerst eine Abruf- und erst danach eine Modellentscheidung. Lerne, wann externe Evidenz nötig ist und wann Suche, vollständiger Kontext, SQL, eine API oder Feinabstimmung besser passen.",
       "objective": "Für eine Aufgabe und Evidenzumgebung RAG nur dann auswählen, wenn Abruf zum Antwortzeitpunkt gerechtfertigt ist, und benennen, was RAG nicht garantieren kann.",
       "sections": [
@@ -435,7 +449,7 @@
         "sourceId": "anthropic-contextual-retrieval",
         "explanation": "Lexikalischer Abruf bewahrt exakte seltene Begriffe und Kennungen. Ein hybrides System kann diese Stärke mit semantischer Abdeckung verbinden."
       },
-      "takeaway": "Abrufqualität entsteht aus Evidenz je Anfrageklasse, sichtbaren Transformationen, durchsetzbaren Filtern und gemessenen Zielkonflikten – nicht aus einem einzelnen Ähnlichkeitsaufruf."
+      "takeaway": "Abrufqualität entsteht aus Evidenz je Anfrageklasse, sichtbaren Transformationen, durchsetzbaren Filtern und gemessenen Zielkonflikten, nicht aus einem einzelnen Ähnlichkeitsaufruf."
     },
     "rerank-and-assemble": {
       "kicker": "Einheit 3 · Evidenzauswahl",

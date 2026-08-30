@@ -121,7 +121,7 @@
     "test:prompts": "playwright test --config tests/published-playwright.config.ts tests/prompts-course.spec.ts --workers=1",
     "test:github": "playwright test tests/github-course.spec.ts",
     "test:software-engineering": "playwright test tests/software-engineering-course.spec.ts --config tests/published-playwright.config.ts --workers=1",
-    "test:rag": "playwright test tests/rag-course.spec.ts --workers=1",
+    "test:rag": "playwright test --config tests/published-playwright.config.ts tests/rag-course.spec.ts --workers=1",
     "test:claude-income": "playwright test tests/claude-income-course.spec.ts --workers=1",
     "test:ai-tutor": "playwright test tests/ai-tutor-course.spec.ts --config tests/published-playwright.config.ts --workers=1",
     "test:published-courses": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test --config tests/published-playwright.config.ts"
