@@ -297,6 +297,13 @@ export function deploymentMetadataMatches(metadata, target) {
 
 export function releaseMetadataTextFindings(text, target) {
   const findings = contentFindings(text).map((finding) => `sensitive-${finding.id}`);
+  const expectedText = `${JSON.stringify({
+    schema: "agent-edu.release-build.v1",
+    commitSha: target.commitSha,
+    environment: target.environment,
+    deploymentId: target.deploymentId,
+    deploymentUrl: target.metadataDeploymentUrl,
+  }, null, 2)}\n`;
   let metadata;
   try {
     metadata = JSON.parse(text);
@@ -304,7 +311,7 @@ export function releaseMetadataTextFindings(text, target) {
     findings.push("release-metadata-json");
     return { metadata: undefined, findings };
   }
-  if (text !== `${JSON.stringify(metadata, null, 2)}\n`) {
+  if (text !== expectedText) {
     findings.push("release-metadata-canonical");
   }
   if (!deploymentMetadataMatches(metadata, target)) findings.push("release-metadata-binding");

@@ -198,6 +198,16 @@ test("release metadata response is bounded, typed, and byte-canonical", async ()
   assert.deepEqual(await inspectReleaseMetadataResponse(new Response(canonical, {
     headers: { "content-type": "application/json; charset=utf-8" },
   }), target), { metadata, findings: [] });
+  const reordered = `${JSON.stringify({
+    deploymentUrl: metadata.deploymentUrl,
+    deploymentId: metadata.deploymentId,
+    environment: metadata.environment,
+    commitSha: metadata.commitSha,
+    schema: metadata.schema,
+  }, null, 2)}\n`;
+  assert.ok((await inspectReleaseMetadataResponse(new Response(reordered, {
+    headers: { "content-type": "application/json" },
+  }), target)).findings.includes("release-metadata-canonical"));
   assert.ok((await inspectReleaseMetadataResponse(new Response(JSON.stringify(metadata), {
     headers: { "content-type": "text/plain" },
   }), target)).findings.includes("release-metadata-content-type"));
