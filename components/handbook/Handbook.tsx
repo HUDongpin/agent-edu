@@ -8,6 +8,31 @@ import CourseJourney from "./CourseJourney";
 import SharedCourseShell from "../SharedCourseShell";
 import AgenticTrackNav from "../AgenticTrackNav";
 
+const NO_SCRIPT_CSS = `
+  .hb .rail,
+  .hb .section-nav,
+  .hb #themeBtn { display: none !important; }
+  .hb .panel {
+    display: block !important;
+    animation: none !important;
+    padding-block: 28px;
+    border-block-end: 1px solid var(--line);
+    scroll-margin-block-start: 20px;
+  }
+  @media (max-width: 860px) {
+    .topbar { position: static; }
+    .topbar-in { flex-wrap: wrap; }
+    .navwrap { order: 3; flex: 1 0 100%; width: 100%; }
+    .mainnav {
+      display: flex !important;
+      position: static;
+      box-shadow: none;
+      border-block-end: 0;
+    }
+    .navtoggle { display: none !important; }
+  }
+`;
+
 /**
  * The handbook: verified markup rendered by React, driven by the original
  * imperative widgets.
@@ -42,7 +67,11 @@ export default function Handbook(
   },
 ) {
   const { t, locale } = useI18n();
-  const startedFor = useRef<string | null>(null);
+  const active = useRef<{
+    html: string;
+    cleanup: () => void;
+    pendingCleanup: boolean;
+  } | null>(null);
 
   /* The widgets' own strings. They arrive as a prop for the same reason the
      markup does — the table is chosen per locale on the server — but they
@@ -50,22 +79,44 @@ export default function Handbook(
      exists until a reader presses something. */
   const C = useMemo(() => makeCopy(locale, copy), [locale, copy]);
 
-  /* Start the widgets once per body of markup.
-   *
-   * Once, so React's development double-invoke does not bind everything
-   * twice. Per body of markup, because switching language is a client-side
-   * navigation: React replaces the subtree with the new locale's HTML, and
-   * every listener the widgets had hung on it goes with the old nodes. */
+  /* Start one widget lifetime per body of markup. React development performs
+   * an immediate setup → cleanup → setup probe. Its second setup cancels the
+   * pending development cleanup and reuses the still-valid imperative DOM;
+   * a real unmount gets disposed at the end of the current task. Production
+   * cleanup remains synchronous. Locale changes always dispose the old body
+   * before binding the replacement. */
   useEffect(() => {
-    if (startedFor.current === html) return;
-    startedFor.current = html;
-    try {
-      initHandbook(C);
-    } catch (err) {
-      // A broken widget must not blank the page — the articles and diagrams
-      // still have value without it.
-      console.error("handbook widget failed to start:", err);
+    let lifetime = active.current;
+    if (lifetime?.html === html) {
+      lifetime.pendingCleanup = false;
+    } else {
+      if (lifetime) {
+        lifetime.pendingCleanup = false;
+        lifetime.cleanup();
+      }
+      let cleanup = () => {};
+      try {
+        cleanup = initHandbook(C);
+      } catch (err) {
+        // A broken widget must not blank the page — the articles and diagrams
+        // still have value without it.
+        console.error("handbook widget failed to start:", err);
+      }
+      lifetime = { html, cleanup, pendingCleanup: false };
+      active.current = lifetime;
     }
+
+    const ownedLifetime = lifetime;
+    return () => {
+      const dispose = () => {
+        if (!ownedLifetime.pendingCleanup) return;
+        ownedLifetime.cleanup();
+        if (active.current === ownedLifetime) active.current = null;
+      };
+      ownedLifetime.pendingCleanup = true;
+      if (process.env.NODE_ENV === "production") dispose();
+      else queueMicrotask(dispose);
+    };
     // C is intentionally excluded: it and the markup are both chosen from the
     // locale on the server, so they arrive together and change together, and
     // the markup is the honest key — it is the thing the widgets bound to.
@@ -80,6 +131,7 @@ export default function Handbook(
         <AgenticTrackNav locale={locale} current="handbook" />
         <CourseJourney locale={locale} />
       </div>
+      <noscript dangerouslySetInnerHTML={{ __html: `<style>${NO_SCRIPT_CSS}</style>` }} />
       <div
         className={localised ? "hb" : "hb en-content"}
         dir={localised ? undefined : "ltr"}

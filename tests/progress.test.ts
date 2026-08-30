@@ -236,6 +236,7 @@ test("visiting six Handbook sections remains in progress, never completed", () =
   const progress = selectHandbookProgress(state);
   assert.equal(progress.status, "in-progress");
   assert.equal(progress.completed, false);
+  assert.equal(progress.assessmentSubmitted, false);
   assert.equal(progress.exploredSections, 6);
 });
 
@@ -244,6 +245,7 @@ test("visiting all eleven Handbook sections still does not imply completion", ()
   const progress = selectHandbookProgress(state);
   assert.equal(progress.status, "in-progress");
   assert.equal(progress.completed, false);
+  assert.equal(progress.assessmentSubmitted, false);
   assert.equal(progress.exploredSections, 11);
 });
 
@@ -257,7 +259,7 @@ test("Agentic journey display averages only the two browser-tracked v2 modules",
   assert.equal(selectAgenticJourneyPercent(state), 75);
 });
 
-test("a zero-score Control Room run is a real Handbook completion", () => {
+test("a zero-score Control Room run is a real assessment submission, not course completion", () => {
   const storage = new MemoryStorage();
   const store = createLearningStore({
     storage,
@@ -266,11 +268,66 @@ test("a zero-score Control Room run is a real Handbook completion", () => {
   });
   const state = store.recordHandbookControlRoomFinish(0);
 
-  assert.equal(selectHandbookProgress(state).status, "completed");
+  const progress = selectHandbookProgress(state);
+  assert.equal(progress.status, "in-progress");
+  assert.equal(progress.completed, false);
+  assert.equal(progress.assessmentSubmitted, true);
   assert.deepEqual(state.handbook.controlRoom, {
     completedRuns: 1,
     bestScore: 0,
     lastFinishedAt: "2026-08-21T01:02:03.000Z",
+  });
+});
+
+test("Handbook course progress separates assessment submission from section exploration", () => {
+  const submitted = selectCourseProgress(v2({
+    handbook: {
+      visitedSections: ["start", "play"],
+      controlRoom: { completedRuns: 1, bestScore: 0 },
+    },
+  }), "handbook");
+  assert.deepEqual(submitted, {
+    kind: "tracked",
+    courseId: "handbook",
+    status: "in-progress",
+    current: 2,
+    total: 11,
+    percent: 18,
+    assessmentSubmitted: true,
+    completedRuns: 1,
+    bestScore: 0,
+  });
+
+  const exploredOnly = selectCourseProgress(v2({
+    handbook: { visitedSections: [...HANDBOOK_SECTION_IDS] },
+  }), "handbook");
+  assert.deepEqual(exploredOnly, {
+    kind: "tracked",
+    courseId: "handbook",
+    status: "in-progress",
+    current: 11,
+    total: 11,
+    percent: 100,
+    assessmentSubmitted: false,
+    completedRuns: 0,
+  });
+
+  const courseComplete = selectCourseProgress(v2({
+    handbook: {
+      visitedSections: [...HANDBOOK_SECTION_IDS],
+      controlRoom: { completedRuns: 1, bestScore: 0 },
+    },
+  }), "handbook");
+  assert.deepEqual(courseComplete, {
+    kind: "tracked",
+    courseId: "handbook",
+    status: "completed",
+    current: 11,
+    total: 11,
+    percent: 100,
+    assessmentSubmitted: true,
+    completedRuns: 1,
+    bestScore: 0,
   });
 });
 

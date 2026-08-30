@@ -399,6 +399,7 @@ test("Handbook core judgements stay task-complete when diagrams are hidden", asy
   await page.addStyleTag({ content: "svg { display: none !important; }" });
 
   await expect(page.locator("#dialSvg")).toHaveAttribute("role", "group");
+  await page.locator('[data-disclosure="start-practices"] > summary').click();
   await page.locator('#p-start .c4[data-goto="loop"]').click();
   await expectActiveHandbookTab(page, "#tab-loop");
 
