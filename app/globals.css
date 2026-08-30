@@ -335,6 +335,13 @@ select{width:auto;max-width:100%;flex:0 1 auto;
 .proglist .tick{font-family:var(--mono);width:1.1em;flex:0 0 auto}
 .proglist li.done .tick{color:var(--green)}
 
+/* ---- self-declared completion (Part 3) ----
+   No new tokens: --green and --ink-3 are already defined in all three theme
+   blocks. Logical properties only, so Arabic mirrors from dir="rtl" alone. */
+.declare{margin-block-start:14px;padding-block-start:14px;border-block-start:1px solid var(--line-2)}
+.declare .acts{margin-block-start:10px;align-items:center}
+.declared-note{font-size:13.5px;color:var(--green);font-weight:650}
+
 /* ---- faq ---- */
 .faq{margin-top:24px;display:grid;gap:9px}
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:11px;

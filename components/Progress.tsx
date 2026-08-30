@@ -5,6 +5,7 @@ import {
   readLearningState,
   readLearningStateOnServer,
   resetLearningState,
+  selectCourseProgress,
   selectHandbookProgress,
   selectLabProgress,
   subscribeLearningState,
@@ -27,6 +28,10 @@ export default function Progress({ locale }: { locale: string }) {
   );
   const handbook = selectHandbookProgress(state);
   const lab = selectLabProgress(state);
+  const build = selectCourseProgress(state, "build");
+  // Part 3 runs off-site, so it carries the reader's own declaration and no
+  // count — a "0 of 9" beside it would imply the site had looked, and it cannot.
+  const buildDone = build.kind === "external" && build.declaredComplete;
   const items: Item[] = [
     {
       label: t("track.1.title"),
@@ -38,8 +43,15 @@ export default function Progress({ locale }: { locale: string }) {
       done: lab.completed,
       note: `${lab.completedCount} ${t("ui.of")} ${lab.totalSteps}`,
     },
+    {
+      label: t("track.3.title"),
+      done: buildDone,
+      note: "",
+    },
   ];
-  const started = handbook.status !== "not-started" || lab.status !== "not-started";
+  const started = handbook.status !== "not-started"
+    || lab.status !== "not-started"
+    || buildDone;
 
   if (!started) return <div className="progwrap"><div className="muted">{t("home.progNone")}</div></div>;
 

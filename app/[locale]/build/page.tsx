@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Declare from "@/components/build/Declare";
 import JsonLd from "@/components/JsonLd";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
 import { SITE, seoFor, urlFor } from "@/lib/seo";
@@ -134,6 +135,7 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         <h2>{t("build.progressTitle")}</h2>
         <p>{t("build.progressBody")}</p>
         <pre dir="ltr"><code>{`npx tsx course/report.ts\n# reads course/progress.json in this clone`}</code></pre>
+        <Declare />
       </section>
 
       <section className="sect">

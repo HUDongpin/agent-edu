@@ -60,7 +60,11 @@ export default function Catalog({ locale }: { locale: string }) {
   const dirty = [level, format, topic, status].some((v) => v !== ALL);
 
   function cta(progress: CourseProgress): string {
-    if (progress.kind === "external") return t("track.3.cta");
+    // An off-site course the reader has marked finished reads "Review", the
+    // same word a tracked course uses — the reason differs, the state does not.
+    if (progress.kind === "external") {
+      return progress.declaredComplete ? t("cat.review") : t("track.3.cta");
+    }
     if (progress.kind !== "tracked") return t("cat.start");
     if (progress.status === "completed") return t("cat.review");
     if (progress.status === "in-progress") return t("cat.resume");
