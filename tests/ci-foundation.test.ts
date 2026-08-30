@@ -259,6 +259,14 @@ test("the deploy build type-checks only files present in the Vercel upload", () 
 
   const rootTypecheckConfig = JSON.parse(readFileSync("tsconfig.json", "utf8"));
   assert.ok(rootTypecheckConfig.exclude.includes("tests/fixtures/**"));
+  assert.ok(
+    rootTypecheckConfig.exclude.includes("tmp/**"),
+    "local capture and release scratch must stay outside the root TypeScript program",
+  );
+  assert.ok(
+    rootTypecheckConfig.exclude.includes("examples/**"),
+    "standalone example applications must stay outside the root TypeScript program",
+  );
 
   const buildConfig = JSON.parse(readFileSync("tsconfig.build.json", "utf8"));
   assert.equal(buildConfig.extends, "./tsconfig.json");
