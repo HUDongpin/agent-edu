@@ -19,6 +19,63 @@ export interface CourseKitEvidenceReceipt {
   readonly limitations: readonly string[];
 }
 
+export const COURSE_KIT_EVIDENCE_RECEIPT_ISSUE_CODES = [
+  "empty",
+  "invalid-json",
+  "invalid-schema",
+  "invalid-artifact-path",
+  "invalid-sha256",
+  "invalid-validator",
+  "invalid-reviewer",
+  "invalid-limitations",
+] as const;
+
+export type CourseKitEvidenceReceiptIssueCode =
+  (typeof COURSE_KIT_EVIDENCE_RECEIPT_ISSUE_CODES)[number];
+
+export interface CourseKitEvidenceReceiptValidationIssue {
+  readonly code: CourseKitEvidenceReceiptIssueCode;
+}
+
+export type CourseKitEvidenceReceiptValidationResult =
+  | {
+      readonly valid: true;
+      readonly receipt: CourseKitEvidenceReceipt;
+      readonly issues: readonly [];
+    }
+  | {
+      readonly valid: false;
+      readonly receipt: null;
+      readonly issues: readonly CourseKitEvidenceReceiptValidationIssue[];
+    };
+
+export interface CourseKitEvidenceReceiptValidationOptions {
+  /** Bind a structurally valid receipt to the exact artifact this gate expects. */
+  readonly expectedArtifactPath?: string;
+}
+
+export function createCourseKitEvidenceReceiptTemplate(
+  artifactPath = "outputs/REPLACE_WITH_ARTIFACT.json",
+): string {
+  return JSON.stringify({
+    schemaVersion: COURSE_KIT_EVIDENCE_RECEIPT_SCHEMA,
+    artifactPath,
+    sha256: "REPLACE_WITH_64_HEX_CHARACTERS",
+    validator: {
+      command: "REPLACE_WITH_OFFLINE_VALIDATOR_COMMAND",
+      status: "pass",
+      checkedOn: "YYYY-MM-DD",
+    },
+    reviewer: {
+      name: "REPLACE_WITH_NAMED_HUMAN_REVIEWER",
+      role: "REPLACE_WITH_REVIEW_ROLE",
+      human: true,
+      decision: "accept-with-limitations",
+    },
+    limitations: ["REPLACE_WITH_AT_LEAST_ONE_EXPLICIT_BOUNDARY"],
+  }, null, 2);
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
@@ -41,6 +98,12 @@ function isSafeRelativePath(value: unknown): value is string {
     && value.split("/").every((segment) => segment !== "." && segment !== "..");
 }
 
+function isResolvedTemplateText(value: unknown): value is string {
+  return typeof value === "string"
+    && Boolean(value.trim())
+    && !value.includes("REPLACE_WITH_");
+}
+
 /**
  * Validate a learner-supplied receipt without reading their local files.
  *
@@ -48,45 +111,95 @@ function isSafeRelativePath(value: unknown): value is string {
  * command, reviewer, or artifact is truthful. The course therefore treats a
  * valid receipt as reviewable evidence, never as automatic proof.
  */
-export function parseCourseKitEvidenceReceipt(
+export function validateCourseKitEvidenceReceipt(
   value: string,
-): CourseKitEvidenceReceipt | null {
+  options: CourseKitEvidenceReceiptValidationOptions = {},
+): CourseKitEvidenceReceiptValidationResult {
+  if (!value.trim()) {
+    return {
+      valid: false,
+      receipt: null,
+      issues: [{ code: "empty" }],
+    };
+  }
+
   let parsed: unknown;
   try {
     parsed = JSON.parse(value);
   } catch {
-    return null;
+    return {
+      valid: false,
+      receipt: null,
+      issues: [{ code: "invalid-json" }],
+    };
   }
-  if (!isRecord(parsed)) return null;
-  if (parsed.schemaVersion !== COURSE_KIT_EVIDENCE_RECEIPT_SCHEMA) return null;
-  if (!isSafeRelativePath(parsed.artifactPath)) return null;
+
+  if (!isRecord(parsed)) {
+    return {
+      valid: false,
+      receipt: null,
+      issues: [{ code: "invalid-schema" }],
+    };
+  }
+
+  const issues: CourseKitEvidenceReceiptValidationIssue[] = [];
+  if (parsed.schemaVersion !== COURSE_KIT_EVIDENCE_RECEIPT_SCHEMA) {
+    issues.push({ code: "invalid-schema" });
+  }
+  if (!isSafeRelativePath(parsed.artifactPath)
+    || !isResolvedTemplateText(parsed.artifactPath)
+    || (options.expectedArtifactPath !== undefined
+      && parsed.artifactPath !== options.expectedArtifactPath)) {
+    issues.push({ code: "invalid-artifact-path" });
+  }
   if (typeof parsed.sha256 !== "string" || !/^[a-f0-9]{64}$/i.test(parsed.sha256)) {
-    return null;
+    issues.push({ code: "invalid-sha256" });
   }
   if (!isRecord(parsed.validator)
-    || typeof parsed.validator.command !== "string"
-    || !parsed.validator.command.trim()
+    || !isResolvedTemplateText(parsed.validator.command)
     || parsed.validator.status !== "pass"
     || !isIsoDate(parsed.validator.checkedOn)) {
-    return null;
+    issues.push({ code: "invalid-validator" });
   }
   if (!isRecord(parsed.reviewer)
-    || typeof parsed.reviewer.name !== "string"
-    || !parsed.reviewer.name.trim()
-    || typeof parsed.reviewer.role !== "string"
-    || !parsed.reviewer.role.trim()
+    || !isResolvedTemplateText(parsed.reviewer.name)
+    || !isResolvedTemplateText(parsed.reviewer.role)
     || parsed.reviewer.human !== true
     || !["accept", "accept-with-limitations"].includes(String(parsed.reviewer.decision))) {
-    return null;
+    issues.push({ code: "invalid-reviewer" });
   }
   if (!Array.isArray(parsed.limitations)
     || parsed.limitations.length === 0
-    || parsed.limitations.some((item) => typeof item !== "string" || !item.trim())) {
-    return null;
+    || parsed.limitations.some((item) => !isResolvedTemplateText(item))) {
+    issues.push({ code: "invalid-limitations" });
   }
-  return parsed as unknown as CourseKitEvidenceReceipt;
+
+  if (issues.length > 0) {
+    return {
+      valid: false,
+      receipt: null,
+      issues,
+    };
+  }
+
+  return {
+    valid: true,
+    receipt: parsed as unknown as CourseKitEvidenceReceipt,
+    issues: [],
+  };
 }
 
-export function isCourseKitEvidenceReceipt(value: string): boolean {
-  return parseCourseKitEvidenceReceipt(value) !== null;
+export function parseCourseKitEvidenceReceipt(
+  value: string,
+  options: CourseKitEvidenceReceiptValidationOptions = {},
+): CourseKitEvidenceReceipt | null {
+  const result = validateCourseKitEvidenceReceipt(value, options);
+  return result.valid ? result.receipt : null;
+}
+
+export function isCourseKitEvidenceReceipt(
+  value: string,
+  options: CourseKitEvidenceReceiptValidationOptions = {},
+): boolean {
+  return parseCourseKitEvidenceReceipt(value, options) !== null;
 }

@@ -40,7 +40,13 @@ export function CourseProgress({
       aria-labelledby={titleId}
     >
       <div className={styles.progressHeading}>
-        <h2 id={titleId}>{labels.courseProgress}</h2>
+        {compact ? (
+          <p className={styles.progressHeadingTitle} id={titleId}>
+            {labels.courseProgress}
+          </p>
+        ) : (
+          <h2 id={titleId}>{labels.courseProgress}</h2>
+        )}
         <strong>{progress.percent}%</strong>
       </div>
       <div
