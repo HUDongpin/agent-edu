@@ -84,7 +84,7 @@ export default function PipelineMap({ className, labels: labelOverrides }: Pipel
     <figure className={[styles.pipeline, className].filter(Boolean).join(" ")}>
       <header className={styles.pipelineHeader}>
         <p className={styles.eyebrow}>{labels.eyebrow}</p>
-        <h3>{labels.title}</h3>
+        <h2>{labels.title}</h2>
         <p>{labels.description}</p>
       </header>
 
@@ -95,7 +95,7 @@ export default function PipelineMap({ className, labels: labelOverrides }: Pipel
               <span className={styles.stageNumber}>{stage.number}</span>
               <span className={styles.stageRole}>{stage.role}</span>
             </div>
-            <h4>{stage.title}</h4>
+            <h3>{stage.title}</h3>
             <div className={styles.stageOutput}>
               <span>{labels.output}</span>
               <code dir="ltr">{stage.output}</code>

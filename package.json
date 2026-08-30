@@ -104,6 +104,7 @@
     "test:claude-income": "playwright test tests/claude-income-course.spec.ts --workers=1",
     "test:ai-tutor": "playwright test tests/ai-tutor-course.spec.ts --workers=1",
     "test:math-animation": "playwright test --config tests/math-animation-playwright.config.ts --project=chromium --workers=1",
+    "test:math-animation:all": "playwright test --config tests/math-animation-playwright.config.ts --workers=1",
     "i18n:check:keys": "node scripts/check-i18n-release.mjs --keys",
     "progress:check": "node --import tsx scripts/check-progress-contract.mjs"
   },

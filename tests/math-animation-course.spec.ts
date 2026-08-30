@@ -1,9 +1,13 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
-import { expect, test, type ElementHandle, type Page } from "@playwright/test";
+import { expect, test, type Browser, type ElementHandle, type Page } from "@playwright/test";
+import axe from "axe-core";
 
 import {
+  MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH,
+  MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH,
+  MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH,
   MATH_ANIMATION_MODULE_SLUGS,
   MATH_ANIMATION_PROGRESS_VERSION,
   MATH_ANIMATION_PROGRESS_VERSION_KEY,
@@ -34,6 +38,73 @@ async function clearSharedProgress(page: Page) {
   await page.reload();
 }
 
+async function waitForStableDocument(page: Page) {
+  await page.locator("main").waitFor();
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  });
+}
+
+async function expectNoHorizontalOverflow(page: Page, label: string) {
+  await waitForStableDocument(page);
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
+  }));
+  expect(
+    dimensions.scrollWidth,
+    `${label}: ${dimensions.scrollWidth}px document in ${dimensions.clientWidth}px viewport`,
+  ).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+}
+
+async function runAxe(page: Page, label: string) {
+  await waitForStableDocument(page);
+  await page.addScriptTag({ content: axe.source });
+  const violations = await page.evaluate(async () => {
+    const axeApi = (window as unknown as {
+      axe: {
+        run: (
+          root: Document,
+          options: Readonly<Record<string, unknown>>,
+        ) => Promise<{
+          violations: readonly {
+            id: string;
+            impact: string | null;
+            nodes: readonly {
+              target: readonly string[];
+              html: string;
+              failureSummary?: string;
+            }[];
+          }[];
+        }>;
+      };
+    }).axe;
+    const result = await axeApi.run(document, {
+      runOnly: {
+        type: "tag",
+        values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"],
+      },
+      resultTypes: ["violations"],
+    });
+    return result.violations.map((violation) => ({
+      id: violation.id,
+      impact: violation.impact,
+      nodes: violation.nodes.map((node) => ({
+        target: node.target,
+        html: node.html,
+        failureSummary: node.failureSummary,
+      })),
+    }));
+  });
+  expect(violations, label).toEqual([]);
+}
+
+async function newNoJavaScriptPage(browser: Browser, baseURL: string | undefined) {
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
+  return { context, page: await context.newPage() };
+}
+
 test("Course 19 overview exposes the complete route, evidence, and metadata contract", async ({ page, request }) => {
   await clearSharedProgress(page);
   await expect(page.getByTestId("math-animation-course")).toBeVisible();
@@ -46,12 +117,23 @@ test("Course 19 overview exposes the complete route, evidence, and metadata cont
   await expect(moduleLinks).toHaveCount(MATH_ANIMATION_MODULE_SLUGS.length);
   expect(await moduleLinks.evaluateAll((links) => links.map((link) => link.getAttribute("href"))))
     .toEqual(MATH_ANIMATION_MODULE_SLUGS.map((slug) => `${DASHBOARD}${slug}/`));
-  await expect(page.locator('section[aria-labelledby="repository-lab-title"] article'))
-    .toHaveCount(9);
+  const repositoryLab = page.locator('section[aria-labelledby="repository-lab-title"]');
+  await expect(repositoryLab.locator("article")).toHaveCount(9);
+  await expect(repositoryLab.locator(":scope > details")).not.toHaveAttribute("open", "");
+  const contentOrder = await page.locator("#course-map, #repository-lab").evaluateAll((elements) => (
+    elements.map((element) => ({ id: element.id, top: element.getBoundingClientRect().top }))
+  ));
+  expect(contentOrder.find((entry) => entry.id === "course-map")!.top)
+    .toBeLessThan(contentOrder.find((entry) => entry.id === "repository-lab")!.top);
+  const journeyActions = page.locator("[data-course-journey-action]");
+  await expect(journeyActions).toHaveCount(1);
+  await expect(journeyActions).toHaveAttribute("href", firstModulePath);
   await expect(page.locator('section[aria-labelledby="math-animation-progress-title"] progress'))
     .toHaveAttribute("max", "14");
   await expect(page.locator('section[aria-labelledby="math-animation-progress-title"] progress'))
     .toHaveAttribute("value", "0");
+  await expect(page.locator("#math-animation-progress-breakdown"))
+    .toContainText(`${english.copy.ui.finalAssessment}: 0 / 1`);
   await expect(page.locator("#math-animation-assessment")).toBeVisible();
   await expect(page.locator("#math-animation-capstone")).toBeVisible();
   await expect(page.locator("#math-animation-capstone").getByRole("button", {
@@ -85,6 +167,7 @@ test("Course 19 overview exposes the complete route, evidence, and metadata cont
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(new RegExp(`${firstModule.slug}/$`));
   await expect(page.getByTestId(`math-animation-module-${firstModule.slug}`)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: firstModule.copy.title })).toBeFocused();
 });
 
 test("module completion requires checkpoint plus both evidence records and reset preserves other courses", async ({ page }) => {
@@ -112,11 +195,11 @@ test("module completion requires checkpoint plus both evidence records and reset
   await evidenceGate.getByLabel(english.copy.ui.verificationEvidence).fill(
     "python test_math_truth.py passed; low-quality render inspected at frame 60",
   );
-  await evidenceGate.getByRole("button", { name: english.copy.ui.markComplete }).click();
+  await expect(evidenceGate.getByRole("status")).toContainText(english.copy.ui.saved);
   const progress = view.locator('section[aria-labelledby="math-animation-progress-title"] progress');
   await expect(progress).toHaveAttribute("value", "0");
   await expect(evidenceGate.getByRole("button", { name: english.copy.ui.markComplete }))
-    .toBeEnabled();
+    .toBeDisabled();
 
   const checkpoint = view.locator(
     `section[aria-labelledby="${firstModule.slug}-checkpoint-title"]`,
@@ -129,17 +212,16 @@ test("module completion requires checkpoint plus both evidence records and reset
   const checkAnswer = checkpoint.getByRole("button", { name: english.copy.ui.checkAnswer });
   await checkAnswer.focus();
   await page.keyboard.press("Enter");
-  await expect(checkpoint.getByRole("status")).toContainText(english.copy.ui.correct);
+  await expect(checkpoint.getByRole("status")).toContainText(english.copy.ui.completed);
   await expect(progress).toHaveAttribute("value", "1");
   await expect(evidenceGate.getByRole("button", { name: english.copy.ui.completed }))
     .toBeDisabled();
 
-  const resume = view.locator('section[aria-labelledby="math-animation-progress-title"]')
-    .getByRole("link", { name: english.copy.ui.resume, exact: true });
-  await expect(resume).toHaveAttribute(
-    "href",
-    `${DASHBOARD}${english.modules[1].slug}/`,
-  );
+  await expect(view.locator('section[aria-labelledby="math-animation-progress-title"] a'))
+    .toHaveCount(0);
+  await expect(view.getByRole("navigation", { name: english.copy.ui.allModules })
+    .getByRole("link", { name: new RegExp(english.modules[1].copy.title) }))
+    .toHaveAttribute("href", `${DASHBOARD}${english.modules[1].slug}/`);
 
   await page.reload();
   await expect(progress).toHaveAttribute("value", "1");
@@ -163,6 +245,11 @@ test("module completion requires checkpoint plus both evidence records and reset
     .toContain("low-quality render inspected");
 
   await page.goto(DASHBOARD);
+  await expect(page.locator("[data-course-journey-action]")).toHaveAttribute(
+    "href",
+    `${DASHBOARD}${english.modules[1].slug}/`,
+  );
+  await expect(page.locator('[data-module-completion-status="complete"]')).toHaveCount(1);
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: english.copy.ui.reset, exact: true }).click();
   await expect(page.getByText(english.copy.ui.resetDone, { exact: true })).toBeVisible();
@@ -182,10 +269,62 @@ test("module completion requires checkpoint plus both evidence records and reset
   const resetProgressPanel = page.locator(
     'section[aria-labelledby="math-animation-progress-title"]',
   );
-  await expect(resetProgressPanel.getByRole("link", { name: english.copy.ui.start, exact: true }))
-    .toBeVisible();
+  await expect(resetProgressPanel.locator("a")).toHaveCount(0);
+  await expect(page.locator("[data-course-journey-action]"))
+    .toHaveAttribute("href", firstModulePath);
   await expect(resetProgressPanel.getByRole("button", { name: english.copy.ui.reset, exact: true }))
-    .toBeDisabled();
+    .toHaveCount(0);
+});
+
+test("module and capstone drafts autosave exactly within visible limits", async ({ page }) => {
+  await clearSharedProgress(page);
+  await page.goto(firstModulePath);
+
+  const evidenceGate = page.locator(`#${firstModule.slug}-evidence`);
+  const artifact = evidenceGate.getByLabel(english.copy.ui.artifactEvidence);
+  const verification = evidenceGate.getByLabel(english.copy.ui.verificationEvidence);
+  await expect(artifact).toHaveAttribute(
+    "maxlength",
+    String(MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH),
+  );
+  await expect(verification).toHaveAttribute(
+    "maxlength",
+    String(MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH),
+  );
+  await expect(artifact).toHaveAttribute("autocomplete", "off");
+  await expect(verification).toHaveAttribute("autocomplete", "off");
+
+  const artifactDraft = "  draft/path\n";
+  const verificationDraft = "command still pending";
+  await artifact.fill(artifactDraft);
+  await verification.fill(verificationDraft);
+  await expect(evidenceGate.getByRole("status")).toContainText(english.copy.ui.saved);
+  await page.reload();
+  await expect(artifact).toHaveValue(artifactDraft);
+  await expect(verification).toHaveValue(verificationDraft);
+
+  await artifact.fill("a".repeat(MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH));
+  await verification.fill("v".repeat(MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH));
+  await expect(artifact).toHaveValue("a".repeat(MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH));
+  await expect(verification).toHaveValue(
+    "v".repeat(MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH),
+  );
+  await expect(evidenceGate.getByRole("status")).toContainText(english.copy.ui.saved);
+
+  await page.goto(DASHBOARD);
+  const capstone = page.locator("#math-animation-capstone");
+  const firstArtifact = capstone.locator('input[type="checkbox"]').first();
+  const reviewEvidence = capstone.getByLabel(english.copy.ui.capstoneEvidence);
+  await firstArtifact.check();
+  await reviewEvidence.fill("independent review is still in progress");
+  await expect(reviewEvidence).toHaveAttribute(
+    "maxlength",
+    String(MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH),
+  );
+  await expect(capstone.getByRole("status").last()).toContainText(english.copy.ui.saved);
+  await page.reload();
+  await expect(firstArtifact).toBeChecked();
+  await expect(reviewEvidence).toHaveValue("independent review is still in progress");
 });
 
 test("stale or corrupt Course 19 state is repaired while other course keys survive", async ({ page }) => {
@@ -262,7 +401,7 @@ test("hydration never overwrites immediate evidence, assessment, or capstone inp
     await expect(evidenceGate.getByLabel(english.copy.ui.artifactEvidence)).toHaveValue(artifactDraft);
     await expect(evidenceGate.getByLabel(english.copy.ui.verificationEvidence)).toHaveValue(verificationDraft);
     await expect(evidenceGate.getByRole("button", { name: english.copy.ui.markComplete }))
-      .toBeEnabled();
+      .toBeDisabled();
   } finally {
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
   }
@@ -554,9 +693,10 @@ test("mobile fallback and RTL shells keep provenance accessible without console 
   await expect(course).toHaveAttribute("dir", "ltr");
   await expect(page.getByText(english.copy.ui.languageFallback, { exact: true })).toBeVisible();
 
-  const repositoryCards = page.locator(
-    'section[aria-labelledby="repository-lab-title"] article',
-  );
+  const repositoryLab = page.locator('section[aria-labelledby="repository-lab-title"]');
+  const repositoryDisclosure = repositoryLab.locator(":scope > details");
+  await expect(repositoryDisclosure).not.toHaveAttribute("open", "");
+  const repositoryCards = repositoryLab.locator("article");
   await expect(repositoryCards).toHaveCount(9);
   const traceDisclosures = repositoryCards.locator("details").filter({
     hasText: "Open pins, rights, and claim evidence",
@@ -573,9 +713,17 @@ test("mobile fallback and RTL shells keep provenance accessible without console 
     scrollHeight: document.body.scrollHeight,
   }));
   expect(collapsedDimensions.scrollWidth).toBeLessThanOrEqual(collapsedDimensions.viewportWidth);
-  // The pre-disclosure mobile page measured 26,559px; keep a stable margin
-  // below that regression point while allowing small font-metric variance.
-  expect(collapsedDimensions.scrollHeight).toBeLessThan(25_500);
+  // The original page approached 26,000px before the learner could reach the
+  // curriculum. The goal-first order and collapsed research ledger must keep
+  // the primary journey materially shorter.
+  expect(collapsedDimensions.scrollHeight).toBeLessThan(18_000);
+
+  const repositorySummary = repositoryDisclosure.locator(":scope > summary");
+  await repositorySummary.focus();
+  await page.keyboard.press("Enter");
+  await expect(repositoryDisclosure).toHaveAttribute("open", "");
+  expect(await repositorySummary.evaluate((element) => element.getBoundingClientRect().height))
+    .toBeGreaterThanOrEqual(44);
 
   const firstDisclosure = traceDisclosures.first();
   const firstSummary = firstDisclosure.locator("summary");
@@ -619,6 +767,7 @@ test("mobile fallback and RTL shells keep provenance accessible without console 
 
 test("Simplified Chinese repository decisions keep all learner-facing evidence localized", async ({ page }) => {
   await page.goto("/zh-Hans/math-animation/");
+  await page.locator("#repository-lab > details > summary").click();
   const repositoryCards = page.locator(
     'section[aria-labelledby="repository-lab-title"] article',
   );
@@ -662,5 +811,130 @@ test("all source media remains link-only and no external media source is emitted
         && link.getAttribute("rel") === "noopener noreferrer"
       )))).toBe(true);
     }
+  }
+});
+
+test("@browser-smoke the core journey renders and navigates in every engine", async ({ page, browserName }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const dashboardResponse = await page.goto(DASHBOARD);
+  expect(dashboardResponse?.status(), `${browserName} dashboard response`).toBe(200);
+  await expect(page.getByRole("heading", { level: 1, name: english.copy.meta.title })).toBeVisible();
+  await expect(page.locator("[data-course-journey-action]")).toHaveCount(1);
+  await expectNoHorizontalOverflow(page, `${browserName} dashboard`);
+
+  const moduleResponse = await page.goto(firstModulePath);
+  expect(moduleResponse?.status(), `${browserName} module response`).toBe(200);
+  await expect(page.getByRole("heading", { level: 1, name: firstModule.copy.title })).toBeVisible();
+  const mobileMap = page.locator("details").filter({ hasText: english.copy.ui.allModules }).first();
+  await mobileMap.locator(":scope > summary").click();
+  await expect(mobileMap).toHaveAttribute("open", "");
+  await expect(mobileMap.getByRole("link", { name: /Evaluate the repositories/i })).toBeVisible();
+  await expectNoHorizontalOverflow(page, `${browserName} module`);
+});
+
+for (const width of [320, 390, 768, 980, 1440]) {
+  test(`dashboard, modules, localization, and fallback reflow at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of [
+      DASHBOARD,
+      firstModulePath,
+      `${DASHBOARD}motion-canvas-web-track/`,
+      "/zh-Hans/math-animation/",
+      "/ar/math-animation/",
+    ]) {
+      const response = await page.goto(path);
+      expect(response?.status(), `${path} at ${width}px`).toBe(200);
+      await expect(page.locator("main h1")).toBeVisible();
+      await expectNoHorizontalOverflow(page, `${path} at ${width}px`);
+    }
+  });
+}
+
+test("settled and interacted Course 19 states pass axe in both themes", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto(DASHBOARD);
+  await runAxe(page, "English dashboard, light theme");
+
+  const repositoryDisclosure = page.locator("#repository-lab > details");
+  await repositoryDisclosure.locator(":scope > summary").click();
+  await repositoryDisclosure.locator("details").first().locator(":scope > summary").click();
+  await runAxe(page, "expanded repository evidence");
+
+  await page.getByRole("button", { name: /dark theme/i }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await runAxe(page, "English dashboard, dark theme");
+
+  await page.goto(firstModulePath);
+  const checkpoint = page.locator(`#${firstModule.slug}-checkpoint`);
+  await checkpoint.locator('input[type="radio"]').nth(firstModule.copy.checkpoint.correctIndex).check();
+  await checkpoint.getByRole("button", { name: english.copy.ui.checkAnswer }).click();
+  await expect(checkpoint.getByRole("status")).toBeFocused();
+  const evidenceGate = page.locator(`#${firstModule.slug}-evidence`);
+  await evidenceGate.getByLabel(english.copy.ui.artifactEvidence).fill("draft/path");
+  await evidenceGate.getByLabel(english.copy.ui.verificationEvidence).fill("verification still pending");
+  await runAxe(page, "interacted module checkpoint and evidence");
+
+  await page.goto(DASHBOARD);
+  const assessment = page.locator("#math-animation-assessment");
+  await assessment.getByRole("button", { name: english.copy.ui.startAssessment }).click();
+  const assessmentFieldsets = assessment.locator("fieldset");
+  for (let index = 0; index < await assessmentFieldsets.count(); index += 1) {
+    await assessmentFieldsets.nth(index).locator('input[type="radio"]').first().check();
+  }
+  await assessment.getByRole("button", { name: english.copy.ui.submitAssessment }).click();
+  await expect(assessment.locator('[tabindex="-1"]').last()).toBeFocused();
+  await runAxe(page, "submitted final assessment");
+
+  await page.goto("/zh-Hans/math-animation/");
+  await runAxe(page, "Simplified Chinese dashboard");
+  await page.goto("/ar/math-animation/");
+  await runAxe(page, "Arabic host with explicit English fallback");
+});
+
+test("course navigation and learning controls meet the 44px target baseline", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(firstModulePath);
+  const mobileMap = page.locator("details").filter({ hasText: english.copy.ui.allModules }).first();
+  const mobileSummary = mobileMap.locator(":scope > summary");
+  await expect.poll(() => mobileSummary.evaluate((element) => element.getBoundingClientRect().height))
+    .toBeGreaterThanOrEqual(44);
+  await mobileSummary.click();
+  const moduleLinks = mobileMap.locator('a[href^="/en/math-animation/"]');
+  for (let index = 0; index < await moduleLinks.count(); index += 1) {
+    await expect.poll(() => moduleLinks.nth(index).evaluate(
+      (element) => element.getBoundingClientRect().height,
+    )).toBeGreaterThanOrEqual(44);
+  }
+  await expect.poll(() => page.getByRole("button", { name: english.copy.ui.copyPrompt }).evaluate(
+    (element) => element.getBoundingClientRect().height,
+  )).toBeGreaterThanOrEqual(44);
+
+  await page.goto(DASHBOARD);
+  await expect.poll(() => page.locator('input[type="range"]').evaluate(
+    (element) => element.getBoundingClientRect().height,
+  )).toBeGreaterThanOrEqual(44);
+  const courseMapLink = page.getByRole("navigation", { name: "On this page" })
+    .getByRole("link", { name: english.copy.ui.curriculum });
+  await courseMapLink.click();
+  await expect(page.locator("#course-map")).toBeFocused();
+});
+
+test("the core instructional route remains useful without JavaScript", async ({ browser, baseURL }) => {
+  const { context, page } = await newNoJavaScriptPage(browser, baseURL);
+  try {
+    await page.goto(DASHBOARD);
+    await expect(page.getByRole("heading", { level: 1, name: english.copy.meta.title })).toBeVisible();
+    await expect(page.locator('#course-map a[href^="/en/math-animation/"]'))
+      .toHaveCount(MATH_ANIMATION_MODULE_SLUGS.length);
+    await expect(page.locator('img[src*="unit-circle-sine-keyframes.svg"]')).toBeVisible();
+
+    await page.goto(`${DASHBOARD}motion-canvas-web-track/`);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator('section[aria-labelledby="module-code-title"] pre[tabindex="0"]'))
+      .toBeVisible();
+    await expect(page.getByRole("heading", { name: /Every technical claim carries a boundary/i }))
+      .toBeVisible();
+  } finally {
+    await context.close();
   }
 });

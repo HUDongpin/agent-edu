@@ -27,6 +27,9 @@ export const MATH_ANIMATION_CAPSTONE_ARTIFACT_COUNT = 6;
 export const MATH_ANIMATION_MIN_ARTIFACT_EVIDENCE_LENGTH = 12;
 export const MATH_ANIMATION_MIN_VERIFICATION_EVIDENCE_LENGTH = 20;
 export const MATH_ANIMATION_MIN_CAPSTONE_EVIDENCE_LENGTH = 80;
+export const MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH = 2_048;
+export const MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH = 2_048;
+export const MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH = 5_000;
 export const MATH_ANIMATION_PROGRESS_MILESTONES =
   MATH_ANIMATION_COURSE_MANIFEST.modules.length + 2;
 
@@ -50,8 +53,19 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function validEvidence(value: unknown, minimum: number): value is string {
-  return typeof value === "string" && value.trim().length >= minimum;
+function boundedEvidenceDraft(value: unknown, maximum: number): string | undefined {
+  if (typeof value !== "string" || value.length === 0) return undefined;
+  return value.slice(0, maximum);
+}
+
+function validEvidence(
+  value: unknown,
+  minimum: number,
+  maximum: number,
+): value is string {
+  return typeof value === "string"
+    && value.length <= maximum
+    && value.trim().length >= minimum;
 }
 
 function validCapstoneChecks(value: unknown): value is boolean[] {
@@ -68,10 +82,12 @@ export function reconcileMathAnimationModuleCompletion(
     && validEvidence(
       record[mathAnimationModuleArtifactEvidenceKey(slug)],
       MATH_ANIMATION_MIN_ARTIFACT_EVIDENCE_LENGTH,
+      MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH,
     )
     && validEvidence(
       record[mathAnimationModuleVerificationEvidenceKey(slug)],
       MATH_ANIMATION_MIN_VERIFICATION_EVIDENCE_LENGTH,
+      MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH,
     );
   if (complete) record[mathAnimationModuleProgressKey(slug)] = true;
   else delete record[mathAnimationModuleProgressKey(slug)];
@@ -91,6 +107,7 @@ export function reconcileMathAnimationCapstone(
     && validEvidence(
       record[MATH_ANIMATION_CAPSTONE_EVIDENCE_KEY],
       MATH_ANIMATION_MIN_CAPSTONE_EVIDENCE_LENGTH,
+      MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH,
     );
   if (complete) record[MATH_ANIMATION_CAPSTONE_KEY] = true;
   else delete record[MATH_ANIMATION_CAPSTONE_KEY];
@@ -122,21 +139,33 @@ export function normalizeMathAnimationProgress(
   }
 
   for (const slug of MATH_ANIMATION_MODULE_SLUGS) {
-    const artifactEvidence = source[mathAnimationModuleArtifactEvidenceKey(slug)];
-    const verificationEvidence = source[mathAnimationModuleVerificationEvidenceKey(slug)];
+    const artifactKey = mathAnimationModuleArtifactEvidenceKey(slug);
+    const verificationKey = mathAnimationModuleVerificationEvidenceKey(slug);
+    const artifactEvidence = boundedEvidenceDraft(
+      source[artifactKey],
+      MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH,
+    );
+    const verificationEvidence = boundedEvidenceDraft(
+      source[verificationKey],
+      MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH,
+    );
     const checkpointPassed = source[mathAnimationModuleCheckpointKey(slug)] === true;
-    if (validEvidence(artifactEvidence, MATH_ANIMATION_MIN_ARTIFACT_EVIDENCE_LENGTH)) {
-      normalized[mathAnimationModuleArtifactEvidenceKey(slug)] = artifactEvidence.trim().slice(0, 2_048);
-    }
-    if (validEvidence(verificationEvidence, MATH_ANIMATION_MIN_VERIFICATION_EVIDENCE_LENGTH)) {
-      normalized[mathAnimationModuleVerificationEvidenceKey(slug)] = verificationEvidence.trim().slice(0, 2_048);
-    }
+    if (artifactEvidence !== undefined) normalized[artifactKey] = artifactEvidence;
+    if (verificationEvidence !== undefined) normalized[verificationKey] = verificationEvidence;
     if (checkpointPassed) normalized[mathAnimationModuleCheckpointKey(slug)] = true;
     if (
       source[mathAnimationModuleProgressKey(slug)] === true
       && checkpointPassed
-      && validEvidence(artifactEvidence, MATH_ANIMATION_MIN_ARTIFACT_EVIDENCE_LENGTH)
-      && validEvidence(verificationEvidence, MATH_ANIMATION_MIN_VERIFICATION_EVIDENCE_LENGTH)
+      && validEvidence(
+        artifactEvidence,
+        MATH_ANIMATION_MIN_ARTIFACT_EVIDENCE_LENGTH,
+        MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH,
+      )
+      && validEvidence(
+        verificationEvidence,
+        MATH_ANIMATION_MIN_VERIFICATION_EVIDENCE_LENGTH,
+        MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH,
+      )
     ) {
       normalized[mathAnimationModuleProgressKey(slug)] = true;
     }
@@ -151,12 +180,15 @@ export function normalizeMathAnimationProgress(
   }
 
   const checks = source[MATH_ANIMATION_CAPSTONE_CHECKS_KEY];
-  const capstoneEvidence = source[MATH_ANIMATION_CAPSTONE_EVIDENCE_KEY];
+  const capstoneEvidence = boundedEvidenceDraft(
+    source[MATH_ANIMATION_CAPSTONE_EVIDENCE_KEY],
+    MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH,
+  );
   if (validCapstoneChecks(checks)) {
     normalized[MATH_ANIMATION_CAPSTONE_CHECKS_KEY] = [...checks];
   }
-  if (validEvidence(capstoneEvidence, MATH_ANIMATION_MIN_CAPSTONE_EVIDENCE_LENGTH)) {
-    normalized[MATH_ANIMATION_CAPSTONE_EVIDENCE_KEY] = capstoneEvidence.trim().slice(0, 5_000);
+  if (capstoneEvidence !== undefined) {
+    normalized[MATH_ANIMATION_CAPSTONE_EVIDENCE_KEY] = capstoneEvidence;
   }
   if (
     source[MATH_ANIMATION_CAPSTONE_KEY] === true
@@ -166,7 +198,11 @@ export function normalizeMathAnimationProgress(
     && normalized[MATH_ANIMATION_QUIZ_PASSED_KEY] === true
     && validCapstoneChecks(checks)
     && checks.every(Boolean)
-    && validEvidence(capstoneEvidence, MATH_ANIMATION_MIN_CAPSTONE_EVIDENCE_LENGTH)
+    && validEvidence(
+      capstoneEvidence,
+      MATH_ANIMATION_MIN_CAPSTONE_EVIDENCE_LENGTH,
+      MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH,
+    )
   ) {
     normalized[MATH_ANIMATION_CAPSTONE_KEY] = true;
   }
