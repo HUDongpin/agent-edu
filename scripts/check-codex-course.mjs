@@ -28,7 +28,6 @@ import {
 } from "node:fs";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import vm from "node:vm";
 import {
   CODEX_MEDIA_CHECKLIST,
   inspectPng,
@@ -37,6 +36,7 @@ import {
   rejectImageMetadataAndFeatures,
   sha256,
 } from "./lib/codex-media.mjs";
+import { resolveStaticConst } from "./lib/codex-static-source.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RELEASE = process.argv.includes("--release");
@@ -153,92 +153,9 @@ function readJson(path, label = rel(path)) {
   }
 }
 
-function balancedLiteral(source, start) {
-  const opener = source[start];
-  const closer = opener === "[" ? "]" : opener === "{" ? "}" : null;
-  if (!closer) return null;
-  let depth = 0;
-  let quote = null;
-  let lineComment = false;
-  let blockComment = false;
-
-  for (let index = start; index < source.length; index++) {
-    const char = source[index];
-    const next = source[index + 1];
-
-    if (lineComment) {
-      if (char === "\n") lineComment = false;
-      continue;
-    }
-    if (blockComment) {
-      if (char === "*" && next === "/") {
-        blockComment = false;
-        index++;
-      }
-      continue;
-    }
-    if (quote) {
-      if (char === "\\") index++;
-      else if (char === quote) quote = null;
-      continue;
-    }
-    if (char === "/" && next === "/") {
-      lineComment = true;
-      index++;
-      continue;
-    }
-    if (char === "/" && next === "*") {
-      blockComment = true;
-      index++;
-      continue;
-    }
-    if (char === '"' || char === "'" || char === "`") {
-      quote = char;
-      continue;
-    }
-    if (char === opener) depth++;
-    if (char === closer) {
-      depth--;
-      if (depth === 0) return source.slice(start, index + 1);
-    }
-  }
-  return null;
-}
-
 function staticExport(source, name, sourcePath) {
-  const declaration = new RegExp(`(?:export\\s+)?const\\s+${name}\\b[^=]*=\\s*`, "m").exec(source);
-  if (!declaration) return undefined;
-  const after = declaration.index + declaration[0].length;
-  const start = source.slice(after).search(/[\[{]/);
-  if (start === -1) {
-    fail(`${rel(sourcePath)}: ${name} is not a static object or array literal`);
-    return undefined;
-  }
-  const literal = balancedLiteral(source, after + start);
-  if (!literal) {
-    fail(`${rel(sourcePath)}: could not read the ${name} literal`);
-    return undefined;
-  }
   try {
-    const context = Object.create(null);
-    const prefix = source.slice(0, declaration.index);
-    for (const match of prefix.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\b[^=]*=\s*([\s\S]*?);/g)) {
-      try {
-        context[match[1]] = vm.runInNewContext(
-          `(${match[2].replace(/\s+as\s+const\b/g, "")})`,
-          context,
-          { timeout: 100 },
-        );
-      } catch {
-        // Imported values and computed helpers are not needed to read the
-        // literal arrays. Leave them out of the evaluator context.
-      }
-    }
-    return vm.runInNewContext(
-      `(${literal.replace(/\s+as\s+const\b/g, "")})`,
-      context,
-      { filename: rel(sourcePath), timeout: 250 },
-    );
+    return resolveStaticConst(source, name, rel(sourcePath));
   } catch (error) {
     fail(
       `${rel(sourcePath)}: ${name} must be statically inspectable (${error.message}). ` +
