@@ -3,6 +3,7 @@ import type {
   CourseKitMilestoneCount,
   CourseKitProgressClientConfig,
 } from "./types";
+import { validateCourseKitEvidenceReceipt } from "./evidence-receipt";
 
 export const COURSE_KIT_PROGRESS_STORAGE_KEY = "ae.progress" as const;
 export const COURSE_KIT_PROGRESS_EVENT = "ae:course-kit:progress" as const;
@@ -121,9 +122,11 @@ export function createCourseKitProgressConfig(
     resetEvent: courseKitProgressResetEvent(manifest.id),
     milestoneCount: manifest.milestoneCount,
     moduleSlugs: manifest.modules.map((module) => module.slug),
+    moduleReceiptEvidence: manifest.completionEvidence.moduleReceipt,
     quizVersion: quiz.version,
     capstoneVersion: capstone.version,
     capstoneArtifactIds: capstone.artifacts.map((artifact) => artifact.id),
+    capstoneArtifactEvidence: manifest.completionEvidence.capstoneArtifact,
   };
 }
 
@@ -139,9 +142,24 @@ export function isCourseKitModuleComplete(
   config: CourseKitProgressClientConfig,
   moduleSlug: string,
 ): boolean {
+  const checkpoint = record[courseKitCheckpointKey(config.courseId, moduleSlug)];
+  const checkpointComplete = Boolean(
+    checkpoint
+    && typeof checkpoint === "object"
+    && !Array.isArray(checkpoint)
+    && (checkpoint as { correct?: unknown }).correct === true,
+  );
+  const receipt = record[courseKitModuleReceiptKey(config.courseId, moduleSlug)];
+  const receiptComplete = config.moduleReceiptEvidence === "none"
+    || (typeof receipt === "string"
+      && validateCourseKitEvidenceReceipt(receipt, {
+        expectedArtifactPath: `outputs/${config.courseId}/${moduleSlug}.json`,
+      }).valid);
   return (
     isCurrentCourseKitProgress(record, config) &&
-    record[courseKitModuleCompleteKey(config.courseId, moduleSlug)] === true
+    record[courseKitModuleCompleteKey(config.courseId, moduleSlug)] === true &&
+    checkpointComplete &&
+    receiptComplete
   );
 }
 
@@ -166,9 +184,17 @@ export function isCourseKitCapstoneComplete(
       config.capstoneVersion &&
     record[courseKitCapstoneCompleteKey(config.courseId)] === true &&
     config.capstoneArtifactIds.every(
-      (artifactId) =>
-        record[courseKitCapstoneArtifactKey(config.courseId, artifactId)] ===
-        true,
+      (artifactId) => {
+        if (record[courseKitCapstoneArtifactKey(config.courseId, artifactId)] !== true) {
+          return false;
+        }
+        const draft = record[courseKitCapstoneDraftKey(config.courseId, artifactId)];
+        if (typeof draft !== "string" || !draft.trim()) return false;
+        return config.capstoneArtifactEvidence === "draft"
+          || validateCourseKitEvidenceReceipt(draft, {
+            expectedArtifactPath: `outputs/${config.courseId}/${artifactId}.json`,
+          }).valid;
+      },
     )
   );
 }

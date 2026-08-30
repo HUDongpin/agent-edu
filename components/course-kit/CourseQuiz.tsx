@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   courseKitQuizBestKey,
   courseKitQuizDraftKey,
   courseKitQuizVersionKey,
+  isCourseKitModuleComplete,
 } from "@/lib/course-kit/progress";
 import {
   drawCourseKitQuizQuestions,
@@ -47,10 +49,18 @@ export function CourseQuiz({
   quiz,
   config,
   labels,
+  sourcesHref,
+  sourceTitles,
+  requirePrerequisites = false,
+  showIntro = true,
 }: {
   readonly quiz: MaterialisedQuiz;
   readonly config: CourseKitProgressClientConfig;
   readonly labels: CourseKitUiCopy;
+  readonly sourcesHref?: string;
+  readonly sourceTitles?: Readonly<Record<string, string>>;
+  readonly requirePrerequisites?: boolean;
+  readonly showIntro?: boolean;
 }) {
   const selectedQuestions = useMemo(
     () =>
@@ -82,11 +92,15 @@ export function CourseQuiz({
   const [grade, setGrade] = useState<CourseKitQuizGrade | null>(null);
   const [incomplete, setIncomplete] = useState(false);
   const [persisted, setPersisted] = useState<boolean | null>(null);
+  const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
   const currentQuiz =
     record[courseKitQuizVersionKey(config.courseId)] === quiz.version;
   const best = currentQuiz
     ? record[courseKitQuizBestKey(config.courseId)]
     : undefined;
+  const prerequisitesComplete = !requirePrerequisites || config.moduleSlugs.every(
+    (moduleSlug) => isCourseKitModuleComplete(record, config, moduleSlug),
+  );
 
   return (
     <section
@@ -97,7 +111,7 @@ export function CourseQuiz({
       <header className={styles.sectionIntro}>
         <p className={styles.eyebrow}>{labels.finalAssessment}</p>
         <h2 id={`${config.courseId}-assessment-title`}>{quiz.title}</h2>
-        <p>{quiz.intro}</p>
+        {showIntro ? <p>{quiz.intro}</p> : null}
         <p>
           {formatCourseKitCopy(labels.scorePosition, {
             score: quiz.passCount,
@@ -115,15 +129,68 @@ export function CourseQuiz({
         ) : null}
       </header>
 
+      {!prerequisitesComplete ? (
+        <p className={styles.prerequisiteNotice} role="status">
+          {labels.completeModulesBeforeAssessment}
+        </p>
+      ) : null}
+
+      <nav className={styles.quizNavigator} aria-label={labels.finalAssessment}>
+        {selectedQuestions.map((question, index) => {
+          const answered = answers[question.id] !== undefined;
+          const correct = grade
+            ? answers[question.id] === question.correctIndex
+            : undefined;
+          const statusLabel = grade
+            ? correct
+              ? labels.correct
+              : labels.incorrect
+            : answered
+              ? labels.answeredQuestion
+              : labels.unansweredQuestion;
+          return (
+            <button
+              type="button"
+              key={question.id}
+              aria-current={index === activeQuestionIndex ? "step" : undefined}
+              aria-label={`${formatCourseKitCopy(labels.questionPosition, {
+                current: index + 1,
+                total: selectedQuestions.length,
+              })}: ${statusLabel}`}
+              data-answered={answered || undefined}
+              data-correct={correct === true || undefined}
+              data-incorrect={correct === false || undefined}
+              onClick={() => setActiveQuestionIndex(index)}
+            >
+              {index + 1}
+              {grade ? (
+                <span aria-hidden="true"> {correct ? "✓" : "×"}</span>
+              ) : null}
+            </button>
+          );
+        })}
+      </nav>
+
       <form
         onSubmit={(event) => {
           event.preventDefault();
+          if (!prerequisitesComplete) return;
           const allAnswered = selectedQuestions.every(
             (question) => answers[question.id] !== undefined,
           );
           if (!allAnswered) {
+            const firstUnanswered = selectedQuestions.findIndex(
+              (question) => answers[question.id] === undefined,
+            );
             setIncomplete(true);
             setGrade(null);
+            setActiveQuestionIndex(firstUnanswered);
+            const firstUnansweredId = selectedQuestions[firstUnanswered]?.id;
+            requestAnimationFrame(() => {
+              document
+                .getElementById(`${config.courseId}-${firstUnansweredId}-fieldset`)
+                ?.focus();
+            });
             return;
           }
           const nextGrade = gradeCourseKitQuiz(
@@ -133,6 +200,19 @@ export function CourseQuiz({
           );
           setIncomplete(false);
           setGrade(nextGrade);
+          const firstIncorrect = selectedQuestions.findIndex(
+            (question) => answers[question.id] !== question.correctIndex,
+          );
+          const resultQuestionIndex = firstIncorrect >= 0 ? firstIncorrect : 0;
+          setActiveQuestionIndex(resultQuestionIndex);
+          const resultQuestionId = selectedQuestions[resultQuestionIndex]?.id;
+          requestAnimationFrame(() => {
+            const resultQuestion = document.getElementById(
+              `${config.courseId}-${resultQuestionId}-fieldset`,
+            );
+            resultQuestion?.scrollIntoView({ block: "start" });
+            resultQuestion?.focus({ preventScroll: true });
+          });
           setPersisted(
             recordCourseKitQuizAttempt(
               config,
@@ -143,11 +223,21 @@ export function CourseQuiz({
         }}
       >
         <ol className={styles.quizQuestions}>
-          {selectedQuestions.map((question, questionIndex) => {
+          {selectedQuestions
+            .slice(activeQuestionIndex, activeQuestionIndex + 1)
+            .map((question) => {
+            const questionIndex = activeQuestionIndex;
             const selected = answers[question.id];
+            const questionErrorId = `${config.courseId}-${question.id}-error`;
             return (
-              <li key={question.id}>
-                <fieldset>
+              <li key={question.id} value={questionIndex + 1}>
+                <fieldset
+                  id={`${config.courseId}-${question.id}-fieldset`}
+                  tabIndex={-1}
+                  aria-describedby={
+                    incomplete && selected === undefined ? questionErrorId : undefined
+                  }
+                >
                   <legend>
                     <span>
                       {formatCourseKitCopy(labels.questionPosition, {
@@ -163,6 +253,11 @@ export function CourseQuiz({
                     ) : null}
                     <strong>{question.prompt}</strong>
                   </legend>
+                  {incomplete && selected === undefined ? (
+                    <p className={styles.questionError} id={questionErrorId} role="alert">
+                      {labels.answerAllQuestions}
+                    </p>
+                  ) : null}
                   {question.options.map((option, optionIndex) => {
                     const index = optionIndex as CourseKitOptionIndex;
                     const optionCorrect = index === question.correctIndex;
@@ -177,6 +272,7 @@ export function CourseQuiz({
                           name={`${config.courseId}-${question.id}`}
                           value={optionIndex}
                           checked={selected === index}
+                          disabled={!prerequisitesComplete}
                           onChange={() => {
                             const nextAnswers = {
                               ...answers,
@@ -211,13 +307,52 @@ export function CourseQuiz({
                       {question.explanation}
                     </p>
                   ) : null}
+                  {sourcesHref && question.sourceIds.length ? (
+                    <nav className={styles.sourceLinks} aria-label={labels.sources}>
+                      {question.sourceIds.map((sourceId) => (
+                        <Link href={`${sourcesHref}#source-${sourceId}`} key={sourceId}>
+                          {sourceTitles?.[sourceId] ?? `${labels.source}: ${sourceId}`}
+                        </Link>
+                      ))}
+                    </nav>
+                  ) : null}
                 </fieldset>
               </li>
             );
           })}
         </ol>
+        <div className={styles.quizStepActions}>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            disabled={activeQuestionIndex === 0}
+            onClick={() => setActiveQuestionIndex((index) => Math.max(0, index - 1))}
+          >
+            <span aria-hidden="true">← </span>
+            {labels.previousQuestion}
+          </button>
+          <span>
+            {formatCourseKitCopy(labels.questionPosition, {
+              current: activeQuestionIndex + 1,
+              total: selectedQuestions.length,
+            })}
+          </span>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            disabled={activeQuestionIndex === selectedQuestions.length - 1}
+            onClick={() => setActiveQuestionIndex((index) =>
+              Math.min(selectedQuestions.length - 1, index + 1)
+            )}
+          >
+            {labels.nextQuestion}
+            <span aria-hidden="true"> →</span>
+          </button>
+        </div>
         <div className={styles.quizActions}>
-          <button type="submit">{labels.submitQuiz}</button>
+          <button type="submit" disabled={!prerequisitesComplete}>
+            {labels.submitQuiz}
+          </button>
           {grade ? (
             <button
               type="button"
@@ -227,6 +362,7 @@ export function CourseQuiz({
                 setGrade(null);
                 setIncomplete(false);
                 setPersisted(clearCourseKitQuizDraft(config));
+                setActiveQuestionIndex(0);
               }}
             >
               {labels.retryQuiz}
@@ -240,6 +376,7 @@ export function CourseQuiz({
                 setAnswerDraft({ base: storedAnswersSignature, answers: {} });
                 setIncomplete(false);
                 setPersisted(clearCourseKitQuizDraft(config));
+                setActiveQuestionIndex(0);
               }}
             >
               {labels.clearQuizDraft}

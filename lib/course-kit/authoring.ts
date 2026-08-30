@@ -8,6 +8,7 @@ import {
   COURSE_KIT_SCHEMA_VERSION,
   COURSE_KIT_SOURCE_SCHEMA_VERSION,
   type CourseKitCapstone,
+  type CourseKitCapstoneEvidenceMode,
   type CourseKitCourseCopy,
   type CourseKitCourseNumber,
   type CourseKitDefinition,
@@ -17,6 +18,7 @@ import {
   type CourseKitOptionIndex,
   type CourseKitPracticeCopy,
   type CourseKitQuiz,
+  type CourseKitReceiptEvidenceMode,
   type CourseKitSourceRecord,
   type CourseKitTenModules,
   type CourseKitTwelveModules,
@@ -167,6 +169,10 @@ interface CourseKitManifestAuthoringSeed<
   readonly version: string;
   readonly displayNumber: CourseKitCourseNumber;
   readonly publishedOn: string;
+  readonly completionEvidence: {
+    readonly moduleReceipt: CourseKitReceiptEvidenceMode;
+    readonly capstoneArtifact: CourseKitCapstoneEvidenceMode;
+  };
   readonly phases: CourseKitNonEmpty<CourseKitPhaseAuthoringSeed<PhaseId>>;
 }
 
@@ -614,6 +620,7 @@ export function buildCourseKitDefinition<
       version: seed.manifest.version,
       displayNumber: seed.manifest.displayNumber,
       publishedOn: seed.manifest.publishedOn,
+      completionEvidence: seed.manifest.completionEvidence,
       reviewedLocales: COURSE_KIT_REVIEWED_LOCALES,
       fallbackLocale: COURSE_KIT_FALLBACK_LOCALE,
       milestoneCount: seed.manifest.milestoneCount,

@@ -214,6 +214,9 @@ export function setCourseKitCheckpoint(
       choice,
       correct,
     };
+    if (!correct) {
+      record[courseKitModuleCompleteKey(config.courseId, moduleSlug)] = false;
+    }
   });
 }
 
@@ -344,6 +347,14 @@ export function setCourseKitCapstoneComplete(
         true,
     );
     record[courseKitCapstoneCompleteKey(config.courseId)] = allComplete;
+  });
+}
+
+export function setCourseKitCapstoneIncomplete(
+  config: CourseKitProgressClientConfig,
+): boolean {
+  return updateCourseKitProgress(config, (record) => {
+    record[courseKitCapstoneCompleteKey(config.courseId)] = false;
   });
 }
 

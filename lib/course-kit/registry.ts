@@ -17,6 +17,13 @@ export const COURSE_KIT_PAGES = COURSE_KIT_DEFINITIONS.flatMap((definition) => [
   ...definition.manifest.modules.map(
     (moduleManifest) => `${definition.manifest.id}/${moduleManifest.slug}/`,
   ),
+  ...(definition.manifest.id === "agentic-quant-trading"
+    ? [
+        `${definition.manifest.id}/assessment/`,
+        `${definition.manifest.id}/capstone/`,
+        `${definition.manifest.id}/sources/`,
+      ]
+    : []),
 ]);
 
 export function isCourseKitPage(page: string): boolean {

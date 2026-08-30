@@ -56,7 +56,7 @@ export function ModuleCheckpoint({
       <p className={styles.eyebrow}>{labels.checkpoint}</p>
       <h2 id={`${moduleSlug}-checkpoint-title`}>{checkpoint.question}</h2>
       <fieldset>
-        <legend className="sr-only">{checkpoint.question}</legend>
+        <legend className={styles.srOnly}>{checkpoint.question}</legend>
         {checkpoint.options.map((option, index) => {
           const optionIndex = index as CourseKitOptionIndex;
           return (

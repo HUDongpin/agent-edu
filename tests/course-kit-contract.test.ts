@@ -9,14 +9,21 @@ import {
   resolveCourseKitLocale,
 } from "../lib/course-kit/locale";
 import {
+  COURSE_KIT_EVIDENCE_RECEIPT_ISSUE_CODES,
   COURSE_KIT_EVIDENCE_RECEIPT_SCHEMA,
+  createCourseKitEvidenceReceiptTemplate,
+  isCourseKitEvidenceReceipt,
   parseCourseKitEvidenceReceipt,
+  validateCourseKitEvidenceReceipt,
 } from "../lib/course-kit/evidence-receipt";
 import {
   courseKitCapstoneArtifactKey,
   courseKitCapstoneCompleteKey,
+  courseKitCapstoneDraftKey,
   courseKitCapstoneVersionKey,
+  courseKitCheckpointKey,
   courseKitModuleCompleteKey,
+  courseKitModuleReceiptKey,
   courseKitProgressPercent,
   courseKitQuizPassedKey,
   courseKitQuizVersionKey,
@@ -39,6 +46,26 @@ const EXPECTED = [
   ["responsible-ai", 16, 10, 650, 12],
   ["agentic-quant-trading", 17, 12, 780, 14],
 ] as const;
+
+function validEvidenceReceipt(artifactPath: string): string {
+  return JSON.stringify({
+    schemaVersion: COURSE_KIT_EVIDENCE_RECEIPT_SCHEMA,
+    artifactPath,
+    sha256: "a".repeat(64),
+    validator: {
+      command: "python3 offline-validator.py --check",
+      status: "pass",
+      checkedOn: "2026-08-30",
+    },
+    reviewer: {
+      name: "Named Human Reviewer",
+      role: "Course evidence reviewer",
+      human: true,
+      decision: "accept-with-limitations",
+    },
+    limitations: ["This receipt is structural evidence, not automatic proof."],
+  });
+}
 
 test("the independent Course Kit registry is exactly the Course 16–17 contract", () => {
   assert.deepEqual([...COURSE_KIT_COURSE_IDS], EXPECTED.map(([id]) => id));
@@ -114,24 +141,96 @@ test("structured evidence receipts fail closed and require a named human review"
     },
     limitations: ["Synthetic fixtures do not establish live-market performance."],
   };
-  assert.ok(parseCourseKitEvidenceReceipt(JSON.stringify(valid)));
-  assert.equal(parseCourseKitEvidenceReceipt("not-json"), null);
-  assert.equal(parseCourseKitEvidenceReceipt(JSON.stringify({
-    ...valid,
-    artifactPath: "https://example.com/claim.json",
-  })), null);
-  assert.equal(parseCourseKitEvidenceReceipt(JSON.stringify({
-    ...valid,
-    reviewer: { ...valid.reviewer, human: false },
-  })), null);
-  assert.equal(parseCourseKitEvidenceReceipt(JSON.stringify({
-    ...valid,
-    limitations: [],
-  })), null);
-  assert.equal(parseCourseKitEvidenceReceipt(JSON.stringify({
-    ...valid,
-    validator: { ...valid.validator, status: "claimed-pass" },
-  })), null);
+  const validJson = JSON.stringify(valid);
+  const validResult = validateCourseKitEvidenceReceipt(validJson);
+  assert.equal(validResult.valid, true);
+  assert.deepEqual(validResult.issues, []);
+  assert.deepEqual(validResult.receipt, valid);
+  assert.deepEqual(parseCourseKitEvidenceReceipt(validJson), valid);
+  assert.equal(isCourseKitEvidenceReceipt(validJson), true);
+
+  const matchingArtifactResult = validateCourseKitEvidenceReceipt(validJson, {
+    expectedArtifactPath: "outputs/backtest-evaluation.json",
+  });
+  assert.equal(matchingArtifactResult.valid, true);
+  const mismatchedArtifactResult = validateCourseKitEvidenceReceipt(validJson, {
+    expectedArtifactPath: "outputs/risk-gates.json",
+  });
+  assert.equal(mismatchedArtifactResult.valid, false);
+  assert.deepEqual(
+    mismatchedArtifactResult.issues.map((issue) => issue.code),
+    ["invalid-artifact-path"],
+  );
+
+  assert.deepEqual(COURSE_KIT_EVIDENCE_RECEIPT_ISSUE_CODES, [
+    "empty",
+    "invalid-json",
+    "invalid-schema",
+    "invalid-artifact-path",
+    "invalid-sha256",
+    "invalid-validator",
+    "invalid-reviewer",
+    "invalid-limitations",
+  ]);
+
+  const invalidCases = [
+    ["empty", "   "],
+    ["invalid-json", "not-json"],
+    ["invalid-schema", JSON.stringify({ ...valid, schemaVersion: "unknown" })],
+    ["invalid-artifact-path", JSON.stringify({
+      ...valid,
+      artifactPath: "https://example.com/claim.json",
+    })],
+    ["invalid-sha256", JSON.stringify({ ...valid, sha256: "not-a-sha256" })],
+    ["invalid-validator", JSON.stringify({
+      ...valid,
+      validator: { ...valid.validator, status: "claimed-pass" },
+    })],
+    ["invalid-reviewer", JSON.stringify({
+      ...valid,
+      reviewer: { ...valid.reviewer, human: false },
+    })],
+    ["invalid-limitations", JSON.stringify({ ...valid, limitations: [] })],
+  ] as const;
+
+  for (const [expectedCode, input] of invalidCases) {
+    const result = validateCourseKitEvidenceReceipt(input);
+    assert.equal(result.valid, false);
+    assert.equal(result.receipt, null);
+    assert.deepEqual(result.issues.map((issue) => issue.code), [expectedCode]);
+    assert.equal(parseCourseKitEvidenceReceipt(input), null);
+    assert.equal(isCourseKitEvidenceReceipt(input), false);
+  }
+
+  const template = createCourseKitEvidenceReceiptTemplate(
+    "outputs/course17/module-01.json",
+  );
+  assert.equal(JSON.parse(template).schemaVersion, COURSE_KIT_EVIDENCE_RECEIPT_SCHEMA);
+  assert.equal(JSON.parse(template).artifactPath, "outputs/course17/module-01.json");
+  const templateResult = validateCourseKitEvidenceReceipt(template);
+  assert.equal(templateResult.valid, false);
+  assert.deepEqual(
+    templateResult.issues.map((issue) => issue.code),
+    [
+      "invalid-sha256",
+      "invalid-validator",
+      "invalid-reviewer",
+      "invalid-limitations",
+    ],
+  );
+
+  const superficiallyCompletedTemplate = JSON.parse(template);
+  superficiallyCompletedTemplate.sha256 = "b".repeat(64);
+  superficiallyCompletedTemplate.validator.checkedOn = "2026-08-30";
+  const unresolvedPlaceholderResult = validateCourseKitEvidenceReceipt(
+    JSON.stringify(superficiallyCompletedTemplate),
+    { expectedArtifactPath: "outputs/course17/module-01.json" },
+  );
+  assert.equal(unresolvedPlaceholderResult.valid, false);
+  assert.deepEqual(
+    unresolvedPlaceholderResult.issues.map((issue) => issue.code),
+    ["invalid-validator", "invalid-reviewer", "invalid-limitations"],
+  );
 });
 
 test("the fixed draw includes every critical question and one wrong critical answer blocks passing", () => {
@@ -164,9 +263,24 @@ test("progress is versioned and reaches 0, partial and 100 percent deterministic
   for (const definition of COURSE_KIT_DEFINITIONS) {
     const config = createCourseKitProgressConfig(definition);
     assert.equal(courseKitProgressPercent({}, config), 0);
-    const partial = {
+    const moduleSlug = config.moduleSlugs[0];
+    const rawFlag = {
       [config.progressVersionKey]: config.courseVersion,
-      [courseKitModuleCompleteKey(config.courseId, config.moduleSlugs[0])]: true,
+      [courseKitModuleCompleteKey(config.courseId, moduleSlug)]: true,
+    };
+    assert.equal(courseKitProgressPercent(rawFlag, config), 0);
+    const partial = {
+      ...rawFlag,
+      [courseKitCheckpointKey(config.courseId, moduleSlug)]: {
+        choice: 0,
+        correct: true,
+      },
+      ...(config.moduleReceiptEvidence === "structured-receipt"
+        ? {
+            [courseKitModuleReceiptKey(config.courseId, moduleSlug)]:
+              validEvidenceReceipt(`outputs/${config.courseId}/${moduleSlug}.json`),
+          }
+        : {}),
     };
     assert.equal(
       courseKitProgressPercent(partial, config),
@@ -186,9 +300,21 @@ test("progress is versioned and reaches 0, partial and 100 percent deterministic
     };
     for (const slug of config.moduleSlugs) {
       complete[courseKitModuleCompleteKey(config.courseId, slug)] = true;
+      complete[courseKitCheckpointKey(config.courseId, slug)] = {
+        choice: 0,
+        correct: true,
+      };
+      if (config.moduleReceiptEvidence === "structured-receipt") {
+        complete[courseKitModuleReceiptKey(config.courseId, slug)] =
+          validEvidenceReceipt(`outputs/${config.courseId}/${slug}.json`);
+      }
     }
     for (const artifactId of config.capstoneArtifactIds) {
       complete[courseKitCapstoneArtifactKey(config.courseId, artifactId)] = true;
+      complete[courseKitCapstoneDraftKey(config.courseId, artifactId)] =
+        config.capstoneArtifactEvidence === "structured-receipt"
+          ? validEvidenceReceipt(`outputs/${config.courseId}/${artifactId}.json`)
+          : "Reviewed capstone artifact draft.";
     }
     assert.equal(courseKitProgressPercent(complete, config), 100);
   }

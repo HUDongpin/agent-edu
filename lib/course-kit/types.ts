@@ -7,7 +7,7 @@
 
 export const COURSE_KIT_SCHEMA_VERSION = "course-kit.v1" as const;
 export const COURSE_KIT_MANIFEST_SCHEMA_VERSION =
-  "course-kit.manifest.v1" as const;
+  "course-kit.manifest.v2" as const;
 export const COURSE_KIT_SOURCE_SCHEMA_VERSION = "course-kit.source.v1" as const;
 export const COURSE_KIT_COPY_SCHEMA_VERSION = "course-kit.copy.v1" as const;
 export const COURSE_KIT_QUIZ_SCHEMA_VERSION = "course-kit.quiz.v2" as const;
@@ -97,6 +97,9 @@ export type CourseKitEvidenceMode =
   | "instructional-synthesis"
   | "version-watch";
 
+export type CourseKitReceiptEvidenceMode = "none" | "structured-receipt";
+export type CourseKitCapstoneEvidenceMode = "draft" | "structured-receipt";
+
 export type CourseKitReuseStatus =
   | "link-and-paraphrase-only"
   | "licence-noted-no-copy";
@@ -136,6 +139,10 @@ interface CourseKitManifestBase<
   readonly publishedOn: string;
   readonly reviewedLocales: typeof COURSE_KIT_REVIEWED_LOCALES;
   readonly fallbackLocale: typeof COURSE_KIT_FALLBACK_LOCALE;
+  readonly completionEvidence: {
+    readonly moduleReceipt: CourseKitReceiptEvidenceMode;
+    readonly capstoneArtifact: CourseKitCapstoneEvidenceMode;
+  };
   readonly phases: CourseKitNonEmpty<
     CourseKitPhaseManifest<PhaseId, ModuleSlug>
   >;
@@ -231,6 +238,8 @@ export interface CourseKitUiCopy {
   readonly minutes: string;
   readonly startCourse: string;
   readonly resumeCourse: string;
+  readonly courseComplete: string;
+  readonly finishCourse: string;
   readonly courseMap: string;
   readonly curriculum: string;
   readonly curriculumIntro: string;
@@ -246,6 +255,7 @@ export interface CourseKitUiCopy {
   readonly sourceKindLabels: Readonly<Record<CourseKitSourceKind, string>>;
   readonly sourceStabilityLabels: Readonly<Record<CourseKitSourceStability, string>>;
   readonly accessedOn: string;
+  readonly opensInNewTab: string;
   readonly objective: string;
   readonly artifact: string;
   readonly practice: string;
@@ -275,6 +285,9 @@ export interface CourseKitUiCopy {
   readonly evidenceReceiptPlaceholder: string;
   readonly evidenceReceiptHelp: string;
   readonly completeReceiptFirst: string;
+  readonly evidenceReceiptValid: string;
+  readonly evidenceReceiptInvalid: string;
+  readonly insertEvidenceReceiptTemplate: string;
   readonly savedInBrowser: string;
   readonly savedInMemory: string;
   readonly finalAssessment: string;
@@ -286,10 +299,15 @@ export interface CourseKitUiCopy {
   readonly criticalQuestion: string;
   readonly criticalGateFailed: string;
   readonly questionPosition: string;
+  readonly previousQuestion: string;
+  readonly nextQuestion: string;
+  readonly answeredQuestion: string;
+  readonly unansweredQuestion: string;
   readonly scorePosition: string;
   readonly bestScorePosition: string;
   readonly quizDraftRestored: string;
   readonly clearQuizDraft: string;
+  readonly completeModulesBeforeAssessment: string;
   readonly capstone: string;
   readonly capstoneArtifacts: string;
   readonly artifactDraftLabel: string;
@@ -300,6 +318,11 @@ export interface CourseKitUiCopy {
   readonly markCapstoneComplete: string;
   readonly capstoneComplete: string;
   readonly completeArtifactsFirst: string;
+  readonly completeCourseBeforeCapstone: string;
+  readonly reopenModule: string;
+  readonly reopenCapstone: string;
+  readonly previousStep: string;
+  readonly nextStep: string;
   readonly previous: string;
   readonly next: string;
   readonly backToCourse: string;
@@ -493,9 +516,11 @@ export interface CourseKitProgressClientConfig {
   readonly resetEvent: string;
   readonly milestoneCount: CourseKitMilestoneCount;
   readonly moduleSlugs: readonly string[];
+  readonly moduleReceiptEvidence: CourseKitReceiptEvidenceMode;
   readonly quizVersion: string;
   readonly capstoneVersion: string;
   readonly capstoneArtifactIds: readonly string[];
+  readonly capstoneArtifactEvidence: CourseKitCapstoneEvidenceMode;
 }
 
 export interface CourseKitMaterialisedPhase {

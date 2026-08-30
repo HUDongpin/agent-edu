@@ -18,6 +18,10 @@ export const RESPONSIBLE_AI_COURSE = buildCourseKitDefinition({
     version: "2026.08.26-v1",
     displayNumber: 16,
     publishedOn: "2026-08-26",
+    completionEvidence: {
+      moduleReceipt: "none",
+      capstoneArtifact: "draft",
+    },
     milestoneCount: 12,
     phases: [
       {

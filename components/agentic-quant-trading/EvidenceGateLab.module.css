@@ -14,7 +14,7 @@
 
 .intro > p:first-child {
   margin: 0;
-  color: var(--brand-2);
+  color: var(--course-accent);
   font-family: var(--mono);
   font-size: 11px;
   font-weight: 800;
@@ -40,7 +40,7 @@
 .claimNotice {
   max-inline-size: 76ch;
   margin-block-start: 20px;
-  border-inline-start: 4px solid var(--brand-line);
+  border-inline-start: 4px solid var(--course-line);
   padding-block: 12px;
   padding-inline: 16px;
   background: var(--bg-2);
@@ -67,7 +67,7 @@
 
 .labPack header > p:first-child {
   margin: 0;
-  color: var(--brand-2);
+  color: var(--course-accent);
   font-family: var(--mono);
   font-size: 10px;
   font-weight: 800;
@@ -123,7 +123,7 @@
 
 .labPack a:focus-visible {
   border-radius: 4px;
-  outline: 3px solid var(--gold-mark);
+  outline: 3px solid var(--course-accent);
   outline-offset: 3px;
 }
 
@@ -148,7 +148,7 @@
 
 .labPack a b {
   flex: 0 0 auto;
-  color: var(--brand-2);
+  color: var(--course-accent);
   font-size: 12px;
 }
 
@@ -166,7 +166,7 @@
 .labPack pre {
   overflow-x: auto;
   margin-block: 0 10px;
-  border: 1px solid var(--brand-line);
+  border: 1px solid var(--course-line);
   border-radius: 8px;
   padding: 13px 14px;
   background: var(--course-cover-editor, var(--card));
@@ -174,7 +174,7 @@
 }
 
 .labPack pre:focus-visible {
-  outline: 3px solid var(--gold-mark);
+  outline: 3px solid var(--course-accent);
   outline-offset: 3px;
 }
 
@@ -231,7 +231,7 @@
   inline-size: 42px;
   block-size: 24px;
   margin-block-start: 1px;
-  border: 1px solid var(--brand-line);
+  border: 1px solid var(--course-line);
   border-radius: 999px;
   background: var(--card);
 }
@@ -258,12 +258,12 @@
   transform: translateX(18px);
 }
 
-[dir="rtl"] .gate input:checked + .switch::after {
+.gate:dir(rtl) input:checked + .switch::after {
   transform: translateX(-18px);
 }
 
 .gate input:focus-visible + .switch {
-  outline: 3px solid var(--gold-mark);
+  outline: 3px solid var(--course-accent);
   outline-offset: 3px;
 }
 
@@ -359,66 +359,34 @@
   white-space: nowrap;
 }
 
-.tableHint {
-  margin-block: 14px 8px;
-  color: var(--ink-3);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.tableWrap {
-  overflow-x: auto;
+.metricsNotice {
+  margin-block-start: 14px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  overscroll-behavior-inline: contain;
-  scrollbar-gutter: stable;
-}
-
-.tableWrap:focus-visible {
-  outline: 3px solid var(--gold-mark);
-  outline-offset: 3px;
-}
-
-.tableWrap table {
-  inline-size: 100%;
-  min-inline-size: 620px;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-}
-
-.tableWrap caption {
-  padding-block: 12px;
-  padding-inline: 14px;
+  padding: 16px;
   background: var(--bg-2);
   color: var(--ink-2);
-  font-size: 12px;
-  font-weight: 700;
-  text-align: start;
 }
 
-.tableWrap th,
-.tableWrap td {
-  border-block-start: 1px solid var(--line);
-  padding-block: 11px;
-  padding-inline: 12px;
-  text-align: start;
-  vertical-align: top;
-}
-
-.tableWrap thead th {
-  color: var(--ink-3);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.tableWrap tbody th {
+.metricsNotice strong {
   color: var(--ink);
 }
 
-.tableWrap td {
+.metricsNotice p {
+  margin-block: 6px 0;
+  line-height: 1.6;
+}
+
+.metricsNotice h3 {
+  margin-block: 14px 4px;
+  font-size: 14px;
+}
+
+.metricsNotice ul {
+  margin-block: 6px 0;
+  padding-inline-start: 20px;
   color: var(--ink-2);
+  line-height: 1.6;
 }
 
 .fixture {
@@ -470,11 +438,11 @@
 
 .actions button {
   min-block-size: 44px;
-  border: 1px solid var(--brand-line);
+  border: 1px solid var(--course-line);
   border-radius: 8px;
   padding-block: 10px;
   padding-inline: 16px;
-  background: var(--brand-2);
+  background: var(--course-accent);
   color: var(--card);
   font: inherit;
   font-weight: 750;
@@ -483,17 +451,23 @@
 
 .actions .secondary {
   background: var(--card);
-  color: var(--brand);
+  color: var(--course-accent);
 }
 
 .actions button:hover {
-  background: var(--brand);
+  background: color-mix(in srgb, var(--course-accent) 82%, var(--ink));
   color: var(--card);
 }
 
 .actions button:focus-visible {
-  outline: 3px solid var(--gold-mark);
+  outline: 3px solid var(--course-accent);
   outline-offset: 3px;
+}
+
+.actions button[data-danger] {
+  border-color: var(--red-line);
+  background: var(--red-soft);
+  color: var(--red);
 }
 
 .announcement {
@@ -501,6 +475,35 @@
   margin-block: 8px 0;
   color: var(--ink-2);
   font-size: 13px;
+}
+
+.manualCopy {
+  display: grid;
+  gap: 8px;
+  margin-block-start: 10px;
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.manualCopy textarea {
+  inline-size: 100%;
+  min-block-size: 180px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.manualCopy textarea:focus-visible {
+  outline: 3px solid var(--course-accent);
+  outline-offset: 3px;
 }
 
 @media (max-width: 800px) {

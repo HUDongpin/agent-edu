@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo, useState } from "react";
+import { createCourseKitEvidenceReceiptTemplate } from "@/lib/course-kit/evidence-receipt";
 import styles from "./EvidenceGateLab.module.css";
 
 const GATE_IDS = [
@@ -110,10 +111,14 @@ const COPY = {
     disclaimerTitle: "Boundary",
     disclaimer:
       "Illustrative only. Checklist completion and self-test success are not performance evidence, replay permission, investment advice, or authorisation for market action.",
-    copyReceipt: "Copy illustrative receipt",
+    copyReceipt: "Copy unverified checklist export (not accepted for completion)",
+    copyCompletionTemplate: "Copy completion-receipt template",
     copied: "Illustrative receipt copied",
+    templateCopied: "Completion-receipt template copied. Replace every placeholder before use.",
     copyFailed: "Clipboard unavailable; the receipt was not copied",
+    manualCopy: "Clipboard unavailable. Select and copy this JSON manually.",
     reset: "Reset claims",
+    resetConfirm: "Reset all five selected claims?",
   },
   "zh-Hans": {
     eyebrow: "交互式证据闸门",
@@ -177,10 +182,14 @@ const COPY = {
     disclaimerTitle: "边界声明",
     disclaimer:
       "仅供说明。完成检查表或通过自测，都不是绩效证据、回放许可、投资建议，也不授权任何市场操作。",
-    copyReceipt: "复制说明性收据",
+    copyReceipt: "复制未验证检查表（不能用于结课）",
+    copyCompletionTemplate: "复制结课收据模板",
     copied: "说明性收据已复制",
+    templateCopied: "结课收据模板已复制；使用前请替换每个占位内容。",
     copyFailed: "剪贴板不可用，未能复制收据",
+    manualCopy: "剪贴板不可用；请手动选择并复制以下 JSON。",
     reset: "重置主张",
+    resetConfirm: "是否重置已选择的五项主张？",
   },
 } as const;
 
@@ -188,7 +197,11 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
   const labels = locale === "zh-Hans" ? COPY["zh-Hans"] : COPY.en;
   const rootId = useId().replace(/:/g, "");
   const [gates, setGates] = useState<GateState>(EMPTY_GATES);
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const [copyState, setCopyState] = useState<
+    "idle" | "copied" | "template-copied" | "failed"
+  >("idle");
+  const [manualCopy, setManualCopy] = useState("");
+  const [resetArmed, setResetArmed] = useState(false);
 
   const result = useMemo(() => {
     const count = GATE_IDS.filter((id) => gates[id]).length;
@@ -199,6 +212,8 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
   const toggle = (id: GateId) => {
     setGates((current) => ({ ...current, [id]: !current[id] }));
     setCopyState("idle");
+    setManualCopy("");
+    setResetArmed(false);
   };
 
   const copyReceipt = async () => {
@@ -247,15 +262,33 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
     };
     try {
       if (!navigator.clipboard?.writeText) throw new Error("clipboard unavailable");
-      await navigator.clipboard.writeText(JSON.stringify(receipt, null, 2));
+      const serialised = JSON.stringify(receipt, null, 2);
+      await navigator.clipboard.writeText(serialised);
       setCopyState("copied");
+      setManualCopy("");
     } catch {
       setCopyState("failed");
+      setManualCopy(JSON.stringify(receipt, null, 2));
+    }
+  };
+
+  const copyCompletionTemplate = async () => {
+    const serialised = createCourseKitEvidenceReceiptTemplate(
+      "outputs/agentic-quant-trading/REPLACE_WITH_ARTIFACT.json",
+    );
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("clipboard unavailable");
+      await navigator.clipboard.writeText(serialised);
+      setCopyState("template-copied");
+      setManualCopy("");
+    } catch {
+      setCopyState("failed");
+      setManualCopy(serialised);
     }
   };
 
   return (
-    <section className={styles.lab} aria-labelledby={`${rootId}-title`}>
+    <section id="evidence-lab" className={styles.lab} aria-labelledby={`${rootId}-title`}>
       <header className={styles.intro}>
         <p>{labels.eyebrow}</p>
         <h2 id={`${rootId}-title`}>{labels.title}</h2>
@@ -313,10 +346,7 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
           </div>
 
           <div
-            className={styles.tableWrap}
-            role="region"
-            tabIndex={0}
-            aria-label={labels.metricsRegionLabel}
+            className={styles.metricsNotice}
           >
             <div>
               <strong>{labels.metricsTitle}</strong>
@@ -340,21 +370,44 @@ export function EvidenceGateLab({ locale }: { readonly locale: string }) {
             <button
               type="button"
               className={styles.secondary}
+              onClick={copyCompletionTemplate}
+            >
+              {labels.copyCompletionTemplate}
+            </button>
+            <button
+              type="button"
+              className={styles.secondary}
+              data-danger={resetArmed || undefined}
+              onBlur={() => setResetArmed(false)}
               onClick={() => {
+                if (!resetArmed) {
+                  setResetArmed(true);
+                  return;
+                }
                 setGates({ ...EMPTY_GATES });
                 setCopyState("idle");
+                setManualCopy("");
+                setResetArmed(false);
               }}
             >
-              {labels.reset}
+              {resetArmed ? labels.resetConfirm : labels.reset}
             </button>
           </div>
           <p className={styles.announcement} aria-live="polite" aria-atomic="true">
             {copyState === "copied"
               ? labels.copied
+              : copyState === "template-copied"
+                ? labels.templateCopied
               : copyState === "failed"
                 ? labels.copyFailed
                 : ""}
           </p>
+          {manualCopy ? (
+            <label className={styles.manualCopy}>
+              <span>{labels.manualCopy}</span>
+              <textarea readOnly value={manualCopy} dir="ltr" onFocus={(event) => event.currentTarget.select()} />
+            </label>
+          ) : null}
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import type { CourseKitMaterialisedCourse } from "@/lib/course-kit/types";
-import styles from "./CourseKit.module.css";
+import { DismissibleLanguageNotice } from "./DismissibleLanguageNotice";
 
 export function CourseLanguageNotice({
   course,
@@ -9,16 +9,13 @@ export function CourseLanguageNotice({
   if (!course.locale.isFallback) return null;
 
   return (
-    <aside
-      className={styles.languageNotice}
-      aria-labelledby={`${course.id}-language-notice-title`}
-      lang={course.locale.contentLocale}
-      dir={course.locale.contentDirection}
-    >
-      <strong id={`${course.id}-language-notice-title`}>
-        {course.copy.ui.fallbackLanguageLabel}: {course.locale.contentLocale}
-      </strong>
-      <p>{course.copy.meta.fallbackNotice}</p>
-    </aside>
+    <DismissibleLanguageNotice
+      titleId={`${course.id}-language-notice-title`}
+      contentLocale={course.locale.contentLocale}
+      contentDirection={course.locale.contentDirection}
+      label={course.copy.ui.fallbackLanguageLabel}
+      notice={course.copy.meta.fallbackNotice}
+      dismissLabel={course.copy.ui.dismissLanguageNotice}
+    />
   );
 }
