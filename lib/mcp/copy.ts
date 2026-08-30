@@ -71,6 +71,7 @@ export const MCP_ENGLISH_UI_COPY = {
   progressTakeAssessment: "Take assessment",
   progressOpenCapstone: "Open capstone",
   progressResetStatus: "MCP course progress was reset in this browser.",
+  progressResetFailedStatus: "MCP progress could not be reset in browser storage. This page now shows a session-only reset; reloading may restore the saved progress.",
   progressResetGroupAria: "Confirm progress reset",
   progressResetQuestion: "Reset all MCP lessons, assessment, and capstone progress?",
   progressResetYes: "Yes, reset",
@@ -180,6 +181,7 @@ export const MCP_ENGLISH_UI_COPY = {
   completionBody: "Mark this lesson only after the named artifacts exist. Progress stays in this browser.",
   completionStorageUnavailable: "Browser storage is unavailable; this page session will remember progress only until you refresh or close it.",
   completionMarked: "Marked complete ✓",
+  completionUndo: "Mark lesson incomplete",
   completionMark: "Mark lesson complete",
 
   labEyebrow: "Interactive practice",

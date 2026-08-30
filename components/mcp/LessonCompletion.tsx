@@ -29,7 +29,7 @@ export default function LessonCompletion({ slug, ui }: { slug: string; ui: McpUi
         aria-pressed={complete}
         onClick={() => updateMcpProgress((next) => { next[key] = !complete; })}
       >
-        {complete ? ui.completionMarked : ui.completionMark}
+        {complete ? ui.completionUndo : ui.completionMark}
       </button>
     </section>
   );

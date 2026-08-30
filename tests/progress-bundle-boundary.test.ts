@@ -56,6 +56,7 @@ import {
   MAKE_MONEY_WITH_CODEX_QUIZ_VERSION,
 } from "../lib/make-money-with-codex/types";
 import { MCP_LESSONS } from "../lib/mcp/course";
+import { MCP_FINAL_ASSESSMENT } from "../lib/mcp/assessment";
 import { MCP_ASSESSMENT_VERSION } from "../lib/mcp/types";
 import { PRODUCT_MANAGEMENT_COURSE_MANIFEST } from "../lib/product-management/manifest";
 import {
@@ -90,6 +91,7 @@ import {
   MAKE_MONEY_PROGRESS_SCHEMA,
   MCP_PROGRESS_ASSESSMENT_VERSION,
   MCP_PROGRESS_LESSON_SLUGS,
+  MCP_PROGRESS_QUIZ,
   PRODUCT_MANAGEMENT_PROGRESS_MODULE_SLUGS,
   PRODUCT_MANAGEMENT_PROGRESS_SCHEMA,
   PROMPT_PROGRESS_LESSON_SLUGS,
@@ -198,6 +200,15 @@ test("lightweight progress topology exactly mirrors course route and schema cont
   assert.deepEqual(RAG_PROGRESS_LESSON_SLUGS, RAG_LESSON_SLUGS);
   assert.deepEqual(MCP_PROGRESS_LESSON_SLUGS, MCP_LESSONS.map((lesson) => lesson.slug));
   assert.equal(MCP_PROGRESS_ASSESSMENT_VERSION, MCP_ASSESSMENT_VERSION);
+  assert.deepEqual(MCP_PROGRESS_QUIZ, {
+    bankVersion: MCP_ASSESSMENT_VERSION,
+    questionCount: MCP_FINAL_ASSESSMENT.length,
+    passingCorrectAnswers: Math.ceil(MCP_FINAL_ASSESSMENT.length * 0.8),
+    bestScoreKey: "mcp.quiz.best",
+    passedKey: "mcp.quiz.passed",
+    versionKey: "mcp.quiz.version",
+    draftKey: "mcp.quiz.draft",
+  });
   assert.deepEqual(MAKE_MONEY_PROGRESS_LESSON_SLUGS, MAKE_MONEY_WITH_CODEX_LESSON_SLUGS);
   assert.deepEqual(
     CLAUDE_INCOME_PROGRESS_LESSON_SLUGS,

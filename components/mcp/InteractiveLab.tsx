@@ -48,7 +48,11 @@ function ArchitectureLab({ interactive, ui }: { interactive: McpInteractiveCopy;
   const card = interactive.architectureCards[active];
   return (
     <div className={styles.interactiveGrid}>
-      <div className={styles.participantMap} aria-label={ui.labParticipantMapAria}>
+      <figure className={styles.participantMap}>
+        <figcaption className={styles.visuallyHidden}>
+          {ui.labParticipantMapAria}. {ui.labClientA} - <bdi dir="ltr">stdio</bdi> - {ui.labLocalServer}.{" "}
+          {ui.labClientB} - <bdi dir="ltr">Streamable HTTP</bdi> - {ui.labRemoteServer}.
+        </figcaption>
         <div className={styles.hostBox}>
           <strong>{ui.labHost}</strong>
           <span>{ui.labHostSummary}</span>
@@ -56,9 +60,9 @@ function ArchitectureLab({ interactive, ui }: { interactive: McpInteractiveCopy;
             <span>{ui.labClientA}</span><span>{ui.labClientB}</span>
           </div>
         </div>
-        <div className={styles.connectionRow} aria-hidden="true"><span>stdio</span><span>Streamable HTTP</span></div>
+        <div className={styles.connectionRow}><span dir="ltr" translate="no">stdio</span><span dir="ltr" translate="no">Streamable HTTP</span></div>
         <div className={styles.serverRow}><span>{ui.labLocalServer}</span><span>{ui.labRemoteServer}</span></div>
-      </div>
+      </figure>
       <div>
         <div className={styles.segmented} role="group" aria-label={ui.labChooseParticipant}>
           {architectureCardIds.map((id) => (
@@ -99,8 +103,8 @@ function EnvelopeLab({ interactive, ui }: { interactive: McpInteractiveCopy; ui:
     <div className={styles.envelopeLab}>
       <label>
         {ui.labCurrentMethod}
-        <select value={method} onChange={(event) => setMethod(event.target.value as (typeof methods)[number])}>
-          {methods.map((item) => <option key={item}>{item}</option>)}
+        <select dir="ltr" translate="no" value={method} onChange={(event) => setMethod(event.target.value as (typeof methods)[number])}>
+          {methods.map((item) => <option dir="ltr" key={item}>{item}</option>)}
         </select>
       </label>
       <p>{interactive.envelopePurposes[method]}</p>
@@ -144,7 +148,7 @@ function ToolContractLab({ ui }: { ui: McpUiCopy }) {
   return (
     <div className={styles.toolBuilder}>
       <div className={styles.builderControls}>
-        <label>{ui.labToolName}<input name="mcp-tool-name" autoComplete="off" spellCheck={false} value={name} onChange={(event) => setName(event.target.value)} /></label>
+        <label>{ui.labToolName}<input dir="ltr" translate="no" name="mcp-tool-name" autoComplete="off" spellCheck={false} value={name} onChange={(event) => setName(event.target.value)} /></label>
         <label className={styles.checkRow}><input type="checkbox" checked={write} onChange={(event) => setWrite(event.target.checked)} /> {ui.labHasSideEffect}</label>
         <label className={styles.checkRow}><input type="checkbox" checked={dryRun} onChange={(event) => setDryRun(event.target.checked)} /> {ui.labSupportsDryRun}</label>
         <label className={styles.checkRow}><input type="checkbox" checked={unknown} onChange={(event) => setUnknown(event.target.checked)} /> {ui.labAcceptUnknown}</label>

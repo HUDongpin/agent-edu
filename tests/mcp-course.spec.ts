@@ -32,6 +32,7 @@ for (const lesson of MCP_LESSONS) {
 }
 
 type RuntimeAudit = {
+  origin: string | null;
   readonly consoleErrors: string[];
   readonly pageErrors: Error[];
   readonly requestFailures: Array<{ request: Request; reason: string }>;
@@ -41,6 +42,7 @@ type RuntimeAudit = {
 
 function watchRuntime(page: Page): RuntimeAudit {
   const audit: RuntimeAudit = {
+    origin: null,
     consoleErrors: [],
     pageErrors: [],
     requestFailures: [],
@@ -49,7 +51,9 @@ function watchRuntime(page: Page): RuntimeAudit {
   };
 
   page.on("request", (request) => {
-    if (isNextLinkPrefetchRequest(request, PLAYWRIGHT_TEST_ORIGIN)) {
+    const requestOrigin = new URL(request.url()).origin;
+    if (!audit.origin && requestOrigin !== "null") audit.origin = requestOrigin;
+    if (isNextLinkPrefetchRequest(request, audit.origin ?? PLAYWRIGHT_TEST_ORIGIN)) {
       audit.nextPrefetchUrls.add(request.url());
     }
   });
@@ -76,16 +80,17 @@ function assertRuntimeClean(
   label: string,
   renderedLinkTargets: ReadonlySet<string>,
 ) {
+  const pageOrigin = audit.origin ?? PLAYWRIGHT_TEST_ORIGIN;
   const pageErrors = audit.pageErrors
     .filter((error) => !isExpectedWebKitRscPrefetchPageError(
       error,
-      PLAYWRIGHT_TEST_ORIGIN,
+      pageOrigin,
       audit.nextPrefetchUrls,
     ))
     .map((error) => error.stack || error.message);
   const requestFailures = audit.requestFailures
     .filter(({ request, reason }) => !(
-      isNextLinkPrefetchRequest(request, PLAYWRIGHT_TEST_ORIGIN, renderedLinkTargets)
+      isNextLinkPrefetchRequest(request, pageOrigin, renderedLinkTargets)
       && isExpectedNextPrefetchCancellation(reason)
     ))
     .map(({ request, reason }) => `${reason}: ${request.url()}`);
@@ -113,6 +118,25 @@ async function expectNoPageOverflow(page: Page, label: string) {
     dimensions.scrollWidth,
     `${label}: ${dimensions.scrollWidth}px document in ${dimensions.clientWidth}px viewport`,
   ).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+}
+
+async function expectFocusedTargetInViewport(page: Page, selector: string) {
+  const target = page.locator(selector);
+  await expect(target).toBeFocused();
+  const position = await target.evaluate((node) => {
+    const bounds = node.getBoundingClientRect();
+    const topbar = document.querySelector<HTMLElement>(".topbar")?.getBoundingClientRect();
+    const courseNav = document.querySelector<HTMLElement>("[data-course-jump-nav]")?.getBoundingClientRect();
+    return {
+      top: bounds.top,
+      bottom: bounds.bottom,
+      viewportHeight: window.innerHeight,
+      stickyBottom: Math.max(topbar?.bottom ?? 0, courseNav?.bottom ?? 0),
+    };
+  });
+  expect(position.top).toBeGreaterThanOrEqual(position.stickyBottom - 1);
+  expect(position.top).toBeLessThan(position.viewportHeight);
+  expect(position.bottom).toBeGreaterThan(0);
 }
 
 async function clearMcpProgress(page: Page) {
@@ -473,6 +497,15 @@ test.describe.serial("Course 10 private progress, assessment, and capstone", () 
     await expect(page.locator('section[aria-labelledby="mcp-completion-title"] button')).toHaveAttribute("aria-pressed", "true");
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(stored["mcp.lesson.why-mcp"]).toBe(true);
+    const undo = page.locator('section[aria-labelledby="mcp-completion-title"] button');
+    await expect(undo).toHaveAccessibleName("Mark lesson incomplete");
+    await undo.click();
+    await expect(undo).toHaveAttribute("aria-pressed", "false");
+    await page.reload();
+    await expect(page.locator('section[aria-labelledby="mcp-completion-title"] button')).toHaveAttribute("aria-pressed", "false");
+    await page.goto(DASHBOARD);
+    await expect(page.locator('[data-lesson-slug="why-mcp"]')).not.toHaveAttribute("data-complete", "true");
+    await expect(page.locator("[data-course-journey-action]")).toHaveAttribute("href", "/en/mcp/why-mcp/");
   });
 
   test("14/18 fails, 15/18 passes, and best/pass state is monotonic", async ({ page }) => {
@@ -498,12 +531,86 @@ test.describe.serial("Course 10 private progress, assessment, and capstone", () 
     expect(stored["mcp.quiz.passed"]).toBe(true);
 
     await page.reload();
-    await assessment.getByRole("button", { name: /Begin assessment/i }).click();
+    await expect(assessment.locator('[role="status"]')).toContainText("15/18");
+    await page.evaluate((version) => {
+      const progress = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      progress["mcp.quiz.draft"] = { version, answers: {}, submitted: false };
+      localStorage.setItem("ae.progress", JSON.stringify(progress));
+    }, MCP_ASSESSMENT_VERSION);
+    await page.reload();
+    await expect(assessment.locator("form fieldset")).toHaveCount(MCP_FINAL_ASSESSMENT.length);
     await answerAssessment(page, 0);
     stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(stored["mcp.quiz.best"]).toBe(15);
     expect(stored["mcp.quiz.passed"]).toBe(true);
     expect(stored["mcp.quiz.version"]).toBe(MCP_ASSESSMENT_VERSION);
+  });
+
+  test("dashboard requires a valid best score before advancing to capstone", async ({ page }) => {
+    await page.addInitScript((slugs: readonly string[]) => {
+      if (sessionStorage.getItem("mcp-invalid-best-fixture")) return;
+      localStorage.setItem("ae.progress", JSON.stringify({
+        ...Object.fromEntries(slugs.map((slug) => [`mcp.lesson.${slug}`, true])),
+        "mcp.quiz.version": "2026-07-28-v2",
+        "mcp.quiz.passed": true,
+      }));
+      sessionStorage.setItem("mcp-invalid-best-fixture", "ready");
+    }, LESSON_SLUGS);
+    await page.goto(DASHBOARD);
+    await expect(page.locator("#mcp-progress-title")).toContainText("90% complete");
+    await expect(page.locator("[data-course-journey-action]")).toHaveAttribute("href", "/en/mcp/#assessment");
+
+    await page.evaluate(() => {
+      const progress = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      progress["mcp.quiz.best"] = 15;
+      localStorage.setItem("ae.progress", JSON.stringify(progress));
+    });
+    await page.reload();
+    await expect(page.locator("#mcp-progress-title")).toContainText("95% complete");
+    await expect(page.locator("[data-course-journey-action]")).toHaveAttribute("href", "/en/mcp/#capstone");
+
+    const partialAnswers = Object.fromEntries(
+      MCP_FINAL_ASSESSMENT.slice(0, 15).map((question) => [question.id, question.correctIndex]),
+    );
+    await page.evaluate(({ answers, version }) => {
+      const progress = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      delete progress["mcp.quiz.best"];
+      delete progress["mcp.quiz.passed"];
+      delete progress["mcp.quiz.version"];
+      progress["mcp.quiz.draft"] = {
+        version,
+        answers: { ...answers, unknown1: 0, unknown2: 1, unknown3: 2 },
+        submitted: true,
+        reviewQuestionId: "unknown1",
+      };
+      localStorage.setItem("ae.progress", JSON.stringify(progress));
+    }, { answers: partialAnswers, version: MCP_ASSESSMENT_VERSION });
+    await page.reload();
+    const assessment = page.locator("#assessment");
+    await expect(assessment.locator('[role="status"]')).toHaveCount(0);
+    await expect(assessment.locator('input[type="radio"]:checked')).toHaveCount(15);
+    await expect(assessment.getByRole("button", { name: /Score assessment/i })).toBeDisabled();
+  });
+
+  test("a failed assessment survives mapped-lesson review and browser Back", async ({ page }) => {
+    test.setTimeout(90_000);
+    await clearMcpProgress(page);
+    await page.goto(DASHBOARD);
+    const assessment = page.locator("#assessment");
+    await assessment.getByRole("button", { name: /Begin assessment/i }).click();
+    await answerAssessment(page, 14);
+    const review = assessment.getByRole("link", { name: /Review the mapped lesson/i }).first();
+    await review.click();
+    await expect(page).toHaveURL(/\/en\/mcp\/[a-z0-9-]+\/$/);
+    await page.goBack();
+    await expect(page).toHaveURL(/\/en\/mcp\/#mcp-assessment-feedback-/);
+    await expect(assessment.locator("form fieldset")).toHaveCount(MCP_FINAL_ASSESSMENT.length);
+    await expect(assessment.locator('input[type="radio"]:checked')).toHaveCount(MCP_FINAL_ASSESSMENT.length);
+    await expect(assessment.locator('[id^="mcp-assessment-feedback-"]')).toHaveCount(MCP_FINAL_ASSESSMENT.length);
+    await expect(assessment.locator('[role="status"][tabindex="-1"]')).toContainText("14/18");
+    await expect.poll(() => page.evaluate(() => (
+      document.activeElement?.id || document.activeElement?.tagName || ""
+    ))).toMatch(/^mcp-assessment-feedback-/);
   });
 
   test("capstone completion requires all ten evidence classes and persists", async ({ page }) => {
@@ -548,13 +655,13 @@ test.describe.serial("Course 10 private progress, assessment, and capstone", () 
     await trigger.click();
     const confirmation = page.locator("#mcp-reset-confirmation");
     await expect(confirmation).toBeVisible();
-    await expect(confirmation.locator("button").first()).toBeFocused();
+    await expect(confirmation.getByRole("button", { name: /Cancel/i })).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(confirmation).toHaveCount(0);
     await expect(trigger).toBeFocused();
 
     await trigger.click();
-    await confirmation.locator("button").first().click();
+    await confirmation.getByRole("button", { name: /Yes, reset/i }).click();
     await expect(page.locator('[role="status"][tabindex="-1"]')).toBeFocused();
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(Object.keys(stored).filter((key) => key.startsWith("mcp."))).toEqual([]);
@@ -582,6 +689,96 @@ test.describe.serial("Course 10 private progress, assessment, and capstone", () 
     await expect(page.getByTestId("mcp-figure-inspector-tools").locator("img")).toBeVisible();
     await expect(page.locator('section[aria-labelledby="mcp-completion-title"] [role="status"]')).toBeVisible();
     await context.close();
+  });
+
+  test("dashboard warns when assessment and capstone state cannot persist", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL });
+    await context.addInitScript(() => {
+      Object.defineProperty(window, "localStorage", {
+        configurable: true,
+        get() {
+          throw new DOMException("Storage denied", "SecurityError");
+        },
+      });
+    });
+    const page = await context.newPage();
+    await page.goto(DASHBOARD);
+    const warning = page.getByRole("status").filter({ hasText: "Browser storage is unavailable" });
+    await expect(warning).toBeVisible();
+    await page.locator("#assessment").getByRole("button", { name: "Begin assessment" }).click();
+    await page.locator("#assessment input[type=radio]").first().check();
+    await page.reload();
+    await expect(warning).toBeVisible();
+    await expect(page.locator("#assessment").getByRole("button", { name: "Begin assessment" })).toBeVisible();
+    await context.close();
+  });
+
+  test("quota-denied reset reports failure and never overwrites shared progress", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL });
+    await context.addInitScript(() => {
+      const nativeSetItem = Storage.prototype.setItem;
+      if (!sessionStorage.getItem("mcp-quota-reset-fixture")) {
+        nativeSetItem.call(localStorage, "ae.progress", JSON.stringify({
+          "mcp.lesson.why-mcp": true,
+          "github.lesson.start-secure": true,
+          unrelated: "preserve-me",
+        }));
+        nativeSetItem.call(sessionStorage, "mcp-quota-reset-fixture", "ready");
+      }
+      Storage.prototype.setItem = function setItem(key: string, value: string) {
+        if (this === localStorage && key === "ae.progress") {
+          throw new DOMException("Quota reached", "QuotaExceededError");
+        }
+        return nativeSetItem.call(this, key, value);
+      };
+    });
+    const page = await context.newPage();
+    await page.goto(DASHBOARD);
+    await expect(page.locator("#mcp-progress-title")).toContainText("5% complete");
+    await page.getByRole("button", { name: "Reset MCP progress" }).click();
+    const confirmation = page.locator("#mcp-reset-confirmation");
+    await expect(confirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
+    await confirmation.getByRole("button", { name: "Yes, reset" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "could not be reset" })).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: "Browser storage is unavailable" })).toBeVisible();
+    const raw = await page.evaluate(() => localStorage.getItem("ae.progress"));
+    expect(JSON.parse(raw || "{}")).toEqual({
+      "mcp.lesson.why-mcp": true,
+      "github.lesson.start-secure": true,
+      unrelated: "preserve-me",
+    });
+    await page.reload();
+    await expect(page.locator("#mcp-progress-title")).toContainText("5% complete");
+    await expect(page.getByRole("status").filter({ hasText: "Browser storage is unavailable" })).toBeVisible();
+    await context.close();
+  });
+
+  test("an open dashboard follows lesson progress from another tab", async ({ context }) => {
+    const dashboard = await context.newPage();
+    const lesson = await context.newPage();
+    await clearMcpProgress(dashboard);
+    await lesson.goto("/en/mcp/why-mcp/");
+    await dashboard.goto(DASHBOARD);
+    await expect(dashboard.locator("#mcp-progress-title")).toContainText("0% complete");
+    await lesson.locator('section[aria-labelledby="mcp-completion-title"] button').click();
+    await expect(dashboard.locator("#mcp-progress-title")).toContainText("5% complete");
+    await expect(dashboard.locator("[data-course-journey-action]")).toHaveAttribute(
+      "href",
+      "/en/mcp/architecture-trust/",
+    );
+    await dashboard.close();
+    await lesson.close();
+  });
+
+  test("lesson progress survives an English-to-Arabic route change", async ({ page }) => {
+    await clearMcpProgress(page);
+    await page.goto("/en/mcp/why-mcp/");
+    await page.locator('section[aria-labelledby="mcp-completion-title"] button').click();
+    await page.goto("/ar/mcp/why-mcp/");
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    await expect(page.getByTestId("mcp-lesson-why-mcp")).toHaveAttribute("lang", "ar");
+    await expect(page.locator('section[aria-labelledby="mcp-completion-title"] button')).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator('a[aria-current="page"][href="/ar/mcp/why-mcp/"]').first()).toBeAttached();
   });
 });
 
@@ -660,7 +857,148 @@ test.describe("Course 10 accessibility and responsive delivery", () => {
     await page.keyboard.press("Enter");
     await expect(check.locator('[role="status"]')).toBeVisible();
   });
-});
+
+  test("dashboard and final-lesson fragment journeys focus the intended assessment", async ({ page }) => {
+    await page.addInitScript((slugs: readonly string[]) => {
+      localStorage.setItem("ae.progress", JSON.stringify(Object.fromEntries(
+        slugs.map((slug) => [`mcp.lesson.${slug}`, true]),
+      )));
+    }, LESSON_SLUGS);
+
+    await page.goto(DASHBOARD);
+    const journey = page.locator("[data-course-journey-action]");
+    await expect(journey).toHaveAttribute("href", "/en/mcp/#assessment");
+    await journey.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/en\/mcp\/#assessment$/);
+    await expectFocusedTargetInViewport(page, "#assessment");
+
+    await page.goto(`/en/mcp/${LESSON_SLUGS.at(-1)}/`);
+    const finish = page.locator('nav[data-course-lesson-nav] a[rel="next"]');
+    await finish.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/en\/mcp\/#assessment$/);
+    await expectFocusedTargetInViewport(page, "#assessment");
+    await expect(page.locator("main h1")).not.toBeFocused();
+  });
+
+  test("the primary dashboard action is available in the first viewport", async ({ page }) => {
+    for (const viewport of [
+      { width: 390, height: 844 },
+      { width: 1440, height: 1000 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto(DASHBOARD);
+      const action = page.locator("[data-course-journey-action]");
+      await expect(action).toBeVisible();
+      const bounds = await action.boundingBox();
+      expect(bounds, `${viewport.width}px journey action`).not.toBeNull();
+      expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height + 1);
+    }
+  });
+
+  test("mobile learners can open and keyboard-navigate the complete lesson index", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/en/mcp/why-mcp/");
+    const mobileNav = page.getByTestId("mcp-mobile-lesson-nav");
+    const summary = mobileNav.locator("summary");
+    await expect(mobileNav).toBeVisible();
+    await expect(page.locator("aside nav", { hasText: "2026-07-28" })).toBeHidden();
+    const breadcrumbHeight = await page.getByRole("link", { name: /MCP Course 10/ }).evaluate(
+      (node) => node.getBoundingClientRect().height,
+    );
+    expect(breadcrumbHeight).toBeGreaterThanOrEqual(44);
+    await summary.focus();
+    await page.keyboard.press("Enter");
+    await expect(mobileNav).toHaveAttribute("open", "");
+    const secondLesson = mobileNav.locator('a[href="/en/mcp/architecture-trust/"]');
+    await expect(secondLesson).toBeVisible();
+    await secondLesson.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/en\/mcp\/architecture-trust\/$/);
+  });
+
+  test("narrow code examples are keyboard-scrollable and axe-clean", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    for (const path of [
+      "/en/mcp/discovery-versioning/",
+      "/en/mcp/tools/",
+      "/en/mcp/build-server/",
+    ]) {
+      await page.goto(path);
+      const code = page.locator('figure pre[aria-labelledby^="mcp-"]').first();
+      await expect(code).toHaveAttribute("tabindex", "0");
+      await expect(code).toHaveAttribute("dir", "ltr");
+      await code.focus();
+      await expect(code).toBeFocused();
+      const focusStyle = await code.evaluate((node) => getComputedStyle(node).outlineStyle);
+      expect(focusStyle).not.toBe("none");
+      const overflow = await code.evaluate((node) => ({
+        client: node.clientWidth,
+        scroll: node.scrollWidth,
+      }));
+      if (overflow.scroll > overflow.client) {
+        await page.keyboard.press("ArrowRight");
+        await expect.poll(() => code.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
+      }
+      await runAxe(page, `${path} at 320px`);
+    }
+  });
+
+  test("known long German and Japanese lessons reflow at 320px", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    for (const path of [
+      "/de/mcp/prompts-completion/",
+      "/de/mcp/security/",
+      "/de/mcp/build-server/",
+      "/de/mcp/production-registry/",
+      "/ja/mcp/build-server/",
+      "/ja/mcp/build-client/",
+    ]) {
+      await page.goto(path);
+      await expectNoPageOverflow(page, path);
+    }
+  });
+
+  test("Arabic structured dates and technical controls retain LTR isolation", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/ar/mcp/discovery-versioning/");
+    const evidenceDate = page.locator('bdi[dir="ltr"]').filter({ hasText: "2026-08-24" }).first();
+    await expect(evidenceDate).toHaveText("2026-08-24");
+    await expect(page.locator('select[dir="ltr"]')).toHaveCSS("direction", "ltr");
+    await page.goto("/ar/mcp/tools/");
+    await expect(page.locator('input[name="mcp-tool-name"]')).toHaveCSS("direction", "ltr");
+  });
+
+  test("the architecture workbench exposes both transport relationships", async ({ page }) => {
+    await page.goto("/en/mcp/architecture-trust/");
+    const map = page.locator("figure").first();
+    const accessibilityTree = await map.ariaSnapshot();
+    expect(accessibilityTree).toContain("Client A - stdio - Local server");
+    expect(accessibilityTree).toContain("Client B - Streamable HTTP - Remote server");
+  });
+
+  test("@browser-smoke completion reload and assessment fragment work in every engine", async ({ page }) => {
+    await clearMcpProgress(page);
+    await page.goto("/en/mcp/why-mcp/");
+    const completion = page.locator('section[aria-labelledby="mcp-completion-title"] button');
+    await completion.click();
+    await page.reload();
+    await expect(completion).toHaveAttribute("aria-pressed", "true");
+
+    await page.evaluate((slugs: readonly string[]) => {
+      const progress = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      for (const slug of slugs) progress[`mcp.lesson.${slug}`] = true;
+      localStorage.setItem("ae.progress", JSON.stringify(progress));
+    }, LESSON_SLUGS);
+    await page.goto(DASHBOARD);
+    const assessmentLink = page.locator("[data-course-journey-action]");
+    await expect(assessmentLink).toHaveAttribute("href", "/en/mcp/#assessment");
+    await assessmentLink.focus();
+    await page.keyboard.press("Enter");
+    await expectFocusedTargetInViewport(page, "#assessment");
+  });
+  });
 
 test.describe("Course 10 metadata and static publication inventory", () => {
   test("localized canonical, reciprocal hreflang, and JSON-LD are self-consistent", async ({ page }) => {
