@@ -53,6 +53,8 @@ export interface AnimationPreviewLabels {
 }
 
 export interface AnimationPreviewProps {
+  readonly id?: string;
+  readonly tabIndex?: number;
   readonly className?: string;
   readonly locale?: string;
   readonly labels?: Partial<AnimationPreviewLabels>;
@@ -148,6 +150,8 @@ function useReducedMotion(onReduce: () => void) {
 }
 
 export default function AnimationPreview({
+  id: anchorId,
+  tabIndex,
   className,
   locale = "en",
   labels: labelOverrides,
@@ -250,6 +254,8 @@ export default function AnimationPreview({
 
   return (
     <section
+      id={anchorId}
+      tabIndex={tabIndex}
       className={[styles.preview, className].filter(Boolean).join(" ")}
       aria-labelledby={`${id}-title`}
       aria-describedby={`${id}-description`}
@@ -257,7 +263,7 @@ export default function AnimationPreview({
       <header className={styles.previewHeader}>
         <div>
           <p className={styles.eyebrow}>{labels.eyebrow}</p>
-          <h3 id={`${id}-title`}>{labels.title}</h3>
+          <h2 id={`${id}-title`}>{labels.title}</h2>
           <p id={`${id}-description`} className={styles.description}>
             {labels.description}
           </p>

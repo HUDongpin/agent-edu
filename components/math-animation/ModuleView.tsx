@@ -7,6 +7,7 @@ import type {
 import {
   CopyPrompt,
   CourseProgress,
+  ModuleCompletionStatus,
   ModuleCheckpoint,
   ModuleEvidenceGate,
 } from "./Interactions";
@@ -47,6 +48,7 @@ function ModuleMap({
                 >
                   <span>{String(module.order).padStart(2, "0")}</span>
                   <span>{module.copy.title}</span>
+                  <ModuleCompletionStatus slug={module.slug} labels={course.copy.ui} />
                 </Link>
               </li>
             ))}
@@ -90,7 +92,16 @@ export default function ModuleView({
       </nav>
 
       <details className={styles.mobileMap}>
-        <summary><span>{course.copy.ui.allModules}</span><span>{module.order} / {course.modules.length}</span></summary>
+        <summary>
+          <span className={styles.mobileMapTitle}>
+            <small>{course.copy.ui.allModules}</small>
+            <strong>{module.copy.title}</strong>
+          </span>
+          <span className={styles.mobileMapStatus}>
+            <span>{module.order} / {course.modules.length}</span>
+            <span className={styles.mobileMapChevron} aria-hidden="true" />
+          </span>
+        </summary>
         <nav aria-label={course.copy.ui.allModules}><ModuleMap course={course} activeSlug={module.slug} /></nav>
       </details>
 
@@ -99,19 +110,22 @@ export default function ModuleView({
           <nav aria-label={course.copy.ui.allModules}>
             <header><strong>{course.copy.ui.courseNumber}</strong><span>{course.copy.ui.curriculum}</span></header>
             <ModuleMap course={course} activeSlug={module.slug} />
-            <CourseProgress
-              modules={course.modules.map((candidate) => ({ slug: candidate.slug, href: hrefFor(candidate.slug) }))}
-              labels={course.copy.ui}
-              overviewHref={courseHref}
-            />
           </nav>
+          <CourseProgress
+            modules={course.modules.map((candidate) => ({ slug: candidate.slug, href: hrefFor(candidate.slug) }))}
+            labels={course.copy.ui}
+            overviewHref={courseHref}
+            currentSlug={module.slug}
+            compact
+            showJourneyAction={false}
+          />
         </aside>
 
         <article className={styles.moduleMain}>
           <header className={styles.moduleHero}>
             <p className={styles.modulePhase}>{phase.copy.title} / {String(module.order).padStart(2, "0")}</p>
             <p className={styles.kicker}>{module.copy.kicker}</p>
-            <h1>{module.copy.title}</h1>
+            <h1 data-course19-heading tabIndex={-1}>{module.copy.title}</h1>
             <p>{module.copy.summary}</p>
             <dl>
               <div><dt>{course.copy.ui.minutes}</dt><dd>{module.minutes}</dd></div>
@@ -119,6 +133,18 @@ export default function ModuleView({
               <div><dt>{course.copy.ui.practiceArtifact}</dt><dd>{module.copy.artifact}</dd></div>
             </dl>
           </header>
+
+          <nav className={styles.moduleOutline} aria-label={chinese ? "本模块导航" : "In this module"}>
+            <a href="#module-objective-title">{course.copy.ui.objective}</a>
+            {module.copy.sections.map((section, sectionIndex) => (
+              <a href={`#teaching-section-${sectionIndex}`} key={section.heading}>{section.heading}</a>
+            ))}
+            {module.codeExample ? <a href="#module-code-title">{module.codeExample.filename}</a> : null}
+            <a href="#agent-task-title">{course.copy.ui.agentPrompt}</a>
+            <a href={`#${module.slug}-checkpoint`}>{course.copy.ui.checkpoint}</a>
+            <a href={`#${module.slug}-evidence`}>{course.copy.ui.practiceArtifact}</a>
+            <a href="#module-sources-title">{course.copy.ui.sourceLedger}</a>
+          </nav>
 
           <section className={styles.objective} aria-labelledby="module-objective-title">
             <p className={styles.sectionLabel}>{course.copy.ui.objective}</p>
@@ -174,7 +200,12 @@ export default function ModuleView({
               <p className={styles.sectionLabel}>{course.copy.ui.sourceLedger}</p>
               <h2 id="module-sources-title">{chinese ? "每个技术结论都带边界" : "Every technical claim carries a boundary"}</h2>
             </header>
-            <ol>
+            <details className={styles.sourceLedgerDisclosure}>
+              <summary>
+                <span>{chinese ? `查看 ${module.sources.length} 条来源记录` : `Review ${module.sources.length} source records`}</span>
+                <strong>{module.sources.length}</strong>
+              </summary>
+              <ol>
               {module.sources.map((source, sourceIndex) => (
                 <li key={source.id}>
                   <span>{String(sourceIndex + 1).padStart(2, "0")}</span>
@@ -192,10 +223,15 @@ export default function ModuleView({
                   </div>
                 </li>
               ))}
-            </ol>
+              </ol>
+            </details>
           </section>
 
-          <nav className={styles.modulePager} aria-label={chinese ? "模块导航" : "Module navigation"}>
+          <nav
+            className={styles.modulePager}
+            aria-label={chinese ? "模块导航" : "Module navigation"}
+            data-course-lesson-nav
+          >
             {previous ? (
               <Link href={hrefFor(previous.slug)} rel="prev"><span>{course.copy.ui.previous}</span><strong>{previous.copy.title}</strong></Link>
             ) : <span />}
