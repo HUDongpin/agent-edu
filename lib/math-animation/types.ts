@@ -262,12 +262,15 @@ export interface MathAnimationUiCopy {
   readonly reset: string;
   readonly resetConfirm: string;
   readonly markComplete: string;
+  readonly completeModule: string;
   readonly completed: string;
   readonly artifactEvidence: string;
   readonly artifactEvidenceHelp: string;
   readonly verificationEvidence: string;
   readonly verificationEvidenceHelp: string;
   readonly evidenceRequired: string;
+  readonly saving: string;
+  readonly saved: string;
   readonly storageNote: string;
   readonly storageUnavailable: string;
   readonly resetDone: string;
@@ -302,6 +305,7 @@ export interface MathAnimationUiCopy {
   readonly scoreResult: string;
   readonly assessmentPassed: string;
   readonly assessmentRetry: string;
+  readonly answered: string;
   readonly capstone: string;
   readonly markCapstone: string;
   readonly capstoneComplete: string;
@@ -309,6 +313,8 @@ export interface MathAnimationUiCopy {
   readonly capstoneEvidenceHelp: string;
   readonly capstoneAttestationBoundary: string;
   readonly allChecksRequired: string;
+  readonly characters: string;
+  readonly minimum: string;
   readonly motionLab: string;
   readonly play: string;
   readonly pause: string;

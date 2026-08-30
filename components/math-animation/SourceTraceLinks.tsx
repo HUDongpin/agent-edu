@@ -5,6 +5,11 @@ import { useEffect, useRef } from "react";
 import type { MathAnimationSourceRecord } from "@/lib/math-animation";
 import styles from "./MathAnimationCourse.module.css";
 
+const ACCESS_DATE_FORMATTERS = {
+  en: new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }),
+  "zh-Hans": new Intl.DateTimeFormat("zh-Hans", { dateStyle: "medium", timeZone: "UTC" }),
+} as const;
+
 function displayUrl(value: string): string {
   try {
     const url = new URL(value);
@@ -19,6 +24,12 @@ function primaryPageLabel(source: MathAnimationSourceRecord, chinese: boolean): 
   if (source.kind === "x-post") return chinese ? "原始 X 帖子" : "Original X post";
   if (source.kind === "web-standard") return chinese ? "标准页面" : "Standards page";
   return chinese ? "官方文档页面" : "Official documentation";
+}
+
+function formatAccessDate(value: string, chinese: boolean): string {
+  const date = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return value;
+  return ACCESS_DATE_FORMATTERS[chinese ? "zh-Hans" : "en"].format(date);
 }
 
 function ExternalLink({
@@ -139,7 +150,9 @@ export default function SourceTraceLinks({
       </div>
       <div>
         <dt>{chinese ? "访问日期" : "Accessed"}</dt>
-        <dd><time dateTime={source.accessedOn}>{source.accessedOn}</time></dd>
+        <dd>
+          <time dateTime={source.accessedOn}>{formatAccessDate(source.accessedOn, chinese)}</time>
+        </dd>
       </div>
     </dl>
   );
