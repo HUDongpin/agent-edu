@@ -77,7 +77,9 @@ function txt(s){ return document.createTextNode(s); }
   }
 
   function revealTab(tab){
-    if (tab && tab.scrollIntoView) tab.scrollIntoView({block:'nearest',inline:'nearest'});
+    // Keyboard focus must be visible synchronously; inheriting the document's
+    // smooth-scroll policy can leave the newly focused tab off-screen.
+    if (tab && tab.scrollIntoView) tab.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
   }
 
   function syncOrientation(){
@@ -98,7 +100,7 @@ function txt(s){ return document.createTextNode(s); }
       if (p) p.classList.toggle('on',on);
     });
     revealTab(activeTab);
-    const learning=recordHandbookVisit(name);
+    const learning=opts.record===false?readLearningState():recordHandbookVisit(name);
     seen=new Set(learning.handbook.visitedSections);
     paintSeen();
     if (window.__paintProgress) window.__paintProgress();
@@ -112,7 +114,9 @@ function txt(s){ return document.createTextNode(s); }
       const panel=document.getElementById('p-'+name);
       if (panel) panel.focus({preventScroll:true});
     }
-    if (!opts.silent && window.scrollY>120) window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+    if (!opts.silent && !opts.preserveTabViewport && window.scrollY>120) {
+      window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+    }
     requestAnimationFrame(scrollHints);
   }
 
@@ -125,7 +129,7 @@ function txt(s){ return document.createTextNode(s); }
       if (next===null) return;
       e.preventDefault();
       const n=tabs[next];
-      n.focus(); show(n.dataset.p,{focus:false});
+      n.focus(); show(n.dataset.p,{focus:false,preserveTabViewport:true});
     });
   });
   document.addEventListener('click',e=>{
@@ -134,7 +138,7 @@ function txt(s){ return document.createTextNode(s); }
   });
   const restoreLocation=()=>{
     const h=decodeURIComponent(location.hash.slice(1));
-    show(NAMES.has(h)?h:'start',{replace:true,focus:false,silent:true});
+    show(NAMES.has(h)?h:'start',{replace:true,focus:false,silent:true,record:false});
   };
   window.addEventListener('popstate',restoreLocation);
   window.addEventListener('hashchange',restoreLocation);
@@ -146,7 +150,7 @@ function txt(s){ return document.createTextNode(s); }
   // a link to #loop wins; otherwise pick up where they left off
   const fromHash=decodeURIComponent(location.hash.slice(1));
   const initial = NAMES.has(fromHash) ? fromHash : readLearningState().handbook.lastSection;
-  show(initial,{replace:true,focus:false,silent:true});
+  show(initial,{replace:true,focus:false,silent:true,record:false});
 
   $('#glossBtn').addEventListener('click',()=>{
     show('compare');

@@ -28,8 +28,10 @@ legacy/course-python/cafe/fixtures.*.json
 /out/
 /build
 /coverage
+/output/
 /playwright-report/
 /test-results/
+/.playwright-cli/
 /blob-report/
 /browser-evidence/
 /.playwright-raw/
@@ -56,6 +58,11 @@ __pycache__/
 # Local dev tooling
 .claude/
 
+# All temporary staging, render, cache and QA capture output is local-only.
+# Release inputs belong under evidence/ or tests/fixtures with an explicit
+# provenance/checker contract; a file's presence under tmp/ is never evidence.
+/tmp/
+
 # Private working notes. Untracked is not enough: `git add -A` would stage
 # these into a public repo.
 2026*_claude suggestions*.md
@@ -66,3 +73,23 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# ---------------------------------------------------------------------------
+# Nested dependency trees. `/node_modules` above is root-anchored and does not
+# reach video-pilot/agent-loop-120s/node_modules — 8,002 files that `git add -A`
+# would sweep into this public repo. Reinstallable from their own lockfiles.
+# ---------------------------------------------------------------------------
+node_modules/
+
+# Course review workspace: 621 MB, 3,803 PNGs of review evidence. Kept on disk,
+# never committed — git does not forget a blob once it is in history.
+/course_review_2026-08-23/
+
+# Separate HyperFrames project with its own AGENTS.md and lockfile: 906 MB,
+# 563 MB of it uncompressed .wav. Nothing in this repo references it — the only
+# tracked mentions are this file and eslint.config.mjs, both of which exclude
+# it. It belongs in its own repository, not in every clone of this one.
+/video-pilot/
+
+# Generated visual QA output is not release evidence and is reproducible.
+/outputs/

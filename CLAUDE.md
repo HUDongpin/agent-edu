@@ -24,10 +24,22 @@ layout from `dir="rtl"` on <html> with no second stylesheet, and that only holds
 if the rule has no exceptions. Untranslated English content keeps `dir="ltr"`.
 
 ## Strings
-Every user-visible string lives in `messages/*.json` — flat keys, one file per
-language, nine languages, currently 100% covered. Adding a string to English
-without adding it to the other eight is a regression, not a to-do. A translator
-must be able to fix a line without knowing React.
+User-visible strings are expected to live in the appropriate `messages/`
+namespace. Never infer completion from the root dictionary or the language
+menu: `npm run i18n:check:release -- --json` dynamically discovers namespaces,
+routes and course contracts, and any missing target value is a release failure.
+A translator must be able to fix a line without knowing React.
+
+The complete audit needs a frozen build, browser evidence and a named human
+reviewer, so its human and production findings cannot be promoted to a compile
+PASS. `npm run i18n:check:keys` is the source-level half that can gate a commit:
+the same discovery, restricted to what a missing key can decide on its own —
+missing, extra, empty, wrong leaf type, wrong `{placeholder}` set, wrong
+`**bold**` markers. It runs inside `npm run build`. It deliberately does not
+judge whether a translation is any good; `unapproved-identical-to-english` is
+a question for a native speaker and stays in the release audit. A namespace
+with no file for a locale is the queue described below, so it is reported and
+not failed.
 
 The handbook's article prose is the exception, and lives in `messages/handbook/`.
 `en.json` there is **generated** — never hand-edit it. Change the wording in
@@ -67,5 +79,14 @@ British spelling. Sentence case in headings. Prefer deleting a widget over addin
 one. Do not rewrite existing copy to satisfy a linter.
 
 ## Before you say you're done
-`npm run build` must pass and still emit 50 pages. Never commit `All API Keys.docx`
-or anything matching the secrets block in `.gitignore`.
+`npm run build` must pass; never assert a fixed page count. Reconcile the App
+Router patterns, release registry, sitemap and actual `out/**/*.html` inventory
+dynamically. The ordinary build runs deterministic structure checks and each
+course's non-release development gate. `npm run verify:source` and `npm run
+build:release` additionally require exactly one passing release gate for every
+course whose registry state is `published`. A `blocked` course keeps its real
+failing release evidence in the backlog and must not be made public merely to
+make the build green. `build:release` also runs the post-build i18n automated
+gate; human, browser and production findings remain explicitly pending until
+their evidence exists. Never commit `All API Keys.docx` or anything matching
+the secrets block in `.gitignore`.

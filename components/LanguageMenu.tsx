@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LOCALES, LOCALE_CODES, metaFor } from "@/lib/i18n";
 import { useI18n } from "./I18nProvider";
+import Icon from "./Icon";
 
 /**
  * Switching language changes the URL, not just the rendering — that is the
@@ -15,7 +16,7 @@ import { useI18n } from "./I18nProvider";
  * and Escape puts focus back on the button. Nine languages is a long list to
  * reach with Tab alone.
  */
-export default function LanguageMenu({ coverage }: { coverage: Record<string, number> }) {
+export default function LanguageMenu() {
   const { t, locale } = useI18n();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
@@ -84,13 +85,12 @@ export default function LanguageMenu({ coverage }: { coverage: Record<string, nu
         aria-label={`${t("nav.lang")}: ${metaFor(locale).native}`}
         onClick={() => setOpen((o) => !o)}
       >
-        <span aria-hidden="true">🌐</span>
+        <Icon name="globe" />
         <span id="aeLangNow">{metaFor(locale).native}</span>
       </button>
       {open && (
         <div className="langmenu" role="menu" ref={list} onKeyDown={walk}>
           {LOCALES.map((l) => {
-            const pct = coverage[l.code] ?? 100;
             return (
               <button
                 key={l.code}
@@ -100,9 +100,9 @@ export default function LanguageMenu({ coverage }: { coverage: Record<string, nu
                 aria-current={l.code === locale}
                 onClick={() => switchTo(l.code)}
               >
-                <span className="flag" aria-hidden="true">{l.flag}</span>
+                <span className="flag" aria-hidden="true">{l.mark}</span>
                 <span>{l.native}</span>
-                <span className="en">{pct === 100 ? l.name : `${l.name} · ${pct}%`}</span>
+                <span className="en">{l.name}</span>
               </button>
             );
           })}

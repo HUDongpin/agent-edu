@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "title": "How to make money with Codex",
+    "shortTitle": "Make money with Codex",
+    "languageNotice": "Audited English edition. Course claims, exercises, assessment, figures, source ledger, and interactive tools are written and reviewed in English."
+  },
+  "availability": {
+    "contentLanguage": "en",
+    "localizedScope": "navigation-and-titles",
+    "reviewStatus": "pending-independent-native-review"
+  },
+  "ui": {
+    "course": "Course",
+    "courses": "Courses",
+    "courseOutline": "Course outline",
+    "lesson": "Lesson",
+    "lessons": "lessons",
+    "minutes": "min",
+    "guidedWork": "guided work",
+    "authenticUi": "authentic Codex UI or transcript figures",
+    "evidenceVerified": "evidence verified",
+    "startCourse": "Start with the evidence boundary",
+    "inspectLessons": "Inspect all lessons",
+    "curriculum": "Curriculum",
+    "time": "Time",
+    "output": "Output",
+    "evidence": "Evidence",
+    "boundedSources": "bounded sources",
+    "previous": "Previous",
+    "next": "Next",
+    "courseDashboard": "Course dashboard",
+    "reviewEvidencePath": "Review your evidence path",
+    "backToCatalog": "Courses",
+    "resetConfirm": "Reset only Course 11 progress in this browser?"
+  },
+  "units": {
+    "value": { "title": "Value before code" },
+    "pilot": { "title": "Build a paid pilot" },
+    "sell": { "title": "Price, sell, and deliver" },
+    "scale": { "title": "Productise without losing control" }
+  },
+  "lessons": {
+    "money-not-magic": { "title": "Codex is leverage, not a money button" },
+    "choose-market-wedge": { "title": "Choose a narrow market wedge" },
+    "validate-before-building": { "title": "Validate before building" },
+    "write-commercial-spec": { "title": "Write the commercial task contract" },
+    "protect-client-work": { "title": "Protect client work" },
+    "build-verified-pilot": { "title": "Build a verified pilot" },
+    "price-for-margin": { "title": "Price for margin and risk" },
+    "sell-with-proof": { "title": "Sell with proof, not promises" },
+    "deliver-with-control": { "title": "Deliver with control" },
+    "productize-reuse": { "title": "Productise what survived delivery" },
+    "retain-and-automate": { "title": "Earn recurring value responsibly" },
+    "launch-capstone": { "title": "Launch a proof-based revenue pilot" }
+  }
+}

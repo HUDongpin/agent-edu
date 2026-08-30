@@ -1,0 +1,911 @@
+{
+  "meta": {
+    "title": "How to Use Grok",
+    "kicker": "Independent practical course",
+    "summary": "Master Grok through real interfaces, evidence-led workflows, practical studios and human-verifiable results.",
+    "audience": "For curious beginners and working professionals. No API key, paid plan or technical background is required for the core path.",
+    "duration": "11 hours 35 minutes · 14 lessons · one portfolio capstone",
+    "verified": "UI, access and sources verified 23 August 2026",
+    "independent": "aicourse.top is independent and is not affiliated with or endorsed by xAI. Grok and xAI are trademarks owned by that company.",
+    "sourceNote": "Capability statements come first from current xAI product, documentation and legal pages. Version-pinned GitHub repositories show implementable workflows, not proof of accuracy, safety or productivity.",
+    "startCta": "Start with the product map",
+    "resumeCta": "Resume your next lesson",
+    "outcome": "By the end, you will be able to frame, ground, generate, verify and safely act on a real Grok-assisted workflow, then show the evidence behind your decision."
+  },
+  "ui": {
+    "lessons": "Lessons",
+    "minutes": "min",
+    "durationCompact": "{hours}h {minutes}m",
+    "level": "Beginner → advanced",
+    "free": "Free course",
+    "verified": "Verified",
+    "learnOutcome": "What you will be able to do",
+    "workflowTitle": "Frame. Ground. Generate. Verify. Act.",
+    "galleryTitle": "Real interfaces. Transferable practice.",
+    "galleryIntro": "Move from code to spreadsheets to media without changing the evidence standard.",
+    "start": "Start course",
+    "resume": "Resume course",
+    "progress": "Progress",
+    "courseProgress": "Course progress",
+    "completed": "completed",
+    "markComplete": "Mark lesson complete",
+    "markedComplete": "Lesson completed",
+    "resetProgress": "Reset progress",
+    "resetConfirm": "Reset your Grok course progress on this browser?",
+    "resetSuccess": "Course progress reset.",
+    "storageNote": "Course progress stays only in this browser and is not sent to aicourse.top. The site may still count anonymous page views.",
+    "storageUnavailable": "Browser storage is unavailable. The lessons still work, but progress will not persist.",
+    "storageQuota": "Browser storage is full. The lessons still work, but new progress will not persist.",
+    "storageCorrupt": "Saved Course 5 progress is damaged. It has not been overwritten. You can preserve an exact recovery copy before resetting it.",
+    "repairProgress": "Repair saved progress",
+    "repairConfirm": "Preserve an exact recovery copy of the damaged record, then reset Course 5 progress?",
+    "repairSuccess": "The damaged record was preserved in a local recovery copy and Course 5 progress was reset.",
+    "repairFailed": "Repair could not be completed. The damaged record remains untouched.",
+    "allLessons": "Course map",
+    "objectives": "Learning objective",
+    "seeIt": "See it",
+    "tryIt": "Try it",
+    "inspectIt": "Inspect it",
+    "proveIt": "Prove it",
+    "keepIt": "Keep it",
+    "knowLimit": "Know the limit",
+    "promptTemplate": "Practice prompt",
+    "copyPrompt": "Copy prompt",
+    "copied": "Copied",
+    "copyFailed": "Copy failed. Select the prompt manually.",
+    "contractBuilder": "Task contract builder",
+    "contractBuilderIntro": "Draft the six decisions here. Your draft is saved only for this tab's session and is never sent to aicourse.top.",
+    "fieldGoal": "Goal",
+    "fieldContext": "Context",
+    "fieldEvidence": "Evidence boundary",
+    "fieldConstraints": "Constraints and non-goals",
+    "fieldOutput": "Output",
+    "fieldAcceptance": "Acceptance and verification",
+    "contractPreview": "Composed contract",
+    "clear": "Clear",
+    "discardTaskContract": "Discard task-contract draft",
+    "discardTaskContractConfirm": "Discard this task-contract draft? You can undo until you edit another field or leave this page.",
+    "undo": "Undo",
+    "taskDraftSaved": "Draft saved for this tab's session.",
+    "taskDraftSaveFailed": "This draft could not be saved. Keep this tab open or copy the contract before leaving.",
+    "taskDraftRestored": "Draft restored from this tab's session.",
+    "taskDraftDiscarded": "Draft discarded. Undo is available until you edit another field or leave this page.",
+    "steps": "Guided steps",
+    "evidence": "Evidence to keep",
+    "safety": "Safety boundary",
+    "checkpoint": "Quick checkpoint",
+    "reveal": "Reveal answer",
+    "hide": "Hide answer",
+    "takeaway": "Durable takeaway",
+    "sources": "Evidence register",
+    "sourceBoundary": "What this source does and does not establish",
+    "verifiedOn": "Verified",
+    "versionSnapshot": "Version-pinned workflow evidence",
+    "previous": "Previous lesson",
+    "next": "Next lesson",
+    "backCourse": "Back to course map",
+    "quizTitle": "Final knowledge check",
+    "quizIntro": "Answer one scenario question from each lesson. You need 12 of 14 correct. Your best score is saved only in this browser.",
+    "beginQuiz": "Begin knowledge check",
+    "quizAttemptAvailable": "A saved attempt is available at question {current} of {total}.",
+    "resumeQuizAttempt": "Resume saved attempt",
+    "discardQuizAttempt": "Discard attempt",
+    "discardQuizConfirm": "Discard this knowledge-check attempt?",
+    "quizAttemptSaved": "Attempt saved for this tab's session.",
+    "quizAttemptSaveFailed": "This attempt could not be saved. Leaving or refreshing may lose it.",
+    "quizAttemptDiscarded": "Knowledge-check attempt discarded.",
+    "question": "Question",
+    "of": "of",
+    "checkAnswer": "Check answer",
+    "nextQuestion": "Next question",
+    "finishQuiz": "Finish quiz",
+    "correct": "Correct",
+    "incorrect": "Not yet",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "tryAgain": "Try again",
+    "retryQuiz": "Retry knowledge check",
+    "score": "Score",
+    "bestScore": "Best score",
+    "passed": "Knowledge check passed",
+    "needsReview": "Review the evidence boundaries and try again",
+    "passingScore": "12 of 14 required",
+    "figureSource": "Open original source",
+    "figureCaptured": "Captured",
+    "figureVerified": "Interface verified",
+    "calloutLegend": "What to notice",
+    "figureFreshness": "Controls, labels and access can change after the captured date.",
+    "figureProvenance": "Figure provenance",
+    "privacyReviewed": "Privacy review passed",
+    "sha256": "Raw capture SHA-256",
+    "capstone": "Portfolio capstone",
+    "independent": "Independent course notice",
+    "sourceTypeOfficial": "Official source",
+    "sourceTypeGitHub": "Pinned GitHub evidence",
+    "readSource": "Read source",
+    "currentLesson": "Current lesson",
+    "milestoneComplete": "Complete",
+    "milestoneIncomplete": "Incomplete",
+    "milestoneLegend": "Q = final knowledge check · C = portfolio capstone",
+    "optional": "Optional advanced surface",
+    "capstoneChecklist": "Capstone evidence checklist",
+    "capstoneChecklistIntro": "Confirm each item from your actual packet. Checking a box records preparation, not external certification.",
+    "capstoneReady": "Capstone packet ready",
+    "capstoneNotReady": "Complete all seven evidence items",
+    "capstoneItems": "Outcome and task contract|Surface, data and permission rationale|Source register and evidence anchors|Final artifact or exact diff|Independent verification and failed checks|Privacy, rights and limitation review|Final human accept, revise or reject decision"
+  },
+  "units": {
+    "start": {
+      "title": "1 · Start well",
+      "summary": "Map the product, read the live interface and decide what information may enter the conversation before you ask for an answer."
+    },
+    "ground": {
+      "title": "2 · Ground and verify",
+      "summary": "Turn a request into a testable contract, search with a source strategy, and anchor analysis to exact evidence locations."
+    },
+    "studios": {
+      "title": "3 · Professional studios",
+      "summary": "Apply one dependable workflow across engineering, research, writing, office work and teaching without overstating what Grok proves."
+    },
+    "create": {
+      "title": "4 · Create and automate",
+      "summary": "Produce responsible media, connect only the authority a task needs, and complete an auditable end-to-end capstone."
+    }
+  },
+  "lessons": {
+    "map-grok": {
+      "kicker": "Lesson 1 · Orient",
+      "title": "Map Grok before you use it",
+      "summary": "Grok is a family of surfaces, not one interchangeable text box. Start by choosing where the work should happen and what authority that surface receives.",
+      "objective": "Distinguish consumer chat, Grok on X, mobile, Imagine, web and mobile Build mode, the Grok Build terminal, Bot, office add-ins, connectors and the API, then select a surface from task, data and action requirements.",
+      "sections": [
+        {
+          "eyebrow": "See it",
+          "heading": "Begin with the ordinary chat surface",
+          "body": "The live grok.com composer is the simplest place to frame a question, attach public or synthetic material, and choose a visible mode. The same product family also appears on X and mobile, but those surfaces have different context, controls and governing policies. Imagine is purpose-built for media. Microsoft 365 add-ins for Word, Excel, PowerPoint and Outlook and the Google Workspace add-on for Sheets, Slides and Docs work inside their host applications and editable files. Connectors bring outside data into a task. None of those labels removes your responsibility to decide what data can enter and how the result will be checked."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Separate assistants, builders and agents",
+          "body": "Use consumer chat for conversation, synthesis and bounded file work. Web and mobile Build mode creates and publishes apps inside consumer Grok. The separately installed Grok Build terminal is a repository-aware coding agent that can inspect files, edit and run commands, so it needs repository, permission and test boundaries. Grok Bot is a plan-gated beta with a persistent cloud computer and is optional in this course. The API is separately billed and exposes developer controls that do not automatically appear in consumer Grok. A capability in one surface is never evidence that another surface has the same tool, model, limit or data policy."
+        },
+        {
+          "eyebrow": "Know the limit",
+          "heading": "Treat plan and model labels as a dated snapshot",
+          "body": "The latest explicit cross-platform consumer rollout announcement, dated 22 July 2026, said Grok 4.5 powered grok.com, X, iOS and Android. The current pricing page lists Grok 4.6 as a SuperGrok benefit, while the 12 August Grok 4.6 launch names Grok Build, Cursor, the API and partners. Neither page by itself establishes which ordinary chat modes route to 4.6. Our dated 23 August capture shows Fast, Expert and Heavy labelled Grok 4.5 and Build beta labelled Grok 4.6. Web and mobile Build mode was expanded to every plan on 19 August 2026, but usage limits still apply; that statement does not establish terminal access for every plan. For paid Grok plans, the FAQ describes one shared weekly allowance across product surfaces, while free-tier limits remain separate. Check the live interface before promising a colleague a model, quota or entitlement, and date any screenshot used as evidence."
+        }
+      ],
+      "practice": {
+        "title": "Choose a surface for five real tasks",
+        "brief": "Make a one-page decision matrix before signing in or uploading anything.",
+        "prompt": "I need help choosing a Grok surface. For each task below, recommend one primary surface and one fallback. Explain: required context, data sensitivity, action authority, verification method, and any plan or platform dependency. Do not assume a capability transfers between consumer Grok, X, web or mobile Build mode, the Grok Build terminal, Bot, add-ins or the API. Tasks: [paste five synthetic scenarios].",
+        "steps": [
+          "List five scenarios: a current-news question, a PDF comparison, a small code change, an Excel analysis and a recurring briefing.",
+          "For each, name the lowest-authority surface that can produce an inspectable result.",
+          "Check the current official page for any model, plan or platform claim before you record it."
+        ],
+        "proof": [
+          "A five-row surface decision matrix with task, context, authority, verification and fallback columns.",
+          "A dated note separating current observed UI labels from official access claims."
+        ],
+        "safety": "Use public or synthetic scenarios only. Do not connect an account merely to explore what a connector might do."
+      },
+      "checkpoint": {
+        "question": "Why can an API example not prove the same feature exists in ordinary grok.com chat?",
+        "answer": "The API and consumer product have different interfaces, billing, tools, release paths and entitlements. Evidence must be attached to the exact surface it describes."
+      },
+      "takeaway": "Choose the surface from the work, data and authority, not from the newest model name.",
+      "limit": "Availability, plan names, quotas and routing are volatile. Verify them in the live product and on a current official page."
+    },
+    "read-interface": {
+      "kicker": "Lesson 2 · Control",
+      "title": "Read the composer, modes and limits",
+      "summary": "Mode choice is a cost-to-depth decision, not a guarantee of truth. Learn what the visible controls mean, then judge the output with external evidence.",
+      "objective": "Read the current composer, attachment and mode controls; choose a proportionate mode; and record the observed model label without turning it into a timeless claim.",
+      "sections": [
+        {
+          "eyebrow": "See it",
+          "heading": "The interface exposes a task decision",
+          "body": "In the captured web menu, Fast, Auto, Expert, Heavy and Build are visible. Fast, Expert and Heavy show Grok 4.5; Build beta shows Grok 4.6. This is authentic evidence of the interface on 23 August 2026, not a universal plan matrix. Start routine drafting or a narrow question with the lightest suitable mode. Use deeper or parallel modes only when the task complexity and verification budget justify them. Here, Build is the app-building mode inside consumer Grok, not the separately installed Grok Build terminal and not simply a more thoughtful chat response."
+        },
+        {
+          "eyebrow": "Try it",
+          "heading": "Run a controlled mode comparison",
+          "body": "Give two available modes the same public, falsifiable task and hold the prompt constant. Before running, define what better means: source relevance, completeness, calculation accuracy, explicit uncertainty, response time or usage. Inspect the resulting sources and recompute one material value. Do not score hidden reasoning or verbosity. A longer answer can still be wrong, and a team-of-experts label does not demonstrate independent corroboration unless the final evidence can be inspected. Record the exact mode label and date so your comparison remains interpretable later."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Keep an observation separate from an official claim",
+          "body": "Use two columns in your notes. Observed interface records what appeared in your account: mode name, model label, platform and date. Official claim records what a current xAI page says about access or capability. If the columns conflict, do not silently reconcile them. Explain the mismatch and prefer the newer, surface-specific source for an access statement. This simple provenance habit prevents screenshots from becoming stale instructions and prevents marketing language from being presented as measured performance."
+        }
+      ],
+      "practice": {
+        "title": "Compare two modes without a vibes score",
+        "brief": "Use one small public task and a five-criterion rubric.",
+        "prompt": "Using only the supplied public source, produce a six-sentence briefing. Cite the exact section for every factual sentence, label any inference, and finish with two facts that require independent verification. Do not use outside knowledge. Source: [paste or attach one public source].",
+        "steps": [
+          "Define five observable criteria before sending the prompt.",
+          "Run it in two modes available to your account without changing the source or wording.",
+          "Open every citation and verify one date, one quotation or one calculation."
+        ],
+        "proof": [
+          "A side-by-side rubric with the observed mode and model labels, platform and date.",
+          "One verified claim and one identified limitation for each response."
+        ],
+        "safety": "Do not use a sensitive or consequential decision merely to make the comparison feel realistic."
+      },
+      "checkpoint": {
+        "question": "What does selecting a deeper mode establish about the answer?",
+        "answer": "Only that you selected that workflow. It does not establish factual accuracy, source quality or correct reasoning; those require inspectable checks."
+      },
+      "takeaway": "Select depth proportionally, then evaluate evidence rather than the mode label.",
+      "limit": "The captured mode menu is a dated interface record. Your plan, region, device or later release may differ."
+    },
+    "privacy-boundaries": {
+      "kicker": "Lesson 3 · Protect",
+      "title": "Set privacy and action boundaries first",
+      "summary": "A useful prompt starts before typing: classify the data, choose the governing surface and grant only the authority needed for the task.",
+      "objective": "Configure consumer data controls deliberately, distinguish Private Chat and X controls, and write a data-and-action boundary for a Grok task.",
+      "sections": [
+        {
+          "eyebrow": "See it",
+          "heading": "Know which controls you are changing",
+          "body": "The official web Data settings figure separates model improvement, personalisation using X data, export and deletion. Consumer Grok conversations may be used for training unless the relevant control is disabled. Private Chat is excluded from training and queued for deletion, normally within 30 days subject to stated exceptions. Private Chat is not currently available in web and mobile Build mode. Chats and build sessions in web and mobile Build mode are retained for product functionality and may be used for improvement when Improve the Model is enabled, including data from created apps. Feedback can be used for training even when a broader opt-out is active. Grok on X has separate settings and policies. Verify both surfaces if you use both; changing one is not evidence that the other changed."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Classify information before upload",
+          "body": "Sort inputs into public, synthetic, internal, confidential, regulated or prohibited. Replace real names, student records, customer data, credentials, private links and unpublished research with synthetic substitutes whenever the learning objective does not require them. Organisational accounts can have different commitments and administrator controls, but a business label is not permission to ignore policy. When a connector is involved, inventory the data it can read and actions it can perform. The lowest-risk prompt is often one that needs neither a real account nor a real document."
+        },
+        {
+          "eyebrow": "Keep it",
+          "heading": "Write the action boundary in plain language",
+          "body": "State what Grok may read, draft and recommend, then state what requires confirmation. A safe office boundary might allow read-only access to a synthetic calendar and draft a message, while prohibiting send, delete or invite actions. A safe coding boundary might allow edits in a disposable branch and tests, while excluding secrets, deployment and production data. Review the exact action, recipient, target and scope at the approval point. Platform policy is the floor; professional, school and legal duties may require stricter controls."
+        }
+      ],
+      "practice": {
+        "title": "Build a data-and-action gate",
+        "brief": "Classify a synthetic workflow before opening Grok.",
+        "prompt": "Act as a privacy boundary reviewer. Given this proposed workflow, return: (1) data classes present, (2) the minimum Grok surface, (3) information to remove or synthesise, (4) read/write/send/delete authorities requested, (5) decisions requiring human confirmation, and (6) a safer alternative. Do not process the underlying sensitive content. Workflow: [describe structure only].",
+        "steps": [
+          "Describe the workflow without pasting its sensitive content.",
+          "Review current grok.com data controls and, if relevant, the separate X settings.",
+          "Write one explicit allow list and one deny list for data and actions."
+        ],
+        "proof": [
+          "A classification table and a screenshot-free record of the settings you reviewed.",
+          "An allow/deny boundary with a named approval checkpoint."
+        ],
+        "safety": "Never paste a real secret to ask whether it is secret. Describe the data type, not the value."
+      },
+      "checkpoint": {
+        "question": "Does Private Chat mean a conversation disappears instantly and can never be retained?",
+        "answer": "No. Official guidance says it is excluded from training and queued for deletion, normally within 30 days, with stated legal, safety and security exceptions."
+      },
+      "takeaway": "Classify first, minimise second, configure the correct surface, then grant the smallest useful authority.",
+      "limit": "This course summarises public policy and is not legal advice. Re-read current terms and institutional rules for consequential use."
+    },
+    "task-contracts": {
+      "kicker": "Lesson 4 · Frame",
+      "title": "Turn a request into a task contract",
+      "summary": "A durable prompt defines an observable outcome, relevant context, evidence boundary, constraints, output shape and acceptance test.",
+      "objective": "Rewrite an ambiguous request as a six-part task contract and use Grok to surface only ambiguities that could change the result.",
+      "sections": [
+        {
+          "eyebrow": "Try it",
+          "heading": "Lead with the observable outcome",
+          "body": "Say what should exist or be different when the work is complete. Replace ‘help with my report’ with a concrete deliverable, audience and decision. Add only the context that changes the answer: source packet, time period, reader knowledge and relevant constraints. A role can shape tone, but it cannot substitute for evidence or acceptance criteria. Ask Grok to stop for consequential ambiguity: anything that could change scope, safety, interpretation or the final decision. It should not invent a convenient assumption."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Close the evidence boundary",
+          "body": "Name which sources Grok may use and how it must mark outside knowledge. For a document task, require page, table or cell anchors. For current research, set a date window and source hierarchy. For writing, distinguish supplied facts from proposed language. Then set constraints and non-goals: length, language, dependencies, actions not authorised and claims that must not be made. A closed evidence boundary makes gaps visible instead of letting fluent prose hide them."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Define acceptance separately from format",
+          "body": "Output format says how to present the work. Acceptance criteria say how you will decide whether it is good enough. A table can still contain invented facts. Ask for a verification plan: open citations, recalculate numbers, inspect the actual file or diff, test important behaviour and disclose checks that could not run. Finish with the handoff you need: sources, decisions, limitations and the next human action. The best prompt is the smallest complete contract, not the longest paragraph."
+        }
+      ],
+      "practice": {
+        "title": "Repair one vague professional request",
+        "brief": "Use the six-field template, then test it on public or synthetic material.",
+        "prompt": "GOAL: [observable deliverable and user outcome]\nCONTEXT: [only facts and materials that affect the result]\nEVIDENCE BOUNDARY: [allowed sources, date range, and required anchors]\nCONSTRAINTS / NON-GOALS: [limits, forbidden actions, claims to avoid]\nOUTPUT: [structure, audience, length, language]\nACCEPTANCE + VERIFICATION: [checks, thresholds, evidence to return]\nBefore working, ask only questions whose answers could materially change scope, safety or acceptance. Mark all assumptions and do not claim a check ran unless you show its result.",
+        "steps": [
+          "Identify the most consequential missing decision in a vague request.",
+          "Complete all six fields using a public or synthetic input.",
+          "Ask Grok to critique the contract against the acceptance criteria before producing the deliverable."
+        ],
+        "proof": [
+          "The before-and-after request with the consequential ambiguity highlighted.",
+          "A result scored against the acceptance criteria, including one failed or incomplete check."
+        ],
+        "safety": "Explicitly exclude external sends, deletion, publishing and other consequential actions unless they are genuinely required and separately approved."
+      },
+      "checkpoint": {
+        "question": "Why is ‘put it in a table’ not an acceptance criterion?",
+        "answer": "It specifies presentation, not correctness. Acceptance needs observable requirements such as source coverage, calculation checks, audience fit and disclosed limitations."
+      },
+      "takeaway": "Frame the task so another person can inspect what Grok used, produced and verified.",
+      "limit": "A strong contract reduces ambiguity; it does not make the model reliable without external checks."
+    },
+    "search-verify": {
+      "kicker": "Lesson 5 · Ground",
+      "title": "Search live information, then verify it",
+      "summary": "Search makes current sources reachable. It does not turn citations into proof or social posts into primary evidence.",
+      "objective": "Build a source strategy, audit a cited Grok answer at claim level and independently verify a date, quotation and calculation.",
+      "sections": [
+        {
+          "eyebrow": "Try it",
+          "heading": "Set the search protocol before the query",
+          "body": "Define the question, relevant date window, geography and source hierarchy. Prefer the organisation, standard, statute, dataset, paper or repository that directly owns the claim. Use reporting and expert commentary to interpret it. Use X posts as leads, contemporaneous statements or reaction, not automatic proof. Tell Grok to separate verified fact, source-reported claim and inference, and to say when no qualifying source was found. Current product pages advertise web and X search; official SDK examples expose citations and tool traces. Neither establishes that every result is complete or correct."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Audit claims, not bibliography length",
+          "body": "Break the answer into material claims. For each one, open the cited page and ask four questions: does the page exist, is it the claimed source, does the cited passage actually support the wording, and is it current for the decision date? Record quotation and page context sparingly rather than trusting a citation marker. Search for a disconfirming primary source. If two official pages disagree, compare publication dates and scopes instead of blending them. A benchmark on older Grok snapshots is evidence about that bounded test, not a current universal hallucination rate."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Recalculate and label uncertainty",
+          "body": "Choose at least one material number and reproduce it from the source data. Check units, denominators, time periods and rounding. For an important quotation, compare exact wording and surrounding context. Assign a confidence label only after the source check and explain what would change it. If the evidence is missing, the correct output is ‘not established’, followed by the next verification step. Do not request or treat hidden chain-of-thought as proof; inspect sources, inputs, calculations and final claims instead."
+        }
+      ],
+      "practice": {
+        "title": "Produce a six-claim current brief",
+        "brief": "Create a claim ledger with primary-source coverage and a disconfirmation search.",
+        "prompt": "Research this current question: [question]. Date boundary: [date]. Prefer primary sources. Return exactly six material claims in a table with: claim; status (verified / source-reported / inference / not established); direct source; publication date; supporting passage location; uncertainty; and next check. Then list one plausible counterclaim and search for primary evidence that would support or refute it. Never invent a citation.",
+        "steps": [
+          "Write a source hierarchy before searching.",
+          "Open every cited source and verify one date, one quotation and one calculation independently.",
+          "Downgrade or remove any claim whose source does not directly support its wording."
+        ],
+        "proof": [
+          "A six-row claim ledger with working links and one disconfirmation search.",
+          "A verification log showing the reproduced number and any corrected claim."
+        ],
+        "safety": "Do not use this exercise for medical, legal, financial or other high-stakes personal advice."
+      },
+      "checkpoint": {
+        "question": "What does a citation marker prove?",
+        "answer": "It shows that a source was associated with text. You still have to open it and check identity, support, scope, date and context."
+      },
+      "takeaway": "Search retrieves candidates; verification turns a supported claim into usable evidence.",
+      "limit": "Source-grounded summaries can still contain unsupported statements, and version-specific benchmarks do not establish a current universal error rate."
+    },
+    "files-data": {
+      "kicker": "Lesson 6 · Anchor",
+      "title": "Work with files, tables and mixed media",
+      "summary": "Upload the smallest relevant packet, ask location-grounded questions and verify that Grok actually processed the formats you supplied.",
+      "objective": "Plan a file task around supported formats and platform limits, extract anchored evidence, and validate one table, image and calculation against the originals.",
+      "sections": [
+        {
+          "eyebrow": "See it",
+          "heading": "Attach deliberately",
+          "body": "The current web attachment menu offers Upload a file, Recent and Project. Official documentation describes broad support for documents, spreadsheets, presentations, code, images, audio and video. Most documents, images, code and audio are limited to 150 MB per file; video and other limits may differ, and counts vary by platform or subscription. These are approximate operational limits, not reasons to upload everything. Select only material needed for the question, use clear filenames and provide a short inventory. Confirm that the attachment completed before relying on the answer. Never place credentials, student records or confidential workplace files in a practice exercise."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Ask for exact evidence locations",
+          "body": "For PDFs, require page numbers and table or figure labels. For spreadsheets, name the sheet, range, formula and unit. For code, name the file and line region. For audio or video, request timestamps and mark uncertain transcription. For images, ask which visible detail supports the claim. Long documents may be split or summarised, and embedded images in non-PDF files may be missed. Add a coverage check: ask Grok to list what it read, what it could not parse and whether any conclusion relies on a summary rather than the original passage."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Triangulate across formats",
+          "body": "Build an evidence table with claim, file, location, extracted value and independent check. Compare a reported total against the spreadsheet rows, a chart against its underlying table and a transcript statement against the audio timestamp. When a document and dataset conflict, preserve the conflict instead of choosing the more fluent explanation. Official API examples show file and collection workflows, but they do not validate any particular conclusion and do not prove the same controls appear in consumer chat. Delete temporary uploads when appropriate and allowed by the governing surface."
+        }
+      ],
+      "practice": {
+        "title": "Audit a synthetic mixed-file packet",
+        "brief": "Use one short PDF, one CSV and one image that contain a deliberate disagreement.",
+        "prompt": "Use only the attached files. First inventory each file and state what you could actually read. Then return a claim table with exact PDF page, CSV row/column or image-region anchors. Identify every cross-file disagreement. Recalculate one total from raw rows and describe one visual check. If an item cannot be parsed, mark it unavailable rather than inferring it.",
+        "steps": [
+          "Create or obtain a public/synthetic packet with one known mismatch.",
+          "Ask for an inventory before interpretation and compare it with the actual attachments.",
+          "Recalculate one total and inspect one quoted passage and one image claim yourself."
+        ],
+        "proof": [
+          "An anchored claim table covering all three formats and preserving the deliberate mismatch.",
+          "A short parse-coverage and independent-check log."
+        ],
+        "safety": "Use synthetic or openly licensed material. Strip metadata and identifiers before upload."
+      },
+      "checkpoint": {
+        "question": "Why should you ask Grok what it actually parsed?",
+        "answer": "A visible attachment does not guarantee every page, embedded image, formula, audio segment or long section was processed. Coverage must be checked explicitly."
+      },
+      "takeaway": "Every important file claim needs a precise location and a human-reproducible check.",
+      "limit": "Format support, file counts, size limits and parse behaviour vary by platform and can change."
+    },
+    "software-engineering": {
+      "kicker": "Lesson 7 · Engineering studio",
+      "title": "Engineer with an inspect-test-review loop",
+      "summary": "Use Grok Build for repository work only after you define scope, permissions, tests and rollback. Treat every generated edit as a proposal.",
+      "objective": "Run a bounded coding task through inspect, plan, edit, test and diff review while keeping external actions and secrets outside the authority boundary.",
+      "sections": [
+        {
+          "eyebrow": "See it",
+          "heading": "Know when you entered an agentic surface",
+          "body": "Grok Build's terminal can inspect repositories, edit files and run commands. Its public installer is executable network code, so review the current official script and your organisation's policy. Installation is not required for this course. This is not a wholly local workflow: prompt and file content are sent to xAI for inference, while local session history is stored under ~/.grok/. Before opening a repository, inspect /privacy or /settings. Without team-level ZDR, those controls can disable code-data retention; with ZDR, xAI retains no trace or code data. The CLI separately asks whether to allow retention for product and model improvement. Never assume ZDR or an opt-out is active. Protect local history. The official demo's always-approve state is not a recommended default. Unlike chat advice, this agent can change state. Start in a disposable branch or sample repository. State the goal, permitted paths and commands, dependency policy, excluded actions and credential boundary. Treat every approval request as a proposed expansion: verify its resolved target and necessity before allowing it."
+        },
+        {
+          "eyebrow": "Try it",
+          "heading": "Use the five-stage engineering loop",
+          "body": "First inspect repository instructions, relevant code and existing tests without editing. Then ask for a short plan tied to evidence. Authorise the smallest edit set, steer when new evidence changes the plan and require focused tests. Finally inspect the actual diff, not only the summary. Run broader checks proportional to risk and exercise the changed behaviour from a fresh state. An official review plugin demonstrates a useful read-only second-review pattern; it proves the workflow exists, not that a second model will find every defect."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Return an engineering evidence packet",
+          "body": "The handoff should contain the contracted outcome, changed files, diff summary, exact commands and results, unresolved limitations and rollback route. A passing command is credible only when it is fresh, relevant and shown. A test suite can miss user-visible or security behaviour, so inspect the implementation and exercise the acceptance criteria. Keep commit, push, pull request, deployment, database mutation and external messaging outside scope unless separately authorised. Repository source code establishes implementable features; it does not establish superior coding performance."
+        }
+      ],
+      "practice": {
+        "title": "Make one safe change in a disposable repository",
+        "brief": "Fix a tiny documented bug with no network, secret or production dependency.",
+        "prompt": "GOAL: Fix [one observable bug] in this disposable repository.\nSCOPE: You may inspect the repository and edit only [paths].\nCONSTRAINTS: No new dependencies, no secrets, no network, no commit/push/deploy, preserve public interfaces.\nPROCESS: Inspect first; cite the relevant code/tests; propose a short plan; then edit.\nACCEPTANCE: [two behaviours].\nVERIFY: Run [focused test] and [broader check], inspect the final diff, and report any check that could not run. Stop if scope must expand.",
+        "steps": [
+          "Create a disposable branch and confirm the pre-change test or behaviour.",
+          "Require inspection and a plan before edits, then review any requested permission expansion.",
+          "Run the tests yourself and read every changed line before accepting the result."
+        ],
+        "proof": [
+          "A bounded task contract, final diff and fresh command output.",
+          "A short risk review naming one missed-test possibility and the rollback route."
+        ],
+        "safety": "Never test agentic coding on a production repository first. Keep secrets, destructive commands and deployment outside the lab."
+      },
+      "checkpoint": {
+        "question": "What is the safest first use of a second coding model?",
+        "answer": "A read-only review of the exact diff and tests, followed by human judgement about which findings to act on."
+      },
+      "takeaway": "Generated code is a patch proposal; the diff and fresh behaviour are the evidence.",
+      "limit": "Official repositories demonstrate supported workflows, not complete defect detection, security or productivity gains."
+    },
+    "research-workflow": {
+      "kicker": "Lesson 8 · Research studio",
+      "title": "Build a claim-to-source research trail",
+      "summary": "Use Grok to accelerate discovery and organisation while keeping selection rules, source reading and inferential responsibility visible.",
+      "objective": "Create a reproducible search protocol, evidence matrix and bounded synthesis that distinguishes source findings from Grok-generated inference.",
+      "sections": [
+        {
+          "eyebrow": "Try it",
+          "heading": "Write a research protocol before searching",
+          "body": "State the question, key concepts, date range, eligible source types, exclusions and stopping rule. Ask Grok for candidate search strings rather than letting it silently decide the corpus. Preserve a search log with query, engine or surface, date and result count. For scholarly work, move from a citation to the actual paper or authoritative record. For current policy or product research, prefer the current primary page and compare dated versions. Do not treat a social summary, search snippet or generated reference as the article itself."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Build an evidence matrix before prose",
+          "body": "For each included source, record identity, source type, method or context, exact finding, page or section, limitation and which claim it can support. Add a separate inference column so Grok’s synthesis cannot masquerade as the author’s result. Ask for contradictions and missing populations or conditions. Official SDK examples demonstrate web/X search, code tools, citations and collections; they do not validate the generated answer or establish identical consumer controls. SGI-Bench shows a versioned way to evaluate stages of scientific work, not that Grok makes experiments valid."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Pressure-test the synthesis",
+          "body": "Draft from the matrix, not from memory. Trace every material sentence back to one or more rows, label inference and retain negative or conflicting evidence. Independently reproduce calculations and inspect quoted pages. Ask what evidence would falsify the conclusion and whether the corpus could answer the question at all. A source-grounded summary benchmark reports nonzero unsupported content for bounded older snapshots; use that only to justify verification, never as a current universal rate. The researcher remains responsible for interpretation, attribution and the decision to publish."
+        }
+      ],
+      "practice": {
+        "title": "Create a five-source evidence matrix",
+        "brief": "Use a narrow, non-sensitive question and at least three primary sources.",
+        "prompt": "Help me execute this research protocol without silently changing it. QUESTION: [question]. INCLUSION: [source types/date/language]. EXCLUSION: [rules]. STOPPING RULE: [rule]. First propose search strings. After I supply verified sources, extract an evidence matrix with exact section/page, source-stated finding, limitation, and a separate inference column. Do not invent bibliographic details. Mark any unavailable full text as unavailable.",
+        "steps": [
+          "Write inclusion, exclusion and stopping rules before running the first query.",
+          "Open and identify every source yourself; supply only verified records to the matrix step.",
+          "Trace a 250-word synthesis back to the matrix and mark every inference."
+        ],
+        "proof": [
+          "A search log, five-source matrix and claim-to-row trace for the synthesis.",
+          "One contradiction, one evidence gap and one independently checked calculation or quotation."
+        ],
+        "safety": "Do not upload confidential data, unpublished peer-review material or copyrighted full texts without authority."
+      },
+      "checkpoint": {
+        "question": "What does a repository benchmark containing a Grok result establish?",
+        "answer": "Only performance under that benchmark's version, data, tasks and metric. It does not establish current general research quality or real-world outcomes."
+      },
+      "takeaway": "Let Grok help organise evidence, but make the human-readable source trail the centre of the research.",
+      "limit": "No search or benchmark substitutes for reading the actual source and evaluating whether the evidence can answer the question."
+    },
+    "writing-workflow": {
+      "kicker": "Lesson 9 · Writing studio",
+      "title": "Draft with voice, facts and authorship intact",
+      "summary": "Treat Grok as an iterative writing partner: brief, outline, draft, critique, fact-check and disclose. It is not a one-click author.",
+      "objective": "Build a source-bounded writing brief, generate structured alternatives, revise against a voice rubric and verify every factual claim before release.",
+      "sections": [
+        {
+          "eyebrow": "Try it",
+          "heading": "Separate the brief from the draft",
+          "body": "Define audience, purpose, desired action, evidence base, voice traits, prohibited claims and length. Give short examples of the voice you own or may use, but avoid requesting imitation of a living writer. Ask for an outline and claim inventory before prose. An official xAI cookbook demonstrates structured output and synthetic personas for a marketing workflow; that supports the technique, not its effectiveness. Structure gives you stable fields to compare, while a claim inventory reveals where research is still needed."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Revise in passes with a visible rubric",
+          "body": "Use separate passes for argument, organisation, evidence, voice, sentence clarity and mechanics. Ask Grok to identify the weakest paragraph and explain the rubric violation before rewriting. Compare two alternatives rather than accepting the first. Preserve intentional nuance and uncertainty. For documents created with built-in Skills or add-ins, inspect editable structure, comments, headings, links and accessibility, not only visual polish. Keep a change log so collaborators can see what was machine-proposed and what a human accepted."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Run a claim and attribution audit",
+          "body": "Extract every name, date, number, quotation and causal statement into a checklist. Verify each against the allowed sources and remove unsupported specificity. Check permissions for input text and media, follow workplace or publication disclosure rules and use accurate Grok attribution where applicable. The xAI brand guidelines ask for accurate reference and no implied endorsement. A fluent draft remains your responsibility: authorship means making the substantive decisions, reviewing the claims and standing behind the release."
+        }
+      ],
+      "practice": {
+        "title": "Write and audit a 400-word brief",
+        "brief": "Draft from three public sources and a four-trait voice rubric.",
+        "prompt": "Create a 400-word briefing for [audience] whose decision is [decision]. Use only the three supplied sources. First return an outline and claim inventory. After approval, draft in this voice rubric: [four traits]. Mark every sentence that contains a fact with its source ID. Do not invent quotations or statistics. Finish with a claim-audit table and a disclosure note I can adapt.",
+        "steps": [
+          "Approve the outline and claim inventory before asking for prose.",
+          "Run distinct argument, evidence and voice revision passes.",
+          "Verify every factual sentence and compare the final piece with the original brief."
+        ],
+        "proof": [
+          "The approved outline, initial draft, revision notes and final brief.",
+          "A completed fact checklist and an appropriate authorship/disclosure note."
+        ],
+        "safety": "Use text you own or may process. Do not ask Grok to impersonate a real person or hide material AI assistance where disclosure is required."
+      },
+      "checkpoint": {
+        "question": "Why request a claim inventory before a full draft?",
+        "answer": "It exposes unsupported factual needs while structure is still cheap to change and prevents polished prose from hiding evidence gaps."
+      },
+      "takeaway": "Good AI-assisted writing is a sequence of human decisions with a visible evidence and revision trail.",
+      "limit": "Official writing examples demonstrate a workflow, not audience impact, originality or publication readiness."
+    },
+    "office-workflow": {
+      "kicker": "Lesson 10 · Office studio",
+      "title": "Work safely in documents, sheets, decks and mail",
+      "summary": "Keep scope visible inside office artifacts: select the exact range, preserve formulas and sources, review layout, and draft before any send action.",
+      "objective": "Complete an auditable spreadsheet-to-brief workflow and apply formula, source, formatting, accessibility and recipient checks.",
+      "sections": [
+        {
+          "eyebrow": "See it",
+          "heading": "Anchor office requests to the active material",
+          "body": "The official Excel demonstration shows a selected workbook range and the Grok side panel reading data, creating a chart and explaining its analysis. It also supplies an audit opportunity: the panel says returns are under 2% of sales. Using the visible Returns and allowances and Cash sales rows gives 8.0%, 5.5% and 5.3% by month, so that statement is unsupported unless a different denominator is defined. Make scope explicit in every request: workbook, sheet, range, headers, hidden or filtered state, unit and intended calculation. Word, presentation and spreadsheet Skills can create editable artifacts; the PDF Skill can create or transform PDF files. Microsoft 365 add-ins and the Google Workspace add-on work in place inside their host applications and editable files. These vendor demonstrations establish advertised actions, not correctness, accessibility or time savings. Always keep an untouched source copy and a reversible version."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Audit the artifact, not just the prose",
+          "body": "For spreadsheets, inspect formulas, references, filters, hidden sheets, merged cells, totals and chart ranges; independently recompute material numbers. For documents, check headings, tracked changes, citations, links and pagination. For decks, check reading order, contrast, font size, alt text and whether visuals actually support the message. For mail, summarise first, draft second and verify recipients, commitments, attachments and tone. Nothing should be sent merely because a draft appears in a side panel."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Troubleshoot the workflow by layer",
+          "body": "If an add-in or automation fails, isolate the input file, Grok response, connector, host application and complete workflow. Record versions and the exact error. Third-party n8n documentation shows an xAI credential and integration path; it does not establish end-to-end reliability or make every failure a Grok model failure. Test a minimal harmless case before widening scope. Keep secrets in authorised credential stores, not prompts or cells, and review all resulting files after export because a successful generation call does not prove file integrity."
+        }
+      ],
+      "practice": {
+        "title": "Turn a synthetic workbook into an executive note",
+        "brief": "Analyse one explicit range, verify formulas and create a reversible briefing.",
+        "prompt": "Use only workbook [name], sheet [sheet], range [range]. State any hidden/filter/merged-cell limitation you can observe. Calculate [metric] with cell-linked working, create one appropriate chart, and draft a 200-word note for [audience]. Do not modify cells outside the range. Return a formula audit, chart-source range, three material claims with cell references, and a list of changes for human approval.",
+        "steps": [
+          "Use a synthetic workbook with one deliberate formula error and preserve the original.",
+          "Name the exact range and calculation; compare Grok's result with a manual calculation.",
+          "Review the chart range, formulas, prose, accessibility and final file before accepting any edit."
+        ],
+        "proof": [
+          "A before/after workbook or change list, manual calculation and formula audit.",
+          "A 200-word note whose three material claims link to exact cells."
+        ],
+        "safety": "Use synthetic business data. Keep sending, sharing, deletion and live-system updates outside the exercise."
+      },
+      "checkpoint": {
+        "question": "What is the first thing to specify in an Excel request?",
+        "answer": "The exact workbook, sheet, range and data state, followed by the intended calculation and independent validation method."
+      },
+      "takeaway": "Office work is reliable when every generated statement remains traceable to an editable, reviewable artifact.",
+      "limit": "Add-in availability and organisation policy vary, and successful generation does not prove formulas, layout or file integrity."
+    },
+    "teaching-workflow": {
+      "kicker": "Lesson 11 · Teaching studio",
+      "title": "Design learning, not just lesson content",
+      "summary": "Use Grok to prototype explanations and activities while the educator retains responsibility for objectives, accuracy, accessibility, assessment validity and student welfare.",
+      "objective": "Design a small aligned lesson sequence with public or synthetic inputs, validate content and accessibility, and exclude student PII and high-stakes automated decisions.",
+      "sections": [
+        {
+          "eyebrow": "Try it",
+          "heading": "Start from an observable learning objective",
+          "body": "State what learners should do, under what conditions and how success will be observed. Ask Grok for prerequisite checks, a worked example, guided practice, an independent task and a formative check aligned to that objective. Request common misconceptions and contrasting examples. A substantial open-source teaching system, OpenMAIC, supports Grok as one provider in a multi-component lesson-prototyping workflow. That establishes technical integration, not that Grok created every demo or improved learning outcomes."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Review content and accessibility as an educator",
+          "body": "Check each fact against the curriculum and trusted disciplinary sources. Solve every problem yourself, confirm answer keys and pressure-test distractors. Inspect reading level, language load, cultural assumptions, representation, colour reliance, alt text and keyboard or screen-reader access. Ask whether the activity elicits the intended thinking or only produces a polished artifact. Adapt to actual learner evidence; do not let a generated lesson plan replace professional knowledge of the class. Voice and multimodal features can support practice, but official availability claims are not evidence of pronunciation accuracy or instructional effectiveness."
+        },
+        {
+          "eyebrow": "Know the limit",
+          "heading": "Keep learner data and consequential decisions human-governed",
+          "body": "Do not upload student names, records, disability information, behaviour notes or identifiable work to a consumer exercise. Use invented personas and de-identified examples approved by the institution. Do not delegate grading, placement, discipline, admissions or other high-impact educational decisions to Grok. Formative feedback should be reviewed, contestable and proportionate. The acceptable-use policy is only one boundary; school policy, consent, child safety, accessibility and local law can be stricter."
+        }
+      ],
+      "practice": {
+        "title": "Prototype a 20-minute formative lesson",
+        "brief": "Align one objective, two examples, guided practice and an exit ticket, then audit the design.",
+        "prompt": "Design a 20-minute formative lesson for the synthetic learner group described below. Include: one observable objective; prerequisite check; worked example; guided practice with fading support; independent item; three-question exit ticket; answer rationale; common misconceptions; accessibility adaptations; and teacher review points. Use only the supplied curriculum source. Do not infer or request real student data. Group: [invented group]. Source: [public curriculum excerpt].",
+        "steps": [
+          "Use a public curriculum excerpt and an invented learner group.",
+          "Solve every item and map it back to the objective and source.",
+          "Run an accessibility, bias, assessment-validity and data-privacy review before classroom use."
+        ],
+        "proof": [
+          "An objective-activity-assessment alignment table and corrected answer key.",
+          "An educator review log naming at least one revision and one human-only decision."
+        ],
+        "safety": "No student PII, real records or autonomous high-stakes educational decisions. Follow institutional approval and safeguarding rules."
+      },
+      "checkpoint": {
+        "question": "What does Grok support in an open-source teaching platform prove?",
+        "answer": "Only that the provider can be integrated into that system. It does not prove learning gains, that Grok powered every demo or that generated materials are instructionally valid."
+      },
+      "takeaway": "Grok can accelerate lesson prototyping; the educator remains accountable for learning design and every consequential decision.",
+      "limit": "There is no credible basis here for a claim of improved grades or learning outcomes. Evaluate instruction with learner evidence."
+    },
+    "imagine-multimodal": {
+      "kicker": "Lesson 12 · Create",
+      "title": "Create and edit media with provenance",
+      "summary": "Design images and video from a visual specification, use only authorised references, preserve provenance and review the result for accuracy, identity and accessibility.",
+      "objective": "Write a production-ready media brief, iterate with controlled changes and deliver a rights-aware asset record with alt text and review notes.",
+      "sections": [
+        {
+          "eyebrow": "See it",
+          "heading": "Read Imagine as a production surface",
+          "body": "The live Imagine page exposes Image, Video and Agent modes alongside speed or quality, count and aspect controls. The Photo Edit template adds a reference-upload workflow and guided transformations. Start with the destination: audience, format, aspect ratio, focal subject, composition, lighting, colour, text constraints and elements to avoid. Generate variations against the same brief, then change one variable at a time. Current Image 2.0 and Video 1.5 announcements describe rich editing and reference features, but availability can vary by account and rollout."
+        },
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Review rights, identity and factual signals",
+          "body": "Use only reference images, voices and characters you own or may use, with appropriate consent. Avoid deceptive impersonation and sensitive identity inferences. Inspect hands, text, logos, maps, charts, historical details and any visual that might be read as evidence. A generated image is not a documentary record. Preserve any watermark or provenance signal, save the prompt and settings, and label generated or edited media in the context where viewers encounter it. Never remove attribution merely to make an output look more authentic."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Deliver an accessible asset record",
+          "body": "Record the source/reference rights, generation date, visible settings, prompt, edit history, chosen output and reasons rejected variations failed. Write concise alt text that communicates the image's purpose rather than every pixel. Check contrast and legibility at the final display size, and supply a text alternative for any information carried by a chart or diagram. The brand guidelines require accurate referential use and no implied xAI endorsement; they do not create a blanket licence for unrelated source material."
+        }
+      ],
+      "practice": {
+        "title": "Create one accessible campaign visual",
+        "brief": "Use an invented event and no real person, brand or copyrighted character.",
+        "prompt": "Create an original visual for this fictional event: [event]. Audience: [audience]. Purpose: [purpose]. Format/aspect: [format]. Composition: [subject, hierarchy, negative space]. Style: [owned/general descriptors, not a living artist]. Required text: [minimal text]. Avoid: real people, brands, copyrighted characters, misleading data, illegible lettering. Return three variations and a short self-audit for rights, factual signals, representation and accessibility.",
+        "steps": [
+          "Write the brief and rights boundary before generation.",
+          "Compare three variations with a fixed rubric and edit only one variable at a time.",
+          "Preserve provenance and produce alt text plus an asset record."
+        ],
+        "proof": [
+          "The prompt, settings, selected output, rejected-variation notes and edit history.",
+          "A rights/provenance statement, visual QA checklist and purposeful alt text."
+        ],
+        "safety": "Use no identifiable person or unauthorised voice/reference. Preserve watermarks and do not present generated media as real evidence."
+      },
+      "checkpoint": {
+        "question": "Why keep the prompt and edit history with a generated visual?",
+        "answer": "They make provenance, rights review, reproducibility and later corrections possible; the final pixels alone cannot show how the asset was produced."
+      },
+      "takeaway": "Treat generated media as a designed, attributed artifact, not as a photograph of reality.",
+      "limit": "Feature controls and tier availability change, and generation does not settle copyright, consent or factual-use questions."
+    },
+    "connect-automate": {
+      "kicker": "Lesson 13 · Delegate",
+      "title": "Connect and automate with least privilege",
+      "summary": "A connector changes what Grok can see; an automation changes when it acts. Design both around minimal scopes, synthetic tests, human approvals and inspectable run history.",
+      "objective": "Audit connector scopes, configure a low-risk automation, verify Run now output and preserve human control over send, delete and external-write actions.",
+      "sections": [
+        {
+          "eyebrow": "Inspect it",
+          "heading": "Read the OAuth scope as a capability contract",
+          "body": "Current xAI documentation lists connectors for mail, calendars, cloud files, code, project tools and other services. Availability does not mean every connector is read-only. Inspect the actual OAuth screen and separate read, create, modify, send, trash and delete permissions. Start with the narrowest account, dataset and scope, ideally a sandbox. Document who authorised it and how to revoke it. The current Google Drive connector page says Drive data is accessed in real time, not retained afterward and not used for training. Treat that as a service-specific statement, not a promise about every connector, and still follow the connected service's own retention and policy obligations."
+        },
+        {
+          "eyebrow": "Try it",
+          "heading": "Build a reversible first automation",
+          "body": "Choose a low-risk scheduled task such as a briefing from synthetic public inputs. Write the task contract, permitted sources, output location, failure behaviour and stop conditions. Use Run now before enabling a schedule. Inspect the saved conversation and run history, verify links and calculations, then test pause, edit and delete controls. Official guidance says scheduled automations are broadly available while email triggers require SuperGrok; treat that as a dated entitlement and check your account. Every run creates a result that still needs review."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Keep consequential actions behind a human gate",
+          "body": "Default to draft-before-send and propose-before-delete. Require confirmation that shows the exact recipient, object and irreversible effect. Set a maximum frequency, cost or usage boundary and a notification route. Treat connected content as untrusted data: an email, document or issue can contain text that tries to redirect the agent. Stop on conflicting instructions, missing sources, authentication changes or unexpected scope. Disconnect the practice connector after the lab and record revocation."
+        }
+      ],
+      "practice": {
+        "title": "Schedule a synthetic morning brief",
+        "brief": "Use public sources or a sandbox account; no send or delete permission.",
+        "prompt": "Create a draft-only morning brief at [schedule] from these authorised public/synthetic sources: [sources]. Include date, source links, three verified facts, one uncertainty and one failed-source notice. Never send, delete, invite, publish or modify a source. Stop if authentication, scope or source identity changes. Before scheduling, show the Run now result and the exact connector permissions for my approval.",
+        "steps": [
+          "Inventory every requested OAuth scope and remove write access.",
+          "Run once, inspect citations and history, then enable a short-lived schedule.",
+          "Pause the automation, revoke the practice connector and record both actions."
+        ],
+        "proof": [
+          "A scope inventory, task contract, Run now output and source-verification log.",
+          "A run-history record plus evidence that the schedule was paused and connector revoked."
+        ],
+        "safety": "Use a sandbox or public sources. Keep send, delete, invite, publish and production-write actions disabled."
+      },
+      "checkpoint": {
+        "question": "What should happen before you enable a recurring schedule?",
+        "answer": "Run the exact workflow once, inspect sources and outputs, confirm scopes and stop conditions, then enable only a reversible schedule."
+      },
+      "takeaway": "Connect the minimum data, automate the minimum action and make every consequential step reviewable.",
+      "limit": "Connector scopes, plan entitlements and external-service policies change; inspect the live authorisation screen every time."
+    },
+    "capstone": {
+      "kicker": "Lesson 14 · Integrate",
+      "title": "Complete an auditable Grok workflow",
+      "summary": "Apply the full frame → ground → generate → verify → act loop to one professional task and submit a portfolio packet another person can reproduce.",
+      "objective": "Deliver one evidence-grounded artifact or safe code workflow together with its source trail, verification, privacy review, limitations and human decision record.",
+      "sections": [
+        {
+          "eyebrow": "Try it",
+          "heading": "Choose a bounded track and pre-register success",
+          "body": "Choose software engineering, research, writing, office work or teaching. Define one observable outcome achievable with public or synthetic data in 90 minutes. Write the six-part task contract and surface decision. Inventory data, permissions and references before use. Pre-register at least three acceptance criteria and the exact checks that will test them. If you use the Grok Build terminal, work in a disposable repository. If you use web or mobile Build mode, keep the app in preview while you inspect it. Current official guidance says every published app gets a grok.me address and lets you choose just you, anyone with the link or the whole internet. Treat Publish and its selected access setting as an external-sharing boundary: inspect the resolved address and audience before finalising. If you use files or an add-in, preserve originals. If you use a connector, keep it read-only and revoke it afterward."
+        },
+        {
+          "eyebrow": "Prove it",
+          "heading": "Assemble the evidence packet",
+          "body": "Include the initial contract, dated interface or mode observation, source register, prompt and revision log, final artifact or diff, independent checks and any failed checks. For research or writing, trace material claims to sources. For spreadsheets, show formula and cell checks. For teaching, show alignment and educator review. For code, include diff and fresh test output. Add a privacy and rights review, disclose material AI assistance and state what remains uncertain. Do not improve the story by hiding a failed attempt; the postmortem is part of the evidence."
+        },
+        {
+          "eyebrow": "Keep it",
+          "heading": "Record the final human decision",
+          "body": "Conclude with accept, revise or reject, and explain the evidence behind that decision. Name what Grok did, what the human checked and what no one verified. If an action would affect another person or system, show the approval gate and the resolved target. Archive only material you may retain, remove sensitive or temporary inputs and revoke practice access. Set a review date for claims or screenshots that can become stale. A successful capstone demonstrates an auditable process, not that Grok is universally accurate or superior."
+        }
+      ],
+      "practice": {
+        "title": "Submit the Grok workflow portfolio",
+        "brief": "Create one compact, reproducible packet and score it against the capstone rubric.",
+        "prompt": "Audit my Grok-assisted capstone packet against this rubric without filling evidence gaps: (1) observable outcome; (2) surface and data rationale; (3) source trace; (4) verification of material claims/behaviour; (5) privacy, permission and rights review; (6) limitations and failed checks; (7) final human decision. For each, return pass / revise / missing, cite the exact packet item, and propose the smallest next action. Do not infer a pass from polished prose.",
+        "steps": [
+          "Pre-register the outcome, scope, evidence boundary, three acceptance criteria and checks.",
+          "Complete the workflow while saving dated prompts, sources, intermediate decisions and results.",
+          "Run independent checks, complete the seven-part rubric and make a final accept/revise/reject decision."
+        ],
+        "proof": [
+          "Task contract, source register, prompt/revision log, final artifact or diff and fresh verification evidence.",
+          "Privacy/rights review, limitations, failure postmortem and signed-off human decision."
+        ],
+        "safety": "The capstone must use public or synthetic data, reversible actions and no autonomous consequential decision."
+      },
+      "checkpoint": {
+        "question": "What makes a Grok-assisted result portfolio-ready?",
+        "answer": "Another person can trace the task, sources, permissions, generated work, checks, failures, limitations and final human decision without relying on Grok's confidence."
+      },
+      "takeaway": "World-class use is not the most impressive generation; it is the most useful result whose evidence and limits remain inspectable.",
+      "limit": "Completing the process demonstrates a bounded workflow. It does not validate Grok for every domain, population or consequential decision."
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "Signed-out Grok web home showing the central composer, attachment control and mode selector.",
+      "caption": "Live Grok web composer, captured 23 August 2026. The signed-out screen contains no account or conversation data.",
+      "callouts": { "composer": "Write the task contract here", "attach": "Attach only necessary, permitted material", "mode": "Choose depth from the task, not prestige" }
+    },
+    "fig-02": {
+      "alt": "Grok web mode menu showing Fast, Auto, Expert, Heavy and Build options with dated model labels.",
+      "caption": "Live mode menu, captured 23 August 2026. Visible labels are evidence of this interface snapshot, not a permanent entitlement table.",
+      "callouts": { "fast": "Fast and Auto for routine or routed work", "expert": "Deeper modes still require external verification", "build": "Build is the consumer app-building mode here, shown with Grok 4.6" }
+    },
+    "fig-03": {
+      "alt": "Grok attachment menu with Upload a file, Recent and Project options.",
+      "caption": "Live attachment menu, captured 23 August 2026. Confirm what was uploaded and parsed before relying on an answer.",
+      "callouts": { "upload": "Upload the smallest relevant file set", "recent": "Check identity before reusing a recent file", "project": "A project changes the context boundary" }
+    },
+    "fig-04": {
+      "alt": "Official Grok web Data settings showing model improvement, X personalisation, data download and account deletion controls.",
+      "caption": "Official xAI web Data settings figure, verified 23 August 2026. X and grok.com controls are separate.",
+      "callouts": { "training": "Choose whether consumer data improves the model", "personalise": "Personalisation with X data is a separate control", "export-delete": "Download and deletion are account-level actions" }
+    },
+    "fig-05": {
+      "alt": "Official SuperGrok usage dashboard with weekly usage, Chat, Imagine, Build, Voice and extra-credit sections.",
+      "caption": "Official consumer usage dashboard figure, verified 23 August 2026. Pools, limits and plan labels can change.",
+      "callouts": { "pool": "A shared weekly usage view", "surfaces": "Several product surfaces consume the pool", "credits": "Extra credits are a separate billing decision" }
+    },
+    "fig-06": {
+      "alt": "Official Grok Build terminal user interface showing a coding task, running work log and status bar.",
+      "caption": "Official xai-org/grok-build interface at pinned revision 19d42e3, verified 23 August 2026. Its visible always-approve demo state is not a recommended default.",
+      "callouts": { "task": "A bounded repository task", "worklog": "Inspect actions and command evidence while it works", "status": "The demo shows always-approve; choose permissions from task risk" }
+    },
+    "fig-07": {
+      "alt": "Official Grok Excel add-in demonstration with a synthetic cash-receipts workbook, selected data and Grok analysis panel.",
+      "caption": "Official Excel add-in demonstration frame, verified 23 August 2026. Its synthetic workbook makes a useful audit exercise: the visible values do not support the panel's under-2%-of-sales statement without another denominator.",
+      "callouts": { "range": "Name and inspect the exact workbook range", "trace": "Read the tool and change trace", "analysis": "Challenge the 2% statement: visible rows give 8.0%, 5.5% and 5.3% of cash sales" }
+    },
+    "fig-08": {
+      "alt": "Live Grok Imagine home with a media prompt, Image, Video and Agent modes, quality and aspect controls, and template gallery.",
+      "caption": "Live Grok Imagine interface, captured 23 August 2026. Controls and availability can differ by plan or later release.",
+      "callouts": { "prompt": "Write a visual production brief", "mode": "Choose image, video or agent workflow", "controls": "Record quality, count and aspect settings" }
+    },
+    "fig-09": {
+      "alt": "Live Grok Imagine Photo Edit template with reference upload and editing choices.",
+      "caption": "Live Photo Edit template, captured 23 August 2026. Use only references you have permission and consent to use.",
+      "callouts": { "reference": "Upload an authorised reference", "presets": "Treat presets as starting points", "review": "Inspect identity, rights and factual signals" }
+    },
+    "fig-10": {
+      "alt": "Live Grok Build access page with terminal installation guidance.",
+      "caption": "Live Grok Build access page, captured 23 August 2026. Installation and plan access remain subject to change.",
+      "callouts": { "access": "Confirm current access on the official page", "install": "Inspect any installation command before running it", "boundaries": "Set repository, permission, secret and action boundaries first" }
+    }
+  },
+  "quiz": {
+    "q1": {
+      "question": "You need a repository agent that can edit files and run tests. Which evidence is most relevant?",
+      "options": ["A consumer chat screenshot", "The current Grok Build documentation and pinned repository", "An X post about Grok", "An API pricing page alone"],
+      "correctIndex": 1,
+      "explanation": "Grok Build is the repository-aware agentic surface. Evidence must match the exact surface and action authority."
+    },
+    "q2": {
+      "question": "What is the best way to compare Fast and Expert modes?",
+      "options": ["Choose the longer answer", "Ask which mode is smarter", "Hold a public task constant and score inspectable criteria", "Treat the model label as a quality score"],
+      "correctIndex": 2,
+      "explanation": "A controlled task, pre-defined rubric and external checks provide evidence; verbosity and labels do not."
+    },
+    "q3": {
+      "question": "You disabled model improvement on grok.com. What can you conclude about Grok on X?",
+      "options": ["X is also opted out", "Nothing; X has separate controls that must be checked", "All past data was instantly deleted", "Feedback can never be used"],
+      "correctIndex": 1,
+      "explanation": "The two surfaces have separate settings and policies. One control change does not establish the other."
+    },
+    "q4": {
+      "question": "Which item belongs in acceptance criteria rather than output format?",
+      "options": ["Use a three-column table", "Write in English", "Every material claim is supported by an opened primary source", "Use 400 words"],
+      "correctIndex": 2,
+      "explanation": "Source support is an observable quality condition; columns, language and length describe presentation."
+    },
+    "q5": {
+      "question": "A Grok answer includes a citation. What is your next step?",
+      "options": ["Accept the claim", "Count the citation as independent confirmation", "Open it and test identity, support, scope, date and context", "Ask Grok for hidden reasoning"],
+      "correctIndex": 2,
+      "explanation": "A citation marker is a lead. Claim-level source inspection is the verification."
+    },
+    "q6": {
+      "question": "A DOCX is attached and Grok discusses its text but not an embedded diagram. What is the best response?",
+      "options": ["Assume the diagram was irrelevant", "Ask for a coverage inventory and provide the diagram as a supported image or PDF", "Upload more unrelated files", "Accept the summary"],
+      "correctIndex": 1,
+      "explanation": "Embedded images in non-PDF documents may be missed. Verify parse coverage and supply the visual explicitly."
+    },
+    "q7": {
+      "question": "What should you review before accepting a Grok Build code change?",
+      "options": ["Only the final summary", "The mode label", "The actual diff, fresh tests, acceptance behaviour and remaining risks", "Repository star count"],
+      "correctIndex": 2,
+      "explanation": "The changed code and fresh behaviour are evidence; summaries and popularity are not."
+    },
+    "q8": {
+      "question": "What does an SGI-Bench score for a dated Grok model establish?",
+      "options": ["Grok improves scientific productivity", "Performance under that benchmark version, data, tasks and metric", "Laboratory validity", "Current universal research quality"],
+      "correctIndex": 1,
+      "explanation": "Benchmark conclusions must remain bounded to the tested model snapshot and methodology."
+    },
+    "q9": {
+      "question": "Why create a claim inventory before drafting?",
+      "options": ["It guarantees originality", "It exposes evidence needs before prose hides gaps", "It removes the need for a human author", "It proves the audience will respond"],
+      "correctIndex": 1,
+      "explanation": "The inventory makes unsupported facts visible while the structure is still easy to revise."
+    },
+    "q10": {
+      "question": "Grok creates an Excel chart successfully. What remains necessary?",
+      "options": ["Nothing", "Only visual styling", "Check formulas, filters, source range, units, accessibility and exported-file integrity", "Send the workbook immediately"],
+      "correctIndex": 2,
+      "explanation": "Successful generation is not validation of analysis, artifact structure or communication quality."
+    },
+    "q11": {
+      "question": "Which teaching use is outside this course's safe boundary?",
+      "options": ["Drafting a worked example from a public curriculum", "Generating a synthetic exit ticket", "Autonomously deciding a student's placement from identifiable records", "Suggesting accessibility checks"],
+      "correctIndex": 2,
+      "explanation": "Student PII and autonomous high-impact educational decisions remain outside the workflow."
+    },
+    "q12": {
+      "question": "What belongs in a generated-media asset record?",
+      "options": ["Only the final image", "Prompt, settings, references and rights, edits, date, provenance, review and alt text", "A claim that the image is real", "Removed watermarks"],
+      "correctIndex": 1,
+      "explanation": "A complete asset record supports rights review, accessibility, correction and reproducibility."
+    },
+    "q13": {
+      "question": "What is the best first connector and automation pattern?",
+      "options": ["Full account write access and a permanent schedule", "Read-only sandbox scope, Run now, inspect history, then a reversible schedule", "Email-triggered deletion", "No stop conditions"],
+      "correctIndex": 1,
+      "explanation": "Least privilege, a single inspected run and reversibility keep the first delegation bounded."
+    },
+    "q14": {
+      "question": "Which capstone packet is strongest?",
+      "options": ["A polished output without sources", "A screenshot of Grok saying the task is complete", "A traceable contract, evidence, artifact, independent checks, failures, limits and human decision", "The longest conversation"],
+      "correctIndex": 2,
+      "explanation": "Portfolio quality comes from an auditable process and decision, not confidence or polish alone."
+    }
+  }
+}

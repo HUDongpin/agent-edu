@@ -15,21 +15,41 @@ import { usePathname } from "next/navigation";
 export default function NavLinks({
   items,
 }: {
-  items: { href: string; label: string }[];
+  items: {
+    href: string;
+    label: string;
+    /** Route prefixes that belong to this top-level section. */
+    activePrefixes?: readonly string[];
+    /** Use an exact pathname match instead of prefix matching. */
+    exact?: boolean;
+  }[];
 }) {
   const pathname = usePathname() || "/";
   const here = pathname.endsWith("/") ? pathname : `${pathname}/`;
 
+  const normalize = (value: string) => {
+    const path = value.split(/[?#]/, 1)[0] || "/";
+    return path.endsWith("/") ? path : `${path}/`;
+  };
+
   return (
     <>
       {items.map((n) => {
-        const target = n.href.endsWith("/") ? n.href : `${n.href}/`;
+        const target = normalize(n.href);
         // The locale root is only "current" on an exact match, otherwise every
         // page would light up Home as well as itself.
         const segments = target.split("/").filter(Boolean).length;
-        const active = segments <= 1 ? here === target : here.startsWith(target);
+        const candidates = n.activePrefixes?.map(normalize) ?? [target];
+        const active = n.exact || segments <= 1
+          ? candidates.some((candidate) => here === candidate)
+          : candidates.some((candidate) => here.startsWith(candidate));
         return (
-          <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}>
+          <Link
+            key={n.href}
+            href={n.href}
+            tabIndex={0}
+            aria-current={active ? "page" : undefined}
+          >
             {n.label}
           </Link>
         );

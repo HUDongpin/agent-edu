@@ -428,15 +428,21 @@ test("rejected responses without usage are provider-rejected-no-usage", async ()
   assert.equal(error.usage, undefined);
 });
 
-test("a reflected credential is redacted from provider diagnostics", async () => {
+test("provider-controlled diagnostics never retain credentials, prompts, or raw errors", async () => {
   const key = "not-a-real-key";
+  const prompt = "private prompt that must not be reflected";
+  const secondToken = "another-sensitive-token";
   const client = createDeepSeekClient({
     getApiKey: () => key,
-    fetchImpl: async () => jsonResponse({ error: { message: `Rejected ${key}` } }, 401),
+    fetchImpl: async () => jsonResponse({
+      error: { message: `Rejected ${key}; prompt=${prompt}; token=${secondToken}` },
+    }, 401),
   });
   const error = await providerError(client.call(MESSAGES, OPTIONS));
-  assert.equal(error.message, "Rejected [redacted]");
+  assert.equal(error.message, "Provider returned HTTP 401.");
   assert.equal(error.message.includes(key), false);
+  assert.equal(error.message.includes(prompt), false);
+  assert.equal(error.message.includes(secondToken), false);
 });
 
 test("200 invalid, empty and truncated content are content failures with usage preserved", async (t) => {

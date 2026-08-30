@@ -5,6 +5,19 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      preview_url:
+        description: Vercel Preview origin for the candidate
+        required: false
+        type: string
+      deployment_id:
+        description: Vercel deployment ID paired with the Preview URL
+        required: false
+        type: string
+      commit_sha:
+        description: Exact candidate commit SHA deployed to Preview
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -18,57 +31,61 @@ jobs:
     name: quality
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: npm
       - name: Restore Next.js build cache
-        uses: actions/cache@v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: .next/cache
           key: ${{ runner.os }}-next-${{ hashFiles('package-lock.json', 'app/**', 'components/**', 'lib/**', 'messages/**', 'public/**', 'next.config.ts', 'tsconfig.json', 'tsconfig.build.json') }}
           restore-keys: |
             ${{ runner.os }}-next-
+      - run: corepack enable
       - run: npm ci
-      - run: npm run handbook:check
-      - run: npm run widgets:check
-      - run: npm run analytics:check
-      - run: npm test
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm run secrets:check
-      - run: npm run csp:check
-      - run: npm run build
-      - run: npm run routes:check
-      - run: npm run assets:check
+      - run: npm run build:release
+      - run: npm audit --audit-level=high
+      - run: git diff --check origin/main...HEAD
+      - name: Upload published-course release ledger
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: published-course-release-ledger
+          path: tmp/release/published-course-gates.json
+          if-no-files-found: error
+          retention-days: 14
 
   smoke-chromium:
     name: smoke-chromium
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: npm
+      - run: corepack enable
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - name: Prove safe/private failure evidence contracts
+        id: evidence_contract
         run: npm run test:evidence-contract
-      - run: npm run test:smoke
+      - id: smoke_browser
+        run: npm run test:smoke
       - name: Scan browser failure evidence for private data
         id: artifact_privacy
-        if: ${{ failure() }}
+        if: ${{ failure() && (steps.evidence_contract.outcome == 'failure' || steps.smoke_browser.outcome == 'failure') }}
         run: npm run artifacts:check
       - name: Upload browser failure evidence
-        if: ${{ failure() && steps.artifact_privacy.outcome == 'success' }}
-        uses: actions/upload-artifact@v7
+        if: ${{ failure() && (steps.evidence_contract.outcome == 'failure' || steps.smoke_browser.outcome == 'failure') && steps.artifact_privacy.outcome == 'success' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: smoke-chromium-failure
           path: browser-evidence/
@@ -79,29 +96,114 @@ jobs:
     name: compatibility
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: npm
+      - run: corepack enable
       - run: npm ci
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run build
-      - run: npm run test:compat
-      - run: npm run test:resilience
+      - id: compat_browser
+        run: npm run test:compat
+      - id: resilience_browser
+        run: npm run test:resilience
       - name: Verify synthetic lab-vitals harness and schema
         run: npm run --silent vitals:lab -- --samples=1
       - name: Scan compatibility failure evidence for private data
         id: artifact_privacy
-        if: ${{ failure() }}
+        if: ${{ failure() && (steps.compat_browser.outcome == 'failure' || steps.resilience_browser.outcome == 'failure') }}
         run: npm run artifacts:check
       - name: Upload compatibility failure evidence
-        if: ${{ failure() && steps.artifact_privacy.outcome == 'success' }}
-        uses: actions/upload-artifact@v7
+        if: ${{ failure() && (steps.compat_browser.outcome == 'failure' || steps.resilience_browser.outcome == 'failure') && steps.artifact_privacy.outcome == 'success' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: compatibility-failure
           path: browser-evidence/
           if-no-files-found: error
           retention-days: 3
+
+  published-courses:
+    name: published-courses
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.x
+          cache: npm
+      - run: corepack enable
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run build
+      - name: Run every published-course browser contract
+        id: published_browser
+        run: npm run test:published-courses
+      - name: Scan published-course failure evidence for private data
+        id: artifact_privacy
+        if: ${{ failure() && steps.published_browser.outcome == 'failure' }}
+        run: npm run artifacts:check
+      - name: Upload published-course failure evidence
+        if: ${{ failure() && steps.published_browser.outcome == 'failure' && steps.artifact_privacy.outcome == 'success' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: published-courses-failure
+          path: browser-evidence/
+          if-no-files-found: error
+          retention-days: 3
+
+  preview-verification:
+    name: ${{ inputs.preview_url != '' && 'Vercel Preview' || 'preview-verification-not-requested' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PREVIEW_URL: ${{ inputs.preview_url }}
+      VERCEL_DEPLOYMENT_ID: ${{ inputs.deployment_id }}
+      CANDIDATE_COMMIT_SHA: ${{ inputs.commit_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.x
+          cache: npm
+      - run: corepack enable
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Mint a short-lived GitHub OIDC token for the protected Preview
+        id: vercel_oidc
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const token = await core.getIDToken('https://vercel.com/HUDongpin/agent-edu/preview-verifier');
+            core.setSecret(token);
+            core.setOutput('token', token);
+      - name: Verify the registry-derived Preview surface and same-SHA metadata
+        env:
+          VERCEL_TRUSTED_OIDC_TOKEN: ${{ steps.vercel_oidc.outputs.token }}
+        run: >-
+          npm run preview:verify --
+          --url "$PREVIEW_URL"
+          --deployment-id "$VERCEL_DEPLOYMENT_ID"
+          --commit "$CANDIDATE_COMMIT_SHA"
+          --browser-console
+          --output tmp/release/vercel-preview-verification.json
+      - name: Upload sanitized same-SHA Preview evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: vercel-preview-verification
+          path: tmp/release/vercel-preview-verification.json
+          if-no-files-found: error
+          retention-days: 14

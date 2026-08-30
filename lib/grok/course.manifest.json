@@ -1,0 +1,31 @@
+{
+  "id": "how-to-use-grok",
+  "version": "1.0.0",
+  "publishedOn": "2026-08-23",
+  "verifiedOn": "2026-08-23",
+  "level": "beginner-to-advanced",
+  "minutes": 695,
+  "passingScore": 12,
+  "units": [
+    { "id": "start", "order": 1, "lessonSlugs": ["map-grok", "read-interface", "privacy-boundaries"] },
+    { "id": "ground", "order": 2, "lessonSlugs": ["task-contracts", "search-verify", "files-data"] },
+    { "id": "studios", "order": 3, "lessonSlugs": ["software-engineering", "research-workflow", "writing-workflow", "office-workflow", "teaching-workflow"] },
+    { "id": "create", "order": 4, "lessonSlugs": ["imagine-multimodal", "connect-automate", "capstone"] }
+  ],
+  "lessons": [
+    { "slug": "map-grok", "order": 1, "unitId": "start", "minutes": 30, "prerequisites": [], "figureIds": ["fig-01", "fig-05"], "sourceIds": ["grok-overview", "grok-product", "grok-pricing", "grok-faq", "grok-4-5", "grok-build-everyone", "grok-build-cli", "grok-bot-faq", "grok-workspace"], "quizId": "q1" },
+    { "slug": "read-interface", "order": 2, "unitId": "start", "minutes": 40, "prerequisites": ["map-grok"], "figureIds": ["fig-02"], "sourceIds": ["grok-product", "grok-4-5", "grok-4-6", "grok-build-everyone", "grok-faq"], "quizId": "q2" },
+    { "slug": "privacy-boundaries", "order": 3, "unitId": "start", "minutes": 45, "prerequisites": ["read-interface"], "figureIds": ["fig-04"], "sourceIds": ["grok-legal-faq", "grok-security-data", "grok-privacy", "grok-terms", "grok-aup", "x-help-grok"], "quizId": "q3" },
+    { "slug": "task-contracts", "order": 4, "unitId": "ground", "minutes": 40, "prerequisites": ["privacy-boundaries"], "figureIds": ["fig-01"], "sourceIds": ["grok-product", "xai-prompts", "xai-cookbook"], "quizId": "q4" },
+    { "slug": "search-verify", "order": 5, "unitId": "ground", "minutes": 50, "prerequisites": ["task-contracts"], "figureIds": ["fig-02"], "sourceIds": ["grok-product", "grok-4", "xai-sdk", "vectara"], "quizId": "q5" },
+    { "slug": "files-data", "order": 6, "unitId": "ground", "minutes": 50, "prerequisites": ["search-verify"], "figureIds": ["fig-03"], "sourceIds": ["grok-faq", "xai-sdk", "vectara"], "quizId": "q6" },
+    { "slug": "software-engineering", "order": 7, "unitId": "studios", "minutes": 55, "prerequisites": ["files-data"], "figureIds": ["fig-06", "fig-10"], "sourceIds": ["grok-build-cli", "grok-4-6", "grok-security-data", "grok-build-enterprise", "xai-grok-build", "xai-build-plugin"], "quizId": "q7" },
+    { "slug": "research-workflow", "order": 8, "unitId": "studios", "minutes": 55, "prerequisites": ["files-data"], "figureIds": ["fig-02"], "sourceIds": ["grok-product", "xai-sdk", "sgi-bench", "vectara"], "quizId": "q8" },
+    { "slug": "writing-workflow", "order": 9, "unitId": "studios", "minutes": 45, "prerequisites": ["task-contracts"], "figureIds": ["fig-01"], "sourceIds": ["grok-product", "grok-skills", "xai-cookbook", "grok-brand"], "quizId": "q9" },
+    { "slug": "office-workflow", "order": 10, "unitId": "studios", "minutes": 50, "prerequisites": ["files-data"], "figureIds": ["fig-07"], "sourceIds": ["grok-skills", "grok-excel", "grok-workspace", "grok-connectors", "n8n-docs"], "quizId": "q10" },
+    { "slug": "teaching-workflow", "order": 11, "unitId": "studios", "minutes": 50, "prerequisites": ["privacy-boundaries", "files-data"], "figureIds": ["fig-03"], "sourceIds": ["grok-product", "grok-aup", "openmaic"], "quizId": "q11" },
+    { "slug": "imagine-multimodal", "order": 12, "unitId": "create", "minutes": 45, "prerequisites": ["task-contracts"], "figureIds": ["fig-08", "fig-09"], "sourceIds": ["grok-imagine-image", "grok-imagine-video", "grok-brand"], "quizId": "q12" },
+    { "slug": "connect-automate", "order": 13, "unitId": "create", "minutes": 50, "prerequisites": ["privacy-boundaries", "task-contracts"], "figureIds": ["fig-04"], "sourceIds": ["grok-connectors", "grok-google-drive", "grok-automations", "grok-legal-faq"], "quizId": "q13" },
+    { "slug": "capstone", "order": 14, "unitId": "create", "minutes": 90, "prerequisites": ["software-engineering", "research-workflow", "writing-workflow", "office-workflow", "teaching-workflow", "imagine-multimodal", "connect-automate"], "figureIds": ["fig-10"], "sourceIds": ["grok-overview", "grok-build-everyone", "grok-build-mode", "grok-legal-faq", "grok-brand", "vectara"], "quizId": "q14" }
+  ]
+}

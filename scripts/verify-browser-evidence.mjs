@@ -6,6 +6,7 @@ import { runPrivatePlaywright } from "./run-private-playwright.mjs";
 
 const cwd = process.cwd();
 const evidenceRoot = resolve(cwd, "browser-evidence");
+const safeOutputRoot = resolve(cwd, ".playwright-evidence-contract-safe");
 const privateOutput = resolve(cwd, ".playwright-evidence-contract-private");
 const privateKey = ["contract", "private", "key", "91f0"].join("-");
 const privatePrompt = ["contract private", " learner prompt 42b7"].join("");
@@ -19,6 +20,12 @@ const privateCanaries = [
   "7c3a",
 ];
 const safeMarker = "safe evidence contract: reached intentional assertion";
+const reporterCanaries = [
+  ["REPORTER", "URL", "CANARY", "4f81"].join("_"),
+  ["REPORTER", "STDOUT", "CANARY", "53ac"].join("_"),
+  ["REPORTER", "ATTACHMENT", "CANARY", "7bd2"].join("_"),
+  ["REPORTER", "ERROR", "CANARY", "9e60"].join("_"),
+];
 
 function runSafe(config) {
   return spawnSync(
@@ -50,17 +57,55 @@ function regularFiles(root) {
 }
 
 rmSync(evidenceRoot, { recursive: true, force: true });
+rmSync(safeOutputRoot, { recursive: true, force: true });
 const safe = runSafe("playwright.evidence-safe.config.ts");
 const safeOutput = `${safe.stdout ?? ""}${safe.stderr ?? ""}`;
 if (safe.status !== 1 || !safeOutput.includes(safeMarker)) {
   throw new Error("intentional safe failure did not reach its fixed assertion marker");
 }
+if (
+  reporterCanaries.some((canary) => safeOutput.includes(canary))
+  || safeOutput.includes("an unexpected base-fixture failure")
+) {
+  throw new Error("public reporter output retained a private failure field");
+}
 await scanArtifactRoots(["browser-evidence"], { cwd, curated: true, requireRoots: true });
 const evidenceFiles = regularFiles(evidenceRoot).map((path) => path.slice(evidenceRoot.length + 1));
+const safeBundles = new Set(evidenceFiles.map((path) => path.split(sep)[0]));
+if (safeBundles.size !== 3 || evidenceFiles.length !== 12) {
+  throw new Error("safe failures did not produce exactly three closed four-file bundles");
+}
 for (const required of ["manifest.json", "screenshot.png", "trace.json", "console.json"]) {
-  if (!evidenceFiles.some((path) => path.endsWith(required))) {
-    throw new Error(`safe failure did not produce ${required}`);
+  if (evidenceFiles.filter((path) => path.endsWith(required)).length !== 3) {
+    throw new Error(`safe failures did not each produce ${required}`);
   }
+}
+const screenshotDimensions = evidenceFiles
+  .filter((path) => path.endsWith("screenshot.png"))
+  .map((path) => readFileSync(resolve(evidenceRoot, path)))
+  .map((png) => `${png.readUInt32BE(16)}x${png.readUInt32BE(20)}`)
+  .sort();
+if (screenshotDimensions.join(",") !== "1280x720,1x1,1x1") {
+  throw new Error("safe failures did not exercise both browser and synthetic redaction capture paths");
+}
+for (const path of regularFiles(evidenceRoot)) {
+  const bytes = readFileSync(path);
+  if (reporterCanaries.some((canary) => bytes.includes(Buffer.from(canary)))) {
+    throw new Error("curated evidence retained a reporter privacy canary");
+  }
+}
+const safeOutputFiles = regularFiles(safeOutputRoot);
+const safeOutputRelative = safeOutputFiles.map(
+  (path) => relative(safeOutputRoot, path).split(sep).join("/"),
+);
+if (
+  safeOutputRelative.length !== 1
+  || safeOutputRelative[0] !== ".last-run.json"
+  || reporterCanaries.some(
+    (canary) => readFileSync(safeOutputFiles[0]).includes(Buffer.from(canary)),
+  )
+) {
+  throw new Error("public failure run retained a raw or private Playwright output");
 }
 
 rmSync(evidenceRoot, { recursive: true, force: true });

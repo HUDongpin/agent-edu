@@ -85,7 +85,7 @@ const MENU_GUARD = "Only ever order items on this menu, at exactly these prices.
 const PANEL = "labpanel";
 
 type Row = { id: string; said: string; kind: string; ok: boolean; why: string };
-type Err = { key: string; detail?: string } | null;
+type Err = { key: string } | null;
 type ActiveBatch = { runId: string; kind: "preview" | "eval" } | null;
 type ReflectionNote = { round: number; complete: boolean } | null;
 type DraftProblem = "unavailable" | "clear-failed" | null;
@@ -367,8 +367,8 @@ export default function Lab() {
     return asJSON<Order>(result.text);
   }
 
-  function errorDetail(error: unknown): string {
-    return error instanceof Error ? error.message : t("lab.err.content");
+  function safeContentFailure(): string {
+    return t("lab.err.content");
   }
 
   function paidKeyProblem(): string | null {
@@ -403,7 +403,7 @@ export default function Lab() {
       concurrency: STAGE_3_PLAN.calls,
       onProgress: (completed, total) => setProg(`${completed} / ${total}`),
       onContentFailure: (error, task) => (
-        `${task.said}\n  → ${t("lab.contentFailure")}: ${errorDetail(error)}`
+        `${task.said}\n  → ${t("lab.contentFailure")}: ${safeContentFailure()}`
       ),
     });
     setActiveBatch({ runId: handle.runId, kind: "preview" });
@@ -419,7 +419,7 @@ export default function Lab() {
     } else if (outcome.status === "cancelled") {
       setErr2({ key: "lab.err.cancelled" });
     } else if (outcome.error) {
-      setErr2({ key: errorKey(outcome.error), detail: outcome.error.message });
+      setErr2({ key: errorKey(outcome.error) });
     }
   }
 
@@ -504,7 +504,7 @@ export default function Lab() {
         said: task.testCase.said,
         kind: task.testCase.kind,
         ok: false,
-        why: errorDetail(error),
+        why: safeContentFailure(),
       }),
     });
     setActiveBatch({ runId: handle.runId, kind: "eval" });
@@ -519,7 +519,7 @@ export default function Lab() {
     }
     if (outcome.status !== "completed" || !outcome.results) {
       if (outcome.error) {
-        setErr3({ key: errorKey(outcome.error), detail: outcome.error.message });
+        setErr3({ key: errorKey(outcome.error) });
       }
       return;
     }
@@ -663,7 +663,7 @@ export default function Lab() {
                     setA0(result.text);
                     recordLabStep("first-call");
                   }
-                  catch (e) { setErr0({ key: errorKey(e), detail: (e as Error).message }); }
+                  catch (e) { setErr0({ key: errorKey(e) }); }
                   finally { setBusy0(false); }
                 }}>{busy0 ? t("ui.loading") : t("ui.run")} <span className="arrow">→</span></button>
                 {billing.dispatchedCalls > 0 && (
@@ -672,7 +672,7 @@ export default function Lab() {
                   </span>
                 )}
               </div>
-              {err0 && <Fail msgKey={err0.key} detail={err0.detail} />}
+              {err0 && <Fail msgKey={err0.key} />}
               {/* dir="auto" — the model answers in whatever language it was asked. */}
               <div className={"outbox" + (a0 ? "" : " empty")} dir="auto"
                 aria-live="polite" style={{ marginTop: 11 }}>
@@ -864,8 +864,8 @@ export default function Lab() {
                   </>
                 )}
               </div>
-              {stage === 2 && err2 && <Fail msgKey={err2.key} detail={err2.detail} />}
-              {stage === 3 && err3 && <Fail msgKey={err3.key} detail={err3.detail} />}
+              {stage === 2 && err2 && <Fail msgKey={err2.key} />}
+              {stage === 3 && err3 && <Fail msgKey={err3.key} />}
               {stage === 2 && completedPreviewIds.length > 0 && (
                 <p className="mono-note labpreviewdraft" role="status">
                   {t("lab.draft.preview")

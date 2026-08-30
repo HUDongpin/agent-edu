@@ -1,0 +1,80 @@
+{
+  "course": "Course 12: How to Make Money with Claude",
+  "manifestVersion": "2026-08-23.v1",
+  "captureDate": "2026-08-23",
+  "captureSurface": "Claude Desktop for macOS",
+  "sourceViewport": "1322x768",
+  "accountContext": "Authenticated individual account; account, plan, region, usage, and private history are cropped and not asserted",
+  "captureBasis": "course-authored real UI capture for identification, commentary, and instruction",
+  "independentProject": true,
+  "anthropicEndorsement": false,
+  "metadataStripped": true,
+  "privacyReview": "passed",
+  "thirdPartyRepositoryAssets": [],
+  "xMediaAssets": [],
+  "figures": [
+    {
+      "id": "fig-01-chat-composer",
+      "contentMode": "blank UI",
+      "master": { "path": "figures/fig-01-chat-composer.png", "width": 720, "height": 270, "sha256": "11dec55d47b0de68ab6fc45ad551cb70323d56346720bee129e5cd9d224a7196" },
+      "variants": [
+        { "path": "figures/fig-01-chat-composer-640.webp", "width": 640, "height": 240, "sha256": "e045bbebae61609a7d4329223e1d3f115631ffbaf54c69dfd8a79eb487bad7ec" },
+        { "path": "figures/fig-01-chat-composer-960.webp", "width": 720, "height": 270, "sha256": "591e0990f6620f1ec40c9e9b0a6ee4e3b012a122693ecf399e46f8cf85b0ae61" }
+      ]
+    },
+    {
+      "id": "fig-02-cowork-composer",
+      "contentMode": "blank UI",
+      "master": { "path": "figures/fig-02-cowork-composer.png", "width": 720, "height": 300, "sha256": "92d671632af8bd8e85a316e603fcce9939c6d02882343f55b5d624a325d458c8" },
+      "variants": [
+        { "path": "figures/fig-02-cowork-composer-640.webp", "width": 640, "height": 267, "sha256": "0e4994269842350503b20a6c9f546267e8c7f47a3daefaefcda11ff626c50443" },
+        { "path": "figures/fig-02-cowork-composer-960.webp", "width": 720, "height": 300, "sha256": "cfd8cdec2698aafd72e3f173cfcd74153077441dd2141be266c569d04b8801f2" }
+      ]
+    },
+    {
+      "id": "fig-03-tools-menu",
+      "contentMode": "blank UI",
+      "master": { "path": "figures/fig-03-tools-menu.png", "width": 760, "height": 510, "sha256": "aaeb8e2978e3c0fbde681ead1ed9ccf4abdb1e77929b50fbc161278627792a60" },
+      "variants": [
+        { "path": "figures/fig-03-tools-menu-640.webp", "width": 640, "height": 429, "sha256": "7cc57268c07a5d4e798335b760ae52019a8ccf5ba61b183f80e3cfb8a1de594e" },
+        { "path": "figures/fig-03-tools-menu-960.webp", "width": 760, "height": 510, "sha256": "f95b4531cf1d95a6a5b1d6f8c3e3c1c924f55668a7c1754f85b0dc51bbea4435" }
+      ]
+    },
+    {
+      "id": "fig-04-new-project",
+      "contentMode": "blank UI, privacy-tight crop",
+      "master": { "path": "figures/fig-04-new-project.png", "width": 510, "height": 385, "sha256": "7c6bba35a9c3e4730f50a68dfe25cf4454778fb34378c9089bee065e873dc13d" },
+      "variants": [
+        { "path": "figures/fig-04-new-project-640.webp", "width": 510, "height": 385, "sha256": "c64a760825449331d3046c1f360ca86fe0669a6e88f82e2920444b192efc5afd" },
+        { "path": "figures/fig-04-new-project-960.webp", "width": 510, "height": 385, "sha256": "7126248f29c8fcc3ade57cdb0706dd682f3d9c477140a2a416a917907c918302" }
+      ]
+    },
+    {
+      "id": "fig-05-file-outputs",
+      "contentMode": "Anthropic-supplied example inside a course-authored capture",
+      "master": { "path": "figures/fig-05-file-outputs.png", "width": 780, "height": 520, "sha256": "7937a17721034737827e83dc1b321677c72fb2ae9aaf4d39787de52f39a2f202" },
+      "variants": [
+        { "path": "figures/fig-05-file-outputs-640.webp", "width": 640, "height": 427, "sha256": "cf4ba12751413c516f286c997f215eb3aacf4cf7077330074abaed6d8828122a" },
+        { "path": "figures/fig-05-file-outputs-960.webp", "width": 780, "height": 520, "sha256": "60c7a1c2e9a43e63382f21d7fec6f532df3ddacc118b52a81a482c362406016d" }
+      ]
+    },
+    {
+      "id": "fig-06-artifact-workspace",
+      "contentMode": "course-authored synthetic request",
+      "master": { "path": "figures/fig-06-artifact-workspace.png", "width": 1322, "height": 768, "sha256": "81b155f3632b27c46365dafd8692ce4b5c1f63ad1649ea67888f208f7fc2e2ab" },
+      "variants": [
+        { "path": "figures/fig-06-artifact-workspace-640.webp", "width": 640, "height": 372, "sha256": "2ddfa655cd8f232cf95bd831850ebf8ddd28c01bd97b8e2f88c3d7d12f20ce31" },
+        { "path": "figures/fig-06-artifact-workspace-960.webp", "width": 960, "height": 558, "sha256": "2fbf7aa9530eb81834b3eb17c88106485d3bcc33f471bfa3d00b876ff2bc7b32" }
+      ]
+    },
+    {
+      "id": "fig-07-skills-settings",
+      "contentMode": "Anthropic-supplied Skills list inside a course-authored capture",
+      "master": { "path": "figures/fig-07-skills-settings.png", "width": 950, "height": 690, "sha256": "08724e40883bd3713a29ba7dd1348e0e138020b7c3073ee7355ad1dfac86babb" },
+      "variants": [
+        { "path": "figures/fig-07-skills-settings-640.webp", "width": 640, "height": 465, "sha256": "d84e171adbd27eac92a8cf88e5f6f1ed153fab72c3d1d377a14c4cd3facc3392" },
+        { "path": "figures/fig-07-skills-settings-960.webp", "width": 950, "height": 690, "sha256": "12af37d406ada4d30ed28467cb9757e1d72f7c7ea1c91f5c2df4d1fe81f990e5" }
+      ]
+    }
+  ]
+}

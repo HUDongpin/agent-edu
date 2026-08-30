@@ -1,0 +1,16 @@
+{
+  "name": "@aicourse/mcp-courseops-reference",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dependency-free MCP 2026-07-28 stdio server and client for Course 10.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "client": "node src/client.mjs",
+    "test": "node --test test/courseops.test.mjs"
+  },
+  "license": "MIT"
+}

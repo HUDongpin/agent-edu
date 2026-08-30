@@ -46,8 +46,8 @@ export default function GlobalNotFound() {
                     <span className="recovery404-missing">{language.missing}</span>
                   </span>
                   <span className="recovery404-links">
-                    <a href={`/${language.code}/`}>{language.home}</a>
-                    <a href={`/${language.code}/courses/`}>{language.courses}</a>
+                    <a href={`/${language.code}/`} tabIndex={0}>{language.home}</a>
+                    <a href={`/${language.code}/courses/`} tabIndex={0}>{language.courses}</a>
                   </span>
                 </li>
               ))}

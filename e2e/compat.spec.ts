@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
 
 const STATIC_PATHS = [
-  { path: "/en/", marker: "#curriculum" },
+  { path: "/en/", marker: ".platform-hero" },
   { path: "/en/handbook/", marker: "#rail" },
   { path: "/en/lab/", marker: ".shellwrap.lab .labhero" },
   { path: "/en/build/", marker: ".build-page .build-steps" },
@@ -10,7 +10,7 @@ const STATIC_PATHS = [
 
 const VIEWPORTS = [
   { width: 390, height: 844 },
-  { width: 1440, height: 900 },
+  { width: 1440, height: 1000 },
 ] as const;
 
 async function expectNoHorizontalOverflow(page: Page) {
@@ -35,8 +35,35 @@ test("the English static learning paths render at narrow and wide widths", async
         expect(response, "main-document response").not.toBeNull();
         expect(response!.status(), `${route.path} must be a static 200`).toBe(200);
         await expect(page.locator(route.marker)).toBeVisible();
+        if (route.path === "/en/") {
+          await expect(page.getByRole("heading", {
+            level: 1,
+            name: "Learn AI by doing. Build skills you can prove.",
+          })).toBeVisible();
+          await expect(page.getByRole("link", { name: "Explore all courses" })).toBeVisible();
+        }
         await expect(page.locator("html")).toHaveAttribute("lang", "en");
         await expectNoHorizontalOverflow(page);
+
+        if (route.path === "/en/" && viewport.width === 1440) {
+          const layout = await page.locator(".platform-hero").evaluate((hero) => {
+            const rect = hero.getBoundingClientRect();
+            const art = hero.querySelector(".platform-hero-art")?.getBoundingClientRect();
+            const primaryCta = hero.querySelector(".btn.primary")?.getBoundingClientRect();
+            return {
+              display: getComputedStyle(hero).display,
+              height: rect.height,
+              bottom: rect.bottom,
+              artBottom: art?.bottom ?? Number.POSITIVE_INFINITY,
+              ctaBottom: primaryCta?.bottom ?? Number.POSITIVE_INFINITY,
+            };
+          });
+          expect(layout.display).toBe("grid");
+          expect(layout.height).toBeLessThan(1000);
+          expect(layout.bottom).toBeLessThanOrEqual(1000);
+          expect(layout.artBottom).toBeLessThanOrEqual(1000);
+          expect(layout.ctaBottom).toBeLessThanOrEqual(1000);
+        }
       });
     }
   }
@@ -49,10 +76,42 @@ test("an unknown static path returns the multilingual recovery 404", async ({ pa
   expect(response!.status()).toBe(404);
   await expect(page.locator("html")).toHaveAttribute("lang", "und");
   await expect(page.locator("h1")).toHaveText("404");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/i);
   await expect(page.locator(".recovery404-grid li")).toHaveCount(9);
   await expect(page.locator(".recovery404-missing")).toHaveCount(9);
   await expect(page.locator('a[href="/ar/courses/"]')).toBeVisible();
+
+  await page.keyboard.press("Tab");
+  const focused = page.locator(":focus");
+  await expect(focused).toHaveAttribute("href", "/en/");
+  const focusRing = await focused.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { style: style.outlineStyle, width: Number.parseFloat(style.outlineWidth) };
+  });
+  expect(focusRing.style).not.toBe("none");
+  expect(focusRing.width).toBeGreaterThanOrEqual(2);
   await expectNoHorizontalOverflow(page);
+});
+
+test("the shared stylesheet honours reduced-motion preferences", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const response = await page.goto("/en/");
+  expect(response?.status()).toBe(200);
+
+  const motion = await page.evaluate(() => {
+    const root = getComputedStyle(document.documentElement);
+    const button = getComputedStyle(document.querySelector(".btn")!);
+    return {
+      scrollBehavior: root.scrollBehavior,
+      transitionDuration: button.transitionDuration,
+    };
+  });
+  const firstDuration = motion.transitionDuration.split(",", 1)[0].trim();
+  const durationMs = firstDuration.endsWith("ms")
+    ? Number.parseFloat(firstDuration)
+    : Number.parseFloat(firstDuration) * 1000;
+  expect(motion.scrollBehavior).toBe("auto");
+  expect(durationMs).toBeLessThanOrEqual(0.01);
 });
 
 test("the mobile menu reaches Teach in two interactions and exposes its download", async ({ page }) => {

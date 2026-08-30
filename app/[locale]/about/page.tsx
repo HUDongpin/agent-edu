@@ -1,4 +1,5 @@
 import Portrait from "@/components/about/Portrait";
+import LearningIcon from "@/components/home/LearningIcon";
 import { CREATOR, TEAM, type Person } from "@/lib/team";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
 import { seoFor } from "@/lib/seo";
@@ -79,7 +80,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       <section className="sect">
         <div className="grid2">
           <div className="out" style={{ alignItems: "flex-start" }}>
-            <span className="ico" aria-hidden="true">❓</span>
+            <span className="ico"><LearningIcon name="purpose" size={20} /></span>
             <div>
               <h3>{t("ab.whyTitle")}</h3>
               <p>{t("ab.why1")}</p>
@@ -87,7 +88,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </div>
           </div>
           <div className="out" style={{ alignItems: "flex-start" }}>
-            <span className="ico" aria-hidden="true">🔧</span>
+            <span className="ico"><LearningIcon name="method" size={20} /></span>
             <div>
               <h3>{t("ab.howTitle")}</h3>
               <p>{t("ab.how1")}</p>

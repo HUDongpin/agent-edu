@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "كيفية تحقيق دخل باستخدام Codex",
+    "shortTitle": "تحقيق دخل باستخدام Codex",
+    "languageNotice": "ملاحظة لغوية: اقتصر التعريب على عناصر التنقل وعناوين الدورة والوحدات والدروس. أما نصوص الدروس المدققة والتمارين والتقييم والأشكال وسجل المصادر والأدوات التفاعلية، فتبقى باللغة الإنجليزية. ولا تزال مراجعة مستقلة يجريها متحدث أصلي قيد الانتظار."
+  },
+  "availability": {
+    "contentLanguage": "en",
+    "localizedScope": "navigation-and-titles",
+    "reviewStatus": "pending-independent-native-review"
+  },
+  "ui": {
+    "course": "الدورة",
+    "courses": "الدورات",
+    "courseOutline": "مخطط الدورة",
+    "lesson": "الدرس",
+    "lessons": "دروس",
+    "minutes": "دقيقة",
+    "guidedWork": "عمل موجه",
+    "authenticUi": "صور لواجهة Codex حقيقية أو لسجلات تنفيذ فعلية",
+    "evidenceVerified": "أدلة تم التحقق منها",
+    "startCourse": "ابدأ بحدود الأدلة",
+    "inspectLessons": "استعرض جميع الدروس",
+    "curriculum": "المنهج",
+    "time": "المدة",
+    "output": "المخرج",
+    "evidence": "الأدلة",
+    "boundedSources": "مصادر محددة النطاق",
+    "previous": "السابق",
+    "next": "التالي",
+    "courseDashboard": "لوحة الدورة",
+    "reviewEvidencePath": "راجع مسار أدلتك",
+    "backToCatalog": "الدورات",
+    "resetConfirm": "هل تريد إعادة تعيين تقدم الدورة 11 في هذا المتصفح فقط؟"
+  },
+  "units": {
+    "value": {
+      "title": "القيمة قبل كتابة الشفرة"
+    },
+    "pilot": {
+      "title": "بناء مشروع تجريبي مدفوع"
+    },
+    "sell": {
+      "title": "التسعير والبيع والتسليم"
+    },
+    "scale": {
+      "title": "تحويل العمل إلى منتج من دون فقدان السيطرة"
+    }
+  },
+  "lessons": {
+    "money-not-magic": {
+      "title": "Codex أداة لمضاعفة القدرة، وليس زرًا لجني المال"
+    },
+    "choose-market-wedge": {
+      "title": "اختر نقطة دخول محددة إلى السوق"
+    },
+    "validate-before-building": {
+      "title": "تحقق قبل أن تبني"
+    },
+    "write-commercial-spec": {
+      "title": "اكتب عقد المهمة التجارية"
+    },
+    "protect-client-work": {
+      "title": "احمِ عمل العميل"
+    },
+    "build-verified-pilot": {
+      "title": "أنشئ مشروعًا تجريبيًا جرى التحقق منه"
+    },
+    "price-for-margin": {
+      "title": "حدد السعر بما يراعي الهامش والمخاطر"
+    },
+    "sell-with-proof": {
+      "title": "بع بالأدلة لا بالوعود"
+    },
+    "deliver-with-control": {
+      "title": "سلّم العمل مع الحفاظ على السيطرة"
+    },
+    "productize-reuse": {
+      "title": "حوّل ما اجتاز التسليم إلى منتج"
+    },
+    "retain-and-automate": {
+      "title": "حقق قيمة متكررة بمسؤولية"
+    },
+    "launch-capstone": {
+      "title": "أطلق مشروعًا تجريبيًا للإيرادات قائمًا على الأدلة"
+    }
+  }
+}

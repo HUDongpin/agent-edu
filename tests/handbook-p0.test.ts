@@ -103,7 +103,9 @@ test("Handbook Part 1 is scripted-only and has no live-provider request path", (
   assert.doesNotMatch(behaviour, /\bfetch\s*\(|sessionStorage|api\.deepseek\.com|Authorization|Bearer/);
   assert.match(behaviour, /t\.tabIndex=on\?0:-1/);
   assert.match(behaviour, /t\.focus\(\); show\(t\.dataset\.p,\{focus:false\}\)/);
-  assert.match(behaviour, /scrollIntoView\(\{block:'nearest',inline:'nearest'\}\)/);
+  assert.match(behaviour, /n\.focus\(\); show\(n\.dataset\.p,\{focus:false,preserveTabViewport:true\}\)/);
+  assert.match(behaviour, /!opts\.silent && !opts\.preserveTabViewport && window\.scrollY>120/);
+  assert.match(behaviour, /scrollIntoView\(\{block:'nearest',inline:'nearest',behavior:'instant'\}\)/);
 });
 
 test("the Handbook hands Part 2 to Lab and Part 3 to the local TypeScript course", () => {
@@ -131,10 +133,12 @@ test("deep links, history, and saved-section restoration share the same show pat
   assert.match(behaviour, /window\.addEventListener\('popstate',restoreLocation\)/);
   assert.match(behaviour, /window\.addEventListener\('hashchange',restoreLocation\)/);
   assert.match(behaviour, /const initial = NAMES\.has\(fromHash\) \? fromHash : readLearningState\(\)\.handbook\.lastSection/);
-  assert.match(behaviour, /show\(initial,\{replace:true,focus:false,silent:true\}\)/);
+  assert.match(behaviour, /show\(initial,\{replace:true,focus:false,silent:true,record:false\}\)/);
+  assert.match(behaviour, /show\(NAMES\.has\(h\)\?h:'start',\{replace:true,focus:false,silent:true,record:false\}\)/);
 });
 
 test("Handbook visits and Control Room finishes write only through progress v2", () => {
+  assert.match(behaviour, /opts\.record===false\?readLearningState\(\):recordHandbookVisit\(name\)/);
   assert.match(behaviour, /recordHandbookVisit\(name\)/);
   assert.match(behaviour, /recordHandbookControlRoomFinish\(score\)/);
   assert.match(behaviour, /selectHandbookProgress\(learning\)/);

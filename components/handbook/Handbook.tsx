@@ -4,6 +4,9 @@ import { useEffect, useMemo, useRef } from "react";
 import initHandbook from "@/lib/handbook/behaviour";
 import { makeCopy, type WidgetTable } from "@/lib/handbook/copy";
 import { useI18n } from "../I18nProvider";
+import CourseJourney from "./CourseJourney";
+import SharedCourseShell from "../SharedCourseShell";
+import AgenticTrackNav from "../AgenticTrackNav";
 
 /**
  * The handbook: verified markup rendered by React, driven by the original
@@ -63,6 +66,9 @@ export default function Handbook(
     <>
       <div className="shellwrap">
         {!localised && locale !== "en" && <p className="langnote">{t("note.englishOnly")}</p>}
+        <SharedCourseShell courseId="agentic" locale={locale} />
+        <AgenticTrackNav locale={locale} current="handbook" />
+        <CourseJourney locale={locale} />
       </div>
       <div
         className={localised ? "hb" : "hb en-content"}
