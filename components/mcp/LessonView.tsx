@@ -5,6 +5,7 @@ import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import InteractiveLab from "./InteractiveLab";
 import KnowledgeCheck from "./KnowledgeCheck";
 import LessonCompletion from "./LessonCompletion";
+import LocalizedTemplate from "./LocalizedTemplate";
 import McpFigure from "./McpFigure";
 import styles from "./McpCourse.module.css";
 
@@ -53,6 +54,27 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
   });
   const hrefFor = (slug: string) => `/${course.locale}/mcp/${slug}/`;
   const hasRunnableReference = lesson.slug === "build-server" || lesson.slug === "build-client";
+  const lessonLinks = course.units.map((courseUnit) => (
+    <div className={styles.railUnit} key={courseUnit.id}>
+      <p>{number(courseUnit.order)}. {courseUnit.title}</p>
+      <ol>
+        {courseUnit.lessonSlugs.map((slug) => {
+          const item = course.lessons.find((candidate) => candidate.slug === slug)!;
+          return (
+            <li key={slug}>
+              <Link
+                href={hrefFor(slug)}
+                prefetch={false}
+                aria-current={slug === lesson.slug ? "page" : undefined}
+              >
+                <span>{number(item.order)}</span>{item.title}
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  ));
 
   return (
     <div className={`shellwrap ${styles.lessonPage}`} data-testid={`mcp-lesson-${lesson.slug}`} lang={course.contentLocale} dir={course.contentDirection}>
@@ -64,45 +86,44 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
         <span aria-current="page">{formatMcpCopy(ui.lessonTemplate, { order: number(lesson.order) })}</span>
       </nav>
 
+      <details className={styles.mobileLessonNav} data-testid="mcp-mobile-lesson-nav">
+        <summary>
+          <span>{number(index + 1)}/{number(course.lessons.length)}</span>
+          <strong>{lesson.title}</strong>
+          <b aria-hidden="true">+</b>
+        </summary>
+        <nav aria-label={ui.lessonCourseNavAria}>{lessonLinks}</nav>
+      </details>
+
       <div className={styles.lessonLayout}>
         <aside className={styles.lessonRail}>
           <nav aria-label={ui.lessonCourseNavAria}>
             <div className={styles.railCurrent}><span>{number(index + 1)}/{number(course.lessons.length)}</span><strong dir="ltr">{course.protocolVersion}</strong></div>
-            {course.units.map((courseUnit) => (
-              <div className={styles.railUnit} key={courseUnit.id}>
-                <p>{number(courseUnit.order)}. {courseUnit.title}</p>
-                <ol>
-                  {courseUnit.lessonSlugs.map((slug) => {
-                    const item = course.lessons.find((candidate) => candidate.slug === slug)!;
-                    return (
-                      <li key={slug}>
-                        <Link
-                          href={hrefFor(slug)}
-                          prefetch={false}
-                          aria-current={slug === lesson.slug ? "page" : undefined}
-                        >
-                          <span>{number(item.order)}</span>{item.title}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ol>
-              </div>
-            ))}
+            {lessonLinks}
           </nav>
         </aside>
 
         <div className={styles.lessonMain}>
           <article>
             <header className={styles.lessonHero}>
-              <div className={styles.heroBadges}><span>{formatMcpCopy(ui.lessonTemplate, { order: number(lesson.order) })}</span><span>{unit.title}</span><span>{formatMcpCopy(ui.lessonMinutesTemplate, { minutes: number(lesson.minutes) })}</span><span>{formatMcpCopy(ui.dashboardEvidenceSnapshotTemplate, { date: course.publishedOn })}</span></div>
+              <div className={styles.heroBadges}>
+                <span>{formatMcpCopy(ui.lessonTemplate, { order: number(lesson.order) })}</span>
+                <span>{unit.title}</span>
+                <span>{formatMcpCopy(ui.lessonMinutesTemplate, { minutes: number(lesson.minutes) })}</span>
+                <span>
+                  <LocalizedTemplate
+                    template={ui.dashboardEvidenceSnapshotTemplate}
+                    values={{ date: course.publishedOn }}
+                    isolate={{ date: "ltr" }}
+                  />
+                </span>
+              </div>
               <p className={styles.eyebrow} dir="ltr">MCP {course.protocolVersion}</p>
               <h1>{lesson.title}</h1>
               <p className={styles.lessonSummary}>{lesson.summary}</p>
               <div className={styles.lessonConcepts} aria-label={ui.lessonConceptsAria}>
                 {concepts.map((concept) => <span key={concept.id} data-status={concept.status}>{statusLabel[concept.status]} · {concept.label}</span>)}
               </div>
-              <p className={styles.localeNote}>{course.localeNote}</p>
             </header>
 
             <section className={styles.objective} aria-labelledby="mcp-objective-title">
@@ -119,8 +140,17 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
                   {section.bullets?.length ? <ul>{section.bullets.map((item, bulletIndex) => <li key={`${lesson.slug}-${sectionIndex}-b-${bulletIndex}`}>{item}</li>)}</ul> : null}
                   {section.code ? (
                     <figure className={styles.codePanel}>
-                      <figcaption><span>{section.code.label}</span><span>{section.code.language}</span></figcaption>
-                      <pre dir="ltr"><code>{section.code.value}</code></pre>
+                      <figcaption id={`mcp-${lesson.slug}-code-${sectionIndex}`}>
+                        <span>{section.code.label}</span><span>{section.code.language}</span>
+                      </figcaption>
+                      <pre
+                        dir="ltr"
+                        tabIndex={0}
+                        aria-labelledby={`mcp-${lesson.slug}-code-${sectionIndex}`}
+                        translate="no"
+                      >
+                        <code>{section.code.value}</code>
+                      </pre>
                     </figure>
                   ) : null}
                   {section.callout ? (
@@ -147,7 +177,7 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
                         <tr key={extension.id}>
                           <th scope="row"><a href={extension.specificationUrl} target="_blank" rel="noopener noreferrer"><bdi>{extension.name}</bdi><span className={styles.visuallyHidden}> ({ui.externalNewTab})</span></a><small dir="ltr">{extension.id}</small></th>
                           <td><span data-maturity={extension.maturity}>{maturityLabel[extension.maturity]}</span></td>
-                          <td><code dir="ltr">{extension.specificationVersion}</code><small>{formatMcpCopy(ui.lessonObservedTemplate, { date: extension.observedOn })}</small></td>
+                          <td><code dir="ltr" translate="no">{extension.specificationVersion}</code><small><LocalizedTemplate template={ui.lessonObservedTemplate} values={{ date: extension.observedOn }} isolate={{ date: "ltr" }} /></small></td>
                           <td>{extension.fallback}</td>
                         </tr>
                       ))}
@@ -190,12 +220,23 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
 
             <section className={styles.sources} aria-labelledby="mcp-sources-title">
               <header><p className={styles.eyebrow}>{ui.lessonSourcesEyebrow}</p><h2 id="mcp-sources-title">{ui.lessonSourcesTitle}</h2></header>
+              <p className={styles.localeNote}>{course.localeNote}</p>
               <ol>
                 {sources.map((source) => (
                   <li key={source.id}>
                     <a href={source.url} target="_blank" rel="noopener noreferrer">
                       <span className={styles.sourceTier} data-tier={source.tier}>{tierLabel[source.tier]}</span>
-                      <span><strong><bdi>{source.title}</bdi></strong><small>{formatMcpCopy(ui.lessonSourceAccessedTemplate, { publisher: source.publisher, date: source.accessedOn })}</small><em>{source.note}</em></span>
+                      <span>
+                        <strong><bdi>{source.title}</bdi></strong>
+                        <small>
+                          <LocalizedTemplate
+                            template={ui.lessonSourceAccessedTemplate}
+                            values={{ publisher: source.publisher, date: source.accessedOn }}
+                            isolate={{ publisher: "ltr", date: "ltr" }}
+                          />
+                        </small>
+                        <em>{source.note}</em>
+                      </span>
                       <b aria-hidden="true">↗</b>
                       <span className={styles.visuallyHidden}> ({ui.externalNewTab})</span>
                     </a>

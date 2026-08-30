@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { McpFigure } from "@/lib/mcp";
 import type { McpUiCopy } from "@/lib/mcp/copy";
-import { formatMcpCopy } from "@/lib/mcp/format";
+import LocalizedTemplate from "./LocalizedTemplate";
 import styles from "./McpCourse.module.css";
 
 export default function McpFigure({ figure, ui }: { figure: McpFigure; ui: McpUiCopy }) {
@@ -40,7 +40,13 @@ export default function McpFigure({ figure, ui }: { figure: McpFigure; ui: McpUi
           <p className={styles.figureTeaching}><strong>{ui.figureLookFor}</strong> {figure.teachingPoint}</p>
           {figure.legacyNote ? <p className={styles.figureLegacy}>{figure.legacyNote}</p> : null}
           <p className={styles.figureAttribution}>
-            <span>{formatMcpCopy(ui.figureAttributionTemplate, { publisher: figure.publisher, rights: figure.rights, date: figure.observedOn })}</span>
+            <span>
+              <LocalizedTemplate
+                template={ui.figureAttributionTemplate}
+                values={{ publisher: figure.publisher, rights: figure.rights, date: figure.observedOn }}
+                isolate={{ publisher: "ltr", rights: "ltr", date: "ltr" }}
+              />
+            </span>
             <a href={figure.sourceUrl} target="_blank" rel="noopener noreferrer">
               {ui.figureOpenSource} <span aria-hidden="true">↗</span>
               <span className={styles.visuallyHidden}> ({ui.externalNewTab})</span>

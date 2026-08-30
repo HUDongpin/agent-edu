@@ -54,12 +54,14 @@ const REQUIRED_FILES = [
   "app/[locale]/mcp/[lesson]/page.tsx",
   "components/mcp/CapstoneChecklist.tsx",
   "components/mcp/CourseDashboard.tsx",
+  "components/mcp/CourseCurriculum.tsx",
   "components/mcp/CourseProgress.tsx",
   "components/mcp/FinalAssessment.tsx",
   "components/mcp/InteractiveLab.tsx",
   "components/mcp/KnowledgeCheck.tsx",
   "components/mcp/LessonCompletion.tsx",
   "components/mcp/LessonView.tsx",
+  "components/mcp/LocalizedTemplate.tsx",
   "components/mcp/McpCourse.module.css",
   "components/mcp/McpFigure.tsx",
   "components/mcp/progress-store.ts",
@@ -99,6 +101,7 @@ const REQUIRED_FILES = [
   "scripts/audit-mcp-export.mjs",
   "scripts/test-mcp-export.mjs",
   "tests/mcp-course.spec.ts",
+  "tests/mcp-progress-state.test.ts",
   "tests/mcp-playwright.config.ts",
   ...MCP_LOCALES.map((locale) => `messages/mcp/${locale}.json`),
   ...MCP_LOCALES.map((locale) => `public/courses/mcp/capstone/MCP_CAPSTONE_EVIDENCE_PACK-${locale}.md`),
@@ -662,14 +665,18 @@ function checkBrowserQaRecord() {
   if (!RELEASE) return;
   const qa = readText("evidence/course-audits/mcp-browser-qa.md");
   const required = [
-    "Verified: 2026-08-24 (Asia/Taipei)",
+    "Verified: 2026-08-30 (Asia/Taipei)",
     `${MCP_CONCEPTS.length} concepts`,
     `${MCP_SOURCES.length} sources`,
     `${MCP_FIGURES.length} real interface figures`,
     "171/171 MCP HTML files",
     "171/171 MCP sitemap URLs",
     "8/8 provenance-checked figures",
-    "42/42 Playwright executions",
+    "737 site pages",
+    "1,133 localized string leaves",
+    "58/58 Playwright executions",
+    "54 Chromium executions",
+    "769,784 bytes",
     "8/8 protocol tests",
     "44 sources, 21 authentic figures",
     "b4bf8ee63fa8ac18fb7c7527c6d1a9de2b0064323ef7c8e8a6a0f676066275ea",
@@ -684,6 +691,9 @@ function checkBrowserQaRecord() {
     "7/7 protocol tests",
     "19 English MCP URLs",
     "English course in its own [lang=en][dir=ltr] subtree",
+    "1,841 site pages",
+    "1,131 checked localized leaves",
+    "42/42 Playwright executions",
   ]) {
     if (qa.includes(retired)) fail(`browser QA record retains retired release evidence: ${retired}`);
   }

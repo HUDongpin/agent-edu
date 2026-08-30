@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
-  MCP_ASSESSMENT_VERSION,
   MCP_FINAL_DISPLAY_CORRECT_INDEXES,
   presentMcpOptions,
   type McpAssessmentQuestion,
@@ -11,7 +10,12 @@ import {
 import type { McpUiCopy } from "@/lib/mcp/copy";
 import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import type { McpDirection } from "@/lib/mcp/types";
-import { updateMcpProgress } from "./progress-store";
+import { MCP_PROGRESS_QUIZ } from "@/lib/progress-topology";
+import {
+  readMcpQuizDraftForQuestions,
+  readMcpQuizProgress,
+  updateMcpProgress,
+} from "./progress-store";
 import { useMcpProgress } from "./useMcpProgress";
 import styles from "./McpCourse.module.css";
 
@@ -27,39 +31,106 @@ export default function FinalAssessment({
   ui: McpUiCopy;
 }) {
   const progress = useMcpProgress();
-  const [open, setOpen] = useState(false);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [submitted, setSubmitted] = useState(false);
+  const questionIds = useMemo(() => questions.map((question) => question.id), [questions]);
+  const draft = useMemo(
+    () => readMcpQuizDraftForQuestions(progress, questionIds),
+    [progress, questionIds],
+  );
+  const open = draft !== null;
+  const answers = useMemo(() => draft?.answers ?? {}, [draft?.answers]);
+  const submitted = draft?.submitted === true;
   const resultRef = useRef<HTMLDivElement>(null);
   const firstQuestionRef = useRef<HTMLInputElement>(null);
-  const threshold = Math.ceil(questions.length * 0.8);
+  const resultFocusPending = useRef(false);
+  const firstQuestionFocusPending = useRef(false);
+  const restoredReviewFocus = useRef(false);
+  const threshold = MCP_PROGRESS_QUIZ.passingCorrectAnswers;
+  const answeredCount = useMemo(
+    () => questions.filter((question) => Object.prototype.hasOwnProperty.call(answers, question.id)).length,
+    [answers, questions],
+  );
   const score = useMemo(() => questions.filter((question) => answers[question.id] === question.correctIndex).length, [answers, questions]);
-  const passed = submitted && score >= threshold;
-  const currentVersion = progress["mcp.quiz.version"] === MCP_ASSESSMENT_VERSION;
-  const best = currentVersion && typeof progress["mcp.quiz.best"] === "number" ? progress["mcp.quiz.best"] as number : 0;
-  const previouslyPassed = currentVersion && progress["mcp.quiz.passed"] === true;
+  const passed = submitted && answeredCount === questions.length && score >= threshold;
+  const assessmentProgress = readMcpQuizProgress(progress);
+  const best = assessmentProgress.best;
+  const previouslyPassed = assessmentProgress.passed;
   const number = (value: number) => formatMcpInteger(value, locale);
 
   useEffect(() => {
-    if (submitted) resultRef.current?.focus();
+    if (!submitted || !resultFocusPending.current) return;
+    resultFocusPending.current = false;
+    resultRef.current?.focus();
   }, [submitted]);
 
   useEffect(() => {
-    if (open && !submitted) firstQuestionRef.current?.focus();
+    if (!open || submitted || !firstQuestionFocusPending.current) return;
+    firstQuestionFocusPending.current = false;
+    firstQuestionRef.current?.focus();
   }, [open, submitted]);
 
-  function submit() {
-    setSubmitted(true);
+  useEffect(() => {
+    if (!submitted || !draft?.reviewQuestionId || restoredReviewFocus.current) return;
+    restoredReviewFocus.current = true;
+    let focusFrame = 0;
+    const commitFrame = window.requestAnimationFrame(() => {
+      focusFrame = window.requestAnimationFrame(() => {
+        const target = document.getElementById(`mcp-assessment-feedback-${draft.reviewQuestionId}`);
+        target?.focus({ preventScroll: true });
+        target?.scrollIntoView({ block: "center", behavior: "instant" as ScrollBehavior });
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(commitFrame);
+      window.cancelAnimationFrame(focusFrame);
+    };
+  }, [draft?.reviewQuestionId, submitted]);
+
+  function begin() {
+    firstQuestionFocusPending.current = true;
     updateMcpProgress((next) => {
-      next["mcp.quiz.best"] = Math.max(best, score);
-      next["mcp.quiz.version"] = MCP_ASSESSMENT_VERSION;
-      next["mcp.quiz.passed"] = previouslyPassed || score >= threshold;
+      next[MCP_PROGRESS_QUIZ.draftKey] = {
+        version: MCP_PROGRESS_QUIZ.bankVersion,
+        answers: {},
+        submitted: false,
+      };
+    });
+  }
+
+  function selectAnswer(questionId: string, answer: number) {
+    updateMcpProgress((next) => {
+      next[MCP_PROGRESS_QUIZ.draftKey] = {
+        version: MCP_PROGRESS_QUIZ.bankVersion,
+        answers: { ...answers, [questionId]: answer },
+        submitted: false,
+      };
+    });
+  }
+
+  function submit() {
+    if (answeredCount !== questions.length) return;
+    resultFocusPending.current = true;
+    updateMcpProgress((next) => {
+      next[MCP_PROGRESS_QUIZ.bestScoreKey] = Math.max(best, score);
+      next[MCP_PROGRESS_QUIZ.versionKey] = MCP_PROGRESS_QUIZ.bankVersion;
+      next[MCP_PROGRESS_QUIZ.passedKey] = previouslyPassed || score >= threshold;
+      next[MCP_PROGRESS_QUIZ.draftKey] = {
+        version: MCP_PROGRESS_QUIZ.bankVersion,
+        answers,
+        submitted: true,
+      };
     });
   }
 
   function retry() {
-    setAnswers({});
-    setSubmitted(false);
+    firstQuestionFocusPending.current = true;
+    restoredReviewFocus.current = false;
+    updateMcpProgress((next) => {
+      next[MCP_PROGRESS_QUIZ.draftKey] = {
+        version: MCP_PROGRESS_QUIZ.bankVersion,
+        answers: {},
+        submitted: false,
+      };
+    });
   }
 
   return (
@@ -71,7 +142,7 @@ export default function FinalAssessment({
         <p>{ui.assessmentBody}</p>
         {best ? <p className={styles.bestScore}>{formatMcpCopy(ui.assessmentBestTemplate, { best: number(best), count: number(questions.length) })}</p> : null}
         {!open ? (
-          <button className={styles.primaryButton} type="button" onClick={() => setOpen(true)}>{ui.assessmentBegin}</button>
+          <button className={styles.primaryButton} type="button" onClick={begin}>{ui.assessmentBegin}</button>
         ) : null}
       </div>
 
@@ -98,7 +169,7 @@ export default function FinalAssessment({
                           name={`final-${question.id}`}
                           checked={selected === originalIndex}
                           disabled={submitted}
-                          onChange={() => setAnswers((current) => ({ ...current, [question.id]: originalIndex }))}
+                          onChange={() => selectAnswer(question.id, originalIndex)}
                         />
                         <span>{String.fromCharCode(65 + displayedIndex)}</span>
                         {text}
@@ -106,9 +177,32 @@ export default function FinalAssessment({
                     ))}
                   </fieldset>
                   {submitted ? (
-                    <p className={correct ? styles.feedbackCorrect : styles.feedbackWrong}>
+                    <p
+                      id={`mcp-assessment-feedback-${question.id}`}
+                      className={correct ? styles.feedbackCorrect : styles.feedbackWrong}
+                      tabIndex={-1}
+                    >
                       <strong>{correct ? ui.assessmentCorrect : ui.assessmentNotYet}</strong> {question.explanation}{" "}
-                      {!correct ? <Link href={`./${question.reviewSlug}/`}>{ui.assessmentReviewLesson} <span aria-hidden="true">{direction === "rtl" ? "←" : "→"}</span></Link> : null}
+                      {!correct ? (
+                        <Link
+                          href={`./${question.reviewSlug}/`}
+                          onClick={() => updateMcpProgress((next) => {
+                            next[MCP_PROGRESS_QUIZ.draftKey] = {
+                              version: MCP_PROGRESS_QUIZ.bankVersion,
+                              answers,
+                              submitted: true,
+                              reviewQuestionId: question.id,
+                            };
+                            window.history.replaceState(
+                              window.history.state,
+                              "",
+                              `#mcp-assessment-feedback-${question.id}`,
+                            );
+                          })}
+                        >
+                          {ui.assessmentReviewLesson} <span aria-hidden="true">{direction === "rtl" ? "←" : "→"}</span>
+                        </Link>
+                      ) : null}
                     </p>
                   ) : null}
                 </li>
@@ -117,8 +211,8 @@ export default function FinalAssessment({
           </ol>
           {!submitted ? (
             <div className={styles.quizSubmit}>
-              <span>{formatMcpCopy(ui.assessmentAnsweredTemplate, { answered: number(Object.keys(answers).length), count: number(questions.length) })}</span>
-              <button className={styles.primaryButton} type="submit" disabled={Object.keys(answers).length !== questions.length}>
+              <span>{formatMcpCopy(ui.assessmentAnsweredTemplate, { answered: number(answeredCount), count: number(questions.length) })}</span>
+              <button className={styles.primaryButton} type="submit" disabled={answeredCount !== questions.length}>
                 {ui.assessmentScore}
               </button>
             </div>

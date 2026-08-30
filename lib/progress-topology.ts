@@ -302,6 +302,47 @@ export const MCP_PROGRESS_LESSON_SLUGS = [
 
 export const MCP_PROGRESS_ASSESSMENT_VERSION = "2026-07-28-v2" as const;
 
+export interface VersionedProgressQuizContract {
+  readonly bankVersion: string;
+  readonly questionCount: number;
+  readonly passingCorrectAnswers: number;
+  readonly bestScoreKey: string;
+  readonly passedKey: string;
+  readonly versionKey: string;
+  readonly draftKey?: string;
+}
+
+export const MCP_PROGRESS_QUIZ = {
+  bankVersion: MCP_PROGRESS_ASSESSMENT_VERSION,
+  questionCount: 18,
+  passingCorrectAnswers: 15,
+  bestScoreKey: "mcp.quiz.best",
+  passedKey: "mcp.quiz.passed",
+  versionKey: "mcp.quiz.version",
+  draftKey: "mcp.quiz.draft",
+} as const satisfies VersionedProgressQuizContract;
+
+export function readVersionedQuizProgress(
+  record: Readonly<Record<string, unknown>>,
+  quiz: VersionedProgressQuizContract,
+): { readonly best: number; readonly passed: boolean } {
+  const currentVersion = record[quiz.versionKey] === quiz.bankVersion;
+  const rawBest = record[quiz.bestScoreKey];
+  const best = currentVersion
+    && typeof rawBest === "number"
+    && Number.isInteger(rawBest)
+    && rawBest >= 0
+    && rawBest <= quiz.questionCount
+    ? rawBest
+    : 0;
+  return {
+    best,
+    passed: currentVersion
+      && record[quiz.passedKey] === true
+      && best >= quiz.passingCorrectAnswers,
+  };
+}
+
 export const MAKE_MONEY_PROGRESS_LESSON_SLUGS = [
   "money-not-magic",
   "choose-market-wedge",

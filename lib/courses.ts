@@ -46,7 +46,8 @@ import {
   MAKE_MONEY_WITH_CODEX_PROGRESS_VERSION_KEY,
   MAKE_MONEY_WITH_CODEX_QUIZ_VERSION,
 } from "./make-money-with-codex/types";
-import { MCP_ASSESSMENT_VERSION, MCP_LESSONS } from "./mcp";
+import { MCP_LESSONS } from "./mcp";
+import { MCP_PROGRESS_QUIZ, readVersionedQuizProgress } from "./progress-topology";
 import { PROMPT_COURSE_MANIFEST } from "./prompts/manifest";
 import {
   isPromptCapstonePassed,
@@ -346,8 +347,7 @@ export const MCP_LESSON_PROGRESS_KEYS = MCP_LESSONS.map(
 
 export function mcpProgress(p: Record<string, unknown>): number {
   const lessons = MCP_LESSON_PROGRESS_KEYS.filter((key) => p[key] === true).length;
-  const quiz = p["mcp.quiz.version"] === MCP_ASSESSMENT_VERSION
-    && p["mcp.quiz.passed"] === true ? 1 : 0;
+  const quiz = readVersionedQuizProgress(p, MCP_PROGRESS_QUIZ).passed ? 1 : 0;
   const capstone = p["mcp.capstone.v1"] === true ? 1 : 0;
   return clamp(((lessons + quiz + capstone) / (MCP_LESSONS.length + 2)) * 100);
 }

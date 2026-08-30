@@ -75,7 +75,6 @@ import {
   GITHUB_PROGRESS_QUIZ,
   GROK_PROGRESS_LESSON_SLUGS,
   MAKE_MONEY_PROGRESS_LESSON_SLUGS,
-  MCP_PROGRESS_ASSESSMENT_VERSION,
   MCP_PROGRESS_LESSON_SLUGS,
   PRODUCT_MANAGEMENT_PROGRESS_MODULE_SLUGS,
   PRODUCT_MANAGEMENT_PROGRESS_SCHEMA,
@@ -166,6 +165,7 @@ import {
   MCP_PROGRESS_EVENT,
   MCP_PROGRESS_STORAGE_KEY,
   isMcpPersistenceAvailable,
+  isMcpQuizPassed,
   readMcpProgress,
   resetMcpProgressAfterGlobalReset,
 } from "./mcp/progress-store";
@@ -910,8 +910,7 @@ export function createAllProgressAdapters(
       slugs: MCP_PROGRESS_LESSON_SLUGS,
       read: readMcpProgress,
       lessonComplete: (record, slug) => record[`mcp.lesson.${slug}`] === true,
-      quizComplete: (record) => record["mcp.quiz.version"] === MCP_PROGRESS_ASSESSMENT_VERSION
-        && record["mcp.quiz.passed"] === true,
+      quizComplete: isMcpQuizPassed,
       capstoneComplete: (record) => record["mcp.capstone.v1"] === true,
       quizHref: (currentLocale) => `/${currentLocale}/mcp/#assessment`,
       capstoneHref: (currentLocale) => `/${currentLocale}/mcp/#capstone`,

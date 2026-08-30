@@ -15,6 +15,8 @@ import { GITHUB_LESSON_SLUGS } from "../lib/github";
 import { EMPTY_LEARNING_STATE, LEARNING_KEY } from "../lib/progress";
 import {
   CURSOR_PROGRESS_STORAGE_KEY,
+  MCP_PROGRESS_LESSON_SLUGS,
+  MCP_PROGRESS_QUIZ,
   PROMPT_PROGRESS_LESSON_SLUGS,
   RAG_PROGRESS_LESSON_SLUGS,
 } from "../lib/progress-topology";
@@ -66,7 +68,10 @@ import {
   RAG_QUIZ_PASSED_KEY,
   updateRagProgress,
 } from "../components/rag/progress-store";
-import { updateMcpProgress } from "../components/mcp/progress-store";
+import {
+  resetMcpProgressAfterGlobalReset,
+  updateMcpProgress,
+} from "../components/mcp/progress-store";
 import { updateIncomeRecord } from "../components/make-money-with-codex/progress-store";
 import { updateProgress as updateClaudeIncomeProgress } from "../components/claude-income/progress-store";
 import { updateAiTutorProgress } from "../components/ai-tutor/progress-store";
@@ -645,6 +650,63 @@ test("a published adapter resumes the first incomplete lesson, not the dashboard
     if (hadSessionStorage) {
       Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
     } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+});
+
+test("the MCP adapter rejects pass booleans without a valid current best score", () => {
+  const storage = new MemoryStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  try {
+    assert.deepEqual(resetMcpProgressAfterGlobalReset(), { persisted: true });
+    const mcp = createPublishedProgressAdapters("en").find((adapter) => adapter.courseId === "mcp");
+    assert.ok(mcp);
+    const lessons = Object.fromEntries(
+      MCP_PROGRESS_LESSON_SLUGS.map((slug) => [`mcp.lesson.${slug}`, true]),
+    );
+    storage.setItem("ae.progress", JSON.stringify({
+      ...lessons,
+      [MCP_PROGRESS_QUIZ.versionKey]: MCP_PROGRESS_QUIZ.bankVersion,
+      [MCP_PROGRESS_QUIZ.passedKey]: true,
+    }));
+    assert.deepEqual(mcp.readSummary(), {
+      state: "in-progress",
+      percent: 90,
+      nextHref: "/en/mcp/#assessment",
+    });
+
+    storage.setItem("ae.progress", JSON.stringify({
+      ...lessons,
+      [MCP_PROGRESS_QUIZ.versionKey]: MCP_PROGRESS_QUIZ.bankVersion,
+      [MCP_PROGRESS_QUIZ.bestScoreKey]: 15,
+      [MCP_PROGRESS_QUIZ.passedKey]: true,
+    }));
+    assert.deepEqual(mcp.readSummary(), {
+      state: "in-progress",
+      percent: 95,
+      nextHref: "/en/mcp/#capstone",
+    });
+  } finally {
+    if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) Object.defineProperty(globalThis, "localStorage", { configurable: true, value: previousLocalStorage });
+    else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: previousSessionStorage });
+    else Reflect.deleteProperty(globalThis, "sessionStorage");
   }
 });
 

@@ -1,6 +1,6 @@
 # MCP Course 10 browser and release QA
 
-Verified: 2026-08-24 (Asia/Taipei)<br>
+Verified: 2026-08-30 (Asia/Taipei)<br>
 Course release: `1.0.0`<br>
 Core protocol target: MCP `2026-07-28`<br>
 Assessment version: `2026-07-28-v2`<br>
@@ -8,7 +8,7 @@ Canonical English course: `https://aicourse.top/en/mcp/`
 
 ## Acceptance result
 
-Course 10 passes its source, localization, rights, static-export, accessibility, interaction, responsive-layout, and browser acceptance gates. The final static build generated 1,841 site pages; the MCP-specific export audit accepted all 171/171 MCP HTML files, both referenced local CSS files, all 171/171 MCP sitemap URLs, all 8/8 provenance-checked figures, every downloadable evidence artifact, and the freshness boundary. The final Playwright release run passed 42/42 Playwright executions.
+Course 10 passes its source, localization, rights, static-export, accessibility, interaction, responsive-layout, recovery-state, and browser acceptance gates. The final static build generated 737 site pages; the MCP-specific export audit accepted all 171/171 MCP HTML files, both referenced local CSS files, all 171/171 MCP sitemap URLs, all 8/8 provenance-checked figures, every downloadable evidence artifact, and the freshness boundary. The final Playwright release run passed 58/58 Playwright executions.
 
 The accepted course contains:
 
@@ -20,7 +20,7 @@ The accepted course contains:
 - a 10-part capstone evidence contract and a 12-case adversarial test matrix; and
 - complete instructional bundles for English, Spanish, French, German, Simplified Chinese, Traditional Chinese, Japanese, Korean, and Arabic.
 
-No commit, push, merge, deployment, or Course 3 edit was performed as part of this acceptance.
+No push, merge, Preview, deployment, or Course 3 edit was performed as part of this acceptance. The accepted Course 10 candidate is persisted as one local review commit for later integration by separate authority.
 
 ## Version and authority boundary
 
@@ -62,12 +62,15 @@ The link gate therefore reports six transparent availability warnings rather tha
 
 | Check | Final result |
 | --- | --- |
-| `npm run mcp:check:release` | PASS; 9 bundles × 1,131 localized string leaves, 5 units, 18 lessons, 48 concepts, 71 sources, 12 claim mappings, 8 figures, 18 summative scenarios |
-| `npx tsc --noEmit --pretty false` | PASS; includes the corrected `InteractiveLab` architecture-state union |
-| Focused MCP ESLint | PASS; zero errors and zero warnings |
-| `env -u VERCEL npx next build` | PASS; 1,841 static pages generated; analytics remained disabled outside Vercel production |
+| `npm run mcp:check:release` | PASS; 9 bundles × 1,133 localized string leaves, 5 units, 18 lessons, 48 concepts, 71 sources, 12 claim mappings, 8 figures, 18 summative scenarios |
+| `npm run typecheck` | PASS; exact final TypeScript graph checked without incremental state |
+| `npm run lint` | PASS; zero errors and zero warnings across `app`, `components`, `lib`, and `scripts` |
+| `npm test` | PASS; 345/345 unit and repository contract tests |
+| `npm run progress:check` | PASS; shared storage, event, reset, adapter, and bundle boundaries remain closed |
+| `npm run build` | PASS; 737 static pages generated, followed by 62 sitemap shards; largest shard 21,785 bytes |
 | `npm run mcp:audit:export` | PASS; 171/171 MCP HTML files, 2 local CSS files, 171/171 sitemap URLs, 8/8 figures, fresh output |
-| `npm run test:mcp:export` | PASS; 42/42 Playwright executions in 1.2 minutes |
+| `npm run test:mcp:export` | PASS; 58/58 Playwright executions |
+| `git diff --check` | PASS; no whitespace errors in the exact candidate patch |
 | `npm test --prefix tests/fixtures/mcp-courseops` | PASS; 8/8 protocol tests |
 | `npm run client --prefix tests/fixtures/mcp-courseops` | PASS; five expected JSON-RPC responses including one deliberate revision conflict |
 | `unzip -t public/courses/mcp/courseops-reference.zip` | PASS; no compressed-data error |
@@ -87,7 +90,7 @@ Every page exposes:
 - localized `Course` or `LearningResource` JSON-LD with the matching `inLanguage`; and
 - visible MCP `2026-07-28` and evidence snapshot `2026-08-24` badges.
 
-Each translation bundle has the exact English key/array shape, 1,131 checked localized leaves, 18 formative and 18 summative four-option scenarios, unchanged answer ordering, preserved placeholders and protocol literals, and no leaked translation sentinels. Arabic has no unsafe bidi controls. The embedded Inspector/Gemini/Codex pixel surfaces and protocol identifiers remain LTR inside Arabic RTL teaching prose.
+Each translation bundle has the exact English key/array shape, 1,133 checked localized leaves, 18 formative and 18 summative four-option scenarios, unchanged answer ordering, preserved placeholders and protocol literals, and no leaked translation sentinels. Arabic has no unsafe bidi controls. Structured dates, publishers, technical controls, the embedded Inspector/Gemini/Codex pixel surfaces, and protocol identifiers remain LTR inside Arabic RTL teaching prose.
 
 Translation provenance is intentionally conservative. English is the authored source. The other eight bundles retain `translationMethod: "machine-translated"` and `reviewStatus: "automated-structure-and-terminology-reviewed"`; their visible locale notes do not claim human linguistic review. Detailed bilingual semantic review corrected high-impact authorization/authentication/approval distinctions, assessment polarity, transport notification wording, extension maturity, and rights-layer terminology, but this does not substitute for a native-speaker human editorial sign-off.
 
@@ -116,31 +119,32 @@ The course dashboard exposes all four rights/provenance records to learners as l
 
 ## Browser, interaction, and accessibility acceptance
 
-The authoritative Playwright inventory contains 40 Chromium executions, one Firefox smoke execution, and one WebKit smoke execution. The two non-Chromium runs validate the dashboard, a real host-evidence lesson, native lazy-image decoding, runtime errors, request failures, and HTTP failures. Chromium carries the deeper interaction and accessibility matrix; the report does not overstate the Firefox/WebKit scope as full parity testing.
+The authoritative Playwright inventory contains 54 Chromium executions, two Firefox smoke executions, and two WebKit smoke executions. The four non-Chromium runs validate the dashboard, a real host-evidence lesson, native lazy-image decoding, lesson completion across reload, assessment-fragment focus, runtime errors, request failures, and HTTP failures. Chromium carries the deeper interaction and accessibility matrix; the report does not overstate the Firefox/WebKit scope as full parity testing.
 
 Accepted behavior includes:
 
 - all 171 routes and all nine localized dashboards;
 - eight masters and sixteen responsive figure derivatives, plus no-JavaScript image/caption delivery;
 - interactive architecture, current-envelope, tool-contract, and four-case risk workbenches;
-- keyboard activation, mutually exclusive `aria-pressed` state, named groups, focus transfer, and lesson navigation;
+- keyboard activation, mutually exclusive `aria-pressed` state, named groups, fragment focus transfer, full mobile lesson navigation, and completion undo;
 - an axe-core WCAG 2 A/AA, 2.1 A/AA, and 2.2 AA scan of the dashboard, submitted assessment, all four lab lessons, capstone/extension lesson, and Arabic host-evidence lesson;
-- 320, 390, 768, and 1,440 px layout checks for the dashboard, interactive code, host figures, capstone, and RTL page, with no document overflow;
-- local-storage denial while preserving readable lesson and evidence content;
+- 320, 390, 768, and 1,440 px layout checks for the dashboard, interactive code, host figures, capstone, RTL page, and known long German/Japanese routes, with no document overflow;
+- keyboard-scrollable code, structured Arabic bidi isolation, and an assistive-text equivalent for both architecture transports;
+- local-storage denial, quota-denied reset, cross-tab updates, and cross-locale continuity while preserving readable lesson and evidence content;
 - localized canonical, reciprocal hreflang, JSON-LD, sitemap, and download delivery; and
 - runtime watchers requiring zero console errors, uncaught page errors, unexpected request failures, and HTTP error responses.
 
-The test harness itself was corrected during QA. Figure tests now select the local image link rather than the separate first-party-source link; state tests count pressed buttons at the correct DOM level; and native lazy images are scrolled into view before decode assertions. WebKit navigation waits for dashboard prefetches to settle instead of masking real request failures. Eight consecutive targeted WebKit repetitions passed before the final 42/42 release run.
+The test harness itself was corrected during QA. Runtime cleanliness now binds expected Next prefetch cancellations to the actual page origin, so the random-port static export server is not mistaken for the fixed development origin. Figure tests select the local image link rather than the separate first-party-source link; state tests count pressed buttons at the correct DOM level; and native lazy images are scrolled into view before decode assertions. The exact final static-export run passed 58/58 executions.
 
-Visual review caught a usability issue that overflow automation could not: at 390 px the full 18-lesson rail originally appeared before the lesson body. The final CSS hides that long rail at phone width so the initial view begins with the breadcrumb, evidence badges, lesson title, summary, concepts, and objective. Phone learners retain the course-dashboard breadcrumb and previous/next pager; the full rail remains visible on larger screens.
+Visual review caught a usability issue that overflow automation could not: at 390 px the full 18-lesson rail originally appeared before the lesson body. The final CSS replaces that rail with a compact native disclosure containing the complete keyboard-navigable 18-lesson index, so the initial view begins with the breadcrumb, compact index, evidence badges, lesson title, summary, concepts, and objective. The persistent desktop rail remains visible on larger screens.
 
 ## Assessment, capstone, progress, and failure behavior
 
-The independent final assessment enforces an 80% gate: 14/18 fails and 15/18 passes. The browser suite verifies all 18 visible controls, focus on the result region, retry behavior, a best score that cannot decrease, and a pass that cannot be erased by a later failed retry. Formative and summative displayed-answer distributions are both balanced 5/5/4/4 across the four positions.
+The independent final assessment enforces an 80% gate: 14/18 fails and 15/18 passes. The browser suite verifies all 18 visible controls, focus on the result region, retry behavior, fail-closed validation of version/best/pass state, normalization of unknown or incomplete persisted draft answers, a best score that cannot decrease, and a pass that cannot be erased by a later failed retry. Version-bound answers and submitted review state survive refresh, mapped-lesson review, browser Back, and locale changes; focus returns to the originating feedback item. Formative and summative displayed-answer distributions are both balanced 5/5/4/4 across the four positions.
 
 Capstone completion remains disabled until all ten evidence classes are checked, then persists across reload. The evidence pack includes builder and auditor tracks, the same ten evidence classes, a 12-row adversarial matrix, exact version fields, limitations, recovery/disable evidence, and localized packs for all nine languages. The self-attestation is explicitly not represented as an independently verified credential.
 
-MCP progress reset removes only `mcp.*` keys. The regression fixture proves that GitHub lesson/quiz/capstone keys, Codex progress, and unrelated local state survive. If local storage is denied, lesson content, real figures, exercises, and completion-status guidance remain usable without pretending that progress will persist.
+MCP progress reset removes only `mcp.*` keys. The regression fixture proves that GitHub lesson/quiz/capstone keys, Codex progress, and unrelated local state survive. Reset defaults focus to Cancel, restores focus on Escape, distinguishes persisted success from quota/write failure, and never reports a destructive success when the shared record remains. If local storage is denied or corrupt, lesson content, real figures, exercises, assessment guidance, and capstone guidance remain usable without pretending that progress will persist.
 
 ## Local downloads accepted
 
@@ -167,15 +171,17 @@ needed for a new review.
 
 | Capture | Dimensions | SHA-256 | Inspection result |
 | --- | ---: | --- | --- |
-| `outputs/mcp-browser-qa-screenshots/en-dashboard-1440x1100.png` | 1440×1100 | `27a285b20f29d7985afb05ab058eeb8a7cf52a29a7adedf83badee3ca79e98a2` | Clear evidence-first hierarchy; 18 lessons, 17 h 55 min, 8 figures, 48 concepts, protocol version, and evidence date are legible above the fold. |
-| `outputs/mcp-browser-qa-screenshots/en-tools-mobile-390x844.png` | 390×844 | `24137dcc85bee0fa3f4b60d6fffbd444a70d75b7ea298135839dd353532ff5bc` | Learning-first phone layout after the rail correction; no clipping, horizontal overflow, or hidden evidence badge. |
-| `outputs/mcp-browser-qa-screenshots/ar-host-evidence-rtl.png` | 1440×1100 | `41747fc351fcce5a24820f3f20de620d984aa3a51ce5d547e6a852ba1a1aba79` | Arabic shell, rail, headings, captions, and teaching notes flow RTL; the Gemini/Codex terminal pixels and identifiers remain correctly LTR. |
+| `output/playwright/course10-final-visual/.playwright-cli/page-2026-08-30T04-15-48-917Z.png` | 1440×1000 | `cc523b6f3bee3ae04132c46c16fcbb7da0446921d4098c3f91cd90801c3f5d6a` | Dark-mode dashboard preserves the concise hierarchy, first-viewport progress action, evidence boundary, and sticky course navigation. |
+| `output/playwright/course10-iteration1/.playwright-cli/page-2026-08-30T03-27-22-656Z.png` | 390×844 | `05c7732ba6eb59d235a5c6120a656be571cdd68543548341ad7c7c54fa739da4` | Phone dashboard exposes the primary Start/Resume action inside the initial viewport without clipping or document overflow. |
+| `output/playwright/course10-iteration1/.playwright-cli/page-2026-08-30T03-28-11-273Z.png` | 390×844 | `ac74da49a55a7dd4f4cb621b18f83359e5d01c6bd844e4f6438b1eff407ffd75` | Phone lesson exposes the compact complete-course index, title, concepts, and objective in a learning-first sequence. |
+| `output/playwright/course10-final-visual/.playwright-cli/page-2026-08-30T04-16-01-329Z.png` | 1280×720 | `667b11f8b0f8aca61d090b30db58ff7cb47c3002164d562990f7a5491868f398` | Arabic dashboard preserves RTL layout while structured MCP/date/progress values remain directionally stable. |
 
-All three captures were generated from the accepted local static export and visually inspected at original resolution.
+All four captures were generated from the local Course 10 candidate during visual QA and inspected at original resolution. They are not versioned release inputs; behavioral acceptance is bound by the 58-test exported-site run.
 
 ## Residual boundaries
 
 - The eight translated editions have detailed automated structure, terminology, assessment, protocol, rights, and bidi review, but no native-speaker human linguistic review is claimed.
 - Firefox and WebKit receive explicit real-image/runtime smoke coverage; the full interaction, axe, persistence, and viewport matrix runs in Chromium.
 - Six first-party source pages required manual verification because their providers did not permit the automated fetch. Their continued future availability is outside the repository’s control.
+- The raw Next development `/sitemap.xml` is 769,784 bytes and exceeds the repository's 500 KiB single-file cap. The release build replaces it with 62 shards (largest 21,785 bytes), and the exported sitemap gate passes; development-sitemap maintenance remains a separate platform task.
 - Browser QA validates the generated static export locally. This task did not authorize or perform production deployment, so no claim is made about a deployed CDN response, production analytics, or post-deployment monitoring.

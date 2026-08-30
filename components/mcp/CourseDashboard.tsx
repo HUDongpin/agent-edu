@@ -4,8 +4,10 @@ import type { McpCourse } from "@/lib/mcp";
 import type { McpUiCopy } from "@/lib/mcp/copy";
 import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import CapstoneChecklist from "./CapstoneChecklist";
+import CourseCurriculum from "./CourseCurriculum";
 import CourseProgress from "./CourseProgress";
 import FinalAssessment from "./FinalAssessment";
+import LocalizedTemplate from "./LocalizedTemplate";
 import styles from "./McpCourse.module.css";
 import CourseShell from "../course-shell/CourseShell";
 
@@ -19,7 +21,6 @@ export default function CourseDashboard({
   const minutes = course.lessons.reduce((sum, lesson) => sum + lesson.minutes, 0);
   const ui = course.ui as McpUiCopy;
   const number = (value: number) => formatMcpInteger(value, course.contentLocale);
-  const arrowForward = course.contentDirection === "rtl" ? "←" : "→";
   const arrowBack = course.contentDirection === "rtl" ? "→" : "←";
   const statusLabel = {
     core: ui.dashboardStatusCore,
@@ -55,38 +56,45 @@ export default function CourseDashboard({
       <CourseShell courseId="mcp" locale={course.locale} />
       <header className={styles.courseHero}>
         <div className={styles.heroCopy}>
-          <div className={styles.heroBadges}>
-            <span>{formatMcpCopy(ui.dashboardCourseTemplate, { sequence: number(course.sequence) })}</span>
-            <span dir="ltr">{formatMcpCopy(ui.dashboardProtocolTemplate, { version: course.protocolVersion })}</span>
-            <span>{formatMcpCopy(ui.dashboardEvidenceSnapshotTemplate, { date: course.publishedOn })}</span>
-          </div>
-          <p className={styles.eyebrow}>{course.kicker}</p>
-          <h1>{course.title}</h1>
+          <p className={styles.eyebrow}>
+            {formatMcpCopy(ui.dashboardCourseTemplate, { sequence: number(course.sequence) })}
+            {" / "}
+            <bdi dir="ltr" translate="no">
+              {formatMcpCopy(ui.dashboardProtocolTemplate, { version: course.protocolVersion })}
+            </bdi>
+          </p>
+          <h1>{course.shortTitle}</h1>
+        </div>
+
+        <CourseProgress
+          locale={course.locale}
+          lessons={course.lessons.map((lesson) => ({ slug: lesson.slug, title: lesson.title }))}
+          direction={course.contentDirection}
+          ui={ui}
+        />
+
+        <div className={styles.heroDetails}>
           <p className={styles.heroSummary}>{course.summary}</p>
           <p className={styles.heroAudience}>{course.audience}</p>
           <p className={styles.localeNote}>{course.localeNote}</p>
         </div>
-        <aside className={styles.courseFacts} aria-label={ui.dashboardCourseFactsAria}>
-          <p className={styles.factLead}>{ui.dashboardFactLead}</p>
-          <dl>
-            <div><dt>{ui.dashboardLessons}</dt><dd>{number(course.lessons.length)}</dd></div>
-            <div><dt>{ui.dashboardStudyTime}</dt><dd>{formatMcpCopy(ui.dashboardStudyTimeTemplate, { hours: number(Math.floor(minutes / 60)), minutes: number(minutes % 60) })}</dd></div>
-            <div><dt>{ui.dashboardEvidenceFigures}</dt><dd>{number(course.figures.length)}</dd></div>
-            <div><dt>{ui.dashboardConceptLedger}</dt><dd>{number(course.concepts.length)}</dd></div>
-          </dl>
-          <a href="#curriculum" className={styles.inlineLink}>{ui.dashboardInspectCurriculum} ↓</a>
-        </aside>
+
+        <dl className={styles.courseFacts} aria-label={ui.dashboardCourseFactsAria}>
+          <div><dt>{ui.dashboardLessons}</dt><dd>{number(course.lessons.length)}</dd></div>
+          <div><dt>{ui.dashboardStudyTime}</dt><dd>{formatMcpCopy(ui.dashboardStudyTimeTemplate, { hours: number(Math.floor(minutes / 60)), minutes: number(minutes % 60) })}</dd></div>
+          <div><dt>{ui.dashboardEvidenceFigures}</dt><dd>{number(course.figures.length)}</dd></div>
+          <div><dt>{ui.dashboardConceptLedger}</dt><dd>{number(course.concepts.length)}</dd></div>
+        </dl>
       </header>
 
-      <CourseProgress
-        locale={course.locale}
-        lessons={course.lessons.map((lesson) => ({ slug: lesson.slug, title: lesson.title }))}
-        direction={course.contentDirection}
-        ui={ui}
-      />
+      <nav className={styles.courseJumpNav} aria-label={ui.lessonCourseNavAria} data-course-jump-nav>
+        <a href="#curriculum">{ui.dashboardCurriculumTitle}</a>
+        <a href="#assessment">{ui.assessmentEyebrow}</a>
+        <a href="#capstone">{ui.capstoneEyebrow}</a>
+      </nav>
 
       <section className={styles.currentSpec} aria-labelledby="mcp-current-title">
-        <div className={styles.specStamp} aria-hidden="true"><span>SPEC</span><strong>2026<br />07·28</strong></div>
+        <div className={styles.specStamp} aria-hidden="true" dir="ltr"><span>SPEC</span><strong>2026<br />07/28</strong></div>
         <div>
           <p className={styles.eyebrow}>{ui.dashboardCorrectionEyebrow}</p>
           <h2 id="mcp-current-title">{ui.dashboardCorrectionTitle}</h2>
@@ -107,9 +115,15 @@ export default function CourseDashboard({
               <span className={styles.previewImage}>
                 <Image src={figure.webpSrc} alt="" width={figure.width} height={figure.height} sizes="(max-width: 760px) 92vw, 30vw" unoptimized />
               </span>
-              <span className={styles.previewMeta}>{figure.publisher} · {evidenceLabel[figure.evidenceClass]}</span>
+              <span className={styles.previewMeta}><bdi dir="ltr" translate="no">{figure.publisher}</bdi> · {evidenceLabel[figure.evidenceClass]}</span>
               <strong>{figure.caption}</strong>
-              <small>{figure.legacyNote ? ui.dashboardLegacyFlagged : formatMcpCopy(ui.dashboardObservedTemplate, { date: figure.observedOn })}</small>
+              <small>{figure.legacyNote ? ui.dashboardLegacyFlagged : (
+                <LocalizedTemplate
+                  template={ui.dashboardObservedTemplate}
+                  values={{ date: figure.observedOn }}
+                  isolate={{ date: "ltr" }}
+                />
+              )}</small>
             </Link>
           ))}
         </div>
@@ -123,102 +137,116 @@ export default function CourseDashboard({
           </div>
           <p>{ui.dashboardCurriculumBody}</p>
         </header>
-        <div className={styles.unitList}>
-          {course.units.map((unit) => (
-            <section className={styles.unit} key={unit.id} aria-labelledby={`${unit.id}-title`}>
-              <div className={styles.unitHeading}>
-                <span>{number(unit.order)}</span>
-                <div><h3 id={`${unit.id}-title`}>{unit.title}</h3><p>{unit.summary}</p></div>
-              </div>
-              <ol>
-                {unit.lessonSlugs.map((slug) => {
-                  const lesson = course.lessons.find((item) => item.slug === slug)!;
-                  return (
-                    <li key={slug}>
-                      <Link href={`/${course.locale}/mcp/${slug}/`}>
-                        <span className={styles.lessonOrder}>{number(lesson.order)}</span>
-                        <span className={styles.lessonCardCopy}><strong>{lesson.title}</strong><small>{lesson.summary}</small></span>
-                        <span className={styles.lessonMinutes}>{formatMcpCopy(ui.dashboardMinutesTemplate, { minutes: number(lesson.minutes) })} <b aria-hidden="true">{arrowForward}</b></span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.conceptLedger} aria-labelledby="mcp-concepts-title">
-        <header className={styles.sectionHeader}>
-          <div><p className={styles.eyebrow}>{ui.dashboardConceptEyebrow}</p><h2 id="mcp-concepts-title">{ui.dashboardConceptTitle}</h2></div>
-          <p>{ui.dashboardConceptBody}</p>
-        </header>
-        <div className={styles.conceptGrid}>
-          {course.concepts.map((concept) => (
-            <div key={concept.id} data-status={concept.status}>
-              <span>{statusLabel[concept.status]}</span>
-              <strong>{concept.label}</strong>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.evidenceMethod} aria-labelledby="mcp-evidence-title">
-        <div>
-          <p className={styles.eyebrow}>{ui.dashboardSourceEyebrow}</p>
-          <h2 id="mcp-evidence-title">{ui.dashboardSourceTitle}</h2>
-          <p>{course.sourceNote}</p>
-        </div>
-        <dl>
-          {Object.entries(publisherCounts).map(([publisher, count]) => (
-            <div key={publisher}><dt><bdi>{publisher}</bdi></dt><dd>{formatMcpCopy(ui.dashboardSourcesTemplate, { count: number(count) })}</dd></div>
-          ))}
-        </dl>
-      </section>
-
-      <section className={styles.claimAudit} aria-labelledby="mcp-claim-audit-title">
-        <header className={styles.sectionHeader}>
-          <div><p className={styles.eyebrow}>{ui.dashboardClaimEyebrow}</p><h2 id="mcp-claim-audit-title">{ui.dashboardClaimTitle}</h2></div>
-          <p>{ui.dashboardClaimBody}</p>
-        </header>
-        <ol>
-          {course.claims.map((entry) => (
-            <li key={entry.id}>
-              <div><Link href={`/${course.locale}/mcp/${entry.lessonSlug}/`}>{formatMcpCopy(ui.dashboardLessonTemplate, { order: number(entry.lessonOrder) })}</Link><strong>{entry.claim}</strong></div>
-              <span>
-                {entry.sourceIds.map((sourceId) => {
-                  const source = course.sources.find((candidate) => candidate.id === sourceId)!;
-                  return (
-                    <a key={sourceId} href={source.url} target="_blank" rel="noopener noreferrer">
-                      {sourceId} <span aria-hidden="true">↗</span>
-                      <span className={styles.visuallyHidden}> ({ui.externalNewTab})</span>
-                    </a>
-                  );
-                })}
-              </span>
-            </li>
-          ))}
-        </ol>
+        <CourseCurriculum
+          locale={course.locale}
+          direction={course.contentDirection}
+          ui={ui}
+          units={course.units.map((unit) => ({
+            id: unit.id,
+            order: unit.order,
+            title: unit.title,
+            summary: unit.summary,
+            lessons: unit.lessonSlugs.map((slug) => {
+              const lesson = course.lessons.find((item) => item.slug === slug)!;
+              return {
+                slug: lesson.slug,
+                order: lesson.order,
+                minutes: lesson.minutes,
+                title: lesson.title,
+                summary: lesson.summary,
+              };
+            }),
+          }))}
+        />
       </section>
 
       <FinalAssessment questions={course.assessment} locale={course.contentLocale} direction={course.contentDirection} ui={ui} />
       <CapstoneChecklist locale={course.contentLocale} ui={ui} capstone={course.capstone} />
 
-      <aside className={styles.integrityNote} aria-labelledby="mcp-integrity-title">
-        <h2 id="mcp-integrity-title">{ui.dashboardIntegrityTitle}</h2>
-        <p>{ui.dashboardIntegrityBody}</p>
-        <p dir="ltr">
-          <a className={styles.inlineLink} href="/courses/mcp/figure-manifest.json">figure-manifest.json</a>
-          {" · "}
-          <a className={styles.inlineLink} href="/courses/mcp/NOTICE.md">NOTICE.md</a>
-          {" · "}
-          <a className={styles.inlineLink} href="/courses/mcp/licenses/APACHE-2.0.txt">APACHE-2.0.txt</a>
-          {" · "}
-          <a className={styles.inlineLink} href="/courses/mcp/licenses/CODEX-NOTICE.txt">CODEX-NOTICE.txt</a>
-        </p>
-        <p>{formatMcpCopy(ui.dashboardIntegrityDateTemplate, { date: course.publishedOn })}</p>
-      </aside>
+      <details id="course-reference" className={styles.referenceDisclosure}>
+        <summary>
+          <span>
+            <small>{ui.dashboardSourceEyebrow}</small>
+            <strong>{ui.dashboardSourceTitle}</strong>
+          </span>
+          <b aria-hidden="true">+</b>
+        </summary>
+        <div className={styles.referenceBody}>
+          <section className={styles.conceptLedger} aria-labelledby="mcp-concepts-title">
+            <header className={styles.sectionHeader}>
+              <div><p className={styles.eyebrow}>{ui.dashboardConceptEyebrow}</p><h2 id="mcp-concepts-title">{ui.dashboardConceptTitle}</h2></div>
+              <p>{ui.dashboardConceptBody}</p>
+            </header>
+            <div className={styles.conceptGrid}>
+              {course.concepts.map((concept) => (
+                <div key={concept.id} data-status={concept.status}>
+                  <span>{statusLabel[concept.status]}</span>
+                  <strong>{concept.label}</strong>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.evidenceMethod} aria-labelledby="mcp-evidence-title">
+            <div>
+              <p className={styles.eyebrow}>{ui.dashboardSourceEyebrow}</p>
+              <h2 id="mcp-evidence-title">{ui.dashboardSourceTitle}</h2>
+              <p>{course.sourceNote}</p>
+            </div>
+            <dl>
+              {Object.entries(publisherCounts).map(([publisher, count]) => (
+                <div key={publisher}><dt><bdi dir="ltr" translate="no">{publisher}</bdi></dt><dd>{formatMcpCopy(ui.dashboardSourcesTemplate, { count: number(count) })}</dd></div>
+              ))}
+            </dl>
+          </section>
+
+          <section className={styles.claimAudit} aria-labelledby="mcp-claim-audit-title">
+            <header className={styles.sectionHeader}>
+              <div><p className={styles.eyebrow}>{ui.dashboardClaimEyebrow}</p><h2 id="mcp-claim-audit-title">{ui.dashboardClaimTitle}</h2></div>
+              <p>{ui.dashboardClaimBody}</p>
+            </header>
+            <ol>
+              {course.claims.map((entry) => (
+                <li key={entry.id}>
+                  <div><Link href={`/${course.locale}/mcp/${entry.lessonSlug}/`}>{formatMcpCopy(ui.dashboardLessonTemplate, { order: number(entry.lessonOrder) })}</Link><strong>{entry.claim}</strong></div>
+                  <span>
+                    {entry.sourceIds.map((sourceId) => {
+                      const source = course.sources.find((candidate) => candidate.id === sourceId)!;
+                      return (
+                        <a key={sourceId} href={source.url} target="_blank" rel="noopener noreferrer">
+                          {sourceId} <span aria-hidden="true">↗</span>
+                          <span className={styles.visuallyHidden}> ({ui.externalNewTab})</span>
+                        </a>
+                      );
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <aside className={styles.integrityNote} aria-labelledby="mcp-integrity-title">
+            <h2 id="mcp-integrity-title">{ui.dashboardIntegrityTitle}</h2>
+            <p>{ui.dashboardIntegrityBody}</p>
+            <p dir="ltr">
+              <a className={styles.inlineLink} href="/courses/mcp/figure-manifest.json">figure-manifest.json</a>
+              {" · "}
+              <a className={styles.inlineLink} href="/courses/mcp/NOTICE.md">NOTICE.md</a>
+              {" · "}
+              <a className={styles.inlineLink} href="/courses/mcp/licenses/APACHE-2.0.txt">APACHE-2.0.txt</a>
+              {" · "}
+              <a className={styles.inlineLink} href="/courses/mcp/licenses/CODEX-NOTICE.txt">CODEX-NOTICE.txt</a>
+            </p>
+            <p>
+              <LocalizedTemplate
+                template={ui.dashboardIntegrityDateTemplate}
+                values={{ date: course.publishedOn }}
+                isolate={{ date: "ltr" }}
+              />
+            </p>
+          </aside>
+        </div>
+      </details>
 
       <p className={styles.backLink}><Link href={`/${course.locale}/courses/`}><span aria-hidden="true">{arrowBack}</span> {catalogLabel}</Link></p>
     </div>

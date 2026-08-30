@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { MCP_ASSESSMENT_VERSION } from "@/lib/mcp";
 import type { McpUiCopy } from "@/lib/mcp/copy";
 import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import type { McpDirection } from "@/lib/mcp/types";
-import { resetMcpProgress } from "./progress-store";
-import { useMcpProgress } from "./useMcpProgress";
+import { isMcpQuizPassed, resetMcpProgress } from "./progress-store";
+import { useMcpProgress, useMcpStorageAvailable } from "./useMcpProgress";
 import styles from "./McpCourse.module.css";
 import { useI18n } from "../I18nProvider";
 
@@ -24,13 +23,15 @@ export default function CourseProgress({
 }) {
   const { t } = useI18n();
   const progress = useMcpProgress();
+  const storageAvailable = useMcpStorageAvailable();
   const [confirmReset, setConfirmReset] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
+  const [resetFailed, setResetFailed] = useState(false);
   const resetStatus = useRef<HTMLParagraphElement>(null);
   const resetTrigger = useRef<HTMLButtonElement>(null);
-  const confirmAction = useRef<HTMLButtonElement>(null);
+  const cancelAction = useRef<HTMLButtonElement>(null);
   const completed = lessons.filter((lesson) => progress[`mcp.lesson.${lesson.slug}`] === true).length;
-  const quiz = progress["mcp.quiz.version"] === MCP_ASSESSMENT_VERSION && progress["mcp.quiz.passed"] === true ? 1 : 0;
+  const quiz = isMcpQuizPassed(progress) ? 1 : 0;
   const capstone = progress["mcp.capstone.v1"] === true ? 1 : 0;
   const hasMcpProgress = Object.keys(progress).some((key) => key.startsWith("mcp."));
   const total = lessons.length + 2;
@@ -54,15 +55,16 @@ export default function CourseProgress({
   const number = (value: number) => formatMcpInteger(value, locale);
 
   function performReset() {
-    resetMcpProgress();
+    const persisted = resetMcpProgress();
     setConfirmReset(false);
-    setResetMessage(ui.progressResetStatus);
+    setResetFailed(!persisted);
+    setResetMessage(persisted ? ui.progressResetStatus : ui.progressResetFailedStatus);
     window.requestAnimationFrame(() => resetStatus.current?.focus());
   }
 
   function openResetConfirmation() {
     setConfirmReset(true);
-    window.requestAnimationFrame(() => confirmAction.current?.focus());
+    window.requestAnimationFrame(() => cancelAction.current?.focus());
   }
 
   function cancelReset() {
@@ -81,6 +83,11 @@ export default function CourseProgress({
           assessment: quiz ? ui.progressAssessmentPassed : ui.progressAssessmentNotPassed,
           capstone: capstone ? ui.progressCapstoneComplete : ui.progressCapstoneOpen,
         })}</p>
+        {!storageAvailable ? (
+          <p className={styles.storageWarning} role="status">
+            {ui.completionStorageUnavailable}
+          </p>
+        ) : null}
         <div
           className={styles.progressTrack}
           role="progressbar"
@@ -93,7 +100,26 @@ export default function CourseProgress({
         </div>
       </div>
       <div className={styles.progressActions}>
-        <Link className={styles.primaryButton} href={nextHref} data-course-journey-action>
+        <Link
+          className={styles.primaryButton}
+          href={nextHref}
+          data-course-journey-action
+          onClick={(event) => {
+            const destination = new URL(nextHref, window.location.href);
+            if (
+              !destination.hash
+              || destination.pathname !== window.location.pathname
+              || destination.search !== window.location.search
+            ) return;
+            const target = document.getElementById(decodeURIComponent(destination.hash.slice(1)));
+            if (!target) return;
+            event.preventDefault();
+            window.history.pushState(null, "", `${destination.pathname}${destination.search}${destination.hash}`);
+            if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+            target.focus({ preventScroll: true });
+            target.scrollIntoView({ block: "start", behavior: "instant" as ScrollBehavior });
+          }}
+        >
           {nextLabel} <span aria-hidden="true">{direction === "rtl" ? "←" : "→"}</span>
         </Link>
         {hasMcpProgress ? (
@@ -111,8 +137,8 @@ export default function CourseProgress({
               }}
             >
               <span>{ui.progressResetQuestion}</span>
-              <button ref={confirmAction} type="button" className={styles.dangerButton} onClick={performReset}>{ui.progressResetYes}</button>
-              <button type="button" className={styles.textButton} onClick={cancelReset}>{ui.progressResetCancel}</button>
+              <button type="button" className={styles.dangerButton} onClick={performReset}>{ui.progressResetYes}</button>
+              <button ref={cancelAction} type="button" className={styles.textButton} onClick={cancelReset}>{ui.progressResetCancel}</button>
             </div>
           ) : (
             <button
@@ -127,7 +153,15 @@ export default function CourseProgress({
             </button>
           )
         ) : null}
-        <p ref={resetStatus} className={styles.srStatus} role="status" tabIndex={-1}>{resetMessage}</p>
+        <p
+          ref={resetStatus}
+          className={styles.srStatus}
+          data-tone={resetFailed ? "error" : "success"}
+          role="status"
+          tabIndex={-1}
+        >
+          {resetMessage}
+        </p>
       </div>
     </section>
   );
