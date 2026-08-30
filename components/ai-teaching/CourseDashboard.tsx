@@ -12,6 +12,10 @@ import {
   FinalAssessment,
   PilotCanvas,
 } from "./Interactions";
+import {
+  CourseModuleGrid,
+  CoursePrimaryAction,
+} from "./CourseNavigation";
 import styles from "./AgenticTeachingCourse.module.css";
 
 type ContentLocale = MaterializedAgenticTeachingCourse["contentLocale"];
@@ -158,15 +162,32 @@ export default function CourseDashboard({
   readonly catalogLabel: string;
 }) {
   const { copy } = course;
-  const firstModule = course.modules[0];
   const courseLabel = copy.ui.course.includes(String(course.displayNumber))
     ? copy.ui.course
     : `${copy.ui.course} ${course.displayNumber}`;
   const hrefFor = (slug: string) => `/${course.locale}/ai-teaching/${slug}/`;
+  const navigationPhases = course.phases.map((phase) => ({
+    id: phase.id,
+    order: phase.order,
+    title: phase.copy.title,
+    summary: phase.copy.summary,
+    modules: phase.modules.map((module) => ({
+      slug: module.slug,
+      order: module.order,
+      title: module.copy.title,
+      summary: module.copy.summary,
+      minutes: module.minutes,
+      sourceCount: module.sources.length,
+    })),
+  }));
+  const navigationModules = navigationPhases.flatMap((phase) => phase.modules);
   const totalMinutes = course.modules.reduce(
     (total, module) => total + module.minutes,
     0,
   );
+  const trackStartLabel = course.contentLocale === "zh-Hans"
+    ? "从共同基础开始"
+    : "Start with the shared foundation";
   const trustTitles =
     course.contentLocale === "zh-Hans"
       ? ["责任", "证据", "迁移", "数据"]
@@ -183,6 +204,24 @@ export default function CourseDashboard({
       dir={course.contentDirection}
       data-testid="ai-teaching-course"
     >
+      <nav
+        className={styles.courseBreadcrumb}
+        aria-label={`${catalogLabel} · ${copy.meta.title}`}
+      >
+        <ol>
+          <li>
+            <Link
+              href={`/${course.locale}/courses/`}
+              lang={course.isFallback ? course.locale : undefined}
+              dir={course.locale === "ar" ? "rtl" : undefined}
+            >
+              {catalogLabel}
+            </Link>
+          </li>
+          <li aria-current="page">{courseLabel}</li>
+        </ol>
+      </nav>
+
       {course.isFallback ? (
         <p className={styles.languageNotice}>
           <strong>{copy.ui.fallbackLabel}:</strong> {copy.meta.fallbackNotice}
@@ -193,16 +232,16 @@ export default function CourseDashboard({
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
             <p className={styles.courseNumber}>
-              {courseLabel} · v{course.version}
+              {copy.meta.kicker} · v{course.version}
             </p>
-            <p className={styles.eyebrow}>{copy.meta.kicker}</p>
             <h1>{copy.meta.title}</h1>
             <p className={styles.heroSummary}>{copy.meta.summary}</p>
             <div className={styles.heroActions}>
-              <Link className={styles.primaryAction} href={hrefFor(firstModule.slug)}>
-                {copy.ui.start}
-                <span aria-hidden="true">↗</span>
-              </Link>
+              <CoursePrimaryAction
+                locale={course.locale}
+                modules={navigationModules}
+                labels={copy.ui}
+              />
               <a className={styles.secondaryAction} href="#course-map">
                 {copy.ui.courseMap}
                 <span aria-hidden="true">↓</span>
@@ -250,7 +289,22 @@ export default function CourseDashboard({
         </div>
       </header>
 
-      <section className={styles.tracksSection} aria-labelledby="learning-tracks-title">
+      <nav
+        className={styles.quickNav}
+        aria-label={`${courseLabel} · ${copy.ui.courseMap}`}
+      >
+        <a href="#teaching-tracks">{copy.ui.tracks}</a>
+        <a href="#course-map">{copy.ui.courseMap}</a>
+        <a href="#final-assessment">{copy.ui.finalAssessment}</a>
+        <a href="#capstone">{copy.ui.capstone}</a>
+        <a href="#course-sources">{copy.ui.sources}</a>
+      </nav>
+
+      <section
+        className={styles.tracksSection}
+        id="teaching-tracks"
+        aria-labelledby="learning-tracks-title"
+      >
         <header className={styles.sectionIntro}>
           <div>
             <p className={styles.sectionLabel}>{copy.ui.audience}</p>
@@ -267,8 +321,8 @@ export default function CourseDashboard({
                 {track.focus.map((focus) => <li key={focus}>{focus}</li>)}
               </ul>
               <Link href={hrefFor(track.startingModule)}>
-                {copy.ui.start}
-                <span aria-hidden="true">↗</span>
+                {trackStartLabel}
+                <span aria-hidden="true">→</span>
               </Link>
             </article>
           ))}
@@ -307,33 +361,11 @@ export default function CourseDashboard({
             {course.modules.length} {copy.ui.modules} · {totalMinutes} {copy.ui.minutes}
           </p>
         </header>
-        {course.phases.map((phase) => (
-          <section className={styles.phaseGroup} key={phase.id} aria-labelledby={`phase-${phase.id}`}>
-            <header className={styles.phaseHeader}>
-              <span>{String(phase.order).padStart(2, "0")}</span>
-              <div>
-                <h3 id={`phase-${phase.id}`}>{phase.copy.title}</h3>
-                <p>{phase.copy.summary}</p>
-              </div>
-            </header>
-            <div className={styles.moduleGrid}>
-              {phase.modules.map((module) => (
-                <Link className={styles.moduleCard} href={hrefFor(module.slug)} key={module.slug}>
-                  <span className={styles.moduleNumber}>
-                    {String(module.order).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h4>{module.copy.title}</h4>
-                    <p>{module.copy.summary}</p>
-                    <small>
-                      {module.minutes} {copy.ui.minutes} · {module.sources.length} {copy.ui.sources}
-                    </small>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ))}
+        <CourseModuleGrid
+          locale={course.locale}
+          phases={navigationPhases}
+          labels={copy.ui}
+        />
       </section>
 
       <PilotCanvas locale={course.contentLocale} />
@@ -356,23 +388,13 @@ export default function CourseDashboard({
         </ol>
       </section>
 
-      <section className={styles.sourceLedger} aria-labelledby="course-sources-title">
-        <header className={styles.sectionIntro}>
-          <div>
-            <p className={styles.sectionLabel}>{copy.ui.sourceRegister}</p>
-            <h2 id="course-sources-title">{copy.ui.sources}</h2>
-          </div>
-          <p>{copy.meta.evidenceNote}</p>
-        </header>
-        <SourceRegister sources={course.sources} course={course} />
-      </section>
-
       <FinalAssessment
         questions={copy.quiz.questions}
         title={copy.quiz.title}
         intro={copy.quiz.intro}
         passNote={copy.quiz.passNote}
         labels={copy.ui}
+        contentLocale={course.contentLocale}
       />
 
       <CapstoneChecklist
@@ -384,13 +406,34 @@ export default function CourseDashboard({
         labels={copy.ui}
       />
 
+      <section
+        className={styles.sourceLedger}
+        id="course-sources"
+        aria-labelledby="course-sources-title"
+      >
+        <header className={styles.sectionIntro}>
+          <div>
+            <p className={styles.sectionLabel}>{copy.ui.sourceRegister}</p>
+            <h2 id="course-sources-title">{copy.ui.sources}</h2>
+          </div>
+          <p>{copy.meta.evidenceNote}</p>
+        </header>
+        <details className={styles.sourceDisclosure}>
+          <summary>
+            <span>{copy.ui.sourceRegister}</span>
+            <span>{course.sources.length} {copy.ui.sources}</span>
+          </summary>
+          <SourceRegister sources={course.sources} course={course} />
+        </details>
+      </section>
+
       <nav className={styles.bottomNav} aria-label={copy.ui.catalog}>
         <Link
           href={`/${course.locale}/courses/`}
           lang={course.isFallback ? course.locale : undefined}
           dir={course.locale === "ar" ? "rtl" : undefined}
         >
-          <span aria-hidden="true">←</span>
+          <span aria-hidden="true">{course.locale === "ar" ? "→" : "←"}</span>
           {catalogLabel}
         </Link>
       </nav>

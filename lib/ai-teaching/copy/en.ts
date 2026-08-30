@@ -38,7 +38,7 @@ export const AGENTIC_TEACHING_COPY_EN = bindAgenticTeachingCourseOptions({
     start: "Start the course",
     resume: "Resume",
     courseMap: "Course map",
-    tracks: "Choose your teaching track",
+    tracks: "Guidance for your teaching context",
     outcomes: "Outcomes you can inspect",
     principles: "Operating principles",
     objective: "Learning objective",

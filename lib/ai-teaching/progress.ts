@@ -468,6 +468,61 @@ export function agenticTeachingProgressPercent(
   );
 }
 
+export type AgenticTeachingNextStep =
+  | {
+      readonly kind: "module";
+      readonly slug: AgenticTeachingModuleSlug;
+      readonly resume: boolean;
+    }
+  | { readonly kind: "final-assessment" }
+  | { readonly kind: "capstone" }
+  | { readonly kind: "course-map" };
+
+function hasAgenticTeachingActivity(
+  progress: Record<string, unknown>,
+): boolean {
+  if (
+    readAgenticTeachingQuizReceipt(progress[AGENTIC_TEACHING_QUIZ_KEY]) ||
+    isAgenticTeachingCapstoneComplete(progress)
+  ) {
+    return true;
+  }
+  return AGENTIC_TEACHING_MODULE_SLUGS.some((slug) => {
+    const artifact = progress[agenticTeachingArtifactKey(slug)];
+    const hasRecoverableArtifact =
+      readAgenticTeachingArtifactRecord(artifact) !== null ||
+      (typeof artifact === "string" && artifact.trim().length > 0);
+    return hasRecoverableArtifact || Boolean(
+      readAgenticTeachingCheckpointReceipt(
+        progress[agenticTeachingCheckpointKey(slug)],
+        slug,
+      ),
+    );
+  });
+}
+
+/**
+ * Resolve the learner's next honest destination from the validated progress
+ * record. Drafts count as activity for the CTA label, but only current module,
+ * quiz and capstone receipts advance the destination.
+ */
+export function agenticTeachingNextStep(
+  progress: Record<string, unknown>,
+): AgenticTeachingNextStep {
+  const resume = hasAgenticTeachingActivity(progress);
+  const nextModule = AGENTIC_TEACHING_MODULE_SLUGS.find(
+    (slug) => !isAgenticTeachingModuleComplete(progress, slug),
+  );
+  if (nextModule) return { kind: "module", slug: nextModule, resume };
+  if (!readAgenticTeachingQuizReceipt(progress[AGENTIC_TEACHING_QUIZ_KEY])) {
+    return { kind: "final-assessment" };
+  }
+  if (!isAgenticTeachingCapstoneComplete(progress)) {
+    return { kind: "capstone" };
+  }
+  return { kind: "course-map" };
+}
+
 export interface AgenticTeachingArtifactEvidence {
   readonly ready: boolean;
   readonly characterCount: number;
