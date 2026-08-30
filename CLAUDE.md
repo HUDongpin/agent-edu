@@ -67,5 +67,9 @@ British spelling. Sentence case in headings. Prefer deleting a widget over addin
 one. Do not rewrite existing copy to satisfy a linter.
 
 ## Before you say you're done
-`npm run build` must pass and still emit 50 pages. Never commit `All API Keys.docx`
-or anything matching the secrets block in `.gitignore`.
+`npm run build` must pass, and `npm run routes:check` must agree with
+`config/route-manifest.json` — that checker is the gate, not a number written
+down here. It currently reports 66 public + 2 internal = 68. The count moves by
+nine every time a localised path is added, so check it rather than trusting this
+sentence. Never commit `All API Keys.docx` or anything matching the secrets
+block in `.gitignore`.
