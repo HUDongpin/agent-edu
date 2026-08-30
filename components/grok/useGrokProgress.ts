@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import {
   EMPTY_GROK_PROGRESS,
   grokStorageAvailable,
+  grokStorageFailureReason,
   readGrokProgress,
   subscribeToGrokProgress,
 } from "./progress-store";
@@ -18,9 +19,17 @@ export default function useGrokProgress() {
 
 export function useGrokStorageAvailable(): boolean {
   return useSyncExternalStore(
-    () => () => undefined,
+    subscribeToGrokProgress,
     grokStorageAvailable,
     () => true,
+  );
+}
+
+export function useGrokStorageFailureReason() {
+  return useSyncExternalStore(
+    subscribeToGrokProgress,
+    grokStorageFailureReason,
+    () => undefined,
   );
 }
 

@@ -5,6 +5,7 @@ import {
   GROK_SOURCE_BY_ID,
   type MaterializedGrokCourse,
 } from "@/lib/grok";
+import CourseHeroAction from "./CourseHeroAction";
 import CourseProgress from "./CourseProgress";
 import FinalQuiz, { type GrokQuizQuestion } from "./FinalQuiz";
 import styles from "./GrokCourse.module.css";
@@ -37,6 +38,11 @@ export default function CourseDashboard({
     .replace("{hours}", numberFormat.format(hours))
     .replace("{minutes}", numberFormat.format(remainingMinutes));
   const hrefFor = (slug: string) => `/${course.locale}/grok/${slug}/`;
+  const lessonLinks = lessons.map((lesson) => ({
+    slug: lesson.slug,
+    title: lesson.copy.title,
+    href: hrefFor(lesson.slug),
+  }));
   const heroFigure = GROK_FIGURE_BY_ID["fig-01"];
   const previewFigureIds = ["fig-06", "fig-07", "fig-08"] as const;
   const previewFigures = previewFigureIds.map((id) => GROK_FIGURE_BY_ID[id]);
@@ -58,6 +64,22 @@ export default function CourseDashboard({
           <p className={styles.heroKicker}>{course.copy.meta.kicker}</p>
           <h1 id="grok-course-title">{course.copy.meta.title}</h1>
           <p className={styles.heroSummary}>{course.copy.meta.summary}</p>
+          <div className={styles.heroOutcome} data-testid="grok-hero-outcome">
+            <p>{course.copy.ui.learnOutcome}</p>
+            <blockquote>{course.copy.meta.outcome}</blockquote>
+          </div>
+          <div className={styles.heroAction} data-testid="grok-hero-action">
+            <CourseHeroAction
+              locale={course.locale}
+              lessons={lessonLinks}
+              quizQuestions={quizQuestions}
+              passingScore={course.manifest.passingScore}
+              labels={course.copy.ui}
+              startLabel={course.copy.meta.startCta}
+              resumeLabel={course.copy.meta.resumeCta}
+              reviewLabel={reviewLabel}
+            />
+          </div>
         </div>
         <figure className={styles.heroFigure}>
           <Image
@@ -79,22 +101,12 @@ export default function CourseDashboard({
         <div><strong>{numberFormat.format(lessons.length + 2)}</strong><span>{course.copy.ui.progress}</span></div>
       </section>
 
-      <section className={`shellwrap ${styles.outcomeSection}`} aria-labelledby="grok-outcome-title">
-        <div>
-          <p>{course.copy.ui.learnOutcome}</p>
-          <h2 id="grok-outcome-title">{course.copy.ui.workflowTitle}</h2>
-        </div>
-        <blockquote>{course.copy.meta.outcome}</blockquote>
-      </section>
-
       <div className="shellwrap">
         <CourseProgress
           locale={course.locale}
-          lessons={lessons.map((lesson) => ({
-            slug: lesson.slug,
-            title: lesson.copy.title,
-            href: hrefFor(lesson.slug),
-          }))}
+          lessons={lessonLinks}
+          quizQuestions={quizQuestions}
+          passingScore={course.manifest.passingScore}
           labels={course.copy.ui}
           startLabel={course.copy.meta.startCta}
           resumeLabel={course.copy.meta.resumeCta}
@@ -181,7 +193,10 @@ export default function CourseDashboard({
       </section>
 
       <p className={`shellwrap ${styles.backLink}`}>
-        <Link href={`/${course.locale}/courses/`}>← {catalogLabel}</Link>
+        <Link href={`/${course.locale}/courses/`}>
+          <span className={styles.directionArrow} aria-hidden="true">←</span>
+          {catalogLabel}
+        </Link>
       </p>
     </div>
   );

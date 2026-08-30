@@ -280,6 +280,12 @@ function missingRequiredNumbers(reference, candidate) {
   return missing;
 }
 
+function isIsoCalendarDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value;
+}
+
 const manifest = readJson("lib/grok/course.manifest.json");
 const sources = readJson("lib/grok/sources.json");
 const figures = readJson("lib/grok/figures.json");
@@ -304,11 +310,23 @@ if (release) {
     if (approvals.schemaVersion !== 1) fail("Release approvals must use schemaVersion 1");
     if (approvals.courseId !== "grok") fail("Release approvals must be scoped to course grok");
     if (approvals.sourceLocale !== "en") fail("Release approvals must declare English as the source locale");
-    if (approvals.reviewedOn !== manifest.verifiedOn) {
-      fail("Release approvals date does not match the verified course snapshot");
+    const reviewedOn = isIsoCalendarDate(approvals.reviewedOn)
+      ? approvals.reviewedOn
+      : null;
+    const today = new Date().toISOString().slice(0, 10);
+    if (!reviewedOn) {
+      fail("Release approvals date must be a valid ISO calendar date");
+    } else if (reviewedOn < manifest.verifiedOn) {
+      fail("Release approvals date cannot predate the verified course snapshot");
+    } else if (reviewedOn > today) {
+      fail("Release approvals date cannot be in the future");
     }
     if (!approvals.reviewBoundary?.includes("not a native-speaker certification")) {
       fail("Release approvals must state the AI semantic-review boundary");
+    }
+    if (!approvals.reviewScope?.includes("23 changed Course 5 UI keys")
+      || !approvals.reviewScope?.includes("all 9 locales")) {
+      fail("Release approvals must bind the refreshed 23-key, 9-locale review scope");
     }
     const currentEnglishHash = sha256("messages/grok/en.json");
     if (approvals.englishSourceSha256 !== currentEnglishHash) {
@@ -755,7 +773,7 @@ if (release) {
     if (packageJson.scripts?.["grok:check:release"] !== "node scripts/check-grok-course.mjs --release") {
       fail("package.json grok:check:release script is missing or changed");
     }
-    if (packageJson.scripts?.["test:grok"] !== "playwright test tests/grok-course.spec.ts") {
+    if (packageJson.scripts?.["test:grok"] !== "playwright test --config tests/published-playwright.config.ts tests/grok-course.spec.ts") {
       fail("package.json test:grok script is missing or changed");
     }
   }

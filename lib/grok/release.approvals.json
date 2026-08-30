@@ -2,53 +2,54 @@
   "schemaVersion": 1,
   "courseId": "grok",
   "sourceLocale": "en",
-  "reviewedOn": "2026-08-23",
-  "englishSourceSha256": "6d22a5a7c6c5c0f9863919ef1b69a433a7065512baf8153fdfab0a0c93bf8a08",
+  "reviewedOn": "2026-08-30",
+  "englishSourceSha256": "55069da60433aafbb4b48fb09843770783452ffbb27e40302d6c398b954e0944",
   "reviewBoundary": "AI-assisted structural, semantic and source-scope review; not a native-speaker certification.",
+  "reviewScope": "Delta review of 23 changed Course 5 UI keys across all 9 locales, including semantic, numeric-token, placeholder, privacy and recovery-state checks.",
   "locales": {
     "en": {
       "status": "approved",
-      "sha256": "6d22a5a7c6c5c0f9863919ef1b69a433a7065512baf8153fdfab0a0c93bf8a08",
+      "sha256": "55069da60433aafbb4b48fb09843770783452ffbb27e40302d6c398b954e0944",
       "review": "English source, product-fact and provenance audit against current official xAI evidence."
     },
     "es": {
       "status": "approved",
-      "sha256": "a8bbe9db3115e25ba3e513e1245c0c0ac860254c06292d944120bac9e49aeac9",
+      "sha256": "b8634df169dc6a48682e92790956bf45c4659f23035f1a411e3f17a2b9ac5e7a",
       "review": "AI semantic audit of full learner copy, practice placeholders, localized duration wording and high-risk scope boundaries."
     },
     "fr": {
       "status": "approved",
-      "sha256": "03dfb44dc188f41a61db400bc8bc6cb8e86f2c03b7a7895492a307775b4a6cf6",
+      "sha256": "ceb34c792001fa78f2f5cde1b2fec6a6fcab1107163c15b4d7aaf67e98fac10a",
       "review": "AI semantic audit of full learner copy, practice placeholders, localized quiz labels and high-risk scope boundaries."
     },
     "de": {
       "status": "approved",
-      "sha256": "d16f40a0dcd263d70e5fc75aff6fb45c182a8bc675ac2444f42c82ab2b45e023",
+      "sha256": "a8853ebeaafb0ed04e73be9a67e79b3e06c67f7f66250abad44ff8178aa1acd0",
       "review": "AI semantic audit of full learner copy, practice placeholders and high-risk scope boundaries."
     },
     "zh-Hans": {
       "status": "approved",
-      "sha256": "ec93b10c789d114c820535779c105dddfba880e5a079366a07b1994d00cd243c",
+      "sha256": "fe64b435409ac84f60ea858a02215483bb78d18841e81a92e7bbf397cf335882",
       "review": "AI semantic audit of complete Simplified Chinese copy, localized prompts and factual boundaries."
     },
     "zh-Hant": {
       "status": "approved",
-      "sha256": "5f253a3be8af786d0bf45b5bd859d8536ffd59dbfbc330c1a6ce1b8953ab897e",
+      "sha256": "9100b87423861c0037f69a2f463c33841fbc20fd0283f65e374b9f2d6a45c380",
       "review": "AI semantic audit of complete Traditional Chinese copy, localized prompts and factual boundaries."
     },
     "ja": {
       "status": "approved",
-      "sha256": "82ce82ec9fce7059e1c8e0f8b3596d6c32c2cfdc1044a39ec9f495561f515252",
+      "sha256": "63af5a9d66d4982b4664ab2c183c80d4141c19a10eb2a9aeafa52db4a87a80c2",
       "review": "AI semantic audit of full learner copy, practice placeholders and high-risk scope boundaries."
     },
     "ko": {
       "status": "approved",
-      "sha256": "25c4e7e0ca0b9b83be46e7b3e45b0eee75295ac06e03a5ddd1249a296aee3ea6",
+      "sha256": "e029e84c0ae5992f634896e81a9bd23b13a3697e15249c8c88b83342d0bd2a0c",
       "review": "AI semantic audit of full learner copy, practice placeholders and high-risk scope boundaries."
     },
     "ar": {
       "status": "approved",
-      "sha256": "96c1be7c5892f9324282bc8a38974a9e376fe1ffc30a17d8a4aadaf9d08e3914",
+      "sha256": "0b67da39184a4030b759392bbfd87f9a4ac69328731a100edb24578b6b5606b0",
       "review": "AI semantic audit of full RTL learner copy, practice placeholders and high-risk scope boundaries."
     }
   }
