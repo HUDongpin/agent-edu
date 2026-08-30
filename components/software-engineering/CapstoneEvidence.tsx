@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   SOFTWARE_ENGINEERING_CAPSTONE,
+  SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY,
   SOFTWARE_ENGINEERING_OVERVIEW,
+  hasSoftwareEngineeringCapstoneDraftActivity,
   isSoftwareEngineeringCapstoneSubmission,
+  parseSoftwareEngineeringCapstoneDraft,
+  type SoftwareEngineeringCapstoneDraft,
   type SoftwareEngineeringCapstoneSubmission,
   type SoftwareEngineeringLocale,
   type SoftwareEngineeringLocaleCopy,
@@ -14,41 +18,12 @@ import {
   SOFTWARE_ENGINEERING_PROGRESS_RESET_EVENT,
   updateSoftwareEngineeringProgress,
 } from "./progress-store";
-import useSoftwareEngineeringProgress from "./useSoftwareEngineeringProgress";
+import useSoftwareEngineeringProgress, {
+  useSoftwareEngineeringStorageAvailable,
+} from "./useSoftwareEngineeringProgress";
 import styles from "./SoftwareEngineeringCourse.module.css";
 
 type CapstoneConfig = typeof SOFTWARE_ENGINEERING_CAPSTONE;
-
-function checklistState(
-  items: readonly { readonly id: string }[],
-  selectedIds: readonly string[] = [],
-): Record<string, boolean> {
-  const selected = new Set(selectedIds);
-  return Object.fromEntries(items.map((item) => [item.id, selected.has(item.id)]));
-}
-
-function submissionSignature(submission: SoftwareEngineeringCapstoneSubmission | null): string {
-  if (!submission) return "";
-  return JSON.stringify({
-    schemaVersion: submission.schemaVersion,
-    completed: submission.completed,
-    artifactIds: [...submission.artifactIds].sort(),
-    reviewedGateIds: [...submission.reviewedGateIds].sort(),
-    score: submission.score,
-    decision: submission.decision,
-    safetyBoundaryAttested: submission.safetyBoundaryAttested,
-  });
-}
-
-function submissionFromSignature(signature: string): SoftwareEngineeringCapstoneSubmission | null {
-  if (!signature) return null;
-  try {
-    const value: unknown = JSON.parse(signature);
-    return isSoftwareEngineeringCapstoneSubmission(value) ? value : null;
-  } catch {
-    return null;
-  }
-}
 
 export default function CapstoneEvidence({
   config,
@@ -60,68 +35,64 @@ export default function CapstoneEvidence({
   locale: SoftwareEngineeringLocale;
 }) {
   const progress = useSoftwareEngineeringProgress();
+  const storageAvailable = useSoftwareEngineeringStorageAvailable();
   const storedSubmission = progress[config.progressKey];
   const submission = isSoftwareEngineeringCapstoneSubmission(storedSubmission)
     ? storedSubmission
     : null;
-  const storedSubmissionSignature = submissionSignature(submission);
-  const [resetVersion, setResetVersion] = useState(0);
-
-  useEffect(() => {
-    const resetDraft = () => setResetVersion((version) => version + 1);
-    window.addEventListener(SOFTWARE_ENGINEERING_PROGRESS_RESET_EVENT, resetDraft);
-    return () => {
-      window.removeEventListener(SOFTWARE_ENGINEERING_PROGRESS_RESET_EVENT, resetDraft);
-    };
-  }, []);
+  const draft = submission
+    ? null
+    : parseSoftwareEngineeringCapstoneDraft(
+      progress[SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY],
+      config,
+    );
 
   return (
     <CapstoneForm
-      key={`${storedSubmissionSignature}:${resetVersion}`}
       config={config}
+      draft={draft}
       labels={labels}
       locale={locale}
-      storedSubmissionSignature={storedSubmissionSignature}
+      storageAvailable={storageAvailable}
+      submission={submission}
     />
   );
 }
 
 function CapstoneForm({
   config,
+  draft,
   labels,
   locale,
-  storedSubmissionSignature,
+  storageAvailable,
+  submission,
 }: {
   config: CapstoneConfig;
+  draft: SoftwareEngineeringCapstoneDraft | null;
   labels: SoftwareEngineeringLocaleCopy["ui"];
   locale: SoftwareEngineeringLocale;
-  storedSubmissionSignature: string;
+  storageAvailable: boolean;
+  submission: SoftwareEngineeringCapstoneSubmission | null;
 }) {
-  const submission = submissionFromSignature(storedSubmissionSignature);
   const complete = submission !== null;
-  const [artifacts, setArtifacts] = useState<Record<string, boolean>>(() => (
-    checklistState(config.artifacts, submission?.artifactIds)
-  ));
-  const [gates, setGates] = useState<Record<string, boolean>>(() => (
-    checklistState(config.releaseGates, submission?.reviewedGateIds)
-  ));
-  const [score, setScore] = useState(submission?.score ?? 0);
-  const [decision, setDecision] = useState<SoftwareEngineeringReleaseDecision | "">(
-    submission?.decision ?? "",
-  );
-  const [attested, setAttested] = useState(submission?.safetyBoundaryAttested ?? false);
+  const artifactIds = submission?.artifactIds ?? draft?.artifactIds ?? [];
+  const reviewedGateIds = submission?.reviewedGateIds ?? draft?.reviewedGateIds ?? [];
+  const score = submission?.score ?? draft?.score ?? null;
+  const decision = submission?.decision ?? draft?.decision ?? "";
+  const attested = submission?.safetyBoundaryAttested
+    ?? draft?.safetyBoundaryAttested
+    ?? false;
+  const selectedArtifacts = new Set(artifactIds);
+  const selectedGates = new Set(reviewedGateIds);
   const [attempted, setAttempted] = useState(false);
   const validationFeedback = useRef<HTMLDivElement>(null);
+  const completionRequested = useRef(false);
+  const completionStatus = useRef<HTMLParagraphElement>(null);
 
-  const artifactReady = useMemo(
-    () => config.artifacts.every((artifact) => artifacts[artifact.id]),
-    [artifacts, config.artifacts],
-  );
-  const gatesReviewed = useMemo(
-    () => config.releaseGates.every((gate) => gates[gate.id]),
-    [gates, config.releaseGates],
-  );
-  const scoreReady = Number.isInteger(score)
+  const artifactReady = config.artifacts.every((artifact) => selectedArtifacts.has(artifact.id));
+  const gatesReviewed = config.releaseGates.every((gate) => selectedGates.has(gate.id));
+  const scoreReady = typeof score === "number"
+    && Number.isInteger(score)
     && score >= config.passingScore
     && score <= config.totalPoints;
   const decisionReady = decision !== "" && config.releaseDecisions.includes(decision);
@@ -140,6 +111,45 @@ function CapstoneForm({
   useEffect(() => {
     if (attempted && !ready) validationFeedback.current?.focus();
   }, [attempted, ready]);
+
+  useEffect(() => {
+    if (!completionRequested.current || !complete) return;
+    completionRequested.current = false;
+    completionStatus.current?.focus();
+  }, [complete]);
+
+  useEffect(() => {
+    const resetDraft = () => {
+      completionRequested.current = false;
+      setAttempted(false);
+    };
+    window.addEventListener(SOFTWARE_ENGINEERING_PROGRESS_RESET_EVENT, resetDraft);
+    return () => {
+      window.removeEventListener(SOFTWARE_ENGINEERING_PROGRESS_RESET_EVENT, resetDraft);
+    };
+  }, []);
+
+  function saveDraft(
+    update: Partial<Omit<SoftwareEngineeringCapstoneDraft, "version" | "capstoneSchemaVersion">>,
+  ) {
+    const nextDraft: SoftwareEngineeringCapstoneDraft = {
+      version: 1,
+      capstoneSchemaVersion: config.schemaVersion,
+      artifactIds,
+      reviewedGateIds,
+      score,
+      decision,
+      safetyBoundaryAttested: attested,
+      ...update,
+    };
+    updateSoftwareEngineeringProgress((record) => {
+      if (hasSoftwareEngineeringCapstoneDraftActivity(nextDraft)) {
+        record[SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY] = nextDraft;
+      } else {
+        delete record[SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY];
+      }
+    });
+  }
 
   return (
     <section
@@ -165,33 +175,39 @@ function CapstoneForm({
         <p>{config.validationBoundary}</p>
       </aside>
 
+      {!storageAvailable ? (
+        <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p>
+      ) : null}
+
       <form
         noValidate
         onSubmit={(event) => {
           event.preventDefault();
           setAttempted(true);
-          if (!ready || complete) return;
+          if (!ready || complete || typeof score !== "number") return;
+          completionRequested.current = true;
           updateSoftwareEngineeringProgress((record) => {
             record[config.progressKey] = {
               schemaVersion: config.schemaVersion,
               completed: true,
               artifactIds: config.artifacts
-                .filter((artifact) => artifacts[artifact.id])
+                .filter((artifact) => selectedArtifacts.has(artifact.id))
                 .map((artifact) => artifact.id),
               reviewedGateIds: config.releaseGates
-                .filter((gate) => gates[gate.id])
+                .filter((gate) => selectedGates.has(gate.id))
                 .map((gate) => gate.id),
               score,
               decision,
               safetyBoundaryAttested: true,
             };
+            delete record[SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY];
           });
         }}
       >
         <fieldset
           className={styles.capstoneChecklist}
           disabled={complete}
-          aria-invalid={attempted && !artifactReady || undefined}
+          aria-invalid={(attempted && !artifactReady) || undefined}
           aria-describedby={attempted && !artifactReady ? validationFeedbackId : undefined}
         >
           <legend lang={locale} dir="auto">{labels.capstoneArtifacts}</legend>
@@ -201,10 +217,16 @@ function CapstoneForm({
               <label className={styles.capstoneItem} key={artifact.id}>
                 <input
                   type="checkbox"
-                  checked={Boolean(artifacts[artifact.id])}
+                  checked={selectedArtifacts.has(artifact.id)}
                   onChange={(event) => {
-                    setArtifacts((existing) => ({ ...existing, [artifact.id]: event.target.checked }));
-                    setAttempted(false);
+                    const next = new Set(artifactIds);
+                    if (event.target.checked) next.add(artifact.id);
+                    else next.delete(artifact.id);
+                    saveDraft({
+                      artifactIds: config.artifacts
+                        .filter((candidate) => next.has(candidate.id))
+                        .map((candidate) => candidate.id),
+                    });
                   }}
                 />
                 <span>
@@ -233,11 +255,13 @@ function CapstoneForm({
               min="0"
               max={config.totalPoints}
               step="1"
-              value={score}
+              value={score ?? ""}
               disabled={complete}
-              aria-invalid={attempted && !scoreReady || undefined}
+              aria-invalid={(attempted && !scoreReady) || undefined}
               aria-describedby={attempted && !scoreReady ? validationFeedbackId : undefined}
-              onChange={(event) => { setScore(Number(event.target.value)); setAttempted(false); }}
+              onChange={(event) => {
+                saveDraft({ score: event.target.value === "" ? null : Number(event.target.value) });
+              }}
             />
           </label>
         </section>
@@ -247,7 +271,7 @@ function CapstoneForm({
           lang="en"
           dir="ltr"
           disabled={complete}
-          aria-invalid={attempted && !gatesReviewed || undefined}
+          aria-invalid={(attempted && !gatesReviewed) || undefined}
           aria-describedby={attempted && !gatesReviewed ? validationFeedbackId : undefined}
         >
           <legend>{SOFTWARE_ENGINEERING_OVERVIEW.capstone.gatesTitle}</legend>
@@ -256,10 +280,16 @@ function CapstoneForm({
             <label key={gate.id}>
               <input
                 type="checkbox"
-                checked={Boolean(gates[gate.id])}
+                checked={selectedGates.has(gate.id)}
                 onChange={(event) => {
-                  setGates((existing) => ({ ...existing, [gate.id]: event.target.checked }));
-                  setAttempted(false);
+                  const next = new Set(reviewedGateIds);
+                  if (event.target.checked) next.add(gate.id);
+                  else next.delete(gate.id);
+                  saveDraft({
+                    reviewedGateIds: config.releaseGates
+                      .filter((candidate) => next.has(candidate.id))
+                      .map((candidate) => candidate.id),
+                  });
                 }}
               />
               <span>{gate.question}</span>
@@ -277,9 +307,9 @@ function CapstoneForm({
               type="checkbox"
               checked={attested}
               disabled={complete}
-              aria-invalid={attempted && !attested || undefined}
+              aria-invalid={(attempted && !attested) || undefined}
               aria-describedby={attempted && !attested ? validationFeedbackId : undefined}
-              onChange={(event) => { setAttested(event.target.checked); setAttempted(false); }}
+              onChange={(event) => saveDraft({ safetyBoundaryAttested: event.target.checked })}
             />
             <span>{config.safetyBoundary.nonAuthorizationRule}</span>
           </label>
@@ -291,11 +321,12 @@ function CapstoneForm({
             value={decision}
             disabled={complete}
             required
-            aria-invalid={attempted && !decisionReady || undefined}
+            aria-invalid={(attempted && !decisionReady) || undefined}
             aria-describedby={attempted && !decisionReady ? validationFeedbackId : undefined}
             onChange={(event) => {
-              setDecision(event.target.value as SoftwareEngineeringReleaseDecision | "");
-              setAttempted(false);
+              saveDraft({
+                decision: event.target.value as SoftwareEngineeringReleaseDecision | "",
+              });
             }}
           >
             <option value="" lang="en" dir="ltr">{SOFTWARE_ENGINEERING_OVERVIEW.capstone.selectDecision}</option>
@@ -306,7 +337,15 @@ function CapstoneForm({
         </label>
 
         {complete ? (
-          <p className={styles.correctFeedback} role="status">{labels.capstoneComplete}</p>
+          <p
+            className={styles.correctFeedback}
+            data-testid="software-engineering-capstone-complete"
+            ref={completionStatus}
+            role="status"
+            tabIndex={-1}
+          >
+            {labels.capstoneComplete}
+          </p>
         ) : attempted && !ready ? (
           <div
             className={styles.incorrectFeedback}

@@ -31,11 +31,14 @@ export default async function CourseShell({
   locale,
   showBreadcrumb = true,
   standalone = false,
+  compact = false,
 }: {
   readonly courseId: PublicCourseId;
   readonly locale: string;
   readonly showBreadcrumb?: boolean;
   readonly standalone?: boolean;
+  /** Keeps the platform facts and journey CTA while a bespoke dashboard supplies the H1. */
+  readonly compact?: boolean;
 }) {
   const release = PUBLISHED_CATALOG_COURSES.find(({ course }) => course.id === courseId);
   if (!release) throw new Error(`CourseShell requires a published course: ${courseId}`);
@@ -79,6 +82,7 @@ export default async function CourseShell({
       data-course-content-language={contentLocale}
       data-course-fallback={usesFallback ? "true" : "false"}
       data-course-progress-storage="browser-local"
+      data-course-shell-compact={compact ? "true" : "false"}
     >
       {showBreadcrumb ? (
         <nav className="shared-course-breadcrumb" aria-label={t("nav.courses")}>
@@ -88,10 +92,12 @@ export default async function CourseShell({
         </nav>
       ) : null}
 
-      <div className="course-shell-heading">
-        <span className="eyebrow">{t("courseShell.overview")}</span>
-        <p className="course-shell-title">{t(course.titleKey)}</p>
-      </div>
+      {!compact ? (
+        <div className="course-shell-heading">
+          <span className="eyebrow">{t("courseShell.overview")}</span>
+          <p className="course-shell-title">{t(course.titleKey)}</p>
+        </div>
+      ) : null}
 
       <dl className="shared-course-facts" aria-label={t(course.titleKey)}>
         <div data-course-shell-field="status">
@@ -118,7 +124,12 @@ export default async function CourseShell({
         </p>
       ) : null}
 
-      <CourseShellProgress courseId={courseId} locale={locale} labels={progressLabels} />
+      <CourseShellProgress
+        courseId={courseId}
+        locale={locale}
+        labels={progressLabels}
+        designateJourneyAction={compact}
+      />
 
       <details className="course-shell-syllabus">
         <summary>

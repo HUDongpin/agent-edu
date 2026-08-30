@@ -12,6 +12,20 @@
   padding-block: 34px 24px;
 }
 
+.coursePage :global(.shared-course-shell[data-course-shell-compact="true"]) {
+  gap: 12px;
+  margin-block: 8px 18px;
+  padding: clamp(15px, 2.4vw, 21px);
+}
+
+.coursePage :global(.shared-course-shell[data-course-shell-compact="true"] .shared-course-facts) {
+  gap: 7px;
+}
+
+.coursePage :global(.shared-course-shell[data-course-shell-compact="true"] .shared-course-facts > div) {
+  padding: 8px 10px;
+}
+
 .languageNotice {
   margin-block: 0 24px;
   border: 1px solid var(--gold-line);
@@ -51,6 +65,7 @@
   font-size: clamp(42px, 7vw, 74px);
   line-height: .98;
   letter-spacing: -.055em;
+  text-wrap: balance;
 }
 
 .heroSummary,
@@ -60,6 +75,7 @@
   color: var(--ink-2);
   font-size: clamp(17px, 2vw, 20px);
   line-height: 1.65;
+  text-wrap: pretty;
 }
 
 .heroAudience {
@@ -109,48 +125,6 @@
   display: block;
   inline-size: 100%;
   block-size: auto;
-}
-
-.courseFacts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(220px, 1.45fr);
-  gap: 0;
-  border-block: 1px solid var(--line);
-  padding-block: 22px;
-}
-
-.courseFacts > div,
-.courseFacts > p {
-  min-inline-size: 0;
-  margin: 0;
-  border-inline-start: 1px solid var(--line-2);
-  padding-inline: 18px;
-}
-
-.courseFacts > div:first-child {
-  border-inline-start: 0;
-  padding-inline-start: 0;
-}
-
-.courseFacts small {
-  display: block;
-  color: var(--ink-3);
-  font-size: 10px;
-  font-weight: 750;
-  text-transform: uppercase;
-}
-
-.courseFacts strong {
-  display: block;
-  margin-block-start: 3px;
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 21px;
-}
-
-.courseFacts > p {
-  color: var(--ink-2);
-  font-size: 13px;
 }
 
 .lifecycle {
@@ -236,6 +210,63 @@
   padding-block: 34px;
 }
 
+.progressManagement {
+  margin-block: 4px 12px;
+  border-block: 1px solid var(--line-2);
+  padding-block: 0;
+}
+
+.progressManagement > summary {
+  min-block-size: 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  color: var(--ink-3);
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  list-style: none;
+}
+
+.progressManagement > summary::-webkit-details-marker {
+  display: none;
+}
+
+.progressManagement > summary::after {
+  content: "+";
+  color: var(--se-accent);
+  font-family: var(--mono);
+  font-size: 16px;
+}
+
+.progressManagement[open] > summary::after {
+  content: "−";
+}
+
+.progressManagement > summary:focus-visible {
+  outline: 2px solid var(--se-accent);
+  outline-offset: 3px;
+}
+
+.progressManagement > section {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 4px 16px;
+}
+
+.progressManagement > section > p {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.progressManagement .actionRow {
+  flex: 0 0 auto;
+}
+
 .progressHeading,
 .quizHeader,
 .completion,
@@ -260,6 +291,7 @@
 .sources h2 {
   font-size: clamp(25px, 3.2vw, 34px);
   line-height: 1.16;
+  text-wrap: balance;
 }
 
 .progressHeading p,
@@ -356,6 +388,8 @@
 .secondaryButton:disabled,
 .completeButton:disabled { cursor: not-allowed; opacity: .58; }
 
+.completeButton[aria-disabled="true"] { cursor: default; }
+
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible,
 .completeButton:focus-visible,
@@ -374,7 +408,8 @@
 .capstoneItem:focus-within,
 .promptAnalysis summary:focus-visible,
 .figureTranscript summary:focus-visible,
-.mobileCourseMap summary:focus-visible {
+.mobileCourseMap summary:focus-visible,
+.sourcesDisclosure summary:focus-visible {
   outline: 2px solid var(--se-accent);
   outline-offset: 3px;
 }
@@ -686,6 +721,68 @@
 .safetyBoundary ul { padding-inline-start: 22px; }
 .capstone form > .primaryButton { margin-block-start: 24px; }
 
+.capstoneEntry {
+  display: flex;
+  gap: clamp(22px, 4vw, 48px);
+  align-items: center;
+  justify-content: space-between;
+  margin-block-start: 28px;
+  border: 1px solid var(--se-line);
+  border-radius: var(--se-radius);
+  background: var(--se-soft);
+  padding: clamp(21px, 4vw, 32px);
+}
+
+.capstoneEntry > div { max-inline-size: 68ch; }
+.capstoneEntry h2 { font-size: clamp(24px, 3vw, 32px); text-wrap: balance; }
+.capstoneEntry p:last-child { margin-block: 10px 0; line-height: 1.65; text-wrap: pretty; }
+.capstoneEntry .primaryButton { flex: 0 0 auto; }
+
+.evidenceDisclosure {
+  margin-block-start: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--se-radius);
+  background: var(--card);
+}
+
+.evidenceDisclosure > summary {
+  min-block-size: 72px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 22px;
+  align-content: center;
+  padding: 16px 20px;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.evidenceDisclosure > summary::-webkit-details-marker { display: none; }
+
+.evidenceDisclosure > summary::after {
+  content: "+";
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--se-accent);
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 750;
+}
+
+.evidenceDisclosure[open] > summary::after { content: "−"; }
+.evidenceDisclosure[open] > summary { border-block-end: 1px solid var(--line); }
+.evidenceDisclosure > summary > span:first-child { font-size: 18px; font-weight: 760; text-wrap: balance; }
+.evidenceDisclosure > summary > span:last-child { color: var(--ink-3); font-size: 12px; line-height: 1.5; }
+.evidenceDisclosure > summary:focus-visible {
+  outline: 2px solid var(--se-accent);
+  outline-offset: 3px;
+}
+
+.evidenceDisclosureBody { padding: 0 clamp(20px, 4vw, 34px) clamp(20px, 4vw, 34px); }
+.evidenceDisclosureBody .coverageSection { padding-block-start: 36px; }
+.evidenceDisclosureBody .integrity { max-inline-size: none; margin-block-end: 0; }
+
 .integrity {
   max-inline-size: 82ch;
   margin-block: 48px 20px;
@@ -730,21 +827,50 @@
   inset-block-start: calc(var(--topbar-h) + 22px);
   max-block-size: calc(100dvh - var(--topbar-h) - 44px);
   overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 12px;
+  padding-inline-end: 4px;
   scrollbar-width: thin;
 }
 
 .lessonRail nav > strong { display: block; margin-block-end: 13px; font-size: 12px; }
-.lessonRail ol,
-.mobileCourseMap ol { list-style: none; margin: 0; padding: 0; }
 
-.lessonRail li + li,
-.mobileCourseMap li + li { margin-block-start: 3px; }
+.journeyUnitList,
+.journeyLessonList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.journeyUnit + .journeyUnit { margin-block-start: 15px; }
+
+.journeyUnitHeading {
+  display: grid;
+  grid-template-columns: 27px minmax(0, 1fr);
+  gap: 7px;
+  padding: 0 8px 6px;
+  color: var(--ink-2);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.journeyUnitHeading > span,
+.journeyLessonOrder {
+  color: var(--se-accent);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.journeyLessonList li + li { margin-block-start: 3px; }
 
 .lessonRail a,
 .mobileCourseMap a {
   display: grid;
-  grid-template-columns: 27px minmax(0, 1fr);
+  grid-template-columns: 27px minmax(0, 1fr) 18px;
   gap: 7px;
+  align-items: center;
+  min-block-size: 38px;
   border-radius: 8px;
   padding: 7px 8px;
   color: var(--ink-3);
@@ -753,14 +879,29 @@
   text-decoration: none;
 }
 
-.lessonRail a span,
-.mobileCourseMap a span { font-family: var(--mono); font-size: 9px; }
+.journeyLessonStatus {
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.journeyAssessment a {
+  border: 1px dashed var(--se-line);
+  background: color-mix(in srgb, var(--se-soft) 50%, transparent);
+  color: var(--ink-2);
+}
+
 .lessonRail a:hover,
 .mobileCourseMap a:hover { background: var(--bg-2); color: var(--ink); }
 .lessonRail a[aria-current="page"],
 .mobileCourseMap a[aria-current="page"] { background: var(--se-soft); color: var(--se-accent); font-weight: 750; }
 
 .mobileCourseMap { display: none; }
+
+.mobileCourseMap > summary { list-style: none; }
+.mobileCourseMap > summary::-webkit-details-marker { display: none; }
 
 .lessonMain {
   min-inline-size: 0;
@@ -1063,7 +1204,48 @@
 .takeaway span { color: var(--se-accent); font-family: var(--mono); font-size: 10px; font-weight: 800; text-transform: uppercase; }
 .takeaway p { margin: 6px 0 0; color: var(--ink); font-size: 18px; font-weight: 680; }
 
-.sources { margin-block-start: 64px; }
+.capstoneAnchor { scroll-margin-block-start: calc(var(--topbar-h) + 20px); }
+
+.sourcesDisclosure {
+  margin-block-start: 48px;
+  border-block: 1px solid var(--line);
+}
+
+.sourcesDisclosure > summary {
+  min-block-size: 52px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 760;
+  cursor: pointer;
+  list-style: none;
+}
+
+.sourcesDisclosure > summary::-webkit-details-marker { display: none; }
+
+.sourcesDisclosure > summary::before {
+  content: "+";
+  color: var(--se-accent);
+  font-family: var(--mono);
+  font-size: 18px;
+}
+
+.sourcesDisclosure[open] > summary::before { content: "−"; }
+.sourcesDisclosure > summary > span:last-child {
+  min-inline-size: 30px;
+  border-radius: 999px;
+  background: var(--se-soft);
+  padding: 3px 8px;
+  color: var(--se-accent);
+  font-family: var(--mono);
+  font-size: 10px;
+  text-align: center;
+}
+
+.sources { margin-block-start: 0; padding-block: 10px 22px; }
 .sources h2 { font-size: 25px; }
 .sources ol { list-style: none; margin: 20px 0 0; padding: 0; border-block-start: 1px solid var(--line); }
 .sources li { border-block-end: 1px solid var(--line); }
@@ -1123,12 +1305,50 @@
   .courseHero { grid-template-columns: 1fr; }
   .heroCopy { max-inline-size: 760px; }
   .heroImage { max-inline-size: 760px; }
-  .courseFacts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .courseFacts > p { grid-column: 1 / -1; margin-block-start: 15px; border-block-start: 1px solid var(--line-2); border-inline-start: 0; padding-block-start: 15px; padding-inline: 0; }
   .lessonLayout { display: block; }
   .lessonRail { display: none; }
-  .mobileCourseMap { display: block; margin-block: 0 28px; border: 1px solid var(--line); border-radius: 9px; background: var(--card); padding: 11px 13px; }
-  .mobileCourseMap nav { margin-block-start: 12px; border-block-start: 1px solid var(--line-2); padding-block-start: 10px; }
+  .mobileCourseMap {
+    position: sticky;
+    z-index: 25;
+    inset-block-start: calc(var(--topbar-h) + 8px);
+    display: block;
+    margin-block: 0 28px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--card) 94%, transparent);
+    padding-inline: 13px;
+    box-shadow: 0 14px 30px -26px rgb(17 28 43 / 65%);
+    backdrop-filter: blur(12px);
+  }
+  .mobileCourseMap summary {
+    min-block-size: 52px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 10px;
+    align-items: center;
+    font-size: 12px;
+  }
+  .mobileCourseMap summary::after {
+    content: "⌄";
+    color: var(--se-accent);
+    font-size: 16px;
+    font-weight: 800;
+  }
+  .mobileCourseMap[open] summary::after { transform: rotate(180deg); }
+  .mobileCourseMap summary > span:first-child { min-inline-size: 0; color: var(--ink); }
+  .mobileCourseMap summary > span:last-child { color: var(--se-accent); font-size: 11px; }
+  .mobileCourseMap nav {
+    max-block-size: min(65dvh, 560px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scroll-padding-block: 12px;
+    margin-block-end: 12px;
+    border-block-start: 1px solid var(--line-2);
+    padding-block-start: 12px;
+    scrollbar-width: thin;
+  }
+  .mobileCourseMap a { min-block-size: 44px; font-size: 12px; }
+  .mobileCourseMap .journeyUnit + .journeyUnit { margin-block-start: 18px; }
   .lessonMain { max-inline-size: 820px; margin-inline: auto; }
   .lifecycle ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .coverageGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1137,6 +1357,17 @@
 @media (max-width: 720px) {
   .coursePage,
   .lessonPage { padding-block-start: 24px; }
+  .coursePage :global(.shared-course-shell[data-course-shell-compact="true"] .shared-course-facts) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .progressManagement > section {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .progressManagement .actionRow,
+  .progressManagement .secondaryButton {
+    inline-size: 100%;
+  }
   .courseHero { gap: 28px; padding-block-start: 14px; }
   .courseHero h1,
   .lessonHero h1 { font-size: clamp(38px, 12vw, 54px); letter-spacing: -.04em; }
@@ -1156,12 +1387,11 @@
   .cardFigure { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cardFigure > div:nth-child(3) { grid-column: auto; }
   .coverageGrid { grid-template-columns: 1fr; }
+  .capstoneEntry { align-items: flex-start; flex-direction: column; }
+  .evidenceDisclosure > summary { min-block-size: 80px; }
 }
 
 @media (max-width: 520px) {
-  .courseFacts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .courseFacts > div { padding-inline: 10px; }
-  .courseFacts strong { font-size: 17px; }
   .lessonList a { grid-template-columns: 27px minmax(0, 1fr); }
   .lessonTime { grid-column: 2; }
   .splitFigure { grid-template-columns: 1fr; }
@@ -1173,6 +1403,17 @@
   .lessonPager { grid-template-columns: 1fr; }
   .lessonPager a:last-child { text-align: start; }
   .lifecycle ol { grid-template-columns: 1fr; }
+  .mobileCourseMap summary { grid-template-columns: minmax(0, 1fr) auto; }
+  .mobileCourseMap summary > span:last-child {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .capstoneEntry .primaryButton { inline-size: 100%; }
+  .evidenceDisclosure > summary { padding-inline: 15px; }
 }
 
 @media print {
@@ -1185,6 +1426,12 @@
   .progressPanel,
   .actionRow { display: none !important; }
   .lessonMain { max-inline-size: none; }
+  .sourcesDisclosure,
+  .evidenceDisclosure { border: 0; }
+  .sourcesDisclosure > summary,
+  .evidenceDisclosure > summary { display: none !important; }
+  .sourcesDisclosure > .sources,
+  .evidenceDisclosure > .evidenceDisclosureBody { display: block !important; padding-inline: 0; }
   .promptStudio,
   .practice,
   .checkpoint,

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  SOFTWARE_ENGINEERING_CAPSTONE,
   SOFTWARE_ENGINEERING_COVERAGE,
   SOFTWARE_ENGINEERING_FINAL_ASSESSMENT,
   SOFTWARE_ENGINEERING_MEDIA_BY_ID,
@@ -9,7 +8,11 @@ import {
   type MaterializedSoftwareEngineeringCourse,
   type SoftwareEngineeringUnitId,
 } from "@/lib/software-engineering";
-import CapstoneEvidence from "./CapstoneEvidence";
+import {
+  SOFTWARE_ENGINEERING_CAPSTONE_ID,
+  SOFTWARE_ENGINEERING_CAPSTONE_LESSON_SLUG,
+  softwareEngineeringLessonHref,
+} from "@/lib/software-engineering/journey";
 import CourseFigure from "./CourseFigure";
 import CourseProgress from "./CourseProgress";
 import FinalAssessment from "./FinalAssessment";
@@ -22,8 +25,11 @@ export default function CourseDashboard({
   course: MaterializedSoftwareEngineeringCourse;
 }) {
   const lessons = course.units.flatMap((unit) => unit.lessons);
-  const totalMinutes = lessons.reduce((sum, lesson) => sum + lesson.minutes, 0);
   const hrefFor = (slug: string) => `/${course.locale}/software-engineering/${slug}/`;
+  const capstoneHref = `${softwareEngineeringLessonHref(
+    course.locale,
+    SOFTWARE_ENGINEERING_CAPSTONE_LESSON_SLUG,
+  )}#${SOFTWARE_ENGINEERING_CAPSTONE_ID}`;
   const hero = SOFTWARE_ENGINEERING_MEDIA_BY_ID["codex-plan-ui"];
   const localizedText = { lang: course.locale, dir: "auto" as const };
 
@@ -32,12 +38,18 @@ export default function CourseDashboard({
       className={`shellwrap ${styles.seRoot} ${styles.coursePage}`}
       data-testid="software-engineering-course-dashboard"
     >
-      <CourseShell courseId="software-engineering" locale={course.locale} />
+      <CourseShell courseId="software-engineering" locale={course.locale} compact />
       {course.locale !== "en" ? (
         <p className={styles.languageNotice} lang={course.locale}>{course.copy.meta.languageNotice}</p>
       ) : null}
 
       <noscript><p className={styles.languageNotice}>{course.copy.ui.javascriptRequired}</p></noscript>
+
+      <CourseProgress
+        lessons={lessons.map((lesson) => ({ slug: lesson.slug, href: hrefFor(lesson.slug) }))}
+        labels={course.copy.ui}
+        managementOnly
+      />
 
       <header className={styles.courseHero} lang="en" dir="ltr">
         <div className={styles.heroCopy}>
@@ -61,13 +73,6 @@ export default function CourseDashboard({
         </div>
       </header>
 
-      <section className={styles.courseFacts} aria-label={course.copy.meta.title}>
-        <div><small>{course.copy.ui.lessons}</small><strong>{lessons.length}</strong></div>
-        <div><small>{course.copy.ui.minutes}</small><strong>{totalMinutes}</strong></div>
-        <div><small>{course.copy.ui.progress}</small><strong>{lessons.length + 2}</strong></div>
-        <p lang="en" dir="ltr">{SOFTWARE_ENGINEERING_OVERVIEW.duration}</p>
-      </section>
-
       <section className={styles.lifecycle} aria-labelledby="agentic-lifecycle-title">
         <p className={styles.kicker}>{course.copy.ui.course}</p>
         <h2 id="agentic-lifecycle-title" lang="en" dir="ltr">{SOFTWARE_ENGINEERING_OVERVIEW.lifecycleTitle}</h2>
@@ -78,11 +83,6 @@ export default function CourseDashboard({
         </ol>
         <p lang="en" dir="ltr">{SOFTWARE_ENGINEERING_OVERVIEW.lifecycleNote}</p>
       </section>
-
-      <CourseProgress
-        lessons={lessons.map((lesson) => ({ slug: lesson.slug, href: hrefFor(lesson.slug) }))}
-        labels={course.copy.ui}
-      />
 
       <section className={styles.curriculum} aria-labelledby="software-engineering-curriculum-title">
         <header>
@@ -119,23 +119,6 @@ export default function CourseDashboard({
         </div>
       </section>
 
-      <section className={styles.coverageSection} aria-labelledby="software-engineering-coverage-title">
-        <header>
-          <p className={styles.kicker}>{course.copy.ui.coverage}</p>
-          <h2 id="software-engineering-coverage-title" lang="en" dir="ltr">{SOFTWARE_ENGINEERING_OVERVIEW.coverageTitle}</h2>
-          <p lang="en" dir="ltr">{SOFTWARE_ENGINEERING_OVERVIEW.coverageIntro}</p>
-        </header>
-        <div className={styles.coverageGrid}>
-          {SOFTWARE_ENGINEERING_COVERAGE.map((entry) => (
-            <article key={entry.area} lang="en" dir="ltr">
-              <h3>{entry.area}</h3>
-              <p>{entry.requiredConcepts.join(" · ")}</p>
-              <span>{entry.lessonSlugs.map((slug) => lessons.find((lesson) => lesson.slug === slug)?.order).join(" / ")}</span>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <FinalAssessment
         bank={SOFTWARE_ENGINEERING_QUESTION_BANK}
         config={SOFTWARE_ENGINEERING_FINAL_ASSESSMENT}
@@ -152,21 +135,53 @@ export default function CourseDashboard({
         labels={course.copy.ui}
       />
 
-      <CapstoneEvidence
-        config={SOFTWARE_ENGINEERING_CAPSTONE}
-        labels={course.copy.ui}
-        locale={course.locale}
-      />
-
-      <aside className={styles.integrity} aria-labelledby="software-engineering-integrity-title">
-        <p className={styles.kicker}>{course.copy.ui.courseIntegrity}</p>
-        <div lang="en" dir="ltr">
-          <h2 id="software-engineering-integrity-title">{SOFTWARE_ENGINEERING_OVERVIEW.integrityTitle}</h2>
-          <p>{SOFTWARE_ENGINEERING_OVERVIEW.integrity}</p>
-          <p>{SOFTWARE_ENGINEERING_OVERVIEW.mediaIntegrity}</p>
-          <p><a href="/courses/software-engineering/NOTICE.md">Media notice and provenance ledger</a></p>
+      <section className={styles.capstoneEntry} aria-labelledby="software-engineering-capstone-entry-title">
+        <div>
+          <p className={styles.kicker}>{course.copy.ui.capstone}</p>
+          <h2 id="software-engineering-capstone-entry-title" lang="en" dir="ltr">
+            {SOFTWARE_ENGINEERING_OVERVIEW.capstone.dashboardTitle}
+          </h2>
+          <p lang="en" dir="ltr">{SOFTWARE_ENGINEERING_OVERVIEW.capstone.dashboardSummary}</p>
         </div>
-      </aside>
+        <Link className={styles.primaryButton} href={capstoneHref}>
+          {SOFTWARE_ENGINEERING_OVERVIEW.capstone.dashboardAction}<span aria-hidden="true">→</span>
+        </Link>
+      </section>
+
+      <details className={styles.evidenceDisclosure}>
+        <summary>
+          <span>{SOFTWARE_ENGINEERING_OVERVIEW.evidenceDisclosureTitle}</span>
+          <span>{SOFTWARE_ENGINEERING_OVERVIEW.evidenceDisclosureSummary}</span>
+        </summary>
+        <div className={styles.evidenceDisclosureBody}>
+          <section className={styles.coverageSection} aria-labelledby="software-engineering-coverage-title">
+            <header>
+              <p className={styles.kicker}>{course.copy.ui.coverage}</p>
+              <h2 id="software-engineering-coverage-title" lang="en" dir="ltr">{SOFTWARE_ENGINEERING_OVERVIEW.coverageTitle}</h2>
+              <p lang="en" dir="ltr">{SOFTWARE_ENGINEERING_OVERVIEW.coverageIntro}</p>
+            </header>
+            <div className={styles.coverageGrid}>
+              {SOFTWARE_ENGINEERING_COVERAGE.map((entry) => (
+                <article key={entry.area} lang="en" dir="ltr">
+                  <h3>{entry.area}</h3>
+                  <p>{entry.requiredConcepts.join(" · ")}</p>
+                  <span>{entry.lessonSlugs.map((slug) => lessons.find((lesson) => lesson.slug === slug)?.order).join(" / ")}</span>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <aside className={styles.integrity} aria-labelledby="software-engineering-integrity-title">
+            <p className={styles.kicker}>{course.copy.ui.courseIntegrity}</p>
+            <div lang="en" dir="ltr">
+              <h2 id="software-engineering-integrity-title">{SOFTWARE_ENGINEERING_OVERVIEW.integrityTitle}</h2>
+              <p>{SOFTWARE_ENGINEERING_OVERVIEW.integrity}</p>
+              <p>{SOFTWARE_ENGINEERING_OVERVIEW.mediaIntegrity}</p>
+              <p><a href="/courses/software-engineering/NOTICE.md">Media notice and provenance ledger</a></p>
+            </div>
+          </aside>
+        </div>
+      </details>
 
       <p className={styles.backLink}>
         <Link href={`/${course.locale}/courses/`}><span aria-hidden="true">←</span>{course.copy.ui.backToCatalog}</Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   isSoftwareEngineeringCapstoneSubmission,
   isSoftwareEngineeringQuizPassed,
@@ -22,14 +22,18 @@ import { useI18n } from "../I18nProvider";
 export default function CourseProgress({
   lessons,
   labels,
+  managementOnly = false,
 }: {
   lessons: readonly { readonly slug: SoftwareEngineeringLessonSlug; readonly href: string }[];
   labels: SoftwareEngineeringLocaleCopy["ui"];
+  managementOnly?: boolean;
 }) {
   const { t } = useI18n();
   const progress = useSoftwareEngineeringProgress();
   const storageAvailable = useSoftwareEngineeringStorageAvailable();
   const [resetStatus, setResetStatus] = useState("");
+  const [resetSucceeded, setResetSucceeded] = useState<boolean | null>(null);
+  const resetStatusRef = useRef<HTMLParagraphElement>(null);
 
   const state = useMemo(() => {
     const lessonCount = lessons.filter((lesson) => progress[softwareEngineeringLessonKey(lesson.slug)] === true).length;
@@ -48,6 +52,63 @@ export default function CourseProgress({
   }, [lessons, progress]);
 
   const hasProgress = Object.keys(progress).some((key) => key.startsWith("softwareEngineering."));
+
+  function handleReset() {
+    if (!window.confirm(labels.resetConfirm)) return;
+    const persisted = resetSoftwareEngineeringProgress();
+    setResetSucceeded(persisted);
+    setResetStatus(persisted ? labels.resetDone : labels.storageUnavailable);
+    window.requestAnimationFrame(() => resetStatusRef.current?.focus());
+  }
+
+  const resetControls = (
+    <>
+      <button
+        className={styles.secondaryButton}
+        type="button"
+        disabled={!hasProgress}
+        onClick={handleReset}
+      >
+        {labels.resetProgress}
+      </button>
+      <p
+        className={!resetStatus
+          ? styles.srOnly
+          : resetSucceeded
+            ? styles.resetStatus
+            : styles.storageWarning}
+        data-reset-outcome={resetSucceeded === null
+          ? undefined
+          : resetSucceeded
+            ? "success"
+            : "failure"}
+        data-testid="software-engineering-reset-status"
+        ref={resetStatusRef}
+        role="status"
+        tabIndex={-1}
+      >
+        {resetStatus}
+      </p>
+    </>
+  );
+
+  if (managementOnly) {
+    return (
+      <details
+        className={`${styles.progressPanel} ${styles.progressManagement}`}
+        data-testid="software-engineering-progress-management"
+      >
+        <summary>{labels.resetProgress}</summary>
+        <section aria-label={labels.resetProgress}>
+          <p>{labels.browserStorageNote}</p>
+          {!storageAvailable ? (
+            <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p>
+          ) : null}
+          <div className={styles.actionRow}>{resetControls}</div>
+        </section>
+      </details>
+    );
+  }
 
   return (
     <section className={styles.progressPanel} aria-labelledby="software-engineering-progress-title">
@@ -76,20 +137,8 @@ export default function CourseProgress({
             {state.courseCompleted ? t("cat.review") : hasProgress ? labels.resumeCourse : labels.startCourse}<span aria-hidden="true">→</span>
           </Link>
         ) : null}
-        <button
-          className={styles.secondaryButton}
-          type="button"
-          disabled={!hasProgress}
-          onClick={() => {
-            if (!window.confirm(labels.resetConfirm)) return;
-            resetSoftwareEngineeringProgress();
-            setResetStatus(labels.resetDone);
-          }}
-        >
-          {labels.resetProgress}
-        </button>
+        {resetControls}
       </div>
-      <p className={resetStatus ? styles.resetStatus : styles.srOnly} role="status">{resetStatus}</p>
     </section>
   );
 }

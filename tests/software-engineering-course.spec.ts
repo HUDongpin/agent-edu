@@ -4,7 +4,10 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "../e2e/fixtures";
 import {
   SOFTWARE_ENGINEERING_CAPSTONE,
+  SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY,
+  SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY,
   SOFTWARE_ENGINEERING_COURSE_MANIFEST,
+  SOFTWARE_ENGINEERING_CORE_LESSON_SLUGS,
   SOFTWARE_ENGINEERING_COVERAGE,
   SOFTWARE_ENGINEERING_FINAL_ASSESSMENT,
   SOFTWARE_ENGINEERING_LESSONS,
@@ -27,6 +30,7 @@ import {
 } from "./published-course-test-helpers";
 
 const DASHBOARD = "/en/software-engineering/";
+const CAPSTONE = "/en/software-engineering/capstone-safe-change/#capstone-checklist";
 
 const localeCopy = Object.fromEntries(
   SOFTWARE_ENGINEERING_LOCALES.map((locale) => [
@@ -102,6 +106,16 @@ function unitFrequency(units: readonly string[]) {
       units.filter((candidate) => candidate === unit).length,
     ]),
   );
+}
+
+async function courseResetButton(page: Page) {
+  const button = page.getByRole("button", { name: english.ui.resetProgress });
+  if (!await button.isVisible()) {
+    const management = page.getByTestId("software-engineering-progress-management");
+    if (await management.count()) await management.locator("summary").click();
+  }
+  await expect(button).toBeVisible();
+  return button;
 }
 
 test.describe("Course 8 contract and static curriculum", () => {
@@ -187,14 +201,18 @@ test.describe("Course 8 contract and static curriculum", () => {
     await expect(dashboard.locator(
       'section[aria-labelledby="software-engineering-coverage-title"] article',
     )).toHaveCount(18);
-    const progressBar = dashboard.getByRole("progressbar", {
-      name: english.ui.progress,
-      exact: true,
-    });
-    await expect(progressBar).toHaveAttribute("max", "20");
-    await expect(progressBar).toHaveAttribute("value", "0");
+    const progressBar = dashboard.locator(".course-shell-progress [role=progressbar]");
+    await expect(progressBar).toHaveAttribute("aria-valuemin", "0");
+    await expect(progressBar).toHaveAttribute("aria-valuemax", "100");
+    await expect(progressBar).toHaveAttribute("aria-valuenow", "0");
+    await expect(dashboard.locator(".course-shell-action")).toHaveCount(1);
     await expect(page.getByTestId("software-engineering-final-assessment")).toBeVisible();
-    await expect(page.getByTestId("software-engineering-capstone")).toBeVisible();
+    await expect(dashboard.locator(
+      'section[aria-labelledby="software-engineering-capstone-entry-title"] a',
+    )).toHaveAttribute(
+      "href",
+      "/en/software-engineering/capstone-safe-change/#capstone-checklist",
+    );
 
     const hero = dashboard.locator('figure[data-media-id="codex-plan-ui"]');
     await expect(hero).toBeVisible();
@@ -371,6 +389,36 @@ test.describe("localization, metadata, and discovery", () => {
     });
   });
 
+  test("language selection keeps the dashboard and late lesson on real fallback routes", async ({ page }) => {
+    const cases = [
+      {
+        path: `${DASHBOARD}#final-assessment`,
+        requestedLocale: "es",
+        expectedPath: "/en/software-engineering/?fromLocale=es#final-assessment",
+        contentTestId: "software-engineering-course-dashboard",
+      },
+      {
+        path: "/en/software-engineering/capstone-safe-change/#capstone-checklist",
+        requestedLocale: "ar",
+        expectedPath: "/en/software-engineering/capstone-safe-change/?fromLocale=ar#capstone-checklist",
+        contentTestId: "software-engineering-lesson-capstone-safe-change",
+      },
+    ] as const;
+
+    for (const { path, requestedLocale, expectedPath, contentTestId } of cases) {
+      const response = await page.goto(path);
+      expect(response?.status(), path).toBe(200);
+      const origin = new URL(page.url()).origin;
+
+      await page.getByRole("button", { name: /Language:/ }).click();
+      await page.locator(`[role="menuitem"][lang="${requestedLocale}"]`).click();
+
+      await expect(page).toHaveURL(`${origin}${expectedPath}`);
+      await expect(page.getByTestId(contentTestId)).toBeVisible();
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    }
+  });
+
   test("the Arabic catalogue remains RTL and declares the English course language", async ({ page }) => {
     await page.goto("/ar/courses/");
     await expect(page.locator("html")).toHaveAttribute("lang", "ar");
@@ -500,26 +548,45 @@ test.describe("private progress, assessment, and capstone", () => {
     });
 
     await page.goto("/en/software-engineering/agentic-engineering-system/");
-    await page.getByRole("button", { name: english.ui.markComplete }).click();
-    await expect(page.getByRole("button", { name: english.ui.completed }))
-      .toBeDisabled();
+    const markComplete = page.getByRole("button", { name: english.ui.markComplete });
+    await markComplete.focus();
+    // Verify keyboard-focus retention across engines. WebKit intentionally does
+    // not focus buttons after a pointer click on macOS, so a click-based
+    // assertion would test browser chrome convention rather than our state swap.
+    await markComplete.press("Enter");
+    const completed = page.getByRole("button", { name: english.ui.completed });
+    await expect(completed).toHaveAttribute("aria-disabled", "true");
+    await expect(completed).toHaveCSS("cursor", "default");
+    await expect(completed).toBeFocused();
     await page.reload();
     await expect(page.getByRole("button", { name: english.ui.completed }))
-      .toBeDisabled();
+      .toHaveAttribute("aria-disabled", "true");
 
     await page.goto(DASHBOARD);
-    const progress = page.locator(
-      'section[aria-labelledby="software-engineering-progress-title"] progress',
-    );
-    await expect(progress).toHaveAttribute("value", "1");
-    await expect(progress).toHaveAttribute("max", "20");
+    const progress = page.locator(".course-shell-progress [role=progressbar]");
+    await expect(progress).toHaveAttribute("aria-valuenow", "5");
+
+    let reset = await courseResetButton(page);
+    page.once("dialog", async (dialog) => {
+      expect(dialog.message()).toBe(english.ui.resetConfirm);
+      await dialog.dismiss();
+    });
+    await reset.focus();
+    await reset.press("Enter");
+    await expect(reset).toBeFocused();
+    await expect(page.getByTestId("software-engineering-reset-status")).toHaveText("");
 
     page.once("dialog", async (dialog) => {
       expect(dialog.message()).toBe(english.ui.resetConfirm);
       await dialog.accept();
     });
-    await page.getByRole("button", { name: english.ui.resetProgress }).click();
-    await expect(page.getByText(english.ui.resetDone, { exact: true })).toBeVisible();
+    reset = await courseResetButton(page);
+    await reset.focus();
+    await reset.press("Enter");
+    const resetStatus = page.getByTestId("software-engineering-reset-status");
+    await expect(resetStatus).toHaveText(english.ui.resetDone);
+    await expect(resetStatus).toHaveAttribute("data-reset-outcome", "success");
+    await expect(resetStatus).toBeFocused();
 
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(stored).toEqual({
@@ -548,9 +615,135 @@ test.describe("private progress, assessment, and capstone", () => {
     await expect(page.locator('figure[data-media-id="claude-cowork-ui"] img')).toBeVisible();
     await page.getByRole("button", { name: english.ui.markComplete }).click();
     await expect(page.getByRole("button", { name: english.ui.completed }))
-      .toBeDisabled();
+      .toHaveAttribute("aria-disabled", "true");
     await expect(page.getByText(english.ui.storageUnavailable, { exact: true })).toBeVisible();
+    await page.goto(CAPSTONE);
+    await expect(page.getByTestId("software-engineering-capstone")
+      .getByText(english.ui.storageUnavailable, { exact: true })).toBeVisible();
     await context.close();
+  });
+
+  test("assessment draft survives reload and its shared hash action focuses the heading", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    await page.getByRole("button", { name: english.ui.beginAssessment }).click();
+
+    let assessment = page.getByTestId("software-engineering-final-assessment");
+    let form = assessment.locator("form[data-question-id]");
+    const firstQuestionId = await form.getAttribute("data-question-id");
+    expect(firstQuestionId).toBeTruthy();
+    await form.locator('input[type="radio"]').nth(1).check();
+    await form.getByRole("button", { name: english.ui.checkAnswer }).click();
+    await form.getByRole("button", { name: english.ui.nextQuestion }).click();
+
+    form = assessment.locator("form[data-question-id]");
+    await expect(form).not.toHaveAttribute("data-question-id", firstQuestionId!);
+    const restoredQuestionId = await form.getAttribute("data-question-id");
+    expect(restoredQuestionId).toBeTruthy();
+    await form.locator('input[type="radio"]').nth(2).check();
+
+    const storedDraft = await page.evaluate((key) => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      return record[key];
+    }, SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY);
+    expect(storedDraft).toMatchObject({
+      version: 1,
+      bankVersion: SOFTWARE_ENGINEERING_FINAL_ASSESSMENT.bankVersion,
+      questionIndex: 1,
+      selectedIndex: 2,
+    });
+
+    await page.reload();
+    assessment = page.getByTestId("software-engineering-final-assessment");
+    form = assessment.locator("form[data-question-id]");
+    await expect(form).toHaveAttribute("data-question-id", restoredQuestionId!);
+    await expect(form.locator('input[type="radio"]').nth(2)).toBeChecked();
+    await expect(assessment.getByRole("button", { name: english.ui.beginAssessment }))
+      .toHaveCount(0);
+
+    await page.evaluate((slugs) => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      for (const slug of slugs) record[`softwareEngineering.lesson.${slug}`] = true;
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+    }, SOFTWARE_ENGINEERING_CORE_LESSON_SLUGS);
+    await page.goto(`${DASHBOARD}?fromLocale=ar`);
+
+    const assessmentHeading = page.getByRole("heading", {
+      level: 2,
+      name: english.ui.finalAssessment,
+      exact: true,
+    });
+    const sharedAction = page.locator(
+      '.course-shell-action[href$="#final-assessment"]',
+    );
+    await expect(page.locator('a[href$="#final-assessment"]')).toHaveCount(1);
+    await expect(sharedAction).toBeVisible();
+
+    await sharedAction.click();
+    await expect(page).toHaveURL(`${DASHBOARD}?fromLocale=ar#final-assessment`);
+    await expect(assessmentHeading).toBeFocused();
+    await assessment.getByRole("button", { name: english.ui.checkAnswer }).focus();
+    await sharedAction.click();
+    await expect(assessmentHeading).toBeFocused();
+  });
+
+  test("reset failure announces storage unavailability instead of persistence success", async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL });
+    await context.addInitScript(() => {
+      const originalSetItem = Storage.prototype.setItem;
+      originalSetItem.call(localStorage, "ae.progress", JSON.stringify({
+        "softwareEngineering.lesson.agentic-engineering-system": true,
+      }));
+      Storage.prototype.setItem = function setItem(key: string, value: string) {
+        if (this === localStorage && key === "ae.progress") {
+          throw new DOMException("Storage write denied", "QuotaExceededError");
+        }
+        return originalSetItem.call(this, key, value);
+      };
+    });
+    const page = await context.newPage();
+    await page.goto(DASHBOARD);
+    const reset = await courseResetButton(page);
+    page.once("dialog", async (dialog) => dialog.accept());
+    await reset.click();
+
+    const resetStatus = page.getByTestId("software-engineering-reset-status");
+    await expect(resetStatus).toHaveText(english.ui.storageUnavailable);
+    await expect(resetStatus).toHaveAttribute("data-reset-outcome", "failure");
+    await expect(resetStatus).not.toContainText(english.ui.resetDone);
+    await expect(resetStatus).toBeFocused();
+    await context.close();
+  });
+
+  test("shared journey action resumes active assessment and capstone drafts before incomplete lessons", async ({ page }) => {
+    await page.goto(DASHBOARD);
+    const sharedAction = page.locator("[data-course-journey-action]");
+    await expect(sharedAction).toHaveAttribute(
+      "href",
+      "/en/software-engineering/agentic-engineering-system/",
+    );
+
+    await page.getByRole("button", { name: english.ui.beginAssessment }).click();
+    await expect(page.getByTestId("software-engineering-final-assessment")
+      .locator("form[data-question-id]")).toBeVisible();
+    await page.reload();
+    await expect(sharedAction).toHaveAttribute(
+      "href",
+      "/en/software-engineering/#final-assessment",
+    );
+
+    await page.evaluate(() => localStorage.removeItem("ae.progress"));
+    await page.goto(CAPSTONE);
+    const capstone = page.getByTestId("software-engineering-capstone");
+    await capstone
+      .getByRole("group", { name: english.ui.capstoneArtifacts })
+      .locator('input[type="checkbox"]')
+      .first()
+      .check();
+    await page.goto(DASHBOARD);
+    await expect(sharedAction).toHaveAttribute(
+      "href",
+      "/en/software-engineering/capstone-safe-change/#capstone-checklist",
+    );
   });
 
   test("eleven of fifteen fails and the exact twelve-of-fifteen boundary passes", async ({ page }) => {
@@ -601,7 +794,7 @@ test.describe("private progress, assessment, and capstone", () => {
       expect(dialog.message()).toBe(english.ui.resetConfirm);
       await dialog.accept();
     });
-    await page.getByRole("button", { name: english.ui.resetProgress }).click();
+    await (await courseResetButton(page)).click();
     await expect(assessment.getByRole("button", { name: english.ui.beginAssessment }))
       .toBeVisible();
     await expect(assessment.getByRole("status")).toHaveCount(0);
@@ -614,7 +807,7 @@ test.describe("private progress, assessment, and capstone", () => {
         "softwareEngineering.lesson.agentic-engineering-system": true,
       }));
     });
-    await page.reload();
+    await page.goto(CAPSTONE);
     const capstone = page.getByTestId("software-engineering-capstone");
     const validationBoundary = capstone.locator('aside[aria-label="Validation boundary"]');
     await expect(validationBoundary).toHaveAttribute("lang", "en");
@@ -651,6 +844,7 @@ test.describe("private progress, assessment, and capstone", () => {
     await expect(artifacts).toHaveCount(8);
     await expect(gates).toHaveCount(5);
     await expect(attestation).toHaveCount(1);
+    await expect(score).toHaveValue("");
     await expect(artifacts.first().locator("xpath=ancestor::fieldset[1]"))
       .toHaveAttribute("aria-invalid", "true");
     await expect(artifacts.first().locator("xpath=ancestor::fieldset[1]"))
@@ -667,16 +861,45 @@ test.describe("private progress, assessment, and capstone", () => {
     await expect(attestation).toHaveAttribute("aria-describedby", "capstone-validation-feedback");
 
     await artifacts.first().check();
+    await expect(validationFeedback).toBeVisible();
+    await expect(artifacts.first().locator("xpath=ancestor::fieldset[1]"))
+      .toHaveAttribute("aria-invalid", "true");
+    await gates.first().check();
     await score.fill("79");
     await decision.selectOption("do-not-release");
     await attestation.check();
+
+    const storedDraft = await page.evaluate((key) => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      return record[key];
+    }, SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY);
+    expect(storedDraft).toMatchObject({
+      version: 1,
+      capstoneSchemaVersion: SOFTWARE_ENGINEERING_CAPSTONE.schemaVersion,
+      artifactIds: [SOFTWARE_ENGINEERING_CAPSTONE.artifactIds[0]],
+      reviewedGateIds: [SOFTWARE_ENGINEERING_CAPSTONE.releaseGates[0].id],
+      score: 79,
+      decision: "do-not-release",
+      safetyBoundaryAttested: true,
+    });
+
+    await page.reload();
+    await expect(artifacts.first()).toBeChecked();
+    await expect(gates.first()).toBeChecked();
+    await expect(score).toHaveValue("79");
+    await expect(decision).toHaveValue("do-not-release");
+    await expect(attestation).toBeChecked();
+
+    await page.goto(DASHBOARD);
     page.once("dialog", async (dialog) => {
       expect(dialog.message()).toBe(english.ui.resetConfirm);
       await dialog.accept();
     });
-    await page.getByRole("button", { name: english.ui.resetProgress }).click();
+    await (await courseResetButton(page)).click();
+    await page.goto(CAPSTONE);
     await expect(artifacts.first()).not.toBeChecked();
-    await expect(score).toHaveValue("0");
+    await expect(gates.first()).not.toBeChecked();
+    await expect(score).toHaveValue("");
     await expect(decision).toHaveValue("");
     await expect(attestation).not.toBeChecked();
 
@@ -690,10 +913,9 @@ test.describe("private progress, assessment, and capstone", () => {
 
     await score.fill("80");
     await submit.click();
-    await expect(capstone.getByText(english.ui.capstoneComplete, { exact: true })).toBeVisible();
-    await expect(page.locator(
-      'section[aria-labelledby="software-engineering-progress-title"] progress',
-    )).toHaveAttribute("value", "1");
+    const completedStatus = capstone.getByText(english.ui.capstoneComplete, { exact: true });
+    await expect(completedStatus).toBeVisible();
+    await expect(completedStatus).toBeFocused();
 
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     expect(stored[SOFTWARE_ENGINEERING_CAPSTONE.progressKey]).toEqual({
@@ -706,7 +928,10 @@ test.describe("private progress, assessment, and capstone", () => {
       safetyBoundaryAttested: true,
     });
 
-    await page.reload();
+    await page.goto(DASHBOARD);
+    await expect(page.locator(".course-shell-progress [role=progressbar]"))
+      .toHaveAttribute("aria-valuenow", "5");
+    await page.goto(CAPSTONE);
     const reloaded = page.getByTestId("software-engineering-capstone");
     await expect(reloaded.getByText(english.ui.capstoneComplete, { exact: true })).toBeVisible();
     await expect(reloaded.getByRole("spinbutton", { name: /Self-assessed rubric score/ }))
@@ -734,15 +959,17 @@ test.describe("private progress, assessment, and capstone", () => {
     }
     await expect(reloadedAttestation).toBeChecked();
 
+    await page.goto(DASHBOARD);
     page.once("dialog", async (dialog) => {
       expect(dialog.message()).toBe(english.ui.resetConfirm);
       await dialog.accept();
     });
-    await page.getByRole("button", { name: english.ui.resetProgress }).click();
+    await (await courseResetButton(page)).click();
+    await page.goto(CAPSTONE);
     await expect(reloadedArtifacts.first()).not.toBeChecked();
     await expect(reloadedGates.first()).not.toBeChecked();
     await expect(reloaded.getByRole("spinbutton", { name: /Self-assessed rubric score/ }))
-      .toHaveValue("0");
+      .toHaveValue("");
     await expect(reloaded.getByRole("combobox", { name: "Recorded release decision" }))
       .toHaveValue("");
     await expect(reloadedAttestation).not.toBeChecked();

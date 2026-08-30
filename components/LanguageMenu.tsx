@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LOCALES, LOCALE_CODES, metaFor } from "@/lib/i18n";
+import {
+  PUBLIC_PUBLISHED_COURSE_SURFACES,
+  publicCourseHrefFor,
+  withPublicCourseReturnLocale,
+} from "@/lib/public-release-surface";
 import { useI18n } from "./I18nProvider";
 import Icon from "./Icon";
 
@@ -65,13 +70,25 @@ export default function LanguageMenu() {
     // swap only the locale segment, so you stay on the page you were reading
     const rest = pathname.split("/").filter(Boolean);
     if (LOCALE_CODES.includes(rest[0])) rest.shift();
+    const pathWithoutLocale = `/${rest.join("/")}${rest.length ? "/" : ""}`;
+    const hash = window.location.hash;
+    const course = PUBLIC_PUBLISHED_COURSE_SURFACES.find(({ href }) => (
+      href && (pathWithoutLocale === href || pathWithoutLocale.startsWith(href))
+    ));
+    let destination = `/${code}${pathWithoutLocale}${hash}`;
+    if (course) {
+      const courseHref = publicCourseHrefFor(course.id, code);
+      if (!courseHref || !course.href) return;
+      const childSuffix = pathWithoutLocale.slice(course.href.length);
+      destination = withPublicCourseReturnLocale(`${courseHref}${childSuffix}${hash}`, code);
+    }
     try {
       localStorage.setItem("ae.lang", code);
     } catch {
       /* private browsing */
     }
     setOpen(false);
-    router.push(`/${code}/${rest.join("/")}${rest.length ? "/" : ""}`);
+    router.push(destination);
   }
 
   return (
