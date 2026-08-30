@@ -60,6 +60,11 @@ __pycache__/
 # these into a public repo.
 2026*_claude suggestions*.md
 
+# Generated review aids: bulk source text, regenerated per candidate by
+# `npm run review:packet`. docs/release/evidence/ holds sanitized conclusions,
+# not 250KB of strings per locale.
+review-packets/
+
 # Junk
 .DS_Store
 npm-debug.log*
