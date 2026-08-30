@@ -49,7 +49,10 @@ export interface LearningStateV2 {
 
 export interface HandbookProgress {
   readonly status: LearningStatus;
+  /** Course completion requires both the full route and a submitted assessment. */
   readonly completed: boolean;
+  /** Any finished ten-answer run, independent of its score. */
+  readonly assessmentSubmitted: boolean;
   readonly exploredSections: number;
   readonly totalSections: number;
   readonly lastSection: HandbookSectionId;
@@ -72,7 +75,20 @@ export interface LabProgress {
 export type CourseProgress =
   | {
       readonly kind: "tracked";
-      readonly courseId: "handbook" | "lab";
+      readonly courseId: "handbook";
+      readonly status: LearningStatus;
+      /** A display measure, not a claim of mastery. */
+      readonly current: number;
+      readonly total: number;
+      readonly percent: number;
+      /** Submission is evidence of completing the activity, not a mastery claim. */
+      readonly assessmentSubmitted: boolean;
+      readonly completedRuns: number;
+      readonly bestScore?: number;
+    }
+  | {
+      readonly kind: "tracked";
+      readonly courseId: "lab";
       readonly status: LearningStatus;
       /** A display measure, not a claim of mastery. */
       readonly current: number;
@@ -361,14 +377,16 @@ function stateWithLabReset(state: LearningStateV2): LearningStateV2 {
 }
 
 export function selectHandbookProgress(state: LearningStateV2): HandbookProgress {
-  const completed = state.handbook.controlRoom.completedRuns > 0;
+  const assessmentSubmitted = state.handbook.controlRoom.completedRuns > 0;
   const exploredSections = state.handbook.visitedSections.length;
+  const completed = assessmentSubmitted && exploredSections === HANDBOOK_SECTION_IDS.length;
   const status: LearningStatus = completed
     ? "completed"
-    : exploredSections > 0 ? "in-progress" : "not-started";
+    : exploredSections > 0 || assessmentSubmitted ? "in-progress" : "not-started";
   return {
     status,
     completed,
+    assessmentSubmitted,
     exploredSections,
     totalSections: HANDBOOK_SECTION_IDS.length,
     lastSection: state.handbook.lastSection,
@@ -408,6 +426,9 @@ export function selectCourseProgress(state: LearningStateV2, courseId: string): 
       current: progress.exploredSections,
       total: progress.totalSections,
       percent: Math.round((progress.exploredSections / progress.totalSections) * 100),
+      assessmentSubmitted: progress.assessmentSubmitted,
+      completedRuns: progress.completedRuns,
+      ...(progress.bestScore === undefined ? {} : { bestScore: progress.bestScore }),
     };
   }
   if (courseId === "lab") {

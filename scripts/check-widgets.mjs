@@ -136,8 +136,7 @@ for (const m of behaviour.matchAll(/\bC\.([thp])\s*\(/g)) {
 const TRUSTED_MARKUP_SITES = [
   "trustedMarkup`<code>if</code>`",
   "trustedMarkup`<code>expect(x).toBe(y)</code>`",
-  "trustedMarkup`<a href=\"../build/\">${C.t('w.progress.done.link')}</a>`",
-  "trustedMarkup`<a href=\"../lab/\">${C.t('w.progress.next.lab.link')}</a>`",
+  "trustedMarkup`<a href=\"../lab/\">${C.t('w.progress.continueLab.link')}</a>`",
 ];
 const COPY_IMPORT = 'import { trustedMarkup, type Copy } from "@/lib/handbook/copy";';
 const copyImports = [...behaviour.matchAll(/from\s+["']@\/lib\/handbook\/copy["']/g)].length;
@@ -403,7 +402,7 @@ const NOISE = [
   /^<code>[^<]*<\/code>$/, /^<span class="tok-[ks]">/, /^text = text\./,
   // The only dynamic text in these reviewed internal-link skeletons is still
   // a widget key; `trustedMarkup` escapes its result before composing the tag.
-  /^<a href="\.\.\/(?:build|lab)\/">\$\{C\.t\('w\.progress\.(?:done|next\.lab)\.link'\)\}<\/a>$/,
+  /^<a href="\.\.\/lab\/">\$\{C\.t\('w\.progress\.continueLab\.link'\)\}<\/a>$/,
   /^"<\/span>\).*<span class="tok-k">return/, /^"<\/span>;$/,
   /^<span>text === "/, /^" &nbsp;→&nbsp;$/, /^[SL]$/,
   /^":"L","price":$/, /^","price":$/, /^\{\n\s*"items": \[$/,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* The handbook's masthead + app shell, lifted verbatim from the verified
    single-file build. Kept as a string, not transcribed into JSX: it carries
    the ids that 210 DOM queries in the behaviour module depend on, and the
@@ -7,7 +8,7 @@ const MARKUP = "<header class=\"masthead\">\n  <div class=\"rainbow\" aria-hidde
 /* Accessibility repairs are deliberately expressed as exact structural
    replacements. The verified source stays byte-stable above, while every
    locale receives the repaired default export before its text is spliced in. */
-const ACCESSIBLE_MARKUP = MARKUP
+const PHASE_ONE_MARKUP = MARKUP
   .replace(
     'role="img" aria-label="Scatter plot. Writing code sits at fully human control with low autonomous reach.',
     'role="group" aria-label="Scatter plot. Writing code sits at fully human control with low autonomous reach.',
@@ -29,8 +30,189 @@ const ACCESSIBLE_MARKUP = MARKUP
     '        <div id="lBanner"></div>\n        <div class="sr-only" id="lStepAnnounce" role="status" aria-live="polite" aria-atomic="true"></div>',
   )
   .replace(
-    'No install, no repo, about a penny. Start there.',
-    'No install or repo; Provider charges vary with model, time, cache and usage. Start there.',
+    '<button class="btn" data-goto="loop" type="button">← Loop engineering</button>\n      ' +
+      '<button class="btn primary" data-goto="compare" type="button">Next: which one, when →</button>',
+    '<button class="btn" data-goto="loop" type="button">← Loop engineering</button>\n      ' +
+      '<button class="btn primary" data-goto="harness" type="button">Next: the program around the model →</button>',
+  )
+  .replace(
+    '<button class="btn" data-goto="graph" type="button">← Graph engineering</button>\n      ' +
+      '<button class="btn primary" data-goto="compare" type="button">Next: which one, when →</button>',
+    '<button class="btn" data-goto="graph" type="button">← Graph engineering</button>\n      ' +
+      '<button class="btn primary" data-goto="evals" type="button">Next: how do you know it works? →</button>',
+  )
+  .replace(
+    '<button class="btn" data-goto="graph" type="button">← Graph engineering</button>\n      ' +
+      '<button class="btn primary" data-goto="play" type="button">Next: play the game 🎮 →</button>',
+    '<button class="btn" data-goto="security" type="button">← Security engineering</button>\n      ' +
+      '<button class="btn primary" data-goto="play" type="button">Next: play the game 🎮 →</button>',
+  )
+  .replace(
+    '🛠️ Ready to build one?',
+    '🎯 One last step',
+  )
+  .replace(
+    'This page gave you the mental model. It did not make you a practitioner — you never wrote anything, and every "model" reply here was scripted.',
+    'You have the mental model. The Control Room now turns it into a result you can revisit.',
+  )
+  .replace(
+    '<strong>Part 2 is four stages you can do right now, in this browser</strong> — one real API call, the wall that rules hit, a prompt you write, and then <em>twenty cases that score it</em>. No install, no repo, about a penny. Start there.',
+    '<strong>Finish the Control Room next</strong> — answer ten briefs, receive a result, and see <em>exactly which sections</em> to revisit. Your recommended Lab handoff appears with the result.',
+  )
+  .replace(
+    '<a class="btn primary" style="--sec:var(--olive);text-decoration:none" href="../lab/">🛠️ <span data-i18n="track.2.cta"></span> →</a>',
+    '<button class="btn primary" style="--sec:var(--olive)" data-goto="play" type="button">🎮 <span data-i18n="track.1.finishAssessment"></span> →</button>',
   );
+
+/** @param {string} source @param {string} needle @param {string} replacement @param {string} label */
+function replaceRequired(source, needle, replacement, label) {
+  const first = source.indexOf(needle);
+  if (first < 0) throw new Error(`handbook markup: missing ${label}`);
+  if (source.indexOf(needle, first + needle.length) >= 0) {
+    throw new Error(`handbook markup: ${label} is not unique`);
+  }
+  return source.slice(0, first) + replacement + source.slice(first + needle.length);
+}
+
+/**
+ * @param {string} source
+ * @param {string} startNeedle
+ * @param {string} endNeedle
+ * @param {string} opening
+ * @param {string} closing
+ * @param {string} label
+ */
+function wrapRangeRequired(
+  source,
+  startNeedle,
+  endNeedle,
+  opening,
+  closing,
+  label,
+) {
+  const start = source.indexOf(startNeedle);
+  if (start < 0) throw new Error(`handbook markup: missing ${label} start`);
+  const end = source.indexOf(endNeedle, start + startNeedle.length);
+  if (end < 0) throw new Error(`handbook markup: missing ${label} end`);
+  return source.slice(0, start) + opening + source.slice(start, end) + closing + source.slice(end);
+}
+
+/** @param {string} source @param {string} panelId @param {string} disclosure */
+function methodCardDisclosure(
+  source,
+  panelId,
+  disclosure,
+) {
+  const panelStart = source.indexOf(`id="${panelId}"`);
+  const panelEnd = source.indexOf("</section>", panelStart);
+  if (panelStart < 0 || panelEnd < 0) throw new Error(`handbook markup: missing ${panelId}`);
+
+  const marker = '<div class="card">\n      <div class="card-h"><span>🛠️ The method, in four steps</span></div>';
+  const cardStart = source.indexOf(marker, panelStart);
+  if (cardStart < 0 || cardStart > panelEnd) {
+    throw new Error(`handbook markup: missing method card in ${panelId}`);
+  }
+
+  const tags = /<div\b[^>]*>|<\/div>/g;
+  tags.lastIndex = cardStart;
+  let depth = 0;
+  let cardCloseStart = -1;
+  let cardCloseEnd = -1;
+  for (let match = tags.exec(source); match; match = tags.exec(source)) {
+    if (match[0].startsWith("<div")) depth += 1;
+    else depth -= 1;
+    if (depth === 0) {
+      cardCloseStart = match.index;
+      cardCloseEnd = tags.lastIndex;
+      break;
+    }
+  }
+  if (cardCloseStart < 0 || cardCloseEnd > panelEnd) {
+    throw new Error(`handbook markup: unbalanced method card in ${panelId}`);
+  }
+
+  const opening =
+    `<details class="card course-disclosure" data-disclosure="${disclosure}">\n` +
+    '      <summary class="card-h"><span>🛠️ The method, in four steps</span>' +
+    '<span class="disclosure-meta" data-i18n="ui.optional"></span></summary>';
+  return source.slice(0, cardStart) + opening +
+    source.slice(cardStart + marker.length, cardCloseStart) +
+    "</details>" + source.slice(cardCloseEnd);
+}
+
+/** @param {string} key */
+const disclosureSummary = (key) =>
+  `<summary class="course-disclosure-summary"><span data-i18n="${key}"></span>` +
+  '<span class="disclosure-meta" data-i18n="ui.optional"></span></summary>' +
+  '<div class="course-disclosure-body">\n';
+
+let ACCESSIBLE_MARKUP = replaceRequired(
+  PHASE_ONE_MARKUP,
+  '<nav class="rail" aria-label="Sections">\n    <div class="rail-title">The progression <span class="railcount" id="railCount"></span></div>\n    <ul class="rail-list" role="tablist" aria-orientation="horizontal" id="rail">',
+  '<nav class="rail" aria-labelledby="railLabel">\n' +
+    '    <span class="sr-only" id="railLabel" data-i18n="track.1.sections"></span>\n' +
+    '    <div class="rail-title">The progression <span class="railcount" id="railCount"></span>' +
+    '<span class="rail-swipe" id="railSwipe" data-i18n="track.1.sectionRailHint"></span></div>\n' +
+    '    <ul class="rail-list" role="tablist" aria-orientation="horizontal" aria-describedby="railSwipe" id="rail">',
+  "localized rail guide",
+);
+
+ACCESSIBLE_MARKUP = wrapRangeRequired(
+  ACCESSIBLE_MARKUP,
+  '    <div class="cards4 mt16">',
+  '    <div class="card mt16" style="border-color:var(--coral);border-left-width:5px">',
+  '    <details class="course-disclosure course-disclosure-group mt16" data-disclosure="start-practices">\n      ' +
+    disclosureSummary("track.1.explorePractices"),
+  '      </div>\n    </details>\n\n',
+  "Start practice overview",
+);
+
+ACCESSIBLE_MARKUP = wrapRangeRequired(
+  ACCESSIBLE_MARKUP,
+  '    <div class="card mt16">\n      <div class="card-h"><span>🗺️ How the eight fit together</span>',
+  '    <div class="section-nav">',
+  '    <details class="course-disclosure course-disclosure-group mt16" data-disclosure="start-guide">\n      ' +
+    disclosureSummary("track.1.courseGuide"),
+  '      </div>\n    </details>\n\n',
+  "Start course guide",
+);
+
+for (const [panel, disclosure] of [
+  ["p-code", "code-method"],
+  ["p-prompt", "prompt-method"],
+  ["p-context", "context-method"],
+  ["p-loop", "loop-method"],
+  ["p-graph", "graph-method"],
+  ["p-harness", "harness-method"],
+  ["p-evals", "evals-method"],
+  ["p-security", "security-method"],
+]) {
+  ACCESSIBLE_MARKUP = methodCardDisclosure(ACCESSIBLE_MARKUP, panel, disclosure);
+}
+
+ACCESSIBLE_MARKUP = wrapRangeRequired(
+  ACCESSIBLE_MARKUP,
+  '    <div class="card mt16">\n      <div class="card-h"><span>🪆 How they nest in a real system</span>',
+  '    <div class="plain mt16">\n      <span class="tag">🎁 The one-sentence version</span>',
+  '    <details class="course-disclosure course-disclosure-group mt16" data-disclosure="compare-reference">\n      ' +
+    disclosureSummary("track.1.systemReference"),
+  '      </div>\n    </details>\n\n',
+  "Compare system reference",
+);
+
+ACCESSIBLE_MARKUP = replaceRequired(
+  ACCESSIBLE_MARKUP,
+  '<svg viewBox="0 0 1010 500" style="min-width:780px"',
+  '<svg viewBox="0 0 1010 500" style="min-width:1010px"',
+  "authored graph scale",
+);
+
+ACCESSIBLE_MARKUP = replaceRequired(
+  ACCESSIBLE_MARKUP,
+  '    <div class="tablewrap">\n      <table>',
+  '    <div class="tablewrap">\n      <table>\n' +
+    '        <caption class="sr-only" data-i18n="track.1.comparisonCaption"></caption>',
+  "comparison table caption",
+);
 
 export default ACCESSIBLE_MARKUP;

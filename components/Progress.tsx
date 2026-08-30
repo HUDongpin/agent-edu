@@ -31,7 +31,8 @@ export default function Progress({ locale }: { locale: string }) {
     {
       label: t("track.1.title"),
       done: handbook.completed,
-      note: `${handbook.exploredSections} ${t("ui.of")} ${handbook.totalSections}`,
+      note: `${t(handbook.assessmentSubmitted ? "ui.assessmentSubmitted" : "ui.assessmentNotSubmitted")} · ` +
+        `${t("ui.sectionsExplored")} ${handbook.exploredSections} ${t("ui.of")} ${handbook.totalSections}`,
     },
     {
       label: t("track.2.title"),
@@ -57,7 +58,16 @@ export default function Progress({ locale }: { locale: string }) {
           {t("home.progReset")}
         </button>
       </div>
-      <div className="progbar"><span style={{ width: `${(done / items.length) * 100}%` }} /></div>
+      <div
+        className="progbar"
+        role="progressbar"
+        aria-label={t("home.progTitle")}
+        aria-valuemin={0}
+        aria-valuemax={items.length}
+        aria-valuenow={done}
+      >
+        <span style={{ width: `${(done / items.length) * 100}%` }} />
+      </div>
       <ul className="proglist">
         {items.map((i) => (
           <li key={i.label} className={i.done ? "done" : ""}>
