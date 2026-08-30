@@ -11,6 +11,9 @@ import {
   MATH_ANIMATION_CAPSTONE_KEY,
   MATH_ANIMATION_CODE_EXAMPLES,
   MATH_ANIMATION_COURSE_MANIFEST,
+  MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH,
+  MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH,
+  MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH,
   MATH_ANIMATION_MIN_ARTIFACT_EVIDENCE_LENGTH,
   MATH_ANIMATION_MIN_CAPSTONE_EVIDENCE_LENGTH,
   MATH_ANIMATION_MIN_VERIFICATION_EVIDENCE_LENGTH,
@@ -177,6 +180,51 @@ test("each module has a strict two-evidence gate plus a passed checkpoint", () =
   assert.equal([...evidenceGateSource.matchAll(/<textarea\b/g)].length, 2);
   assert.match(evidenceGateSource, /mathAnimationModuleArtifactEvidenceKey/);
   assert.match(evidenceGateSource, /mathAnimationModuleVerificationEvidenceKey/);
+});
+
+test("partial evidence drafts survive normalization exactly within explicit limits", () => {
+  const slug = MATH_ANIMATION_MODULE_SLUGS[0];
+  const artifactKey = mathAnimationModuleArtifactEvidenceKey(slug);
+  const verificationKey = mathAnimationModuleVerificationEvidenceKey(slug);
+  const completionKey = mathAnimationModuleProgressKey(slug);
+  const artifactDraft = "  draft/path\n";
+  const verificationDraft = "command pending";
+  const capstoneDraft = "independent review still in progress";
+
+  const normalized = normalizeMathAnimationProgress({
+    [MATH_ANIMATION_PROGRESS_VERSION_KEY]: MATH_ANIMATION_PROGRESS_VERSION,
+    [artifactKey]: artifactDraft,
+    [verificationKey]: verificationDraft,
+    [MATH_ANIMATION_CAPSTONE_EVIDENCE_KEY]: capstoneDraft,
+    [completionKey]: true,
+  });
+
+  assert.equal(normalized[artifactKey], artifactDraft);
+  assert.equal(normalized[verificationKey], verificationDraft);
+  assert.equal(normalized[MATH_ANIMATION_CAPSTONE_EVIDENCE_KEY], capstoneDraft);
+  assert.equal(normalized[completionKey], undefined);
+
+  const bounded = normalizeMathAnimationProgress({
+    [MATH_ANIMATION_PROGRESS_VERSION_KEY]: MATH_ANIMATION_PROGRESS_VERSION,
+    [artifactKey]: "a".repeat(MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH + 25),
+    [verificationKey]: "v".repeat(MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH + 25),
+    [MATH_ANIMATION_CAPSTONE_EVIDENCE_KEY]: "c".repeat(
+      MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH + 25,
+    ),
+  });
+
+  assert.equal(
+    (bounded[artifactKey] as string).length,
+    MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH,
+  );
+  assert.equal(
+    (bounded[verificationKey] as string).length,
+    MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH,
+  );
+  assert.equal(
+    (bounded[MATH_ANIMATION_CAPSTONE_EVIDENCE_KEY] as string).length,
+    MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH,
+  );
 });
 
 test("the assessment is an 80 percent gate and cannot trust a forged pass flag", async () => {

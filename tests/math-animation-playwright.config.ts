@@ -8,22 +8,35 @@ const baseURL = externalBaseUrl ?? `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: ".",
   testMatch: "math-animation-course.spec.ts",
-  outputDir: "../.playwright-raw/math-animation",
+  outputDir: "../output/playwright/math-animation-results",
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
   workers: 1,
-  reporter: [["list"]],
+  reporter: [
+    ["list"],
+    ["html", { outputFolder: "../output/playwright/math-animation-report", open: "never" }],
+  ],
   use: {
     baseURL,
-    screenshot: "off",
-    trace: "off",
-    video: "off",
+    screenshot: "only-on-failure",
+    trace: "retain-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "firefox-smoke",
+      grep: /@browser-smoke/,
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit-smoke",
+      grep: /@browser-smoke/,
+      use: { ...devices["Desktop Safari"] },
     },
   ],
   webServer: externalBaseUrl

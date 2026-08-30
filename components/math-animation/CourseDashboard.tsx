@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  MATH_ANIMATION_TOTAL_MINUTES,
   getMathAnimationSource,
   type MaterializedMathAnimationCourse,
   type RepositoryScoreBreakdown,
@@ -10,8 +11,10 @@ import AnimationPreview, { type AnimationPreviewLabels } from "./AnimationPrevie
 import PipelineMap, { type PipelineMapLabels } from "./PipelineMap";
 import {
   CapstoneChecklist,
+  CourseJourneyAction,
   CourseProgress,
   FinalAssessment,
+  ModuleCompletionStatus,
 } from "./Interactions";
 import { SourceTraceDisclosure } from "./SourceTraceLinks";
 import styles from "./MathAnimationCourse.module.css";
@@ -118,8 +121,12 @@ export default function CourseDashboard({
   catalogLabel: string;
 }) {
   const chinese = course.contentLocale === "zh-Hans";
+  const courseHref = `/${course.locale}/math-animation/`;
   const hrefFor = (slug: string) => `/${course.locale}/math-animation/${slug}/`;
-  const first = course.modules[0];
+  const moduleJourneys = course.modules.map((module) => ({
+    slug: module.slug,
+    href: hrefFor(module.slug),
+  }));
   const uniqueSources = Array.from(new Map(
     course.modules.flatMap((module) => module.sources).map((source) => [source.id, source]),
   ).values());
@@ -127,6 +134,11 @@ export default function CourseDashboard({
   const verdicts: readonly RepositoryVerdict[] = ["core", "advanced", "extension", "companion"];
   const scoreLabels = scoreBreakdownLabels(chinese);
   const numberFormatter = new Intl.NumberFormat(course.contentLocale);
+  const dateFormatter = new Intl.DateTimeFormat(course.contentLocale, {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  });
+  const catalogArrow = course.locale === "ar" ? "→" : "←";
 
   return (
     <div
@@ -145,7 +157,7 @@ export default function CourseDashboard({
           lang={course.locale !== course.contentLocale ? course.locale : undefined}
           dir={course.locale === "ar" ? "rtl" : undefined}
         >
-          <span aria-hidden="true">←</span>{catalogLabel}
+          <span aria-hidden="true">{catalogArrow}</span>{catalogLabel}
         </Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{course.copy.ui.courseNumber}</span>
@@ -154,10 +166,15 @@ export default function CourseDashboard({
       <header className={styles.hero}>
         <div className={styles.heroCopy}>
           <p className={styles.kicker}>{course.copy.meta.kicker}</p>
-          <h1>{course.copy.meta.title}</h1>
+          <h1 data-course19-heading tabIndex={-1}>{course.copy.meta.title}</h1>
           <p className={styles.heroSummary}>{course.copy.meta.summary}</p>
           <div className={styles.heroActions}>
-            <Link className={styles.primaryButton} href={hrefFor(first.slug)}>{course.copy.ui.start}</Link>
+            <CourseJourneyAction
+              modules={moduleJourneys}
+              labels={course.copy.ui}
+              overviewHref={courseHref}
+              className={styles.primaryButton}
+            />
             <a className={styles.secondaryButton} href="#course-map">{course.copy.ui.curriculum}</a>
           </div>
         </div>
@@ -179,13 +196,23 @@ export default function CourseDashboard({
       <section className={styles.factStrip} aria-label={chinese ? "课程信息" : "Course facts"}>
         <div><strong>{course.modules.length}</strong><span>{course.copy.ui.modules}</span></div>
         <div><strong>{course.manifest.phases.length}</strong><span>{course.copy.ui.phases}</span></div>
-        <div><strong>805</strong><span>{course.copy.ui.minutes}</span></div>
+        <div><strong>{numberFormatter.format(MATH_ANIMATION_TOTAL_MINUTES)}</strong><span>{course.copy.ui.minutes}</span></div>
         <div><strong>{uniqueSources.length}</strong><span>{course.copy.ui.sources}</span></div>
       </section>
 
+      <nav className={styles.journeyNav} aria-label={chinese ? "本页导航" : "On this page"}>
+        <a href="#course-map">{course.copy.ui.curriculum}</a>
+        <a href="#motion-lab">{course.copy.ui.motionLab}</a>
+        <a href="#math-animation-assessment">{course.copy.ui.finalAssessment}</a>
+        <a href="#math-animation-capstone">{course.copy.ui.capstone}</a>
+        <a href="#repository-lab">{course.copy.ui.repositoryLab}</a>
+      </nav>
+
       <CourseProgress
-        modules={course.modules.map((module) => ({ slug: module.slug, href: hrefFor(module.slug) }))}
+        modules={moduleJourneys}
         labels={course.copy.ui}
+        overviewHref={courseHref}
+        showJourneyAction={false}
       />
 
       <section className={styles.promise} aria-labelledby="course-outcomes-title">
@@ -202,10 +229,84 @@ export default function CourseDashboard({
         </ol>
       </section>
 
-      <PipelineMap className={styles.visualSection} labels={pipelineLabels(chinese)} />
-      <AnimationPreview className={styles.visualSection} locale={course.contentLocale} labels={animationLabels(chinese)} />
+      <section className={styles.goalChooser} aria-labelledby="course-goal-title">
+        <header className={styles.sectionIntro}>
+          <p className={styles.sectionLabel}>{course.copy.ui.chooseGoal}</p>
+          <h2 id="course-goal-title">
+            {chinese ? "先按你要交付的作品选择路线" : "Choose the route that matches what you need to ship"}
+          </h2>
+          <p>
+            {chinese
+              ? "三条路线共享数学真值、场景契约与验收证据；工具链从目标出发。"
+              : "All three routes share the same mathematical truth, scene contract, and verification evidence. The toolchain follows the outcome."}
+          </p>
+        </header>
+        <div className={styles.goalGrid}>
+          <Link href={hrefFor("manim-environment-first-scene")}>
+            <span>{course.copy.ui.goalVideo}</span>
+            <strong>Manim Community</strong>
+            <small>{course.copy.ui.recommendation}</small>
+          </Link>
+          <Link href={hrefFor("motion-canvas-web-track")}>
+            <span>{course.copy.ui.goalWeb}</span>
+            <strong>Motion Canvas</strong>
+            <small>{course.copy.ui.recommendation}</small>
+          </Link>
+          <Link href={hrefFor("voice-slides-remotion")}>
+            <span>{course.copy.ui.goalTalk}</span>
+            <strong>Manim Slides + Voiceover</strong>
+            <small>{course.copy.ui.recommendation}</small>
+          </Link>
+        </div>
+      </section>
 
-      <section className={styles.repositoryLab} aria-labelledby="repository-lab-title">
+      <section
+        className={styles.courseMap}
+        id="course-map"
+        aria-labelledby="course-map-title"
+        tabIndex={-1}
+      >
+        <header className={styles.sectionIntro}>
+          <p className={styles.sectionLabel}>{course.copy.ui.curriculum}</p>
+          <h2 id="course-map-title">{chinese ? "从数学目标到可审计发布" : "From mathematical goal to auditable release"}</h2>
+          <p>{course.copy.meta.evidenceNote}</p>
+        </header>
+        <div className={styles.phaseStack}>
+          {course.phases.map((phase) => (
+            <section className={styles.phase} key={phase.id}>
+              <header><span>{String(phase.order).padStart(2, "0")}</span><div><h3>{phase.copy.title}</h3><p>{phase.copy.summary}</p></div></header>
+              <ol>
+                {phase.modules.map((module) => (
+                  <li key={module.slug}>
+                    <Link href={hrefFor(module.slug)}>
+                      <span>{String(module.order).padStart(2, "0")}</span>
+                      <div><strong>{module.copy.title}</strong><small>{module.minutes} {course.copy.ui.minutes}</small></div>
+                      <ModuleCompletionStatus slug={module.slug} labels={course.copy.ui} />
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))}
+        </div>
+      </section>
+
+      <PipelineMap className={styles.visualSection} labels={pipelineLabels(chinese)} />
+      <AnimationPreview
+        id="motion-lab"
+        tabIndex={-1}
+        className={styles.visualSection}
+        locale={course.contentLocale}
+        labels={animationLabels(chinese)}
+      />
+
+      <section
+        className={styles.repositoryLab}
+        id="repository-lab"
+        aria-labelledby="repository-lab-title"
+        tabIndex={-1}
+      >
         <header className={styles.sectionIntro}>
           <p className={styles.sectionLabel}>{course.copy.ui.repositoryLab}</p>
           <h2 id="repository-lab-title">{chinese ? "九个仓库，四种课程角色，一套公开量表" : "Nine repositories, four course roles, one public rubric"}</h2>
@@ -216,6 +317,13 @@ export default function CourseDashboard({
             <a href="/courses/math-animation/starter-kit/README.md">{chinese ? "阅读安装说明" : "Read setup guide"}</a>
           </div>
         </header>
+
+        <details className={styles.repositoryDisclosure}>
+          <summary>
+            <span>{chinese ? "查看全部仓库评分与证据" : "Review every repository scorecard and its evidence"}</span>
+            <strong>{numberFormatter.format(course.repositories.length)}</strong>
+          </summary>
+          <div className={styles.repositoryDisclosureBody}>
 
         {verdicts.map((verdict) => {
           const records = course.repositories.filter((repository) => repository.verdict === verdict);
@@ -261,7 +369,7 @@ export default function CourseDashboard({
                                 <dt>{chinese ? "默认分支最新提交" : "Default branch head"}</dt>
                                 <dd>
                                   <time dateTime={repository.adoptionSnapshot.defaultBranchHeadDate}>
-                                    {repository.adoptionSnapshot.defaultBranchHeadDate}
+                                    {dateFormatter.format(new Date(`${repository.adoptionSnapshot.defaultBranchHeadDate}T00:00:00Z`))}
                                   </time>
                                 </dd>
                               </div>
@@ -273,7 +381,7 @@ export default function CourseDashboard({
                                       <>
                                         <code>{repository.adoptionSnapshot.latestRelease}</code>
                                         <time dateTime={repository.adoptionSnapshot.latestReleasePublishedOn}>
-                                          {repository.adoptionSnapshot.latestReleasePublishedOn}
+                                          {dateFormatter.format(new Date(`${repository.adoptionSnapshot.latestReleasePublishedOn}T00:00:00Z`))}
                                         </time>
                                       </>
                                     ) : (
@@ -285,7 +393,7 @@ export default function CourseDashboard({
                                 <dt>{chinese ? "采集日期" : "Captured"}</dt>
                                 <dd>
                                   <time dateTime={repository.adoptionSnapshot.capturedOn}>
-                                    {repository.adoptionSnapshot.capturedOn}
+                                    {dateFormatter.format(new Date(`${repository.adoptionSnapshot.capturedOn}T00:00:00Z`))}
                                   </time>
                                 </dd>
                               </div>
@@ -327,32 +435,8 @@ export default function CourseDashboard({
         <p className={styles.rubricNote}>{chinese
           ? "量表权重：数学语义 20、确定时间轴 15、代理可读性 15、预览 10、导出 10、维护 10、许可 10、无障碍 5、生态 5。"
           : "Rubric weights: math semantics 20, deterministic timeline 15, agent readability 15, preview 10, export 10, maintenance 10, license 10, accessibility 5, ecosystem 5."}</p>
-      </section>
-
-      <section className={styles.courseMap} id="course-map" aria-labelledby="course-map-title">
-        <header className={styles.sectionIntro}>
-          <p className={styles.sectionLabel}>{course.copy.ui.curriculum}</p>
-          <h2 id="course-map-title">{chinese ? "从数学目标到可审计发布" : "From mathematical goal to auditable release"}</h2>
-          <p>{course.copy.meta.evidenceNote}</p>
-        </header>
-        <div className={styles.phaseStack}>
-          {course.phases.map((phase) => (
-            <section className={styles.phase} key={phase.id}>
-              <header><span>{String(phase.order).padStart(2, "0")}</span><div><h3>{phase.copy.title}</h3><p>{phase.copy.summary}</p></div></header>
-              <ol>
-                {phase.modules.map((module) => (
-                  <li key={module.slug}>
-                    <Link href={hrefFor(module.slug)}>
-                      <span>{String(module.order).padStart(2, "0")}</span>
-                      <div><strong>{module.copy.title}</strong><small>{module.minutes} {course.copy.ui.minutes}</small></div>
-                      <span aria-hidden="true">→</span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ))}
-        </div>
+          </div>
+        </details>
       </section>
 
       <FinalAssessment questions={course.copy.assessment} labels={course.copy.ui} />
@@ -390,7 +474,7 @@ export default function CourseDashboard({
           href={`/${course.locale}/courses/`}
           lang={course.locale !== course.contentLocale ? course.locale : undefined}
           dir={course.locale === "ar" ? "rtl" : undefined}
-        ><span aria-hidden="true">←</span>{catalogLabel}</Link>
+        ><span aria-hidden="true">{catalogArrow}</span>{catalogLabel}</Link>
       </p>
     </div>
   );

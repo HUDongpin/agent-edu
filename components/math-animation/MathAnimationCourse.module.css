@@ -24,6 +24,14 @@
   font: inherit;
 }
 
+.root :where(a, button, input, summary) {
+  touch-action: manipulation;
+}
+
+.root :where(section[id], h2[id], h3[id]) {
+  scroll-margin-block-start: calc(var(--topbar-h) + 84px);
+}
+
 .root :where(a, button, input, textarea, summary):focus-visible {
   outline: 3px solid var(--ma-accent);
   outline-offset: 3px;
@@ -237,6 +245,41 @@
   font-size: .78rem;
 }
 
+.journeyNav {
+  position: sticky;
+  z-index: 8;
+  top: calc(var(--topbar-h) + 8px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  margin-block: 0 24px;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--ma-radius-card) + 2px);
+  padding: 7px;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.journeyNav a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  border-radius: var(--ma-radius-control);
+  padding: 8px 12px;
+  color: var(--ink-2);
+  font-size: .78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.journeyNav a:hover {
+  background: var(--ma-accent-soft);
+  color: var(--ma-accent);
+}
+
 .progressPanel {
   display: grid;
   grid-template-columns: minmax(180px, .38fr) minmax(260px, 1fr) minmax(220px, auto);
@@ -262,15 +305,51 @@
 }
 
 .progressPanel progress {
+  grid-column: 2;
+  grid-row: 1;
   width: 100%;
   height: 12px;
   accent-color: var(--ma-accent);
+}
+
+.progressPanel > div:first-child {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+.progressPanel > p[id="math-animation-progress-breakdown"] {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: .76rem;
+  line-height: 1.5;
+}
+
+.progressPanel > .storageNote,
+.progressPanel > .storageWarning {
+  grid-column: 2;
+  grid-row: 3;
+  margin: 0;
 }
 
 .progressActions {
   grid-column: 3;
   grid-row: 1;
   justify-content: end;
+}
+
+.progressPanel > .statusLine {
+  grid-column: 3;
+  grid-row: 3;
+}
+
+.compactProgressValue {
+  margin: 4px 0 0 !important;
+  font-family: var(--mono);
+  font-size: 2.1rem !important;
+  font-weight: 760;
+  line-height: 1 !important;
 }
 
 .storageNote,
@@ -325,6 +404,64 @@
   line-height: 1.68;
 }
 
+.goalChooser {
+  margin-block: 0 72px;
+  border-block: 1px solid var(--line);
+  padding-block: 44px;
+}
+
+.goalChooser .sectionIntro h2 {
+  margin: 9px 0 14px;
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  letter-spacing: -.045em;
+  line-height: 1.03;
+  text-wrap: balance;
+}
+
+.goalGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.goalGrid a {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 12px;
+  min-height: 164px;
+  border: 1px solid var(--line);
+  border-radius: var(--ma-radius-card);
+  padding: 20px;
+  background: var(--card);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.goalGrid a:hover {
+  border-color: var(--ma-accent);
+  background: color-mix(in srgb, var(--ma-accent-soft) 44%, var(--card));
+}
+
+.goalGrid span {
+  color: var(--ink-2);
+  font-size: .9rem;
+}
+
+.goalGrid strong {
+  align-self: center;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.2;
+}
+
+.goalGrid small {
+  color: var(--ma-accent);
+  font-family: var(--mono);
+  font-size: .66rem;
+  font-weight: 720;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
 .outcomeGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -369,6 +506,10 @@
   margin-block: 96px 0;
 }
 
+.courseMap {
+  margin-block-start: 48px;
+}
+
 .sectionIntro {
   max-width: 830px;
   margin-block-end: 38px;
@@ -376,6 +517,76 @@
 
 .downloadLinks {
   margin-block-start: 20px;
+}
+
+.repositoryDisclosure {
+  border: 1px solid var(--ma-accent-line);
+  border-radius: var(--ma-radius-card);
+  background: color-mix(in srgb, var(--ma-accent-soft) 26%, var(--card));
+}
+
+.repositoryDisclosure > summary {
+  display: flex;
+  min-height: 64px;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 760;
+  list-style: none;
+}
+
+.repositoryDisclosure > summary::-webkit-details-marker,
+.sourceLedgerDisclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.repositoryDisclosure > summary > span,
+.sourceLedgerDisclosure > summary > span {
+  flex: 1 1 auto;
+}
+
+.repositoryDisclosure > summary::after,
+.sourceLedgerDisclosure > summary::after {
+  width: 18px;
+  flex: 0 0 18px;
+  color: var(--ma-accent);
+  content: "+";
+  font-family: var(--mono);
+  font-size: 1rem;
+  text-align: center;
+}
+
+.repositoryDisclosure[open] > summary::after,
+.sourceLedgerDisclosure[open] > summary::after {
+  content: "−";
+}
+
+.repositoryDisclosure > summary strong,
+.sourceLedgerDisclosure > summary strong {
+  display: grid;
+  min-width: 36px;
+  min-height: 36px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ma-accent-soft);
+  color: var(--ma-accent);
+  font-family: var(--mono);
+  font-size: .72rem;
+}
+
+.repositoryDisclosure[open] > summary {
+  border-block-end: 1px solid var(--ma-accent-line);
+}
+
+.repositoryDisclosureBody {
+  padding: 0 18px 22px;
+}
+
+.repositoryDisclosure:not([open]) > .repositoryDisclosureBody {
+  display: none;
 }
 
 .repositoryGroup {
@@ -604,7 +815,7 @@
 
 .phase > ol a {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) auto;
+  grid-template-columns: 32px minmax(0, 1fr) auto auto;
   gap: 12px;
   align-items: center;
   min-height: 74px;
@@ -630,6 +841,13 @@
   gap: 3px;
 }
 
+.moduleCompletionStatus {
+  color: var(--ma-success);
+  font-family: var(--mono);
+  font-size: .72rem;
+  font-weight: 800;
+}
+
 .assessment,
 .capstoneIntro,
 .capstoneChecklist,
@@ -648,6 +866,15 @@
   gap: 24px;
   align-items: end;
   margin-block-end: 24px;
+}
+
+.assessmentThreshold {
+  display: block;
+  margin-block-start: -6px;
+  color: var(--ma-accent);
+  font-family: var(--mono);
+  font-size: 1.35rem;
+  line-height: 1;
 }
 
 .assessment form {
@@ -950,9 +1177,9 @@
 
 .moduleMap a {
   display: grid;
-  grid-template-columns: 25px minmax(0, 1fr);
+  grid-template-columns: 25px minmax(0, 1fr) auto;
   gap: 7px;
-  min-height: 42px;
+  min-height: 44px;
   align-items: center;
   border-radius: 7px;
   padding: 6px 7px;
@@ -1052,6 +1279,33 @@
   color: var(--ink);
   font-size: .82rem;
   line-height: 1.45;
+}
+
+.moduleOutline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-block: 28px 48px;
+  border-block: 1px solid var(--line);
+  padding-block: 12px;
+}
+
+.moduleOutline a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  border-radius: var(--ma-radius-control);
+  padding: 7px 10px;
+  color: var(--ink-2);
+  font-size: .74rem;
+  font-weight: 680;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.moduleOutline a:hover {
+  background: var(--ma-accent-soft);
+  color: var(--ma-accent);
 }
 
 .objective {
@@ -1207,7 +1461,7 @@
   position: absolute;
   inset-block-end: 12px;
   inset-inline-end: 12px;
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid var(--ma-accent);
   border-radius: var(--ma-radius-control);
   padding: 8px 13px;
@@ -1300,18 +1554,39 @@
   margin: 0;
 }
 
-.sources > ol {
+.sourceLedgerDisclosure > ol {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.sources > ol > li {
+.sourceLedgerDisclosure > ol > li {
   display: grid;
   grid-template-columns: 38px minmax(0, 1fr);
   gap: 16px;
   border-block-start: 1px solid var(--line);
   padding-block: 20px;
+}
+
+.sourceLedgerDisclosure {
+  border-block: 1px solid var(--line);
+}
+
+.sourceLedgerDisclosure > summary {
+  display: flex;
+  min-height: 58px;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 10px;
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 740;
+  list-style: none;
+}
+
+.sourceLedgerDisclosure[open] > summary {
+  border-block-end: 1px solid var(--line);
 }
 
 .sources header > h3 {
@@ -1686,6 +1961,16 @@
     grid-template-columns: 1fr;
   }
 
+  .progressPanel > div:first-child,
+  .progressPanel progress,
+  .progressPanel > p[id="math-animation-progress-breakdown"],
+  .progressPanel > .storageNote,
+  .progressPanel > .storageWarning,
+  .progressPanel > .statusLine {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
   .progressActions {
     grid-column: auto;
     grid-row: auto;
@@ -1703,7 +1988,8 @@
   }
 
   .repositoryGrid,
-  .phaseStack {
+  .phaseStack,
+  .goalGrid {
     grid-template-columns: 1fr;
   }
 
@@ -1720,11 +2006,15 @@
   }
 
   .mobileMap {
+    position: sticky;
+    z-index: 9;
+    top: calc(var(--topbar-h) + 8px);
     display: block;
     margin-block-end: 24px;
     border: 1px solid var(--line);
     border-radius: var(--ma-radius-control);
     background: var(--card);
+    box-shadow: var(--shadow);
   }
 
   .mobileMap summary {
@@ -1737,7 +2027,54 @@
     font-weight: 720;
   }
 
+  .mobileMapTitle {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+  }
+
+  .mobileMapTitle small {
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: .58rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  .mobileMapTitle strong {
+    overflow: hidden;
+    font-size: .82rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileMapStatus {
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 12px;
+    align-items: center;
+    color: var(--ink-2);
+    font-family: var(--mono);
+    font-size: .74rem;
+  }
+
+  .mobileMapChevron {
+    width: 9px;
+    height: 9px;
+    border-inline-end: 2px solid currentColor;
+    border-block-end: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 160ms ease;
+  }
+
+  .mobileMap[open] .mobileMapChevron {
+    transform: rotate(225deg);
+  }
+
   .mobileMap nav {
+    max-height: min(60dvh, 520px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     border-block-start: 1px solid var(--line);
     padding: 4px 14px 16px;
   }
@@ -1850,7 +2187,8 @@
   .primaryButton,
   .secondaryButton,
   .completeButton,
-  .downloadLinks a {
+  .downloadLinks a,
+  .mobileMapChevron {
     transition: none;
   }
 }
@@ -1858,11 +2196,13 @@
 @media print {
   .heroActions,
   .progressPanel,
+  .journeyNav,
   .downloadLinks,
   .assessment button,
   .capstoneChecklist button,
   .moduleRail,
   .mobileMap,
+  .moduleOutline,
   .promptBox button,
   .checkpoint button,
   .evidenceGate button,
@@ -1895,6 +2235,11 @@
   }
 
   .sourceTraceDisclosure > * {
+    display: block !important;
+  }
+
+  .repositoryDisclosureBody,
+  .sourceLedgerDisclosure > ol {
     display: block !important;
   }
 }
