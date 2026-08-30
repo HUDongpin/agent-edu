@@ -325,6 +325,7 @@
   "c.ai-teaching.blurb": "Diseña agentes dirigidos por docentes para planificar, tutorizar, dar retroalimentación, investigar y evaluar, con aprobación humana, protección infantil y de datos, y evidencia del aprendizaje.",
   "c.ai-teaching.level": "De principiante a avanzado",
   "c.ai-teaching.meta": "10 módulos · 12 h · evaluación final · proyecto de portafolio de evidencias",
+  "c.ai-teaching.contentLanguage": "Contenido del curso: inglés",
   "c.responsibleAi.title": "IA responsable y evaluación",
   "c.responsibleAi.blurb": "Mide la calidad, el coste y el riesgo, y diseña la supervisión antes de que un flujo de trabajo con IA llegue al mundo real.",
   "c.responsibleAi.level": "De principiante a intermedio",
@@ -479,6 +480,7 @@
   "c.agent-orchestration.level": "Intermedio a avanzado",
   "c.agent-orchestration.meta": "15 módulos · 17 h 40 min · 6 laboratorios deterministas · evaluación y proyecto final",
   "cat.course15": "Curso 15",
+  "cat.course18": "Curso 18",
   "home.q5": "¿Dónde se guarda mi progreso?",
   "home.a5": "Los hitos de los cursos y tu elección de tema permanecen en este navegador. No hay cuenta de estudiante. El sitio cuenta visitas anónimas, pero no recibe tu progreso ni ninguna clave API que uses en el Laboratorio."
 }

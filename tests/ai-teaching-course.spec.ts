@@ -9,7 +9,12 @@ import {
 } from "../lib/ai-teaching/contracts";
 import { AGENTIC_TEACHING_COPY_EN } from "../lib/ai-teaching/copy/en";
 import { AGENTIC_TEACHING_COPY_ZH_HANS } from "../lib/ai-teaching/copy/zh-Hans";
-import { AGENTIC_TEACHING_QUIZ_BLUEPRINT } from "../lib/ai-teaching/progress";
+import {
+  AGENTIC_TEACHING_CAPSTONE_KEY,
+  AGENTIC_TEACHING_QUIZ_BLUEPRINT,
+  agenticTeachingCapstonePrerequisiteFingerprint,
+  createAgenticTeachingCapstoneReceipt,
+} from "../lib/ai-teaching/progress";
 import {
   AGENTIC_TEACHING_MODULE_SLUGS,
   type AgenticTeachingContentLocale,
@@ -134,23 +139,40 @@ function completedModuleRecord(
   };
 }
 
-function allPrerequisitesRecord() {
+function allModulesRecord() {
   const entries = AGENTIC_TEACHING_MODULE_SLUGS.flatMap((slug) =>
     Object.entries(completedModuleRecord(slug, `browser-${slug}-a`)),
   );
+  return Object.fromEntries(entries);
+}
+
+function passingQuizReceipt() {
   return {
-    ...Object.fromEntries(entries),
-    [QUIZ_KEY]: {
-      schema: 2,
-      courseVersion: COURSE_VERSION,
-      blueprintId: AGENTIC_TEACHING_QUIZ_BLUEPRINT,
-      score: 10,
-      questionCount: 12,
-      requiredCorrect: 10,
-      criticalPassed: true,
-      passed: true,
-    },
+    schema: 2,
+    courseVersion: COURSE_VERSION,
+    blueprintId: AGENTIC_TEACHING_QUIZ_BLUEPRINT,
+    score: 10,
+    questionCount: 12,
+    requiredCorrect: 10,
+    criticalPassed: true,
+    passed: true,
   };
+}
+
+function allPrerequisitesRecord() {
+  return {
+    ...allModulesRecord(),
+    [QUIZ_KEY]: passingQuizReceipt(),
+  };
+}
+
+function completedCourseRecord() {
+  const progress = allPrerequisitesRecord();
+  const fingerprint = agenticTeachingCapstonePrerequisiteFingerprint(progress);
+  expect(fingerprint).toBeTruthy();
+  const receipt = createAgenticTeachingCapstoneReceipt(progress, fingerprint);
+  expect(receipt).toBeTruthy();
+  return { ...progress, [AGENTIC_TEACHING_CAPSTONE_KEY]: receipt };
 }
 
 async function setProgress(page: Page, progress: Record<string, unknown>) {
@@ -193,9 +215,25 @@ async function runAxe(page: Page) {
   });
 }
 
-test("reviewed routes reflow at 320px and have no serious axe violations", async ({ page }) => {
+function isWebKitLoopbackPrefetchDiagnostic(
+  browserName: string,
+  message: string,
+): boolean {
+  return browserName === "webkit" &&
+    /^\/127\.0\.0\.1:\d+\/.+ due to access control checks\.$/.test(message);
+}
+
+test("reviewed routes reflow at 320px and have no serious axe violations", async ({ page, browserName }) => {
   const runtimeErrors: string[] = [];
-  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  page.on("pageerror", (error) => {
+    // During this test's intentionally rapid loopback navigation, WebKit
+    // reports cancelled Next.js production link-prefetches as page errors.
+    // Requested pages still return 200 and real navigation remains covered by
+    // every browser flow below, so classify only that exact local diagnostic.
+    if (!isWebKitLoopbackPrefetchDiagnostic(browserName, error.message)) {
+      runtimeErrors.push(error.message);
+    }
+  });
   page.on("console", (message) => {
     if (message.type() === "error") runtimeErrors.push(message.text());
   });
@@ -222,7 +260,104 @@ test("reviewed routes reflow at 320px and have no serious axe violations", async
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/en/ai-teaching/");
   expect(await runAxe(page)).toEqual([]);
+
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.reload();
+  expect(await runAxe(page)).toEqual([]);
+
+  const primaryActionMetaContrast = await page
+    .locator('[data-testid="ai-teaching-course"] > header a small')
+    .evaluate((meta) => {
+      const parseRgb = (value: string) => {
+        const channels = value.match(/[\d.]+/g)?.slice(0, 3).map(Number);
+        if (!channels || channels.length !== 3) {
+          throw new Error(`Unsupported computed color: ${value}`);
+        }
+        return channels;
+      };
+      const luminance = (channels: number[]) => {
+        const linear = channels.map((channel) => {
+          const normalized = channel / 255;
+          return normalized <= 0.04045
+            ? normalized / 12.92
+            : ((normalized + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+      };
+      const foregroundStyle = getComputedStyle(meta);
+      const action = meta.closest("a");
+      if (!action) throw new Error("Primary action ancestor is missing");
+      const foreground = parseRgb(foregroundStyle.color);
+      const background = parseRgb(getComputedStyle(action).backgroundColor);
+      const opacity = Number.parseFloat(foregroundStyle.opacity);
+      const composited = foreground.map(
+        (channel, index) => channel * opacity + background[index] * (1 - opacity),
+      );
+      const lighter = Math.max(luminance(composited), luminance(background));
+      const darker = Math.min(luminance(composited), luminance(background));
+      return (lighter + 0.05) / (darker + 0.05);
+    });
+  expect(primaryActionMetaContrast).toBeGreaterThanOrEqual(4.5);
+
+  const sourceSummary = page.locator("#course-sources > details > summary");
+  await sourceSummary.focus();
+  const disclosureFocus = await sourceSummary.evaluate((summary) => {
+    const disclosure = summary.parentElement;
+    if (!disclosure) throw new Error("Source disclosure container is missing");
+    const style = getComputedStyle(disclosure);
+    return {
+      outlineStyle: style.outlineStyle,
+      outlineWidth: Number.parseFloat(style.outlineWidth),
+    };
+  });
+  expect(disclosureFocus.outlineStyle).not.toBe("none");
+  expect(disclosureFocus.outlineWidth).toBeGreaterThanOrEqual(3);
   expect(runtimeErrors).toEqual([]);
+});
+
+test("primary navigation follows validated progress and exposes module states", async ({ page }) => {
+  const primaryAction = () => page.locator('[data-testid="ai-teaching-course"] > header').getByRole("link").first();
+  const moduleCard = (slug: AgenticTeachingModuleSlug) =>
+    page.locator(`#course-map a[href="/en/ai-teaching/${slug}/"]`);
+
+  await page.goto("/en/ai-teaching/");
+  await expect(primaryAction()).toContainText(AGENTIC_TEACHING_COPY_EN.ui.start);
+  await expect(primaryAction()).toHaveAttribute(
+    "href",
+    `/en/ai-teaching/${AGENTIC_TEACHING_MODULE_SLUGS[0]}/`,
+  );
+  await expect(moduleCard(AGENTIC_TEACHING_MODULE_SLUGS[0])).toHaveAttribute(
+    "data-state",
+    "next",
+  );
+
+  await setProgress(page, oneModuleRecord());
+  await expect(primaryAction()).toContainText(AGENTIC_TEACHING_COPY_EN.ui.resume);
+  await expect(primaryAction()).toHaveAttribute(
+    "href",
+    `/en/ai-teaching/${AGENTIC_TEACHING_MODULE_SLUGS[1]}/`,
+  );
+  await expect(moduleCard(AGENTIC_TEACHING_MODULE_SLUGS[0])).toHaveAttribute(
+    "data-state",
+    "completed",
+  );
+  await expect(moduleCard(AGENTIC_TEACHING_MODULE_SLUGS[1])).toHaveAttribute(
+    "data-state",
+    "next",
+  );
+
+  await setProgress(page, {
+    "agenticTeaching.quiz.passed": true,
+    "agenticTeaching.capstone.v1": true,
+  });
+  await expect(primaryAction()).toContainText(AGENTIC_TEACHING_COPY_EN.ui.start);
+
+  await setProgress(page, allModulesRecord());
+  await expect(primaryAction()).toHaveAttribute("href", "#final-assessment");
+  await setProgress(page, allPrerequisitesRecord());
+  await expect(primaryAction()).toHaveAttribute("href", "#capstone");
+  await setProgress(page, completedCourseRecord());
+  await expect(primaryAction()).toHaveAttribute("href", "#course-map");
 });
 
 test("real quiz submission persists exactly 10/12, renders explanations and rejects legacy Booleans", async ({ page }) => {
@@ -237,6 +372,23 @@ test("real quiz submission persists exactly 10/12, renders explanations and reje
     intentionallyWrong,
   );
   await page.getByTestId("final-quiz-submit").click();
+
+  const retainedQuestionId = "q07-multi-agent";
+  const retainedContract = getAgenticTeachingFinalQuizQuestionContract(
+    retainedQuestionId,
+  );
+  const retainedWrongOptionId = retainedContract.optionIds.find(
+    (optionId) => optionId !== retainedContract.correctOptionId,
+  );
+  expect(retainedWrongOptionId).toBeTruthy();
+  await expect(
+    page.getByTestId(`final-quiz-question-${retainedQuestionId}`)
+      .locator(`input[value="${retainedWrongOptionId}"]`),
+  ).toBeChecked();
+  await expect(
+    page.getByTestId(`final-quiz-question-${retainedQuestionId}`)
+      .locator(`input[value="${retainedContract.correctOptionId}"]`),
+  ).not.toBeChecked();
 
   const assessment = page.locator(
     'section[aria-labelledby="agentic-teaching-final-title"]',
@@ -310,6 +462,58 @@ test("a critical wrong answer fails closed at 11/12 and shows the Chinese explan
   }, [PROGRESS_KEY, QUIZ_KEY] as const);
   expect(storedReceipt).toBeNull();
   await expect(page.locator('section[aria-label="课程进度"]').first()).toContainText("0/12");
+});
+
+test("a cross-tab passing receipt replaces stale failed answers with the answer key", async ({ page }) => {
+  await page.goto("/en/ai-teaching/");
+  const failedQuestion = AGENTIC_TEACHING_COPY_EN.quiz.questions[0];
+  const failedContract = getAgenticTeachingFinalQuizQuestionContract(
+    failedQuestion.id,
+  );
+  const wrongOptionId = failedContract.optionIds.find(
+    (optionId) => optionId !== failedContract.correctOptionId,
+  );
+  expect(wrongOptionId).toBeTruthy();
+  await answerFinalQuiz(
+    page,
+    AGENTIC_TEACHING_COPY_EN.quiz.questions,
+    new Set([failedQuestion.id]),
+  );
+  await page.getByTestId("final-quiz-submit").click();
+  await expect(
+    page.getByTestId(`final-quiz-question-${failedQuestion.id}`)
+      .locator(`input[value="${wrongOptionId}"]`),
+  ).toBeChecked();
+
+  const otherPage = await page.context().newPage();
+  await otherPage.goto("/en/ai-teaching/");
+  await otherPage.evaluate(
+    ([progressKey, quizKey, receipt]) => {
+      const current = JSON.parse(localStorage.getItem(progressKey) ?? "{}");
+      localStorage.setItem(
+        progressKey,
+        JSON.stringify({ ...current, [quizKey]: receipt }),
+      );
+    },
+    [PROGRESS_KEY, QUIZ_KEY, passingQuizReceipt()] as const,
+  );
+
+  const assessment = page.locator(
+    'section[aria-labelledby="agentic-teaching-final-title"]',
+  );
+  await expect(assessment).toContainText(
+    AGENTIC_TEACHING_COPY_EN.ui.assessmentPassed,
+  );
+  await expect(page.getByTestId("final-quiz-submit")).toBeDisabled();
+  await expect(
+    page.getByTestId(`final-quiz-question-${failedQuestion.id}`)
+      .locator(`input[value="${failedContract.correctOptionId}"]`),
+  ).toBeChecked();
+  await expect(
+    page.getByTestId(`final-quiz-question-${failedQuestion.id}`)
+      .locator(`input[value="${wrongOptionId}"]`),
+  ).not.toBeChecked();
+  await otherPage.close();
 });
 
 test("language navigation preserves a receipt; an explicit new-language save invalidates it", async ({ page }) => {

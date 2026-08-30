@@ -327,6 +327,7 @@
   "c.ai-teaching.blurb": "圍繞備課、輔導、回饋、探究與評量，設計由教師主導的智能體，並以人工審批、兒童與資料保障及學習證據為邊界。",
   "c.ai-teaching.level": "入門到進階",
   "c.ai-teaching.meta": "10 個模組 · 12 小時 · 期末評量 · 證據包綜合專案",
+  "c.ai-teaching.contentLanguage": "課程內容：英文",
   "c.responsibleAi.title": "負責任的 AI 與評估",
   "c.responsibleAi.blurb": "衡量品質、成本與風險，並在 AI 工作流程進入真實世界前設計監督機制。",
   "c.responsibleAi.level": "入門到中階",
@@ -479,6 +480,7 @@
   "c.agent-orchestration.level": "中級到進階",
   "c.agent-orchestration.meta": "15 個模組 · 17 小時 40 分鐘 · 6 個確定性交互實驗 · 期末評量與綜合專案",
   "cat.course15": "課程十五",
+  "cat.course18": "課程十八",
   "home.q5": "我的進度儲存在哪裡？",
   "home.a5": "課程里程碑和主題選擇只會留在這個瀏覽器中。本站沒有學習者帳號。網站會統計匿名頁面瀏覽量，但不會收到你的課程進度，也不會收到你在實驗室中使用的任何 API 金鑰。"
 }

@@ -344,6 +344,7 @@
   "c.ai-teaching.blurb": "Design teacher-owned agents for planning, tutoring, feedback, inquiry and evaluation, bounded by human approval, child and data safeguards, and learning evidence.",
   "c.ai-teaching.level": "Beginner to advanced",
   "c.ai-teaching.meta": "10 modules · 12 hours · final assessment · evidence-pack capstone",
+  "c.ai-teaching.contentLanguage": "Course content: English",
   "c.responsibleAi.title": "Responsible AI and Evaluation",
   "c.responsibleAi.blurb": "Measure quality, cost and risk, then design oversight before an AI workflow reaches the real world.",
   "c.responsibleAi.level": "Beginner to intermediate",
@@ -479,6 +480,7 @@
   "c.agent-orchestration.level": "Intermediate to advanced",
   "c.agent-orchestration.meta": "15 modules · 17 h 40 min · 6 deterministic labs · assessment and capstone",
   "cat.course15": "Course 15",
+  "cat.course18": "Course 18",
   "home.q5": "Where is my progress stored?",
   "home.a5": "Course milestones and your theme choice stay in this browser. There is no learner account. The site counts anonymous page views, but it does not receive your course progress or any API key you use in the Lab."
 }

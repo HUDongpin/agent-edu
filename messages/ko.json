@@ -327,6 +327,7 @@
   "c.ai-teaching.blurb": "수업 설계, 튜터링, 피드백, 탐구 및 평가를 지원하는 교사 주도형 에이전트를 사람의 승인, 아동·데이터 보호 및 학습 근거를 경계로 설계합니다.",
   "c.ai-teaching.level": "초급부터 고급까지",
   "c.ai-teaching.meta": "10개 모듈 · 12시간 · 최종 평가 · 근거 패키지 종합 프로젝트",
+  "c.ai-teaching.contentLanguage": "강의 콘텐츠: 영어",
   "c.responsibleAi.title": "책임 있는 AI와 평가",
   "c.responsibleAi.blurb": "품질, 비용, 위험을 측정하고 AI 워크플로가 현실에 적용되기 전에 감독 절차를 설계합니다.",
   "c.responsibleAi.level": "초급부터 중급",
@@ -479,6 +480,7 @@
   "c.agent-orchestration.level": "중급부터 고급까지",
   "c.agent-orchestration.meta": "15개 모듈 · 17시간 40분 · 6개 결정론적 실습 · 최종 평가와 종합 프로젝트",
   "cat.course15": "코스 15",
+  "cat.course18": "코스 18",
   "home.q5": "진행 기록은 어디에 저장되나요?",
   "home.a5": "강의 이정표와 테마 설정은 이 브라우저에만 저장됩니다. 학습자 계정은 없습니다. 사이트는 익명 페이지 조회수를 집계하지만 강의 진행 기록이나 실습실에서 사용하는 API 키를 받지 않습니다."
 }

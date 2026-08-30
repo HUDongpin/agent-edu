@@ -327,6 +327,7 @@
   "c.ai-teaching.blurb": "授業設計、個別指導、フィードバック、探究、評価を支援する教師主導のエージェントを、人による承認、子どもとデータの保護、学習エビデンスを境界として設計します。",
   "c.ai-teaching.level": "初級から上級",
   "c.ai-teaching.meta": "10モジュール・12時間・最終評価・エビデンスパック総合課題",
+  "c.ai-teaching.contentLanguage": "コース本文：英語",
   "c.responsibleAi.title": "責任あるAIと評価",
   "c.responsibleAi.blurb": "品質、コスト、リスクを測定し、AIワークフローを現実の場で使う前に監督の仕組みを設計します。",
   "c.responsibleAi.level": "初級から中級",
@@ -479,6 +480,7 @@
   "c.agent-orchestration.level": "中級から上級",
   "c.agent-orchestration.meta": "15モジュール・17時間40分・6つの決定論的ラボ・最終評価と総合プロジェクト",
   "cat.course15": "コース15",
+  "cat.course18": "コース18",
   "home.q5": "進捗はどこに保存されますか？",
   "home.a5": "講座の節目とテーマ設定は、このブラウザ内にだけ保存されます。学習者アカウントはありません。サイトは匿名のページビュー数を計測しますが、講座の進捗やラボで使うAPIキーを受け取ることはありません。"
 }

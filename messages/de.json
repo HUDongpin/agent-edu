@@ -325,6 +325,7 @@
   "c.ai-teaching.blurb": "Entwerfen Sie lehrkraftgeführte Agenten für Planung, Tutoring, Feedback, forschendes Lernen und Evaluation – mit menschlicher Freigabe, Kinder- und Datenschutz sowie Lernnachweisen.",
   "c.ai-teaching.level": "Anfänger bis Fortgeschrittene",
   "c.ai-teaching.meta": "10 Module · 12 Std. · Abschlussprüfung · Evidenzpaket als Abschlussprojekt",
+  "c.ai-teaching.contentLanguage": "Kursinhalt: Englisch",
   "c.responsibleAi.title": "Verantwortungsvolle KI und Evaluation",
   "c.responsibleAi.blurb": "Messen Sie Qualität, Kosten und Risiken und gestalten Sie die Aufsicht, bevor ein KI-Arbeitsablauf in der realen Welt eingesetzt wird.",
   "c.responsibleAi.level": "Anfänger bis Mittelstufe",
@@ -479,6 +480,7 @@
   "c.agent-orchestration.level": "Mittelstufe bis Fortgeschrittene",
   "c.agent-orchestration.meta": "15 Module · 17 Std. 40 Min. · 6 deterministische Labore · Prüfung und Abschlussprojekt",
   "cat.course15": "Kurs 15",
+  "cat.course18": "Kurs 18",
   "home.q5": "Wo wird mein Fortschritt gespeichert?",
   "home.a5": "Kursmeilensteine und Ihre Designauswahl bleiben in diesem Browser. Es gibt kein Lernkonto. Die Website zählt anonyme Seitenaufrufe, erhält aber weder Ihren Kursfortschritt noch einen API-Schlüssel, den Sie im Labor verwenden."
 }

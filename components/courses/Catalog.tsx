@@ -167,6 +167,10 @@ function CourseCard({
   const isAiTutor = course.id === "ai-tutor";
   const isProductManagement = course.id === "product-management";
   const isAgentOrchestration = course.id === "agent-orchestration";
+  const isAiTeaching = course.id === "ai-teaching";
+  const showsEnglishContentNotice =
+    (isClaudeIncome && locale !== "en") ||
+    (isAiTeaching && locale !== "en" && locale !== "zh-Hans");
   const duration = course.metaKey
     ? t(course.metaKey)
     : course.minutes == null
@@ -190,10 +194,16 @@ function CourseCard({
           <span>{t(course.formatKey)}</span>
           <span aria-hidden="true">·</span>
           <span>{duration}</span>
-          {isClaudeIncome && locale !== "en" ? (
+          {showsEnglishContentNotice ? (
             <>
               <span aria-hidden="true">·</span>
-              <span>{t("c.claude-income.contentLanguage")}</span>
+              <span>
+                {t(
+                  isAiTeaching
+                    ? "c.ai-teaching.contentLanguage"
+                    : "c.claude-income.contentLanguage",
+                )}
+              </span>
             </>
           ) : null}
         </div>

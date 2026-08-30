@@ -2,6 +2,7 @@
 
 import {
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
 } from "react";
@@ -70,6 +71,14 @@ function persistenceMessage(labels: AgenticTeachingUiCopy): string {
     : labels.storageUnavailable;
 }
 
+function artifactRevisionMessage(
+  locale: AgenticTeachingContentLocale,
+): string {
+  return locale === "zh-Hans"
+    ? "该修订会使原模块完成记录失效；请复核后重新记录模块完成。"
+    : "This revision invalidates the earlier module completion. Review it, then record the module again.";
+}
+
 export function CourseProgress({
   labels,
   compact = false,
@@ -115,7 +124,7 @@ export function ArtifactNotebook({
   labels,
   contentLocale,
 }: {
-  readonly slug: string;
+  readonly slug: AgenticTeachingModuleSlug;
   readonly practice: AgenticTeachingPracticeCopy;
   readonly labels: AgenticTeachingUiCopy;
   readonly contentLocale: AgenticTeachingContentLocale;
@@ -134,16 +143,21 @@ export function ArtifactNotebook({
 
   const save = (explicit: boolean) => {
     if (draftOverride === null && !explicit) return;
-    mark(
-      key,
-      createAgenticTeachingArtifactRecord(
-        record[key],
-        draft.slice(0, 6000),
-        contentLocale,
-      ),
+    const nextRecord = createAgenticTeachingArtifactRecord(
+      record[key],
+      draft.slice(0, 6000),
+      contentLocale,
     );
+    const invalidatesCompletion =
+      isAgenticTeachingModuleComplete(record, slug) &&
+      nextRecord.revisionId !== storedRecord?.revisionId;
+    mark(key, nextRecord);
     setDraftOverride(null);
-    setStatus(persistenceMessage(labels));
+    setStatus(
+      invalidatesCompletion
+        ? `${persistenceMessage(labels)} ${artifactRevisionMessage(contentLocale)}`
+        : persistenceMessage(labels),
+    );
   };
 
   return (
@@ -206,9 +220,8 @@ export function ModuleCheckpoint({
 }) {
   const record = useProgressRecord();
   const key = agenticTeachingCheckpointKey(slug);
-  const alreadyCorrect = Boolean(
-    readAgenticTeachingCheckpointReceipt(record[key], slug),
-  );
+  const persistedReceipt = readAgenticTeachingCheckpointReceipt(record[key], slug);
+  const alreadyCorrect = Boolean(persistedReceipt);
   const contract = getAgenticTeachingCheckpointContract(slug, contentLocale);
   const [choice, setChoice] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(alreadyCorrect);
@@ -227,7 +240,11 @@ export function ModuleCheckpoint({
               type="radio"
               name={`${slug}-checkpoint`}
               value={option.id}
-              checked={choice === option.id}
+              checked={
+                alreadyCorrect
+                  ? persistedReceipt?.selectedOptionId === option.id
+                  : choice === option.id
+              }
               disabled={alreadyCorrect}
               onChange={() => {
                 setChoice(option.id);
@@ -424,12 +441,14 @@ export function FinalAssessment({
   intro,
   passNote,
   labels,
+  contentLocale,
 }: {
   readonly questions: readonly AgenticTeachingQuizQuestion[];
   readonly title: string;
   readonly intro: string;
   readonly passNote: string;
   readonly labels: AgenticTeachingUiCopy;
+  readonly contentLocale: AgenticTeachingContentLocale;
 }) {
   const record = useProgressRecord();
   const persistedResult = readAgenticTeachingQuizReceipt(
@@ -442,30 +461,72 @@ export function FinalAssessment({
     passed: boolean;
   } | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const questionRefs = useRef<
+    Partial<Record<string, HTMLFieldSetElement | null>>
+  >({});
+  const showPersistedAnswerKey =
+    alreadyPassed && attemptResult?.passed !== true;
   const result = persistedResult
     ? { score: persistedResult.score, passed: true }
     : attemptResult;
 
   return (
-    <section className={styles.finalAssessment} aria-labelledby="agentic-teaching-final-title">
+    <section
+      className={styles.finalAssessment}
+      id="final-assessment"
+      aria-labelledby="agentic-teaching-final-title"
+    >
       <header>
         <p className={styles.eyebrow}>{labels.finalAssessment}</p>
         <h2 id="agentic-teaching-final-title">{title}</h2>
         <p>{intro}</p>
         <p className={styles.passNote}>{passNote}</p>
       </header>
+      {showPersistedAnswerKey ? (
+        <p className={styles.passNote}>
+          {contentLocale === "zh-Hans"
+            ? "已通过。下方显示正确答案与解释，供复习使用。"
+            : "Passed. The correct answers and explanations are shown below for review."}
+        </p>
+      ) : null}
       <ol className={styles.quizList}>
         {questions.map((question, questionIndex) => {
           const contract = getAgenticTeachingFinalQuizQuestionContract(
             question.id,
           );
+          const showAnswerKey = showPersistedAnswerKey;
+          const selectedOptionId = showAnswerKey
+            ? contract.correctOptionId
+            : answers[question.id];
+          const showQuestionFeedback = hasSubmitted || showAnswerKey;
+          const answerCorrect = selectedOptionId === contract.correctOptionId;
+          const feedbackId = `final-quiz-feedback-${question.id}`;
           return (
           <li key={question.id}>
-            <fieldset data-testid={`final-quiz-question-${question.id}`}>
+            <fieldset
+              ref={(element) => {
+                questionRefs.current[question.id] = element;
+              }}
+              data-testid={`final-quiz-question-${question.id}`}
+              tabIndex={-1}
+              aria-invalid={
+                result?.score === -1 && !answers[question.id]
+                  ? true
+                  : undefined
+              }
+              aria-describedby={showQuestionFeedback ? feedbackId : undefined}
+            >
               <legend>
                 <span>{String(questionIndex + 1).padStart(2, "0")}</span>
                 {question.prompt}
-                {question.critical ? <strong aria-label="critical">◆</strong> : null}
+                {question.critical ? (
+                  <strong title={contentLocale === "zh-Hans" ? "关键题" : "Critical question"}>
+                    <span aria-hidden="true">◆</span>
+                    <span className={styles.srOnly}>
+                      {contentLocale === "zh-Hans" ? "关键题" : "Critical question"}
+                    </span>
+                  </strong>
+                ) : null}
               </legend>
               {question.options.map((option) => (
                 <label key={option.id}>
@@ -473,7 +534,7 @@ export function FinalAssessment({
                     type="radio"
                     name={`final-${question.id}`}
                     value={option.id}
-                    checked={answers[question.id] === option.id}
+                    checked={selectedOptionId === option.id}
                     disabled={alreadyPassed}
                     onChange={() => {
                       setAnswers((current) => ({
@@ -488,17 +549,14 @@ export function FinalAssessment({
                 </label>
               ))}
             </fieldset>
-            {hasSubmitted ? (
+            {showQuestionFeedback ? (
               <div
-                className={
-                  answers[question.id] === contract.correctOptionId
-                    ? styles.feedbackCorrect
-                    : styles.feedbackIncorrect
-                }
+                id={feedbackId}
+                className={answerCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect}
                 data-testid={`final-quiz-explanation-${question.id}`}
               >
                 <strong>
-                  {answers[question.id] === contract.correctOptionId
+                  {answerCorrect
                     ? labels.correct
                     : labels.incorrect}
                 </strong>
@@ -514,9 +572,15 @@ export function FinalAssessment({
         data-testid="final-quiz-submit"
         disabled={alreadyPassed}
         onClick={() => {
-          if (Object.keys(answers).length !== questions.length) {
+          const firstUnanswered = questions.find(
+            (question) => !answers[question.id],
+          );
+          if (firstUnanswered) {
             setHasSubmitted(false);
             setAttemptResult({ score: -1, passed: false });
+            requestAnimationFrame(() => {
+              questionRefs.current[firstUnanswered.id]?.focus();
+            });
             return;
           }
           const score = questions.filter(
@@ -538,6 +602,19 @@ export function FinalAssessment({
           if (receipt) mark(AGENTIC_TEACHING_QUIZ_KEY, receipt);
           setHasSubmitted(true);
           setAttemptResult({ score, passed });
+          if (!passed) {
+            const firstIncorrect = questions.find(
+              (question) =>
+                answers[question.id] !==
+                getAgenticTeachingFinalQuizQuestionContract(question.id)
+                  .correctOptionId,
+            );
+            if (firstIncorrect) {
+              requestAnimationFrame(() => {
+                questionRefs.current[firstIncorrect.id]?.focus();
+              });
+            }
+          }
         }}
       >
         {labels.submitAssessment}
@@ -610,7 +687,11 @@ export function CapstoneChecklist({
   const [status, setStatus] = useState("");
 
   return (
-    <section className={styles.capstone} aria-labelledby="agentic-teaching-capstone-title">
+    <section
+      className={styles.capstone}
+      id="capstone"
+      aria-labelledby="agentic-teaching-capstone-title"
+    >
       <header>
         <p className={styles.eyebrow}>{labels.capstone}</p>
         <h2 id="agentic-teaching-capstone-title">{title}</h2>

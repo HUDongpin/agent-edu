@@ -325,6 +325,7 @@
   "c.ai-teaching.blurb": "Concevez des agents sous la responsabilité des enseignants pour préparer, accompagner, fournir des retours, mener des recherches et évaluer, avec validation humaine, protection des mineurs et des données, et preuves d’apprentissage.",
   "c.ai-teaching.level": "Débutant à avancé",
   "c.ai-teaching.meta": "10 modules · 12 h · évaluation finale · projet de dossier de preuves",
+  "c.ai-teaching.contentLanguage": "Contenu du cours : anglais",
   "c.responsibleAi.title": "IA responsable et évaluation",
   "c.responsibleAi.blurb": "Mesurez la qualité, le coût et le risque, puis concevez la supervision avant qu’un flux de travail d’IA n’atteigne le monde réel.",
   "c.responsibleAi.level": "Débutant à intermédiaire",
@@ -479,6 +480,7 @@
   "c.agent-orchestration.level": "Intermédiaire à avancé",
   "c.agent-orchestration.meta": "15 modules · 17 h 40 · 6 laboratoires déterministes · évaluation et projet final",
   "cat.course15": "Cours 15",
+  "cat.course18": "Cours 18",
   "home.q5": "Où ma progression est-elle enregistrée ?",
   "home.a5": "Les étapes franchies et votre choix de thème restent dans ce navigateur. Il n’existe aucun compte apprenant. Le site compte les pages vues de façon anonyme, mais ne reçoit ni votre progression ni la clé API utilisée dans l’Atelier."
 }
