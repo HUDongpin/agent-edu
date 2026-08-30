@@ -36,7 +36,7 @@ export default function Progress({ locale }: { locale: string }) {
     {
       label: t("track.1.title"),
       done: handbook.completed,
-      note: `${handbook.exploredSections} ${t("ui.of")} ${handbook.totalSections}`,
+      note: `${handbook.coveredSteps} ${t("ui.of")} ${handbook.totalSteps}`,
     },
     {
       label: t("track.2.title"),

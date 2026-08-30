@@ -240,6 +240,71 @@ test("visiting all eleven Handbook sections still does not imply completion", ()
   assert.equal(progress.exploredSections, 11);
 });
 
+test("a full Handbook bar never sits beside Resume", () => {
+  // Every section read, no Control Room round: the card used to show 11 of 11
+  // at 100% while the call to action still said Resume.
+  const state = v2({ handbook: { visitedSections: [...HANDBOOK_SECTION_IDS] } });
+  const progress = selectCourseProgress(state, "handbook");
+  assert.equal(progress.kind, "tracked");
+  assert.equal(progress.kind === "tracked" && progress.status, "in-progress");
+  assert.deepEqual(
+    progress.kind === "tracked" ? [progress.current, progress.total] : [],
+    [11, 12],
+  );
+  assert.equal(progress.percent, 92);
+  assert.notEqual(progress.percent, 100);
+});
+
+test("a full Handbook bar means completed, in every reachable state", () => {
+  for (let visited = 0; visited <= HANDBOOK_SECTION_IDS.length; visited += 1) {
+    for (const runs of [0, 1, 4]) {
+      const state = v2({
+        handbook: {
+          visitedSections: HANDBOOK_SECTION_IDS.slice(0, visited),
+          controlRoom: { completedRuns: runs },
+        },
+      });
+      const progress = selectCourseProgress(state, "handbook");
+      if (progress.kind !== "tracked") continue;
+      // The implication runs one way: a full bar proves completion. The reverse
+      // does not hold, and must not — see the reverse-case test below.
+      if (progress.percent === 100) assert.equal(progress.status, "completed");
+    }
+  }
+});
+
+test("finishing the briefs having read little is completed, and says so honestly", () => {
+  // c.handbook.artifact calls this state "targeted sections to revisit", so the
+  // card should read Review beside a low bar rather than pretend to be full.
+  const state = v2({
+    handbook: {
+      visitedSections: ["play"],
+      controlRoom: { completedRuns: 1 },
+    },
+  });
+  const progress = selectCourseProgress(state, "handbook");
+  assert.equal(progress.kind === "tracked" && progress.status, "completed");
+  assert.deepEqual(
+    progress.kind === "tracked" ? [progress.current, progress.total] : [],
+    [2, 12],
+  );
+});
+
+test("the Control Room round is the twelfth step, counted once however often it is run", () => {
+  const state = v2({
+    handbook: {
+      visitedSections: [...HANDBOOK_SECTION_IDS],
+      controlRoom: { completedRuns: 7 },
+    },
+  });
+  const progress = selectHandbookProgress(state);
+  assert.equal(progress.exploredSections, 11);
+  assert.equal(progress.totalSections, 11);
+  assert.equal(progress.coveredSteps, 12);
+  assert.equal(progress.totalSteps, 12);
+  assert.equal(selectCourseProgress(state, "handbook").percent, 100);
+});
+
 test("a zero-score Control Room run is a real Handbook completion", () => {
   const storage = new MemoryStorage();
   const store = createLearningStore({

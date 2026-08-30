@@ -77,6 +77,23 @@ export interface HandbookProgress {
   readonly completed: boolean;
   readonly exploredSections: number;
   readonly totalSections: number;
+  /**
+   * Sections explored plus the Control Room round, out of twelve.
+   *
+   * `exploredSections / totalSections` is an honest count of sections and a
+   * misleading progress bar: it reaches eleven of eleven while the course is
+   * unfinished, because `c.handbook.evidence` defines completion as submitting
+   * all ten briefs and not as opening sections. A card showing a full bar
+   * beside "Resume" is the visible result. Counting the round as the twelfth
+   * unit makes a full bar mean the same thing the verdict means.
+   *
+   * The implication runs one way on purpose. A full bar proves completion; a
+   * completed handbook does not imply a full bar, because a reader may submit
+   * the briefs having read very little — which is the state
+   * `c.handbook.artifact` describes as "targeted sections to revisit".
+   */
+  readonly coveredSteps: number;
+  readonly totalSteps: number;
   readonly lastSection: HandbookSectionId;
   readonly completedRuns: number;
   readonly bestScore?: number;
@@ -439,6 +456,8 @@ export function selectHandbookProgress(state: LearningStateV2): HandbookProgress
     completed,
     exploredSections,
     totalSections: HANDBOOK_SECTION_IDS.length,
+    coveredSteps: exploredSections + (completed ? 1 : 0),
+    totalSteps: HANDBOOK_SECTION_IDS.length + 1,
     lastSection: state.handbook.lastSection,
     completedRuns: state.handbook.controlRoom.completedRuns,
     ...(state.handbook.controlRoom.bestScore === undefined
@@ -473,9 +492,9 @@ export function selectCourseProgress(state: LearningStateV2, courseId: string): 
       kind: "tracked",
       courseId,
       status: progress.status,
-      current: progress.exploredSections,
-      total: progress.totalSections,
-      percent: Math.round((progress.exploredSections / progress.totalSections) * 100),
+      current: progress.coveredSteps,
+      total: progress.totalSteps,
+      percent: Math.round((progress.coveredSteps / progress.totalSteps) * 100),
     };
   }
   if (courseId === "lab") {
