@@ -4,17 +4,20 @@
  * Data-driven so adding a course is one entry here plus its strings in
  * messages/*.json — no new page, no new component.
  *
- * `status` is load-bearing and honest: "soon" entries are real plans (the
- * gaps the README already names) but they do not exist yet, so they are
- * shown greyed out and are not clickable. A catalogue that lists courses you
- * cannot take is a catalogue nobody trusts twice.
+ * `status` is load-bearing and honest: a "soon" entry is specified and being
+ * built, but does not exist yet, so it is shown greyed out and is not
+ * clickable. A catalogue that lists courses you cannot take is a catalogue
+ * nobody trusts twice — which is why an entry only earns "soon" while someone
+ * is actually working on it, and why `tools` and `cost` were removed rather
+ * than left advertised indefinitely. Both are fully specified in
+ * `docs/course-briefs/`; their rows come back the day someone starts building.
  */
 
 export type Level = "beginner" | "intermediate" | "advanced";
 export type Format = "read" | "interactive" | "code";
 export type Topic = "foundations" | "prompting" | "agents" | "evaluation" | "safety";
 export type Status = "available" | "soon";
-export type CourseId = "handbook" | "lab" | "build" | "tools" | "cost" | "hitl";
+export type CourseId = "handbook" | "lab" | "build" | "hitl";
 
 export interface Course {
   id: CourseId;
@@ -43,14 +46,6 @@ export const COURSES: Course[] = [
     id: "build", href: "/build/",
     level: "intermediate", format: "code", topic: "agents",
     minutes: 150, status: "available", hue: "var(--violet)",
-  },
-  {
-    id: "tools", href: "#", level: "advanced", format: "code", topic: "agents",
-    minutes: 60, status: "soon", hue: "var(--gold-mark)",
-  },
-  {
-    id: "cost", href: "#", level: "intermediate", format: "interactive",
-    topic: "evaluation", minutes: 30, status: "soon", hue: "var(--red)",
   },
   {
     id: "hitl", href: "#", level: "intermediate", format: "read",
