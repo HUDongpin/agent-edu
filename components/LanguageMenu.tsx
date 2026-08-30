@@ -71,11 +71,22 @@ export default function LanguageMenu() {
       /* private browsing */
     }
     setOpen(false);
-    router.push(`/${code}/${rest.join("/")}${rest.length ? "/" : ""}`);
+    const suffix = typeof window === "undefined"
+      ? ""
+      : `${window.location.search}${window.location.hash}`;
+    router.push(`/${code}/${rest.join("/")}${rest.length ? "/" : ""}${suffix}`);
   }
 
   return (
-    <div className="langwrap" ref={wrap}>
+    <div
+      className="langwrap"
+      ref={wrap}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setOpen(false);
+        }
+      }}
+    >
       <button
         ref={trigger}
         className="iconbtn"
@@ -98,6 +109,7 @@ export default function LanguageMenu() {
                 role="menuitem"
                 lang={l.code}
                 aria-current={l.code === locale}
+                tabIndex={l.code === locale ? 0 : -1}
                 onClick={() => switchTo(l.code)}
               >
                 <span className="flag" aria-hidden="true">{l.mark}</span>

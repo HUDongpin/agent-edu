@@ -3,6 +3,11 @@ import type { ReactNode } from "react";
 import type { CourseKitMaterialisedCourse } from "@/lib/course-kit/types";
 import { CourseCapstone } from "./CourseCapstone";
 import { CourseLanguageNotice } from "./CourseLanguageNotice";
+import {
+  CourseContinueLink,
+  CourseMilestoneLinks,
+  CourseModuleIndicator,
+} from "./CourseJourney";
 import { CourseProgress } from "./CourseProgress";
 import { CourseQuiz } from "./CourseQuiz";
 import { SourceRegister } from "./SourceRegister";
@@ -17,6 +22,12 @@ export interface CourseDashboardProps {
   readonly supplement?: ReactNode;
   /** Require reviewable hash-and-validator receipts before artifact completion. */
   readonly requireStructuredReceipts?: boolean;
+  /** Optional dedicated destinations that keep a long course overview focused. */
+  readonly sectionHrefs?: {
+    readonly assessment: string;
+    readonly capstone: string;
+    readonly sources: string;
+  };
 }
 
 export function CourseDashboard({
@@ -25,6 +36,7 @@ export function CourseDashboard({
   catalogHref = `/${course.locale.requestedLocale}/courses/`,
   supplement,
   requireStructuredReceipts = false,
+  sectionHrefs,
 }: CourseDashboardProps) {
   const courseHref = `/${course.locale.requestedLocale}/${coursePath}/`;
   const moduleHref = (slug: string) => `${courseHref}${slug}/`;
@@ -62,10 +74,20 @@ export function CourseDashboard({
           <p className={styles.heroSummary}>{course.copy.meta.summary}</p>
           <div className={styles.heroActions}>
             {firstModule ? (
-              <Link className={styles.primaryButton} href={moduleHref(firstModule.slug)}>
-                {course.copy.meta.startCta}
-                <span aria-hidden="true"> →</span>
-              </Link>
+              <CourseContinueLink
+                config={course.progress}
+                courseHref={courseHref}
+                modules={course.modules.map((module) => ({
+                  slug: module.slug,
+                  order: module.order,
+                  title: module.copy.title,
+                }))}
+                labels={course.copy.ui}
+                startLabel={course.copy.meta.startCta}
+                resumeLabel={course.copy.meta.resumeCta}
+                assessmentHref={sectionHrefs?.assessment ?? "#final-assessment"}
+                capstoneHref={sectionHrefs?.capstone ?? "#capstone"}
+              />
             ) : null}
             <a className={styles.secondaryButton} href="#curriculum">
               {course.copy.ui.courseMap}
@@ -103,7 +125,7 @@ export function CourseDashboard({
       <section className={styles.scope} aria-labelledby={`${course.id}-scope-title`}>
         <header>
           <p className={styles.eyebrow}>{course.copy.ui.course}</p>
-          <h2 id={`${course.id}-scope-title`}>{course.copy.meta.summary}</h2>
+          <h2 id={`${course.id}-scope-title`}>{course.copy.ui.principles}</h2>
         </header>
         <dl className={styles.scopeFacts}>
           <div>
@@ -119,7 +141,7 @@ export function CourseDashboard({
             <dd>{course.copy.meta.level}</dd>
           </div>
         </dl>
-        <ol className={styles.principles}>
+        <ol className={styles.principles} data-count={course.copy.principles.length}>
           {course.copy.principles.map((principle, index) => (
             <li key={principle}>
               <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
@@ -128,8 +150,6 @@ export function CourseDashboard({
           ))}
         </ol>
       </section>
-
-      {supplement}
 
       <section
         className={styles.curriculum}
@@ -170,9 +190,16 @@ export function CourseDashboard({
                             {course.copy.ui.artifact}: {courseModule.copy.artifact}
                           </em>
                         </span>
-                        <span className={styles.moduleMinutes}>
-                          {courseModule.minutes} {course.copy.ui.minutes}
-                          <span aria-hidden="true"> →</span>
+                        <span className={styles.moduleTail}>
+                          <CourseModuleIndicator
+                            config={course.progress}
+                            moduleSlug={courseModule.slug}
+                            labels={course.copy.ui}
+                          />
+                          <span className={styles.moduleMinutes}>
+                            {courseModule.minutes} {course.copy.ui.minutes}
+                            <span aria-hidden="true"> →</span>
+                          </span>
                         </span>
                       </Link>
                     </li>
@@ -183,6 +210,8 @@ export function CourseDashboard({
           ))}
         </div>
       </section>
+
+      {supplement}
 
       <section className={styles.outcomes} aria-labelledby={`${course.id}-outcomes-title`}>
         <header>
@@ -199,25 +228,53 @@ export function CourseDashboard({
         </ol>
       </section>
 
-      <CourseProgress
-        config={course.progress}
-        labels={course.copy.ui}
-        idSuffix="overview"
-      />
-      <CourseQuiz quiz={course.quiz} config={course.progress} labels={course.copy.ui} />
-      <CourseCapstone
-        capstone={course.capstone}
-        config={course.progress}
-        labels={course.copy.ui}
-        requireStructuredReceipts={requireStructuredReceipts}
-      />
-      <SourceRegister
-        sources={course.sources}
-        labels={course.copy.ui}
-        titleId={`${course.id}-sources-title`}
-      />
+      <div id="course-progress">
+        <CourseProgress
+          config={course.progress}
+          labels={course.copy.ui}
+          idSuffix="overview"
+        />
+      </div>
+      {sectionHrefs ? (
+        <section
+          className={styles.finishLine}
+          aria-labelledby={`${course.id}-finish-line-title`}
+        >
+          <header className={styles.sectionIntro}>
+            <p className={styles.eyebrow}>{course.copy.ui.courseProgress}</p>
+            <h2 id={`${course.id}-finish-line-title`}>{course.copy.ui.finishCourse}</h2>
+            <p>{course.copy.ui.curriculumIntro}</p>
+          </header>
+          <CourseMilestoneLinks
+            config={course.progress}
+            labels={course.copy.ui}
+            assessmentHref={sectionHrefs.assessment}
+            assessmentTitle={course.quiz.title}
+            capstoneHref={sectionHrefs.capstone}
+            capstoneTitle={course.capstone.title}
+            sourcesHref={sectionHrefs.sources}
+            sourceCount={course.sources.length}
+          />
+        </section>
+      ) : (
+        <>
+          <CourseQuiz quiz={course.quiz} config={course.progress} labels={course.copy.ui} />
+          <CourseCapstone
+            capstone={course.capstone}
+            config={course.progress}
+            labels={course.copy.ui}
+            requireStructuredReceipts={requireStructuredReceipts}
+          />
+          <SourceRegister
+            sources={course.sources}
+            labels={course.copy.ui}
+            titleId={`${course.id}-sources-title`}
+            locale={course.locale.contentLocale}
+          />
+        </>
+      )}
 
-      <nav className={styles.bottomNav} aria-label={course.copy.ui.courseMap}>
+      <nav className={styles.bottomNav} aria-label={course.copy.ui.catalog}>
         <Link href={catalogHref}>
           <span aria-hidden="true">←</span>
           {course.copy.ui.catalog}

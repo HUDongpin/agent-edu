@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 export default function NavLinks({
   items,
 }: {
-  items: { href: string; label: string }[];
+  items: { href: string; label: string; activePrefixes?: string[] }[];
 }) {
   const pathname = usePathname() || "/";
   const here = pathname.endsWith("/") ? pathname : `${pathname}/`;
@@ -27,7 +27,11 @@ export default function NavLinks({
         // The locale root is only "current" on an exact match, otherwise every
         // page would light up Home as well as itself.
         const segments = target.split("/").filter(Boolean).length;
-        const active = segments <= 1 ? here === target : here.startsWith(target);
+        const active = (segments <= 1 ? here === target : here.startsWith(target))
+          || n.activePrefixes?.some((prefix) => {
+            const normalised = prefix.endsWith("/") ? prefix : `${prefix}/`;
+            return here.startsWith(normalised);
+          }) === true;
         return (
           <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}>
             {n.label}

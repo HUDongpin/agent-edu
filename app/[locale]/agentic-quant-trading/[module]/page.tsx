@@ -33,6 +33,8 @@ export default async function AgenticQuantTradingModulePage({ params }: Props) {
       locale={locale}
       moduleSlug={module}
       requireStructuredReceipt
+      afterModulesHref={`/${locale}/agentic-quant-trading/assessment/`}
+      capstoneHref={`/${locale}/agentic-quant-trading/capstone/`}
       supplement={
         module === "backtest-leakage-costs" ? (
           <EvidenceGateLab locale={locale} />

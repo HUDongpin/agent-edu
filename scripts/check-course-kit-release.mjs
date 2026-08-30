@@ -276,13 +276,39 @@ function checkDefinition(courseId, definition, contract, issues) {
 
 function checkProgress(definition, helpers, issues) {
   const config = helpers.createCourseKitProgressConfig(definition);
+  const validReceipt = (artifactPath) => JSON.stringify({
+    schemaVersion: "aicourse.evidence-receipt.v1",
+    artifactPath,
+    sha256: "a".repeat(64),
+    validator: {
+      command: "python3 offline-validator.py --check",
+      status: "pass",
+      checkedOn: "2026-08-30",
+    },
+    reviewer: {
+      name: "Named Human Reviewer",
+      role: "Course release fixture reviewer",
+      human: true,
+      decision: "accept-with-limitations",
+    },
+    limitations: ["Release-fixture structure is not automatic substantive proof."],
+  });
   if (helpers.courseKitProgressPercent({}, config) !== 0) {
     issue(issues, "progress", "Empty progress must be 0%.");
   }
+  const firstModule = config.moduleSlugs[0];
   const partial = {
     [config.progressVersionKey]: config.courseVersion,
-    [helpers.courseKitModuleCompleteKey(config.courseId, config.moduleSlugs[0])]: true,
+    [helpers.courseKitModuleCompleteKey(config.courseId, firstModule)]: true,
+    [helpers.courseKitCheckpointKey(config.courseId, firstModule)]: {
+      choice: 0,
+      correct: true,
+    },
   };
+  if (config.moduleReceiptEvidence === "structured-receipt") {
+    partial[helpers.courseKitModuleReceiptKey(config.courseId, firstModule)] =
+      validReceipt(`outputs/${config.courseId}/${firstModule}.json`);
+  }
   const expectedPartial = Math.round(100 / config.milestoneCount);
   if (helpers.courseKitProgressPercent(partial, config) !== expectedPartial) {
     issue(issues, "progress", `One milestone must equal ${expectedPartial}%.`);
@@ -294,12 +320,24 @@ function checkProgress(definition, helpers, issues) {
   const complete = { [config.progressVersionKey]: config.courseVersion };
   for (const slug of config.moduleSlugs) {
     complete[helpers.courseKitModuleCompleteKey(config.courseId, slug)] = true;
+    complete[helpers.courseKitCheckpointKey(config.courseId, slug)] = {
+      choice: 0,
+      correct: true,
+    };
+    if (config.moduleReceiptEvidence === "structured-receipt") {
+      complete[helpers.courseKitModuleReceiptKey(config.courseId, slug)] =
+        validReceipt(`outputs/${config.courseId}/${slug}.json`);
+    }
   }
   complete[helpers.courseKitQuizVersionKey(config.courseId)] = config.quizVersion;
   complete[helpers.courseKitQuizPassedKey(config.courseId)] = true;
   complete[helpers.courseKitCapstoneVersionKey(config.courseId)] = config.capstoneVersion;
   for (const id of config.capstoneArtifactIds) {
     complete[helpers.courseKitCapstoneArtifactKey(config.courseId, id)] = true;
+    complete[helpers.courseKitCapstoneDraftKey(config.courseId, id)] =
+      config.capstoneArtifactEvidence === "structured-receipt"
+        ? validReceipt(`outputs/${config.courseId}/${id}.json`)
+        : "Reviewed capstone artifact draft.";
   }
   complete[helpers.courseKitCapstoneCompleteKey(config.courseId)] = true;
   if (helpers.courseKitProgressPercent(complete, config) !== 100) {

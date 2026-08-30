@@ -13,7 +13,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { CourseDashboard } from "./CourseDashboard";
+import { CourseCapstone } from "./CourseCapstone";
+import { CourseMilestoneView, type CourseMilestoneSection } from "./CourseMilestoneView";
+import { CourseQuiz } from "./CourseQuiz";
 import { ModuleView } from "./ModuleView";
+import { SourceRegister } from "./SourceRegister";
 
 function coursePage(courseId: string, moduleSlug?: string): string {
   return moduleSlug
@@ -61,6 +65,36 @@ export function courseKitMetadata({
   });
 }
 
+export function courseKitMilestoneMetadata({
+  definition,
+  locale,
+  section,
+}: {
+  readonly definition: CourseKitDefinition;
+  readonly locale: string;
+  readonly section: CourseMilestoneSection;
+}): Metadata {
+  const requestedLocale = requireLocale(locale);
+  const course = materialiseCourseKit(definition, requestedLocale);
+  const content = section === "assessment"
+    ? { title: course.quiz.title, description: course.quiz.intro }
+    : section === "capstone"
+      ? { title: course.capstone.title, description: course.capstone.intro }
+      : {
+          title: course.copy.ui.evidenceRegister,
+          description: course.copy.meta.evidenceNote,
+        };
+  return seoFor({
+    locale: requestedLocale,
+    page: `${course.id}/${section}/`,
+    title: `${content.title} · ${course.copy.meta.title}`,
+    description: content.description,
+    siteName: "aicourse.top",
+    availableLocales: COURSE_KIT_REVIEWED_LOCALES,
+    canonicalLocale: course.locale.canonicalLocale,
+  });
+}
+
 function courseJsonLd(course: ReturnType<typeof materialiseCourseKit>) {
   const page = coursePage(course.id);
   return {
@@ -102,11 +136,17 @@ export function CourseKitDashboardRoute({
   locale,
   supplement,
   requireStructuredReceipts = false,
+  sectionHrefs,
 }: {
   readonly definition: CourseKitDefinition;
   readonly locale: string;
   readonly supplement?: ReactNode;
   readonly requireStructuredReceipts?: boolean;
+  readonly sectionHrefs?: {
+    readonly assessment: string;
+    readonly capstone: string;
+    readonly sources: string;
+  };
 }) {
   const requestedLocale = requireLocale(locale);
   const course = materialiseCourseKit(definition, requestedLocale);
@@ -117,6 +157,7 @@ export function CourseKitDashboardRoute({
         course={course}
         supplement={supplement}
         requireStructuredReceipts={requireStructuredReceipts}
+        sectionHrefs={sectionHrefs}
       />
     </>
   );
@@ -128,12 +169,18 @@ export function CourseKitModuleRoute({
   moduleSlug,
   supplement,
   requireStructuredReceipt = false,
+  afterModulesHref,
+  afterModulesTitle,
+  capstoneHref,
 }: {
   readonly definition: CourseKitDefinition;
   readonly locale: string;
   readonly moduleSlug: string;
   readonly supplement?: ReactNode;
   readonly requireStructuredReceipt?: boolean;
+  readonly afterModulesHref?: string;
+  readonly afterModulesTitle?: string;
+  readonly capstoneHref?: string;
 }) {
   const requestedLocale = requireLocale(locale);
   const course = materialiseCourseKit(definition, requestedLocale);
@@ -164,7 +211,123 @@ export function CourseKitModuleRoute({
         module={courseModule}
         supplement={supplement}
         requireStructuredReceipt={requireStructuredReceipt}
+        afterModulesHref={afterModulesHref}
+        afterModulesTitle={afterModulesTitle}
+        capstoneHref={capstoneHref}
       />
     </>
+  );
+}
+
+export function CourseKitAssessmentRoute({
+  definition,
+  locale,
+}: {
+  readonly definition: CourseKitDefinition;
+  readonly locale: string;
+}) {
+  const requestedLocale = requireLocale(locale);
+  const course = materialiseCourseKit(definition, requestedLocale);
+  const courseHref = `/${requestedLocale}/${course.id}/`;
+  const lastModule = course.modules.at(-1);
+  const sourceTitles = Object.fromEntries(
+    course.sources.map((source) => [source.id, source.title]),
+  );
+  return (
+    <CourseMilestoneView
+      course={course}
+      current="assessment"
+      title={course.copy.ui.finalAssessment}
+      summary={course.quiz.intro}
+      previousHref={lastModule ? `${courseHref}${lastModule.slug}/` : courseHref}
+      previousTitle={lastModule?.copy.title ?? course.copy.meta.title}
+      nextHref={`${courseHref}capstone/`}
+      nextTitle={course.copy.ui.capstone}
+    >
+      <CourseQuiz
+        quiz={course.quiz}
+        config={course.progress}
+        labels={course.copy.ui}
+        sourcesHref={`${courseHref}sources/`}
+        sourceTitles={sourceTitles}
+        requirePrerequisites
+        showIntro={false}
+      />
+    </CourseMilestoneView>
+  );
+}
+
+export function CourseKitCapstoneRoute({
+  definition,
+  locale,
+  requireStructuredReceipts = false,
+  requirePrerequisites = false,
+}: {
+  readonly definition: CourseKitDefinition;
+  readonly locale: string;
+  readonly requireStructuredReceipts?: boolean;
+  readonly requirePrerequisites?: boolean;
+}) {
+  const requestedLocale = requireLocale(locale);
+  const course = materialiseCourseKit(definition, requestedLocale);
+  const courseHref = `/${requestedLocale}/${course.id}/`;
+  const sourceTitles = Object.fromEntries(
+    course.sources.map((source) => [source.id, source.title]),
+  );
+  return (
+    <CourseMilestoneView
+      course={course}
+      current="capstone"
+      title={course.copy.ui.capstone}
+      summary={course.capstone.intro}
+      previousHref={`${courseHref}assessment/`}
+      previousTitle={course.copy.ui.finalAssessment}
+      nextHref={`${courseHref}sources/`}
+      nextTitle={course.copy.ui.evidenceRegister}
+    >
+      <CourseCapstone
+        capstone={course.capstone}
+        config={course.progress}
+        labels={course.copy.ui}
+        requireStructuredReceipts={requireStructuredReceipts}
+        requirePrerequisites={requirePrerequisites}
+        sourcesHref={`${courseHref}sources/`}
+        sourceTitles={sourceTitles}
+        showIntro={false}
+      />
+    </CourseMilestoneView>
+  );
+}
+
+export function CourseKitSourcesRoute({
+  definition,
+  locale,
+}: {
+  readonly definition: CourseKitDefinition;
+  readonly locale: string;
+}) {
+  const requestedLocale = requireLocale(locale);
+  const course = materialiseCourseKit(definition, requestedLocale);
+  const courseHref = `/${requestedLocale}/${course.id}/`;
+  return (
+    <CourseMilestoneView
+      course={course}
+      current="sources"
+      title={course.copy.ui.evidenceRegister}
+      summary={course.copy.meta.evidenceNote}
+      previousHref={`${courseHref}capstone/`}
+      previousTitle={course.copy.ui.capstone}
+    >
+      <SourceRegister
+        sources={course.sources}
+        labels={course.copy.ui}
+        titleId={`${course.id}-sources-title`}
+        compact
+        locale={course.locale.contentLocale}
+        showIntro={false}
+        heading={course.copy.ui.sources}
+        showEyebrow={false}
+      />
+    </CourseMilestoneView>
   );
 }

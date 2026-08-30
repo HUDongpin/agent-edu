@@ -1127,7 +1127,7 @@ export const AGENTIC_QUANT_TRADING_MODULES = [
     copy: {
       en: {
         kicker: "Evidence before automation",
-        title: "Capstone: an auditable paper-trading desk",
+        title: "Capstone preparation: build the auditable paper desk",
         summary: "Integrate mandate, data, agents, experiments, simulation, evaluation, risk, paper execution, monitoring, and incident response into one reviewable package.",
         objective: "Demonstrate a complete paper-only research run whose claims, decisions, artifacts, controls, failures, and non-claims can be independently reconstructed.",
         artifact: "Eight-artifact auditable paper-desk dossier",
@@ -1168,7 +1168,7 @@ export const AGENTIC_QUANT_TRADING_MODULES = [
       },
       zhHans: {
         kicker: "先有证据，再谈自动化",
-        title: "结课项目：可审计的模拟交易研究台",
+        title: "结课准备：构建可审计的模拟交易研究台",
         summary: "把授权、数据、智能体、实验、模拟、评估、风险、模拟执行、监控与事故响应整合为可评审包。",
         objective: "展示一次完整的仅限模拟盘研究运行，使主张、决定、产物、控制、失败与禁止外推项均可独立重建。",
         artifact: "八项产物组成的可审计模拟研究台档案",

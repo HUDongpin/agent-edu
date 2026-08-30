@@ -16,6 +16,10 @@ export const AGENTIC_QUANT_TRADING_COURSE = buildCourseKitDefinition({
     version: "2026.08.26-v3",
     displayNumber: 17,
     publishedOn: "2026-08-26",
+    completionEvidence: {
+      moduleReceipt: "structured-receipt",
+      capstoneArtifact: "structured-receipt",
+    },
     milestoneCount: 14,
     phases: [
       {
@@ -79,7 +83,7 @@ export const AGENTIC_QUANT_TRADING_COURSE = buildCourseKitDefinition({
       meta: {
         title: "Agentic AI for Quantitative Trading",
         kicker: "Course 17 · Build the controls before the agent",
-        summary: "Design, test, and audit a bounded multi-agent quantitative research desk—from point-in-time data and falsifiable experiments through friction-aware backtests, deterministic risk gates, local synthetic execution, reconciliation, monitoring, and incident recovery. Every activity is educational and local-synthetic only: no network, external account, credential, remote endpoint, or market-action path, and no investment advice.",
+        summary: "Build and audit a bounded, local-synthetic quantitative research desk with point-in-time data, falsifiable experiments, realistic backtests, deterministic risk gates, and human-owned authority.",
         audience: "Engineers, quantitative researchers, data scientists, product and risk teams who want to evaluate agentic workflows without delegating financial authority to a model.",
         prerequisite: "Comfort with Python, tabular market data, basic statistics, and software testing. No broker or vendor account—including paper or sandbox access—credential, network integration, or live market access is needed or permitted.",
         level: "Advanced",
@@ -124,7 +128,7 @@ export const AGENTIC_QUANT_TRADING_COURSE = buildCourseKitDefinition({
       meta: {
         title: "智能体赋能量化交易",
         kicker: "第 17 门课程 · 先构建控制，再部署智能体",
-        summary: "设计、测试并审计一个有限自主的多智能体量化研究台：从时点一致数据和可证伪实验，到含现实摩擦假设的回测、确定性风险门禁、本地合成执行、对账、监控与事故恢复。所有活动仅供教学且仅限本地合成环境：禁止网络、外部账户、凭证、远程端点与任何市场操作路径，不构成投资建议。",
+        summary: "构建并审计一个有边界的本地合成量化研究台，涵盖时点一致数据、可证伪实验、现实回测、确定性风险门禁与人工负责的权限。",
         audience: "希望评估智能体工作流、但不把金融决策权交给模型的工程师、量化研究员、数据科学家、产品与风险团队。",
         prerequisite: "熟悉 Python、表格型市场数据、基础统计与软件测试。无需且不得使用任何券商或供应商账户（包括 paper 或 sandbox）、凭证、网络集成或实盘市场访问。",
         level: "进阶",
