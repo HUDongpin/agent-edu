@@ -20,6 +20,7 @@ import {
   agenticTeachingCompletedMilestoneCount,
   agenticTeachingFinalQuizBlueprintId,
   agenticTeachingModuleKey,
+  agenticTeachingNextStep,
   agenticTeachingProgressPercent,
   createAgenticTeachingArtifactRecord,
   createAgenticTeachingCapstoneReceipt,
@@ -344,9 +345,25 @@ assert.equal(isAgenticTeachingModuleComplete(invalidProgress, invalidSlug), fals
 assert.equal(agenticTeachingCompletedMilestoneCount(invalidProgress), 0);
 
 // Ten current modules + exact quiz + snapshot-bound attestation make twelve milestones.
+assert.deepEqual(agenticTeachingNextStep({}), {
+  kind: "module",
+  slug: AGENTIC_TEACHING_MODULE_SLUGS[0],
+  resume: false,
+});
+const partialProgress = {};
+recordModule(partialProgress, AGENTIC_TEACHING_MODULE_SLUGS[0]);
+assert.deepEqual(agenticTeachingNextStep(partialProgress), {
+  kind: "module",
+  slug: AGENTIC_TEACHING_MODULE_SLUGS[1],
+  resume: true,
+});
 const progress = {};
 for (const slug of AGENTIC_TEACHING_MODULE_SLUGS) recordModule(progress, slug);
+assert.deepEqual(agenticTeachingNextStep(progress), {
+  kind: "final-assessment",
+});
 progress[AGENTIC_TEACHING_QUIZ_KEY] = tenOfTwelve;
+assert.deepEqual(agenticTeachingNextStep(progress), { kind: "capstone" });
 const firstAttestationFingerprint =
   agenticTeachingCapstonePrerequisiteFingerprint(progress);
 assert.ok(firstAttestationFingerprint);
@@ -361,6 +378,7 @@ const capstone = createAgenticTeachingCapstoneReceipt(
 );
 assert.ok(capstone);
 progress[AGENTIC_TEACHING_CAPSTONE_KEY] = capstone;
+assert.deepEqual(agenticTeachingNextStep(progress), { kind: "course-map" });
 assert.equal(agenticTeachingCompletedMilestoneCount(progress), 12);
 assert.equal(agenticTeachingProgressPercent(progress), 100);
 assert.equal(isAgenticTeachingCapstoneComplete(progress), true);
@@ -516,6 +534,22 @@ const legacy = Object.fromEntries([
 ]);
 assert.equal(agenticTeachingCompletedMilestoneCount(legacy), 0);
 assert.equal(agenticTeachingProgressPercent(legacy), 0);
+assert.deepEqual(agenticTeachingNextStep(legacy), {
+  kind: "module",
+  slug: AGENTIC_TEACHING_MODULE_SLUGS[0],
+  resume: false,
+});
+assert.deepEqual(
+  agenticTeachingNextStep({
+    [agenticTeachingArtifactKey(AGENTIC_TEACHING_MODULE_SLUGS[0])]:
+      "legacy draft retained",
+  }),
+  {
+    kind: "module",
+    slug: AGENTIC_TEACHING_MODULE_SLUGS[0],
+    resume: true,
+  },
+);
 assert.equal(agenticTeachingArtifactText("legacy draft retained"), "legacy draft retained");
 
 process.stdout.write(

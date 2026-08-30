@@ -117,6 +117,7 @@ function checkFilesAndRoutes() {
     "app/[locale]/ai-teaching/[module]/page.tsx",
     "components/ai-teaching/AgenticTeachingCourse.module.css",
     "components/ai-teaching/CourseDashboard.tsx",
+    "components/ai-teaching/CourseNavigation.tsx",
     "components/ai-teaching/Interactions.tsx",
     "components/ai-teaching/ModuleView.tsx",
     "lib/ai-teaching/copy/en.ts",
@@ -170,6 +171,13 @@ function checkFilesAndRoutes() {
     "source.rightsDecision",
     "<FinalAssessment",
     "<CapstoneChecklist",
+    "<CoursePrimaryAction",
+    "<CourseModuleGrid",
+  ]);
+  requireTokens("components/ai-teaching/CourseNavigation.tsx", [
+    "agenticTeachingNextStep",
+    "isAgenticTeachingModuleComplete",
+    'data-state={completed ? "completed" : next ? "next" : "upcoming"}',
   ]);
   requireTokens("components/ai-teaching/ModuleView.tsx", [
     "module.copy.audienceScenarios.k12",
@@ -201,6 +209,7 @@ function checkFilesAndRoutes() {
     "reviewed-label-contract-drift",
     "Changed evidence without the canonical structure",
     "an attestation for an earlier evidence snapshot must not be reusable",
+    "agenticTeachingNextStep(partialProgress)",
   ]);
   requireTokens("scripts/ai-teaching-export-state.mjs", [
     "COURSE18_BROWSER_CONTRACT",
@@ -242,6 +251,7 @@ function checkFilesAndRoutes() {
   );
   for (const componentPath of [
     "components/ai-teaching/CourseDashboard.tsx",
+    "components/ai-teaching/CourseNavigation.tsx",
     "components/ai-teaching/Interactions.tsx",
     "components/ai-teaching/ModuleView.tsx",
   ]) {
@@ -273,7 +283,14 @@ function checkRegistryAndLocales() {
   ]);
 
   const localeFiles = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
-  const keys = ["c.ai-teaching.title", "c.ai-teaching.blurb", "c.ai-teaching.level", "c.ai-teaching.meta"];
+  const keys = [
+    "cat.course18",
+    "c.ai-teaching.title",
+    "c.ai-teaching.blurb",
+    "c.ai-teaching.level",
+    "c.ai-teaching.meta",
+    "c.ai-teaching.contentLanguage",
+  ];
   for (const locale of localeFiles) {
     const messages = readJson(`messages/${locale}.json`);
     if (!messages) continue;

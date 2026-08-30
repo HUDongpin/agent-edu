@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type {
   AgenticTeachingEvidenceMode,
+  AgenticTeachingModuleSlug,
   AgenticTeachingSource,
   AgenticTeachingSourceKind,
   AgenticTeachingSourceStability,
@@ -13,6 +14,7 @@ import {
   ModuleCheckpoint,
   ModuleCompletion,
 } from "./Interactions";
+import { CompactCourseMap } from "./CourseNavigation";
 import styles from "./AgenticTeachingCourse.module.css";
 
 type ContentLocale = MaterializedAgenticTeachingCourse["contentLocale"];
@@ -81,29 +83,29 @@ function ModuleMap({
   activeSlug,
 }: {
   readonly course: MaterializedAgenticTeachingCourse;
-  readonly activeSlug: string;
+  readonly activeSlug: AgenticTeachingModuleSlug;
 }) {
+  const phases = course.phases.map((phase) => ({
+    id: phase.id,
+    order: phase.order,
+    title: phase.copy.title,
+    summary: phase.copy.summary,
+    modules: phase.modules.map((candidate) => ({
+      slug: candidate.slug,
+      order: candidate.order,
+      title: candidate.copy.title,
+      summary: candidate.copy.summary,
+      minutes: candidate.minutes,
+      sourceCount: candidate.sources.length,
+    })),
+  }));
   return (
-    <ol className={styles.moduleMap}>
-      {course.phases.map((phase) => (
-        <li key={phase.id}>
-          <strong>{phase.copy.title}</strong>
-          <ol>
-            {phase.modules.map((candidate) => (
-              <li key={candidate.slug}>
-                <Link
-                  href={`/${course.locale}/ai-teaching/${candidate.slug}/`}
-                  aria-current={candidate.slug === activeSlug ? "page" : undefined}
-                >
-                  <span>{String(candidate.order).padStart(2, "0")}</span>
-                  <span>{candidate.copy.title}</span>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </li>
-      ))}
-    </ol>
+    <CompactCourseMap
+      locale={course.locale}
+      phases={phases}
+      activeSlug={activeSlug}
+      labels={course.copy.ui}
+    />
   );
 }
 
@@ -213,15 +215,18 @@ function interfaceCopy(locale: ContentLocale) {
 export default function ModuleView({
   course,
   module,
+  catalogLabel,
 }: {
   readonly course: MaterializedAgenticTeachingCourse;
   readonly module: MaterializedAgenticTeachingModule;
+  readonly catalogLabel: string;
 }) {
   const index = course.modules.findIndex((candidate) => candidate.slug === module.slug);
   const previous = index > 0 ? course.modules[index - 1] : null;
   const next = index < course.modules.length - 1 ? course.modules[index + 1] : null;
   const phase = course.phases.find((candidate) => candidate.id === module.phaseId);
   const courseHref = `/${course.locale}/ai-teaching/`;
+  const catalogHref = `/${course.locale}/courses/`;
   const hrefFor = (slug: string) => `/${course.locale}/ai-teaching/${slug}/`;
   const chrome = interfaceCopy(course.contentLocale);
   const courseLabel = course.copy.ui.course.includes(String(course.displayNumber))
@@ -245,14 +250,21 @@ export default function ModuleView({
       ) : null}
 
       <nav className={styles.breadcrumb} aria-label={chrome.breadcrumb}>
-        <Link href={courseHref}>
-          <span aria-hidden="true">←</span>
-          {course.copy.ui.backToCourse}
-        </Link>
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">
-          {course.copy.ui.module} {module.order}
-        </span>
+        <ol>
+          <li>
+            <Link
+              href={catalogHref}
+              lang={course.isFallback ? course.locale : undefined}
+              dir={course.locale === "ar" ? "rtl" : undefined}
+            >
+              {catalogLabel}
+            </Link>
+          </li>
+          <li><Link href={courseHref}>{course.copy.meta.title}</Link></li>
+          <li aria-current="page">
+            {course.copy.ui.module} {module.order}
+          </li>
+        </ol>
       </nav>
 
       <details className={styles.mobileMap}>
@@ -337,7 +349,8 @@ export default function ModuleView({
                 ))}
                 <li><a href="#module-practice">04 {course.copy.ui.practice}</a></li>
                 <li><a href="#module-checkpoint">05 {course.copy.ui.checkpoint}</a></li>
-                <li><a href="#module-sources">06 {course.copy.ui.sourceRegister}</a></li>
+                <li><a href="#module-completion">06 {course.copy.ui.completeModule}</a></li>
+                <li><a href="#module-sources">07 {course.copy.ui.sourceRegister}</a></li>
               </ol>
             </nav>
 
@@ -431,7 +444,7 @@ export default function ModuleView({
               />
             </section>
 
-            <div id="module-checkpoint">
+            <div className={styles.anchorTarget} id="module-checkpoint">
               <ModuleCheckpoint
                 slug={module.slug}
                 checkpoint={module.copy.checkpoint}
@@ -445,26 +458,13 @@ export default function ModuleView({
               <p>{module.copy.takeaway}</p>
             </aside>
 
-            <section
-              className={styles.sourceLedger}
-              id="module-sources"
-              aria-labelledby="module-sources-title"
-            >
-              <header className={styles.sectionIntro}>
-                <div>
-                  <p className={styles.sectionLabel}>{course.copy.ui.sourceRegister}</p>
-                  <h2 id="module-sources-title">{course.copy.ui.sources}</h2>
-                </div>
-                <p>{course.copy.meta.evidenceNote}</p>
-              </header>
-              <ModuleSourceRegister sources={module.sources} course={course} />
-            </section>
-
-            <ModuleCompletion
-              slug={module.slug}
-              rubric={module.copy.practice.rubric}
-              labels={course.copy.ui}
-            />
+            <div className={styles.anchorTarget} id="module-completion">
+              <ModuleCompletion
+                slug={module.slug}
+                rubric={module.copy.practice.rubric}
+                labels={course.copy.ui}
+              />
+            </div>
 
             <nav className={styles.modulePager} aria-label={chrome.moduleNavigation}>
               {previous ? (
@@ -485,6 +485,27 @@ export default function ModuleView({
                 </Link>
               )}
             </nav>
+
+            <section
+              className={styles.sourceLedger}
+              id="module-sources"
+              aria-labelledby="module-sources-title"
+            >
+              <header className={styles.sectionIntro}>
+                <div>
+                  <p className={styles.sectionLabel}>{course.copy.ui.sourceRegister}</p>
+                  <h2 id="module-sources-title">{course.copy.ui.sources}</h2>
+                </div>
+                <p>{course.copy.meta.evidenceNote}</p>
+              </header>
+              <details className={styles.sourceDisclosure}>
+                <summary>
+                  <span>{course.copy.ui.sourceRegister}</span>
+                  <span>{module.sources.length} {course.copy.ui.sources}</span>
+                </summary>
+                <ModuleSourceRegister sources={module.sources} course={course} />
+              </details>
+            </section>
           </article>
         </div>
       </div>

@@ -47,7 +47,7 @@ export const AGENTIC_TEACHING_ZH_HANS_COPY = bindAgenticTeachingCourseOptions({
     start: "从边界开始",
     resume: "继续课程",
     courseMap: "课程地图",
-    tracks: "学习路径",
+    tracks: "面向不同教学场景的指南",
     outcomes: "学习成果",
     principles: "不可妥协原则",
     objective: "本模块目标",
