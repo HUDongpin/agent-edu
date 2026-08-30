@@ -177,6 +177,7 @@ const LOCKED_SURFACE_PATHS = Object.freeze([
   "scripts/check-creator-ops-browser.mjs",
   "scripts/check-creator-ops-course.mjs",
   "scripts/check-creator-ops-static.mjs",
+  "tests/creator-ops-progress-regressions.test.ts",
   "vercel.json",
 ]);
 const EXPECTED_RELEASE_SCOPE = "static-course-link-only-synthetic-no-external-writes";
@@ -859,7 +860,10 @@ function checkBehaviorContract() {
   }
 
   const moduleView = readText(`${COURSE_COMPONENT_ROOT}/ModuleView.tsx`);
-  if (!moduleView.includes('aria-label={`${ui.module} ${candidate.order}: ${candidate.copy.title}`}')) {
+  if (
+    !moduleView.includes("<ModuleNavigator")
+    || !interactions.includes('aria-label={`${label(labels, "module", "Module")} ${candidate.order}: ${candidate.title}')
+  ) {
     fail("Module rail links require module number and title in their accessible names");
   }
   const browserAudit = requireTokens("scripts/check-creator-ops-browser.mjs", [
@@ -1117,6 +1121,9 @@ function checkBilingualContract() {
       }
     }
     checkUnfinishedMarkers(path, text);
+    if (/[—–]/u.test(text)) {
+      fail(`${path}: visible course copy must use sentence punctuation rather than em/en dashes`);
+    }
   }
   if (en) {
     const englishWords = en.match(/\b[A-Za-z][A-Za-z'-]*\b/g)?.length ?? 0;
@@ -1228,6 +1235,8 @@ function checkFilesRoutesAndPresentation() {
     "ModuleCompletion",
     "FinalAssessment",
     "CapstoneChecklist",
+    "name={draftId}",
+    'autoComplete="off"',
   ]);
   const progressStore = requireTokens(`${COURSE_COMPONENT_ROOT}/progress-store.ts`, [
     "PROG",

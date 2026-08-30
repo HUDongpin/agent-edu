@@ -10,7 +10,7 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, relative, resolve, sep } from "node:path";
-import { chromium } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 
 const ROOT = process.cwd();
 const OUTPUT_ROOT = resolve(ROOT, "out");
@@ -108,6 +108,37 @@ async function runAxe(page, label) {
   assert(violations.length === 0, `${label}: axe violations: ${violations.join(" | ")}`);
 }
 
+async function assertFocusedActionStatus(page, testId, label) {
+  const status = page.getByTestId(testId);
+  await status.waitFor({ state: "visible" });
+  await page.waitForFunction((id) => {
+    const element = document.querySelector(`[data-testid="${id}"]`);
+    const rect = element?.getBoundingClientRect();
+    return document.activeElement === element
+      && Boolean(rect && rect.bottom > 0 && rect.top < innerHeight);
+  }, testId);
+  const evidence = await status.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {
+      active: document.activeElement === element,
+      bottom: rect.bottom,
+      outlineStyle: style.outlineStyle,
+      outlineWidth: Number.parseFloat(style.outlineWidth),
+      top: rect.top,
+    };
+  });
+  assert(evidence.active, `${label}: focus did not move to the completion status`);
+  assert(
+    evidence.outlineStyle !== "none" && evidence.outlineWidth >= 2,
+    `${label}: completion status lacks a visible focus indicator`,
+  );
+  assert(
+    evidence.bottom > 0 && evidence.top < await page.evaluate(() => innerHeight),
+    `${label}: focused completion status is outside the viewport`,
+  );
+}
+
 async function runCheck(label, callback) {
   try {
     await callback();
@@ -149,8 +180,10 @@ if (!existsSync(resolve(OUTPUT_ROOT, "zh-Hans", "creator-ops", "index.html"))) {
 const server = await startExportServer();
 const browser = await chromium.launch({ headless: true });
 const overviewUrl = `${server.baseUrl}/zh-Hans/creator-ops/`;
+const englishOverviewUrl = `${server.baseUrl}/en/creator-ops/`;
 const moduleOneUrl = `${server.baseUrl}/zh-Hans/creator-ops/outcomes-operating-system/`;
 const moduleTwoUrl = `${server.baseUrl}/zh-Hans/creator-ops/audience-signal-radar/`;
+const moduleTenUrl = `${server.baseUrl}/zh-Hans/creator-ops/evaluation-governance-capstone/`;
 const capstoneUrl = overviewUrl;
 const routeLocales = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
 const moduleSlugs = [
@@ -221,22 +254,191 @@ try {
     await runAxe(page, "Chinese overview");
     await page.goto(moduleOneUrl, { waitUntil: "networkidle" });
     await runAxe(page, "Chinese module");
-    const moduleNames = await page.locator('nav[aria-label="模块"] a').evaluateAll((links) => (
+    assert(
+      await page.getByTestId("creator-ops-module-sources-title").evaluate((element) => element.tagName === "H2"),
+      "the collapsed module source register does not retain an h2 in the document hierarchy",
+    );
+    const moduleNames = await page.locator('nav[aria-label="模块"] a[aria-label^="模块 "]').evaluateAll((links) => (
       links.map((link) => link.getAttribute("aria-label") ?? "")
     ));
     assert(moduleNames.length === 10, `module rail exposes ${moduleNames.length} links instead of 10`);
     moduleNames.forEach((name, index) => {
       assert(name.startsWith(`模块 ${index + 1}: `) && name.length > 8, `incomplete module accessible name: ${name}`);
     });
-    for (const width of [390, 768, 1_440]) {
-      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-      for (const [label, url] of [["overview", overviewUrl], ["module", moduleOneUrl]]) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(moduleTenUrl, { waitUntil: "networkidle" });
+    await page.waitForFunction(() => {
+      const rail = document.querySelector('[data-testid="creator-ops-module-rail"]');
+      const current = rail?.querySelector('[aria-current="page"]');
+      if (!(rail instanceof HTMLElement) || !(current instanceof HTMLElement)) return false;
+      const railRect = rail.getBoundingClientRect();
+      const currentRect = current.getBoundingClientRect();
+      return currentRect.left >= railRect.left - 1 && currentRect.right <= railRect.right + 1;
+    });
+    const activeModuleVisible = await page.evaluate(() => {
+      const rail = document.querySelector('[data-testid="creator-ops-module-rail"]');
+      const current = rail?.querySelector('[aria-current="page"]');
+      if (!(rail instanceof HTMLElement) || !(current instanceof HTMLElement)) return false;
+      const railRect = rail.getBoundingClientRect();
+      const currentRect = current.getBoundingClientRect();
+      return currentRect.left >= railRect.left - 1 && currentRect.right <= railRect.right + 1;
+    });
+    assert(activeModuleVisible, "mobile Module 10 navigation leaves the current module offscreen");
+    const navigator = page.getByTestId("creator-ops-module-navigator");
+    await navigator.scrollIntoViewIfNeeded();
+    const stickyLayers = await page.evaluate(() => {
+      const header = document.querySelector("header.topbar");
+      const navigation = document.querySelector('[data-testid="creator-ops-module-navigator"]');
+      if (!(header instanceof HTMLElement) || !(navigation instanceof HTMLElement)) return null;
+      return {
+        headerBottom: header.getBoundingClientRect().bottom,
+        navigationTop: navigation.getBoundingClientRect().top,
+      };
+    });
+    assert(
+      stickyLayers && stickyLayers.navigationTop >= stickyLayers.headerBottom,
+      `sticky module navigation overlaps the platform header (${JSON.stringify(stickyLayers)})`,
+    );
+    const mobileModuleTargetHeights = await page.locator(
+      '[data-testid="creator-ops-module-navigator"] > div a, nav[aria-label="本页导航"] a',
+    ).evaluateAll((targets) => targets.map((target) => target.getBoundingClientRect().height));
+    assert(
+      mobileModuleTargetHeights.length >= 7 && mobileModuleTargetHeights.every((height) => height >= 44),
+      `mobile module navigation exposes undersized targets (${mobileModuleTargetHeights.join(", ")})`,
+    );
+    await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+    await page.reload({ waitUntil: "networkidle" });
+    assert(
+      await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme.includes("dark")),
+      "dark mode does not set the native-control color scheme",
+    );
+    await runAxe(page, "dark Chinese Module 10");
+    for (const width of [320, 390, 768, 1_440]) {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : width === 390 ? 844 : 900 });
+      for (const [label, url] of [["overview", overviewUrl], ["English overview", englishOverviewUrl], ["module", moduleOneUrl], ["last module", moduleTenUrl]]) {
         await page.goto(url, { waitUntil: "networkidle" });
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         assert(overflow <= 0, `${width}px ${label} overflows by ${overflow}px`);
+        if (width === 320 && label.toLocaleLowerCase().includes("overview")) {
+          const actionBox = await page.getByTestId("creator-ops-primary-action").boundingBox();
+          assert(
+            actionBox && actionBox.y + actionBox.height <= 568,
+            `320px ${label} first viewport hides the primary course action (${JSON.stringify(actionBox)})`,
+          );
+          assert(actionBox.height <= 60, `320px primary action wraps to ${actionBox.height}px`);
+        }
+        if (width === 390 && label === "overview") {
+          const offlineLabBox = await page.getByRole("link", { name: /打开确定性的离线实验包/ }).boundingBox();
+          assert(
+            offlineLabBox && offlineLabBox.height >= 44,
+            `mobile overview offline-lab target is ${offlineLabBox?.height ?? 0}px tall`,
+          );
+        }
       }
     }
     assertCleanRuntime(runtime, "responsive/a11y context");
+    await context.close();
+  });
+
+  await runCheck("truthful start, resume, assessment, capstone, and completed actions", async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    const runtime = observeRuntime(page);
+    await page.goto(overviewUrl, { waitUntil: "networkidle" });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: "networkidle" });
+    const primaryAction = page.getByTestId("creator-ops-primary-action");
+    assert(await primaryAction.textContent().then((text) => text?.includes("从运营契约开始")), "fresh course does not expose the start action");
+    assert((await primaryAction.getAttribute("href"))?.endsWith("/outcomes-operating-system/"), "fresh course does not start at Module 1");
+
+    await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      record["creator-ops.module.outcomes-operating-system.artifact"] = true;
+      record["creator-ops.module.outcomes-operating-system.checkpoint.passed"] = true;
+      record["creator-ops.module.outcomes-operating-system.complete"] = true;
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+    });
+    await page.reload({ waitUntil: "networkidle" });
+    assert(await primaryAction.textContent().then((text) => text?.includes("继续构建创作者运营系统")), "partial course does not expose the resume action");
+    assert((await primaryAction.getAttribute("href"))?.endsWith("/audience-signal-radar/"), "partial course does not resume at the first incomplete module");
+
+    await page.evaluate(({ slugs }) => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      for (const slug of slugs) {
+        record[`creator-ops.module.${slug}.artifact`] = true;
+        record[`creator-ops.module.${slug}.checkpoint.passed`] = true;
+        record[`creator-ops.module.${slug}.complete`] = true;
+      }
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+    }, { slugs: moduleSlugs });
+    await page.reload({ waitUntil: "networkidle" });
+    assert((await primaryAction.getAttribute("href")) === "#final-assessment", "completed modules do not hand off to the final assessment");
+    await primaryAction.focus();
+    await primaryAction.evaluate((action) => {
+      action.addEventListener("click", (event) => event.preventDefault(), { once: true });
+      action.dispatchEvent(new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        button: 0,
+        metaKey: true,
+      }));
+    });
+    await page.waitForTimeout(50);
+    assert(
+      await primaryAction.evaluate((action) => document.activeElement === action),
+      "modified assessment click unexpectedly moves focus in the current tab",
+    );
+    await primaryAction.click();
+    await page.waitForURL(/#final-assessment$/u);
+    await page.waitForFunction(() => document.activeElement?.getAttribute("data-testid") === "creator-ops-assessment");
+    await page.evaluate(() => history.back());
+    await page.waitForURL((url) => !url.hash);
+    await page.waitForFunction(() => {
+      const active = document.activeElement;
+      const rect = active?.getBoundingClientRect();
+      return active?.getAttribute("data-testid") === "creator-ops-primary-action"
+        && Boolean(rect && rect.bottom > 0 && rect.top < innerHeight);
+    });
+
+    await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      record["creator-ops.quiz.passed"] = true;
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+    });
+    await page.reload({ waitUntil: "networkidle" });
+    assert((await primaryAction.getAttribute("href")) === "#capstone", "passed assessment does not hand off to the capstone");
+    await primaryAction.click();
+    await page.waitForURL(/#capstone$/u);
+    await page.waitForFunction(() => document.activeElement?.id === "capstone");
+    await page.evaluate(() => history.back());
+    await page.waitForURL((url) => !url.hash);
+    await page.waitForFunction(() => {
+      const active = document.activeElement;
+      const rect = active?.getBoundingClientRect();
+      return active?.getAttribute("data-testid") === "creator-ops-primary-action"
+        && Boolean(rect && rect.bottom > 0 && rect.top < innerHeight);
+    });
+
+    await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      record["creator-ops.capstone.v1"] = true;
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+    });
+    await page.reload({ waitUntil: "networkidle" });
+    assert((await primaryAction.getAttribute("href")) === "#curriculum", "completed course does not offer a review path");
+    assert(await primaryAction.textContent().then((text) => text?.includes("复习课程")), "completed course action is not labeled as review");
+    await primaryAction.click();
+    await page.waitForURL(/#curriculum$/u);
+    await page.waitForFunction(() => document.activeElement?.id === "curriculum");
+    await page.evaluate(() => history.back());
+    await page.waitForURL((url) => !url.hash);
+    await page.waitForFunction(() => {
+      const active = document.activeElement;
+      const rect = active?.getBoundingClientRect();
+      return active?.getAttribute("data-testid") === "creator-ops-primary-action"
+        && Boolean(rect && rect.bottom > 0 && rect.top < innerHeight);
+    });
+    assertCleanRuntime(runtime, "course-action context");
     await context.close();
   });
 
@@ -247,6 +449,9 @@ try {
     await page.goto(moduleOneUrl, { waitUntil: "networkidle" });
     const textarea = page.locator("textarea");
     assert(await textarea.inputValue() === "", "artifact workbench must start blank");
+    assert(await textarea.getAttribute("name") === "outcomes-operating-system-artifact-draft", "artifact workbench lacks a meaningful field name");
+    assert(await textarea.getAttribute("autocomplete") === "off", "artifact workbench does not disable non-auth autocomplete");
+    assert((await textarea.getAttribute("placeholder"))?.endsWith("…"), "artifact workbench placeholder is not an example ending with an ellipsis");
     const template = await page.locator("details pre").textContent();
     assert(Boolean(template), "reference template is missing");
     const saveReceipt = page.getByRole("button", { name: /自我声明完成/ });
@@ -265,11 +470,35 @@ try {
     assert(download.suggestedFilename() === "operating-contract.md", `download filename is ${download.suggestedFilename()}`);
     assert(await readDownload(download) === genuineDraft, "downloaded artifact differs from the private draft");
     assert(!(await saveReceipt.isDisabled()), "exported substantive work did not unlock the self-attestation");
-    await saveReceipt.click();
+    await saveReceipt.focus();
+    await saveReceipt.press("Enter");
+    await assertFocusedActionStatus(page, "creator-ops-artifact-status", "artifact receipt");
     const afterSaveStorage = await page.evaluate(() => JSON.stringify({ ...localStorage }));
     assert(!afterSaveStorage.includes(genuineDraft), "private artifact leaked into localStorage after receipt");
     assert(afterSaveStorage.includes("creator-ops.module.outcomes-operating-system.artifact"), "artifact receipt was not stored");
     assertCleanRuntime(runtime, "artifact context");
+    await context.close();
+  });
+
+  await runCheck("completion actions preserve keyboard focus", async () => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    const runtime = observeRuntime(page);
+    await page.goto(moduleOneUrl, { waitUntil: "networkidle" });
+    await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      record["creator-ops.module.outcomes-operating-system.artifact"] = true;
+      record["creator-ops.module.outcomes-operating-system.checkpoint.passed"] = true;
+      record["creator-ops.module.outcomes-operating-system.complete"] = false;
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+    });
+    await page.reload({ waitUntil: "networkidle" });
+    const completion = page.getByRole("button", { name: "标记模块已完成" });
+    await completion.scrollIntoViewIfNeeded();
+    await completion.focus();
+    await completion.press("Enter");
+    await assertFocusedActionStatus(page, "creator-ops-completion-status", "module completion");
+    assertCleanRuntime(runtime, "completion-focus context");
     await context.close();
   });
 
@@ -281,12 +510,16 @@ try {
       await page.goto(`${server.baseUrl}/${locale}/creator-ops/`, { waitUntil: "networkidle" });
       const observed = await page.evaluate(() => {
         const course = document.querySelector('[data-testid="creator-ops-course"]');
+        const catalogCrumb = course?.querySelector('nav[aria-label] a[href$="/courses/"]');
         return {
+          breadcrumbDir: catalogCrumb?.getAttribute("dir"),
+          breadcrumbLang: catalogCrumb?.getAttribute("lang"),
           contentDir: course?.getAttribute("dir"),
           contentLang: course?.getAttribute("lang"),
           h1: document.querySelectorAll("h1").length,
           outerDir: document.documentElement.dir,
           outerLang: document.documentElement.lang,
+          overflow: document.documentElement.scrollWidth - window.innerWidth,
         };
       });
       assert(observed.h1 === 1, `${locale}: overview must expose exactly one h1`);
@@ -294,6 +527,9 @@ try {
       assert(observed.outerDir === (locale === "ar" ? "rtl" : "ltr"), `${locale}: outer dir is ${observed.outerDir}`);
       assert(observed.contentLang === (locale === "zh-Hans" ? "zh-Hans" : "en"), `${locale}: content lang is ${observed.contentLang}`);
       assert(observed.contentDir === "ltr", `${locale}: reviewed course content dir is ${observed.contentDir}`);
+      assert(observed.breadcrumbLang === locale, `${locale}: catalog breadcrumb lang is ${observed.breadcrumbLang}`);
+      assert(observed.breadcrumbDir === (locale === "ar" ? "rtl" : "ltr"), `${locale}: catalog breadcrumb dir is ${observed.breadcrumbDir}`);
+      assert(observed.overflow <= 0, `${locale}: overview overflows by ${observed.overflow}px`);
     }
     assertCleanRuntime(runtime, "nine-locale hydration context");
     await context.close();
@@ -350,6 +586,71 @@ try {
     await context.close();
   });
 
+  await runCheck("Module 10 handoff and assessment feedback", async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    const runtime = observeRuntime(page);
+    await page.goto(moduleTenUrl, { waitUntil: "networkidle" });
+    const assessmentLink = page.getByRole("link", { name: /课程终测/ });
+    assert(
+      (await assessmentLink.getAttribute("href"))?.endsWith("/creator-ops/#final-assessment"),
+      "Module 10 pager does not deep-link to the final assessment",
+    );
+    await assessmentLink.click();
+    await page.waitForURL(/#final-assessment$/u);
+    await page.waitForFunction(() => document.activeElement?.getAttribute("data-testid") === "creator-ops-assessment");
+    const assessment = page.getByTestId("creator-ops-assessment");
+    await page.setViewportSize({ width: 1_440, height: 900 });
+    const assessmentHeaderLayout = await assessment.locator("header").evaluate((header) => {
+      const summary = header.querySelector("p:not([class*='sectionLabel'])");
+      const label = header.querySelector("p[class*='sectionLabel']");
+      return {
+        headerHeight: header.getBoundingClientRect().height,
+        labelWidth: label?.getBoundingClientRect().width ?? 0,
+        summaryWidth: summary?.getBoundingClientRect().width ?? 0,
+      };
+    });
+    assert(assessmentHeaderLayout.headerHeight < 700, `assessment header is ${assessmentHeaderLayout.headerHeight}px tall`);
+    assert(assessmentHeaderLayout.labelWidth >= 120, `assessment label column is ${assessmentHeaderLayout.labelWidth}px wide`);
+    assert(assessmentHeaderLayout.summaryWidth >= 400, `assessment summary is only ${assessmentHeaderLayout.summaryWidth}px wide`);
+    const questionGroups = assessment.locator("fieldset");
+    assert(await questionGroups.count() === 10, "final assessment does not expose 10 question groups");
+    for (let index = 0; index < 10; index += 1) {
+      await questionGroups.nth(index).locator('input[type="radio"]').first().check();
+    }
+    assert(await assessment.getByText("10/10 题已作答", { exact: true }).isVisible(), "assessment does not report answer completion");
+    await assessment.getByRole("button", { name: "提交评分" }).click();
+    assert(
+      await assessment.getByTestId("creator-ops-question-feedback").count() === 10,
+      "graded assessment does not explain every question",
+    );
+    assert(
+      await assessment.getByText("正确答案", { exact: true }).count() === 10,
+      "graded assessment does not expose the correct answer in text for every question",
+    );
+    await page.setViewportSize({ width: 320, height: 568 });
+    const gradedAnswerLayout = await assessment.locator(
+      'label[data-correct-answer], label[data-incorrect-selection]',
+    ).evaluateAll((labels) => labels.map((answer) => {
+      const option = answer.querySelector(":scope > span");
+      return {
+        answerWidth: answer.getBoundingClientRect().width,
+        optionWidth: option?.getBoundingClientRect().width ?? 0,
+      };
+    }));
+    assert(
+      gradedAnswerLayout.every(({ answerWidth, optionWidth }) => optionWidth >= Math.min(120, answerWidth * 0.55)),
+      `320px graded-answer badges squeeze option text (${JSON.stringify(gradedAnswerLayout)})`,
+    );
+    assert(
+      await assessment.getByRole("link", { name: /复习/u }).count() > 0,
+      "assessment feedback does not link back to relevant modules",
+    );
+    await runAxe(page, "graded Chinese assessment");
+    assertCleanRuntime(runtime, "assessment-feedback context");
+    await context.close();
+  });
+
   await runCheck("capstone fails closed until modules and assessment are complete", async () => {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -362,11 +663,33 @@ try {
     for (let index = 0; index < 10; index += 1) await checkboxes.nth(index).check();
     const markCapstone = page.getByRole("button", { name: "自我声明综合项目已完成" });
     assert(await markCapstone.isDisabled(), "ten self-checks bypassed module and assessment prerequisites");
+    const draftChecks = await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      return record["creator-ops.capstone.checks"];
+    });
+    assert(Array.isArray(draftChecks) && draftChecks.length === 10 && draftChecks.every(Boolean), "partial capstone checklist was not persisted");
+    await page.reload({ waitUntil: "networkidle" });
+    assert(await page.locator('input[type="checkbox"]:checked').count() === 10, "persisted capstone checklist did not restore after reload");
+    await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      for (const key of Object.keys(record)) {
+        if (key.startsWith("creator-ops.")) delete record[key];
+      }
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+      window.dispatchEvent(new CustomEvent("creator-ops:progress-reset"));
+    });
+    await page.waitForFunction(() => (
+      document.querySelectorAll('#capstone-checklist input[type="checkbox"]:checked').length === 0
+    ));
+    assert(await page.locator('#capstone-checklist input[type="checkbox"]:checked').count() === 0, "course reset leaves stale capstone checks onscreen");
 
     await page.evaluate(({ slugs }) => {
       const existing = JSON.parse(localStorage.getItem("ae.progress") || "{}");
       const progressVersion = existing["creator-ops.progress.version"];
-      if (typeof progressVersion !== "string" || !progressVersion.endsWith(":progress-v1")) {
+      if (
+        typeof progressVersion !== "string"
+        || (progressVersion !== "progress-v1" && !progressVersion.endsWith(":progress-v1"))
+      ) {
         throw new Error("Course 16 did not publish a valid progress-version marker");
       }
       const record = {
@@ -385,9 +708,13 @@ try {
     for (let index = 0; index < 10; index += 1) await restoredChecks.nth(index).check();
     const enabledCapstone = page.getByRole("button", { name: "自我声明综合项目已完成" });
     assert(!(await enabledCapstone.isDisabled()), "valid prerequisites plus ten checks did not unlock capstone self-attestation");
-    await enabledCapstone.click();
+    await enabledCapstone.focus();
+    await enabledCapstone.press("Enter");
+    await assertFocusedActionStatus(page, "creator-ops-capstone-status", "capstone completion");
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
     assert(stored["creator-ops.capstone.v1"] === true, "valid capstone completion was not recorded");
+    const completedCapstone = page.getByRole("button", { name: "综合项目自我声明已记录" });
+    assert(await completedCapstone.isDisabled(), "completed capstone remains resubmittable");
     assertCleanRuntime(runtime, "capstone-prerequisite context");
     await context.close();
   });
@@ -397,17 +724,31 @@ try {
     const page = await context.newPage();
     const runtime = observeRuntime(page);
     await page.goto(moduleOneUrl, { waitUntil: "networkidle" });
+    await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem("ae.progress") || "{}");
+      record["creator-ops.module.outcomes-operating-system.artifact"] = true;
+      record["creator-ops.module.outcomes-operating-system.checkpoint.passed"] = true;
+      record["creator-ops.module.outcomes-operating-system.complete"] = true;
+      localStorage.setItem("ae.progress", JSON.stringify(record));
+    });
+    await page.reload({ waitUntil: "networkidle" });
+    assert(
+      await page.getByText("已完成", { exact: true }).first().isVisible(),
+      "completed module fixture did not restore before the retry",
+    );
     const radios = page.locator('input[type="radio"]');
     const checkAnswer = page.getByRole("button", { name: "检查答案" });
-    await radios.nth(1).check();
-    await checkAnswer.click();
-    assert(await page.getByText("回答正确", { exact: true }).isVisible(), "correct attempt was not reported as correct");
     await radios.nth(0).check();
     await checkAnswer.click();
     assert(await page.getByText("重新审视边界", { exact: true }).isVisible(), "wrong retry was reported as correct");
     assert(
       await page.locator('[role="status"]').filter({ hasText: "此前的通过回执仍会保留；但本次作答不正确。" }).isVisible(),
       "wrong retry does not distinguish current feedback from historical pass",
+    );
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ae.progress") || "{}"));
+    assert(
+      stored["creator-ops.module.outcomes-operating-system.complete"] === true,
+      "wrong retry demoted a previously completed module",
     );
     assertCleanRuntime(runtime, "checkpoint context");
     await context.close();
@@ -438,6 +779,40 @@ try {
     assertCleanRuntime(runtime, "storage-denied context");
     await context.close();
   });
+
+  for (const [engineName, launcher] of [["Firefox", firefox], ["WebKit", webkit]]) {
+    await runCheck(`${engineName} ten-module responsive journey`, async () => {
+      const engineBrowser = await launcher.launch({ headless: true });
+      try {
+        const context = await engineBrowser.newContext({ viewport: { width: 390, height: 844 } });
+        const page = await context.newPage();
+        const runtime = observeRuntime(page);
+        await page.goto(overviewUrl, { waitUntil: "networkidle" });
+        assert(await page.locator("h1").count() === 1, `${engineName}: overview h1 is missing`);
+        for (const slug of moduleSlugs) {
+          await page.goto(`${server.baseUrl}/zh-Hans/creator-ops/${slug}/`, { waitUntil: "networkidle" });
+          assert(await page.locator("h1").count() === 1, `${engineName} ${slug}: h1 is missing`);
+          const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+          assert(overflow <= 0, `${engineName} ${slug}: page overflows by ${overflow}px`);
+          await page.waitForFunction(() => {
+            const rail = document.querySelector('[data-testid="creator-ops-module-rail"]');
+            const current = rail?.querySelector('[aria-current="page"]');
+            if (!(rail instanceof HTMLElement) || !(current instanceof HTMLElement)) return false;
+            const railRect = rail.getBoundingClientRect();
+            const currentRect = current.getBoundingClientRect();
+            return currentRect.left >= railRect.left - 1 && currentRect.right <= railRect.right + 1;
+          });
+        }
+        await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+        await page.reload({ waitUntil: "networkidle" });
+        await runAxe(page, `${engineName} dark Module 10`);
+        assertCleanRuntime(runtime, `${engineName} journey context`);
+        await context.close();
+      } finally {
+        await engineBrowser.close();
+      }
+    });
+  }
 
   for (const legacy of [false, true]) {
     await runCheck(`${legacy ? "legacy sentinel" : "Navigation API"} draft traversal guard`, async () => {

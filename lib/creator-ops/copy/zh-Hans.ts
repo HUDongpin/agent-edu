@@ -13,7 +13,7 @@ export const CREATOR_OPS_ZH_HANS_COPY = {
     prerequisite:
       "完成核心成果不需要付费 API、真实社交账号或编程基础。代码与自托管工具路线均为选修；用于生产环境时，操作者应理解凭证、平台政策与基本数据处理要求。",
     level: "入门至进阶",
-    duration: "10 个模块 · 11 小时 50 分钟 · 终测 · 30 天模拟综合项目",
+    duration: "10 个模块，11 小时 50 分钟，课程终测，30 天模拟综合项目",
     startCta: "从运营契约开始",
     resumeCta: "继续构建创作者运营系统",
     languageNotice:
@@ -50,6 +50,9 @@ export const CREATOR_OPS_ZH_HANS_COPY = {
     rightsNotice: "第 16 门课程来源与权利说明",
     reviewedChinese: "简体中文审校版",
     breadcrumb: "面包屑导航",
+    courseNavigation: "课程导航",
+    courseOverview: "课程总览",
+    onThisPage: "本页导航",
     "core-runtime": "核心运行时",
     "research-input": "研究输入",
     production: "内容生产",
@@ -78,7 +81,7 @@ export const CREATOR_OPS_ZH_HANS_COPY = {
     workbenchHelp:
       "请从空白工作区开始写作，只把参考模板当作提示。浏览器只保存完成回执，绝不会保存你的草稿正文。",
     templateReference: "参考模板（不计入你的成果）",
-    draftPlaceholder: "请在此撰写成果。可参考下方模板；离开页面前请复制或下载你的正文。",
+    draftPlaceholder: "示例：先写清目标、证据、负责人、复核门与停止条件…",
     copyDraft: "复制草稿",
     downloadDraft: "下载草稿",
     draftCopied: "草稿已复制到剪贴板。",
@@ -94,10 +97,14 @@ export const CREATOR_OPS_ZH_HANS_COPY = {
     draftTooShort: "记录回执前，请写出至少三行有差异的实质内容，且不少于 120 个字符。",
     checkAnswer: "检查答案",
     correct: "回答正确",
+    correctAnswer: "正确答案",
+    incorrectSelection: "你的答案 · 错误",
     tryAgain: "重新审视边界",
     checkpointAlreadyPassed: "此前的通过回执仍会保留；但本次作答不正确。",
+    checkpointPassedEarlier: "此前通过的知识检查回执仍已保留；你可以复习，不会丢失完成状态。",
     markComplete: "标记模块已完成",
     completed: "已完成",
+    notCompleted: "未完成",
     completionNeeds: "请先保存练习证据并通过知识检查。",
     completionReady: "两项要求均已满足；准备好后即可记录模块完成回执。",
     moduleReceipt: "自我声明的练习成果与已通过的知识检查现已计入第 16 门课程进度；这不代表外部评审已经通过。",
@@ -105,12 +112,16 @@ export const CREATOR_OPS_ZH_HANS_COPY = {
     next: "下一模块",
     backToCourse: "返回第 16 门课程",
     progress: "课程进度",
+    progressLoading: "正在载入已保存的进度…",
     savedLocally: "进度保存在当前浏览器中；成果正文不会被存储。",
     memoryOnly: "隐私模式：该完成收据仅在当前标签页保留。",
     finalAssessment: "课程终测",
     submitAssessment: "提交评分",
     assessmentPassed: "你已通过运营系统终审。",
     assessmentRetry: "请复习证据与权力边界后再次作答。",
+    assessmentEarlierPass: "本次未达到通过线；此前的通过状态与最高分仍然有效。",
+    answered: "题已作答",
+    reviewModule: "复习",
     bestScore: "最高分",
     capstone: "30 天模拟综合项目",
     capstoneChecklist: "综合项目证据清单",
@@ -124,6 +135,7 @@ export const CREATOR_OPS_ZH_HANS_COPY = {
     translationFallback: "经人工审校的英文内容",
     start: "开始",
     resume: "继续",
+    reviewCourse: "复习课程",
   },
   principles: [
     "优化受众价值与长期信任，而非单纯追求产量、虚荣式触达或承诺收入。",
@@ -448,7 +460,7 @@ export const CREATOR_OPS_ZH_HANS_COPY = {
           heading: "让状态、预算与恢复持久化",
           paragraphs: [
             "把简报版本、来源 ID、主张决策、资产回执、审批记录、尝试次数和发布状态存放在模型上下文之外。上下文帮助当前步骤推理；持久状态则让运营过程经得起重试、模型变更与进程丢失。",
-            "为每一步设定期限、尝试次数、令牌或成本上限、并发数与停止条件。核查节点失败后，应向编辑返回结构化原因，而不是触发永无止境的“写作—核查”循环。",
+            "为每一步设定期限、尝试次数、令牌或成本上限、并发数与停止条件。核查节点失败后，应向编辑返回结构化原因，而不是触发永无止境的“写作与核查”循环。",
           ],
           sourceIds: ["langgraph", "prefect", "langfuse"],
         },
@@ -673,7 +685,7 @@ ID：
 ## QA 回执
 尺寸 / 编解码器 / 时长 / 响度：
 字幕时序与文字复核：
-主张—画面匹配与无障碍复核：
+主张与画面匹配及无障碍复核：
 校验和：
 C2PA 结果：
 批准 / 未解决风险：`,

@@ -5,8 +5,10 @@ import type {
 } from "./types";
 
 export const CREATOR_OPS_PROGRESS_PREFIX = "creator-ops.";
-export const CREATOR_OPS_PROGRESS_VERSION =
-  `${CREATOR_OPS_COURSE_MANIFEST.version}:progress-v1`;
+// Keep the deployed schema-v1 marker canonical while older tabs can still be
+// open. Decoupling future content versions from this value preserves receipts
+// without making the deployed 1.0.2 client reject a marker it cannot read.
+export const CREATOR_OPS_PROGRESS_VERSION = "1.0.2:progress-v1";
 export const CREATOR_OPS_PROGRESS_VERSION_KEY = "creator-ops.progress.version";
 export const CREATOR_OPS_PROGRESS_EVENT = "creator-ops:progress-change";
 export const CREATOR_OPS_PROGRESS_RESET_EVENT = "creator-ops:progress-reset";
@@ -18,6 +20,19 @@ export const CREATOR_OPS_QUIZ_PASS_PERCENT = 80;
 export const CREATOR_OPS_CAPSTONE_ARTIFACT_COUNT = 10;
 export const CREATOR_OPS_PROGRESS_MILESTONES =
   CREATOR_OPS_COURSE_MANIFEST.modules.length + 2;
+
+export type CreatorOpsNextStep =
+  | { readonly kind: "module"; readonly slug: CreatorOpsModuleSlug }
+  | { readonly kind: "assessment" }
+  | { readonly kind: "capstone" }
+  | { readonly kind: "complete" };
+
+function isCompatibleCreatorOpsProgressVersion(value: unknown): boolean {
+  return value === CREATOR_OPS_PROGRESS_VERSION
+    || value === "progress-v1"
+    || (typeof value === "string"
+      && /^\d+\.\d+\.\d+:progress-v1$/u.test(value));
+}
 
 export function creatorOpsArtifactEvidenceKey(slug: CreatorOpsModuleSlug): string {
   return `creator-ops.module.${slug}.artifact`;
@@ -39,7 +54,9 @@ export function normalizeCreatorOpsProgress(
   candidate: Record<string, unknown>,
 ): Record<string, unknown> {
   const normalized = { ...candidate };
-  if (normalized[CREATOR_OPS_PROGRESS_VERSION_KEY] !== CREATOR_OPS_PROGRESS_VERSION) {
+  if (!isCompatibleCreatorOpsProgressVersion(
+    normalized[CREATOR_OPS_PROGRESS_VERSION_KEY],
+  )) {
     for (const key of Object.keys(normalized)) {
       if (key.startsWith(CREATOR_OPS_PROGRESS_PREFIX)) delete normalized[key];
     }
@@ -129,7 +146,9 @@ export function reconcileCreatorOpsModuleCompletion(
 }
 
 export function creatorOpsProgressPercent(record: Record<string, unknown>): number {
-  if (record[CREATOR_OPS_PROGRESS_VERSION_KEY] !== CREATOR_OPS_PROGRESS_VERSION) return 0;
+  if (!isCompatibleCreatorOpsProgressVersion(
+    record[CREATOR_OPS_PROGRESS_VERSION_KEY],
+  )) return 0;
   const modules = CREATOR_OPS_COURSE_MANIFEST.modules.filter((module) =>
     isCreatorOpsModuleComplete(record, module.slug),
   ).length;
@@ -151,6 +170,20 @@ export function isCreatorOpsCapstoneComplete(
 ): boolean {
   return record[CREATOR_OPS_CAPSTONE_KEY] === true
     && hasCreatorOpsCapstonePrerequisites(record);
+}
+
+export function nextCreatorOpsStep(
+  record: Record<string, unknown>,
+): CreatorOpsNextStep {
+  const nextModule = CREATOR_OPS_COURSE_MANIFEST.modules.find(
+    (module) => !isCreatorOpsModuleComplete(record, module.slug),
+  );
+  if (nextModule) return { kind: "module", slug: nextModule.slug };
+  if (record[CREATOR_OPS_QUIZ_PASSED_KEY] !== true) {
+    return { kind: "assessment" };
+  }
+  if (!isCreatorOpsCapstoneComplete(record)) return { kind: "capstone" };
+  return { kind: "complete" };
 }
 
 export function gradeCreatorOpsAssessment(
