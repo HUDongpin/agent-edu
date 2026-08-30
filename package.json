@@ -35,6 +35,7 @@
     "vitals:lab": "node scripts/measure-lab-vitals.mjs",
     "preview:test": "node scripts/serve-out.mjs",
     "preview:verify": "node scripts/verify-vercel-preview.mjs",
+    "production:verify": "node scripts/verify-vercel-preview.mjs --environment production --csp-stage enforced",
     "routes:check": "node scripts/check-routes.mjs",
     "assets:check": "node scripts/check-static-assets.mjs",
     "artifacts:check": "node scripts/check-artifacts.mjs --curated --require-root browser-evidence",

@@ -58,3 +58,23 @@ test("Preview metadata fails closed when Vercel does not expose deployment bindi
     env: { VERCEL_GIT_COMMIT_SHA: SHA, VERCEL_ENV: "preview" },
   }), /VERCEL_DEPLOYMENT_ID and VERCEL_URL/);
 });
+
+test("production metadata also requires exact deployment bindings", () => {
+  assert.deepEqual(releaseMetadata({
+    env: {
+      VERCEL_GIT_COMMIT_SHA: SHA,
+      VERCEL_ENV: "production",
+      VERCEL_DEPLOYMENT_ID: "dpl_exampleProduction123",
+      VERCEL_URL: "agent-edu-production-example.vercel.app",
+    },
+  }), {
+    schema: "agent-edu.release-build.v1",
+    commitSha: SHA,
+    environment: "production",
+    deploymentId: "dpl_exampleProduction123",
+    deploymentUrl: "https://agent-edu-production-example.vercel.app",
+  });
+  assert.throws(() => releaseMetadata({
+    env: { VERCEL_GIT_COMMIT_SHA: SHA, VERCEL_ENV: "production" },
+  }), /Production builds require VERCEL_DEPLOYMENT_ID and VERCEL_URL/);
+});

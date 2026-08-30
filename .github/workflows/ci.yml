@@ -18,6 +18,14 @@ on:
         description: Exact candidate commit SHA deployed to Preview
         required: false
         type: string
+      csp_stage:
+        description: Expected CSP stage on the exact-SHA Preview
+        required: false
+        default: report-only
+        type: choice
+        options:
+          - report-only
+          - enforced
 
 permissions:
   contents: read
@@ -169,6 +177,7 @@ jobs:
       PREVIEW_URL: ${{ inputs.preview_url }}
       VERCEL_DEPLOYMENT_ID: ${{ inputs.deployment_id }}
       CANDIDATE_COMMIT_SHA: ${{ inputs.commit_sha }}
+      CSP_STAGE: ${{ inputs.csp_stage }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -197,6 +206,8 @@ jobs:
           --url "$PREVIEW_URL"
           --deployment-id "$VERCEL_DEPLOYMENT_ID"
           --commit "$CANDIDATE_COMMIT_SHA"
+          --environment preview
+          --csp-stage "$CSP_STAGE"
           --browser-console
           --output tmp/release/vercel-preview-verification.json
       - name: Upload sanitized same-SHA Preview evidence

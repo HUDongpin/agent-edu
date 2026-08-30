@@ -41,20 +41,24 @@ export function releaseMetadata(options = {}) {
   const environment = typeof env.VERCEL_ENV === "string" && env.VERCEL_ENV.length > 0
     ? env.VERCEL_ENV
     : "local";
-  const previewDeploymentId = env.VERCEL_DEPLOYMENT_ID || null;
-  if (previewDeploymentId !== null && !DEPLOYMENT_ID.test(previewDeploymentId)) {
+  if (!["local", "preview", "production"].includes(environment)) {
+    throw new Error("VERCEL_ENV must be local, preview, or production");
+  }
+  const deploymentId = env.VERCEL_DEPLOYMENT_ID || null;
+  if (deploymentId !== null && !DEPLOYMENT_ID.test(deploymentId)) {
     throw new Error("VERCEL_DEPLOYMENT_ID must be one Vercel deployment ID");
   }
-  const previewDeploymentUrl = deploymentUrl(env.VERCEL_URL);
-  if (environment === "preview" && (!previewDeploymentId || !previewDeploymentUrl)) {
-    throw new Error("Preview builds require VERCEL_DEPLOYMENT_ID and VERCEL_URL");
+  const boundDeploymentUrl = deploymentUrl(env.VERCEL_URL);
+  if (["preview", "production"].includes(environment) && (!deploymentId || !boundDeploymentUrl)) {
+    const label = environment === "preview" ? "Preview" : "Production";
+    throw new Error(`${label} builds require VERCEL_DEPLOYMENT_ID and VERCEL_URL`);
   }
   return {
     schema: "agent-edu.release-build.v1",
     commitSha,
     environment,
-    deploymentId: previewDeploymentId,
-    deploymentUrl: previewDeploymentUrl,
+    deploymentId,
+    deploymentUrl: boundDeploymentUrl,
   };
 }
 

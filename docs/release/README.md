@@ -118,8 +118,16 @@ rejects optimistic aggregate statuses.
 9. Run `npm run release:check` again. Preserve its passing output with the
    release record.
 10. If any native review, Arabic case, canary reconciliation, CSP stage, CI
-   observation, or rollback validation fails, stop the release and retain the
-   failure as `fail`.
+    observation, or rollback validation fails, stop the release and retain the
+    failure as `fail`.
+
+After the enforced final candidate, rollback evidence, and formal release gate
+all pass, run the stage-aware production verifier documented in
+`csp-verification.md`. A production alias or a `READY` deployment alone is not
+completion: the canonical origin, unique deployment URL, deployment ID,
+environment metadata, exact commit, enforced CSP, public/negative routes,
+SEO/sitemaps, and browser-console surface must all bind to the same production
+artifact.
 
 Automatic key, placeholder, plural, and fallback checks cannot sign for a
 native speaker. Mock Provider tests cannot replace the low-limit real canary.

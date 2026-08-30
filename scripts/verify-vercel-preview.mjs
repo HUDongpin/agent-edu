@@ -22,6 +22,11 @@ const MAX_FAILURES = 250;
 const DEFAULT_CONCURRENCY = 12;
 const TRUSTED_OIDC_TOKEN = /^[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}\.[A-Za-z0-9_-]{2,4096}$/;
 const REPORT_ONLY_CSP_DIAGNOSTIC = "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy.";
+const DEPLOYMENT_ENVIRONMENTS = new Set(["preview", "production"]);
+const CSP_HEADER_BY_STAGE = {
+  "report-only": "content-security-policy-report-only",
+  enforced: "content-security-policy",
+};
 
 function localizedPath(locale, route) {
   const page = route.replace(/^\/+|\/+$/g, "");
@@ -124,25 +129,114 @@ export function buildPreviewPlan(releaseSurface, routeManifest) {
   };
 }
 
-export function validatePreviewTarget({ previewUrl, deploymentId, commitSha }, options = {}) {
+/**
+ * @param {{
+ *   url: string,
+ *   deploymentId: string,
+ *   commitSha: string,
+ *   environment?: "preview" | "production",
+ *   cspStage?: "report-only" | "enforced",
+ *   metadataDeploymentUrl?: string,
+ * }} input
+ * @param {{ allowLocalhost?: boolean }} [options]
+ */
+export function validateDeploymentTarget({
+  url: targetUrl,
+  deploymentId,
+  commitSha,
+  environment = "preview",
+  cspStage = "report-only",
+  metadataDeploymentUrl,
+}, options = {}) {
   if (!GIT_SHA.test(commitSha)) throw new Error("commit SHA must be 40 lowercase hexadecimal characters");
   if (!DEPLOYMENT_ID.test(deploymentId)) throw new Error("deployment ID has an invalid format");
+  if (!DEPLOYMENT_ENVIRONMENTS.has(environment)) {
+    throw new Error("deployment environment must be preview or production");
+  }
+  if (!Object.hasOwn(CSP_HEADER_BY_STAGE, cspStage)) {
+    throw new Error("CSP stage must be report-only or enforced");
+  }
+  if (environment === "production" && cspStage !== "enforced") {
+    throw new Error("production verification requires enforced CSP");
+  }
   let url;
   try {
-    url = new URL(previewUrl);
+    url = new URL(targetUrl);
   } catch {
-    throw new Error("Preview URL is invalid");
+    throw new Error("deployment URL is invalid");
   }
-  const localhostAllowed = options.allowLocalhost === true
+  const localhostAllowed = environment === "preview"
+    && options.allowLocalhost === true
     && url.protocol === "http:"
     && ["127.0.0.1", "localhost"].includes(url.hostname);
-  if (!localhostAllowed && (url.protocol !== "https:" || !url.hostname.endsWith(".vercel.app"))) {
+  if (
+    environment === "preview"
+    && !localhostAllowed
+    && (url.protocol !== "https:" || !url.hostname.endsWith(".vercel.app"))
+  ) {
     throw new Error("Preview URL must be one HTTPS vercel.app origin");
   }
-  if (url.username || url.password || url.search || url.hash || !["", "/"].includes(url.pathname)) {
-    throw new Error("Preview URL must not contain credentials, a path, query, or fragment");
+  if (environment === "production" && url.origin !== SITE_ORIGIN) {
+    throw new Error(`production URL must be the canonical production origin ${SITE_ORIGIN}`);
   }
-  return { previewOrigin: url.origin, deploymentId, commitSha };
+  if (url.username || url.password || url.search || url.hash || !["", "/"].includes(url.pathname)) {
+    throw new Error("deployment URL must not contain credentials, a path, query, or fragment");
+  }
+  const expectedMetadataUrl = metadataDeploymentUrl ?? (environment === "preview" ? url.origin : null);
+  if (typeof expectedMetadataUrl !== "string") {
+    throw new Error("production verification requires the unique metadata deployment URL");
+  }
+  let metadataUrl;
+  try {
+    metadataUrl = new URL(expectedMetadataUrl);
+  } catch {
+    throw new Error("metadata deployment URL is invalid");
+  }
+  const metadataUrlHasExtraParts = metadataUrl.username
+    || metadataUrl.password
+    || metadataUrl.search
+    || metadataUrl.hash
+    || !["", "/"].includes(metadataUrl.pathname);
+  const validMetadataOrigin = localhostAllowed
+    ? metadataUrl.origin === url.origin
+    : metadataUrl.protocol === "https:" && metadataUrl.hostname.endsWith(".vercel.app");
+  if (!validMetadataOrigin || metadataUrlHasExtraParts) {
+    throw new Error("metadata deployment URL must be one clean HTTPS vercel.app origin");
+  }
+  if (environment === "preview" && !localhostAllowed && metadataUrl.origin !== url.origin) {
+    throw new Error("Preview metadata deployment URL must equal the verified Preview origin");
+  }
+  return {
+    origin: url.origin,
+    deploymentId,
+    commitSha,
+    environment,
+    cspStage,
+    metadataDeploymentUrl: metadataUrl.origin,
+  };
+}
+
+export function validatePreviewTarget({ previewUrl, deploymentId, commitSha }, options = {}) {
+  const target = validateDeploymentTarget({
+    url: previewUrl,
+    deploymentId,
+    commitSha,
+    environment: "preview",
+    cspStage: "report-only",
+  }, options);
+  return {
+    previewOrigin: target.origin,
+    deploymentId: target.deploymentId,
+    commitSha: target.commitSha,
+  };
+}
+
+export function deploymentMetadataMatches(metadata, target) {
+  return metadata?.schema === "agent-edu.release-build.v1"
+    && metadata?.commitSha === target.commitSha
+    && metadata?.environment === target.environment
+    && metadata?.deploymentId === target.deploymentId
+    && metadata?.deploymentUrl === target.metadataDeploymentUrl;
 }
 
 export function validateTrustedOidcToken(value) {
@@ -203,7 +297,26 @@ function addFailure(report, code, path, detail = undefined) {
   report.failures.push(detail === undefined ? { code, path } : { code, path, detail });
 }
 
-function checkHeaders(response, path, report) {
+export function cspHeaderFindings(headers, cspStage) {
+  if (!Object.hasOwn(CSP_HEADER_BY_STAGE, cspStage)) {
+    throw new Error("CSP stage must be report-only or enforced");
+  }
+  const findings = [];
+  const expectedHeader = CSP_HEADER_BY_STAGE[cspStage];
+  const oppositeHeader = cspStage === "report-only"
+    ? CSP_HEADER_BY_STAGE.enforced
+    : CSP_HEADER_BY_STAGE["report-only"];
+  const csp = headers.get(expectedHeader) ?? "";
+  for (const directive of ["default-src 'self'", "frame-ancestors 'none'", "object-src 'none'"]) {
+    if (!csp.includes(directive)) findings.push({ code: `header-csp-${cspStage}`, detail: directive });
+  }
+  if ((headers.get(oppositeHeader) ?? "").trim() !== "") {
+    findings.push({ code: "header-csp-stage-conflict", detail: oppositeHeader });
+  }
+  return findings;
+}
+
+function checkHeaders(response, path, report, cspStage) {
   const headers = response.headers;
   if ((headers.get("x-content-type-options") ?? "").toLowerCase() !== "nosniff") {
     addFailure(report, "header-nosniff", path);
@@ -214,9 +327,8 @@ function checkHeaders(response, path, report) {
   if ((headers.get("x-frame-options") ?? "").toUpperCase() !== "DENY") {
     addFailure(report, "header-frame-protection", path);
   }
-  const csp = headers.get("content-security-policy-report-only") ?? "";
-  for (const directive of ["default-src 'self'", "frame-ancestors 'none'", "object-src 'none'"]) {
-    if (!csp.includes(directive)) addFailure(report, "header-csp-report-only", path, directive);
+  for (const finding of cspHeaderFindings(headers, cspStage)) {
+    addFailure(report, finding.code, path, finding.detail);
   }
 }
 
@@ -331,7 +443,14 @@ export function isExpectedReportOnlyCspDiagnostic(message) {
   return message.type() === "error" && message.text() === REPORT_ONLY_CSP_DIAGNOSTIC;
 }
 
-async function verifyBrowserConsole(paths, previewOrigin, report, concurrency, trustedOidcToken) {
+async function verifyBrowserConsole(
+  paths,
+  deploymentOrigin,
+  report,
+  concurrency,
+  trustedOidcToken,
+  cspStage,
+) {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch();
   try {
@@ -356,14 +475,18 @@ async function verifyBrowserConsole(paths, previewOrigin, report, concurrency, t
         pageErrors += 1;
       });
       try {
-        const response = await page.goto(`${previewOrigin}${path}`, {
+        const response = await page.goto(`${deploymentOrigin}${path}`, {
           waitUntil: "load",
           timeout: 30_000,
         });
         if (response?.status() !== 200) addFailure(report, "browser-status", path);
         await page.waitForTimeout(50);
         const reportOnlyPolicy = response?.headers()["content-security-policy-report-only"] ?? "";
-        if (reportOnlyCspDiagnostics > 0 && reportOnlyPolicy.includes("upgrade-insecure-requests")) {
+        if (
+          cspStage === "report-only"
+          && reportOnlyCspDiagnostics > 0
+          && reportOnlyPolicy.includes("upgrade-insecure-requests")
+        ) {
           report.checks.classifiedReportOnlyCspDiagnostics += reportOnlyCspDiagnostics;
         } else {
           // The exact browser diagnostic is expected only when the verified
@@ -385,8 +508,18 @@ async function verifyBrowserConsole(paths, previewOrigin, report, concurrency, t
 }
 
 export async function verifyVercelPreview(options) {
-  const target = validatePreviewTarget(options, { allowLocalhost: options.allowLocalhost });
+  const target = validateDeploymentTarget({
+    url: options.previewUrl,
+    deploymentId: options.deploymentId,
+    commitSha: options.commitSha,
+    environment: options.environment ?? "preview",
+    cspStage: options.cspStage ?? "report-only",
+    metadataDeploymentUrl: options.metadataDeploymentUrl,
+  }, { allowLocalhost: options.allowLocalhost });
   const trustedOidcToken = validateTrustedOidcToken(options.trustedOidcToken);
+  if (target.environment === "production" && trustedOidcToken) {
+    throw new Error("production verification must not transmit a Preview OIDC token");
+  }
   const requestHeaders = previewRequestHeaders(trustedOidcToken);
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
   const releaseArtifacts = assertReleaseArtifactsCurrent({ projectRoot });
@@ -402,13 +535,16 @@ export async function verifyVercelPreview(options) {
     throw new Error("concurrency must be an integer from 1 through 32");
   }
   const report = {
-    schema: "agent-edu.vercel-preview-verification.v1",
+    schema: "agent-edu.vercel-deployment-verification.v2",
     status: "pending",
     checkedAt: new Date().toISOString(),
     target: {
-      previewUrl: target.previewOrigin,
+      url: target.origin,
       deploymentId: target.deploymentId,
       commitSha: target.commitSha,
+      environment: target.environment,
+      cspStage: target.cspStage,
+      metadataDeploymentUrl: target.metadataDeploymentUrl,
     },
     checks: {
       releaseMetadata: 0,
@@ -442,26 +578,20 @@ export async function verifyVercelPreview(options) {
     const metadataPath = "/.well-known/release.json";
     const metadataResponse = await fetchResponse(
       fetchImpl,
-      `${target.previewOrigin}${metadataPath}`,
+      `${target.origin}${metadataPath}`,
       requestHeaders,
     );
     if (metadataResponse.status !== 200) {
       addFailure(report, "release-metadata-status", metadataPath, metadataResponse.status);
     } else {
-      checkHeaders(metadataResponse, metadataPath, report);
+      checkHeaders(metadataResponse, metadataPath, report, target.cspStage);
       let metadata;
       try {
         metadata = await metadataResponse.json();
       } catch {
         addFailure(report, "release-metadata-json", metadataPath);
       }
-      if (
-        metadata?.schema !== "agent-edu.release-build.v1"
-        || metadata?.commitSha !== target.commitSha
-        || metadata?.environment !== "preview"
-        || metadata?.deploymentId !== target.deploymentId
-        || metadata?.deploymentUrl !== target.previewOrigin
-      ) {
+      if (!deploymentMetadataMatches(metadata, target)) {
         addFailure(report, "release-metadata-binding", metadataPath);
       }
     }
@@ -470,7 +600,7 @@ export async function verifyVercelPreview(options) {
     await mapLimit(plan.publicPaths, concurrency, async (path) => {
       let response;
       try {
-        response = await fetchResponse(fetchImpl, `${target.previewOrigin}${path}`, requestHeaders);
+        response = await fetchResponse(fetchImpl, `${target.origin}${path}`, requestHeaders);
       } catch {
         addFailure(report, "public-route-network", path);
         return;
@@ -479,7 +609,7 @@ export async function verifyVercelPreview(options) {
         addFailure(report, "public-route-status", path, response.status);
         return;
       }
-      checkHeaders(response, path, report);
+      checkHeaders(response, path, report, target.cspStage);
       const contract = plan.htmlContracts.get(path);
       if (contract || plan.consumerPaths.has(path)) {
         const contentType = response.headers.get("content-type") ?? "";
@@ -505,7 +635,7 @@ export async function verifyVercelPreview(options) {
     await mapLimit(plan.negativePaths, concurrency, async (path) => {
       let response;
       try {
-        response = await fetchResponse(fetchImpl, `${target.previewOrigin}${path}`, requestHeaders);
+        response = await fetchResponse(fetchImpl, `${target.origin}${path}`, requestHeaders);
       } catch {
         addFailure(report, "negative-route-network", path);
         return;
@@ -517,7 +647,7 @@ export async function verifyVercelPreview(options) {
 
     const sitemapResponse = await fetchResponse(
       fetchImpl,
-      `${target.previewOrigin}/sitemap.xml`,
+      `${target.origin}/sitemap.xml`,
       requestHeaders,
     );
     const sitemapIndex = await sitemapResponse.text();
@@ -540,7 +670,7 @@ export async function verifyVercelPreview(options) {
       }
       const response = await fetchResponse(
         fetchImpl,
-        `${target.previewOrigin}${parsed.pathname}`,
+        `${target.origin}${parsed.pathname}`,
         requestHeaders,
       );
       if (response.status !== 200) addFailure(report, "sitemap-shard-status", parsed.pathname, response.status);
@@ -557,10 +687,11 @@ export async function verifyVercelPreview(options) {
     if (options.browserConsole === true) {
       await verifyBrowserConsole(
         [...plan.htmlContracts.keys()],
-        target.previewOrigin,
+        target.origin,
         report,
         concurrency,
         trustedOidcToken,
+        target.cspStage,
       );
     }
   } catch {
@@ -573,7 +704,10 @@ export async function verifyVercelPreview(options) {
 export function writePreviewReport(report, output, options = {}) {
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
   const allowedRoot = resolve(projectRoot, "tmp/release");
-  const target = resolve(projectRoot, output ?? "tmp/release/vercel-preview-verification.json");
+  const defaultOutput = report?.target?.environment === "production"
+    ? "tmp/release/vercel-production-verification.json"
+    : "tmp/release/vercel-preview-verification.json";
+  const target = resolve(projectRoot, output ?? defaultOutput);
   if (target !== allowedRoot && !target.startsWith(`${allowedRoot}${sep}`)) {
     throw new Error("Preview report output must remain below tmp/release");
   }
@@ -585,22 +719,38 @@ export function writePreviewReport(report, output, options = {}) {
 }
 
 function parseArguments(argv) {
-  const values = { browserConsole: false };
+  const values = {
+    browserConsole: false,
+    environment: "preview",
+    cspStage: "report-only",
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--browser-console") {
       values.browserConsole = true;
       continue;
     }
-    if (!["--url", "--deployment-id", "--commit", "--output", "--concurrency"].includes(arg)) {
-      throw new Error("unknown Preview verifier argument");
+    if (![
+      "--url",
+      "--deployment-id",
+      "--commit",
+      "--environment",
+      "--csp-stage",
+      "--metadata-deployment-url",
+      "--output",
+      "--concurrency",
+    ].includes(arg)) {
+      throw new Error("unknown deployment verifier argument");
     }
     const value = argv[index + 1];
-    if (!value) throw new Error("Preview verifier argument is missing a value");
+    if (!value) throw new Error("deployment verifier argument is missing a value");
     index += 1;
     if (arg === "--url") values.previewUrl = value;
     if (arg === "--deployment-id") values.deploymentId = value;
     if (arg === "--commit") values.commitSha = value;
+    if (arg === "--environment") values.environment = value;
+    if (arg === "--csp-stage") values.cspStage = value;
+    if (arg === "--metadata-deployment-url") values.metadataDeploymentUrl = value;
     if (arg === "--output") values.output = value;
     if (arg === "--concurrency") values.concurrency = Number(value);
   }
@@ -620,7 +770,7 @@ if (invoked) {
     const report = await verifyVercelPreview(options);
     const output = writePreviewReport(report, options.output);
     console.log(
-      `Vercel Preview: ${report.status.toUpperCase()} — ${report.checks.publicRoutes} public, `
+      `Vercel ${report.target.environment}: ${report.status.toUpperCase()} — ${report.checks.publicRoutes} public, `
       + `${report.checks.negativeRoutes} blocked/unsupported, ${report.checks.sitemapUrls} sitemap, `
       + `${report.checks.browserDocuments} browser-console documents, `
       + `${report.checks.classifiedReportOnlyCspDiagnostics} classified report-only CSP diagnostics; `
@@ -628,7 +778,7 @@ if (invoked) {
     );
     if (report.status !== "pass") process.exitCode = 1;
   } catch (error) {
-    console.error(`Vercel Preview: FAIL — ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`Vercel deployment: FAIL — ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
   }
 }
