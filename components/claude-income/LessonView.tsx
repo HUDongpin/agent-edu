@@ -10,6 +10,8 @@ import {
 import CapstoneAudit from "./CapstoneAudit";
 import CopyPrompt from "./CopyPrompt";
 import CourseFigure from "./CourseFigure";
+import ExternalLinkCue from "./ExternalLinkCue";
+import FinalLessonNextAction from "./FinalLessonNextAction";
 import LessonCompletion from "./LessonCompletion";
 import styles from "./ClaudeIncomeCourse.module.css";
 
@@ -96,7 +98,7 @@ export default function LessonView({
       </details>
 
       <div className={styles.lessonLayout}>
-        <aside className={styles.lessonRail}>
+        <aside className={styles.lessonRail} aria-label="Course 12 outline">
           <Link className={styles.railCourseLink} href={courseHref}>Course {course.displayNumber}</Link>
           <CourseOutline locale={locale} activeSlug={lesson.slug} />
         </aside>
@@ -114,6 +116,24 @@ export default function LessonView({
               <div><dt>Unit</dt><dd>{unit.order} of {course.units.length}</dd></div>
             </dl>
           </header>
+
+          <nav className={styles.lessonJumpMenu} aria-label="On this lesson">
+            <span>On this lesson</span>
+            <div>
+              <a href="#lesson-objective-title">Objective</a>
+              <a href="#lesson-section-0">Core lesson</a>
+              <a href="#workflow-title">Workflow</a>
+              <a href="#prompt-template-title">Prompt</a>
+              <a href="#quality-gate-title">Quality gate</a>
+              <a href="#practice-title">Exercise</a>
+              <a href="#checkpoint-title">Checkpoint</a>
+              {lesson.slug === "capstone-seven-day-demand-test" ? (
+                <a href="#claude-income-capstone-audit-title">Capstone audit</a>
+              ) : null}
+              <a href="#lesson-sources-title">Sources</a>
+              <a href="#lesson-completion-title">Completion</a>
+            </div>
+          </nav>
 
           <section className={styles.objective} aria-labelledby="lesson-objective-title">
             <p className={styles.eyebrow}>Learning objective</p>
@@ -144,7 +164,10 @@ export default function LessonView({
                     return (
                       <span key={source.id}>
                         {sourceIndex ? ", " : ""}
-                        <a href={getClaudeIncomeSourceHref(source)} target="_blank" rel="noopener noreferrer">{source.title}</a>
+                        <a href={getClaudeIncomeSourceHref(source)} target="_blank" rel="noopener noreferrer">
+                          {source.title}
+                          <ExternalLinkCue />
+                        </a>
                       </span>
                     );
                   })}
@@ -275,6 +298,7 @@ export default function LessonView({
                       {source.publisher} · Grade {source.evidenceGrade} · Accessed {source.accessedOn}
                       {source.pinnedRevision ? ` · Pinned commit ${source.pinnedRevision.slice(0, 12)}` : ""}
                     </span>
+                    <ExternalLinkCue />
                   </a>
                   <p>{source.supports}</p>
                   <p><strong>Limit:</strong> {source.limitations}</p>
@@ -298,10 +322,7 @@ export default function LessonView({
                 <strong>{next.title}</strong>
               </Link>
             ) : (
-              <Link href={courseHref}>
-                <span>Return to course</span>
-                <strong>{course.title}</strong>
-              </Link>
+              <FinalLessonNextAction courseHref={courseHref} />
             )}
           </nav>
         </article>

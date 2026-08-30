@@ -47,6 +47,7 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY,
   AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY,
   AI_TUTOR_PROGRESS_PROBE_KEY,
+  CLAUDE_INCOME_QUIZ_ATTEMPT_KEY,
   GROK_PROGRESS_PROBE_KEY,
   GROK_QUIZ_ATTEMPT_KEY,
   GROK_TASK_CONTRACT_DRAFT_KEY,
@@ -57,6 +58,7 @@ import {
   RAG_CORRUPT_PROGRESS_BACKUP_KEY,
   RAG_PROGRESS_PROBE_KEY,
 } from "@/lib/progress-storage-contract";
+import { isClaudeIncomeQuizAttemptPersistenceAvailable } from "./claude-income/quiz-attempt-store";
 import {
   AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS,
   AGENT_ORCHESTRATION_PROGRESS_SCHEMA,
@@ -691,7 +693,10 @@ function makeMoneyAdapter(locale: string): ProgressStoreAdapter {
 function claudeIncomeAdapter(locale: string): ProgressStoreAdapter {
   return {
     courseId: "claude-income",
-    storageKeys: [CLAUDE_INCOME_PROGRESS_STORAGE_KEY],
+    storageKeys: [
+      CLAUDE_INCOME_PROGRESS_STORAGE_KEY,
+      CLAUDE_INCOME_QUIZ_ATTEMPT_KEY,
+    ],
     progressEvent: CLAUDE_INCOME_PROGRESS_EVENT,
     readSummary() {
       return readFailClosed(isClaudeIncomePersistenceAvailable, () => {
@@ -730,7 +735,8 @@ function claudeIncomeAdapter(locale: string): ProgressStoreAdapter {
       });
     },
     resetAfterGlobalReset: () => resetAndVerify(resetClaudeIncomeProgressAfterGlobalReset),
-    isPersistent: isClaudeIncomePersistenceAvailable,
+    isPersistent: () => isClaudeIncomePersistenceAvailable()
+      && isClaudeIncomeQuizAttemptPersistenceAvailable(),
   };
 }
 

@@ -46,6 +46,7 @@ import { INDEXABLE_PAGES, PAGES } from "../lib/seo";
 import {
   PUBLIC_COURSE_SURFACES,
   publicCourseHrefFor,
+  publicLocaleSwitchHref,
   withPublicCourseReturnLocale,
 } from "../lib/public-release-surface";
 import {
@@ -306,6 +307,53 @@ test("cross-language course links preserve only an allowlisted shell locale", ()
   assert.equal(
     withPublicCourseReturnLocale("/en/prompts/", "not-a-locale"),
     "/en/prompts/",
+  );
+});
+
+test("language switching preserves real course paths and the requested shell locale", () => {
+  assert.equal(
+    publicLocaleSwitchHref("/en/claude-income/", "de"),
+    "/en/claude-income/?fromLocale=de",
+  );
+  assert.equal(
+    publicLocaleSwitchHref("/en/claude-income/choose-a-money-path/", "ar"),
+    "/en/claude-income/choose-a-money-path/?fromLocale=ar",
+  );
+  assert.equal(
+    publicLocaleSwitchHref("/en/claude-income/choose-a-money-path/", "en"),
+    "/en/claude-income/choose-a-money-path/",
+  );
+  assert.equal(
+    publicLocaleSwitchHref("/en/grok/read-interface/", "de"),
+    "/de/grok/read-interface/",
+  );
+  assert.equal(
+    publicLocaleSwitchHref(
+      "/en/agent-orchestration/workflow-agent-boundary/",
+      "zh-Hans",
+    ),
+    "/zh-Hans/agent-orchestration/workflow-agent-boundary/",
+  );
+  assert.equal(
+    publicLocaleSwitchHref(
+      "/en/agent-orchestration/workflow-agent-boundary/",
+      "fr",
+    ),
+    "/en/agent-orchestration/workflow-agent-boundary/?fromLocale=fr",
+  );
+  assert.equal(publicLocaleSwitchHref("/en/about/", "de"), "/de/about/");
+  assert.equal(
+    publicLocaleSwitchHref("/en/claude-income-guide/", "de"),
+    "/de/claude-income-guide/",
+  );
+  assert.equal(publicLocaleSwitchHref("/en/", "de"), "/de/");
+  assert.equal(
+    publicLocaleSwitchHref("/en/about/", "not-a-locale"),
+    "/en/about/",
+  );
+  assert.equal(
+    publicLocaleSwitchHref("/en/software-engineering/capstone-safe-change/", "ar", "#review"),
+    "/en/software-engineering/capstone-safe-change/?fromLocale=ar#review",
   );
 });
 

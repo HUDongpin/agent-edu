@@ -150,3 +150,38 @@ export function withPublicCourseReturnLocale(
 export const PUBLIC_PUBLISHED_COURSE_SURFACES = PUBLIC_COURSE_SURFACES.filter(
   (course) => course.state === "published",
 );
+
+/**
+ * Build the destination for an explicit shell-language change.
+ *
+ * Core pages and courses published in the requested locale retain their path.
+ * If a course has no reviewed content in that locale, retain the exact real
+ * content route and carry the requested shell locale in an allowlisted query.
+ */
+export function publicLocaleSwitchHref(
+  pathname: string,
+  requestedLocale: string,
+  hash = "",
+): string {
+  if (!PUBLIC_SITE_LOCALES.includes(requestedLocale as PublicContentLocale)) {
+    return `${pathname}${hash}`;
+  }
+
+  const segments = pathname.split("/").filter(Boolean);
+  if (PUBLIC_SITE_LOCALES.includes(segments[0] as PublicContentLocale)) {
+    segments.shift();
+  }
+
+  const pathWithoutLocale = `/${segments.join("/")}${segments.length ? "/" : ""}`;
+  const course = PUBLIC_PUBLISHED_COURSE_SURFACES.find(({ href }) => (
+    href && (pathWithoutLocale === href || pathWithoutLocale.startsWith(href))
+  ));
+  if (course?.href) {
+    const courseHref = publicCourseHrefFor(course.id, requestedLocale);
+    if (!courseHref) return `/${requestedLocale}/courses/`;
+    const childSuffix = pathWithoutLocale.slice(course.href.length);
+    return withPublicCourseReturnLocale(`${courseHref}${childSuffix}${hash}`, requestedLocale);
+  }
+
+  return `/${requestedLocale}${pathWithoutLocale}${hash}`;
+}

@@ -29,6 +29,7 @@ function artifactKey(format: string): string {
 export default async function CourseShell({
   courseId,
   locale,
+  landmarkLabel,
   showBreadcrumb = true,
   showHeading = true,
   standalone = false,
@@ -36,6 +37,7 @@ export default async function CourseShell({
 }: {
   readonly courseId: PublicCourseId;
   readonly locale: string;
+  readonly landmarkLabel?: string;
   readonly showBreadcrumb?: boolean;
   readonly showHeading?: boolean;
   readonly standalone?: boolean;
@@ -78,7 +80,7 @@ export default async function CourseShell({
       className={`${standalone ? "shellwrap " : ""}shared-course-shell`}
       lang={locale}
       dir={metaFor(locale).dir}
-      aria-label={`${t("courseShell.overview")}: ${t(course.titleKey)}`}
+      aria-label={landmarkLabel ?? `${t("courseShell.overview")}: ${t(course.titleKey)}`}
       data-course-shell={courseId}
       data-course-publication-state={surface.state}
       data-course-level={course.level}

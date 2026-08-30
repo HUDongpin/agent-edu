@@ -3,11 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LOCALES, LOCALE_CODES, metaFor } from "@/lib/i18n";
-import {
-  PUBLIC_PUBLISHED_COURSE_SURFACES,
-  publicCourseHrefFor,
-  withPublicCourseReturnLocale,
-} from "@/lib/public-release-surface";
+import { publicLocaleSwitchHref } from "@/lib/public-release-surface";
 import { useI18n } from "./I18nProvider";
 import Icon from "./Icon";
 
@@ -70,20 +66,7 @@ export default function LanguageMenu() {
     // Keep the learner on the same page when that content locale exists. For
     // an English-only course, preserve the requested site language as an
     // explicit return path instead of manufacturing a translated 404 route.
-    const rest = pathname.split("/").filter(Boolean);
-    if (LOCALE_CODES.includes(rest[0])) rest.shift();
-    const pathWithoutLocale = `/${rest.join("/")}${rest.length ? "/" : ""}`;
-    const hash = window.location.hash;
-    const course = PUBLIC_PUBLISHED_COURSE_SURFACES.find(({ href }) => (
-      href && (pathWithoutLocale === href || pathWithoutLocale.startsWith(href))
-    ));
-    let destination = `/${code}${pathWithoutLocale}${hash}`;
-    if (course) {
-      const courseHref = publicCourseHrefFor(course.id, code);
-      if (!courseHref || !course.href) return;
-      const childSuffix = pathWithoutLocale.slice(course.href.length);
-      destination = withPublicCourseReturnLocale(`${courseHref}${childSuffix}${hash}`, code);
-    }
+    const destination = publicLocaleSwitchHref(pathname, code, window.location.hash);
     try {
       localStorage.setItem("ae.lang", code);
     } catch {

@@ -27,6 +27,8 @@ export const GROK_PROGRESS_PROBE_KEY = "aicourse.grok.progress.v1.probe";
 export const GROK_QUIZ_ATTEMPT_KEY = "aicourse.grok.quiz-attempt.v1";
 export const GROK_TASK_CONTRACT_DRAFT_KEY =
   "aicourse.grok.task-contract-draft.v1";
+export const CLAUDE_INCOME_QUIZ_ATTEMPT_KEY =
+  "aicourse.claude-income.quiz-attempt.v1";
 
 export const PROGRESS_LOCAL_EPHEMERAL_KEYS = [
   PROMPT_PROGRESS_PROBE_KEY,
@@ -79,6 +81,7 @@ export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
   AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY,
   GROK_QUIZ_ATTEMPT_KEY,
   GROK_TASK_CONTRACT_DRAFT_KEY,
+  CLAUDE_INCOME_QUIZ_ATTEMPT_KEY,
 ] as const;
 
 export const PROGRESS_OWNED_STORAGE_KEYS = Object.freeze({

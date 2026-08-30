@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   CLAUDE_INCOME_CAPSTONE,
   CLAUDE_INCOME_COURSE,
@@ -7,9 +8,11 @@ import {
   CLAUDE_INCOME_FINAL_QUIZ,
   CLAUDE_INCOME_QUIZ_BANK,
   CLAUDE_INCOME_SOURCES,
+  getClaudeIncomeFigure,
   getClaudeIncomeSourceHref,
 } from "@/lib/claude-income";
 import DashboardProgress from "./DashboardProgress";
+import ExternalLinkCue from "./ExternalLinkCue";
 import FinalQuiz from "./FinalQuiz";
 import styles from "./ClaudeIncomeCourse.module.css";
 import CourseShell from "../course-shell/CourseShell";
@@ -44,6 +47,14 @@ export default function CourseDashboard({
   const totalMinutes = course.lessons.reduce((total, lesson) => total + lesson.minutes, 0);
   const courseHref = `/${locale}/claude-income/`;
   const lessonHref = (slug: string) => `${courseHref}${slug}/`;
+  const dashboardFigure = getClaudeIncomeFigure("fig-06-artifact-workspace");
+  const dashboardFigureSrcSet = dashboardFigure.variants
+    .filter((variant, index, variants) => (
+      variants.findIndex((candidate) => candidate.width === variant.width) === index
+    ))
+    .sort((left, right) => left.width - right.width)
+    .map((variant) => `${variant.src} ${variant.width}w`)
+    .join(", ");
   const officialCount = CLAUDE_INCOME_SOURCES.filter((source) => (
     source.kind === "academy"
     || source.kind === "official-help"
@@ -61,7 +72,11 @@ export default function CourseDashboard({
       dir="ltr"
       data-testid="claude-income-dashboard"
     >
-      <CourseShell courseId="claude-income" locale={locale} />
+      <CourseShell
+        courseId="claude-income"
+        locale={locale}
+        landmarkLabel="Course 12 overview"
+      />
       {locale !== "en" ? (
         <p className={styles.languageNotice} role="note">
           {CLAUDE_INCOME_ENGLISH_BODY_NOTICE}
@@ -79,19 +94,62 @@ export default function CourseDashboard({
           </div>
         </div>
 
-        <aside className={styles.courseBrief} aria-label="Course facts">
-          <p className={styles.eyebrow}>Evidence before earnings</p>
-          <dl>
-            <div><dt>Units</dt><dd>{course.units.length}</dd></div>
-            <div><dt>Lessons</dt><dd>{course.lessons.length}</dd></div>
-            <div><dt>Study time</dt><dd>{Math.round(totalMinutes / 60)} hours</dd></div>
-            <div><dt>Real UI figures</dt><dd>{CLAUDE_INCOME_FIGURES.length}</dd></div>
-          </dl>
-          <p className={styles.prerequisite}><strong>Prerequisite:</strong> {course.prerequisite}</p>
-        </aside>
+        <figure
+          className={styles.dashboardFigure}
+          data-testid="claude-income-dashboard-figure"
+          data-figure-id={dashboardFigure.id}
+          data-capture-sha256={dashboardFigure.sha256}
+          data-rights-status={dashboardFigure.rightsStatus}
+          data-privacy-review={dashboardFigure.privacyReview}
+        >
+          <div className={styles.dashboardFigureHeading}>
+            <span>Real Claude UI · privacy reviewed</span>
+            <strong>{dashboardFigure.title}</strong>
+          </div>
+          <Link
+            className={styles.dashboardFigureLink}
+            href={lessonHref("capstone-seven-day-demand-test")}
+          >
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={dashboardFigureSrcSet}
+                sizes="(max-width: 780px) calc(100vw - 40px), 560px"
+              />
+              <Image
+                src={dashboardFigure.src}
+                alt={dashboardFigure.alt}
+                width={dashboardFigure.width}
+                height={dashboardFigure.height}
+                sizes="(max-width: 780px) calc(100vw - 40px), 560px"
+                priority
+                unoptimized
+              />
+            </picture>
+            <span className={styles.dashboardFigureAction}>
+              Open the capstone lesson
+              <span aria-hidden="true">→</span>
+            </span>
+          </Link>
+          <figcaption>{dashboardFigure.caption}</figcaption>
+        </figure>
       </header>
 
+      <aside className={styles.courseBrief} aria-label="Course facts">
+        <div>
+          <p className={styles.eyebrow}>Evidence before earnings</p>
+          <p className={styles.prerequisite}><strong>Prerequisite:</strong> {course.prerequisite}</p>
+        </div>
+        <dl>
+          <div><dt>Units</dt><dd>{course.units.length}</dd></div>
+          <div><dt>Lessons</dt><dd>{course.lessons.length}</dd></div>
+          <div><dt>Study time</dt><dd>{Math.round(totalMinutes / 60)} hours</dd></div>
+          <div><dt>Real UI figures</dt><dd>{CLAUDE_INCOME_FIGURES.length}</dd></div>
+        </dl>
+      </aside>
+
       <DashboardProgress
+        courseHref={courseHref}
         lessons={course.lessons.map((lesson) => ({
           slug: lesson.slug,
           title: lesson.title,
@@ -183,9 +241,7 @@ export default function CourseDashboard({
         </div>
       </section>
 
-      <div id="final-quiz">
-        <FinalQuiz />
-      </div>
+      <FinalQuiz courseHref={courseHref} />
 
       <section className={styles.sourceIntegrity} aria-labelledby="source-integrity-title">
         <header className={styles.sectionHeading}>
@@ -224,7 +280,10 @@ export default function CourseDashboard({
             {CLAUDE_INCOME_SOURCES.map((source) => (
               <li key={source.id}>
                 <div className={styles.sourceTitle}>
-                  <a href={getClaudeIncomeSourceHref(source)} target="_blank" rel="noopener noreferrer">{source.title}</a>
+                  <a href={getClaudeIncomeSourceHref(source)} target="_blank" rel="noopener noreferrer">
+                    {source.title}
+                    <ExternalLinkCue />
+                  </a>
                   <span>Grade {source.evidenceGrade}</span>
                 </div>
                 <p className={styles.sourceByline}>

@@ -56,7 +56,7 @@ export default function CapstoneAudit({ practice }: { practice: ClaudeIncomePrac
       <header className={styles.assessmentHeader}>
         <div>
           <p className={styles.eyebrow}>Capstone self-audit</p>
-          <h2 id="claude-income-capstone-audit-title">A 100-point evidence record</h2>
+          <h2 id="claude-income-capstone-audit-title" tabIndex={-1}>A 100-point evidence record</h2>
           <p>
             Score only what your portfolio proves. A critical failure cannot be offset by rubric points.
             This is a learning record, not an independent audit or income certificate.
