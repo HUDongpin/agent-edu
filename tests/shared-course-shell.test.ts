@@ -63,7 +63,16 @@ test("eleven published dashboards mount the server CourseShell entry", () => {
     "data-course-progress-storage",
     "local-progress",
   ]) assert.match(shell, new RegExp(field), field);
-  assert.match(shell, /PUBLISHED_CATALOG_COURSES\.find/);
+  assert.match(
+    shell,
+    /allowBlockedPreview\s*\?\s*CATALOG_COURSE_RELEASES\s*:\s*PUBLISHED_CATALOG_COURSES/su,
+    "public shells remain publication-gated while private blocked previews use the full registry",
+  );
+  assert.match(
+    shell,
+    /surface\.state\s*===\s*["']published["']\s*\?\s*\(\s*<CourseShellProgress/su,
+    "blocked previews never hydrate a public progress adapter",
+  );
   assert.match(shell, /getMessages\(locale\)/);
   assert.match(shell, /metaFor\(contentLocale\)\.native/);
   assert.doesNotMatch(shell, /new\s+Intl\.DisplayNames/);
