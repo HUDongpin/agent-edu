@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import test from "node:test";
 import ts from "typescript";
@@ -130,11 +130,23 @@ function resolveClientModule(fromPath: string, specifier: string): string | null
     base,
     `${base}.ts`,
     `${base}.tsx`,
+    `${base}.js`,
+    `${base}.jsx`,
+    `${base}.mjs`,
     `${base}.json`,
     join(base, "index.ts"),
     join(base, "index.tsx"),
+    join(base, "index.js"),
+    join(base, "index.jsx"),
+    join(base, "index.mjs"),
   ];
-  return candidates.find((candidate) => existsSync(candidate)) ?? null;
+  return candidates.find((candidate) => {
+    try {
+      return statSync(candidate).isFile();
+    } catch {
+      return false;
+    }
+  }) ?? null;
 }
 
 function runtimeSpecifiers(path: string): readonly string[] {
