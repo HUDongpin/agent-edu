@@ -3,6 +3,7 @@ import { MCP_LESSON_DISPLAY_CORRECT_INDEXES, type McpCourse, type McpLesson } fr
 import type { McpUiCopy } from "@/lib/mcp/copy";
 import { formatMcpCopy, formatMcpInteger } from "@/lib/mcp/format";
 import InteractiveLab from "./InteractiveLab";
+import KeyboardScrollableCode from "./KeyboardScrollableCode";
 import KnowledgeCheck from "./KnowledgeCheck";
 import LessonCompletion from "./LessonCompletion";
 import LocalizedTemplate from "./LocalizedTemplate";
@@ -143,14 +144,10 @@ export default function LessonView({ course, lesson }: { course: McpCourse; less
                       <figcaption id={`mcp-${lesson.slug}-code-${sectionIndex}`}>
                         <span>{section.code.label}</span><span>{section.code.language}</span>
                       </figcaption>
-                      <pre
-                        dir="ltr"
-                        tabIndex={0}
-                        aria-labelledby={`mcp-${lesson.slug}-code-${sectionIndex}`}
-                        translate="no"
-                      >
-                        <code>{section.code.value}</code>
-                      </pre>
+                      <KeyboardScrollableCode
+                        labelledBy={`mcp-${lesson.slug}-code-${sectionIndex}`}
+                        value={section.code.value}
+                      />
                     </figure>
                   ) : null}
                   {section.callout ? (

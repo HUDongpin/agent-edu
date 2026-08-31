@@ -940,6 +940,8 @@ test.describe("Course 10 accessibility and responsive delivery", () => {
       if (overflow.scroll > overflow.client) {
         await page.keyboard.press("ArrowRight");
         await expect.poll(() => code.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
+        await page.keyboard.press("ArrowLeft");
+        await expect.poll(() => code.evaluate((node) => node.scrollLeft)).toBe(0);
       }
       await runAxe(page, `${path} at 320px`);
     }

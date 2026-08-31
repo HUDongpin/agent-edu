@@ -40,6 +40,7 @@ export default function MobileNav({ label, children }: { label: string; children
         ref={toggle}
         className="iconbtn navtoggle"
         type="button"
+        tabIndex={0}
         aria-controls={menuId}
         aria-expanded={open}
         aria-label={label}
