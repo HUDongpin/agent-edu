@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   CURSOR_PROGRESS_MILESTONES,
   cursorProgressCompletedMilestones,
@@ -15,12 +15,17 @@ import {
   lessonProgressKey,
   resetCursorProgress,
 } from "./progress-store";
+import {
+  hasCursorAssessmentDrafts,
+  subscribeToCursorAssessmentDrafts,
+} from "./session-draft-store";
 import useCourseProgress, { useCourseStorageAvailable } from "./useCourseProgress";
 import styles from "./CursorCourse.module.css";
 
 type LessonLink = {
   readonly slug: CursorLessonSlug;
   readonly href: string;
+  readonly title: string;
 };
 
 export default function CourseProgress({
@@ -28,14 +33,21 @@ export default function CourseProgress({
   labels,
   startLabel,
   resumeLabel,
+  capstoneTitle,
 }: {
   lessons: readonly LessonLink[];
   labels: CursorCourseCopy["ui"];
   startLabel: string;
   resumeLabel: string;
+  capstoneTitle: string;
 }) {
   const progress = useCourseProgress();
   const storageAvailable = useCourseStorageAvailable();
+  const hasAssessmentDraft = useSyncExternalStore(
+    subscribeToCursorAssessmentDrafts,
+    hasCursorAssessmentDrafts,
+    () => false,
+  );
   const [resetMessage, setResetMessage] = useState("");
   const resetStatus = useRef<HTMLParagraphElement>(null);
 
@@ -48,8 +60,13 @@ export default function CourseProgress({
     const incompleteLesson = lessons.find((lesson) => record[lessonProgressKey(lesson.slug)] !== true);
     const capstoneLesson = lessons.find((lesson) => lesson.slug === "workflow-capstone");
     const nextAction = incompleteLesson
-      ?? (!quizPassed ? { href: "#cursor-final-quiz-title" }
-        : !capstonePassed ? capstoneLesson
+      ?? (!quizPassed
+        ? { href: "#cursor-final-quiz-title", title: labels.finalQuizTitle }
+        : !capstonePassed && capstoneLesson
+          ? {
+              href: `${capstoneLesson.href}#cursor-capstone-title`,
+              title: capstoneTitle,
+            }
           : null);
 
     return {
@@ -58,9 +75,10 @@ export default function CourseProgress({
       percent: cursorProgressPercent(record),
       nextAction,
     };
-  }, [lessons, progress]);
+  }, [capstoneTitle, labels.finalQuizTitle, lessons, progress]);
 
-  const hasProgress = Object.keys(progress).some((key) => key.startsWith("cursor."));
+  const hasProgress = hasAssessmentDraft
+    || Object.keys(progress).some((key) => key.startsWith("cursor."));
 
   return (
     <section
@@ -95,6 +113,7 @@ export default function CourseProgress({
           <Link
             className={styles.primaryAction}
             href={state.nextAction.href}
+            data-course-action
             onClick={(event) => {
               if (!state.nextAction?.href.startsWith("#")) return;
               const target = document.querySelector<HTMLElement>(state.nextAction.href);
@@ -105,13 +124,15 @@ export default function CourseProgress({
               target.scrollIntoView({ block: "start" });
             }}
           >
-            {hasProgress ? resumeLabel : startLabel}
+            <span>{hasProgress ? resumeLabel : startLabel}</span>
+            <span className={styles.actionDestination}>{state.nextAction.title}</span>
             <span className={styles.arrow} aria-hidden="true">→</span>
           </Link>
         ) : null}
         <button
           className={styles.secondaryAction}
           type="button"
+          data-course-action
           disabled={!hasProgress}
           onClick={async () => {
             if (!window.confirm(labels.resetConfirm)) return;

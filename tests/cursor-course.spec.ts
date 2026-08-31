@@ -255,7 +255,7 @@ test.describe("Cursor Course 4", () => {
       await expect(figure.locator("figcaption")).toContainText("Course-original SVG");
       await expect(figure.locator('figcaption a[href="/courses/cursor/figure-provenance.json"]')).toHaveCount(1);
       await expect(page.locator('section[aria-labelledby="cursor-sources-title"] li').first()).toBeVisible();
-      await expect(page.getByText("Practice", { exact: true })).toBeVisible();
+      await expect(page.locator("#cursor-lesson-practice").getByText("Practice", { exact: true })).toBeVisible();
       await expect(page.getByTestId("cursor-lesson-quiz").locator("fieldset")).toHaveCount(2);
     });
   }

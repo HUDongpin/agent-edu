@@ -44,6 +44,7 @@ export default function CompletionSummary({
       <button
         className={styles.secondaryAction}
         type="button"
+        data-course-action
         onClick={() => {
           const summary = {
             schema: "aicourse.cursor.completion-summary.v1",

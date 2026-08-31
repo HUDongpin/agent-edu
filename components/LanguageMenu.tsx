@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LOCALES, LOCALE_CODES, metaFor } from "@/lib/i18n";
 import { useI18n } from "./I18nProvider";
 import Icon from "./Icon";
@@ -22,7 +22,6 @@ export default function LanguageMenu() {
   const wrap = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
-  const router = useRouter();
   const pathname = usePathname() || "/";
 
   useEffect(() => {
@@ -62,6 +61,11 @@ export default function LanguageMenu() {
   }
 
   function switchTo(code: string) {
+    if (code === locale) {
+      setOpen(false);
+      trigger.current?.focus();
+      return;
+    }
     // swap only the locale segment, so you stay on the page you were reading
     const rest = pathname.split("/").filter(Boolean);
     if (LOCALE_CODES.includes(rest[0])) rest.shift();
@@ -71,7 +75,13 @@ export default function LanguageMenu() {
       /* private browsing */
     }
     setOpen(false);
-    router.push(`/${code}/${rest.join("/")}${rest.length ? "/" : ""}`);
+    // Reload the locale document so its pre-paint theme script and html
+    // attributes run exactly as they do on a direct visit.
+    const destination = new URL(
+      `/${code}/${rest.join("/")}${rest.length ? "/" : ""}`,
+      window.location.href,
+    );
+    window.location.assign(destination.href);
   }
 
   return (

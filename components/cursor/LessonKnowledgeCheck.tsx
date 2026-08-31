@@ -47,6 +47,7 @@ export default function LessonKnowledgeCheck({
   const [selected, setSelected] = useState<Partial<Record<CursorQuizId, CursorQuizOptionId>>>({});
   const [reviewed, setReviewed] = useState(false);
   const result = useRef<HTMLDivElement>(null);
+  const firstOption = useRef<HTMLInputElement>(null);
   const allAnswered = questions.every((question) => selected[question.id] !== undefined);
   const score = reviewed
     ? questions.filter((question) => selected[question.id] === question.correctOptionId).length
@@ -60,10 +61,12 @@ export default function LessonKnowledgeCheck({
 
   return (
     <section
-      className={styles.quizPanel}
+      className={`${styles.quizPanel} ${styles.lessonAnchor}`}
+      id="cursor-lesson-knowledge-check"
       aria-labelledby={headingId}
       data-hydrated={hydrated ? "true" : "false"}
       data-testid="cursor-lesson-quiz"
+      tabIndex={-1}
     >
       <header className={styles.sectionHeading}>
         <div>
@@ -76,6 +79,7 @@ export default function LessonKnowledgeCheck({
       </header>
 
       <form
+        autoComplete="off"
         onSubmit={(event) => {
           event.preventDefault();
           if (!allAnswered) return;
@@ -111,6 +115,7 @@ export default function LessonKnowledgeCheck({
                       key={`${question.id}-${option.id}`}
                     >
                       <input
+                        ref={questionIndex === 0 && option.id === question.options[0]?.id ? firstOption : undefined}
                         type="radio"
                         name={`cursor-${slug}-${question.id}`}
                         value={option.id}
@@ -161,21 +166,11 @@ export default function LessonKnowledgeCheck({
 
         <div className={styles.quizActions}>
           {!reviewed ? (
-            <button className={styles.primaryAction} type="submit" disabled={!hydrated || !allAnswered}>
+            <button className={styles.primaryAction} type="submit" disabled={!hydrated || !allAnswered} data-course-action>
               {labels.checkAnswers}
             </button>
           ) : (
             <>
-              <button
-                className={styles.secondaryAction}
-                type="button"
-                onClick={() => {
-                  setSelected({});
-                  setReviewed(false);
-                }}
-              >
-                {labels.tryAgain}
-              </button>
               <div
                 className={passed ? styles.quizPassed : styles.quizRetry}
                 ref={result}
@@ -185,6 +180,18 @@ export default function LessonKnowledgeCheck({
                 <strong>{passed ? labels.quizPassed : labels.quizNeedsReview}</strong>
                 <span>{labels.score}: {score}/{questions.length}</span>
               </div>
+              <button
+                className={styles.secondaryAction}
+                type="button"
+                data-course-action
+                onClick={() => {
+                  setSelected({});
+                  setReviewed(false);
+                  window.requestAnimationFrame(() => firstOption.current?.focus());
+                }}
+              >
+                {labels.tryAgain}
+              </button>
             </>
           )}
         </div>

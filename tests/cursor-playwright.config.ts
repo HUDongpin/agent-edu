@@ -6,7 +6,9 @@ const baseURL = externalBaseUrl ?? `http://127.0.0.1:${port}`;
 
 export default defineConfig({
   testDir: ".",
-  testMatch: "cursor-course.spec.ts",
+  testMatch: ["cursor-course.spec.ts", "cursor-ux.spec.ts", "cursor-phase2.spec.ts"],
+  timeout: 60_000,
+  expect: { timeout: 10_000 },
   outputDir: "../output/playwright/cursor-results",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
@@ -23,6 +25,8 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
   webServer: externalBaseUrl
     ? undefined

@@ -6,6 +6,7 @@ import {
   cursorLessonProgressKey,
 } from "@/lib/cursor/progress";
 import type { CursorLessonSlug } from "@/lib/cursor/types";
+import { clearCursorAssessmentDrafts } from "./session-draft-store";
 
 export { CURSOR_PROGRESS_EVENT };
 export const COURSE_PROGRESS_STORAGE_KEY = CURSOR_PROGRESS_STORAGE_KEY;
@@ -241,8 +242,10 @@ export async function applyCursorProgressPatch(
   return commitCursorPatch(patch);
 }
 
-export function resetCursorProgress(): Promise<CourseProgressUpdateResult> {
-  return applyCursorProgressPatch({ clearCursor: true });
+export async function resetCursorProgress(): Promise<CourseProgressUpdateResult> {
+  const result = await applyCursorProgressPatch({ clearCursor: true });
+  clearCursorAssessmentDrafts();
+  return result;
 }
 
 /**
@@ -256,6 +259,7 @@ export async function resetCursorProgressAfterGlobalReset(): Promise<CourseProgr
   const commitReset = (): CourseProgressUpdateResult => {
     const progress = {};
     memorySnapshot = "{}";
+    clearCursorAssessmentDrafts();
     let persisted = false;
 
     if (typeof window !== "undefined") {

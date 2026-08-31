@@ -54,7 +54,7 @@ export default async function Shell({
         </div>
       </header>
 
-      <main id="main">{children}</main>
+      <main id="main" tabIndex={-1}>{children}</main>
 
       <footer className="sitefoot">
         <div className="sitefoot-in">

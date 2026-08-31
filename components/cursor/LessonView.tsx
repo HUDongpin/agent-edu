@@ -8,9 +8,32 @@ import {
 } from "@/lib/cursor";
 import CapstoneReceipt from "./CapstoneReceipt";
 import CourseFigure from "./CourseFigure";
+import CourseLessonNavigation from "./CourseLessonNavigation";
 import LessonCompletion from "./LessonCompletion";
 import LessonKnowledgeCheck from "./LessonKnowledgeCheck";
 import styles from "./CursorCourse.module.css";
+
+function splitLessonBody(body: string, locale: string): readonly string[] {
+  const sentences = Array.from(
+    new Intl.Segmenter(locale, { granularity: "sentence" }).segment(body),
+    ({ segment }) => segment,
+  );
+  if (sentences.length < 4) return [body];
+
+  const midpoint = body.length / 2;
+  let consumed = 0;
+  let splitIndex = 1;
+  for (let index = 0; index < sentences.length - 1; index += 1) {
+    consumed += sentences[index].length;
+    splitIndex = index + 1;
+    if (consumed >= midpoint) break;
+  }
+
+  return [
+    sentences.slice(0, splitIndex).join("").trim(),
+    sentences.slice(splitIndex).join("").trim(),
+  ];
+}
 
 export default function LessonView({
   course,
@@ -24,24 +47,17 @@ export default function LessonView({
   const previous = lessonIndex > 0 ? lessons[lessonIndex - 1] : null;
   const next = lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null;
   const hrefFor = (slug: string) => `/${course.locale}/cursor/${slug}/`;
-  const lessonLinks = () => course.units.map((unit) => (
-    <div className={styles.railUnit} key={unit.id}>
-      <p className={styles.railGroup}>{unit.copy.title}</p>
-      <ol>
-        {unit.lessons.map((item) => (
-          <li key={item.slug}>
-            <Link
-              href={hrefFor(item.slug)}
-              aria-current={item.slug === lesson.slug ? "page" : undefined}
-            >
-              <span>{item.order}</span>
-              {item.copy.title}
-            </Link>
-          </li>
-        ))}
-      </ol>
-    </div>
-  ));
+  const sectionLinks = [
+    { id: "cursor-lesson-learn", label: course.copy.ui.learn },
+    { id: "cursor-lesson-practice", label: course.copy.ui.practice },
+    { id: "cursor-lesson-checkpoint", label: course.copy.ui.checkpoint },
+    { id: "cursor-lesson-knowledge-check", label: course.copy.ui.quiz },
+    ...(lesson.slug === "workflow-capstone"
+      ? [{ id: "cursor-lesson-capstone", label: course.copy.ui.capstone }]
+      : []),
+    { id: "cursor-lesson-sources", label: course.copy.ui.sources },
+    { id: "cursor-lesson-completion", label: course.copy.ui.completion },
+  ];
 
   return (
     <div
@@ -49,31 +65,31 @@ export default function LessonView({
       data-testid={`cursor-lesson-${lesson.slug}`}
     >
       <nav className={styles.breadcrumbs} aria-label={course.copy.ui.backToCourse}>
-        <Link href={`/${course.locale}/cursor/`}>
+        <Link href={`/${course.locale}/cursor/`} data-course-action>
           <span className={styles.backArrow} aria-hidden="true">←</span>
           {course.copy.ui.backToCourse}
         </Link>
-        <span aria-hidden="true">/</span>
+        <span className={styles.breadcrumbSeparator} aria-hidden="true">/</span>
         <span aria-current="page">{lesson.copy.title}</span>
       </nav>
 
       <div className={styles.lessonLayout}>
-        <aside className={styles.lessonRail}>
-          <nav aria-label={course.copy.ui.allLessons}>
-            <strong>{course.copy.ui.allLessons}</strong>
-            {lessonLinks()}
-          </nav>
-        </aside>
-
-        <details className={styles.lessonRailMobile} data-testid="cursor-mobile-lesson-nav">
-          <summary>
-            <span>{course.copy.ui.allLessons}</span>
-            <span>{lesson.order} / {lessons.length}</span>
-          </summary>
-          <nav aria-label={course.copy.ui.allLessons}>
-            {lessonLinks()}
-          </nav>
-        </details>
+        <CourseLessonNavigation
+          units={course.units.map((unit) => ({
+            id: unit.id,
+            title: unit.copy.title,
+            lessons: unit.lessons.map((item) => ({
+              slug: item.slug,
+              order: item.order,
+              title: item.copy.title,
+              href: hrefFor(item.slug),
+            })),
+          }))}
+          currentSlug={lesson.slug}
+          labels={course.copy.ui}
+          sections={sectionLinks}
+          direction={course.locale === "ar" ? "rtl" : "ltr"}
+        />
 
         <div className={styles.lessonMain}>
           <article>
@@ -100,9 +116,18 @@ export default function LessonView({
 
             <div className={styles.lessonSections}>
               {lesson.copy.sections.map((section, index) => (
-                <section key={section.heading} aria-labelledby={`lesson-section-${index}`}>
+                <section
+                  className={index === 0 ? styles.lessonAnchor : undefined}
+                  id={index === 0 ? "cursor-lesson-learn" : undefined}
+                  key={section.heading}
+                  aria-labelledby={`lesson-section-${index}`}
+                  data-testid={`cursor-lesson-prose-${index}`}
+                  tabIndex={index === 0 ? -1 : undefined}
+                >
                   <h2 id={`lesson-section-${index}`}>{section.heading}</h2>
-                  <p>{section.body}</p>
+                  {splitLessonBody(section.body, course.locale).map((paragraph, paragraphIndex) => (
+                    <p key={`${lesson.slug}-${index}-${paragraphIndex}`}>{paragraph}</p>
+                  ))}
                   {lesson.figures[index] ? (
                     <CourseFigure
                       figure={lesson.figures[index]}
@@ -114,7 +139,12 @@ export default function LessonView({
               ))}
             </div>
 
-            <section className={styles.practice} aria-labelledby="cursor-practice-title">
+            <section
+              className={`${styles.practice} ${styles.lessonAnchor}`}
+              id="cursor-lesson-practice"
+              aria-labelledby="cursor-practice-title"
+              tabIndex={-1}
+            >
               <header>
                 <div>
                   <p className={styles.kicker}>{course.copy.ui.practice}</p>
@@ -135,7 +165,12 @@ export default function LessonView({
               <p className={styles.safetyNote}>{lesson.copy.practice.safety}</p>
             </section>
 
-            <section className={styles.checkpoint} aria-labelledby="cursor-checkpoint-title">
+            <section
+              className={`${styles.checkpoint} ${styles.lessonAnchor}`}
+              id="cursor-lesson-checkpoint"
+              aria-labelledby="cursor-checkpoint-title"
+              tabIndex={-1}
+            >
               <h2 id="cursor-checkpoint-title">{course.copy.ui.checkpoint}</h2>
               <details>
                 <summary>{lesson.copy.checkpoint.prompt}</summary>
@@ -175,7 +210,12 @@ export default function LessonView({
               />
             ) : null}
 
-            <section className={styles.sources} aria-labelledby="cursor-sources-title">
+            <section
+              className={`${styles.sources} ${styles.lessonAnchor}`}
+              id="cursor-lesson-sources"
+              aria-labelledby="cursor-sources-title"
+              tabIndex={-1}
+            >
               <h2 id="cursor-sources-title">{course.copy.ui.sources}</h2>
               <ol>
                 {lesson.sources.map((source) => (
@@ -197,18 +237,18 @@ export default function LessonView({
 
             <nav className={styles.lessonPager} aria-label={course.copy.ui.lessons}>
               {previous ? (
-                <Link href={hrefFor(previous.slug)} rel="prev">
+                <Link href={hrefFor(previous.slug)} rel="prev" data-course-action>
                   <span>{course.copy.ui.previous}</span>
                   <strong>{previous.copy.title}</strong>
                 </Link>
               ) : <span />}
               {next ? (
-                <Link href={hrefFor(next.slug)} rel="next">
+                <Link href={hrefFor(next.slug)} rel="next" data-course-action>
                   <span>{course.copy.ui.next}</span>
                   <strong>{next.copy.title}</strong>
                 </Link>
               ) : (
-                <Link href={`/${course.locale}/cursor/`}>
+                <Link href={`/${course.locale}/cursor/`} data-course-action>
                   <span>{course.copy.ui.backToCourse}</span>
                   <strong>{course.copy.meta.title}</strong>
                 </Link>

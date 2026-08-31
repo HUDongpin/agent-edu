@@ -14,11 +14,22 @@ import {
   type CursorCourseCopy,
 } from "@/lib/cursor";
 import { applyCursorProgressPatch } from "./progress-store";
+import {
+  CURSOR_ASSESSMENT_DRAFT_RESET_EVENT,
+  CURSOR_CAPSTONE_DRAFT_STORAGE_KEY,
+  CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY,
+  clearSessionDraft,
+  readMemoryDraft,
+  readSessionDraft,
+  writeMemoryDraft,
+  writeSessionDraft,
+} from "./session-draft-store";
 import useCourseProgress, { useCourseStorageAvailable } from "./useCourseProgress";
 import styles from "./CursorCourse.module.css";
 
 const STARTER_DOWNLOAD = "/courses/cursor/aicourse-cursor-demo-v1.zip";
 const STARTER_CHECKSUM = "/courses/cursor/aicourse-cursor-demo-v1.sha256";
+const CAPSTONE_DRAFT_SCHEMA_VERSION = 1;
 
 type Config = {
   readonly receiptSchema: string;
@@ -31,6 +42,81 @@ type Config = {
   readonly rubric: readonly { readonly id: string; readonly weight: number }[];
   readonly passingScore: number;
 };
+
+type CapstoneAssessmentDraft = {
+  readonly schemaVersion: typeof CAPSTONE_DRAFT_SCHEMA_VERSION;
+  readonly receiptSchema: string;
+  readonly receiptVersion: string;
+  readonly fixtureVersion: string;
+  readonly fixtureSha256: string;
+  readonly archiveSha256: string;
+  readonly artifactIds: readonly string[];
+  readonly rubricIds: readonly string[];
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actual = Object.keys(value);
+  return actual.length === keys.length && actual.every((key) => keys.includes(key));
+}
+
+function isUniqueStringSubset(value: unknown, allowed: ReadonlySet<string>): value is string[] {
+  return Array.isArray(value)
+    && value.every((item) => typeof item === "string" && allowed.has(item))
+    && new Set(value).size === value.length;
+}
+
+function isValidCapstoneDraft(value: unknown, config: Config): value is CapstoneAssessmentDraft {
+  if (!isRecord(value) || !hasExactKeys(value, [
+    "schemaVersion",
+    "receiptSchema",
+    "receiptVersion",
+    "fixtureVersion",
+    "fixtureSha256",
+    "archiveSha256",
+    "artifactIds",
+    "rubricIds",
+  ])) return false;
+
+  return value.schemaVersion === CAPSTONE_DRAFT_SCHEMA_VERSION
+    && value.receiptSchema === config.receiptSchema
+    && value.receiptVersion === config.receiptVersion
+    && value.fixtureVersion === config.fixtureVersion
+    && value.fixtureSha256 === config.fixtureSha256
+    && value.archiveSha256 === config.archiveSha256
+    && isUniqueStringSubset(value.artifactIds, new Set(config.artifactIds))
+    && isUniqueStringSubset(value.rubricIds, new Set(config.rubric.map((item) => item.id)));
+}
+
+function isInternalNavigationClick(event: MouseEvent): boolean {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    return false;
+  }
+  if (!(event.target instanceof Element)) return false;
+
+  // The shared language menu uses a button followed by a full document load.
+  // Re-selecting the current locale only closes the menu and must not prompt
+  // the learner to discard a receipt that is staying on the same document.
+  const languageItem = event.target.closest<HTMLElement>('.langmenu [role="menuitem"]');
+  if (languageItem) return languageItem.lang !== document.documentElement.lang;
+
+  const anchor = event.target.closest<HTMLAnchorElement>("a[href]");
+  if (!anchor
+    || anchor.hasAttribute("download")
+    || (anchor.target && anchor.target !== "_self")) {
+    return false;
+  }
+
+  const destination = new URL(anchor.href, window.location.href);
+  if (destination.origin !== window.location.origin) return false;
+  const current = new URL(window.location.href);
+  const sameDocument = destination.pathname === current.pathname
+    && destination.search === current.search;
+  return !sameDocument;
+}
 
 function validationMessage(
   code: CursorCapstoneReceiptValidationCode,
@@ -63,12 +149,22 @@ export default function CapstoneReceipt({
 }) {
   const progress = useCourseProgress();
   const storageAvailable = useCourseStorageAvailable();
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(() => {
+    const memoryInput = readMemoryDraft<unknown>(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
+    return typeof memoryInput === "string" ? memoryInput : "";
+  });
   const [validationCode, setValidationCode] = useState<CursorCapstoneReceiptValidationCode | null>(null);
   const [artifactChecks, setArtifactChecks] = useState<Record<string, boolean>>({});
   const [rubricChecks, setRubricChecks] = useState<Record<string, boolean>>({});
+  const [draftHydrated, setDraftHydrated] = useState(false);
+  const [draftStorageAvailable, setDraftStorageAvailable] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [progressCommitFailed, setProgressCommitFailed] = useState(false);
+  const draftResetGeneration = useRef(0);
   const verifiedHeading = useRef<HTMLHeadingElement>(null);
   const errorMessage = useRef<HTMLParagraphElement>(null);
+  const allowNextUnload = useRef(false);
+  const verificationInFlight = useRef(false);
   const completedAssessment = getCursorCapstoneProgressAssessment(progress);
   const completed = isCursorCapstoneProgressPassed(progress);
   const staleCompletion = progress[CURSOR_CAPSTONE_PROGRESS_KEY] === true && !completed;
@@ -87,6 +183,123 @@ export default function CapstoneReceipt({
   const selfAuditPassed = artifactPacketReady
     && rubricScore >= config.passingScore
     && criticalRubricReady;
+  const hasReceiptText = input.length > 0;
+  const hasChecklistDraft = Object.values(artifactChecks).some(Boolean)
+    || Object.values(rubricChecks).some(Boolean);
+
+  useEffect(() => {
+    const hydrationGeneration = draftResetGeneration.current;
+    if (completed) {
+      clearSessionDraft(CURSOR_CAPSTONE_DRAFT_STORAGE_KEY);
+      const hydrationTimer = window.setTimeout(() => setDraftHydrated(true), 0);
+      return () => window.clearTimeout(hydrationTimer);
+    }
+
+    const draft = readSessionDraft(
+      CURSOR_CAPSTONE_DRAFT_STORAGE_KEY,
+      (value): value is CapstoneAssessmentDraft => isValidCapstoneDraft(value, config),
+    );
+    const hydrationTimer = window.setTimeout(() => {
+      if (draft && hydrationGeneration === draftResetGeneration.current) {
+        setArtifactChecks(Object.fromEntries(draft.artifactIds.map((id) => [id, true])));
+        setRubricChecks(Object.fromEntries(draft.rubricIds.map((id) => [id, true])));
+      }
+      setDraftHydrated(true);
+    }, 0);
+    return () => window.clearTimeout(hydrationTimer);
+  }, [completed, config]);
+
+  useEffect(() => {
+    const resetAssessment = () => {
+      draftResetGeneration.current += 1;
+      setInput("");
+      setValidationCode(null);
+      setArtifactChecks({});
+      setRubricChecks({});
+      setDraftHydrated(true);
+      setDraftStorageAvailable(true);
+      setIsVerifying(false);
+      setProgressCommitFailed(false);
+      allowNextUnload.current = false;
+      verificationInFlight.current = false;
+    };
+    window.addEventListener(CURSOR_ASSESSMENT_DRAFT_RESET_EVENT, resetAssessment);
+    return () => window.removeEventListener(CURSOR_ASSESSMENT_DRAFT_RESET_EVENT, resetAssessment);
+  }, []);
+
+  useEffect(() => {
+    if (!draftHydrated) return;
+    let persisted = true;
+    if (completed) {
+      clearSessionDraft(CURSOR_CAPSTONE_DRAFT_STORAGE_KEY);
+    } else {
+      const artifactIds = config.artifactIds.filter((id) => artifactChecks[id] === true);
+      const rubricIds = config.rubric
+        .filter((item) => rubricChecks[item.id] === true)
+        .map((item) => item.id);
+      if (!artifactIds.length && !rubricIds.length) {
+        clearSessionDraft(CURSOR_CAPSTONE_DRAFT_STORAGE_KEY);
+      } else {
+        // Only public checklist IDs enter session storage. Receipt text, paths,
+        // logs, and command output remain exclusively in component memory.
+        persisted = writeSessionDraft(CURSOR_CAPSTONE_DRAFT_STORAGE_KEY, {
+          schemaVersion: CAPSTONE_DRAFT_SCHEMA_VERSION,
+          receiptSchema: config.receiptSchema,
+          receiptVersion: config.receiptVersion,
+          fixtureVersion: config.fixtureVersion,
+          fixtureSha256: config.fixtureSha256,
+          archiveSha256: config.archiveSha256,
+          artifactIds,
+          rubricIds,
+        } satisfies CapstoneAssessmentDraft);
+      }
+    }
+    const availabilityTimer = window.setTimeout(() => setDraftStorageAvailable(persisted), 0);
+    return () => window.clearTimeout(availabilityTimer);
+  }, [artifactChecks, completed, config, draftHydrated, rubricChecks]);
+
+  useEffect(() => {
+    if (draftStorageAvailable || !hasChecklistDraft) return;
+    const guardFullUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", guardFullUnload);
+    return () => window.removeEventListener("beforeunload", guardFullUnload);
+  }, [draftStorageAvailable, hasChecklistDraft]);
+
+  useEffect(() => {
+    if (!hasReceiptText) return;
+
+    const guardFullUnload = (event: BeforeUnloadEvent) => {
+      if (allowNextUnload.current) return;
+      event.preventDefault();
+      // Browsers intentionally replace custom beforeunload copy with a
+      // browser-owned message; internal links use the localized copy below.
+      event.returnValue = "";
+    };
+    const guardInternalNavigation = (event: MouseEvent) => {
+      if (event.defaultPrevented || !isInternalNavigationClick(event)) return;
+      if (window.confirm(labels.discardDraftConfirm)) {
+        clearSessionDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
+        allowNextUnload.current = true;
+        window.setTimeout(() => {
+          allowNextUnload.current = false;
+        }, 0);
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    };
+
+    window.addEventListener("beforeunload", guardFullUnload);
+    document.addEventListener("click", guardInternalNavigation, true);
+    return () => {
+      window.removeEventListener("beforeunload", guardFullUnload);
+      document.removeEventListener("click", guardInternalNavigation, true);
+    };
+  }, [hasReceiptText, labels.discardDraftConfirm]);
 
   useEffect(() => {
     if (validationCode === "valid" && completed) verifiedHeading.current?.focus();
@@ -95,9 +308,11 @@ export default function CapstoneReceipt({
 
   return (
     <section
-      className={styles.capstoneSection}
+      className={`${styles.capstoneSection} ${styles.lessonAnchor}`}
+      id="cursor-lesson-capstone"
       aria-labelledby="cursor-capstone-title"
       data-testid="cursor-capstone"
+      tabIndex={-1}
     >
       <header className={styles.capstoneHeader}>
         <div>
@@ -182,10 +397,10 @@ export default function CapstoneReceipt({
           <p>{labels.receiptInstructions}</p>
         </div>
         <div className={styles.fixtureActions}>
-          <a className={styles.primaryAction} href={STARTER_DOWNLOAD} download>
+          <a className={styles.primaryAction} href={STARTER_DOWNLOAD} download data-course-action>
             {labels.downloadStarter}
           </a>
-          <a className={styles.secondaryAction} href={STARTER_CHECKSUM} download>
+          <a className={styles.secondaryAction} href={STARTER_CHECKSUM} download data-course-action>
             {labels.downloadChecksum}
           </a>
         </div>
@@ -217,7 +432,7 @@ export default function CapstoneReceipt({
         </ul>
       </div>
 
-      {!storageAvailable ? (
+      {!storageAvailable || (!draftStorageAvailable && hasChecklistDraft) || progressCommitFailed ? (
         <p className={styles.storageWarning} role="status">{labels.storageUnavailable}</p>
       ) : null}
 
@@ -230,35 +445,49 @@ export default function CapstoneReceipt({
       {!completed ? (
         <form
           className={styles.receiptVerifier}
+          aria-busy={isVerifying}
           onSubmit={async (event) => {
             event.preventDefault();
-            if (!selfAuditPassed) return;
+            if (!selfAuditPassed || verificationInFlight.current) return;
             const validation = validateCursorCapstoneReceipt(input);
             if (!validation.valid) {
               setValidationCode(validation.code);
               return;
             }
-
-            const result = await applyCursorProgressPatch({
-              set: {
-                // Store the completion Boolean plus public contract constants.
-                // Receipt text, paths, command output, and logs never enter browser storage.
-                [CURSOR_CAPSTONE_PROGRESS_KEY]: true,
-                // The companion prevents an old completion from being relabelled
-                // as a newer fixture check.
-                [CURSOR_CAPSTONE_META_PROGRESS_KEY]: { ...CURSOR_CAPSTONE_PROGRESS_META },
-                // Public self-assessment IDs preserve the learner's actual
-                // 80-or-higher rubric result instead of reconstructing 100/100.
-                [CURSOR_CAPSTONE_ASSESSMENT_PROGRESS_KEY]: createCursorCapstoneProgressAssessment(
-                  artifactChecks,
-                  rubricChecks,
-                ),
-              },
-            });
-            setValidationCode("valid");
-            // Preserve the pasted receipt in component memory when persistence is denied so
-            // an ephemeral completion never destroys the learner's only copy.
-            if (result.persisted) setInput("");
+            verificationInFlight.current = true;
+            setIsVerifying(true);
+            setProgressCommitFailed(false);
+            try {
+              const result = await applyCursorProgressPatch({
+                set: {
+                  // Store the completion Boolean plus public contract constants.
+                  // Receipt text, paths, command output, and logs never enter browser storage.
+                  [CURSOR_CAPSTONE_PROGRESS_KEY]: true,
+                  // The companion prevents an old completion from being relabelled
+                  // as a newer fixture check.
+                  [CURSOR_CAPSTONE_META_PROGRESS_KEY]: { ...CURSOR_CAPSTONE_PROGRESS_META },
+                  // Public self-assessment IDs preserve the learner's actual
+                  // 80-or-higher rubric result instead of reconstructing 100/100.
+                  [CURSOR_CAPSTONE_ASSESSMENT_PROGRESS_KEY]: createCursorCapstoneProgressAssessment(
+                    artifactChecks,
+                    rubricChecks,
+                  ),
+                },
+              });
+              clearSessionDraft(CURSOR_CAPSTONE_DRAFT_STORAGE_KEY);
+              setValidationCode("valid");
+              // Preserve the pasted receipt in component memory when persistence is denied so
+              // an ephemeral completion never destroys the learner's only copy.
+              if (result.persisted) {
+                clearSessionDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
+                setInput("");
+              }
+            } catch {
+              setProgressCommitFailed(true);
+            } finally {
+              verificationInFlight.current = false;
+              setIsVerifying(false);
+            }
           }}
         >
           <label htmlFor="cursor-capstone-receipt-input">{labels.pasteReceipt}</label>
@@ -272,10 +501,18 @@ export default function CapstoneReceipt({
             spellCheck={false}
             autoComplete="off"
             onChange={(event) => {
-              setInput(event.target.value);
+              const nextInput = event.target.value;
+              setInput(nextInput);
+              if (nextInput) writeMemoryDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY, nextInput);
+              else clearSessionDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
               if (validationCode) setValidationCode(null);
             }}
           />
+          {hasReceiptText ? (
+            <p className={styles.storageWarning} role="status">
+              {labels.draftNotSaved}
+            </p>
+          ) : null}
           {validationCode && validationCode !== "valid" ? (
             <p
               className={styles.receiptError}
@@ -286,7 +523,12 @@ export default function CapstoneReceipt({
               {validationMessage(validationCode, labels)}
             </p>
           ) : null}
-          <button className={styles.primaryAction} type="submit" disabled={!selfAuditPassed || !input.trim()}>
+          <button
+            className={styles.primaryAction}
+            type="submit"
+            disabled={!selfAuditPassed || !input.trim() || isVerifying}
+            data-course-action
+          >
             {labels.verifyReceipt}
           </button>
         </form>
@@ -321,8 +563,28 @@ export default function CapstoneReceipt({
             </div>
           </dl>
           <p>{copy.completion}</p>
+          {hasReceiptText ? (
+            <div className={styles.receiptRecovery}>
+              <p className={styles.storageWarning} role="status">{labels.draftNotSaved}</p>
+              <label htmlFor="cursor-capstone-receipt-input">{labels.pasteReceipt}</label>
+              <textarea
+                id="cursor-capstone-receipt-input"
+                data-testid="cursor-capstone-receipt-input"
+                dir="ltr"
+                rows={8}
+                value={input}
+                readOnly
+                spellCheck={false}
+              />
+            </div>
+          ) : null}
           <small>{storageAvailable ? labels.browserStorageNote : labels.storageUnavailable}</small>
-          <button className={styles.secondaryAction} type="button" onClick={() => window.print()}>
+          <button
+            className={styles.secondaryAction}
+            type="button"
+            onClick={() => window.print()}
+            data-course-action
+          >
             {labels.printReceipt}
           </button>
         </article>
