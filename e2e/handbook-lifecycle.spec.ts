@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
+import { PLAYWRIGHT_TEST_ORIGIN } from "../tests/playwright-test-url";
 
 declare global {
   interface Window {
@@ -7,7 +8,7 @@ declare global {
   }
 }
 
-const BASE_URL = process.env.HANDBOOK_TEST_BASE_URL ?? "http://127.0.0.1:4173";
+const BASE_URL = process.env.HANDBOOK_TEST_BASE_URL ?? PLAYWRIGHT_TEST_ORIGIN;
 
 async function installGlobalListenerProbe(page: Page) {
   await page.addInitScript(() => {

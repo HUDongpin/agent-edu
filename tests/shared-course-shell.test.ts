@@ -34,7 +34,7 @@ const journeyByCourse = new Map<string, string>([
   ["claude-income", "components/claude-income/DashboardProgress.tsx"],
   ["ai-tutor", "components/ai-tutor/Interactions.tsx"],
   ["product-management", "components/product-management/Interactions.tsx"],
-  ["agent-orchestration", "components/agent-orchestration/Interactions.tsx"],
+  ["agent-orchestration", "components/agent-orchestration/CourseProgress.tsx"],
 ]);
 
 test("eleven published dashboards mount the server CourseShell entry", () => {
