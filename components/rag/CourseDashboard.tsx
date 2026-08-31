@@ -63,7 +63,13 @@ export default function CourseDashboard({
       dir={course.contentLocale === "ar" ? "rtl" : "ltr"}
       data-testid="rag-course-dashboard"
     >
-      <CourseShell courseId="rag" locale={course.locale} showHeading={false} />
+      <CourseShell
+        courseId="rag"
+        locale={course.locale}
+        showHeading={false}
+        progressStartLabel={course.copy.meta.startCta}
+        progressResumeLabel={course.copy.meta.resumeCta}
+      />
       <noscript>
         <p className={styles.noScriptNotice}>{course.copy.ui.interactiveRequiresJavaScript}</p>
       </noscript>

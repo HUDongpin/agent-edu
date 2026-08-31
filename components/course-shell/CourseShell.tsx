@@ -33,6 +33,9 @@ export default async function CourseShell({
   showHeading = true,
   standalone = false,
   compact = false,
+  progressStartLabel,
+  progressResumeLabel,
+  progressReviewLabel,
 }: {
   readonly courseId: PublicCourseId;
   readonly locale: string;
@@ -41,6 +44,10 @@ export default async function CourseShell({
   readonly standalone?: boolean;
   /** Keeps the platform facts and journey CTA while a bespoke dashboard supplies the H1. */
   readonly compact?: boolean;
+  /** Allows a course's reviewed journey copy to remain authoritative in the shared shell. */
+  readonly progressStartLabel?: string;
+  readonly progressResumeLabel?: string;
+  readonly progressReviewLabel?: string;
 }) {
   const release = PUBLISHED_CATALOG_COURSES.find(({ course }) => course.id === courseId);
   if (!release) throw new Error(`CourseShell requires a published course: ${courseId}`);
@@ -67,9 +74,9 @@ export default async function CourseShell({
     notStarted: t("courseShell.progressNotStarted"),
     inProgress: t("courseShell.progressInProgress"),
     completed: t("courseShell.progressCompleted"),
-    start: t("courseShell.start"),
-    resume: t("courseShell.resume"),
-    review: t("courseShell.review"),
+    start: progressStartLabel ?? t("courseShell.start"),
+    resume: progressResumeLabel ?? t("courseShell.resume"),
+    review: progressReviewLabel ?? t("courseShell.review"),
   };
   const shellId = `course-shell-${courseId}`;
 

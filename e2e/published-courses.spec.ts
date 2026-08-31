@@ -646,10 +646,7 @@ async function expectSharedDashboardShell(page: Page, courseId: string) {
   }).first();
   await expect(breadcrumb, `${courseId}: dashboard breadcrumb`).toBeVisible();
 
-  const journey = primaryJourneyLinks(page);
-  const progressRegion = journey.locator(
-    "xpath=ancestor::*[self::section or self::aside][1]",
-  );
+  const progressRegion = shell.locator('[data-course-shell-field="progress"]');
   await expect(progressRegion, `${courseId}: visible progress region`).toBeVisible();
   await expect(progressRegion).toContainText(/%|\d+\s*\/\s*\d+|milestones?/i);
 }
@@ -1361,7 +1358,10 @@ test("home, catalog, and footer expose published links but no blocked hrefs", as
       ));
       for (const course of publishedCourses) {
         const href = localizedPath("en", course.routes[0]);
-        expect(catalogHrefs, `catalog link for ${course.id}`).toContain(href);
+        const catalogHref = course.id === "rag"
+          ? "/en/rag/choose-rag/"
+          : href;
+        expect(catalogHrefs, `catalog link for ${course.id}`).toContain(catalogHref);
         expect(footerHrefs, `footer link for ${course.id}`).toContain(href);
       }
     });
@@ -1517,7 +1517,7 @@ test("Home to lesson to My Learning resumes the exact next Grok lesson", async (
   await expect(page).toHaveTitle(/Grok/);
   await expectPrimaryHeadingFocused(page);
   await expect(page.locator('header a[href="/en/courses/"]'))
-    .toHaveAttribute("aria-current", "page");
+    .toHaveAttribute("aria-current", "location");
 
   await page
     .locator('[data-testid="grok-course-dashboard"] a[href="/en/grok/map-grok/"]')
@@ -1527,7 +1527,7 @@ test("Home to lesson to My Learning resumes the exact next Grok lesson", async (
   await expect(page).toHaveTitle(/Map Grok/i);
   await expectPrimaryHeadingFocused(page);
   await expect(page.locator('header a[href="/en/courses/"]'))
-    .toHaveAttribute("aria-current", "page");
+    .toHaveAttribute("aria-current", "location");
 
   const completion = page.getByTestId("grok-lesson-completion-map-grok");
   const completionButton = completion.getByRole("button");

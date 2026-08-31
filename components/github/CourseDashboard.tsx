@@ -90,7 +90,6 @@ export default function CourseDashboard({
       className={`shellwrap ${base.coursePage} ${styles.githubCourse}`}
       data-testid="github-course-dashboard"
     >
-      <CourseShell courseId="github" locale={course.locale} />
       <header className={base.courseHero}>
         <div className={base.heroCopy}>
           <div data-testid="github-hero-promise">
@@ -146,6 +145,8 @@ export default function CourseDashboard({
           </dl>
         </aside>
       </header>
+
+      <CourseShell courseId="github" locale={course.locale} />
 
       <CourseProgress
         lessons={journeyLessons}

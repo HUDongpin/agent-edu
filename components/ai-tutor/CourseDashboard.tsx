@@ -33,7 +33,6 @@ export default function CourseDashboard({
       dir={course.contentDirection}
       data-testid="ai-tutor-course-dashboard"
     >
-      <CourseShell courseId="ai-tutor" locale={course.locale} />
       {course.locale !== course.contentLocale ? (
         <p className={base.languageNotice}>{course.copy.meta.englishOnly}</p>
       ) : null}
@@ -63,6 +62,8 @@ export default function CourseDashboard({
         </div>
         <ConceptMap manifest={course.manifest} copy={course.copy} hrefFor={hrefFor} />
       </header>
+
+      <CourseShell courseId="ai-tutor" locale={course.locale} />
 
       <section className={base.courseFacts} aria-label={course.copy.meta.title}>
         <div><small>{course.copy.ui.modules}</small><strong>{course.modules.length}</strong></div>

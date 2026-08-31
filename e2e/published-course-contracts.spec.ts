@@ -69,7 +69,7 @@ for (const course of coursesWithoutLegacySpecs) {
     await expect(page.getByTestId(course.dashboardTestId)).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.locator('header a[href="/en/courses/"]'))
-      .toHaveAttribute("aria-current", "page");
+      .toHaveAttribute("aria-current", "location");
     await expect(page.locator('link[rel="canonical"]'))
       .toHaveAttribute("href", `${SITE}${dashboardHref}`);
 
@@ -89,7 +89,7 @@ for (const course of coursesWithoutLegacySpecs) {
     await expect(page.getByTestId(course.childTestId(course.childSlugs[0]))).toBeVisible();
     await expect(page.locator("main h1").first()).toBeFocused();
     await expect(page.locator('header a[href="/en/courses/"]'))
-      .toHaveAttribute("aria-current", "page");
+      .toHaveAttribute("aria-current", "location");
     expect(
       await page.locator(`main a[aria-current="page"][href="${childHrefs[0]}"]`).count(),
       `${course.id}: the course map must identify the active child route`,

@@ -53,7 +53,6 @@ export default function CourseDashboard({
 
   return (
     <div className={`shellwrap ${styles.coursePage}`} data-testid="mcp-course-dashboard" lang={course.contentLocale} dir={course.contentDirection}>
-      <CourseShell courseId="mcp" locale={course.locale} />
       <header className={styles.courseHero}>
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>
@@ -86,6 +85,8 @@ export default function CourseDashboard({
           <div><dt>{ui.dashboardConceptLedger}</dt><dd>{number(course.concepts.length)}</dd></div>
         </dl>
       </header>
+
+      <CourseShell courseId="mcp" locale={course.locale} />
 
       <nav className={styles.courseJumpNav} aria-label={ui.lessonCourseNavAria} data-course-jump-nav>
         <a href="#curriculum">{ui.dashboardCurriculumTitle}</a>

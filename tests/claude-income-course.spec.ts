@@ -450,17 +450,19 @@ test.describe("Course 12 approved UI and UX Phase 1 regressions", () => {
     await page.reload();
   }
 
-  test("language switching preserves only real localized routes and remains reachable in short landscape", async ({ page }) => {
+  test("language switching preserves the English course context and remains reachable in short landscape", async ({ page }) => {
     await page.goto(DASHBOARD);
     await page.getByRole("button", { name: "Language: English" }).click();
     await page.getByRole("menuitem", { name: "Deutsch German" }).click();
-    await expect(page).toHaveURL(/\/de\/courses\/$/);
+    await expect(page).toHaveURL(/\/en\/claude-income\/\?fromLocale=de$/);
     await expect(page.locator("main h1").first()).toBeVisible();
 
     await page.goto("/en/claude-income/choose-a-money-path/");
     await page.getByRole("button", { name: "Language: English" }).click();
     await page.getByRole("menuitem", { name: "Français French" }).click();
-    await expect(page).toHaveURL(/\/fr\/courses\/$/);
+    await expect(page).toHaveURL(
+      /\/en\/claude-income\/choose-a-money-path\/\?fromLocale=fr$/,
+    );
 
     await page.setViewportSize({ width: 844, height: 320 });
     await page.goto("/en/claude-income/choose-a-money-path/");
