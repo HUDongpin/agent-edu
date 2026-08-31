@@ -9,6 +9,7 @@
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { checkNativeReviewInventory } from "./native-review-inventory.mjs";
 import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 export const LOCALES = ["en", "zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"];
@@ -1306,8 +1307,23 @@ function evidenceSummary(config) {
   }));
 }
 
-/** Evaluate already-parsed fixtures without treating the production file as a test fixture. */
-export function evaluateReleaseReadiness({ config, catalogs, projectRoot }) {
+/**
+ * Evaluate already-parsed fixtures without treating the production file as a
+ * test fixture.
+ *
+ * @param {{
+ *   config: unknown,
+ *   catalogs: unknown,
+ *   projectRoot?: string,
+ *   nativeReviewInventoryIssues: Array<{code: string, path: string, message: string}>,
+ * }} input
+ */
+export function evaluateReleaseReadiness({
+  config,
+  catalogs,
+  projectRoot,
+  nativeReviewInventoryIssues,
+}) {
   const configIssues = validateReleaseReadiness(config, { projectRoot });
   const messages = validateMessageCatalogs(
     catalogs,
@@ -1318,9 +1334,11 @@ export function evaluateReleaseReadiness({ config, catalogs, projectRoot }) {
   return {
     ready: configIssues.length === 0
       && messages.issues.length === 0
+      && nativeReviewInventoryIssues.length === 0
       && config?.status === "pass"
       && externalReady,
     configIssues,
+    nativeReviewInventoryIssues,
     messageIssues: messages.issues,
     messageSummaries: messages.summaries,
     evidence,
@@ -1340,13 +1358,23 @@ export function checkReleaseReadiness(projectRoot = ROOT) {
         path: "config/release-readiness.json",
         message: "file is missing or invalid JSON",
       }],
+      nativeReviewInventoryIssues: [],
       messageIssues: [],
       messageSummaries: [],
       evidence: [],
     };
   }
   const loaded = loadMessageCatalogs(projectRoot);
-  const result = evaluateReleaseReadiness({ config, catalogs: loaded.catalogs, projectRoot });
+  const nativeReviewInventory = checkNativeReviewInventory({
+    projectRoot,
+    releaseTarget: config?.releaseTarget,
+  });
+  const result = evaluateReleaseReadiness({
+    config,
+    catalogs: loaded.catalogs,
+    projectRoot,
+    nativeReviewInventoryIssues: nativeReviewInventory.issues,
+  });
   result.messageIssues.unshift(...loaded.issues);
   if (loaded.issues.length) result.ready = false;
   return result;
@@ -1361,6 +1389,7 @@ export function formatReadinessReport(result) {
     return [
       "release readiness: PASS",
       "- [x] message key, placeholder, plural, and explained-English checks",
+      "- [x] native-review catalog inventory binds 24 files to the candidate and workflow blob",
       "- [x] eight native-language reviews",
       "- [x] Arabic RTL matrix",
       "- [x] Provider canary and reconciliation",
@@ -1381,6 +1410,18 @@ export function formatReadinessReport(result) {
     }
     if (result.configIssues.length > 20) {
       lines.push(`- [ ] ${result.configIssues.length - 20} additional schema blocker(s); inspect with imported validators`);
+    }
+  }
+
+  lines.push("", "Native-review inventory blockers:");
+  if (!result.nativeReviewInventoryIssues?.length) {
+    lines.push("- [x] exact 24-file inventory matches the candidate, workflow blob, and working tree");
+  } else {
+    for (const issue of result.nativeReviewInventoryIssues.slice(0, 20)) {
+      lines.push(`- [ ] ${issue.path} (${issue.code}): ${issue.message}`);
+    }
+    if (result.nativeReviewInventoryIssues.length > 20) {
+      lines.push(`- [ ] ${result.nativeReviewInventoryIssues.length - 20} additional inventory blocker(s); run npm run native-review:inventory:check`);
     }
   }
 

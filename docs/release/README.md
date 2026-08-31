@@ -134,9 +134,22 @@ native speaker. Mock Provider tests cannot replace the low-limit real canary.
 Local header configuration cannot replace inspecting Vercel preview response
 headers. A green run cannot prove that GitHub made the jobs required.
 
+The native-review catalog inventory is a separate automatic prerequisite, not
+a 34th external record and not a review decision. Once the final product
+candidate and CI workflow blob are frozen in `releaseTarget`, run
+`npm run native-review:inventory:generate`, review the exact 24-file output,
+and keep `npm run native-review:inventory:check` green through sign-off. The
+release checker fails closed when that final inventory is absent, stale,
+misbound, incomplete, overcomplete, path-unsafe, or privacy-unsafe; all eight
+human review records remain independently pending until their signed forms are
+entered.
+
 ## Forms
 
 - `native-review-form.md` — one signed copy for each of eight non-English locales.
+- `evidence/native-review-catalog-inventory.json` — generated only after the
+  final candidate is frozen; deterministic 24-file candidate/workflow binding,
+  deliberately absent until then and never a human-review pass.
 - `arabic-rtl-matrix.md` — the 979/980 breakpoint plus 390/1440 representative paths.
 - `provider-canary.md` — low-limit real Provider run and reconciliation.
 - `csp-verification.md` — executable report-only → enforced transition plus

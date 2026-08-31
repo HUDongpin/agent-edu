@@ -6,14 +6,25 @@ signature.
 
 ## Review identity and frozen target
 
-The automatic catalog precheck at
-`docs/release/evidence/native-review-catalog-precheck-2cdf1d6.json` freezes the
-three review-file SHA-256 digests and key counts for every locale. Before a
-reviewer starts, compare all three locale digests with the final candidate. The
-manifest may save repeated inventory work when the final change is CSP-only,
-but any digest change requires regeneration and review of that changed locale.
-The manifest contains no reviewer identity and never substitutes for the signed
-language-quality judgment below.
+After `releaseTarget.candidateCommitSha` and its authoritative
+`.github/workflows/ci.yml` blob are frozen, run
+`npm run native-review:inventory:generate`. It writes the deterministic final
+candidate inventory to
+`docs/release/evidence/native-review-catalog-inventory.json`: exactly eight
+locales × Site, Handbook, and Widgets, with one SHA-256 digest and top-level key
+count per file. Run `npm run native-review:inventory:check` immediately before
+and after each review. The checker rejects a wrong candidate/workflow binding,
+digest or key-count drift, missing or extra catalog files, unsafe paths, and
+private values.
+
+The older automatic precheck at
+`docs/release/evidence/native-review-catalog-precheck-2cdf1d6.json` remains a
+historical report-only snapshot. It cannot satisfy the final-candidate gate.
+The new inventory may save repeated work when a later evidence-only commit
+leaves all 24 inputs and the workflow blob unchanged, but any changed digest
+requires regeneration and review of that changed locale. Neither inventory
+contains reviewer identity, changes any of the eight pending review statuses,
+or substitutes for the signed language-quality judgment below.
 
 - Locale and regional variant:
 - Reviewer reference (do not add private contact details):

@@ -39,6 +39,8 @@
     "routes:check": "node scripts/check-routes.mjs",
     "assets:check": "node scripts/check-static-assets.mjs",
     "artifacts:check": "node scripts/check-artifacts.mjs --curated --require-root browser-evidence",
+    "native-review:inventory:generate": "node scripts/native-review-inventory.mjs --generate",
+    "native-review:inventory:check": "node scripts/native-review-inventory.mjs --check",
     "release:check": "node scripts/check-release-readiness.mjs",
     "csp:check": "node scripts/check-csp.mjs",
     "csp:set": "node scripts/set-csp-stage.mjs",
