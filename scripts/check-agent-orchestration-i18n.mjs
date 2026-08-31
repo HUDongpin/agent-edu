@@ -141,6 +141,7 @@ function compareCopyContracts() {
     "ArtifactWorkbench.tsx",
     "AssessmentInteractions.tsx",
     "CourseDashboard.tsx",
+    "CourseProgress.tsx",
     "CourseWorkspacePortability.tsx",
     "draft-status.ts",
     "Interactions.tsx",

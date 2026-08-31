@@ -470,6 +470,7 @@ test("agent orchestration browser templates exactly mirror authoritative copy", 
 test("agent orchestration client entries do not ship the full course corpus", () => {
   const entries = [
     "components/agent-orchestration/Interactions.tsx",
+    "components/agent-orchestration/CourseProgress.tsx",
     "components/agent-orchestration/ArtifactWorkbench.tsx",
     "components/agent-orchestration/AssessmentInteractions.tsx",
     "components/agent-orchestration/OrchestrationLab.tsx",

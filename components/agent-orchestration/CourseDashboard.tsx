@@ -5,7 +5,7 @@ import type {
 } from "@/lib/agent-orchestration";
 import CourseNavigator from "./CourseNavigator";
 import { CourseWorkspacePortability } from "./CourseWorkspacePortability";
-import { CourseProgress } from "./Interactions";
+import { CourseProgress } from "./CourseProgress";
 import { CourseTopology } from "./OrchestrationMap";
 import styles from "./AgentOrchestrationCourse.module.css";
 import CourseShell from "../course-shell/CourseShell";

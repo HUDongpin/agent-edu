@@ -129,7 +129,7 @@ test("a stale cancelled timer cannot expire a newer confirmation", () => {
 
 test("CourseProgress exposes cancellable keyboard confirmation and gates the reset call", () => {
   const source = readFileSync(
-    new URL("../components/agent-orchestration/Interactions.tsx", import.meta.url),
+    new URL("../components/agent-orchestration/CourseProgress.tsx", import.meta.url),
     "utf8",
   );
 

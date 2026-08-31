@@ -6,10 +6,10 @@ import type {
   MaterializedAgentOrchestrationModule,
 } from "@/lib/agent-orchestration";
 import {
-  CourseProgress,
   ModuleCheckpoint,
   ModuleCompletion,
 } from "./Interactions";
+import { CourseProgress } from "./CourseProgress";
 import { ArtifactWorkbench } from "./ArtifactWorkbench";
 import ActiveModuleMapReveal from "./ActiveModuleMapReveal";
 import { OrchestrationLab } from "./OrchestrationLab";
