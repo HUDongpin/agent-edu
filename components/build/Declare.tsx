@@ -9,7 +9,6 @@ import {
   subscribeLearningState,
 } from "@/lib/progress";
 import { useI18n } from "../I18nProvider";
-import styles from "./Declare.module.css";
 
 /**
  * A reversible learner note for the external Build-an-Agent module.
@@ -35,36 +34,38 @@ export default function Declare() {
   };
 
   return (
-    <div className={styles.declaration}>
-      <p className="muted" id="build-declaration-explanation">
-        {t("build.declareBody")}
-      </p>
-      <div className={`acts ${styles.actions}`}>
-        <button
-          type="button"
-          className={done ? "iconbtn" : "btn"}
-          aria-describedby="build-declaration-explanation"
-          aria-pressed={done}
-          onClick={toggle}
-        >
-          {done ? t("build.declaredCta") : t("build.declareCta")}
-        </button>
-        {/*
-          Keep the live region mounted before the mutation. The confirmation
-          must also stand alone because assistive technology announces it
-          without the explanatory paragraph above.
-        */}
-        <span className={styles.status} role="status" aria-live="polite" aria-atomic="true">
-          {done ? (
-            <span>
-              <span aria-hidden="true">✓ </span>
-              {t("build.declaredNote")}
-            </span>
-          ) : null}
-          {storageWarning ? (
-            <span className={styles.storageWarning}>{t("progress.storageUnavailable")}</span>
-          ) : null}
-        </span>
+    <div className="card">
+      <div className="card-b">
+        <p className="muted" id="build-declaration-explanation">
+          {t("build.declareBody")}
+        </p>
+        <div className="acts">
+          <button
+            type="button"
+            className={done ? "iconbtn" : "btn"}
+            aria-describedby="build-declaration-explanation"
+            aria-pressed={done}
+            onClick={toggle}
+          >
+            {done ? t("build.declaredCta") : t("build.declareCta")}
+          </button>
+          {/*
+            Keep the live region mounted before the mutation. The confirmation
+            must also stand alone because assistive technology announces it
+            without the explanatory paragraph above.
+          */}
+          <span className="muted" role="status" aria-live="polite" aria-atomic="true">
+            {done ? (
+              <span>
+                <span aria-hidden="true">✓ </span>
+                {t("build.declaredNote")}
+              </span>
+            ) : null}
+            {storageWarning ? (
+              <span>{done ? " " : null}{t("progress.storageUnavailable")}</span>
+            ) : null}
+          </span>
+        </div>
       </div>
     </div>
   );
