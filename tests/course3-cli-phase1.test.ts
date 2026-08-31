@@ -675,3 +675,16 @@ test("the compatibility CI gate includes the Course 3 Phase 1 browser suite", ()
   assert.match(pkg.scripts["test:compat"], /e2e\/compat\.spec\.ts/);
   assert.match(pkg.scripts["test:compat"], /e2e\/course3-phase1\.spec\.ts/);
 });
+
+test("the compatibility gate retries only WebKit one-offs and only in CI", () => {
+  const config = readFileSync("playwright.config.ts", "utf8");
+  const projectsAt = config.indexOf("projects:");
+  assert.notEqual(projectsAt, -1);
+
+  const globalConfig = config.slice(0, projectsAt);
+  assert.match(globalConfig, /retries: 0/);
+  assert.doesNotMatch(globalConfig, /retries: process\.env\.CI/);
+
+  const webkitProject = config.slice(config.indexOf('name: "webkit"'));
+  assert.match(webkitProject, /retries: process\.env\.CI \? 2 : 0/);
+});

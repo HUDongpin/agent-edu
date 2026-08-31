@@ -34,6 +34,12 @@ export default defineConfig({
     },
     {
       name: "webkit",
+      /* The serial compatibility gate has produced a different one-off WebKit
+         failure on successive CI runs, while each exact test and the complete
+         suite pass under local repetition. Keep retries disabled locally so a
+         flake stays visible during development; in CI, two retries still make a
+         deterministic product failure fail after three attempts. */
+      retries: process.env.CI ? 2 : 0,
       use: { ...devices["Desktop Safari"] },
     },
   ],
