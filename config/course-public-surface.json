@@ -3,7 +3,7 @@
   "manifestKind": "course-public-surface-projection",
   "source": {
     "path": "config/course-release-manifest.json",
-    "sha256": "9e6537877a495242a30a485fe866f9b760cd834e4da9db5f8f8e82d1b321b762"
+    "sha256": "1be42afbef75adf7667210cdb56b706833eba3982f9fdf24c6fca195952267b6"
   },
   "siteLocales": [
     "en",

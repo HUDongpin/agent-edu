@@ -42,7 +42,14 @@ import {
   releaseSurfaceFor,
   type CourseId,
 } from "../lib/release-surface";
-import { INDEXABLE_PAGES, PAGES } from "../lib/seo";
+import {
+  AGENT_ORCHESTRATION_FIXED_PAGES,
+  AGENT_ORCHESTRATION_MODULE_PAGES,
+  INDEXABLE_PAGES,
+  PAGES,
+  agentOrchestrationFixedPage,
+  agentOrchestrationModulePage,
+} from "../lib/seo";
 import {
   PUBLIC_COURSE_SURFACES,
   publicCourseHrefFor,
@@ -229,6 +236,27 @@ test("static params emit only published content locales", () => {
     courseChildRouteValues("codex"),
     releaseSurfaceFor("codex").routes.slice(1).map((route) => route.split("/")[1]),
   );
+});
+
+test("Course 15 fixed pages stay separate from its fifteen-module projection", () => {
+  assert.deepEqual(AGENT_ORCHESTRATION_FIXED_PAGES, [
+    "agent-orchestration/assessment/",
+    "agent-orchestration/capstone/",
+  ]);
+  assert.equal(AGENT_ORCHESTRATION_MODULE_PAGES.length, 15);
+  assert.equal(
+    AGENT_ORCHESTRATION_MODULE_PAGES.includes("agent-orchestration/assessment/"),
+    false,
+  );
+  assert.equal(
+    AGENT_ORCHESTRATION_MODULE_PAGES.includes("agent-orchestration/capstone/"),
+    false,
+  );
+  assert.equal(agentOrchestrationFixedPage("assessment"), "agent-orchestration/assessment/");
+  assert.equal(agentOrchestrationFixedPage("capstone"), "agent-orchestration/capstone/");
+  assert.throws(() => agentOrchestrationFixedPage("workflow-agent-boundary"));
+  assert.throws(() => agentOrchestrationModulePage("assessment"));
+  assert.throws(() => agentOrchestrationModulePage("capstone"));
 });
 
 test("registry sync keeps blocked implementations private and can generate public route wiring", () => {

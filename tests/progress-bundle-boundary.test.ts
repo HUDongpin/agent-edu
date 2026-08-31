@@ -461,23 +461,30 @@ test("agent orchestration browser templates exactly mirror authoritative copy", 
   }
 });
 
-test("agent orchestration interactions do not ship the full course corpus", () => {
-  const graph = clientDependencyGraph(
+test("agent orchestration client entries do not ship the full course corpus", () => {
+  const entries = [
     "components/agent-orchestration/Interactions.tsx",
-  );
-  const forbidden = graph.filter((path) =>
-    /lib\/agent-orchestration\/(?:manifest|sources|copy\/|index\.ts)/u.test(path),
-  );
-  assert.deepEqual(forbidden, [], graph.join("\n"));
+    "components/agent-orchestration/ArtifactWorkbench.tsx",
+    "components/agent-orchestration/AssessmentInteractions.tsx",
+    "components/agent-orchestration/OrchestrationLab.tsx",
+    "components/agent-orchestration/CourseWorkspacePortability.tsx",
+  ];
+  for (const entry of entries) {
+    const graph = clientDependencyGraph(entry);
+    const forbidden = graph.filter((path) =>
+      /lib\/agent-orchestration\/(?:manifest|sources|copy\/|index\.ts)/u.test(path),
+    );
+    assert.deepEqual(forbidden, [], `${entry}\n${graph.join("\n")}`);
 
-  const localSourceBytes = graph.reduce((total, path) => {
-    const absolute = join(ROOT, path);
-    return existsSync(absolute)
-      ? total + Buffer.byteLength(readFileSync(absolute, "utf8"))
-      : total;
-  }, 0);
-  assert.ok(
-    localSourceBytes < 250_000,
-    `Agent Orchestration interactive graph is ${localSourceBytes} bytes`,
-  );
+    const localSourceBytes = graph.reduce((total, path) => {
+      const absolute = join(ROOT, path);
+      return existsSync(absolute)
+        ? total + Buffer.byteLength(readFileSync(absolute, "utf8"))
+        : total;
+    }, 0);
+    assert.ok(
+      localSourceBytes < 250_000,
+      `${entry} runtime-source graph is ${localSourceBytes} bytes`,
+    );
+  }
 });

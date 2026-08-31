@@ -475,7 +475,7 @@ export const AGENT_ORCHESTRATION_PROGRESS_RESET_EVENT =
 
 export const AGENT_ORCHESTRATION_PROGRESS_SCHEMA = {
   prefix: "agent-orchestration.",
-  version: "1.1.1:progress-v4",
+  version: "1.1.1:progress-v5",
   versionKey: "agent-orchestration.progress.version",
   progressEvent: AGENT_ORCHESTRATION_PROGRESS_EVENT,
   resetEvent: AGENT_ORCHESTRATION_PROGRESS_RESET_EVENT,
@@ -485,6 +485,249 @@ export const AGENT_ORCHESTRATION_PROGRESS_SCHEMA = {
   capstoneEvidenceKey: "agent-orchestration.capstone.checks",
   capstoneArtifactCount: 15,
 } as const;
+
+export const AGENT_ORCHESTRATION_PROGRESS_MIGRATION_NOTICE_KEY =
+  "agent-orchestration.progress.migration.v5" as const;
+export const AGENT_ORCHESTRATION_CAPSTONE_RECOVERY_KEY =
+  "agent-orchestration.capstone.checks.recovery.v5" as const;
+export const AGENT_ORCHESTRATION_PROGRESS_RECOVERY_ENVELOPE_KEY =
+  "agent-orchestration.progress.recovery.v5" as const;
+export const AGENT_ORCHESTRATION_PROGRESS_MIGRATION_SCHEMA =
+  "agent-orchestration.progress-migration.v1" as const;
+export const AGENT_ORCHESTRATION_PROGRESS_RECOVERY_SCHEMA =
+  "agent-orchestration.progress-recovery.v1" as const;
+
+export interface AgentOrchestrationProgressMigrationNotice {
+  readonly schema: typeof AGENT_ORCHESTRATION_PROGRESS_MIGRATION_SCHEMA;
+  readonly migratedAt: string;
+  readonly fromVersion: string | null;
+  readonly toVersion: typeof AGENT_ORCHESTRATION_PROGRESS_SCHEMA.version;
+  readonly preservedKeys: readonly string[];
+  readonly invalidatedKeys: readonly string[];
+  readonly recoveryKeys: readonly string[];
+}
+
+export interface AgentOrchestrationProgressRecoveryEnvelope {
+  readonly schema: typeof AGENT_ORCHESTRATION_PROGRESS_RECOVERY_SCHEMA;
+  readonly migratedAt: string;
+  readonly fromVersion: string | null;
+  readonly toVersion: typeof AGENT_ORCHESTRATION_PROGRESS_SCHEMA.version;
+  readonly originalCourse15Fields: Readonly<Record<string, unknown>>;
+}
+
+export interface AgentOrchestrationProgressMigration {
+  readonly record: Record<string, unknown>;
+  readonly migrated: boolean;
+  readonly notice: AgentOrchestrationProgressMigrationNotice | null;
+  readonly recoveryEnvelope: AgentOrchestrationProgressRecoveryEnvelope | null;
+}
+
+const AGENT_ORCHESTRATION_ARTIFACT_VALUE_PATTERN =
+  /^agent-orchestration\.module\.[^.]+\.artifact$/u;
+const AGENT_ORCHESTRATION_ARTIFACT_PENDING_PATTERN =
+  /^agent-orchestration\.module\.[^.]+\.artifact\.pending-draft$/u;
+const AGENT_ORCHESTRATION_LAB_PENDING_PATTERN =
+  /^agent-orchestration\.module\.[^.]+\.lab\.[^.]+\.pending$/u;
+const AGENT_ORCHESTRATION_LAB_RECEIPT_PATTERN =
+  /^agent-orchestration\.module\.[^.]+\.lab\.[^.]+$/u;
+
+function isProgressObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isCanonicalIsoTimestamp(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  try {
+    return new Date(value).toISOString() === value;
+  } catch {
+    return false;
+  }
+}
+
+export function readAgentOrchestrationProgressRecoveryEnvelope(
+  value: unknown,
+): AgentOrchestrationProgressRecoveryEnvelope | null {
+  if (!isProgressObject(value)) return null;
+  if (
+    value.schema !== AGENT_ORCHESTRATION_PROGRESS_RECOVERY_SCHEMA
+    || !isCanonicalIsoTimestamp(value.migratedAt)
+    || typeof value.fromVersion !== "string" && value.fromVersion !== null
+    || value.toVersion !== AGENT_ORCHESTRATION_PROGRESS_SCHEMA.version
+    || !isProgressObject(value.originalCourse15Fields)
+    || Object.keys(value.originalCourse15Fields).some(
+      (key) => !key.startsWith(AGENT_ORCHESTRATION_PROGRESS_SCHEMA.prefix),
+    )
+  ) return null;
+  return value as unknown as AgentOrchestrationProgressRecoveryEnvelope;
+}
+
+function readAgentOrchestrationMigrationNotice(
+  value: unknown,
+): AgentOrchestrationProgressMigrationNotice | null {
+  if (!isProgressObject(value)) return null;
+  if (
+    value.schema !== AGENT_ORCHESTRATION_PROGRESS_MIGRATION_SCHEMA
+    || !isCanonicalIsoTimestamp(value.migratedAt)
+    || typeof value.fromVersion !== "string" && value.fromVersion !== null
+    || value.toVersion !== AGENT_ORCHESTRATION_PROGRESS_SCHEMA.version
+    || !Array.isArray(value.preservedKeys)
+    || !value.preservedKeys.every((key) => typeof key === "string")
+    || !Array.isArray(value.invalidatedKeys)
+    || !value.invalidatedKeys.every((key) => typeof key === "string")
+    || !Array.isArray(value.recoveryKeys)
+    || !value.recoveryKeys.every((key) => typeof key === "string")
+  ) return null;
+  return value as unknown as AgentOrchestrationProgressMigrationNotice;
+}
+
+/**
+ * Upgrade Course 15 without converting learner-authored work into evidence.
+ *
+ * The shared record also contains other courses, so unrelated fields are kept
+ * verbatim. Course 15's authored text and pending lab controls remain
+ * recoverable, while every old acceptance/completion/checkpoint receipt fails
+ * closed. Accepted lab inputs are demoted to pending work and capstone
+ * references move to a recovery slot until the current UI explicitly restores
+ * them. No browser APIs are used here; callers decide when a verified record
+ * may be written.
+ */
+export function migrateAgentOrchestrationProgressRecord(
+  progress: Record<string, unknown>,
+  migratedAt: string = new Date().toISOString(),
+): AgentOrchestrationProgressMigration {
+  const currentVersion = AGENT_ORCHESTRATION_PROGRESS_SCHEMA.version;
+  const versionKey = AGENT_ORCHESTRATION_PROGRESS_SCHEMA.versionKey;
+  if (progress[versionKey] === currentVersion) {
+    const record = { ...progress };
+    return {
+      record,
+      migrated: false,
+      notice: readAgentOrchestrationMigrationNotice(
+        record[AGENT_ORCHESTRATION_PROGRESS_MIGRATION_NOTICE_KEY],
+      ),
+      recoveryEnvelope: readAgentOrchestrationProgressRecoveryEnvelope(
+        record[AGENT_ORCHESTRATION_PROGRESS_RECOVERY_ENVELOPE_KEY],
+      ),
+    };
+  }
+
+  if (!isCanonicalIsoTimestamp(migratedAt)) {
+    throw new TypeError("Course 15 migration requires a canonical ISO timestamp");
+  }
+
+  const record: Record<string, unknown> = {};
+  const preservedKeys = new Set<string>();
+  const invalidatedKeys = new Set<string>();
+  const recoveryKeys = new Set<string>();
+  const courseEntries = Object.entries(progress).filter(
+    ([key]) => key.startsWith(AGENT_ORCHESTRATION_PROGRESS_SCHEMA.prefix),
+  );
+
+  for (const [key, value] of Object.entries(progress)) {
+    if (!key.startsWith(AGENT_ORCHESTRATION_PROGRESS_SCHEMA.prefix)) {
+      record[key] = value;
+    }
+  }
+
+  // Preserve only fields that are learner-authored or already explicitly
+  // pending. Evidence receipts remain invalid until revalidated by v5.
+  for (const [key, value] of courseEntries) {
+    const preserveArtifact = (
+      AGENT_ORCHESTRATION_ARTIFACT_VALUE_PATTERN.test(key)
+      || AGENT_ORCHESTRATION_ARTIFACT_PENDING_PATTERN.test(key)
+    ) && typeof value === "string";
+    const preservePendingLab = AGENT_ORCHESTRATION_LAB_PENDING_PATTERN.test(key)
+      && isProgressObject(value);
+    const preserveCapstoneRecovery =
+      key === AGENT_ORCHESTRATION_CAPSTONE_RECOVERY_KEY
+      && Array.isArray(value)
+      && value.every((entry) => typeof entry === "string");
+    if (preserveArtifact || preservePendingLab || preserveCapstoneRecovery) {
+      record[key] = value;
+      preservedKeys.add(key);
+      if (preserveCapstoneRecovery) recoveryKeys.add(key);
+    }
+  }
+
+  // An accepted v4 lab combines authored input with a derived receipt. Keep
+  // only the input fields in a pending envelope; never retain its decision.
+  for (const [key, value] of courseEntries) {
+    if (!AGENT_ORCHESTRATION_LAB_RECEIPT_PATTERN.test(key)) continue;
+    invalidatedKeys.add(key);
+    if (
+      !isProgressObject(value)
+      || !("state" in value)
+      || typeof value.learnerEvidence !== "string"
+    ) continue;
+    const pendingKey = `${key}.pending`;
+    if (record[pendingKey] !== undefined) continue;
+    record[pendingKey] = {
+      schemaVersion: value.schemaVersion,
+      scenarioVersion: value.scenarioVersion,
+      moduleSlug: value.moduleSlug,
+      labId: value.labId,
+      state: value.state,
+      learnerEvidence: value.learnerEvidence,
+    };
+    preservedKeys.add(pendingKey);
+    recoveryKeys.add(pendingKey);
+  }
+
+  // Capstone references are authored input, but retaining them under the live
+  // completion key would incorrectly make the new capstone ready.
+  const staleCapstone = progress[AGENT_ORCHESTRATION_PROGRESS_SCHEMA.capstoneEvidenceKey];
+  if (
+    record[AGENT_ORCHESTRATION_CAPSTONE_RECOVERY_KEY] === undefined
+    && Array.isArray(staleCapstone)
+    && staleCapstone.every((entry) => typeof entry === "string")
+  ) {
+    record[AGENT_ORCHESTRATION_CAPSTONE_RECOVERY_KEY] = staleCapstone;
+    preservedKeys.add(AGENT_ORCHESTRATION_CAPSTONE_RECOVERY_KEY);
+    recoveryKeys.add(AGENT_ORCHESTRATION_CAPSTONE_RECOVERY_KEY);
+  }
+
+  for (const [key] of courseEntries) {
+    if (!preservedKeys.has(key) && key !== versionKey) invalidatedKeys.add(key);
+  }
+
+  record[versionKey] = currentVersion;
+  const hasPriorCourseFields = courseEntries.some(([key]) => key !== versionKey);
+  const recoveryEnvelope: AgentOrchestrationProgressRecoveryEnvelope | null =
+    hasPriorCourseFields
+      ? {
+        schema: AGENT_ORCHESTRATION_PROGRESS_RECOVERY_SCHEMA,
+        migratedAt,
+        fromVersion: typeof progress[versionKey] === "string"
+          ? progress[versionKey]
+          : null,
+        toVersion: currentVersion,
+        originalCourse15Fields: Object.fromEntries(courseEntries),
+      }
+      : null;
+  if (recoveryEnvelope) {
+    record[AGENT_ORCHESTRATION_PROGRESS_RECOVERY_ENVELOPE_KEY] =
+      recoveryEnvelope;
+    preservedKeys.add(AGENT_ORCHESTRATION_PROGRESS_RECOVERY_ENVELOPE_KEY);
+    recoveryKeys.add(AGENT_ORCHESTRATION_PROGRESS_RECOVERY_ENVELOPE_KEY);
+  }
+  const notice: AgentOrchestrationProgressMigrationNotice | null =
+    hasPriorCourseFields
+      ? {
+        schema: AGENT_ORCHESTRATION_PROGRESS_MIGRATION_SCHEMA,
+        migratedAt,
+        fromVersion: typeof progress[versionKey] === "string"
+          ? progress[versionKey]
+          : null,
+        toVersion: currentVersion,
+        preservedKeys: [...preservedKeys].sort(),
+        invalidatedKeys: [...invalidatedKeys].sort(),
+        recoveryKeys: [...recoveryKeys].sort(),
+      }
+      : null;
+  if (notice) record[AGENT_ORCHESTRATION_PROGRESS_MIGRATION_NOTICE_KEY] = notice;
+
+  return { record, migrated: true, notice, recoveryEnvelope };
+}
 
 export function aiTutorProgressModuleKey(slug: string): string {
   return `ai-tutor.module.${slug}.complete`;

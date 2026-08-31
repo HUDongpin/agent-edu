@@ -17,7 +17,6 @@ import {
   agentOrchestrationArtifactEvidenceKey,
   agentOrchestrationArtifactKey,
   agentOrchestrationArtifactPendingDraftKey,
-  agentOrchestrationCheckpointPassedKey,
   agentOrchestrationLabKey,
   agentOrchestrationLabPendingKey,
   agentOrchestrationModuleProgressKey,
@@ -34,6 +33,7 @@ import {
   normalizeAgentOrchestrationLabState,
   recordAgentOrchestrationQuizAttempt,
   saveAgentOrchestrationArtifactDraft,
+  saveAgentOrchestrationCheckpointReceipt,
   saveAgentOrchestrationLabReceipt,
   saveAgentOrchestrationPendingArtifactDraft,
   saveAgentOrchestrationPendingLabWork,
@@ -129,7 +129,17 @@ function saveModuleEvidence(record, courseModule) {
     substantiveArtifactDraft(template, EN_ARTIFACT_LINES, SUBSTANTIVE_ARTIFACT_DELTA),
     template,
   ), true);
-  record[agentOrchestrationCheckpointPassedKey(courseModule.slug)] = true;
+  const checkpoint = AGENT_ORCHESTRATION_EN_COPY.modules[courseModule.slug]
+    .checkpoint;
+  assert.equal(
+    saveAgentOrchestrationCheckpointReceipt(
+      record,
+      courseModule.slug,
+      checkpoint,
+      checkpoint.correctOptionId,
+    )?.passed,
+    true,
+  );
   assert.equal(saveAgentOrchestrationLabReceipt(
     record,
     courseModule.slug,
@@ -158,11 +168,21 @@ assert.equal(
 
 const moduleTwo = AGENT_ORCHESTRATION_COURSE_MANIFEST.modules[1];
 const moduleFour = AGENT_ORCHESTRATION_COURSE_MANIFEST.modules[3];
+const moduleTwoCheckpoint = AGENT_ORCHESTRATION_EN_COPY.modules[moduleTwo.slug]
+  .checkpoint;
+const moduleFourCheckpoint = AGENT_ORCHESTRATION_EN_COPY.modules[moduleFour.slug]
+  .checkpoint;
 const moduleRecord = currentRecord();
 moduleRecord[agentOrchestrationModuleProgressKey(moduleTwo.slug)] = true;
-assert.equal(isAgentOrchestrationModuleComplete(moduleRecord, moduleTwo.slug), false);
+assert.equal(
+  isAgentOrchestrationModuleComplete(moduleRecord, moduleTwo.slug, moduleTwoCheckpoint),
+  false,
+);
 moduleRecord[agentOrchestrationArtifactKey(moduleTwo.slug)] = "   ";
-assert.equal(agentOrchestrationModuleRequirements(moduleRecord, moduleTwo.slug).artifact, false);
+assert.equal(
+  agentOrchestrationModuleRequirements(moduleRecord, moduleTwo.slug, moduleTwoCheckpoint).artifact,
+  false,
+);
 const moduleTwoTemplate = AGENT_ORCHESTRATION_EN_COPY.modules[moduleTwo.slug]
   .practice.template;
 assert.equal(
@@ -373,7 +393,7 @@ moduleRecord[agentOrchestrationArtifactKey(moduleTwo.slug)] = moduleTwoTemplate;
 moduleRecord[agentOrchestrationArtifactEvidenceKey(moduleTwo.slug)] =
   createAgentOrchestrationArtifactEvidence(moduleTwo.slug, moduleTwoTemplate);
 assert.equal(
-  agentOrchestrationModuleRequirements(moduleRecord, moduleTwo.slug).artifact,
+  agentOrchestrationModuleRequirements(moduleRecord, moduleTwo.slug, moduleTwoCheckpoint).artifact,
   false,
   "saving the untouched starter template must not count as artifact evidence",
 );
@@ -387,18 +407,28 @@ const forgedBaselineRecord = currentRecord({
   },
 });
 assert.equal(
-  agentOrchestrationModuleRequirements(forgedBaselineRecord, moduleTwo.slug).artifact,
+  agentOrchestrationModuleRequirements(
+    forgedBaselineRecord,
+    moduleTwo.slug,
+    moduleTwoCheckpoint,
+  ).artifact,
   false,
   "a receipt cannot supply its own forged starter baseline",
 );
 saveModuleEvidence(moduleRecord, moduleTwo);
-assert.equal(isAgentOrchestrationModuleComplete(moduleRecord, moduleTwo.slug), true);
+assert.equal(
+  isAgentOrchestrationModuleComplete(moduleRecord, moduleTwo.slug, moduleTwoCheckpoint),
+  true,
+);
 assert.equal(agentOrchestrationProgressPercent(moduleRecord), 6);
 assert.notEqual(
   agentOrchestrationLabKey(moduleTwo.labId, moduleTwo.slug),
   agentOrchestrationLabKey(moduleFour.labId, moduleFour.slug),
 );
-assert.equal(agentOrchestrationModuleRequirements(moduleRecord, moduleFour.slug).lab, false);
+assert.equal(
+  agentOrchestrationModuleRequirements(moduleRecord, moduleFour.slug, moduleFourCheckpoint).lab,
+  false,
+);
 
 const moduleTwoLabKey = agentOrchestrationLabKey(moduleTwo.labId, moduleTwo.slug);
 const validLabReceipt = moduleRecord[moduleTwoLabKey];
@@ -598,9 +628,14 @@ const progressStore = await import(
 );
 local.setItem(progressStore.AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY, "{broken-json");
 const repaired = progressStore.readAgentOrchestrationProgress();
+assert.deepEqual(
+  repaired,
+  {},
+  "a corrupt shared record must not be synthesized into believable Course 15 progress",
+);
 assert.equal(
-  repaired[AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY],
-  AGENT_ORCHESTRATION_PROGRESS_VERSION,
+  progressStore.getAgentOrchestrationProgressSnapshot().status,
+  "corrupt",
 );
 assert.equal(
   session.getItem("ae.progress.agent-orchestration-corrupt-backup"),
@@ -680,7 +715,11 @@ assert.equal(
 );
 assert.equal(recoveredNavigation[moduleTwoLabKey], undefined);
 assert.equal(
-  agentOrchestrationModuleRequirements(recoveredNavigation, moduleTwo.slug).ready,
+  agentOrchestrationModuleRequirements(
+    recoveredNavigation,
+    moduleTwo.slug,
+    moduleTwoCheckpoint,
+  ).ready,
   false,
   "recoverable working drafts never become completion evidence after storage round-trip",
 );

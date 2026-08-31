@@ -21,6 +21,64 @@
   position: relative;
   padding-block: 30px 104px;
   color: var(--ink);
+  color-scheme: light;
+}
+
+:global(:root[data-theme="dark"]) .root {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme="light"])) .root {
+    color-scheme: dark;
+  }
+}
+
+.root:lang(zh-Hans) {
+  font-family:
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    "Noto Sans CJK SC",
+    "Noto Sans SC",
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.005em;
+}
+
+.root:lang(zh-Hans) :where(h1, h2, h3) {
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.root:lang(zh-Hans) :where(
+  .kicker,
+  .sectionLabel,
+  .topBreadcrumb,
+  .moduleSignal,
+  .mapPhase > span,
+  .mapState,
+  .artifactPromise > span,
+  .onPageNav > span,
+  .evidenceMode,
+  .inlineEvidence > span,
+  .workbenchHeader span,
+  .labHeader > span,
+  .labReadout dt,
+  .takeaway span,
+  .sourceNotes dt,
+  .completion span,
+  .moduleFacts dt,
+  .sourceMeta span
+) {
+  font-family: inherit;
+  letter-spacing: 0.025em;
+  line-height: 1.55;
+  text-transform: none;
+}
+
+.root:lang(zh-Hans) :where(.heroSummary, .proseCopy, .sourceNotes, .reviewGate) {
+  line-height: 1.75;
 }
 
 .root :where(h1, h2, h3, p, li, dt, dd) {
@@ -31,6 +89,11 @@
   font: inherit;
 }
 
+.root :where(a, button, summary, label, select, input[type="range"]) {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .root :where(a, button, input, select, textarea, summary):focus-visible {
   outline: 3px solid var(--ao-blue);
   outline-offset: 3px;
@@ -38,7 +101,9 @@
 
 .root button:disabled {
   cursor: not-allowed;
+  filter: saturate(0.68);
   opacity: 0.52;
+  transform: none !important;
 }
 
 .languageNotice {
@@ -73,11 +138,13 @@
   text-decoration: none;
 }
 
-.topBreadcrumb a:hover,
-.backLink a:hover {
-  color: var(--ao-blue);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+@media (hover: hover) {
+  .topBreadcrumb a:hover,
+  .backLink a:hover {
+    color: var(--ao-blue);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
 
 .kicker,
@@ -133,7 +200,7 @@
 .hero h1 {
   max-width: 850px;
   margin-block: 12px 24px;
-  font-size: clamp(3.1rem, 7.2vw, 7rem);
+  font-size: clamp(2.75rem, 4.5vw, 4.8rem);
   font-weight: 800;
   letter-spacing: -0.075em;
   line-height: 0.88;
@@ -153,6 +220,15 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-block: 30px 40px;
+}
+
+.heroActions .progressCompact {
+  padding: 0;
+}
+
+.heroActions .progressReadout,
+.heroActions .progressTrack {
+  display: none;
 }
 
 .primaryAction,
@@ -181,35 +257,25 @@
   color: var(--ink);
 }
 
-.primaryAction:hover,
-.secondaryAction:hover {
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .primaryAction:hover,
+  .secondaryAction:hover {
+    transform: translateY(-1px);
+  }
+
+  .secondaryAction:hover {
+    border-color: var(--ao-blue);
+    color: var(--ao-blue);
+  }
 }
 
-.secondaryAction:hover {
-  border-color: var(--ao-blue);
-  color: var(--ao-blue);
+.primaryAction:active,
+.secondaryAction:active {
+  box-shadow: none;
+  transform: translateY(1px) scale(0.985);
+  transition-duration: 60ms;
 }
 
-.heroFacts {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  max-width: 720px;
-  margin: 0;
-  border-block: var(--ao-rule);
-}
-
-.heroFacts div {
-  min-width: 0;
-  padding: 13px 12px 13px 0;
-}
-
-.heroFacts div + div {
-  border-inline-start: var(--ao-rule);
-  padding-inline-start: 12px;
-}
-
-.heroFacts dt,
 .moduleFacts dt {
   color: var(--ink-3);
   font-family: var(--mono);
@@ -218,7 +284,6 @@
   text-transform: uppercase;
 }
 
-.heroFacts dd,
 .moduleFacts dd {
   margin: 4px 0 0;
   color: var(--ink);
@@ -603,51 +668,6 @@
   line-height: 1.58;
 }
 
-.boundaryMatrix > dl {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  margin: 0;
-  border-block-start: var(--ao-strong-rule);
-}
-
-.boundaryMatrix > dl > div {
-  display: grid;
-  grid-template-columns: minmax(180px, 0.55fr) 1fr;
-  gap: 22px;
-  min-height: 126px;
-  border-block-end: var(--ao-rule);
-  padding: 22px 18px 22px 0;
-}
-
-.boundaryMatrix > dl > div:nth-child(odd) {
-  border-inline-end: var(--ao-rule);
-}
-
-.boundaryMatrix > dl > div:nth-child(even) {
-  padding-inline-start: 18px;
-}
-
-.boundaryMatrix dt {
-  display: grid;
-  grid-template-columns: 30px 1fr;
-  gap: 8px;
-  color: var(--ink);
-  font-weight: 740;
-}
-
-.boundaryMatrix dt span {
-  color: var(--ao-gold);
-  font-family: var(--mono);
-  font-size: 0.67rem;
-}
-
-.boundaryMatrix dd {
-  margin: 0;
-  color: var(--ink-2);
-  font-size: 0.88rem;
-  line-height: 1.55;
-}
-
 .runtimeLedger {
   border: 1px solid var(--line);
   border-radius: var(--ao-radius);
@@ -655,50 +675,68 @@
   box-shadow: var(--shadow);
 }
 
-.runtimeTable > div {
-  display: grid;
-  grid-template-columns: 1.2fr 0.9fr 1.3fr 1fr 1.1fr;
-  gap: 14px;
-  align-items: center;
-  min-height: 68px;
-  border-block-end: var(--ao-rule);
-  padding: 12px 16px;
+.runtimeTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
 }
 
-.runtimeTable > div:last-child {
+.runtimeTable tr {
+  border-block-end: var(--ao-rule);
+}
+
+.runtimeTable tbody tr:last-child {
   border-block-end: 0;
 }
 
-.runtimeTable span,
-.runtimeTable strong {
-  font-size: 0.78rem;
-  line-height: 1.4;
+.runtimeTable :is(th, td) {
+  min-height: 68px;
+  padding: 14px 16px;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  font-weight: 520;
+  line-height: 1.55;
+  text-align: start;
+  vertical-align: middle;
 }
 
-.runtimeTable strong {
+.runtimeTable tbody th {
+  width: 22%;
   color: var(--ink);
+  font-weight: 760;
 }
 
 .runtimeHeader {
-  min-height: 42px !important;
   background: var(--bg-2);
   color: var(--ink-3);
   font-family: var(--mono);
-  font-size: 0.63rem !important;
   letter-spacing: 0.045em;
   text-transform: uppercase;
 }
 
-.runtimeHeader span {
-  font-size: inherit;
+.runtimeHeader th {
+  min-height: 46px;
+  padding-block: 11px;
+  color: var(--ink-3);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 720;
+  line-height: 1.4;
 }
 
 .runtimeLedger > p {
   margin: 0;
   border-block-start: var(--ao-rule);
-  padding: 13px 16px;
+  padding: 14px 16px;
   color: var(--ink-3);
-  font-size: 0.78rem;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.runtimeLedger:lang(zh-Hans) .runtimeTable :is(th, td),
+.runtimeLedger:lang(zh-Hans) > p {
+  letter-spacing: 0.01em;
+  line-height: 1.72;
 }
 
 .patternGrid {
@@ -829,12 +867,26 @@
   padding-block: 18px;
   color: inherit;
   text-decoration: none;
-  transition: background-color 140ms ease, padding-inline 140ms ease;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    padding-inline 140ms ease,
+    transform 140ms ease;
 }
 
-.moduleList a:hover {
-  padding-inline: 10px;
-  background: var(--bg-2);
+@media (hover: hover) {
+  .moduleList a:hover {
+    padding-inline: 10px;
+    background: var(--bg-2);
+  }
+}
+
+.moduleList a:active {
+  padding-inline: 8px;
+  background: var(--ao-blue-soft);
+  transform: translateY(1px) scale(0.995);
+  transition-duration: 60ms;
 }
 
 .moduleOrder {
@@ -1041,11 +1093,17 @@
   cursor: pointer;
 }
 
-.assessmentQuestions label:hover,
-.checkpoint fieldset label:hover,
 .checkpoint fieldset label[data-selected] {
   border-color: var(--ao-blue);
   background: var(--ao-blue-soft);
+}
+
+@media (hover: hover) {
+  .assessmentQuestions label:hover,
+  .checkpoint fieldset label:hover {
+    border-color: var(--ao-blue);
+    background: var(--ao-blue-soft);
+  }
 }
 
 .assessmentQuestions input,
@@ -1069,6 +1127,42 @@
   color: var(--ao-night-ink);
   font-weight: 710;
   cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+@media (hover: hover) {
+  .assessment > button:not(:disabled):hover,
+  .checkpoint > button:not(:disabled):hover,
+  .labControls > button:not(:disabled):hover,
+  .completion button:not(:disabled):hover,
+  .workbenchHeader button:not(:disabled):hover {
+    border-color: var(--ao-blue);
+    box-shadow: 0 7px 20px rgb(16 25 38 / 14%);
+    transform: translateY(-1px);
+  }
+
+  .progressActions button:not(:disabled):hover {
+    border-color: var(--ao-blue);
+    background: var(--ao-blue-soft);
+    color: var(--ao-blue);
+    transform: translateY(-1px);
+  }
+}
+
+.assessment > button:not(:disabled):active,
+.checkpoint > button:not(:disabled):active,
+.labControls > button:not(:disabled):active,
+.completion button:not(:disabled):active,
+.workbenchHeader button:not(:disabled):active,
+.progressActions button:not(:disabled):active {
+  box-shadow: none;
+  transform: translateY(1px) scale(0.985);
+  transition-duration: 60ms;
 }
 
 .assessment > button {
@@ -1316,6 +1410,43 @@
   border-block-start: 1px solid #314158;
 }
 
+.heroConsole .progressCompact .progressActions {
+  display: none;
+}
+
+.storageWarning,
+.storageNotice {
+  margin: 0;
+  border: 1px solid var(--red-line);
+  border-inline-start: 4px solid var(--ao-red);
+  border-radius: 8px;
+  padding: 11px 13px;
+  background: var(--ao-red-soft);
+  color: var(--ink);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.storageNotice {
+  margin-block-start: 12px;
+  border-color: var(--gold-line);
+  border-inline-start-color: var(--ao-gold);
+  background: var(--gold-soft);
+}
+
+.heroConsole .storageWarning,
+.heroConsole .storageNotice {
+  border-color: #51647e;
+  border-inline-start-color: #f2a9a0;
+  background: #2c2530;
+  color: var(--ao-night-ink);
+}
+
+.heroConsole .storageNotice {
+  border-inline-start-color: #e7c77b;
+  background: #2d2b28;
+}
+
 .progressReadout {
   display: flex;
   justify-content: space-between;
@@ -1413,6 +1544,41 @@
   display: none;
 }
 
+.lessonSkipLink {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.lessonSkipLink:focus-visible {
+  position: relative;
+  z-index: 5;
+  display: inline-flex;
+  width: auto;
+  height: auto;
+  align-items: center;
+  min-height: 44px;
+  overflow: visible;
+  margin: 0 0 16px;
+  border: 1px solid var(--ao-blue);
+  border-radius: 8px;
+  padding: 9px 13px;
+  clip: auto;
+  clip-path: none;
+  background: var(--card);
+  color: var(--ao-blue);
+  font-weight: 720;
+  text-decoration: none;
+  white-space: normal;
+}
+
 .moduleLayout {
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
@@ -1458,6 +1624,41 @@
   list-style: none;
 }
 
+.moduleMapReveal {
+  position: relative;
+}
+
+.mapContinuation {
+  position: sticky;
+  z-index: 2;
+  inset-block-end: 8px;
+  display: flex;
+  width: max-content;
+  max-width: calc(100% - 8px);
+  gap: 6px;
+  align-items: center;
+  margin-block-start: 8px;
+  margin-inline-start: auto;
+  border: 1px solid var(--ao-blue-line);
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: var(--card);
+  box-shadow: 0 5px 18px rgb(16 25 38 / 16%);
+  color: var(--ao-blue);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 130ms ease, transform 130ms ease;
+}
+
+.mapContinuation:not([data-direction="none"]) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .mapPhase > span {
   display: block;
   margin-block: 14px 7px;
@@ -1479,6 +1680,11 @@
   font-size: 0.73rem;
   line-height: 1.35;
   text-decoration: none;
+  transition:
+    background-color 130ms ease,
+    box-shadow 130ms ease,
+    color 130ms ease,
+    transform 130ms ease;
 }
 
 .mapPhase a > span:first-child {
@@ -1487,10 +1693,70 @@
   font-size: 0.62rem;
 }
 
-.mapPhase a:hover,
+.mapLinkCopy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.mapStates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.mapState {
+  width: max-content;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 5px;
+  background: var(--card);
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 720;
+  line-height: 1.25;
+}
+
+.mapState[data-state="current"] {
+  border-color: var(--ao-blue-line);
+  background: var(--ao-blue-soft);
+  color: var(--ao-blue);
+}
+
+.mapState[data-state="complete"] {
+  border-color: var(--green-line);
+  background: var(--ao-green-soft);
+  color: var(--ao-green);
+}
+
+.mapState[data-state="next"] {
+  border-color: var(--gold-line);
+  background: var(--gold-soft);
+  color: var(--ink);
+}
+
 .mapPhase a[aria-current="page"] {
   background: var(--ao-blue-soft);
   color: var(--ao-blue);
+}
+
+@media (hover: hover) {
+  .mapPhase a:hover {
+    background: var(--ao-blue-soft);
+    color: var(--ao-blue);
+  }
+}
+
+.mapPhase a:active {
+  box-shadow: inset 3px 0 0 var(--ao-blue);
+  transform: translateY(1px) scale(0.99);
+  transition-duration: 60ms;
+}
+
+.mapPhase a:focus-visible {
+  outline-offset: -3px;
 }
 
 .moduleRail .progressCompact {
@@ -1647,13 +1913,28 @@
 
 .onPageNav a {
   color: var(--ink-2);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   text-decoration: none;
+  transition: color 130ms ease, transform 130ms ease;
 }
 
-.onPageNav a:hover {
+@media (hover: hover) {
+  .onPageNav a:hover {
+    color: var(--ao-blue);
+    text-decoration: underline;
+  }
+}
+
+.onPageNav a:active {
   color: var(--ao-blue);
-  text-decoration: underline;
+  transform: translateY(1px);
+  transition-duration: 60ms;
+}
+
+.notebookTarget,
+.contractMap,
+.sources {
+  scroll-margin-block-start: calc(var(--topbar-h) + 28px);
 }
 
 .proseSection {
@@ -1679,7 +1960,7 @@
   background: var(--ao-blue-soft);
   color: var(--ao-blue) !important;
   font-family: var(--mono);
-  font-size: 0.61rem !important;
+  font-size: 0.74rem !important;
   font-weight: 750;
   letter-spacing: 0.055em;
 }
@@ -1728,15 +2009,15 @@
 .inlineEvidence > span {
   color: var(--ink-3);
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.7rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .inlineEvidence p {
   margin: 7px 0 0;
-  font-size: 0.76rem;
-  line-height: 1.5;
+  font-size: 0.82rem;
+  line-height: 1.58;
 }
 
 .inlineEvidence a {
@@ -1889,6 +2170,15 @@
   background: var(--bg);
 }
 
+.workbench:focus-within {
+  border-color: var(--ao-blue);
+  box-shadow: 0 0 0 3px var(--ao-blue-soft);
+}
+
+.workbench :where(button, textarea):focus-visible {
+  outline-offset: -3px;
+}
+
 .workbenchHeader {
   display: flex;
   justify-content: space-between;
@@ -2010,9 +2300,12 @@
   font-weight: 700;
 }
 
-.labControls > .labEvidenceInput {
+.labControls > label.labEvidenceInput {
   grid-template-columns: minmax(0, 1fr);
   gap: 7px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   margin-block-start: 6px;
   border: 1px solid var(--line);
   border-radius: 9px;
@@ -2046,8 +2339,10 @@
   line-height: 1.55;
 }
 
-.labEvidenceInput textarea:hover {
-  border-color: var(--ink-3);
+@media (hover: hover) {
+  .labEvidenceInput textarea:hover {
+    border-color: var(--ink-3);
+  }
 }
 
 .labEvidenceInput textarea:focus-visible {
@@ -2058,7 +2353,7 @@
 .labEvidenceInput small {
   display: block;
   color: var(--ink-3);
-  font-size: 0.69rem;
+  font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.48;
 }
@@ -2075,12 +2370,46 @@
 }
 
 .labControls select {
-  min-height: 42px;
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 7px;
-  padding: 8px 10px;
-  background: var(--card);
+  padding: 8px 34px 8px 10px;
+  background:
+    linear-gradient(45deg, transparent 50%, currentcolor 50%) calc(100% - 15px) 50% / 5px 5px no-repeat,
+    linear-gradient(135deg, currentcolor 50%, transparent 50%) calc(100% - 10px) 50% / 5px 5px no-repeat,
+    var(--card);
   color: var(--ink);
+  transition:
+    background-color 130ms ease,
+    border-color 130ms ease,
+    box-shadow 130ms ease;
+}
+
+@media (hover: hover) {
+  .labControls select:not(:disabled):hover {
+    border-color: var(--ink-3);
+  }
+
+  .toggleRow:hover > span {
+    border-color: var(--ao-blue-line);
+  }
+}
+
+.labControls select:focus-visible {
+  border-color: var(--ao-blue);
+  box-shadow: 0 0 0 3px var(--ao-blue-soft);
+  outline-offset: 1px;
+}
+
+.labControls select:not(:disabled):active {
+  background-color: var(--ao-blue-soft);
+}
+
+.labControls select:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
 }
 
 .labControls output {
@@ -2114,6 +2443,11 @@
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--bg-2);
+  transition:
+    background-color 130ms ease,
+    border-color 130ms ease,
+    box-shadow 130ms ease,
+    transform 130ms ease;
 }
 
 .toggleRow > span::after {
@@ -2141,6 +2475,11 @@
 .toggleRow > input:focus-visible + span {
   outline: 3px solid var(--ao-blue);
   outline-offset: 3px;
+}
+
+.toggleRow:active > span {
+  transform: scale(0.94);
+  transition-duration: 60ms;
 }
 
 .toggleRow strong {
@@ -2182,7 +2521,7 @@
   padding: 4px 8px;
   color: #8ebee9;
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.72rem;
 }
 
 .labReadout h3 {
@@ -2194,8 +2533,8 @@
 
 .labReadout > p {
   color: var(--ao-night-muted);
-  font-size: 0.84rem;
-  line-height: 1.55;
+  font-size: 0.9rem;
+  line-height: 1.62;
 }
 
 .labReadout dl {
@@ -2210,15 +2549,15 @@
 .labReadout dt {
   color: #8ebee9;
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
 }
 
 .labReadout dd {
   margin: 4px 0 0;
   color: var(--ao-night-muted);
-  font-size: 0.7rem;
-  line-height: 1.45;
+  font-size: 0.8rem;
+  line-height: 1.55;
 }
 
 .checkpoint {
@@ -2305,11 +2644,20 @@
   font-size: 1rem;
   font-weight: 730;
   text-decoration: none;
+  transition: color 130ms ease, transform 130ms ease;
 }
 
-.sources li header > a:hover {
-  color: var(--ao-blue);
-  text-decoration: underline;
+@media (hover: hover) {
+  .sources li header > a:hover {
+    color: var(--ao-blue);
+    text-decoration: underline;
+  }
+}
+
+.sources li header > a:active,
+.sourceRoleLinks a:active {
+  transform: translateY(1px);
+  transition-duration: 60ms;
 }
 
 .sourceMeta {
@@ -2325,7 +2673,7 @@
   padding: 3px 7px;
   color: var(--ink-3);
   font-family: var(--mono);
-  font-size: 0.58rem;
+  font-size: 0.68rem;
 }
 
 .sourceRoleLinks {
@@ -2336,12 +2684,16 @@
 }
 
 .sourceRoleLinks a {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
   color: var(--ao-blue);
   font-family: var(--mono);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
   text-underline-offset: 3px;
+  transition: color 130ms ease, transform 130ms ease;
 }
 
 .sourceNotes {
@@ -2359,15 +2711,15 @@
 .sourceNotes dt {
   color: var(--ao-blue);
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
 }
 
 .sourceNotes dd {
   margin-block: 5px 0;
   color: var(--ink-2);
-  font-size: 0.76rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.6;
 }
 
 .completion {
@@ -2419,15 +2771,28 @@
   padding: 17px;
   color: var(--ink);
   text-decoration: none;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
 }
 
 .modulePager > a:last-child {
   text-align: end;
 }
 
-.modulePager > a:hover {
-  border-color: var(--ao-blue);
-  background: var(--ao-blue-soft);
+@media (hover: hover) {
+  .modulePager > a:hover {
+    border-color: var(--ao-blue);
+    background: var(--ao-blue-soft);
+  }
+}
+
+.modulePager > a:active {
+  box-shadow: none;
+  transform: translateY(1px) scale(0.99);
+  transition-duration: 60ms;
 }
 
 .modulePager span {
@@ -2478,6 +2843,21 @@
   }
 }
 
+@media (max-width: 900px) {
+  .labGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .labReadout {
+    border-block-start: 1px solid #314158;
+    border-inline-start: 0;
+  }
+
+  .labControls > label.labEvidenceInput {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 860px) {
   .hero {
     grid-template-columns: 1fr;
@@ -2511,19 +2891,22 @@
     min-height: auto;
   }
 
-  .runtimeTable > div {
+  .runtimeTable tbody tr {
+    display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 13px 18px;
+    padding: 16px;
   }
 
-  .runtimeTable > div > *:first-child {
+  .runtimeTable tbody th {
     grid-column: 1 / -1;
+    width: auto;
   }
 
-  .runtimeTable > .runtimeHeader {
+  .runtimeTable thead {
     position: absolute;
     width: 1px;
     height: 1px;
-    min-height: 1px !important;
     overflow: hidden;
     margin: -1px;
     padding: 0;
@@ -2533,14 +2916,19 @@
     white-space: nowrap;
   }
 
-  .runtimeTable > div:not(.runtimeHeader) > [role="cell"]::before {
+  .runtimeTable tbody :is(th, td) {
+    min-height: 0;
+    padding: 0;
+  }
+
+  .runtimeTable tbody :is(th, td)::before {
     display: block;
     margin-block-end: 4px;
     color: var(--ink-3);
     content: attr(data-label);
     font-family: var(--mono);
-    font-size: 0.58rem;
-    font-weight: 600;
+    font-size: 0.68rem;
+    font-weight: 720;
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
@@ -2605,24 +2993,55 @@
     padding-block: 20px 72px;
   }
 
-  .hero h1,
+  .hero {
+    padding-block-start: 16px;
+  }
+
+  .heroCopy {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .heroEyebrow {
+    margin-block-end: 14px;
+  }
+
+  .hero h1 {
+    margin-block: 8px 0;
+    font-size: clamp(2rem, 9.6vw, 4rem);
+    letter-spacing: -0.06em;
+  }
+
+  .heroActions {
+    order: 1;
+    margin-block: 10px 24px;
+  }
+
+  .heroSummary {
+    order: 2;
+  }
+
+  .heroActions .primaryAction {
+    gap: 5px;
+    padding-inline: 10px;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
   .moduleHero h1 {
     font-size: clamp(2.55rem, 15vw, 4.7rem);
     letter-spacing: -0.06em;
   }
 
-  .heroFacts,
   .moduleFacts {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .heroFacts div:nth-child(3),
   .moduleFacts div:nth-child(3) {
     border-inline-start: 0;
     border-block-start: var(--ao-rule);
   }
 
-  .heroFacts div:nth-child(4),
   .moduleFacts div:nth-child(4) {
     border-block-start: var(--ao-rule);
   }
@@ -2693,8 +3112,7 @@
   }
 
   .capstoneIntro,
-  .practiceGrid,
-  .labGrid {
+  .practiceGrid {
     grid-template-columns: 1fr;
   }
 
@@ -2732,7 +3150,7 @@
     border-inline-start: 0;
   }
 
-  .labControls > .labEvidenceInput {
+  .labControls > label.labEvidenceInput {
     padding: 12px;
   }
 
@@ -2752,6 +3170,56 @@
   .completion {
     align-items: stretch;
     flex-direction: column;
+  }
+}
+
+@media (pointer: coarse) {
+  .root :where(button, summary, select),
+  .root :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"])),
+  .topBreadcrumb a,
+  .backLink a,
+  .primaryAction,
+  .secondaryAction,
+  .mapPhase a,
+  .onPageNav a,
+  .modulePager > a,
+  .integrityCopy > a,
+  .sourceRoleLinks a,
+  .assessmentQuestions label,
+  .checkpoint fieldset label,
+  .capstoneChecklist label {
+    min-height: 44px;
+  }
+
+  .progressActions button,
+  .workbenchHeader button,
+  .labControls > button,
+  .labControls select,
+  .checkpoint > button,
+  .completion button {
+    min-height: 44px;
+  }
+
+  .labControls input[type="range"] {
+    min-height: 44px;
+    margin-block: 0;
+  }
+
+  .mapPhase a,
+  .onPageNav a {
+    align-items: center;
+  }
+
+  .onPageNav a {
+    display: flex;
+  }
+}
+
+@media (max-width: 680px) {
+  .root input,
+  .root select,
+  .root textarea {
+    font-size: 1rem;
   }
 }
 

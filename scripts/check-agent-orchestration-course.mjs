@@ -15,12 +15,16 @@ import { publishedReleaseIntegrationErrors } from "./lib/published-release-contr
 
 import {
   AGENT_ORCHESTRATION_CONCEPT_DOMAIN_IDS,
+  AGENT_ORCHESTRATION_CHECKPOINT_ANSWER_CONTRACTS,
+  AGENT_ORCHESTRATION_CHECKPOINT_CONTENT_VERSION,
   AGENT_ORCHESTRATION_COURSE_MANIFEST,
+  AGENT_ORCHESTRATION_EN_COPY,
   AGENT_ORCHESTRATION_MODULE_SLUGS,
   AGENT_ORCHESTRATION_PATTERN_IDS,
   AGENT_ORCHESTRATION_PROGRESS_MILESTONES,
   AGENT_ORCHESTRATION_SOURCES,
   AGENT_ORCHESTRATION_TRANSLATED_LOCALES,
+  AGENT_ORCHESTRATION_ZH_HANS_COPY,
   validateAgentOrchestrationCourse,
 } from "../lib/agent-orchestration/index.ts";
 
@@ -278,6 +282,102 @@ function checkPrivateDevelopmentInputBoundary() {
   }
 }
 
+function checkCheckpointContracts() {
+  const semanticIdPattern = /^[a-z0-9]+(?:[.-][a-z0-9]+)+$/u;
+  const expectedCheckpointKeys = [
+    "checkpointId",
+    "contentVersion",
+    "correctOptionId",
+    "explanation",
+    "options",
+    "question",
+  ];
+  const expectedOptionKeys = ["id", "label"];
+  const checkpointIds = new Set();
+
+  for (const slug of AGENT_ORCHESTRATION_MODULE_SLUGS) {
+    const nativeCheckpoints = [
+      ["en", AGENT_ORCHESTRATION_EN_COPY.modules[slug].checkpoint],
+      ["zh-Hans", AGENT_ORCHESTRATION_ZH_HANS_COPY.modules[slug].checkpoint],
+    ];
+    for (const [locale, checkpoint] of nativeCheckpoints) {
+      const label = `${locale}/${slug}/checkpoint`;
+      const checkpointKeys = Object.keys(checkpoint).sort();
+      if (JSON.stringify(checkpointKeys) !== JSON.stringify(expectedCheckpointKeys)) {
+        fail(`${label}: expected only the versioned semantic checkpoint fields`);
+      }
+      if (!semanticIdPattern.test(checkpoint.checkpointId)) {
+        fail(`${label}: checkpointId must be a stable semantic ID`);
+      }
+      if (checkpointIds.has(checkpoint.checkpointId)) {
+        fail(`${label}: checkpointId ${checkpoint.checkpointId} is duplicated`);
+      }
+      checkpointIds.add(checkpoint.checkpointId);
+      if (checkpoint.contentVersion !== AGENT_ORCHESTRATION_CHECKPOINT_CONTENT_VERSION) {
+        fail(`${label}: unsupported checkpoint contentVersion ${checkpoint.contentVersion}`);
+      }
+      if (!Array.isArray(checkpoint.options) || checkpoint.options.length !== 4) {
+        fail(`${label}: exactly four semantic options are required`);
+        continue;
+      }
+      const optionIds = [];
+      for (const [index, option] of checkpoint.options.entries()) {
+        if (!option || typeof option !== "object" || Array.isArray(option)) {
+          fail(`${label}/option-${index + 1}: option must be an {id, label} object`);
+          continue;
+        }
+        if (JSON.stringify(Object.keys(option).sort()) !== JSON.stringify(expectedOptionKeys)) {
+          fail(`${label}/option-${index + 1}: expected only id and label`);
+        }
+        if (!semanticIdPattern.test(option.id)) {
+          fail(`${label}/option-${index + 1}: id must be semantic, not positional`);
+        }
+        if (typeof option.label !== "string" || !option.label.trim()) {
+          fail(`${label}/option-${index + 1}: label must be non-empty`);
+        }
+        optionIds.push(option.id);
+      }
+      if (new Set(optionIds).size !== optionIds.length) {
+        fail(`${label}: option IDs must be unique within the checkpoint`);
+      }
+      if (!optionIds.includes(checkpoint.correctOptionId)) {
+        fail(`${label}: correctOptionId must name one current semantic option`);
+      }
+    }
+
+    const [english, chinese] = nativeCheckpoints.map(([, checkpoint]) => checkpoint);
+    const englishOptionLabels = Array.isArray(english.options)
+      ? english.options.map((option) => option?.label)
+      : [];
+    const chineseOptionLabels = Array.isArray(chinese.options)
+      ? chinese.options.map((option) => option?.label)
+      : [];
+    const contentDiffers = english.question !== chinese.question
+      || JSON.stringify(englishOptionLabels) !== JSON.stringify(chineseOptionLabels);
+    if (contentDiffers && english.checkpointId === chinese.checkpointId) {
+      fail(`${slug}: different native checkpoint content must never share identity`);
+    }
+
+    const expectedAnswerContracts = nativeCheckpoints.map(([, checkpoint]) => ({
+      checkpointId: checkpoint.checkpointId,
+      contentVersion: checkpoint.contentVersion,
+      correctOptionId: checkpoint.correctOptionId,
+    }));
+    if (
+      JSON.stringify(AGENT_ORCHESTRATION_CHECKPOINT_ANSWER_CONTRACTS[slug])
+      !== JSON.stringify(expectedAnswerContracts)
+    ) {
+      fail(`${slug}: locale-neutral checkpoint registry drifted from native copy`);
+    }
+  }
+
+  if (checkpointIds.size !== AGENT_ORCHESTRATION_MODULE_SLUGS.length * 2) {
+    fail("Course 15 requires distinct stable identities for all 30 current native checkpoints");
+  } else {
+    note("30 native checkpoints use versioned semantic identities and pinned answer contracts");
+  }
+}
+
 function checkCourseContract() {
   try {
     for (const message of validateAgentOrchestrationCourse()) {
@@ -288,6 +388,7 @@ function checkCourseContract() {
   }
 
   const manifest = AGENT_ORCHESTRATION_COURSE_MANIFEST;
+  checkCheckpointContracts();
   const slugs = manifest.modules.map((module) => module.slug);
   const minutes = manifest.modules.reduce((sum, module) => sum + module.minutes, 0);
   if (manifest.id !== "agent-orchestration") fail(`Manifest ID drifted to ${manifest.id}`);
@@ -421,17 +522,32 @@ function checkFilesAndRoutes() {
   const requiredFiles = [
     "app/[locale]/agent-orchestration/page.tsx",
     "app/[locale]/agent-orchestration/[module]/page.tsx",
+    "app/[locale]/agent-orchestration/assessment/page.tsx",
+    "app/[locale]/agent-orchestration/capstone/page.tsx",
     "components/agent-orchestration/AgentOrchestrationCourse.module.css",
+    "components/agent-orchestration/ActiveModuleMapReveal.tsx",
+    "components/agent-orchestration/AssessmentInteractions.module.css",
+    "components/agent-orchestration/AssessmentInteractions.tsx",
+    "components/agent-orchestration/ArtifactWorkbench.tsx",
     "components/agent-orchestration/CourseDashboard.tsx",
+    "components/agent-orchestration/CourseNavigation.module.css",
+    "components/agent-orchestration/CourseNavigator.tsx",
+    "components/agent-orchestration/CourseStaticPageShell.tsx",
+    "components/agent-orchestration/CourseWorkspacePortability.module.css",
+    "components/agent-orchestration/CourseWorkspacePortability.tsx",
     "components/agent-orchestration/Interactions.tsx",
     "components/agent-orchestration/ModuleView.tsx",
+    "components/agent-orchestration/OrchestrationLab.tsx",
     "components/agent-orchestration/OrchestrationMap.tsx",
+    "components/agent-orchestration/interaction-helpers.ts",
     "components/agent-orchestration/progress-store.ts",
+    "components/agent-orchestration/useAgentOrchestrationProgress.ts",
     "lib/agent-orchestration/copy/en.ts",
     "lib/agent-orchestration/copy/zh-Hans.ts",
     "lib/agent-orchestration/format.ts",
     "lib/agent-orchestration/index.ts",
     "lib/agent-orchestration/lab-model.ts",
+    "lib/agent-orchestration/lab-progress.ts",
     "lib/agent-orchestration/load.ts",
     "lib/agent-orchestration/manifest.ts",
     "lib/agent-orchestration/progress.ts",
@@ -513,9 +629,13 @@ function checkFilesAndRoutes() {
   if (!css.includes("prefers-reduced-motion: reduce")) fail("Course 15 requires a reduced-motion override");
   const cssClasses = new Set(Array.from(css.matchAll(/\.([A-Za-z][A-Za-z0-9_-]*)/g), (match) => match[1]));
   for (const componentPath of [
+    "components/agent-orchestration/ActiveModuleMapReveal.tsx",
+    "components/agent-orchestration/ArtifactWorkbench.tsx",
     "components/agent-orchestration/CourseDashboard.tsx",
+    "components/agent-orchestration/CourseStaticPageShell.tsx",
     "components/agent-orchestration/Interactions.tsx",
     "components/agent-orchestration/ModuleView.tsx",
+    "components/agent-orchestration/OrchestrationLab.tsx",
     "components/agent-orchestration/OrchestrationMap.tsx",
   ]) {
     const component = readText(componentPath);
@@ -524,6 +644,27 @@ function checkFilesAndRoutes() {
       if (!cssClasses.has(className)) fail(`${componentPath}: CSS module class .${className} is not defined`);
     }
     if (/\bsrc\s*=\s*["']https?:\/\//i.test(component)) fail(`${componentPath}: remote embedded media is prohibited`);
+  }
+  const navigationCss = readText("components/agent-orchestration/CourseNavigation.module.css");
+  const navigationClasses = new Set(Array.from(
+    navigationCss.matchAll(/\.([A-Za-z][A-Za-z0-9_-]*)/g),
+    (match) => match[1],
+  ));
+  for (const [componentPath, importName] of [
+    ["components/agent-orchestration/CourseDashboard.tsx", "navigationStyles"],
+    ["components/agent-orchestration/CourseNavigator.tsx", "styles"],
+    ["components/agent-orchestration/CourseStaticPageShell.tsx", "navigationStyles"],
+  ]) {
+    const component = readText(componentPath);
+    const usedClasses = new Set(Array.from(
+      component.matchAll(new RegExp(`${importName}\\.([A-Za-z][A-Za-z0-9_]*)`, "g")),
+      (match) => match[1],
+    ));
+    for (const className of usedClasses) {
+      if (!navigationClasses.has(className)) {
+        fail(`${componentPath}: Course Navigation CSS module class .${className} is not defined`);
+      }
+    }
   }
 
   requireTokens("app/[locale]/agent-orchestration/page.tsx", [
@@ -542,6 +683,30 @@ function checkFilesAndRoutes() {
     "agentOrchestrationModulePage",
     "<ModuleView",
   ]);
+  for (const route of ["assessment", "capstone"]) {
+    requireTokens(`app/[locale]/agent-orchestration/${route}/page.tsx`, [
+      "dynamicParams = false",
+      'courseLocaleParams("agent-orchestration")',
+      "const { locale } = await params",
+      "availableLocales: AGENT_ORCHESTRATION_TRANSLATED_LOCALES",
+      "canonicalLocale: course.contentLocale",
+      `agentOrchestrationFixedPage("${route}")`,
+      "<CourseStaticPageShell",
+      "inLanguage: course.contentLocale",
+    ]);
+  }
+  const dashboard = requireTokens("components/agent-orchestration/CourseDashboard.tsx", [
+    "<CourseNavigator",
+    "<CourseWorkspacePortability",
+    'current="overview"',
+    'id="agent-orchestration-curriculum"',
+    'id="agent-orchestration-sources"',
+  ]);
+  for (const embeddedInteraction of ["<FinalAssessment", "<CapstoneChecklist"]) {
+    if (dashboard.includes(embeddedInteraction)) {
+      fail(`Course dashboard must link to dedicated Phase 2 routes instead of embedding ${embeddedInteraction}`);
+    }
+  }
   const moduleView = requireTokens("components/agent-orchestration/ModuleView.tsx", [
     "section.evidenceMode",
     "source.claimEvidenceUrls.slice(1)",
@@ -556,10 +721,12 @@ function checkFilesAndRoutes() {
   if (/<main\b/.test(moduleView) || /<main\b/.test(moduleRoute)) {
     fail("Course 15 route content must not nest a second main landmark inside Shell");
   }
-  requireTokens("components/agent-orchestration/Interactions.tsx", [
-    "evaluateAgentOrchestrationLab",
+  requireTokens("components/agent-orchestration/ArtifactWorkbench.tsx", [
     "saveAgentOrchestrationArtifactDraft",
     "saveAgentOrchestrationPendingArtifactDraft",
+  ]);
+  requireTokens("components/agent-orchestration/OrchestrationLab.tsx", [
+    "evaluateAgentOrchestrationLab",
     "saveAgentOrchestrationLabReceipt",
     "saveAgentOrchestrationPendingLabWork",
     "isAgentOrchestrationLabStateCompletable",
@@ -762,8 +929,10 @@ function checkFilesAndRoutes() {
 
 function checkIntegration() {
   requireTokens("lib/seo.ts", [
-    'AGENT_ORCHESTRATION_MODULE_PAGES = childPagesFor("agent-orchestration")',
+    "AGENT_ORCHESTRATION_FIXED_PAGES",
+    "AGENT_ORCHESTRATION_MODULE_PAGES = AGENT_ORCHESTRATION_CHILD_PAGES.filter",
     "function agentOrchestrationModulePage",
+    "function agentOrchestrationFixedPage",
     "export const PAGES = PUBLISHED_LOCALIZED_PAGES",
   ]);
   requireTokens("app/sitemap.ts", [
@@ -837,7 +1006,12 @@ function checkIntegration() {
     ROOT,
     "agent-orchestration",
     "npm run agent-orchestration:check:release",
-    ["agent-orchestration/", ...EXPECTED_SLUGS.map((slug) => `agent-orchestration/${slug}/`)],
+    [
+      "agent-orchestration/",
+      ...EXPECTED_SLUGS.map((slug) => `agent-orchestration/${slug}/`),
+      "agent-orchestration/assessment/",
+      "agent-orchestration/capstone/",
+    ],
   )) fail(error);
 }
 

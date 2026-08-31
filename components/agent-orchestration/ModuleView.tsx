@@ -6,12 +6,13 @@ import type {
   MaterializedAgentOrchestrationModule,
 } from "@/lib/agent-orchestration";
 import {
-  ArtifactWorkbench,
   CourseProgress,
   ModuleCheckpoint,
   ModuleCompletion,
-  OrchestrationLab,
 } from "./Interactions";
+import { ArtifactWorkbench } from "./ArtifactWorkbench";
+import ActiveModuleMapReveal from "./ActiveModuleMapReveal";
+import { OrchestrationLab } from "./OrchestrationLab";
 import { ModuleContractMap } from "./OrchestrationMap";
 import styles from "./AgentOrchestrationCourse.module.css";
 
@@ -55,37 +56,6 @@ function evidenceLabel(mode: AgentOrchestrationEvidenceMode, locale: string): st
   return chinese ? "版本观察" : "VERSION WATCH";
 }
 
-function ModuleMap({
-  course,
-  activeSlug,
-}: {
-  course: MaterializedAgentOrchestrationCourse;
-  activeSlug: string;
-}) {
-  return (
-    <ol>
-      {course.phases.map((phase) => (
-        <li className={styles.mapPhase} key={phase.id}>
-          <span>{phase.copy.title}</span>
-          <ol>
-            {phase.modules.map((module) => (
-              <li key={module.slug}>
-                <Link
-                  href={`/${course.locale}/agent-orchestration/${module.slug}/`}
-                  aria-current={module.slug === activeSlug ? "page" : undefined}
-                >
-                  <span>{String(module.order).padStart(2, "0")}</span>
-                  <span>{module.copy.title}</span>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
 export default function ModuleView({
   course,
   module,
@@ -100,6 +70,41 @@ export default function ModuleView({
   const courseHref = `/${course.locale}/agent-orchestration/`;
   const hrefFor = (slug: string) => `/${course.locale}/agent-orchestration/${slug}/`;
   if (!phase) return null;
+  const chinese = course.contentLocale === "zh-Hans";
+  const notebookItems = [
+    { target: "module-learning", text: chinese ? "学习" : "Learn" },
+    { target: "module-contract", text: label(course.copy.ui, "contract", chinese ? "执行契约" : "Contract") },
+    { target: "module-artifact", text: label(course.copy.ui, "artifact", chinese ? "产物" : "Artifact") },
+    { target: "module-lab", text: label(course.copy.ui, "lab", chinese ? "实验" : "Lab") },
+    { target: "module-checkpoint", text: label(course.copy.ui, "checkpoint", chinese ? "检查点" : "Checkpoint") },
+    { target: "module-completion", text: label(course.copy.ui, "completion", chinese ? "完成" : "Completion") },
+    { target: "module-sources", text: label(course.copy.ui, "sources", chinese ? "来源" : "Sources") },
+  ] as const;
+  const moreModulesLabel = chinese ? "更多模块" : "More modules";
+  const mapPhases = course.phases.map((mapPhase) => ({
+    id: mapPhase.id,
+    title: mapPhase.copy.title,
+    modules: mapPhase.modules.map((mapModule) => ({
+      checkpoint: mapModule.copy.checkpoint,
+      order: mapModule.order,
+      slug: mapModule.slug,
+      title: mapModule.copy.title,
+    })),
+  }));
+  const mapStateLabels = {
+    complete: chinese ? "已完成" : "Done",
+    current: chinese ? "当前" : "Current",
+    nextIncomplete: chinese ? "下一未完成项" : "Next incomplete",
+  } as const;
+  const moduleCheckpoints = course.modules.map(({ slug, copy }) => ({
+    slug,
+    checkpoint: copy.checkpoint,
+  }));
+  const opensInNewTab = label(
+    course.copy.ui,
+    "opensInNewTab",
+    chinese ? "在新标签页打开" : "opens in a new tab",
+  );
 
   return (
     <div
@@ -112,7 +117,14 @@ export default function ModuleView({
         <p className={styles.languageNotice}>{course.copy.meta.translationNote}</p>
       ) : null}
 
-      <nav className={styles.topBreadcrumb} aria-label={label(course.copy.ui, "courseMap", "Course map")}>
+      <nav
+        className={styles.topBreadcrumb}
+        aria-label={label(
+          course.copy.ui,
+          "breadcrumb",
+          chinese ? "面包屑导航" : "Breadcrumb",
+        )}
+      >
         <Link href={courseHref}><span aria-hidden="true">←</span>{label(course.copy.ui, "courseMap", "Course map")}</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{label(course.copy.ui, "module", "Module")} {module.order}</span>
@@ -120,20 +132,45 @@ export default function ModuleView({
 
       <details className={styles.mobileCourseMap}>
         <summary><span>{label(course.copy.ui, "courseMap", "Course map")}</span><span>{module.order} / {course.modules.length}</span></summary>
-        <nav aria-label={label(course.copy.ui, "allCourseModules", "All course modules")}><ModuleMap course={course} activeSlug={module.slug} /></nav>
+        <nav
+          aria-label={label(course.copy.ui, "allCourseModules", "All course modules")}
+          data-module-map-scroll
+        >
+          <ActiveModuleMapReveal
+            activeSlug={module.slug}
+            continuationLabel={moreModulesLabel}
+            courseLocale={course.locale}
+            phases={mapPhases}
+            stateLabels={mapStateLabels}
+          />
+        </nav>
       </details>
 
+      <a className={styles.lessonSkipLink} href="#module-lesson-content">
+        {chinese ? "跳至本课内容" : "Skip to lesson"}
+      </a>
+
       <div className={styles.moduleLayout}>
-        <aside className={styles.moduleRail}>
+        <aside className={styles.moduleRail} data-module-map-scroll>
           <nav aria-label={label(course.copy.ui, "allCourseModules", "All course modules")}>
             <header><span>{label(course.copy.ui, "course", "Course 15")}</span><strong>{label(course.copy.ui, "courseMap", "Course map")}</strong></header>
-            <ModuleMap course={course} activeSlug={module.slug} />
-            <CourseProgress labels={course.copy.ui} compact />
+            <ActiveModuleMapReveal
+              activeSlug={module.slug}
+              continuationLabel={moreModulesLabel}
+              courseLocale={course.locale}
+              phases={mapPhases}
+              stateLabels={mapStateLabels}
+            />
+            <CourseProgress
+              labels={course.copy.ui}
+              compact
+              moduleCheckpoints={moduleCheckpoints}
+            />
           </nav>
         </aside>
 
         <div className={styles.moduleMain}>
-          <article>
+          <article id="module-lesson-content" tabIndex={-1}>
             <header className={styles.moduleHero}>
               <div className={styles.moduleSignal}>
                 <span>{label(course.copy.ui, "phase", "Phase")} {phase.order}</span><i /><span>{phase.copy.verb}</span>
@@ -162,15 +199,17 @@ export default function ModuleView({
             <nav className={styles.onPageNav} aria-label={label(course.copy.ui, "onThisPage", "On this page")}>
               <span>{label(course.copy.ui, "onThisPage", "Execution notebook")}</span>
               <ol>
-                {module.copy.sections.map((section, sectionIndex) => (
-                  <li key={section.heading}><a href={`#module-section-${sectionIndex + 1}`}>{String(sectionIndex + 1).padStart(2, "0")} {section.heading}</a></li>
+                {notebookItems.map((item, itemIndex) => (
+                  <li key={item.target}>
+                    <a href={`#${item.target}`}>
+                      {String(itemIndex + 1).padStart(2, "0")} {item.text}
+                    </a>
+                  </li>
                 ))}
-                <li><a href="#module-contract">04 {label(course.copy.ui, "contract", "Execution contract")}</a></li>
-                <li><a href="#module-practice">05 {label(course.copy.ui, "practice", "Applied practice")}</a></li>
-                <li><a href="#module-sources">06 {label(course.copy.ui, "sources", "Source register")}</a></li>
               </ol>
             </nav>
 
+            <div className={styles.notebookTarget} id="module-learning" />
             {module.copy.sections.map((section, sectionIndex) => {
               const sectionSources = section.sourceIds.flatMap((sourceId) => {
                 const source = module.sources.find((candidate) => candidate.id === sourceId);
@@ -196,7 +235,14 @@ export default function ModuleView({
                         {sectionSources.map((source, sourceIndex) => (
                           <span key={source.id}>
                             {sourceIndex ? " · " : ""}
-                            <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a>
+                            <a
+                              href={source.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`${source.title} (${opensInNewTab})`}
+                            >
+                              {source.title}<span aria-hidden="true">↗</span>
+                            </a>
                           </span>
                         ))}
                       </p>
@@ -222,11 +268,24 @@ export default function ModuleView({
                 <div><h3>{label(course.copy.ui, "workSequence", "Work sequence")}</h3><ol>{module.copy.practice.steps.map((step) => <li key={step}>{step}</li>)}</ol></div>
                 <div className={styles.reviewGate}><p className={styles.sectionLabel}>{label(course.copy.ui, "reviewGate", "Review gate")}</p><p>{module.copy.practice.reviewGate}</p></div>
               </div>
-              <ArtifactWorkbench slug={module.slug} practice={module.copy.practice} labels={course.copy.ui} />
+              <div className={styles.notebookTarget} id="module-artifact">
+                <ArtifactWorkbench slug={module.slug} practice={module.copy.practice} labels={course.copy.ui} />
+              </div>
             </section>
 
-            <OrchestrationLab slug={module.slug} labId={module.labId} lab={module.copy.lab} labels={course.copy.ui} />
-            <ModuleCheckpoint slug={module.slug} checkpoint={module.copy.checkpoint} labels={course.copy.ui} />
+            <div className={styles.notebookTarget} id="module-lab">
+              <OrchestrationLab slug={module.slug} labId={module.labId} lab={module.copy.lab} labels={course.copy.ui} />
+            </div>
+            <div className={styles.notebookTarget} id="module-checkpoint">
+              <ModuleCheckpoint slug={module.slug} checkpoint={module.copy.checkpoint} labels={course.copy.ui} />
+            </div>
+            <div className={styles.notebookTarget} id="module-completion">
+              <ModuleCompletion
+                slug={module.slug}
+                checkpoint={module.copy.checkpoint}
+                labels={course.copy.ui}
+              />
+            </div>
 
             <aside className={styles.takeaway} aria-label={label(course.copy.ui, "moduleTakeaway", "Module takeaway")}><span>{label(course.copy.ui, "takeaway", "Keep this boundary")}</span><p>{module.copy.takeaway}</p></aside>
 
@@ -242,7 +301,15 @@ export default function ModuleView({
                     <span className={styles.sourceNumber}>{String(sourceIndex + 1).padStart(2, "0")}</span>
                     <div>
                       <header>
-                        <a href={source.url} target="_blank" rel="noopener noreferrer" lang="en">{source.title}<span aria-hidden="true">↗</span></a>
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          lang="en"
+                          aria-label={`${source.title} (${opensInNewTab})`}
+                        >
+                          {source.title}<span aria-hidden="true">↗</span>
+                        </a>
                         <div className={styles.sourceMeta}>
                           <span lang="en">{source.publisher}</span><span>{sourceKindLabel(source.kind, course.contentLocale)}</span><span>{sourceStabilityLabel(source.stability, course.contentLocale)}</span><span>{label(course.copy.ui, "accessed", "Accessed")} {source.accessedOn}</span>
                           {source.revision ? <span>{label(course.copy.ui, "revision", "Revision")}: {source.revision}</span> : null}
@@ -256,16 +323,39 @@ export default function ModuleView({
                         {source.claimEvidenceUrls.length > 1 || source.versionAnchorUrl ? (
                           <div className={styles.sourceRoleLinks}>
                             {source.claimEvidenceUrls.slice(1).map((evidenceUrl, evidenceIndex) => (
-                              <a href={evidenceUrl} target="_blank" rel="noopener noreferrer" key={evidenceUrl}>
+                              <a
+                                href={evidenceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                key={evidenceUrl}
+                                aria-label={`${label(
+                                  course.copy.ui,
+                                  "supportingClaimEvidence",
+                                  "Supporting claim evidence",
+                                )} ${evidenceIndex + 2}${source.versionAnchorUrl === evidenceUrl
+                                  ? ` · ${label(course.copy.ui, "versionAnchor", "Version anchor")}`
+                                  : ""} (${opensInNewTab})`}
+                              >
                                 {label(course.copy.ui, "supportingClaimEvidence", "Supporting claim evidence")} {evidenceIndex + 2}
                                 {source.versionAnchorUrl === evidenceUrl
                                   ? ` · ${label(course.copy.ui, "versionAnchor", "Version anchor")}`
                                   : ""}
+                                <span aria-hidden="true">↗</span>
                               </a>
                             ))}
                             {source.versionAnchorUrl && !source.claimEvidenceUrls.includes(source.versionAnchorUrl) ? (
-                              <a href={source.versionAnchorUrl} target="_blank" rel="noopener noreferrer">
+                              <a
+                                href={source.versionAnchorUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${label(
+                                  course.copy.ui,
+                                  "versionAnchor",
+                                  "Version anchor",
+                                )} (${opensInNewTab})`}
+                              >
                                 {label(course.copy.ui, "versionAnchor", "Version anchor")}
+                                <span aria-hidden="true">↗</span>
                               </a>
                             ) : null}
                           </div>
@@ -281,10 +371,9 @@ export default function ModuleView({
               </ol>
             </section>
 
-            <ModuleCompletion slug={module.slug} labels={course.copy.ui} />
             <nav className={styles.modulePager} aria-label={label(course.copy.ui, "moduleNavigation", "Module navigation")} data-course-lesson-nav>
               {previous ? <Link href={hrefFor(previous.slug)} rel="prev"><span>{label(course.copy.ui, "previous", "Previous")}</span><strong>{String(previous.order).padStart(2, "0")} · {previous.copy.title}</strong></Link> : <span />}
-              {next ? <Link href={hrefFor(next.slug)} rel="next"><span>{label(course.copy.ui, "next", "Next")}</span><strong>{String(next.order).padStart(2, "0")} · {next.copy.title}</strong></Link> : <Link href={courseHref}><span>{label(course.copy.ui, "return", "Return")}</span><strong>{label(course.copy.ui, "courseMap", "Course map")}</strong></Link>}
+              {next ? <Link href={hrefFor(next.slug)} rel="next"><span>{label(course.copy.ui, "next", "Next")}</span><strong>{String(next.order).padStart(2, "0")} · {next.copy.title}</strong></Link> : <Link href={courseHref}><span>{label(course.copy.ui, "returnToCourse", chinese ? "返回课程概览" : "Return to course overview")}</span><strong>{course.copy.meta.title}</strong></Link>}
             </nav>
           </article>
         </div>

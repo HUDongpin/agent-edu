@@ -28,9 +28,9 @@ const manifest = JSON.parse(readFileSync("config/route-manifest.json", "utf8"));
 
 test("the Preview plan closes over every registry route and every negative locale surface", () => {
   const plan = buildPreviewPlan(surface, manifest);
-  assert.equal(plan.publicPaths.length, 735);
-  assert.equal(plan.htmlContracts.size, 732);
-  assert.equal(plan.expectedSitemapUrls.length, 732);
+  assert.equal(plan.publicPaths.length, 739);
+  assert.equal(plan.htmlContracts.size, 736);
+  assert.equal(plan.expectedSitemapUrls.length, 736);
   assert.equal(plan.consumerPaths.size, 18);
   assert.ok(plan.publicPaths.includes("/en/prompts/"));
   assert.ok(plan.negativePaths.includes("/ar/prompts/"));

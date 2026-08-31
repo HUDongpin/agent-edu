@@ -766,7 +766,9 @@
         "agent-orchestration/security-authority-human-control/",
         "agent-orchestration/tracing-observability-economics/",
         "agent-orchestration/evaluation-regression-evolution/",
-        "agent-orchestration/production-orchestration-capstone/"
+        "agent-orchestration/production-orchestration-capstone/",
+        "agent-orchestration/assessment/",
+        "agent-orchestration/capstone/"
       ],
       "releaseGate": "npm run agent-orchestration:check:release",
       "progress": {

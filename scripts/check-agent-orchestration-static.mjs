@@ -34,6 +34,7 @@ const slugs = [
   "evaluation-regression-evolution",
   "production-orchestration-capstone",
 ];
+const fixedPages = ["assessment", "capstone"];
 
 const failures = [];
 const fail = (message) => failures.push(message);
@@ -74,6 +75,7 @@ if (statSync(buildIdPath).mtimeMs < latestCourseInputMtime) {
 const expectedCourseArtifacts = locales.flatMap((locale) => [
   join(APP_ROOT, locale, "agent-orchestration.html"),
   ...slugs.map((slug) => join(APP_ROOT, locale, "agent-orchestration", `${slug}.html`)),
+  ...fixedPages.map((page) => join(APP_ROOT, locale, "agent-orchestration", `${page}.html`)),
 ]);
 const missingCourseArtifacts = expectedCourseArtifacts.filter((path) => !existsSync(path));
 if (missingCourseArtifacts.length) {
@@ -133,7 +135,7 @@ function auditHtml(locale, slug) {
   if (!has(html, `<html lang="${locale}" dir="${expectedOuterDir}"`)) {
     fail(`${file}: outer html lang/dir does not match requested locale`);
   }
-  if (!new RegExp(`<div[^>]+lang="${contentLocale}"[^>]+dir="ltr"[^>]+data-testid="agent-orchestration-(?:course|module-[^"]+)"`).test(html)) {
+  if (!new RegExp(`<div[^>]+lang="${contentLocale}"[^>]+dir="ltr"[^>]+data-testid="agent-orchestration-(?:course|module-[^"]+|assessment-page|capstone-page)"`).test(html)) {
     fail(`${file}: content wrapper does not declare the native/fallback content language and direction`);
   }
   if (count(html, /<h1(?:\s|>)/g) !== 1) {
@@ -170,6 +172,7 @@ function auditHtml(locale, slug) {
 for (const locale of locales) {
   auditHtml(locale, undefined);
   for (const slug of slugs) auditHtml(locale, slug);
+  for (const page of fixedPages) auditHtml(locale, page);
 }
 
 const emitted = [];
@@ -183,7 +186,7 @@ for (const locale of locales) {
     if (name.endsWith(".html")) emitted.push(join(moduleRoot, name));
   }
 }
-if (emitted.length !== 32) fail(`emitted Course 15 HTML count is ${emitted.length}, expected 32`);
+if (emitted.length !== 36) fail(`emitted Course 15 HTML count is ${emitted.length}, expected 36`);
 
 const enOverview = readFileSync(coursePath("en", undefined), "utf8");
 const zhOverview = readFileSync(coursePath("zh-Hans", undefined), "utf8");
@@ -256,7 +259,7 @@ for (const sitemapPath of sitemapPaths) {
 const courseEntries = [...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)]
   .map((match) => match[1])
   .filter((entry) => entry.includes("/agent-orchestration/"));
-if (courseEntries.length !== 32) fail(`Course 15 sitemap count is ${courseEntries.length}, expected 32`);
+if (courseEntries.length !== 36) fail(`Course 15 sitemap count is ${courseEntries.length}, expected 36`);
 for (const entry of courseEntries) {
   const loc = entry.match(/<loc>([^<]+)<\/loc>/)?.[1] ?? "";
   if (!/^https:\/\/aicourse\.top\/(?:en|zh-Hans)\/agent-orchestration\//.test(loc)) {
@@ -277,8 +280,8 @@ if (failures.length) {
 }
 
 console.log("PASS Course 15 static output audit");
-console.log("- 32 HTML documents: 2 real content locales × (1 overview + 15 modules)");
+console.log("- 36 HTML documents: 2 real content locales × (1 overview + 15 modules + assessment + capstone)");
 console.log("- one h1, unique ids, locale/content lang-dir contracts, canonical/hreflang, and JSON-LD verified per document");
 console.log("- source-role labels distinguish Official GitHub, supporting claim evidence, and version anchors");
 console.log("- build freshness, v1.1.1 marker, corrected ACI/workflow/scheduling/shadow/Baggage terms, and Official SDK docs labels verified");
-console.log("- 32 sitemap URLs: native en + zh-Hans only, with en/zh-Hans/x-default alternates");
+console.log("- 36 sitemap URLs: native en + zh-Hans only, with en/zh-Hans/x-default alternates");

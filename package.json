@@ -124,6 +124,7 @@
     "test:rag": "playwright test --config tests/published-playwright.config.ts tests/rag-course.spec.ts --workers=1",
     "test:claude-income": "playwright test tests/claude-income-course.spec.ts --workers=1",
     "test:ai-tutor": "playwright test tests/ai-tutor-course.spec.ts --config tests/published-playwright.config.ts --workers=1",
+    "test:agent-orchestration": "playwright test --config tests/published-playwright.config.ts tests/agent-orchestration-course.spec.ts tests/agent-orchestration-phase2.spec.ts tests/agent-orchestration-phase3.spec.ts tests/agent-orchestration-phase3-reset.spec.ts",
     "test:published-courses": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test --config tests/published-playwright.config.ts"
   },
   "dependencies": {

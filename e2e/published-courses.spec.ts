@@ -10,15 +10,16 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY,
   AGENT_ORCHESTRATION_QUIZ_BEST_KEY,
   AGENT_ORCHESTRATION_QUIZ_PASSED_KEY,
-  agentOrchestrationCheckpointPassedKey,
   agentOrchestrationModuleProgressKey,
   isAgentOrchestrationLabStateCompletable,
   saveAgentOrchestrationArtifactDraft,
+  saveAgentOrchestrationCheckpointReceipt,
   saveAgentOrchestrationLabReceipt,
   type AgentOrchestrationLabState,
   type AgentOrchestrationLabStateKey,
   type AgentOrchestrationModuleSlug,
 } from "../lib/agent-orchestration";
+import { AGENT_ORCHESTRATION_EN_COPY } from "../lib/agent-orchestration/copy/en";
 import { AGENT_ORCHESTRATION_PRACTICE_TEMPLATES } from "../lib/agent-orchestration/practice-templates";
 import {
   PRODUCT_MANAGEMENT_COURSE_MANIFEST,
@@ -257,7 +258,16 @@ function agentOrchestrationProgress(completedModules: number, complete = false) 
     if (!artifactSaved || !labSaved) {
       throw new Error(`Unable to build valid Agent Orchestration progress for ${moduleSlug}`);
     }
-    record[agentOrchestrationCheckpointPassedKey(moduleSlug)] = true;
+    const checkpoint = AGENT_ORCHESTRATION_EN_COPY.modules[moduleSlug].checkpoint;
+    const checkpointSaved = saveAgentOrchestrationCheckpointReceipt(
+      record,
+      moduleSlug,
+      checkpoint,
+      checkpoint.correctOptionId,
+    );
+    if (!checkpointSaved?.passed) {
+      throw new Error(`Unable to build valid Agent Orchestration checkpoint for ${moduleSlug}`);
+    }
     record[agentOrchestrationModuleProgressKey(moduleSlug)] = true;
   }
 

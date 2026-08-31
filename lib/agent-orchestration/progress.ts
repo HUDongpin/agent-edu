@@ -3,26 +3,65 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS,
   AGENT_ORCHESTRATION_PROGRESS_RESET_EVENT as TOPOLOGY_PROGRESS_RESET_EVENT,
   AGENT_ORCHESTRATION_PROGRESS_SCHEMA,
+  migrateAgentOrchestrationProgressRecord,
 } from "../progress-topology";
 import {
   AGENT_ORCHESTRATION_LAB_ID_BY_MODULE,
-  AGENT_ORCHESTRATION_LAB_SCHEMA_VERSION,
-  AGENT_ORCHESTRATION_LAB_SCENARIO_VERSION,
-  agentOrchestrationLabDecisionsEqual,
-  evaluateAgentOrchestrationLab,
-  isAgentOrchestrationLabPair,
-  isAgentOrchestrationLabStateCompletable,
-  normalizeAgentOrchestrationLabState,
 } from "./lab-model";
+import { isAgentOrchestrationQuizPassed } from "./assessment-validation";
+import { isAgentOrchestrationCapstoneComplete } from "./capstone-validation";
+import {
+  agentOrchestrationLabKey,
+  isSavedAgentOrchestrationLabReceipt,
+} from "./lab-progress";
 import { AGENT_ORCHESTRATION_PRACTICE_TEMPLATES } from "./practice-templates";
 import type {
-  AgentOrchestrationLabDecision,
-  AgentOrchestrationLabState,
-} from "./lab-model";
-import type {
-  AgentOrchestrationLabId,
+  AgentOrchestrationCheckpointCopy,
   AgentOrchestrationModuleSlug,
 } from "./types";
+import { AGENT_ORCHESTRATION_CHECKPOINT_CONTENT_VERSION } from "./types";
+
+export {
+  AGENT_ORCHESTRATION_MAX_LAB_EVIDENCE_LENGTH,
+  AGENT_ORCHESTRATION_MIN_LAB_EVIDENCE_CHARACTERS,
+  agentOrchestrationLabKey,
+  agentOrchestrationLabPendingKey,
+  createAgentOrchestrationLabReceipt,
+  isMeaningfulAgentOrchestrationLearnerEvidence,
+  isSavedAgentOrchestrationLabReceipt,
+  normalizeAgentOrchestrationLearnerEvidence,
+  saveAgentOrchestrationLabReceipt,
+  saveAgentOrchestrationPendingLabWork,
+} from "./lab-progress";
+export type { AgentOrchestrationLabReceipt } from "./lab-progress";
+export {
+  AGENT_ORCHESTRATION_QUIZ_BEST_KEY,
+  AGENT_ORCHESTRATION_QUIZ_PASSED_KEY,
+  AGENT_ORCHESTRATION_QUIZ_PASS_PERCENT,
+  isAgentOrchestrationQuizPassed,
+  readAgentOrchestrationQuizBest,
+  recordAgentOrchestrationQuizAttempt,
+} from "./assessment-validation";
+export type {
+  AgentOrchestrationAssessmentAnswers,
+  AgentOrchestrationAssessmentQuestionResult,
+  AgentOrchestrationAssessmentResult,
+} from "./assessment-progress";
+export {
+  AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
+  AGENT_ORCHESTRATION_CAPSTONE_CHECKS_KEY,
+  AGENT_ORCHESTRATION_CAPSTONE_KEY,
+  AGENT_ORCHESTRATION_MAX_EVIDENCE_REFERENCE_LENGTH,
+  agentOrchestrationCapstoneEvidence,
+  canonicalAgentOrchestrationEvidenceIdentity,
+  isAgentOrchestrationCapstoneComplete,
+  isMeaningfulAgentOrchestrationEvidenceReference,
+  normalizeAgentOrchestrationEvidenceReference,
+  validateAgentOrchestrationCapstoneEvidence,
+} from "./capstone-validation";
+export type {
+  AgentOrchestrationCapstoneEvidenceValidation,
+} from "./capstone-validation";
 
 export const AGENT_ORCHESTRATION_PROGRESS_PREFIX =
   AGENT_ORCHESTRATION_PROGRESS_SCHEMA.prefix;
@@ -34,18 +73,6 @@ export const AGENT_ORCHESTRATION_PROGRESS_EVENT =
   TOPOLOGY_PROGRESS_EVENT;
 export const AGENT_ORCHESTRATION_PROGRESS_RESET_EVENT =
   TOPOLOGY_PROGRESS_RESET_EVENT;
-export const AGENT_ORCHESTRATION_QUIZ_BEST_KEY =
-  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.quizBestKey;
-export const AGENT_ORCHESTRATION_QUIZ_PASSED_KEY =
-  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.quizPassedKey;
-export const AGENT_ORCHESTRATION_CAPSTONE_KEY =
-  "agent-orchestration.capstone.v2";
-export const AGENT_ORCHESTRATION_CAPSTONE_CHECKS_KEY =
-  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.capstoneEvidenceKey;
-export const AGENT_ORCHESTRATION_QUIZ_PASS_PERCENT =
-  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.quizPassPercent;
-export const AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT =
-  AGENT_ORCHESTRATION_PROGRESS_SCHEMA.capstoneArtifactCount;
 export const AGENT_ORCHESTRATION_PROGRESS_MILESTONES =
   AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS.length + 2;
 
@@ -61,10 +88,256 @@ export function agentOrchestrationCheckpointKey(
   return `agent-orchestration.module.${slug}.checkpoint`;
 }
 
+/** @deprecated Legacy split-state key for cleanup only; never completion proof. */
 export function agentOrchestrationCheckpointPassedKey(
   slug: AgentOrchestrationModuleSlug,
 ): string {
   return `agent-orchestration.module.${slug}.checkpoint.passed`;
+}
+
+export interface AgentOrchestrationCheckpointAnswerContract {
+  readonly checkpointId: string;
+  readonly contentVersion:
+    typeof AGENT_ORCHESTRATION_CHECKPOINT_CONTENT_VERSION;
+  readonly correctOptionId: string;
+}
+
+/**
+ * Compact browser-safe registry for locale-neutral course summaries.
+ *
+ * Active module UI must validate against its full displayed checkpoint. This
+ * registry exists only because catalogue and aggregate-progress consumers do
+ * not load either long-form locale bundle. Keep it in lockstep with the two
+ * native copy files through the Course 15 invariant checker.
+ */
+function checkpointAnswerContract(
+  checkpointId: string,
+  correctOptionId: string,
+): AgentOrchestrationCheckpointAnswerContract {
+  return {
+    checkpointId,
+    contentVersion: AGENT_ORCHESTRATION_CHECKPOINT_CONTENT_VERSION,
+    correctOptionId,
+  };
+}
+
+export const AGENT_ORCHESTRATION_CHECKPOINT_ANSWER_CONTRACTS = {
+  "workflow-agent-boundary": [
+    checkpointAnswerContract("ao15.workflow-agent-boundary.en.deterministic-default", "code-directed-deterministic-workflow"),
+    checkpointAnswerContract("ao15.workflow-agent-boundary.zh-hans.multi-agent-justification", "measured-isolation-parallel-benefit"),
+  ],
+  "task-graphs-contracts": [
+    checkpointAnswerContract("ao15.task-graphs-contracts.en.fanout-contract", "typed-workers-state-limits-join-terminals"),
+    checkpointAnswerContract("ao15.task-graphs-contracts.zh-hans.ambiguous-external-write", "outcome-unknown-reconcile"),
+  ],
+  "chaining-routing": [
+    checkpointAnswerContract("ao15.chaining-routing.en.schema-valid-route", "schema-conformance-only"),
+    checkpointAnswerContract("ao15.chaining-routing.zh-hans.structured-output-boundary", "shape-only-application-checks"),
+  ],
+  "parallel-fanout-fanin": [
+    checkpointAnswerContract("ao15.parallel-fanout-fanin.en.tool-call-intents", "tool-call-intents-only"),
+    checkpointAnswerContract("ao15.parallel-fanout-fanin.zh-hans.tool-call-intents", "tool-intents-runtime-decides"),
+  ],
+  "manager-roles-ownership": [
+    checkpointAnswerContract("ao15.manager-roles-ownership.en.final-synthesis-owner", "manager-after-validation"),
+    checkpointAnswerContract("ao15.manager-roles-ownership.zh-hans.final-answer-owner", "central-manager"),
+  ],
+  "delegation-handoffs": [
+    checkpointAnswerContract("ao15.delegation-handoffs.en.active-agent-continuity", "active-agent-and-runtime-state"),
+    checkpointAnswerContract("ao15.delegation-handoffs.zh-hans.control-transfer", "manager-retains-versus-recipient-control"),
+  ],
+  "orchestrator-workers-verification": [
+    checkpointAnswerContract("ao15.orchestrator-workers-verification.en.independent-verifier", "primary-artifacts-separate-checks-fail-unknown"),
+    checkpointAnswerContract("ao15.orchestrator-workers-verification.zh-hans.systematic-omission", "primary-requirements-rubric-evidence"),
+  ],
+  "tools-aci-mcp": [
+    checkpointAnswerContract("ao15.tools-aci-mcp.en.protocol-scope", "declared-capability-exchange"),
+    checkpointAnswerContract("ao15.tools-aci-mcp.zh-hans.versioned-protocol-scope", "versioned-capability-exchange"),
+  ],
+  "context-state-memory": [
+    checkpointAnswerContract("ao15.context-state-memory.en.compaction-boundary", "continuation-with-separate-state-evidence"),
+    checkpointAnswerContract("ao15.context-state-memory.zh-hans.business-source-of-truth", "application-order-state-ledger-version"),
+  ],
+  "budgets-concurrency-stopping": [
+    checkpointAnswerContract("ao15.budgets-concurrency-stopping.en.runtime-capacity", "capacity-not-policy"),
+    checkpointAnswerContract("ao15.budgets-concurrency-stopping.zh-hans.concurrency-counting-scope", "verify-runtime-version-counting-queue"),
+  ],
+  "reliability-recovery": [
+    checkpointAnswerContract("ao15.reliability-recovery.en.ambiguous-payment-timeout", "reconcile-original-operation-id"),
+    checkpointAnswerContract("ao15.reliability-recovery.zh-hans.ambiguous-write-timeout", "outcome-unknown-original-key-reconcile"),
+  ],
+  "security-authority-human-control": [
+    checkpointAnswerContract("ao15.security-authority-human-control.en.approval-scope", "scoped-action-only"),
+    checkpointAnswerContract("ao15.security-authority-human-control.zh-hans.human-approval-boundary", "contextual-action-authorization"),
+  ],
+  "tracing-observability-economics": [
+    checkpointAnswerContract("ao15.tracing-observability-economics.en.trace-boundary", "recorded-path-no-traced-error"),
+    checkpointAnswerContract("ao15.tracing-observability-economics.zh-hans.trace-evidence-scope", "execution-path-only"),
+  ],
+  "evaluation-regression-evolution": [
+    checkpointAnswerContract("ao15.evaluation-regression-evolution.en.unsafe-trajectory", "block-unsafe-trajectory"),
+    checkpointAnswerContract("ao15.evaluation-regression-evolution.zh-hans.multiple-trials", "estimate-behavior-distribution"),
+  ],
+  "production-orchestration-capstone": [
+    checkpointAnswerContract("ao15.production-orchestration-capstone.en.staging-response-proof", "one-staged-response-only"),
+    checkpointAnswerContract("ao15.production-orchestration-capstone.zh-hans.background-mode-scope", "single-async-response"),
+  ],
+} as const satisfies Readonly<Record<
+  AgentOrchestrationModuleSlug,
+  readonly [
+    AgentOrchestrationCheckpointAnswerContract,
+    AgentOrchestrationCheckpointAnswerContract,
+  ]
+>>;
+
+export interface AgentOrchestrationCheckpointReceipt {
+  readonly checkpointId: string;
+  readonly selectedOptionId: string;
+  readonly passed: boolean;
+  readonly contentVersion:
+    typeof AGENT_ORCHESTRATION_CHECKPOINT_CONTENT_VERSION;
+}
+
+const AGENT_ORCHESTRATION_CHECKPOINT_RECEIPT_KEYS = [
+  "checkpointId",
+  "contentVersion",
+  "passed",
+  "selectedOptionId",
+] as const;
+const AGENT_ORCHESTRATION_SEMANTIC_ID_PATTERN =
+  /^[a-z0-9]+(?:[.-][a-z0-9]+)+$/u;
+
+function isAgentOrchestrationCheckpointContract(
+  checkpoint: AgentOrchestrationCheckpointCopy,
+): boolean {
+  if (
+    !AGENT_ORCHESTRATION_SEMANTIC_ID_PATTERN.test(checkpoint.checkpointId)
+    || checkpoint.contentVersion
+      !== AGENT_ORCHESTRATION_CHECKPOINT_CONTENT_VERSION
+    || checkpoint.options.length !== 4
+  ) return false;
+  const optionIds = checkpoint.options.map((option) => option.id);
+  return checkpoint.options.every(
+    (option) => AGENT_ORCHESTRATION_SEMANTIC_ID_PATTERN.test(option.id)
+      && option.label.trim().length > 0,
+  )
+    && new Set(optionIds).size === optionIds.length
+    && optionIds.includes(checkpoint.correctOptionId);
+}
+
+function isKnownAgentOrchestrationCheckpointContract(
+  checkpoint: AgentOrchestrationCheckpointCopy,
+): boolean {
+  return isAgentOrchestrationCheckpointContract(checkpoint)
+    && Object.values(AGENT_ORCHESTRATION_CHECKPOINT_ANSWER_CONTRACTS).some(
+      (contracts) => contracts.some(
+        (contract) => contract.checkpointId === checkpoint.checkpointId
+          && contract.contentVersion === checkpoint.contentVersion
+          && contract.correctOptionId === checkpoint.correctOptionId,
+      ),
+    );
+}
+
+function isCheckpointContractForModule(
+  checkpoint: AgentOrchestrationCheckpointCopy,
+  slug: AgentOrchestrationModuleSlug,
+): boolean {
+  return isAgentOrchestrationCheckpointContract(checkpoint)
+    && AGENT_ORCHESTRATION_CHECKPOINT_ANSWER_CONTRACTS[slug].some(
+      (contract) => contract.checkpointId === checkpoint.checkpointId
+        && contract.contentVersion === checkpoint.contentVersion
+        && contract.correctOptionId === checkpoint.correctOptionId,
+    );
+}
+
+function isExactCheckpointReceiptRecord(
+  value: unknown,
+): value is Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const keys = Object.keys(value as Record<string, unknown>).sort();
+  return keys.length === AGENT_ORCHESTRATION_CHECKPOINT_RECEIPT_KEYS.length
+    && keys.every(
+      (key, index) => key === AGENT_ORCHESTRATION_CHECKPOINT_RECEIPT_KEYS[index],
+    );
+}
+
+export function createAgentOrchestrationCheckpointReceipt(
+  checkpoint: AgentOrchestrationCheckpointCopy,
+  selectedOptionId: string,
+): AgentOrchestrationCheckpointReceipt | null {
+  if (
+    !isKnownAgentOrchestrationCheckpointContract(checkpoint)
+    || !checkpoint.options.some((option) => option.id === selectedOptionId)
+  ) return null;
+  return {
+    checkpointId: checkpoint.checkpointId,
+    selectedOptionId,
+    passed: selectedOptionId === checkpoint.correctOptionId,
+    contentVersion: checkpoint.contentVersion,
+  };
+}
+
+export function isAgentOrchestrationCheckpointReceipt(
+  value: unknown,
+  checkpoint: AgentOrchestrationCheckpointCopy,
+): value is AgentOrchestrationCheckpointReceipt {
+  if (
+    !isKnownAgentOrchestrationCheckpointContract(checkpoint)
+    || !isExactCheckpointReceiptRecord(value)
+  ) return false;
+  const selectedOptionId = value.selectedOptionId;
+  return value.checkpointId === checkpoint.checkpointId
+    && value.contentVersion === checkpoint.contentVersion
+    && typeof selectedOptionId === "string"
+    && checkpoint.options.some((option) => option.id === selectedOptionId)
+    && value.passed === (selectedOptionId === checkpoint.correctOptionId);
+}
+
+export function readAgentOrchestrationCheckpointReceipt(
+  progress: Record<string, unknown>,
+  slug: AgentOrchestrationModuleSlug,
+  checkpoint: AgentOrchestrationCheckpointCopy,
+): AgentOrchestrationCheckpointReceipt | null {
+  if (!isCheckpointContractForModule(checkpoint, slug)) return null;
+  const value = progress[agentOrchestrationCheckpointKey(slug)];
+  return isAgentOrchestrationCheckpointReceipt(value, checkpoint)
+    ? value
+    : null;
+}
+
+function isKnownPassedAgentOrchestrationCheckpointReceipt(
+  value: unknown,
+  slug: AgentOrchestrationModuleSlug,
+): value is AgentOrchestrationCheckpointReceipt {
+  if (!isExactCheckpointReceiptRecord(value) || value.passed !== true) {
+    return false;
+  }
+  return AGENT_ORCHESTRATION_CHECKPOINT_ANSWER_CONTRACTS[slug].some(
+    (contract) => value.checkpointId === contract.checkpointId
+      && value.contentVersion === contract.contentVersion
+      && value.selectedOptionId === contract.correctOptionId,
+  );
+}
+
+export function saveAgentOrchestrationCheckpointReceipt(
+  progress: Record<string, unknown>,
+  slug: AgentOrchestrationModuleSlug,
+  checkpoint: AgentOrchestrationCheckpointCopy,
+  selectedOptionId: string,
+): AgentOrchestrationCheckpointReceipt | null {
+  const key = agentOrchestrationCheckpointKey(slug);
+  const receipt = isCheckpointContractForModule(checkpoint, slug)
+    ? createAgentOrchestrationCheckpointReceipt(checkpoint, selectedOptionId)
+    : null;
+  delete progress[agentOrchestrationCheckpointPassedKey(slug)];
+  if (!receipt) {
+    delete progress[key];
+    progress[agentOrchestrationModuleProgressKey(slug)] = false;
+    return null;
+  }
+  progress[key] = receipt;
+  reconcileAgentOrchestrationModuleCompletion(progress, slug, checkpoint);
+  return receipt;
 }
 
 export function agentOrchestrationArtifactKey(
@@ -89,9 +362,6 @@ export const AGENT_ORCHESTRATION_MIN_ARTIFACT_SEMANTIC_DELTA = 32;
 export const AGENT_ORCHESTRATION_MIN_ARTIFACT_DELTA_TOKENS = 10;
 export const AGENT_ORCHESTRATION_MIN_ARTIFACT_UNIQUE_DELTA_TOKENS = 8;
 export const AGENT_ORCHESTRATION_MAX_ARTIFACT_DRAFT_LENGTH = 100_000;
-export const AGENT_ORCHESTRATION_MAX_EVIDENCE_REFERENCE_LENGTH = 2_048;
-export const AGENT_ORCHESTRATION_MAX_LAB_EVIDENCE_LENGTH = 5_000;
-export const AGENT_ORCHESTRATION_MIN_LAB_EVIDENCE_CHARACTERS = 40;
 
 function semanticArtifactCharacters(value: string): string[] {
   return Array.from(
@@ -449,14 +719,14 @@ export function saveAgentOrchestrationArtifactDraft(
 ): boolean {
   if (!isMeaningfulAgentOrchestrationArtifact(draft, starterTemplate)) {
     delete progress[agentOrchestrationArtifactEvidenceKey(slug)];
-    reconcileAgentOrchestrationModuleCompletion(progress, slug);
+    reconcileAgentOrchestrationCourseModuleCompletion(progress, slug);
     return false;
   }
   progress[agentOrchestrationArtifactKey(slug)] = draft;
   progress[agentOrchestrationArtifactEvidenceKey(slug)] =
     createAgentOrchestrationArtifactEvidence(slug, starterTemplate);
   delete progress[agentOrchestrationArtifactPendingDraftKey(slug)];
-  reconcileAgentOrchestrationModuleCompletion(progress, slug);
+  reconcileAgentOrchestrationCourseModuleCompletion(progress, slug);
   return true;
 }
 
@@ -482,139 +752,7 @@ export function invalidateAgentOrchestrationArtifactEvidence(
   slug: AgentOrchestrationModuleSlug,
 ): void {
   delete progress[agentOrchestrationArtifactEvidenceKey(slug)];
-  reconcileAgentOrchestrationModuleCompletion(progress, slug);
-}
-
-export function agentOrchestrationLabKey(
-  labId: string,
-  slug: AgentOrchestrationModuleSlug,
-): string {
-  return `agent-orchestration.module.${slug}.lab.${labId}`;
-}
-
-export function agentOrchestrationLabPendingKey(
-  labId: string,
-  slug: AgentOrchestrationModuleSlug,
-): string {
-  return `agent-orchestration.module.${slug}.lab.${labId}.pending`;
-}
-
-export function normalizeAgentOrchestrationLearnerEvidence(
-  value: unknown,
-): string {
-  return typeof value === "string"
-    ? value
-      .normalize("NFKC")
-      .replace(/\p{Cf}/gu, "")
-      .trim()
-      .replace(/\s+/gu, " ")
-    : "";
-}
-
-export function isMeaningfulAgentOrchestrationLearnerEvidence(
-  value: unknown,
-): boolean {
-  const normalized = normalizeAgentOrchestrationLearnerEvidence(value);
-  if (
-    normalized.length === 0
-    || normalized.length > AGENT_ORCHESTRATION_MAX_LAB_EVIDENCE_LENGTH
-  ) return false;
-  const characters = semanticArtifactCharacters(normalized);
-  const tokens = semanticArtifactTokens(normalized);
-  const reasoningConnectors = /\b(?:because|but|if|therefore|when|while)\b/iu.test(normalized)
-    || /(?:但是|当|而且|因为|因此|如果|仍然|所以)/u.test(normalized);
-  const sentenceMarks = normalized.match(/[.!?;。！？；]/gu)?.length ?? 0;
-  const hasReasoningStructure = reasoningConnectors || sentenceMarks >= 2;
-  return characters.length >= AGENT_ORCHESTRATION_MIN_LAB_EVIDENCE_CHARACTERS
-    && tokens.length >= 8
-    && new Set(tokens).size >= 6
-    && new Set(characters).size >= 10
-    && hasReasoningStructure
-    && !/(?:^|[^\p{L}\p{N}])(?:todo|tbd|dummy|fixture|sample|example|placeholder)(?:$|[^\p{L}\p{N}])/iu.test(normalized);
-}
-
-export interface AgentOrchestrationLabReceipt {
-  readonly saved: true;
-  readonly schemaVersion: typeof AGENT_ORCHESTRATION_LAB_SCHEMA_VERSION;
-  readonly scenarioVersion: typeof AGENT_ORCHESTRATION_LAB_SCENARIO_VERSION;
-  readonly moduleSlug: AgentOrchestrationModuleSlug;
-  readonly labId: AgentOrchestrationLabId;
-  readonly state: AgentOrchestrationLabState;
-  readonly decision: AgentOrchestrationLabDecision;
-  readonly learnerEvidence: string;
-}
-
-export function createAgentOrchestrationLabReceipt(
-  slug: AgentOrchestrationModuleSlug,
-  labId: AgentOrchestrationLabId,
-  state: unknown,
-  learnerEvidence: unknown,
-): AgentOrchestrationLabReceipt | null {
-  const normalizedState = normalizeAgentOrchestrationLabState(state);
-  const normalizedEvidence = normalizeAgentOrchestrationLearnerEvidence(
-    learnerEvidence,
-  );
-  if (
-    !isAgentOrchestrationLabStateCompletable(slug, labId, normalizedState)
-    || !isMeaningfulAgentOrchestrationLearnerEvidence(normalizedEvidence)
-  ) return null;
-  return {
-    saved: true,
-    schemaVersion: AGENT_ORCHESTRATION_LAB_SCHEMA_VERSION,
-    scenarioVersion: AGENT_ORCHESTRATION_LAB_SCENARIO_VERSION,
-    moduleSlug: slug,
-    labId,
-    state: normalizedState,
-    decision: evaluateAgentOrchestrationLab(slug, labId, normalizedState),
-    learnerEvidence: normalizedEvidence,
-  };
-}
-
-export function saveAgentOrchestrationLabReceipt(
-  progress: Record<string, unknown>,
-  slug: AgentOrchestrationModuleSlug,
-  labId: AgentOrchestrationLabId,
-  state: unknown,
-  learnerEvidence: unknown,
-): boolean {
-  const key = agentOrchestrationLabKey(labId, slug);
-  const receipt = createAgentOrchestrationLabReceipt(
-    slug,
-    labId,
-    state,
-    learnerEvidence,
-  );
-  if (!receipt) {
-    delete progress[key];
-    reconcileAgentOrchestrationModuleCompletion(progress, slug);
-    return false;
-  }
-  progress[key] = receipt;
-  delete progress[agentOrchestrationLabPendingKey(labId, slug)];
-  reconcileAgentOrchestrationModuleCompletion(progress, slug);
-  return true;
-}
-
-export function saveAgentOrchestrationPendingLabWork(
-  progress: Record<string, unknown>,
-  slug: AgentOrchestrationModuleSlug,
-  labId: AgentOrchestrationLabId,
-  state: unknown,
-  learnerEvidence: unknown,
-): void {
-  if (!isAgentOrchestrationLabPair(slug, labId)) return;
-  progress[agentOrchestrationLabPendingKey(labId, slug)] = {
-    schemaVersion: AGENT_ORCHESTRATION_LAB_SCHEMA_VERSION,
-    scenarioVersion: AGENT_ORCHESTRATION_LAB_SCENARIO_VERSION,
-    moduleSlug: slug,
-    labId,
-    state: normalizeAgentOrchestrationLabState(state),
-    learnerEvidence: typeof learnerEvidence === "string"
-      ? learnerEvidence.slice(0, AGENT_ORCHESTRATION_MAX_LAB_EVIDENCE_LENGTH)
-      : "",
-  };
-  delete progress[agentOrchestrationLabKey(labId, slug)];
-  reconcileAgentOrchestrationModuleCompletion(progress, slug);
+  reconcileAgentOrchestrationCourseModuleCompletion(progress, slug);
 }
 
 export function isCurrentAgentOrchestrationProgress(
@@ -632,80 +770,11 @@ export function isCurrentAgentOrchestrationProgress(
 export function normalizeAgentOrchestrationProgress(
   progress: Record<string, unknown>,
 ): Record<string, unknown> {
-  if (isCurrentAgentOrchestrationProgress(progress)) return { ...progress };
-  const normalized = { ...progress };
-  for (const key of Object.keys(normalized)) {
-    if (key.startsWith(AGENT_ORCHESTRATION_PROGRESS_PREFIX)) {
-      delete normalized[key];
-    }
-  }
-  normalized[AGENT_ORCHESTRATION_PROGRESS_VERSION_KEY] =
-    AGENT_ORCHESTRATION_PROGRESS_VERSION;
-  return normalized;
+  return migrateAgentOrchestrationProgressRecord(progress).record;
 }
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
-}
-
-function isSavedLabRecord(
-  value: unknown,
-  slug: AgentOrchestrationModuleSlug,
-  labId: string,
-): boolean {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const record = value as Record<string, unknown>;
-  const expectedReceiptKeys = [
-    "decision",
-    "labId",
-    "learnerEvidence",
-    "moduleSlug",
-    "saved",
-    "scenarioVersion",
-    "schemaVersion",
-    "state",
-  ];
-  if (
-    Object.keys(record).sort().some(
-      (key, index) => key !== expectedReceiptKeys[index],
-    )
-    || Object.keys(record).length !== expectedReceiptKeys.length
-  ) return false;
-  if (
-    record.saved !== true
-    || record.schemaVersion !== AGENT_ORCHESTRATION_LAB_SCHEMA_VERSION
-    || record.scenarioVersion !== AGENT_ORCHESTRATION_LAB_SCENARIO_VERSION
-    || record.moduleSlug !== slug
-    || record.labId !== labId
-    || !isAgentOrchestrationLabPair(slug, labId)
-    || !isAgentOrchestrationLabStateCompletable(
-      slug,
-      labId as AgentOrchestrationLabId,
-      record.state,
-    )
-    || !isMeaningfulAgentOrchestrationLearnerEvidence(record.learnerEvidence)
-    || !record.decision
-    || typeof record.decision !== "object"
-    || Array.isArray(record.decision)
-  ) return false;
-  const recalculated = evaluateAgentOrchestrationLab(
-    slug,
-    labId as AgentOrchestrationLabId,
-    record.state as AgentOrchestrationLabState,
-  );
-  const storedDecision = record.decision as Record<string, unknown>;
-  const recalculatedKeys = Object.keys(recalculated).sort();
-  const storedDecisionKeys = Object.keys(storedDecision).sort();
-  if (
-    recalculatedKeys.length !== storedDecisionKeys.length
-    || recalculatedKeys.some(
-      (key, index) => key !== storedDecisionKeys[index],
-    )
-  ) return false;
-  return agentOrchestrationLabDecisionsEqual(
-    recalculated,
-    record.decision,
-  );
 }
 
 function isSavedArtifactEvidence(
@@ -732,9 +801,10 @@ export interface AgentOrchestrationModuleRequirements {
   readonly ready: boolean;
 }
 
-export function agentOrchestrationModuleRequirements(
+function agentOrchestrationModuleRequirementsForCheckpoint(
   progress: Record<string, unknown>,
   slug: AgentOrchestrationModuleSlug,
+  checkpointCopy: AgentOrchestrationCheckpointCopy | null,
 ): AgentOrchestrationModuleRequirements {
   if (!isCurrentAgentOrchestrationProgress(progress)) {
     return { artifact: false, lab: false, checkpoint: false, ready: false };
@@ -747,12 +817,21 @@ export function agentOrchestrationModuleRequirements(
       slug,
       storedArtifact,
     );
-  const lab = isSavedLabRecord(
+  const lab = isSavedAgentOrchestrationLabReceipt(
     progress[agentOrchestrationLabKey(labId, slug)],
     slug,
     labId,
   );
-  const checkpoint = progress[agentOrchestrationCheckpointPassedKey(slug)] === true;
+  const checkpoint = checkpointCopy
+    ? readAgentOrchestrationCheckpointReceipt(
+      progress,
+      slug,
+      checkpointCopy,
+    )?.passed === true
+    : isKnownPassedAgentOrchestrationCheckpointReceipt(
+      progress[agentOrchestrationCheckpointKey(slug)],
+      slug,
+    );
   return {
     artifact,
     lab,
@@ -761,174 +840,69 @@ export function agentOrchestrationModuleRequirements(
   };
 }
 
+/**
+ * Strict active-module requirements. The displayed checkpoint is required so
+ * a receipt from another native locale or content version cannot inherit.
+ */
+export function agentOrchestrationModuleRequirements(
+  progress: Record<string, unknown>,
+  slug: AgentOrchestrationModuleSlug,
+  checkpoint: AgentOrchestrationCheckpointCopy,
+): AgentOrchestrationModuleRequirements {
+  return agentOrchestrationModuleRequirementsForCheckpoint(
+    progress,
+    slug,
+    checkpoint,
+  );
+}
+
 export function isAgentOrchestrationModuleComplete(
+  progress: Record<string, unknown>,
+  slug: AgentOrchestrationModuleSlug,
+  checkpoint: AgentOrchestrationCheckpointCopy,
+): boolean {
+  return progress[agentOrchestrationModuleProgressKey(slug)] === true
+    && agentOrchestrationModuleRequirements(progress, slug, checkpoint).ready;
+}
+
+/**
+ * Locale-neutral catalogue adapter. It accepts only one of the compact,
+ * checker-pinned current EN/zh-Hans answer contracts. Active module UI must
+ * call `isAgentOrchestrationModuleComplete` with its displayed checkpoint.
+ */
+export function isAgentOrchestrationCourseModuleComplete(
   progress: Record<string, unknown>,
   slug: AgentOrchestrationModuleSlug,
 ): boolean {
   return progress[agentOrchestrationModuleProgressKey(slug)] === true
-    && agentOrchestrationModuleRequirements(progress, slug).ready;
+    && agentOrchestrationModuleRequirementsForCheckpoint(
+      progress,
+      slug,
+      null,
+    ).ready;
 }
 
 export function reconcileAgentOrchestrationModuleCompletion(
   progress: Record<string, unknown>,
   slug: AgentOrchestrationModuleSlug,
+  checkpoint: AgentOrchestrationCheckpointCopy,
 ): void {
-  if (!agentOrchestrationModuleRequirements(progress, slug).ready) {
+  if (!agentOrchestrationModuleRequirements(progress, slug, checkpoint).ready) {
     progress[agentOrchestrationModuleProgressKey(slug)] = false;
   }
 }
 
-function validScore(value: unknown): number {
-  return typeof value === "number" && Number.isFinite(value)
-    ? Math.max(0, Math.min(100, Math.round(value)))
-    : 0;
-}
-
-export function recordAgentOrchestrationQuizAttempt(
+function reconcileAgentOrchestrationCourseModuleCompletion(
   progress: Record<string, unknown>,
-  score: number,
-  passPercent: number,
+  slug: AgentOrchestrationModuleSlug,
 ): void {
-  const nextBest = Math.max(
-    validScore(progress[AGENT_ORCHESTRATION_QUIZ_BEST_KEY]),
-    validScore(score),
-  );
-  progress[AGENT_ORCHESTRATION_QUIZ_BEST_KEY] = nextBest;
-  progress[AGENT_ORCHESTRATION_QUIZ_PASSED_KEY] =
-    progress[AGENT_ORCHESTRATION_QUIZ_PASSED_KEY] === true
-    || nextBest >= passPercent;
-}
-
-export function isAgentOrchestrationQuizPassed(
-  progress: Record<string, unknown>,
-): boolean {
-  return progress[AGENT_ORCHESTRATION_QUIZ_PASSED_KEY] === true
-    && validScore(progress[AGENT_ORCHESTRATION_QUIZ_BEST_KEY])
-      >= AGENT_ORCHESTRATION_QUIZ_PASS_PERCENT;
-}
-
-export function agentOrchestrationCapstoneEvidence(
-  progress: Record<string, unknown>,
-  artifactCount: number = AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
-): string[] {
-  const stored = progress[AGENT_ORCHESTRATION_CAPSTONE_CHECKS_KEY];
-  if (!Array.isArray(stored) || stored.length !== artifactCount) {
-    return Array.from({ length: artifactCount }, () => "");
+  if (!agentOrchestrationModuleRequirementsForCheckpoint(
+    progress,
+    slug,
+    null,
+  ).ready) {
+    progress[agentOrchestrationModuleProgressKey(slug)] = false;
   }
-  return stored.map((value) => typeof value === "string" ? value : "");
-}
-
-export function normalizeAgentOrchestrationEvidenceReference(
-  value: unknown,
-): string {
-  return typeof value === "string"
-    ? value
-      .normalize("NFKC")
-      .replace(/\p{Cf}/gu, "")
-      .trim()
-      .replace(/\s+/gu, " ")
-    : "";
-}
-
-const AGENT_ORCHESTRATION_PLACEHOLDER_REFERENCE = /^(?:(?:todo|tbd|dummy|sample|example|placeholder)[-_ ]*)*(?:evidence|artifact|file|trace|review|record|item|output|todo|tbd|dummy|sample|example|placeholder)(?:[-_ ]*(?:todo|tbd|dummy|sample|example|placeholder))*[-_ ]*\d*$/iu;
-const AGENT_ORCHESTRATION_PLACEHOLDER_TOKEN = /(?:^|[^\p{L}\p{N}])(?:todo|tbd|dummy|fixture|sample|example|placeholder)(?:$|[^\p{L}\p{N}])/iu;
-
-/** Collapse cosmetic fragments before comparing references for uniqueness. */
-export function canonicalAgentOrchestrationEvidenceIdentity(
-  value: unknown,
-): string {
-  const normalized = normalizeAgentOrchestrationEvidenceReference(value);
-  if (normalized.length > AGENT_ORCHESTRATION_MAX_EVIDENCE_REFERENCE_LENGTH) {
-    return "";
-  }
-  return normalized
-    .replace(/#.*$/u, "")
-    .replace(/[/?&](?:copy|duplicate|dup)=\d+$/iu, "")
-    .replace(/\/+$/u, "")
-    .toLocaleLowerCase("en-US");
-}
-
-/**
- * Reject values that cannot plausibly identify an evidence object. The client
- * still cannot prove that a file, URL, trace, ticket, or review record exists;
- * external review remains part of the capstone contract.
- */
-export function isMeaningfulAgentOrchestrationEvidenceReference(
-  value: unknown,
-): boolean {
-  const normalized = normalizeAgentOrchestrationEvidenceReference(value);
-  if (normalized.length > AGENT_ORCHESTRATION_MAX_EVIDENCE_REFERENCE_LENGTH) {
-    return false;
-  }
-  if (
-    /^[a-z][a-z\d+.-]*:\/\//iu.test(normalized)
-    && !/^(?:https|trace|review|ticket|file|artifact):\/\//iu.test(normalized)
-  ) return false;
-  const semantic = Array.from(normalized.replace(/[^\p{L}\p{N}]+/gu, ""));
-  if (semantic.length < 8) return false;
-  if (new Set(semantic.map((character) => character.toLocaleLowerCase("en-US"))).size < 4) {
-    return false;
-  }
-  const tokens = semanticArtifactTokens(normalized);
-  if (tokens.length === 0) return false;
-  if (tokens.length > 1 && new Set(tokens).size === 1) return false;
-  if (AGENT_ORCHESTRATION_PLACEHOLDER_REFERENCE.test(normalized)) return false;
-  if (AGENT_ORCHESTRATION_PLACEHOLDER_TOKEN.test(normalized)) return false;
-
-  const hasReferenceShape = /^(?:https:\/\/|(?:trace|review|ticket|file|artifact):\/\/)/iu.test(normalized)
-    || /(?:^|[/\\])[^/\\]+\.[\p{L}\p{N}]{1,8}(?:$|[?#])/iu.test(normalized)
-    || /^(?:trace|run|review|ticket|commit|report)[_:-][\p{L}\p{N}][\p{L}\p{N}._:/-]{7,}$/iu.test(normalized)
-    || (/\b(?:trace|review|ticket|run|commit|report|record)\b/iu.test(normalized)
-      && semantic.length >= 16);
-  const descriptiveReference = tokens.length >= 5 && semantic.length >= 24;
-  return hasReferenceShape || descriptiveReference;
-}
-
-export interface AgentOrchestrationCapstoneEvidenceValidation {
-  readonly normalized: readonly string[];
-  readonly identities: readonly string[];
-  readonly valid: readonly boolean[];
-  readonly complete: boolean;
-}
-
-export function validateAgentOrchestrationCapstoneEvidence(
-  evidence: readonly unknown[],
-  artifactCount: number = AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
-): AgentOrchestrationCapstoneEvidenceValidation {
-  if (evidence.length !== artifactCount) {
-    return {
-      normalized: Array.from({ length: artifactCount }, () => ""),
-      identities: Array.from({ length: artifactCount }, () => ""),
-      valid: Array.from({ length: artifactCount }, () => false),
-      complete: false,
-    };
-  }
-  const normalized = evidence.map(normalizeAgentOrchestrationEvidenceReference);
-  const identities = normalized.map(canonicalAgentOrchestrationEvidenceIdentity);
-  const counts = identities.reduce((result, identity) => {
-    if (identity) result.set(identity, (result.get(identity) ?? 0) + 1);
-    return result;
-  }, new Map<string, number>());
-  const valid = normalized.map((value, index) =>
-    isMeaningfulAgentOrchestrationEvidenceReference(value)
-      && counts.get(identities[index]) === 1,
-  );
-  return {
-    normalized,
-    identities,
-    valid,
-    complete: valid.every(Boolean),
-  };
-}
-
-export function isAgentOrchestrationCapstoneComplete(
-  progress: Record<string, unknown>,
-  artifactCount: number = AGENT_ORCHESTRATION_CAPSTONE_ARTIFACT_COUNT,
-): boolean {
-  return validateAgentOrchestrationCapstoneEvidence(
-    agentOrchestrationCapstoneEvidence(progress, artifactCount),
-    artifactCount,
-  ).complete;
 }
 
 export function agentOrchestrationProgressPercent(
@@ -936,7 +910,7 @@ export function agentOrchestrationProgressPercent(
 ): number {
   if (!isCurrentAgentOrchestrationProgress(progress)) return 0;
   const modules = AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS.filter(
-    (slug) => isAgentOrchestrationModuleComplete(progress, slug),
+    (slug) => isAgentOrchestrationCourseModuleComplete(progress, slug),
   ).length;
   const quiz = isAgentOrchestrationQuizPassed(progress) ? 1 : 0;
   const capstone = isAgentOrchestrationCapstoneComplete(progress) ? 1 : 0;

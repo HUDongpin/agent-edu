@@ -49,7 +49,18 @@ export const CLAUDE_INCOME_LESSON_PAGES = childPagesFor("claude-income");
 export const MCP_LESSON_PAGES = childPagesFor("mcp");
 export const AI_TUTOR_MODULE_PAGES = childPagesFor("ai-tutor");
 export const PRODUCT_MANAGEMENT_MODULE_PAGES = childPagesFor("product-management");
-export const AGENT_ORCHESTRATION_MODULE_PAGES = childPagesFor("agent-orchestration");
+const AGENT_ORCHESTRATION_CHILD_PAGES = childPagesFor("agent-orchestration");
+const AGENT_ORCHESTRATION_FIXED_PAGE_NAMES = ["assessment", "capstone"] as const;
+const AGENT_ORCHESTRATION_FIXED_PAGE_SET = new Set<string>(
+  AGENT_ORCHESTRATION_FIXED_PAGE_NAMES.map((page) => `agent-orchestration/${page}/`),
+);
+export const AGENT_ORCHESTRATION_FIXED_PAGES = AGENT_ORCHESTRATION_CHILD_PAGES.filter(
+  (page) => AGENT_ORCHESTRATION_FIXED_PAGE_SET.has(page),
+);
+export const AGENT_ORCHESTRATION_MODULE_PAGES = AGENT_ORCHESTRATION_CHILD_PAGES.filter(
+  (page) => !AGENT_ORCHESTRATION_FIXED_PAGE_SET.has(page),
+);
+const AGENT_ORCHESTRATION_MODULE_PAGE_SET = new Set(AGENT_ORCHESTRATION_MODULE_PAGES);
 
 /** SEO and sitemap consumers see only core and published-course routes. */
 export const PAGES = PUBLISHED_LOCALIZED_PAGES;
@@ -140,8 +151,16 @@ export function productManagementModulePage(slug: string): Page {
 
 export function agentOrchestrationModulePage(slug: string): Page {
   const page = `agent-orchestration/${slug}/`;
-  if (!KNOWN_PAGE_SET.has(page)) {
+  if (!AGENT_ORCHESTRATION_MODULE_PAGE_SET.has(page)) {
     throw new Error(`Unknown Agent Orchestration module route: ${slug}`);
+  }
+  return page as Page;
+}
+
+export function agentOrchestrationFixedPage(pageName: string): Page {
+  const page = `agent-orchestration/${pageName}/`;
+  if (!AGENT_ORCHESTRATION_FIXED_PAGE_SET.has(page) || !KNOWN_PAGE_SET.has(page)) {
+    throw new Error(`Unknown Agent Orchestration fixed route: ${pageName}`);
   }
   return page as Page;
 }

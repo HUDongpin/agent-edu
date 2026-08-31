@@ -30,6 +30,7 @@ import {
 } from "../lib/agent-orchestration/index.ts";
 import {
   SITE,
+  agentOrchestrationFixedPage,
   agentOrchestrationModulePage,
   alternatesFor,
   urlFor,
@@ -136,7 +137,18 @@ function compareCopyContracts() {
     }
   }
 
-  const componentPaths = ["CourseDashboard.tsx", "Interactions.tsx", "ModuleView.tsx", "OrchestrationMap.tsx"];
+  const componentPaths = [
+    "ArtifactWorkbench.tsx",
+    "AssessmentInteractions.tsx",
+    "CourseDashboard.tsx",
+    "CourseWorkspacePortability.tsx",
+    "draft-status.ts",
+    "Interactions.tsx",
+    "ModuleView.tsx",
+    "OrchestrationLab.tsx",
+    "OrchestrationMap.tsx",
+    "interaction-helpers.ts",
+  ];
   const referencedUiKeys = collectReferencedUiLabels(componentPaths);
   for (const key of referencedUiKeys) {
     for (const [locale, copy] of [["en", AGENT_ORCHESTRATION_EN_COPY], ["zh-Hans", AGENT_ORCHESTRATION_ZH_HANS_COPY]]) {
@@ -156,6 +168,20 @@ function checkSourceContracts() {
     ["app/[locale]/agent-orchestration/[module]/page.tsx", [
       "courseChildParams",
       "AGENT_ORCHESTRATION_MODULE_SLUGS",
+      "availableLocales: AGENT_ORCHESTRATION_TRANSLATED_LOCALES",
+      "canonicalLocale: course.contentLocale",
+      "inLanguage: course.contentLocale",
+    ]],
+    ["app/[locale]/agent-orchestration/assessment/page.tsx", [
+      'courseLocaleParams("agent-orchestration")',
+      'agentOrchestrationFixedPage("assessment")',
+      "availableLocales: AGENT_ORCHESTRATION_TRANSLATED_LOCALES",
+      "canonicalLocale: course.contentLocale",
+      "inLanguage: course.contentLocale",
+    ]],
+    ["app/[locale]/agent-orchestration/capstone/page.tsx", [
+      'courseLocaleParams("agent-orchestration")',
+      'agentOrchestrationFixedPage("capstone")',
       "availableLocales: AGENT_ORCHESTRATION_TRANSLATED_LOCALES",
       "canonicalLocale: course.contentLocale",
       "inLanguage: course.contentLocale",
@@ -196,7 +222,12 @@ function expectedAlternates(page, contentLocale) {
 }
 
 async function checkMaterializationAndSeo() {
-  const pages = ["agent-orchestration/", ...AGENT_ORCHESTRATION_MODULE_SLUGS.map(agentOrchestrationModulePage)];
+  const pages = [
+    "agent-orchestration/",
+    ...AGENT_ORCHESTRATION_MODULE_SLUGS.map(agentOrchestrationModulePage),
+    agentOrchestrationFixedPage("assessment"),
+    agentOrchestrationFixedPage("capstone"),
+  ];
   for (const locale of AGENT_ORCHESTRATION_LOCALES) {
     const course = await loadAgentOrchestrationCourse(locale);
     const expectedContentLocale = locale === "zh-Hans" ? "zh-Hans" : "en";
@@ -267,7 +298,7 @@ async function main() {
   await checkMaterializationAndSeo();
   notes.push("2 reviewed long-form bundles: en, zh-Hans");
   notes.push("7 explicit English fallbacks: es, fr, de, zh-Hant, ja, ko, ar");
-  notes.push("144 loader fallback combinations audited; 32 published static routes and sitemap entries");
+  notes.push("144 loader fallback combinations audited; 36 published static routes and sitemap entries");
 
   const result = { ok: errors.length === 0, course: "agent-orchestration", errors, notes };
   if (JSON_OUTPUT) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
