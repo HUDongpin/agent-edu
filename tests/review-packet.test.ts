@@ -36,7 +36,14 @@ test("review packet is a byte-bound working aid and leaves approval ledgers unto
   const result = buildReviewPacket("de");
   const after = approvalPaths.map((path) => readFileSync(path));
 
-  assert.match(result.snapshot.id, /^[0-9a-f]{12}-[0-9a-f]{16}$/);
+  assert.match(result.snapshot.id, /^(?:[0-9a-f]{12}|NO_GIT)-[0-9a-f]{16}$/);
+  if (result.snapshot.commit === "NO_GIT") {
+    assert.match(result.snapshot.id, /^NO_GIT-/);
+    assert.equal(result.snapshot.dirty, false);
+  } else {
+    assert.match(result.snapshot.commit, /^[0-9a-f]{40}$/);
+    assert.ok(result.snapshot.id.startsWith(`${result.snapshot.commit.slice(0, 12)}-`));
+  }
   assert.match(result.packet, /Generated working aid only/);
   assert.match(result.packet, /Site native-review ledger before generation: \*\*pending\*\*/);
   assert.match(result.packet, /Codex exact-bundle review before generation: \*\*pending\*\*/);

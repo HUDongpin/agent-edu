@@ -197,24 +197,29 @@ test("the Vercel upload keeps every repository input required by build:release",
     );
   }
 
-  const ignoredCourse20LabInputs = spawnSync(
-    "git",
-    [
-      "ls-files",
-      "--cached",
-      "--ignored",
-      "--exclude-from=.vercelignore",
-      "--",
-      "examples/agentic-video-editing-lab",
-    ],
-    { encoding: "utf8" },
-  );
-  assert.equal(ignoredCourse20LabInputs.status, 0, ignoredCourse20LabInputs.stderr);
-  assert.equal(
-    ignoredCourse20LabInputs.stdout.trim(),
-    "",
-    `Course 20 lab inputs excluded from the Vercel source upload:\n${ignoredCourse20LabInputs.stdout}`,
-  );
+  // Vercel applies .vercelignore before removing .git from the uploaded source.
+  // File presence above is the package-level proof there; keep the stronger Git
+  // ignore-semantics assertion when this test runs inside a repository/worktree.
+  if (existsSync(".git")) {
+    const ignoredCourse20LabInputs = spawnSync(
+      "git",
+      [
+        "ls-files",
+        "--cached",
+        "--ignored",
+        "--exclude-from=.vercelignore",
+        "--",
+        "examples/agentic-video-editing-lab",
+      ],
+      { encoding: "utf8" },
+    );
+    assert.equal(ignoredCourse20LabInputs.status, 0, ignoredCourse20LabInputs.stderr);
+    assert.equal(
+      ignoredCourse20LabInputs.stdout.trim(),
+      "",
+      `Course 20 lab inputs excluded from the Vercel source upload:\n${ignoredCourse20LabInputs.stdout}`,
+    );
+  }
   assert.doesNotMatch(vercelIgnore, /^\/tests\/$/m);
   for (const requiredReleaseFixture of [
     "tests/fixtures/codex-course-demo/package.json",
