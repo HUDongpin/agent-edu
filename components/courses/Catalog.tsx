@@ -208,9 +208,16 @@ function useCourseProgress(locale: string): ProgressMap {
   return map;
 }
 
-function actionKey(progress: number): "cat.startIn" | "cat.resumeIn" | "cat.reviewIn" {
-  if (progress >= 100) return "cat.reviewIn";
-  if (progress > 0) return "cat.resumeIn";
+function actionKey(
+  progress: CatalogProgress | undefined,
+): "cat.startIn" | "cat.resumeIn" | "cat.finishIn" | "cat.reviewIn" {
+  if (progress?.state === "completed") return "cat.reviewIn";
+  if (
+    progress?.state === "in-progress"
+    && progress.percent !== null
+    && progress.percent >= 100
+  ) return "cat.finishIn";
+  if (progress?.state === "in-progress") return "cat.resumeIn";
   return "cat.startIn";
 }
 
@@ -274,7 +281,6 @@ function CourseCard({
   const progressPending = available && progress === undefined;
   const progressUnavailable = progress?.state === "unavailable";
   const progressPercent = progress && !progressUnavailable ? progress.percent : null;
-  const actionProgress = progressPercent ?? 0;
   const contentLanguage = course.contentLocale
     ? LANGUAGE_META[course.contentLocale]
     : null;
@@ -391,7 +397,7 @@ function CourseCard({
                     style={{ color: course.hue }}
                   >
                     <LanguageTemplate
-                      template={t(actionKey(actionProgress))}
+                      template={t(actionKey(progress))}
                       values={{
                         language: {
                           text: contentLanguage.native,
@@ -407,7 +413,7 @@ function CourseCard({
                     style={{ color: course.hue }}
                   >
                     <LanguageTemplate
-                      template={t(actionKey(actionProgress))}
+                      template={t(actionKey(progress))}
                       values={{
                         language: {
                           text: contentLanguage.native,

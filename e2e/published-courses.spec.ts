@@ -136,6 +136,7 @@ const AGENTIC_EMPTY_PROGRESS = {
     completedSteps: [],
     evalRunsCompleted: 0,
   },
+  declared: { completed: [] },
 } as const;
 
 const CORRUPT_RESET_OWNERS = [
@@ -463,6 +464,10 @@ const STATEFUL_DASHBOARD_CTA_CONTRACTS: readonly StatefulDashboardCtaContract[] 
           completedSteps: [...LAB_STEPS],
           evalRunsCompleted: 1,
           evalBest: 20,
+        },
+        declared: {
+          completed: ["build"],
+          lastDeclaredAt: "2026-08-31T02:03:04.000Z",
         },
       }),
     },
@@ -1722,10 +1727,12 @@ test("global reset cancels cleanly, then clears progress but preserves device pr
   const learning = JSON.parse(afterReset.learning ?? "null") as {
     handbook?: { visitedSections?: unknown[]; controlRoom?: { completedRuns?: number } };
     lab?: { completedSteps?: unknown[]; evalRunsCompleted?: number };
+    declared?: { completed?: unknown[] };
   };
   expect(learning.handbook?.visitedSections).toEqual([]);
   expect(learning.handbook?.controlRoom?.completedRuns).toBe(0);
   expect(learning.lab?.completedSteps).toEqual([]);
+  expect(learning.declared?.completed).toEqual([]);
   expect(learning.lab?.evalRunsCompleted).toBe(0);
 
   const remainingShared = JSON.parse(afterReset.shared ?? "{}") as Record<string, unknown>;

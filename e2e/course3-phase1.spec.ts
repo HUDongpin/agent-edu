@@ -122,6 +122,45 @@ test("the launchpad starts locally and makes every repository handoff explicit",
   }
 });
 
+test("the external completion note is explicit, local, and reversible", async ({ page }) => {
+  const response = await page.goto("/en/build/#local-progress");
+  expect(response?.status()).toBe(200);
+
+  const disclosure = page.locator("#local-progress");
+  if (!(await disclosure.getAttribute("open"))) {
+    await disclosure.locator(":scope > summary").click();
+  }
+  const status = disclosure.getByRole("status").filter({ hasText: /Noted|storage/i });
+  const declare = disclosure.getByRole("button", { name: "I have finished Part 3" });
+  await expect(declare).toHaveAttribute("aria-pressed", "false");
+  await declare.click();
+
+  await expect(disclosure.getByRole("button", { name: "Remove this note" }))
+    .toHaveAttribute("aria-pressed", "true");
+  await expect(status).toContainText("Noted in this browser only.");
+  await expect.poll(() => page.evaluate(() => {
+    const raw = localStorage.getItem("ae.learning.v2");
+    if (!raw) return [];
+    return JSON.parse(raw).declared?.completed ?? [];
+  })).toEqual(["build"]);
+
+  await page.reload();
+  const restored = page.locator("#local-progress");
+  if (!(await restored.getAttribute("open"))) {
+    await restored.locator(":scope > summary").click();
+  }
+  const remove = restored.getByRole("button", { name: "Remove this note" });
+  await expect(remove).toHaveAttribute("aria-pressed", "true");
+  await remove.click();
+  await expect(restored.getByRole("button", { name: "I have finished Part 3" }))
+    .toHaveAttribute("aria-pressed", "false");
+  await expect.poll(() => page.evaluate(() => {
+    const raw = localStorage.getItem("ae.learning.v2");
+    if (!raw) return null;
+    return JSON.parse(raw).declared ?? null;
+  })).toEqual({ completed: [] });
+});
+
 test("every command is keyboard focusable and Copy reports what it copied", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "clipboard", {

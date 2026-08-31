@@ -40,8 +40,16 @@ export type HandbookSectionId = (typeof HANDBOOK_SECTION_IDS)[number];
 export const LAB_STEPS = ["first-call", "rules", "prompt-trial", "full-eval"] as const;
 
 export type LabStep = (typeof LAB_STEPS)[number];
+/**
+ * Modules whose work happens outside this static site and therefore cannot be
+ * measured here. A learner may keep a reversible note that they finished one;
+ * the note is self-declared completion, never verification of the local work.
+ */
+export const DECLARABLE_COURSE_IDS = ["build"] as const;
+
+export type DeclarableCourseId = (typeof DECLARABLE_COURSE_IDS)[number];
 export type LearningStatus = "not-started" | "in-progress" | "completed";
-export type ResetScope = "handbook" | "lab" | "all";
+export type ResetScope = "handbook" | "lab" | "declared" | "all";
 export type LearningPersistence = "persistent" | "session-only";
 
 export interface LearningStateV2 {
@@ -60,6 +68,17 @@ export interface LearningStateV2 {
     readonly rulesBest?: number;
     readonly evalRunsCompleted: number;
     readonly evalBest?: number;
+  };
+  /**
+   * Reversible learner notes for modules this static site cannot observe.
+   *
+   * This extends the normalized v2 shape without changing its version. Older
+   * v2 records decode with an empty declaration while retaining Handbook and
+   * Lab state; a v3 bump would discard that existing progress.
+   */
+  readonly declared: {
+    readonly completed: readonly DeclarableCourseId[];
+    readonly lastDeclaredAt?: string;
   };
 }
 
@@ -114,7 +133,9 @@ export type CourseProgress =
   | {
       readonly kind: "external";
       readonly courseId: "build";
-      readonly action: "open";
+      readonly status: Extract<LearningStatus, "not-started" | "completed">;
+      readonly action: "open" | "review";
+      readonly declaredComplete: boolean;
       readonly percent: null;
     }
   | {
@@ -170,12 +191,18 @@ export interface LearningStore {
   recordHandbookVisit(section: HandbookSectionId): LearningStateV2;
   recordHandbookControlRoomFinish(score: number): LearningStateV2;
   recordLabStep(step: LabStep, evidence?: LabStepEvidence): LearningStateV2;
+  declareCourseComplete(courseId: DeclarableCourseId, complete: boolean): LearningStateV2;
+  declareCourseCompleteWithResult(
+    courseId: DeclarableCourseId,
+    complete: boolean,
+  ): LearningMutationResult;
   resetLearningState(scope: ResetScope): LearningStateV2;
   resetLearningStateWithResult(scope: ResetScope): LearningMutationResult;
 }
 
 const SECTION_SET = new Set<string>(HANDBOOK_SECTION_IDS);
 const STEP_SET = new Set<string>(LAB_STEPS);
+const DECLARABLE_SET = new Set<string>(DECLARABLE_COURSE_IDS);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -191,6 +218,16 @@ function isSection(value: unknown): value is HandbookSectionId {
 
 function isLabStep(value: unknown): value is LabStep {
   return typeof value === "string" && STEP_SET.has(value);
+}
+
+function isDeclarableCourseId(value: unknown): value is DeclarableCourseId {
+  return typeof value === "string" && DECLARABLE_SET.has(value);
+}
+
+function uniqueDeclared(value: unknown): DeclarableCourseId[] {
+  if (!Array.isArray(value)) return [];
+  const present = new Set(value.filter(isDeclarableCourseId));
+  return DECLARABLE_COURSE_IDS.filter((courseId) => present.has(courseId));
 }
 
 function uniqueSections(value: unknown): HandbookSectionId[] {
@@ -234,6 +271,8 @@ function freezeState(state: LearningStateV2): LearningStateV2 {
   Object.freeze(state.handbook);
   Object.freeze(state.lab.completedSteps);
   Object.freeze(state.lab);
+  Object.freeze(state.declared.completed);
+  Object.freeze(state.declared);
   return Object.freeze(state);
 }
 
@@ -249,6 +288,7 @@ function makeDefaultState(): LearningStateV2 {
       completedSteps: [],
       evalRunsCompleted: 0,
     },
+    declared: { completed: [] },
   });
 }
 
@@ -260,11 +300,16 @@ function normaliseLearningState(value: unknown): LearningStateV2 {
   const handbook = isRecord(value.handbook) ? value.handbook : {};
   const controlRoom = isRecord(handbook.controlRoom) ? handbook.controlRoom : {};
   const lab = isRecord(value.lab) ? value.lab : {};
+  const declared = isRecord(value.declared) ? value.declared : {};
 
   const bestScore = optionalInteger(controlRoom, "bestScore", 0, 10);
   const lastFinishedAt = optionalDate(controlRoom, "lastFinishedAt");
   const rulesBest = optionalInteger(lab, "rulesBest", 0, 10);
   const evalBest = optionalInteger(lab, "evalBest", 0, 20);
+  const declaredCompleted = uniqueDeclared(declared.completed);
+  const lastDeclaredAt = declaredCompleted.length
+    ? optionalDate(declared, "lastDeclaredAt")
+    : undefined;
 
   return freezeState({
     version: 2,
@@ -284,6 +329,10 @@ function normaliseLearningState(value: unknown): LearningStateV2 {
       evalRunsCompleted: isIntegerIn(lab.evalRunsCompleted, 0, Number.MAX_SAFE_INTEGER)
         ? lab.evalRunsCompleted : 0,
       ...(evalBest === undefined ? {} : { evalBest }),
+    },
+    declared: {
+      completed: declaredCompleted,
+      ...(lastDeclaredAt === undefined ? {} : { lastDeclaredAt }),
     },
   });
 }
@@ -355,6 +404,8 @@ export function migrateLegacyLearningState(input: LegacyLearningInput): Learning
       evalRunsCompleted: hasCompletedEval ? 1 : 0,
       ...(evalBest === undefined ? {} : { evalBest }),
     },
+    // Legacy records never carried an off-site completion declaration.
+    declared: { completed: [] },
   });
 }
 
@@ -434,6 +485,13 @@ function stateWithLabReset(state: LearningStateV2): LearningStateV2 {
   });
 }
 
+function stateWithDeclaredReset(state: LearningStateV2): LearningStateV2 {
+  return freezeState({
+    ...state,
+    declared: EMPTY_LEARNING_STATE.declared,
+  });
+}
+
 export function selectHandbookProgress(state: LearningStateV2): HandbookProgress {
   const assessmentSubmitted = state.handbook.controlRoom.completedRuns > 0;
   const exploredSections = state.handbook.visitedSections.length;
@@ -492,6 +550,27 @@ export function selectAgenticJourneyPercent(state: LearningStateV2): number {
   return Math.round((handbookPercent + labPercent) / 2);
 }
 
+/**
+ * Completion for the three-module Agentic journey.
+ *
+ * The percentage above intentionally measures only the two browser-observed
+ * modules. Completion is stricter: Handbook and Lab must be complete, and the
+ * learner must have made the reversible Build declaration. A 100% observed
+ * bar therefore cannot by itself promote the course to completed.
+ */
+export function selectAgenticJourneyStatus(state: LearningStateV2): LearningStatus {
+  const handbook = selectHandbookProgress(state);
+  const lab = selectLabProgress(state);
+  const buildDeclared = state.declared.completed.includes("build");
+  if (handbook.completed && lab.completed && buildDeclared) return "completed";
+  if (
+    handbook.status !== "not-started"
+    || lab.status !== "not-started"
+    || buildDeclared
+  ) return "in-progress";
+  return "not-started";
+}
+
 export function selectCourseProgress(state: LearningStateV2, courseId: string): CourseProgress {
   if (courseId === "handbook") {
     const progress = selectHandbookProgress(state);
@@ -519,7 +598,17 @@ export function selectCourseProgress(state: LearningStateV2, courseId: string): 
     };
   }
   if (courseId === "build") {
-    return { kind: "external", courseId, action: "open", percent: null };
+    const declaredComplete = state.declared.completed.includes(courseId);
+    return {
+      kind: "external",
+      courseId,
+      status: declaredComplete ? "completed" : "not-started",
+      action: declaredComplete ? "review" : "open",
+      declaredComplete,
+      // The site cannot inspect course/progress.json, so it never invents a
+      // numeric measure for this declaration.
+      percent: null,
+    };
   }
   return { kind: "untracked", courseId, action: "unavailable", percent: null };
 }
@@ -766,6 +855,41 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     });
   }
 
+  function declareCourseComplete(
+    courseId: DeclarableCourseId,
+    complete: boolean,
+  ): LearningStateV2 {
+    lastMutationQuarantined = false;
+    if (!isDeclarableCourseId(courseId)) {
+      const state = readLearningState();
+      lastMutationPersisted = persistenceAvailable !== false;
+      return state;
+    }
+
+    return commit((state) => {
+      const alreadyComplete = state.declared.completed.includes(courseId);
+      if (alreadyComplete === complete) return state;
+
+      const completed = complete
+        ? DECLARABLE_COURSE_IDS.filter(
+            (candidate) => state.declared.completed.includes(candidate) || candidate === courseId,
+          )
+        : state.declared.completed.filter((candidate) => candidate !== courseId);
+      if (!completed.length) return stateWithDeclaredReset(state);
+
+      let declaredAt: string;
+      try {
+        declaredAt = now().toISOString();
+      } catch {
+        declaredAt = new Date().toISOString();
+      }
+      return freezeState({
+        ...state,
+        declared: { completed, lastDeclaredAt: declaredAt },
+      });
+    });
+  }
+
   function recordLabStep(step: LabStep, evidence: LabStepEvidence = {}): LearningStateV2 {
     if (!isLabStep(step)) return readLearningState();
     const scoreLimit = step === "rules" ? 10 : step === "full-eval" ? 20 : null;
@@ -813,9 +937,33 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     return persistenceAvailable !== false;
   }
 
+  function mutationResult(state: LearningStateV2): LearningMutationResult {
+    return {
+      state,
+      persistence: persistenceAvailable === false ? "session-only" : "persistent",
+      persisted: lastMutationPersisted,
+      ...(lastMutationPersisted || !lastPersistenceFailureReason
+        ? {}
+        : { reason: lastPersistenceFailureReason }),
+      ...(lastMutationQuarantined ? { quarantined: true } : {}),
+    };
+  }
+
+  function declareCourseCompleteWithResult(
+    courseId: DeclarableCourseId,
+    complete: boolean,
+  ): LearningMutationResult {
+    return mutationResult(declareCourseComplete(courseId, complete));
+  }
+
   function resetLearningState(scope: ResetScope): LearningStateV2 {
     lastMutationQuarantined = false;
-    if (scope !== "handbook" && scope !== "lab" && scope !== "all") {
+    if (
+      scope !== "handbook"
+      && scope !== "lab"
+      && scope !== "declared"
+      && scope !== "all"
+    ) {
       const state = readLearningState();
       lastMutationPersisted = persistenceAvailable !== false;
       return state;
@@ -893,7 +1041,8 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
 
     const result = commit((state) => {
       if (scope === "handbook") return stateWithHandbookReset(state);
-      return stateWithLabReset(state);
+      if (scope === "lab") return stateWithLabReset(state);
+      return stateWithDeclaredReset(state);
     });
 
     const storage = getStorage();
@@ -923,16 +1072,7 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
   }
 
   function resetLearningStateWithResult(scope: ResetScope): LearningMutationResult {
-    const state = resetLearningState(scope);
-    return {
-      state,
-      persistence: persistenceAvailable === false ? "session-only" : "persistent",
-      persisted: lastMutationPersisted,
-      ...(lastMutationPersisted || !lastPersistenceFailureReason
-        ? {}
-        : { reason: lastPersistenceFailureReason }),
-      ...(lastMutationQuarantined ? { quarantined: true } : {}),
-    };
+    return mutationResult(resetLearningState(scope));
   }
 
   function subscribeLearningState(listener: () => void): () => void {
@@ -958,6 +1098,8 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     recordHandbookVisit,
     recordHandbookControlRoomFinish,
     recordLabStep,
+    declareCourseComplete,
+    declareCourseCompleteWithResult,
     resetLearningState,
     resetLearningStateWithResult,
   };
@@ -996,6 +1138,20 @@ export function recordHandbookControlRoomFinish(score: number): LearningStateV2 
 
 export function recordLabStep(step: LabStep, evidence?: LabStepEvidence): LearningStateV2 {
   return learningStore.recordLabStep(step, evidence);
+}
+
+export function declareCourseComplete(
+  courseId: DeclarableCourseId,
+  complete: boolean,
+): LearningStateV2 {
+  return learningStore.declareCourseComplete(courseId, complete);
+}
+
+export function declareCourseCompleteWithResult(
+  courseId: DeclarableCourseId,
+  complete: boolean,
+): LearningMutationResult {
+  return learningStore.declareCourseCompleteWithResult(courseId, complete);
 }
 
 export function resetLearningState(scope: ResetScope): LearningStateV2 {

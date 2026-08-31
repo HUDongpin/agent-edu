@@ -123,7 +123,11 @@ export default function Progress({ locale, feedbackCopy }: ProgressProps) {
       <div className="progress-course-list">
         {active.slice(0, 2).map((course) => {
           const title = t(titleKeyById.get(course.id) ?? `c.${course.id}.title`);
-          const label = course.state === "completed" ? t("cat.review") : t("cat.resume");
+          const label = course.state === "completed"
+            ? t("cat.review")
+            : course.percent >= 100
+              ? t("cat.finish")
+              : t("cat.resume");
 
           return (
             <article className="progress-course" key={course.id}>

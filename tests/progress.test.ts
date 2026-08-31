@@ -12,6 +12,7 @@ import {
   decodeLearningState,
   migrateLegacyLearningState,
   selectAgenticJourneyPercent,
+  selectAgenticJourneyStatus,
   selectCourseProgress,
   selectHandbookProgress,
   selectLabProgress,
@@ -62,6 +63,7 @@ class StorageEvents extends EventTarget {
 function v2(overrides: {
   handbook?: Partial<LearningStateV2["handbook"]>;
   lab?: Partial<LearningStateV2["lab"]>;
+  declared?: Partial<LearningStateV2["declared"]>;
 } = {}): LearningStateV2 {
   return {
     version: 2,
@@ -75,6 +77,10 @@ function v2(overrides: {
       completedSteps: [],
       evalRunsCompleted: 0,
       ...overrides.lab,
+    },
+    declared: {
+      completed: [],
+      ...overrides.declared,
     },
   };
 }
@@ -257,6 +263,24 @@ test("Agentic journey display averages only the two browser-tracked v2 modules",
 
   // Handbook 100%, Lab 50%; external Build is not misrepresented as zero.
   assert.equal(selectAgenticJourneyPercent(state), 75);
+});
+
+test("Agentic completion requires both tracked modules and the reversible Build note", () => {
+  const trackedComplete = v2({
+    handbook: {
+      visitedSections: [...HANDBOOK_SECTION_IDS],
+      controlRoom: { completedRuns: 1 },
+    },
+    lab: { completedSteps: ["first-call", "rules", "prompt-trial", "full-eval"] },
+  });
+
+  assert.equal(selectAgenticJourneyPercent(trackedComplete), 100);
+  assert.equal(selectAgenticJourneyStatus(trackedComplete), "in-progress");
+  assert.equal(selectAgenticJourneyStatus(v2({
+    handbook: trackedComplete.handbook,
+    lab: trackedComplete.lab,
+    declared: { completed: ["build"] },
+  })), "completed");
 });
 
 test("a zero-score Control Room run is a real assessment submission, not course completion", () => {
@@ -549,7 +573,7 @@ test("Agentic all reset leaves the shared record for the central owning reset", 
   });
 });
 
-test("Part 3 is always external/open with no website percentage", () => {
+test("Part 3 starts external/open with no website percentage", () => {
   const state = migrateLegacyLearningState({
     section: null,
     seen: null,
@@ -558,15 +582,105 @@ test("Part 3 is always external/open with no website percentage", () => {
   assert.deepEqual(selectCourseProgress(state, "build"), {
     kind: "external",
     courseId: "build",
+    status: "not-started",
     action: "open",
+    declaredComplete: false,
     percent: null,
   });
 });
 
+test("a reader can declare Part 3 finished and withdraw that note", () => {
+  const store = createLearningStore({
+    storage: new MemoryStorage(),
+    events: new EventTarget(),
+    now: () => new Date("2026-08-31T02:03:04.000Z"),
+  });
+
+  const declared = store.declareCourseCompleteWithResult("build", true);
+  assert.equal(declared.persisted, true);
+  assert.deepEqual(declared.state.declared, {
+    completed: ["build"],
+    lastDeclaredAt: "2026-08-31T02:03:04.000Z",
+  });
+  assert.deepEqual(selectCourseProgress(declared.state, "build"), {
+    kind: "external",
+    courseId: "build",
+    status: "completed",
+    action: "review",
+    declaredComplete: true,
+    percent: null,
+  });
+
+  const withdrawn = store.declareCourseCompleteWithResult("build", false);
+  assert.equal(withdrawn.persisted, true);
+  assert.deepEqual(withdrawn.state.declared, { completed: [] });
+  assert.equal(selectCourseProgress(withdrawn.state, "build").percent, null);
+});
+
+test("old v2 records gain an empty declaration without losing existing progress", () => {
+  const state = decodeLearningState(json({
+    version: 2,
+    handbook: {
+      lastSection: "code",
+      visitedSections: ["code"],
+      controlRoom: { completedRuns: 0 },
+    },
+    lab: { completedSteps: ["first-call"], evalRunsCompleted: 0 },
+  }));
+
+  assert.deepEqual(state.declared, { completed: [] });
+  assert.deepEqual(state.handbook.visitedSections, ["code"]);
+  assert.deepEqual(state.lab.completedSteps, ["first-call"]);
+});
+
+test("declaration decoding drops unknown ids, duplicates, and stale timestamps", () => {
+  const state = decodeLearningState(json({
+    version: 2,
+    handbook: { lastSection: "start", visitedSections: [], controlRoom: { completedRuns: 0 } },
+    lab: { completedSteps: [], evalRunsCompleted: 0 },
+    declared: {
+      completed: ["handbook", "build", "build", 7, null],
+      lastDeclaredAt: "2026-08-31T02:03:04.000Z",
+    },
+  }));
+  assert.deepEqual(state.declared, {
+    completed: ["build"],
+    lastDeclaredAt: "2026-08-31T02:03:04.000Z",
+  });
+
+  const empty = decodeLearningState(json({
+    version: 2,
+    handbook: { lastSection: "start", visitedSections: [], controlRoom: { completedRuns: 0 } },
+    lab: { completedSteps: [], evalRunsCompleted: 0 },
+    declared: { completed: ["unknown"], lastDeclaredAt: "2026-08-31T02:03:04.000Z" },
+  }));
+  assert.deepEqual(empty.declared, { completed: [] });
+});
+
+test("declaration reset preserves Handbook and Lab state", () => {
+  const store = createLearningStore({ storage: new MemoryStorage(), events: new EventTarget() });
+  store.recordHandbookVisit("code");
+  store.recordLabStep("first-call");
+  store.declareCourseComplete("build", true);
+
+  const reset = store.resetLearningState("declared");
+  assert.deepEqual(reset.declared, { completed: [] });
+  assert.deepEqual(reset.handbook.visitedSections, ["code"]);
+  assert.deepEqual(reset.lab.completedSteps, ["first-call"]);
+});
+
+test("an unknown declaration id is rejected at runtime", () => {
+  const store = createLearningStore({ storage: new MemoryStorage(), events: new EventTarget() });
+  const before = store.readLearningState();
+  const after = store.declareCourseComplete("handbook" as "build", true);
+  assert.strictEqual(after, before);
+  assert.deepEqual(after.declared, { completed: [] });
+});
+
 test("unavailable catalogue entries are untracked rather than fake zero progress", () => {
-  assert.deepEqual(selectCourseProgress(EMPTY_LEARNING_STATE, "tools"), {
+  assert.deepEqual(selectCourseProgress(EMPTY_LEARNING_STATE, "no-such-course"), {
     kind: "untracked",
-    courseId: "tools",
+    courseId: "no-such-course",
     action: "unavailable",
     percent: null,
   });
@@ -577,6 +691,7 @@ test("server-style null storage is safe and cannot claim a transient completion"
   assert.strictEqual(store.readLearningState(), EMPTY_LEARNING_STATE);
   assert.strictEqual(store.recordHandbookVisit("code"), EMPTY_LEARNING_STATE);
   assert.strictEqual(store.recordLabStep("full-eval", { score: 20 }), EMPTY_LEARNING_STATE);
+  assert.strictEqual(store.declareCourseComplete("build", true), EMPTY_LEARNING_STATE);
   assert.equal(store.readLearningSnapshot().persistence, "session-only");
 });
 

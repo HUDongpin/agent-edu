@@ -41,6 +41,7 @@ export type {
 import {
   HANDBOOK_SECTION_IDS,
   CORRUPT_LEARNING_BACKUP_KEY,
+  LAB_STEPS,
   LEARNING_KEY,
   LEARNING_PROGRESS_EVENT,
   LEGACY_PROGRESS_KEY,
@@ -49,6 +50,7 @@ import {
   readLearningSnapshot,
   resetLearningStateWithResult,
   selectAgenticJourneyPercent,
+  selectAgenticJourneyStatus,
 } from "@/lib/progress";
 import {
   AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY,
@@ -670,18 +672,24 @@ function agenticAdapter(locale: string): ProgressStoreAdapter {
         if (learning.persistence !== "persistent") return unavailableSummary();
         const state = learning.state;
         const percent = selectAgenticJourneyPercent(state);
+        const journeyStatus = selectAgenticJourneyStatus(state);
         const nextSection = HANDBOOK_SECTION_IDS.find(
           (section) => !state.handbook.visitedSections.includes(section),
         );
-        const hasProgress = state.handbook.visitedSections.length > 0
-          || state.handbook.controlRoom.completedRuns > 0
-          || state.lab.completedSteps.length > 0;
-        const nextHref = percent >= 100
+        const nextHref = journeyStatus === "completed"
           ? `/${locale}/handbook/`
           : nextSection
             ? `/${locale}/handbook/#${nextSection}`
-            : `/${locale}/lab/`;
-        return summary(percent, hasProgress, nextHref);
+            : state.handbook.controlRoom.completedRuns === 0
+              ? `/${locale}/handbook/#play`
+              : state.lab.completedSteps.length < LAB_STEPS.length
+                ? `/${locale}/lab/`
+                : `/${locale}/build/#local-progress`;
+        return {
+          state: journeyStatus,
+          percent,
+          nextHref,
+        };
       } catch {
         return unavailableSummary();
       }

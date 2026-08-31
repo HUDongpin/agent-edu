@@ -18,7 +18,12 @@ import {
   productManagementModuleProgressKey,
 } from "../lib/product-management/progress";
 import { PRODUCT_MANAGEMENT_COURSE_MANIFEST } from "../lib/product-management/manifest";
-import { EMPTY_LEARNING_STATE, LEARNING_KEY } from "../lib/progress";
+import {
+  EMPTY_LEARNING_STATE,
+  HANDBOOK_SECTION_IDS,
+  LAB_STEPS,
+  LEARNING_KEY,
+} from "../lib/progress";
 import {
   CURSOR_PROGRESS_STORAGE_KEY,
   MCP_PROGRESS_LESSON_SLUGS,
@@ -207,6 +212,80 @@ test("published progress adapters exactly match the twelve public courses", () =
   assert.ok(noStorage.every(
     (summary) => summary.state === "unavailable" && summary.nextHref === null,
   ));
+});
+
+test("Agentic adapter keeps 100% observed progress incomplete until Build is declared", () => {
+  const storage = new MemoryStorage();
+  const session = new MemoryStorage();
+  const browser = new BrowserEvents(storage, session);
+  const hadWindow = "window" in globalThis;
+  const previousWindow = globalThis.window;
+  const hadLocalStorage = "localStorage" in globalThis;
+  const previousLocalStorage = globalThis.localStorage;
+  const hadSessionStorage = "sessionStorage" in globalThis;
+  const previousSessionStorage = globalThis.sessionStorage;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser as unknown as Window & typeof globalThis,
+  });
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storage });
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: session });
+
+  try {
+    const adapter = createAllProgressAdapters("en").find(
+      (candidate) => candidate.courseId === "agentic",
+    );
+    assert.ok(adapter);
+    const trackedComplete = {
+      version: 2,
+      handbook: {
+        lastSection: "play",
+        visitedSections: [...HANDBOOK_SECTION_IDS],
+        controlRoom: { completedRuns: 1 },
+      },
+      lab: {
+        completedSteps: [...LAB_STEPS],
+        evalRunsCompleted: 1,
+      },
+      declared: { completed: [] },
+    };
+    storage.setItem(LEARNING_KEY, JSON.stringify(trackedComplete));
+    assert.deepEqual(adapter.readSummary(), {
+      state: "in-progress",
+      percent: 100,
+      nextHref: "/en/build/#local-progress",
+    });
+
+    storage.setItem(LEARNING_KEY, JSON.stringify({
+      ...trackedComplete,
+      declared: {
+        completed: ["build"],
+        lastDeclaredAt: "2026-08-31T02:03:04.000Z",
+      },
+    }));
+    assert.deepEqual(adapter.readSummary(), {
+      state: "completed",
+      percent: 100,
+      nextHref: "/en/handbook/",
+    });
+  } finally {
+    if (hadWindow) {
+      Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });
+    } else Reflect.deleteProperty(globalThis, "window");
+    if (hadLocalStorage) {
+      Object.defineProperty(globalThis, "localStorage", {
+        configurable: true,
+        value: previousLocalStorage,
+      });
+    } else Reflect.deleteProperty(globalThis, "localStorage");
+    if (hadSessionStorage) {
+      Object.defineProperty(globalThis, "sessionStorage", {
+        configurable: true,
+        value: previousSessionStorage,
+      });
+    } else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
 });
 
 test("registry-owned adapter state, events, and primary storage keys fail closed", () => {

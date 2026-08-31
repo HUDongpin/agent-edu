@@ -1,6 +1,7 @@
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import AgenticTrackNav from "@/components/AgenticTrackNav";
+import Declare from "@/components/build/Declare";
 import CourseCommandBlock from "@/components/courses/CourseCommandBlock";
 import Course3PrintDisclosures from "@/components/courses/Course3PrintDisclosures";
 import styles from "@/components/courses/Course3Launchpad.module.css";
@@ -442,6 +443,7 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
                 label={t("build.progressTitle")}
                 {...copy}
               />
+              <Declare />
             </div>
           </details>
 
