@@ -48,6 +48,11 @@ test("eleven published dashboards mount the server CourseShell entry", () => {
     assert.match(source, /from\s+["']\.\.\/course-shell\/CourseShell["']/u, path);
     assert.match(source, new RegExp(`<CourseShell\\s+courseId=["']${course.id}["']`), path);
     assert.doesNotMatch(source, /^\s*["']use client["']/u, path);
+    assert.doesNotMatch(
+      source,
+      /\ballowBlockedPreview\b/u,
+      `${path}: published dashboards must not opt into the blocked registry`,
+    );
   }
 
   const shell = readFileSync("components/course-shell/CourseShell.tsx", "utf8");
@@ -63,7 +68,17 @@ test("eleven published dashboards mount the server CourseShell entry", () => {
     "data-course-progress-storage",
     "local-progress",
   ]) assert.match(shell, new RegExp(field), field);
-  assert.match(shell, /PUBLISHED_CATALOG_COURSES\.find/);
+  assert.match(shell, /allowBlockedPreview\s*=\s*false/u);
+  assert.match(
+    shell,
+    /allowBlockedPreview[\s\S]*?\?\s*CATALOG_COURSE_RELEASES\s*:\s*PUBLISHED_CATALOG_COURSES[\s\S]*?\)\.find/u,
+    "blocked course metadata is available only through an explicit preview opt-in",
+  );
+  assert.match(
+    shell,
+    /surface\.state\s*===\s*["']published["']\s*\?[\s\S]*?<CourseShellProgress/u,
+    "blocked previews must not activate public progress",
+  );
   assert.match(shell, /getMessages\(locale\)/);
   assert.match(shell, /metaFor\(contentLocale\)\.native/);
   assert.doesNotMatch(shell, /new\s+Intl\.DisplayNames/);
