@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import test from "node:test";
 import { LOCALE_CODES, LOCALES, coverage, isLocale, metaFor, translator } from "../lib/i18n";
 import { PAGES, alternatesFor, urlFor } from "../lib/seo";
@@ -200,7 +200,9 @@ test("the Vercel upload keeps every repository input required by build:release",
   // Vercel applies .vercelignore before removing .git from the uploaded source.
   // File presence above is the package-level proof there; keep the stronger Git
   // ignore-semantics assertion when this test runs inside a repository/worktree.
-  if (existsSync(".git")) {
+  const hasRepositoryMetadata =
+    existsSync(".git/HEAD") || (existsSync(".git") && statSync(".git").isFile());
+  if (hasRepositoryMetadata) {
     const ignoredCourse20LabInputs = spawnSync(
       "git",
       [
