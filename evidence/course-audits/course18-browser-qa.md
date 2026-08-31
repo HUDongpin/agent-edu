@@ -1,8 +1,8 @@
 # Course 18 browser QA report
 
-> Final local verification: 2026-08-26 (Asia/Taipei)  
-> Branch: `codex/course-18-agentic-teaching`  
-> Build under test: Next.js 16.3.1 static export served from `out/` on localhost  
+> Final local verification: 2026-08-26 (Asia/Taipei)
+> Branch: `codex/course-18-agentic-teaching`
+> Build under test: Next.js 16.3.1 static export served from `out/` on localhost
 > Browser driver: Playwright CLI, Chromium
 
 ## Scope

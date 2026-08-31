@@ -1,8 +1,8 @@
 # 第 18 门课研究来源与主张溯源台账
 
-> 对应文件：`course18-agentic-teaching-research.md`  
-> 检索/核验日期：2026-08-26（Asia/Taipei）  
-> 研究范围：教育智能体架构、工具调用、MCP、browser/computer use、多智能体、evals/observability、K-12 与大学工作流、隐私、未成年人和教师监督。  
+> 对应文件：`course18-agentic-teaching-research.md`
+> 检索/核验日期：2026-08-26（Asia/Taipei）
+> 研究范围：教育智能体架构、工具调用、MCP、browser/computer use、多智能体、evals/observability、K-12 与大学工作流、隐私、未成年人和教师监督。
 > 核心来源约束：GitHub 固定提交与 X 原帖是技术/生态主轴；论文只支持其具体研究设计下的结果；官方治理材料支持规范性边界。
 
 ## 1. 台账规则

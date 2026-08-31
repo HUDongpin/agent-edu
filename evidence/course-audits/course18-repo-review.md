@@ -1,9 +1,9 @@
 # aicourse.top 第 18 门课程仓库审计与发布评审基线
 
-> 课程主题：智能体赋能 K–12 与大学教学  
-> 公开课程契约：`ai-teaching` / Course 18  
-> 审计角色：deep-research reviewer；仅审计，不修改应用代码  
-> 审计基线：`6c0dcd9b7e20f7f079f75dfb994671805559f8dd`  
+> 课程主题：智能体赋能 K–12 与大学教学
+> 公开课程契约：`ai-teaching` / Course 18
+> 审计角色：deep-research reviewer；仅审计，不修改应用代码
+> 审计基线：`6c0dcd9b7e20f7f079f75dfb994671805559f8dd`
 > 最后复核日期：2026-08-26（Asia/Taipei）
 
 ## 0. 结论先行

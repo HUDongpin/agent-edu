@@ -1,7 +1,7 @@
 # Course 19 research brief: mathematical animation with Codex and Claude
 
-Snapshot date: 2026-08-26  
-Course route: `/[locale]/math-animation/`  
+Snapshot date: 2026-08-26
+Course route: `/[locale]/math-animation/`
 Decision owner: aicourse.top Course 19
 
 ## Executive decision
