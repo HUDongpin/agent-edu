@@ -79,11 +79,12 @@ import {
   RAG_CORRUPT_PROGRESS_BACKUP_KEY,
   RAG_PROGRESS_PROBE_KEY,
 } from "@/lib/progress-storage-contract";
-import { RESPONSIBLE_AI_COURSE } from "@/lib/responsible-ai";
-import { AGENTIC_QUANT_TRADING_COURSE } from "@/lib/agentic-quant-trading";
+import { RESPONSIBLE_AI_PROGRESS } from "@/lib/responsible-ai/progress";
+import {
+  AGENTIC_QUANT_TRADING_PROGRESS,
+} from "@/lib/agentic-quant-trading/progress";
 import {
   courseKitProgressSummary,
-  createCourseKitProgressConfig,
   isCourseKitCapstoneComplete,
   isCourseKitModuleComplete,
   isCourseKitQuizComplete,
@@ -876,15 +877,6 @@ function contentLocaleForProjection(
     : surface.primaryLocale;
 }
 
-const RESPONSIBLE_AI_PROGRESS_CONFIG = {
-  ...createCourseKitProgressConfig(RESPONSIBLE_AI_COURSE),
-  courseId: "responsible-ai" as const,
-};
-const AGENTIC_QUANT_TRADING_PROGRESS_CONFIG = {
-  ...createCourseKitProgressConfig(AGENTIC_QUANT_TRADING_COURSE),
-  courseId: "agentic-quant-trading" as const,
-};
-
 function courseKitAdapter(
   locale: string,
   config: CourseKitProgressClientConfig & {
@@ -1166,11 +1158,11 @@ export function createAllProgressAdapters(
     }),
     courseKitAdapter(
       localeFor("responsible-ai"),
-      RESPONSIBLE_AI_PROGRESS_CONFIG,
+      RESPONSIBLE_AI_PROGRESS,
     ),
     courseKitAdapter(
       localeFor("agentic-quant-trading"),
-      AGENTIC_QUANT_TRADING_PROGRESS_CONFIG,
+      AGENTIC_QUANT_TRADING_PROGRESS,
     ),
     milestoneAdapter(localeFor("ai-teaching"), {
       courseId: "ai-teaching",
