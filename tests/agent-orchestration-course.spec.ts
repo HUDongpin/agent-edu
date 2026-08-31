@@ -33,18 +33,38 @@ async function expectInside(
   container: Locator,
   label: string,
 ) {
-  const [childBox, containerBox] = await Promise.all([
-    child.boundingBox(),
-    container.boundingBox(),
-  ]);
-  expect(childBox, `${label}: child layout box`).not.toBeNull();
-  expect(containerBox, `${label}: container layout box`).not.toBeNull();
-  expect(childBox!.x, `${label}: left`).toBeGreaterThanOrEqual(containerBox!.x - 1);
-  expect(childBox!.x + childBox!.width, `${label}: right`)
-    .toBeLessThanOrEqual(containerBox!.x + containerBox!.width + 1);
-  expect(childBox!.y, `${label}: top`).toBeGreaterThanOrEqual(containerBox!.y - 1);
-  expect(childBox!.y + childBox!.height, `${label}: bottom`)
-    .toBeLessThanOrEqual(containerBox!.y + containerBox!.height + 1);
+  await expect.poll(async () => {
+    const [childBox, containerBox] = await Promise.all([
+      child.boundingBox(),
+      container.boundingBox(),
+    ]);
+    if (!childBox || !containerBox) {
+      return {
+        laidOut: false,
+        left: false,
+        right: false,
+        top: false,
+        bottom: false,
+      };
+    }
+    return {
+      laidOut: true,
+      left: childBox.x >= containerBox.x - 1,
+      right:
+        childBox.x + childBox.width <= containerBox.x + containerBox.width + 1,
+      top: childBox.y >= containerBox.y - 1,
+      bottom:
+        childBox.y + childBox.height <= containerBox.y + containerBox.height + 1,
+    };
+  }, {
+    message: `${label}: wait for the active link to settle inside its scroller`,
+  }).toEqual({
+    laidOut: true,
+    left: true,
+    right: true,
+    top: true,
+    bottom: true,
+  });
 }
 
 async function expectMinimumTarget(locator: Locator, minimum = 44) {
