@@ -1228,6 +1228,7 @@ test.describe("How to Use Grok course", () => {
     await page.goto(DASHBOARD);
     const quiz = page.getByTestId("grok-final-quiz");
     await quiz.getByRole("button", { name: "Begin knowledge check" }).click();
+    await expect(quiz.locator("h3")).toBeFocused();
     const firstOption = quiz.locator("fieldset label").nth(0);
     const firstRadio = firstOption.locator('input[type="radio"]');
     await firstRadio.focus();
