@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import type { Page } from "@playwright/test";
+import { withIsolatedRoutePage } from "../tests/published-course-test-helpers";
 import { expect, test } from "./fixtures";
 
 const COURSE_ROOT = "https://github.com/HUDongpin/agent-edu/tree/main/course";
@@ -273,11 +274,15 @@ test("Arabic technical tokens keep LTR isolation inside the RTL launchpad", asyn
 test("Course 3 stays inside the viewport at mobile, tablet, and desktop widths", async ({ page }) => {
   for (const viewport of VIEWPORTS) {
     await test.step(`${viewport.width}px`, async () => {
-      await page.setViewportSize(viewport);
-      const response = await page.goto("/en/build/");
-      expect(response?.status()).toBe(200);
-      await expect(page.locator("#local-setup")).toBeVisible();
-      await expectNoHorizontalOverflow(page);
+      await withIsolatedRoutePage(
+        page,
+        "/en/build/",
+        async (routePage) => {
+          await expect(routePage.locator("#local-setup")).toBeVisible();
+          await expectNoHorizontalOverflow(routePage);
+        },
+        { viewport },
+      );
     });
   }
 });
