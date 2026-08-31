@@ -42,7 +42,12 @@ outputs/assets/
 outputs/grok-audit/
 outputs/mcp-browser-qa-screenshots/
 /outputs/
-/examples/
+# Course 20 is blocked from the public export, but build:release still executes
+# its offline lab gate. Upload only that gate's reviewed first-party sources;
+# keep every other current or future standalone example out by default.
+/examples/*
+!/examples/agentic-video-editing-lab/
+!/examples/agentic-video-editing-lab/**
 TEACHING.md
 .git/
 .venv/

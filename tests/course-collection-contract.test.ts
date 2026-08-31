@@ -95,6 +95,17 @@ test("registry-derived public catalogue preserves the reviewed visual order", ()
   );
 });
 
+test("the blocked Agentic Video Editing card retains its authoritative Course 20 identity", () => {
+  const entry = PUBLIC_CATALOG_COURSE_RELEASES.find(
+    ({ course }) => course.id === "agentic-video-editing",
+  );
+  assert.ok(entry);
+  assert.equal(entry.surface.state, "blocked");
+  assert.equal(entry.course.displayNumber, 20);
+  assert.equal(entry.course.href, "#");
+  assert.equal(entry.course.status, "soon");
+});
+
 test("client projection rejects duplicate registry ids before writing", () => {
   const contract = JSON.parse(readFileSync("config/course-release-manifest.json", "utf8"));
   const duplicate = structuredClone(contract);

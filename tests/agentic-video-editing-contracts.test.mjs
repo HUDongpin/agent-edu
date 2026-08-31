@@ -60,12 +60,21 @@ import {
   AGENTIC_VIDEO_EDITING_PROJECT_ID,
   AGENTIC_VIDEO_EDITING_PROJECT_SPEC_ID,
 } from "../staging/course-src/agentic-video-editing/types.ts";
+import {
+  COURSE20_BILINGUAL_EDITORIAL_ROOTS,
+} from "../scripts/course20-bilingual-editorial-surface.mjs";
 
 const PUBLIC_ROOT = new URL(
   "../staging/course-assets/agentic-video-editing/",
   import.meta.url,
 );
 const HASH_D = "d".repeat(64);
+
+test("the human review inventory binds the client-facing Course 20 catalogue identity", () => {
+  assert.ok(COURSE20_BILINGUAL_EDITORIAL_ROOTS.includes("lib/public-courses.ts"));
+  assert.ok(COURSE20_BILINGUAL_EDITORIAL_ROOTS.includes("messages/en.json"));
+  assert.ok(COURSE20_BILINGUAL_EDITORIAL_ROOTS.includes("messages/zh-Hans.json"));
+});
 
 function refreshCapstoneBinding(record) {
   record.packageBindingFingerprint = course20ReceiptFingerprint(

@@ -79,6 +79,7 @@ const SOURCE_INPUTS = [
   "scripts/write-agentic-video-editing-fixture-provenance.mjs",
   "scripts/write-course20-bilingual-review-receipt.mjs",
   "tests/agentic-video-editing-contracts.test.mjs",
+  "tests/agentic-video-editing-blocked.spec.ts",
   "tests/agentic-video-editing-course.spec.ts",
   "tests/agentic-video-editing-playwright.config.ts",
   "tests/agentic-video-editing-timing.test.ts",

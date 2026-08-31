@@ -700,6 +700,7 @@
   "cat.course19": "Course 19",
   "cat.course16": "Course 16",
   "cat.course17": "Course 17",
+  "cat.course20": "Course 20",
   "lab.storageUnavailable": "Browser storage is unavailable. Every step still runs, but the Lab cannot remember which ones you have finished after this session.",
   "home.q5": "Where is my progress stored?",
   "home.a5": "Course milestones and your theme choice stay in this browser. There is no learner account. The site counts anonymous page views, but it does not receive your course progress or any API key you use in the Lab.",
