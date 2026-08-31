@@ -22,13 +22,17 @@ const VIEWPORTS = [
 ] as const;
 const axePath = createRequire(import.meta.url).resolve("axe-core/axe.min.js");
 
-async function expectNoHorizontalOverflow(page: Page) {
+async function settleLayout(page: Page) {
   await page.evaluate(async () => {
     await document.fonts.ready;
     await new Promise<void>((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     );
   });
+}
+
+async function expectNoHorizontalOverflow(page: Page) {
+  await settleLayout(page);
   await expect.poll(() => page.evaluate(() => {
     const root = document.documentElement;
     return Math.max(root.scrollWidth, document.body.scrollWidth) - root.clientWidth;
@@ -56,7 +60,7 @@ test("the opened mobile menu puts its first link next in forward keyboard order"
 
   const menu = page.getByRole("navigation", { name: "Menu", includeHidden: true });
   const toggle = page.getByRole("button", { name: "Menu" });
-  const firstLink = menu.getByRole("link", { name: "Home", exact: true });
+  const firstLink = menu.getByRole("link", { name: "Courses", exact: true });
   const controlledId = await toggle.getAttribute("aria-controls");
 
   expect(controlledId).toBeTruthy();
@@ -282,6 +286,7 @@ test("Course 3 navigation and actions keep comfortable touch targets", async ({ 
   await page.setViewportSize(VIEWPORTS[0]);
   const response = await page.goto("/en/build/");
   expect(response?.status()).toBe(200);
+  await settleLayout(page);
 
   const targets = page.locator([
     ".topbar .logo:visible",

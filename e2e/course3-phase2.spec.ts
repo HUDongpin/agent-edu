@@ -20,9 +20,9 @@ async function settleLayout(page: Page) {
 }
 
 test("the long mobile journey starts with core work and four closed secondary disclosures", async ({ page }) => {
-  for (const { locale, maxHeight } of [
-    { locale: "en", maxHeight: 5350 },
-    { locale: "ar", maxHeight: 5250 },
+  for (const { locale, maxCourseHeight } of [
+    { locale: "en", maxCourseHeight: 4600 },
+    { locale: "ar", maxCourseHeight: 4600 },
   ]) {
     await test.step(locale, async () => {
       await page.setViewportSize(VIEWPORTS[0]);
@@ -42,8 +42,12 @@ test("the long mobile journey starts with core work and four closed secondary di
       }
       await expect(page.locator("#provider-options .provider-card")).toHaveCount(4);
       await expect(page.locator("#provider-options .provider-card").first()).not.toBeVisible();
-      const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
-      expect(pageHeight).toBeLessThanOrEqual(maxHeight);
+      // Bound the Course 3 journey itself. The shared footer grows whenever a
+      // separate course is published and is not owned by this page contract.
+      const courseHeight = await page.locator(".build-page").evaluate((element) =>
+        Math.round(element.getBoundingClientRect().height),
+      );
+      expect(courseHeight).toBeLessThanOrEqual(maxCourseHeight);
     });
   }
 });
