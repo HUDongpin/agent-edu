@@ -720,6 +720,7 @@ async function criticalOrSeriousAxeViolations(page: Page): Promise<SeriousAxeVio
   await expect.poll(() => page.evaluate(() => (
     document.getAnimations().filter((animation) => (
       animation.constructor.name === "CSSTransition"
+      && (animation.playState === "running" || animation.pending)
     )).length
   )), {
     message: "theme styles must settle before the accessibility audit",
@@ -1252,6 +1253,10 @@ for (const course of publishedCourses) {
         },
         {
           setup: async (routePage) => {
+            // Apply reduced motion before the document exists. Firefox can
+            // otherwise leave an already-created width transition pending at
+            // currentTime 0 when the media preference changes after hydration.
+            await routePage.emulateMedia({ reducedMotion: "reduce" });
             await routePage.addInitScript(
               ({ storageKey, selectedTheme }) => {
                 localStorage.setItem(storageKey, selectedTheme);
