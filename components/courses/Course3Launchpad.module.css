@@ -20,7 +20,7 @@
 }
 
 .sectionAnchor {
-  scroll-margin-top: 88px;
+  scroll-margin-block-start: 0;
 }
 
 .shellChoices {
@@ -137,7 +137,27 @@
 }
 
 .commandStatus:empty {
-  display: none;
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  min-block-size: 0;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.commandStatus[data-copy-state="success"] {
+  color: var(--green);
+  font-weight: 650;
+}
+
+.commandStatus[data-copy-state="error"] {
+  color: var(--red);
+  font-weight: 650;
 }
 
 .stageMap {
@@ -233,6 +253,203 @@
   margin-top: 0;
 }
 
+.referenceSection {
+  padding-block-start: 32px;
+}
+
+.referenceIntro {
+  max-width: 65ch;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.referenceIntro h2 {
+  margin: 0;
+  font-size: clamp(22px, 3vw, 30px);
+  text-wrap: balance;
+}
+
+.referenceIntro p {
+  margin: 9px auto 0;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+
+.disclosureList {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.disclosure {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: clip;
+  background: var(--card);
+}
+
+.disclosureSummary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.summaryText,
+.sourceLinkText {
+  min-width: 0;
+}
+
+.disclosureMarker {
+  position: relative;
+  flex: 0 0 16px;
+  inline-size: 16px;
+  block-size: 16px;
+  margin-inline-start: auto;
+}
+
+.disclosureMarker::before,
+.disclosureMarker::after {
+  position: absolute;
+  inset-block-start: 7px;
+  inset-inline-start: 3px;
+  inline-size: 10px;
+  block-size: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  content: "";
+}
+
+.disclosureMarker::after {
+  transform: rotate(90deg);
+}
+
+.disclosure[open] .disclosureMarker::after {
+  transform: none;
+}
+
+.disclosureSummary:hover {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.disclosureSummary:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: -3px;
+}
+
+.disclosure[open] > .disclosureSummary {
+  border-block-end: 1px solid var(--line);
+  background: var(--bg-2);
+}
+
+.disclosureBody {
+  min-width: 0;
+  padding: 22px;
+}
+
+.disclosureBody > h3 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  text-wrap: balance;
+}
+
+.disclosureBody > p {
+  max-width: 72ch;
+}
+
+.disclosureBody > p:first-of-type {
+  margin-top: 0;
+}
+
+.sourceNotes {
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-2);
+}
+
+.sourceNotes h4 {
+  margin: 0;
+  font-size: 17px;
+  text-wrap: balance;
+}
+
+.sourceNotes > p {
+  max-width: 72ch;
+  color: var(--ink-2);
+}
+
+.sourceFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.sourceFacts > div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.sourceFacts dt {
+  color: var(--ink-3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sourceFacts dd {
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.sourceLinks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sourceLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.sourceLink:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.sourceLink:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
 /* Four choices read as a deliberate 2 x 2 comparison at wide widths. The
    shared auto-fit grid otherwise lands on an orphaned 3 + 1 composition. */
 @media (min-width: 900px) {
@@ -242,6 +459,26 @@
 }
 
 @media (max-width: 700px) {
+  .referenceSection {
+    padding-block: 20px;
+  }
+
+  .referenceIntro p {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .disclosureList {
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .disclosureSummary {
+    padding: 9px 14px;
+    font-size: 14px;
+  }
+
   .stageList {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -256,9 +493,47 @@
     max-width: 100%;
     text-align: left;
   }
+
+  .disclosureBody {
+    padding: 16px;
+  }
+
+  .sourceFacts,
+  .sourceLinks {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media print {
+  .buildPage {
+    color-scheme: light;
+    --bg: #FBFBFD;
+    --bg-2: #F4F5F9;
+    --card: #FFFFFF;
+    --ink: #16192B;
+    --ink-2: #3D4359;
+    --ink-3: #5C6379;
+    --line: #DCDFE9;
+    --line-2: #EBEDF3;
+    --brand: #26456F;
+    --brand-2: #33578A;
+    --brand-soft: #E8EEF6;
+    --brand-line: #A9C0D8;
+    --gold: #8A5D0F;
+    --gold-mark: #E0A32E;
+    --gold-soft: #FBEFD8;
+    --gold-line: #E0BE7C;
+    --green: #2F6B4F;
+    --green-soft: #E2F0E8;
+    --green-line: #9CC7B0;
+    --red: #9C3B31;
+    --red-soft: #FBE7E4;
+    --red-line: #E2A79F;
+    --shadow: none;
+    background: #FFFFFF;
+    color: var(--ink);
+  }
+
   .copyButton,
   .commandStatus {
     display: none;
@@ -267,5 +542,51 @@
   .command .commandScroll {
     overflow: visible;
     white-space: pre-wrap;
+  }
+
+  .disclosure[data-course3-disclosure]:not([open]) > :not(summary) {
+    display: block !important;
+  }
+
+  /* Closed native details use content-visibility on their content slot in
+     modern engines. Reveal that slot for print without changing screen state
+     or adding a hydration-only accordion. */
+  .disclosure::details-content {
+    display: block !important;
+    content-visibility: visible !important;
+  }
+
+  .disclosureSummary {
+    display: none;
+  }
+
+  .disclosure,
+  .sourceNotes {
+    break-inside: avoid;
+  }
+
+  .sourceLinks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sourceLink {
+    display: block;
+    break-inside: avoid;
+  }
+
+  .sourceLink::after {
+    display: block;
+    margin-block-start: 3px;
+    color: var(--ink-3);
+    content: attr(href);
+    direction: ltr;
+    font: 10px/1.4 var(--mono);
+    overflow-wrap: anywhere;
+    text-align: left;
+    unicode-bidi: isolate;
+  }
+
+  .sourceLink :global(.arrow) {
+    display: none;
   }
 }

@@ -17,27 +17,67 @@ npx tsx course/check.ts 2
 
 ## What to notice
 
-**`"could I grab a large flat white when you get a sec"` now works**, and you never wrote a rule for it. That is the whole reason anyone puts a model in a program. Then the script runs three probes, and each one takes something away from you.
+The bundled offline fixture handles **`"could I grab a large flat white when you
+get a sec"`** even though you never wrote that rule. A live model may respond
+differently; record what your selected Provider and model do. The script then
+runs three probes that turn those run-specific outputs into evidence.
 
-**Probe 1 — is it stable?** The same vague question, five times, counting distinct answers. Usually it is not one. That is not a bug and you cannot prompt it away entirely; you can only narrow it.
+**Probe 1 — is it stable in this run?** Ask the same vague question five times
+and count distinct answers. One result or five is an observation about this
+configuration and sample, not an API guarantee. Prompting can narrow variation;
+it cannot prove that a future run will be identical.
 
-**Probe 2 — is it right?** Different question, and the one that matters. It compares the price it quoted against the real menu. You never gave it the menu, so anything it says is invented. Watch for the bad case: if it invents the *same* wrong price five times in a row, probe 1 says "stable" and probe 1 is worthless. **Consistency is not correctness.** A model that wobbles is obviously guessing; a model that repeats itself is guessing too, and hides it better.
+**Probe 2 — is it grounded?** Compare any quoted price with the real menu. You
+did not provide that menu, so the answer is unsupported by the request context
+even when it happens to match. A repeated wrong price can look stable while
+remaining wrong. **Consistency is not correctness.** Keep the provenance test
+separate from the variation count.
 
-**Probe 3 — does the wording move it?** Five ways of asking for the same drink. Real customers never repeat themselves verbatim, so this is the variation that actually reaches you. Watch `needs_confirmation` — the flag deciding whether you ask before charging someone — flip on phrasing alone.
+**Probe 3 — does wording move this configuration?** Try five ways of asking for
+the same drink and compare `needs_confirmation`, the flag used before charging
+someone. Record whether it changes; do not assume that every Provider or model
+will reproduce an earlier course run.
 
-Notice where the variation lives: the clear order comes back stable, the vague one doesn't. **The model is not being random — it is filling a gap you left.** Stage 4 is about closing gaps deliberately.
+In the bundled fixture, the clear order stays stable while the vague one varies.
+For a live model, inspect the outputs before attributing a difference. Stage 4
+tests one way to close a known information gap deliberately.
 
-If your numbers look different from a friend's, that is the point too. Try `CAFE_PROVIDER=anthropic` or `CAFE_MODEL=deepseek-v4-pro` — how stable a model is, is a property *of that model*, not of the task.
+If your numbers differ from another run, preserve the Provider, requested model,
+effort and date with the result. Try `CAFE_PROVIDER=anthropic` or
+`CAFE_MODEL=deepseek-v4-pro` only as a new comparison condition, not as proof
+that one Provider has a universal stability property.
 
 ## About the JSON
 
-`llm.ask(..., schema=...)` asks for **structured outputs**: the reply is constrained to your JSON Schema, so it *cannot* come back the wrong shape. You may have seen older code that begs in the prompt — *"reply with ONLY valid JSON, no preamble"* — then regex-extracts and retries on parse failure. Where the feature exists, that whole apparatus is replaced by passing the schema.
+`llm.ask(..., schema=...)` asks for **structured outputs**. On supported Claude
+models, [`output_config.format` uses constrained
+decoding](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)
+and normally returns schema-compliant JSON. It is still not permission to skip
+error handling: refusals and `max_tokens` truncation are documented exceptions,
+and your application may have constraints that JSON Schema does not express.
 
-Where it doesn't, you write the apparatus. **DeepSeek accepts `output_config.format` and silently ignores it** — you get confident prose where you expected JSON, which is worse than an error, because an error would have told you. So `cafe/llm.ts` detects the provider, puts the schema into the prompt in words, and validates the reply itself. Open it and read `_schema_fallback` and `_extract_json`; that is the fallback you would otherwise have written from scratch, and knowing when you still need it is the actual skill.
+Where that interface is unavailable, you write the fallback deliberately.
+[DeepSeek's Anthropic-format compatibility
+documentation](https://api-docs.deepseek.com/guides/anthropic_api/) currently
+supports only `effort` inside `output_config`, not `format`. `cafe/llm.ts`
+therefore puts the schema into the prompt, extracts and parses a JSON object,
+then validates every constraint in the supplied draft-7-compatible course
+schema locally. The same validator runs on Claude results as a defence in
+depth. A refusal or schema response stopped by `max_tokens` or the model context
+window is rejected before parsing even if its partial text looks complete.
+
+The validator does not coerce types, remove extra properties or fill defaults.
+The current course schemas do not use JSON Schema `format`; Ajv core does not
+add format validators automatically. If a future schema introduces formats,
+add and test the corresponding validator rather than claiming that the keyword
+is enforced. Open `schemaFallback()` and `extractJSON()` to inspect the seam.
 
 ## About the prices
 
-Look closely at what it charged for the flat white. You never told it the menu. Hold that thought until stage 4 — first you need a way to *measure* how wrong it is, which is stage 3.
+Compare the sampled flat-white quote with the menu. You never supplied that
+menu in the request, so a match is not evidence of grounding and a mismatch is
+not surprising. Stage 3 gives you a fixed set for measuring what happened;
+Stage 4 tests the missing-context hypothesis.
 
 ---
 

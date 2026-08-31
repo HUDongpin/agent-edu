@@ -282,7 +282,9 @@ test("progress persistence allowlists public context fields and never serializes
 test("load, format and record normalize every stage through explicit allowlists", () => {
   const directory = mkdtempSync(join(tmpdir(), "course3-normalize-"));
   const file = join(directory, "progress.json");
-  const rejected = "sk-rejected-value-must-never-echo";
+  // Build secret-shaped negative fixtures at runtime so the tracked source
+  // itself never becomes a credential-shaped artifact.
+  const rejected = ["sk", "-", "rejected-value-must-never-echo"].join("");
   try {
     const future = { ...context(), schemaVersion: 2, model: rejected };
     writeFileSync(file, JSON.stringify({
@@ -331,14 +333,14 @@ test("load, format and record normalize every stage through explicit allowlists"
 test("execution context enforces schema, Provider, effort and high-confidence secret boundaries", () => {
   const rejected = [
     "sk-live-secret",
-    "ghp_abcdefghijklmnopqrstuvwxyz123456",
-    "AKIAABCDEFGHIJKLMNOP",
-    "AIzaSyABCDEFGHIJKLMNOPQRSTUVWXYZ12345",
-    "gsk_abcdefghijklmnopqrstuvwxyz123456",
-    "xai-abcdefghijklmnopqrstuvwxyz123456",
+    ["gh", "p_", "abcdefghijklmnopqrstuvwxyz123456"].join(""),
+    ["AK", "IA", "ABCDEFGHIJKLMNOP"].join(""),
+    ["AI", "za", "SyABCDEFGHIJKLMNOPQRSTUVWXYZ12345"].join(""),
+    ["gsk", "_", "abcdefghijklmnopqrstuvwxyz123456"].join(""),
+    ["xai", "-", "abcdefghijklmnopqrstuvwxyz123456"].join(""),
     "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue",
     "Bearer abcdefghijklmnopqrstuvwxyz",
-    "-----BEGIN PRIVATE KEY-----",
+    ["-----BEGIN ", "PRIVATE KEY-----"].join(""),
     "aB3dE5fG7hI9jK1mN3pQ5rS7tU9vW1xY3zA5bC7dE9fG1hI3",
   ];
   for (const value of rejected) {

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+  ANTHROPIC_COURSE_PRICING,
   EMPTY_COURSE_USAGE_LEDGER,
   parseCourseUsage,
   priceAnthropicCourseUsage,
@@ -239,24 +240,18 @@ test("unknown DeepSeek models and invalid token buckets stay unpriceable", () =>
 });
 
 test("Anthropic pricing refuses cache creation and custom models", () => {
-  const rates = { input: 5, output: 25, cachedInput: 0.5 };
-  const known = priceAnthropicCourseUsage(
-    "claude-opus-5",
-    "claude-opus-5",
-    usage,
-    rates,
-  );
+  const known = priceAnthropicCourseUsage("claude-opus-5", usage);
   assert.deepEqual(known, {
     known: true,
     model: "claude-opus-5",
     usd: (800 * 5 + 200 * 0.5 + 100 * 25) / 1_000_000,
+    checkedAt: ANTHROPIC_COURSE_PRICING.checkedAt,
+    sourceUrl: ANTHROPIC_COURSE_PRICING.sourceUrl,
   });
 
   const cacheCreation = priceAnthropicCourseUsage(
     "claude-opus-5",
-    "claude-opus-5",
     { ...usage, cacheCreationInputTokens: 100 },
-    rates,
   );
   assert.equal(cacheCreation.known, false);
   if (!cacheCreation.known) {
@@ -264,23 +259,16 @@ test("Anthropic pricing refuses cache creation and custom models", () => {
     assert.equal(cacheCreation.usd, null);
   }
 
-  const customModel = priceAnthropicCourseUsage(
-    "claude-custom",
-    "claude-opus-5",
-    usage,
-    rates,
-  );
+  const customModel = priceAnthropicCourseUsage("claude-custom", usage);
   assert.equal(customModel.known, false);
   if (!customModel.known) assert.equal(customModel.reason, "unknown-model");
 
-  const overflowingRate = priceAnthropicCourseUsage(
+  const invalidUsage = priceAnthropicCourseUsage(
     "claude-opus-5",
-    "claude-opus-5",
-    usage,
-    { ...rates, input: Number.MAX_VALUE },
+    { ...usage, inputTokens: Number.MAX_VALUE },
   );
-  assert.equal(overflowingRate.known, false);
-  if (!overflowingRate.known) assert.equal(overflowingRate.reason, "invalid-usage");
+  assert.equal(invalidUsage.known, false);
+  if (!invalidUsage.known) assert.equal(invalidUsage.reason, "invalid-usage");
 });
 
 test("the CLI meter makes a missing-usage response explicitly unpriceable", async () => {
@@ -309,7 +297,7 @@ test("the CLI meter wires all pricing decisions through the safe ledger", () => 
   const source = readFileSync("course/cafe/llm.ts", "utf8");
   assert.match(source, /spent = recordCourseUsage\(spent, usage\)/);
   assert.match(source, /spent\.unknownCalls > 0/);
-  assert.match(source, /priceAnthropicCourseUsage\([\s\S]*?MODEL,[\s\S]*?CFG\.model,/);
+  assert.match(source, /priceAnthropicCourseUsage\([\s\S]*?MODEL,[\s\S]*?inputTokens:/);
   assert.doesNotMatch(source, /spent\.in \+=|spent\.cached \+=/);
 
   const responseStart = source.indexOf("const response: any = await getClient().messages.create");

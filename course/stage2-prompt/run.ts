@@ -52,17 +52,22 @@ if (import.meta.filename === process.argv[1]) {
   console.log(`\n  ${seen.size} distinct answer(s) from 5 identical questions.`);
 
   // ---- probe 2: is it right? ----------------------------------------------
-  // Stability and correctness are different questions, and only one matters.
-  // A model that wobbles is obviously guessing; one that says the same wrong
-  // thing five times is guessing too, and hides it better.
+  // Stability and grounding are different questions. The request did not
+  // include the menu, so compare the sampled quote with that external source
+  // instead of inferring how the model produced it.
   const asked = quotes.map((q) => q.price);
   const real = priceOf(quotes[0].name ?? "", quotes[0].size ?? "S");
   console.log(`\n  it quoted : ${JSON.stringify(asked)}`);
   console.log(`  menu says : ${real}`);
-  if (real === undefined) console.log("  -> that item is not on the menu at all. It invented one.");
-  else if (new Set(asked).size > 1) console.log("  -> it invented the price, differently each time.");
-  else if (asked[0] !== real) console.log("  -> it invented the price. Confidently. Every single time.");
-  else console.log("  -> right this time — but nobody told it the menu, so that is luck.");
+  if (real === undefined) {
+    console.log("  -> the first sampled item/size is absent from the menu lookup.");
+  } else if (new Set(asked).size > 1) {
+    console.log("  -> the sampled prices varied; the request supplied no menu context.");
+  } else if (asked[0] !== real) {
+    console.log("  -> the sampled quote does not match the menu lookup.");
+  } else {
+    console.log("  -> this sample matches the lookup, but the request supplied no menu provenance.");
+  }
 
   // ---- probe 3: does the wording move it? ---------------------------------
   console.log("\nFive ways of asking for the same thing:");
@@ -73,10 +78,10 @@ if (import.meta.filename === process.argv[1]) {
     console.log(`  needs_confirmation=${String(got.needs_confirmation).padEnd(5)}  ${JSON.stringify(SAME_INTENT[i])}`);
   }
   if (flags.size > 1) {
-    console.log("\n  -> the same order, and the flag that decides whether you ask");
-    console.log("     before charging them flipped on phrasing alone.");
+    console.log("\n  -> the confirmation flag varied across these five phrasings");
+    console.log("     in this configuration and run.");
   }
-  console.log("\n  One sample never settles any of this. Stage 3 is how you stop");
-  console.log("  guessing and start counting.");
+  console.log("\n  One sample never settles any of this. Stage 3 records a rate");
+  console.log("  over a fixed set of cases.");
   console.log(`\ncost  : ${spend()}`);
 }

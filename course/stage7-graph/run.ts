@@ -32,7 +32,8 @@ export const SENT: string[] = [];
 /** Decide which lane this message belongs in. A model node. */
 export async function route(message: string): Promise<string> {
   // TODO 1: ask the model to classify `message` using ROUTE_SCHEMA and return
-  // the lane. One call, low effort — this is a cheap decision.
+  // the lane. One model call at low effort; inspect returned usage and the
+  // dated cost estimate rather than assuming a fixed magnitude.
   throw new Error("TODO 1: write the router");
 }
 

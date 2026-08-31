@@ -1,6 +1,14 @@
 /** Stage 5 — the agent loop, written by hand. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getClient, meter, MODEL, preflight, spend, tuning } from "../cafe/llm";
+import {
+  assertCompleteToolTurn,
+  getClient,
+  meter,
+  MODEL,
+  preflight,
+  spend,
+  tuning,
+} from "../cafe/llm";
 import * as tools from "../cafe/tools";
 
 const GOAL = "Restock the café. Work out what is running short and order enough of " +
@@ -22,8 +30,7 @@ export async function runAgent(verbose = true) {
       ...tuning(),          // vendor-specific "how hard to think"
     } as any);
     meter(response);
-
-    if (response.stop_reason === "refusal") throw new Error("the model declined this request");
+    assertCompleteToolTurn(response);
 
     for (const block of response.content) {
       if (block.type === "text" && block.text.trim() && verbose) {

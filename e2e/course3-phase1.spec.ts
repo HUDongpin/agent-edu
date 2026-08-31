@@ -140,9 +140,11 @@ test("every command is keyboard focusable and Copy reports what it copied", asyn
   const response = await page.goto("/en/build/");
   expect(response?.status()).toBe(200);
 
-  for (const summary of await page.locator("details:not([open]) > summary").all()) {
-    await summary.click();
+  const closedSummaries = page.locator("details:not([open]) > summary");
+  for (let opened = 0; opened < 10 && await closedSummaries.count() > 0; opened += 1) {
+    await closedSummaries.first().click();
   }
+  await expect(closedSummaries).toHaveCount(0);
 
   const commands = page.locator("[data-course-command]");
   expect(await commands.count()).toBeGreaterThanOrEqual(3);

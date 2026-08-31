@@ -106,7 +106,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     tools.reset();
     const orders = await m.runAgent(false);
     if (orders.length < 2) bad(`placed ${orders.length} order(s); the café is short on two things`);
-    ok(`placed ${orders.length} orders, recovering from a failed tool on the way`);
+    ok(`placed ${orders.length} orders in this observed run`);
     if (!tools.LOG.length) bad("the manager was never emailed");
     ok("the manager was told");
     record(5, { orders: orders.length }, executionContext());
@@ -123,8 +123,8 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     record(6, { gated: Number(allOn.spent.toFixed(2)) }, executionContext());
     const noGate = await m.runAgent({ ...m.ALL_ON, gate: false });
     if (noGate.spent <= allOn.spent) {
-      console.log("  NOTE  the ungated run did not spend more this time. Run it again — " +
-        "the point only lands when it does.");
+      console.log("  NOTE  the ungated run did not spend more in this sample. The code " +
+        "path is still different; do not rerun it to force a preferred outcome.");
     } else {
       ok(`without the gate it spent $${noGate.spent.toFixed(2)}`);
     }
@@ -141,7 +141,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     record(7, { blocked: unreviewed.trim() !== reviewed.trim() ? 1 : 0 }, executionContext());
     if (unreviewed.trim() === reviewed.trim()) {
       console.log("  NOTE  both drafts came out the same this time. The guarantee still " +
-        "holds — but re-run to see it bite.");
+        "holds; do not rerun to force a contrasting model output.");
     }
   },
 
@@ -152,9 +152,9 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     const capped = await m.handle(poisoned, { labelAsData: false, capTools: true });
     if (capped.refund_amount > m.ORDER_TOTAL + 0.005) {
       bad(`capped run still refunded $${capped.refund_amount.toFixed(2)}; the cap must hold ` +
-        "even when the model is fooled");
+        "regardless of the model output");
     }
-    ok(`fooled but capped: $${capped.refund_amount.toFixed(2)}`);
+    ok(`capped run refunded $${capped.refund_amount.toFixed(2)}`);
     if (capped.send_address_list) bad("the address list still went out with capTools on");
     ok("no address list left the building");
     const labelled = await m.handle(poisoned, { labelAsData: true, capTools: true });
@@ -178,9 +178,6 @@ async function main(): Promise<void> {
   if (!args.length || !(stage in STAGES)) {
     console.log("usage: npx tsx course/check.ts <0-8> [--offline]");
     process.exit(1);
-  }
-  if (COSTS_MONEY.has(stage) && !OFFLINE) {
-    console.log(`\n  (stage ${stage} makes real API calls — pennies, but not free)`);
   }
   // Check the key BEFORE importing the stage. Without this a learner with no
   // key gets a stack trace from inside the SDK instead of a sentence telling

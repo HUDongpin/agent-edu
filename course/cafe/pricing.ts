@@ -68,6 +68,8 @@ export interface KnownAnthropicCoursePrice {
   known: true;
   usd: number;
   model: string;
+  checkedAt: string;
+  sourceUrl: string;
 }
 
 export interface UnknownAnthropicCoursePrice {
@@ -75,9 +77,37 @@ export interface UnknownAnthropicCoursePrice {
   usd: null;
   reason: "unknown-model" | "invalid-usage" | "cache-creation-price-unknown";
   model: string;
+  checkedAt: string;
+  sourceUrl: string;
 }
 
 export type AnthropicCoursePrice = KnownAnthropicCoursePrice | UnknownAnthropicCoursePrice;
+
+/**
+ * Claude's standard first-party global/default USD prices per one million
+ * tokens. Optional regional, long-context, fast-mode, batch and other
+ * modifiers are outside this deliberately narrow course snapshot.
+ *
+ * Anthropic publishes both five-minute and one-hour cache-write rates. The
+ * compact runtime ledger records only an aggregate cache-creation count, so
+ * those tokens remain deliberately unpriceable unless their TTL is known.
+ */
+export const ANTHROPIC_COURSE_PRICING = {
+  currency: "USD",
+  unitTokens: 1_000_000,
+  checkedAt: "2026-08-31",
+  sourceUrl: "https://platform.claude.com/docs/en/about-claude/pricing",
+  scope: "standard first-party global/default pricing",
+  models: {
+    "claude-opus-5": {
+      input: 5,
+      output: 25,
+      cacheRead: 0.5,
+      cacheWrite5m: 6.25,
+      cacheWrite1h: 10,
+    },
+  },
+} as const;
 
 type JsonRecord = Record<string, unknown>;
 
@@ -302,40 +332,50 @@ export function priceDeepSeekCourseUsage(
 }
 
 /**
- * Price only the Anthropic model to which the configured rates belong.
- * Cache creation has its own Anthropic price; the course's compact table does
- * not carry that rate, so a cache-write call is deliberately unpriceable.
+ * Price only models covered by the dated course snapshot. Cache creation has
+ * distinct five-minute and one-hour rates, but the aggregate Provider usage
+ * shape does not identify the TTL, so any cache-write call is deliberately
+ * unpriceable rather than guessed.
  */
 export function priceAnthropicCourseUsage(
   model: string,
-  pricedModel: string,
   usage: CourseTokenUsage,
-  rates: { input: number; output: number; cachedInput: number },
 ): AnthropicCoursePrice {
+  const common = {
+    model,
+    checkedAt: ANTHROPIC_COURSE_PRICING.checkedAt,
+    sourceUrl: ANTHROPIC_COURSE_PRICING.sourceUrl,
+  };
   const unknown = (
     reason: UnknownAnthropicCoursePrice["reason"],
-  ): UnknownAnthropicCoursePrice => ({ known: false, usd: null, reason, model });
+  ): UnknownAnthropicCoursePrice => ({
+    ...common,
+    known: false,
+    usd: null,
+    reason,
+  });
   if (!validCourseUsage(usage)) return unknown("invalid-usage");
-  if (model !== pricedModel) return unknown("unknown-model");
+  if (!Object.prototype.hasOwnProperty.call(ANTHROPIC_COURSE_PRICING.models, model)) {
+    return unknown("unknown-model");
+  }
   if (usage.cacheCreationInputTokens > 0) {
     return unknown("cache-creation-price-unknown");
   }
-  if (![rates.input, rates.output, rates.cachedInput].every(
-    (value) => Number.isFinite(value) && value >= 0,
-  )) {
-    return unknown("invalid-usage");
-  }
+
+  const rates = ANTHROPIC_COURSE_PRICING.models[
+    model as keyof typeof ANTHROPIC_COURSE_PRICING.models
+  ];
 
   const freshInputTokens = usage.inputTokens - usage.cachedInputTokens;
   const usd = (
     freshInputTokens * rates.input
-    + usage.cachedInputTokens * rates.cachedInput
+    + usage.cachedInputTokens * rates.cacheRead
     + usage.outputTokens * rates.output
-  ) / 1_000_000;
+  ) / ANTHROPIC_COURSE_PRICING.unitTokens;
   if (!Number.isFinite(usd)) return unknown("invalid-usage");
   return {
+    ...common,
     known: true,
-    model,
     usd,
   };
 }
