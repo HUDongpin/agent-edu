@@ -3,7 +3,7 @@ import {
   formatGithubDate,
   type MaterializedGithubFigure,
 } from "@/lib/github";
-import base from "@/components/codex/CodexCourse.module.css";
+import base from "./GithubCourseFoundation.module.css";
 import styles from "./GithubCourse.module.css";
 
 export default function CourseFigure({

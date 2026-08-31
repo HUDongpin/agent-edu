@@ -15,7 +15,7 @@ import useGithubProgress, {
   useGithubStorageAvailable,
 } from "./useGithubProgress";
 import { useI18n } from "../I18nProvider";
-import base from "@/components/codex/CodexCourse.module.css";
+import base from "./GithubCourseFoundation.module.css";
 import styles from "./GithubCourse.module.css";
 
 export function CourseJourneyAction({

@@ -13,7 +13,7 @@ import CourseFigure from "./CourseFigure";
 import GithubText from "./GithubText";
 import LessonCourseMap from "./LessonCourseMap";
 import LessonCompletion from "./LessonCompletion";
-import base from "@/components/codex/CodexCourse.module.css";
+import base from "./GithubCourseFoundation.module.css";
 import styles from "./GithubCourse.module.css";
 import courseMapStyles from "./LessonCourseMap.module.css";
 

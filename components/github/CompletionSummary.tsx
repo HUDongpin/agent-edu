@@ -12,7 +12,7 @@ import {
   githubLessonProgressKey,
 } from "./progress-store";
 import useGithubProgress from "./useGithubProgress";
-import base from "@/components/codex/CodexCourse.module.css";
+import base from "./GithubCourseFoundation.module.css";
 import styles from "./GithubCourse.module.css";
 
 export default function CompletionSummary({

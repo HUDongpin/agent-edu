@@ -21,7 +21,7 @@ import useGithubProgress, {
   useGithubStorageAvailable,
 } from "./useGithubProgress";
 import GithubText from "./GithubText";
-import base from "@/components/codex/CodexCourse.module.css";
+import base from "./GithubCourseFoundation.module.css";
 import styles from "./GithubCourse.module.css";
 
 export type GithubFinalQuizQuestion = {

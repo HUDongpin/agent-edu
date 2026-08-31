@@ -1,4 +1,4 @@
-import base from "@/components/codex/CodexCourse.module.css";
+import base from "./GithubCourseFoundation.module.css";
 import styles from "./GithubCourse.module.css";
 
 const INLINE_CODE = /(`[^`\n]+`)/g;

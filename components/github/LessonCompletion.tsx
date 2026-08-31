@@ -9,7 +9,7 @@ import {
 import useGithubProgress, {
   useGithubStorageAvailable,
 } from "./useGithubProgress";
-import base from "@/components/codex/CodexCourse.module.css";
+import base from "./GithubCourseFoundation.module.css";
 import styles from "./GithubCourse.module.css";
 
 const subscribeToHydration = (listener: () => void) => {

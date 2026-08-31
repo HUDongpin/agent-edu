@@ -7,7 +7,7 @@ import type {
   GithubLocale,
   GithubUiCopy,
 } from "@/lib/github";
-import base from "@/components/codex/CodexCourse.module.css";
+import base from "./GithubCourseFoundation.module.css";
 import { githubLessonProgressKey } from "./progress-store";
 import useGithubProgress from "./useGithubProgress";
 import styles from "./CourseCurriculum.module.css";

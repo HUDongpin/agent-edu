@@ -10,7 +10,7 @@ import CourseCurriculum from "./CourseCurriculum";
 import CourseProgress, { CourseJourneyAction } from "./CourseProgress";
 import CompletionSummary from "./CompletionSummary";
 import FinalQuiz, { type GithubFinalQuizQuestion } from "./FinalQuiz";
-import base from "@/components/codex/CodexCourse.module.css";
+import base from "./GithubCourseFoundation.module.css";
 import styles from "./GithubCourse.module.css";
 import CourseShell from "../course-shell/CourseShell";
 
