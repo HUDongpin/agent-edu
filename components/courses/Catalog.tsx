@@ -364,7 +364,8 @@ function CourseCard({
     );
   }
 
-  const resumeHref = progressPercent !== null
+  const resumeHref = course.id === "make-money-with-codex"
+    && progressPercent !== null
     && progressPercent > 0
     && progress?.nextHref
     ? withPublicCourseReturnLocale(progress.nextHref, locale)
