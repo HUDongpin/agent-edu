@@ -1360,6 +1360,9 @@ test("home, catalog, and footer expose published links but no blocked hrefs", as
 
   for (const path of ["/en/", "/en/courses/"] as const) {
     await withIsolatedRoutePage(page, path, async (routePage) => {
+      if (path === "/en/courses/") {
+        await expect(routePage.locator(".catalog-progress-pending")).toHaveCount(0);
+      }
       const localPaths = await routePage.locator("a[href]").evaluateAll((links) =>
         links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
       );
