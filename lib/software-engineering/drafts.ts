@@ -1,18 +1,14 @@
 import {
-  SOFTWARE_ENGINEERING_QUESTION_IDS,
   type SoftwareEngineeringQuestion,
   type SoftwareEngineeringQuestionId,
 } from "./types";
-import {
-  SOFTWARE_ENGINEERING_PROGRESS_CAPSTONE,
-  SOFTWARE_ENGINEERING_PROGRESS_QUIZ,
-} from "../progress-topology";
 import type { SoftwareEngineeringReleaseDecision } from "./capstone";
-
-export const SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY =
-  "softwareEngineering.assessmentDraft.v1" as const;
-export const SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY =
-  "softwareEngineering.capstoneDraft.v1" as const;
+export {
+  SOFTWARE_ENGINEERING_ASSESSMENT_DRAFT_KEY,
+  SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY,
+  hasSoftwareEngineeringAssessmentDraftActivity,
+  hasSoftwareEngineeringCapstoneDraftActivity,
+} from "../progress-software-engineering";
 
 export interface SoftwareEngineeringAssessmentDraft {
   readonly version: 1;
@@ -136,59 +132,6 @@ export function parseSoftwareEngineeringAssessmentDraft(
   };
 }
 
-/** Lightweight validity check for shared progress adapters and journey CTAs. */
-export function hasSoftwareEngineeringAssessmentDraftActivity(value: unknown): boolean {
-  if (!isRecord(value)
-    || value.version !== 1
-    || value.bankVersion !== SOFTWARE_ENGINEERING_PROGRESS_QUIZ.bankVersion
-    || !Array.isArray(value.questionIds)
-    || value.questionIds.length !== SOFTWARE_ENGINEERING_PROGRESS_QUIZ.questionCount
-    || !Number.isInteger(value.questionIndex)
-    || !isRecord(value.answerSelections)) {
-    return false;
-  }
-
-  const questionIndex = value.questionIndex as number;
-  if (questionIndex < 0 || questionIndex >= value.questionIds.length) return false;
-  const allowedIds = new Set<string>(SOFTWARE_ENGINEERING_QUESTION_IDS);
-  const seenIds = new Set<string>();
-  const unitCounts = [0, 0, 0, 0, 0];
-  for (const id of value.questionIds) {
-    if (typeof id !== "string" || seenIds.has(id) || !allowedIds.has(id)) return false;
-    seenIds.add(id);
-    const bankIndex = SOFTWARE_ENGINEERING_QUESTION_IDS.indexOf(
-      id as SoftwareEngineeringQuestionId,
-    );
-    unitCounts[Math.floor(bankIndex / 5)] += 1;
-  }
-  if (unitCounts.some((count) => count !== 3)) return false;
-
-  const answerSelections: Record<string, number> = {};
-  for (const [id, selectedIndex] of Object.entries(value.answerSelections)) {
-    const selectedQuestionIndex = value.questionIds.indexOf(id);
-    if (selectedQuestionIndex < 0
-      || selectedQuestionIndex > questionIndex
-      || typeof selectedIndex !== "number"
-      || !Number.isInteger(selectedIndex)
-      || selectedIndex < 0
-      || selectedIndex > 3) return false;
-    answerSelections[id] = selectedIndex;
-  }
-  for (let index = 0; index < questionIndex; index += 1) {
-    if (answerSelections[value.questionIds[index] as string] === undefined) return false;
-  }
-
-  const currentId = value.questionIds[questionIndex] as string;
-  const currentAnswer = answerSelections[currentId];
-  if (currentAnswer !== undefined) return value.selectedIndex === currentAnswer;
-  return value.selectedIndex === null || (
-    typeof value.selectedIndex === "number"
-    && Number.isInteger(value.selectedIndex)
-    && value.selectedIndex >= 0
-    && value.selectedIndex <= 3
-  );
-}
-
 function parseUniqueKnownIds(
   value: unknown,
   allowedIds: ReadonlySet<string>,
@@ -246,34 +189,4 @@ export function parseSoftwareEngineeringCapstoneDraft(
     decision: decision as SoftwareEngineeringReleaseDecision | "",
     safetyBoundaryAttested: value.safetyBoundaryAttested,
   };
-}
-
-export function hasSoftwareEngineeringCapstoneDraftActivity(value: unknown): boolean {
-  if (!isRecord(value)
-    || value.version !== 1
-    || value.capstoneSchemaVersion !== SOFTWARE_ENGINEERING_PROGRESS_CAPSTONE.schemaVersion
-    || typeof value.safetyBoundaryAttested !== "boolean") return false;
-
-  const artifactIds = parseUniqueKnownIds(
-    value.artifactIds,
-    new Set<string>(SOFTWARE_ENGINEERING_PROGRESS_CAPSTONE.artifactIds),
-  );
-  const reviewedGateIds = parseUniqueKnownIds(
-    value.reviewedGateIds,
-    new Set<string>(SOFTWARE_ENGINEERING_PROGRESS_CAPSTONE.releaseGateIds),
-  );
-  if (!artifactIds || !reviewedGateIds) return false;
-  if (value.score !== null && (
-    typeof value.score !== "number"
-    || !Number.isFinite(value.score)
-  )) return false;
-  if (value.decision !== "" && !SOFTWARE_ENGINEERING_PROGRESS_CAPSTONE.releaseDecisions.includes(
-    value.decision as SoftwareEngineeringReleaseDecision,
-  )) return false;
-
-  return artifactIds.length > 0
-    || reviewedGateIds.length > 0
-    || value.score !== null
-    || value.decision !== ""
-    || value.safetyBoundaryAttested;
 }

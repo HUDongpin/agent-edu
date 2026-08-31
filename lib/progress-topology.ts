@@ -229,7 +229,16 @@ export const SOFTWARE_ENGINEERING_PROGRESS_LESSON_SLUGS = [
 
 export const SOFTWARE_ENGINEERING_PROGRESS_QUIZ = {
   bankVersion: "2",
+  bankQuestionIds: [
+    "q01", "q02", "q03", "q04", "q05",
+    "q06", "q07", "q08", "q09", "q10",
+    "q11", "q12", "q13", "q14", "q15",
+    "q16", "q17", "q18", "q19", "q20",
+    "q21", "q22", "q23", "q24", "q25",
+  ],
+  bankSize: 25,
   questionCount: 15,
+  questionsPerUnit: 3,
   passingCorrectAnswers: 12,
   bestScoreStorageKey: "softwareEngineering.quizBest",
   passedStorageKey: "softwareEngineering.quizPassed",

@@ -112,7 +112,10 @@ import {
 import {
   SOFTWARE_ENGINEERING_FINAL_QUIZ,
 } from "../lib/software-engineering/quiz";
-import { SOFTWARE_ENGINEERING_LESSON_SLUGS } from "../lib/software-engineering/types";
+import {
+  SOFTWARE_ENGINEERING_LESSON_SLUGS,
+  SOFTWARE_ENGINEERING_QUESTION_IDS,
+} from "../lib/software-engineering/types";
 
 const ROOT = process.cwd();
 
@@ -288,7 +291,10 @@ test("lightweight progress topology exactly mirrors course route and schema cont
   });
   assert.deepEqual(SOFTWARE_ENGINEERING_PROGRESS_QUIZ, {
     bankVersion: SOFTWARE_ENGINEERING_FINAL_QUIZ.bankVersion,
+    bankQuestionIds: SOFTWARE_ENGINEERING_QUESTION_IDS,
+    bankSize: SOFTWARE_ENGINEERING_FINAL_QUIZ.bankSize,
     questionCount: SOFTWARE_ENGINEERING_FINAL_QUIZ.questionCount,
+    questionsPerUnit: SOFTWARE_ENGINEERING_FINAL_QUIZ.questionsPerUnit,
     passingCorrectAnswers: SOFTWARE_ENGINEERING_FINAL_QUIZ.passingCorrectAnswers,
     bestScoreStorageKey: SOFTWARE_ENGINEERING_FINAL_QUIZ.bestScoreStorageKey,
     passedStorageKey: SOFTWARE_ENGINEERING_FINAL_QUIZ.passedStorageKey,

@@ -9,8 +9,8 @@ import {
   SOFTWARE_ENGINEERING_CAPSTONE_DRAFT_KEY,
   hasSoftwareEngineeringAssessmentDraftActivity,
   hasSoftwareEngineeringCapstoneDraftActivity,
-} from "@/lib/software-engineering/drafts";
-import { softwareEngineeringNextHref } from "@/lib/software-engineering/journey";
+  softwareEngineeringNextHref,
+} from "@/lib/progress-software-engineering";
 import {
   type PersistenceResult,
   type ProgressAdapterCourseId,
