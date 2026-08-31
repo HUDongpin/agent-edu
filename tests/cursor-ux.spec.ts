@@ -449,6 +449,82 @@ test.describe("Cursor Course 4 world-class UX acceptance", () => {
     }
   });
 
+  test("a failed session-draft reset stays visible and can be retried", async ({ page }) => {
+    await page.addInitScript((quizKey) => {
+      const nativeRemoveItem = Storage.prototype.removeItem;
+      (window as unknown as { failCursorDraftRemoval: boolean }).failCursorDraftRemoval = true;
+      Object.defineProperty(Storage.prototype, "removeItem", {
+        configurable: true,
+        value(this: Storage, key: string) {
+          if (this === window.sessionStorage
+            && key === quizKey
+            && (window as unknown as { failCursorDraftRemoval: boolean }).failCursorDraftRemoval) {
+            return;
+          }
+          return nativeRemoveItem.call(this, key);
+        },
+      });
+    }, CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY);
+
+    await page.goto(dashboard);
+    const quiz = page.getByTestId("cursor-final-quiz");
+    await quiz.getByRole("button", { name: "Begin quiz" }).click();
+    await quiz.locator('input[type="radio"]').first().check();
+    await page.evaluate(() => sessionStorage.setItem("course4.unrelated", "must-survive"));
+    await expect.poll(() => page.evaluate(
+      (key) => sessionStorage.getItem(key),
+      CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY,
+    )).not.toBeNull();
+
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Reset progress" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: /could not|retry/i }))
+      .toBeVisible();
+    await expect(page.getByRole("button", { name: "Reset progress" })).toBeEnabled();
+    await expect(quiz.locator("form")).toBeVisible();
+    expect(await page.evaluate(
+      (key) => sessionStorage.getItem(key),
+      CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY,
+    )).not.toBeNull();
+
+    await page.evaluate(() => {
+      (window as unknown as { failCursorDraftRemoval: boolean }).failCursorDraftRemoval = false;
+    });
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Reset progress" }).click();
+    await expect(page.getByRole("status").filter({ hasText: /reset/i })).toBeVisible();
+    await expect(quiz.getByRole("button", { name: "Begin quiz" })).toBeVisible();
+    expect(await page.evaluate(
+      (key) => sessionStorage.getItem(key),
+      CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY,
+    )).toBeNull();
+    expect(await page.evaluate(() => sessionStorage.getItem("course4.unrelated")))
+      .toBe("must-survive");
+  });
+
+  test("Firefox does not restore a stale reset-button state across draft hydration", async ({ page }) => {
+    const hydrationWarnings: string[] = [];
+    page.on("console", (message) => {
+      if (message.text().includes("server rendered HTML didn't match")) {
+        hydrationWarnings.push(message.text());
+      }
+    });
+
+    await page.goto(dashboard);
+    const reset = page.getByRole("button", { name: "Reset progress" });
+    await expect(reset).toHaveAttribute("autocomplete", "off");
+    await page.getByTestId("cursor-final-quiz").getByRole("button", { name: "Begin quiz" }).click();
+    await expect.poll(() => page.evaluate(
+      (key) => sessionStorage.getItem(key),
+      CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY,
+    )).not.toBeNull();
+
+    hydrationWarnings.length = 0;
+    await page.reload();
+    await expect(reset).toBeEnabled();
+    expect(hydrationWarnings).toEqual([]);
+  });
+
   test("capstone checklist survives navigation and receipt text warns before discard", async ({ page }) => {
     await page.goto(capstoneLesson);
     const capstone = page.getByTestId("cursor-capstone");

@@ -379,7 +379,7 @@ export default function FinalQuiz({
       || (completedScore !== null
         && completionPersisted === true
         && completedScore >= config.passingCorrectAnswers)) {
-      clearSessionDraft(CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY);
+      persisted = clearSessionDraft(CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY).persisted;
     } else if (completedScore !== null && completionPersisted === true) {
       persisted = writeSessionDraft(CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY, {
         schemaVersion: FINAL_QUIZ_DRAFT_SCHEMA_VERSION,
@@ -392,7 +392,7 @@ export default function FinalQuiz({
             answer.selectedOptionId,
           ]),
         ),
-      } satisfies FinalQuizReviewDraft);
+      } satisfies FinalQuizReviewDraft).persisted;
     } else {
       persisted = writeSessionDraft(CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY, {
         schemaVersion: FINAL_QUIZ_DRAFT_SCHEMA_VERSION,
@@ -407,7 +407,7 @@ export default function FinalQuiz({
             answer.selectedOptionId,
           ]),
         ),
-      } satisfies FinalQuizAttemptDraft);
+      } satisfies FinalQuizAttemptDraft).persisted;
     }
     const availabilityTimer = window.setTimeout(() => setDraftStorageAvailable(persisted), 0);
     return () => window.clearTimeout(availabilityTimer);

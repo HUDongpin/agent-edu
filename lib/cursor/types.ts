@@ -452,6 +452,7 @@ export interface CursorCourseCopy {
     readonly bestScoreTemplate: string;
     readonly resetConfirm: string;
     readonly resetDone: string;
+    readonly resetFailed: string;
     readonly capstonePath: string;
   };
   readonly units: Readonly<Record<CursorUnitId, { readonly title: string; readonly summary: string }>>;

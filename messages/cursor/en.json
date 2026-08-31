@@ -105,6 +105,7 @@
     "bestScoreTemplate": "Best score: {score} of {total}",
     "resetConfirm": "Reset all saved course progress?",
     "resetDone": "Course progress reset.",
+    "resetFailed": "The reset could not be saved in browser storage. Remaining course work is still present; restore storage access and retry.",
     "capstonePath": "Capstone path"
   },
   "units": {

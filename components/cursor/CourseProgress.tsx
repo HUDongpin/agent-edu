@@ -28,6 +28,10 @@ type LessonLink = {
   readonly title: string;
 };
 
+// Firefox persists a button's dynamic disabled state across reloads unless
+// this browser-specific HTML attribute opts the control out of restoration.
+const RESET_BUTTON_RELOAD_ATTRIBUTES = { autoComplete: "off" } as const;
+
 export default function CourseProgress({
   lessons,
   labels,
@@ -49,6 +53,7 @@ export default function CourseProgress({
     () => false,
   );
   const [resetMessage, setResetMessage] = useState("");
+  const [resetNeedsRetry, setResetNeedsRetry] = useState(false);
   const resetStatus = useRef<HTMLParagraphElement>(null);
 
   const state = useMemo(() => {
@@ -77,7 +82,8 @@ export default function CourseProgress({
     };
   }, [capstoneTitle, labels.finalQuizTitle, lessons, progress]);
 
-  const hasProgress = hasAssessmentDraft
+  const hasProgress = resetNeedsRetry
+    || hasAssessmentDraft
     || Object.keys(progress).some((key) => key.startsWith("cursor."));
 
   return (
@@ -132,12 +138,14 @@ export default function CourseProgress({
         <button
           className={styles.secondaryAction}
           type="button"
+          {...RESET_BUTTON_RELOAD_ATTRIBUTES}
           data-course-action
           disabled={!hasProgress}
           onClick={async () => {
             if (!window.confirm(labels.resetConfirm)) return;
-            await resetCursorProgress();
-            setResetMessage(labels.resetDone);
+            const result = await resetCursorProgress();
+            setResetNeedsRetry(!result.persisted);
+            setResetMessage(result.persisted ? labels.resetDone : labels.resetFailed);
             window.requestAnimationFrame(() => resetStatus.current?.focus());
           }}
         >
@@ -147,7 +155,7 @@ export default function CourseProgress({
       <p
         className={resetMessage ? styles.resetStatus : styles.srOnly}
         ref={resetStatus}
-        role="status"
+        role={resetNeedsRetry ? "alert" : "status"}
         tabIndex={-1}
       >
         {resetMessage}

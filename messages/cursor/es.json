@@ -105,6 +105,7 @@
     "bestScoreTemplate": "Mejor puntuación: {score} de {total}",
     "resetConfirm": "¿Restablecer todo el progreso del curso guardado?",
     "resetDone": "Progreso del curso restablecido.",
+    "resetFailed": "El restablecimiento no pudo guardarse en el almacenamiento del navegador. El trabajo pendiente del curso sigue presente; restaure el acceso al almacenamiento y vuelva a intentarlo.",
     "capstonePath": "Ruta del proyecto final"
   },
   "units": {

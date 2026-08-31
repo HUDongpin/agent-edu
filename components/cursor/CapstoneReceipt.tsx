@@ -18,6 +18,7 @@ import {
   CURSOR_ASSESSMENT_DRAFT_RESET_EVENT,
   CURSOR_CAPSTONE_DRAFT_STORAGE_KEY,
   CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY,
+  clearMemoryDraft,
   clearSessionDraft,
   readMemoryDraft,
   readSessionDraft,
@@ -150,8 +151,7 @@ export default function CapstoneReceipt({
   const progress = useCourseProgress();
   const storageAvailable = useCourseStorageAvailable();
   const [input, setInput] = useState(() => {
-    const memoryInput = readMemoryDraft<unknown>(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
-    return typeof memoryInput === "string" ? memoryInput : "";
+    return readMemoryDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY) ?? "";
   });
   const [validationCode, setValidationCode] = useState<CursorCapstoneReceiptValidationCode | null>(null);
   const [artifactChecks, setArtifactChecks] = useState<Record<string, boolean>>({});
@@ -231,14 +231,14 @@ export default function CapstoneReceipt({
     if (!draftHydrated) return;
     let persisted = true;
     if (completed) {
-      clearSessionDraft(CURSOR_CAPSTONE_DRAFT_STORAGE_KEY);
+      persisted = clearSessionDraft(CURSOR_CAPSTONE_DRAFT_STORAGE_KEY).persisted;
     } else {
       const artifactIds = config.artifactIds.filter((id) => artifactChecks[id] === true);
       const rubricIds = config.rubric
         .filter((item) => rubricChecks[item.id] === true)
         .map((item) => item.id);
       if (!artifactIds.length && !rubricIds.length) {
-        clearSessionDraft(CURSOR_CAPSTONE_DRAFT_STORAGE_KEY);
+        persisted = clearSessionDraft(CURSOR_CAPSTONE_DRAFT_STORAGE_KEY).persisted;
       } else {
         // Only public checklist IDs enter session storage. Receipt text, paths,
         // logs, and command output remain exclusively in component memory.
@@ -251,7 +251,7 @@ export default function CapstoneReceipt({
           archiveSha256: config.archiveSha256,
           artifactIds,
           rubricIds,
-        } satisfies CapstoneAssessmentDraft);
+        } satisfies CapstoneAssessmentDraft).persisted;
       }
     }
     const availabilityTimer = window.setTimeout(() => setDraftStorageAvailable(persisted), 0);
@@ -281,7 +281,7 @@ export default function CapstoneReceipt({
     const guardInternalNavigation = (event: MouseEvent) => {
       if (event.defaultPrevented || !isInternalNavigationClick(event)) return;
       if (window.confirm(labels.discardDraftConfirm)) {
-        clearSessionDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
+        clearMemoryDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
         allowNextUnload.current = true;
         window.setTimeout(() => {
           allowNextUnload.current = false;
@@ -479,7 +479,7 @@ export default function CapstoneReceipt({
               // Preserve the pasted receipt in component memory when persistence is denied so
               // an ephemeral completion never destroys the learner's only copy.
               if (result.persisted) {
-                clearSessionDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
+                clearMemoryDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
                 setInput("");
               }
             } catch {
@@ -504,7 +504,7 @@ export default function CapstoneReceipt({
               const nextInput = event.target.value;
               setInput(nextInput);
               if (nextInput) writeMemoryDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY, nextInput);
-              else clearSessionDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
+              else clearMemoryDraft(CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY);
               if (validationCode) setValidationCode(null);
             }}
           />

@@ -29,6 +29,11 @@ const PRODUCT_MANAGEMENT_ATTEMPT_STORE = join(
   "product-management",
   "assessment-attempt-store.ts",
 );
+const CURSOR_SESSION_DRAFT_STORE = join(
+  COMPONENTS,
+  "cursor",
+  "session-draft-store.ts",
+);
 
 // Migration ratchet: all learner-facing progress surfaces use the registered
 // adapters. Twelve legacy shared-key owners remain until their physical stores
@@ -268,6 +273,7 @@ const progressStorageFiles = files.filter(({ path }) =>
     || path.endsWith("/claude-income/quiz-attempt-store.ts")
     || path.endsWith("/make-money-with-codex/session-draft-store.ts")
     || path.endsWith("/make-money-with-codex/useSessionDraft.ts")
+    || path === CURSOR_SESSION_DRAFT_STORE
     || path === PRODUCT_MANAGEMENT_ATTEMPT_STORE);
 for (const { path, text } of progressStorageFiles) {
   for (const match of text.matchAll(

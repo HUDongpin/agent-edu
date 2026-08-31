@@ -105,6 +105,7 @@
     "bestScoreTemplate": "Meilleur score : {score} sur {total}",
     "resetConfirm": "Réinitialiser toute la progression enregistrée du cours ?",
     "resetDone": "Progression du cours réinitialisée.",
+    "resetFailed": "La réinitialisation n’a pas pu être enregistrée dans le stockage du navigateur. Le travail de cours restant est conservé ; rétablissez l’accès au stockage et réessayez.",
     "capstonePath": "Parcours du projet final"
   },
   "units": {

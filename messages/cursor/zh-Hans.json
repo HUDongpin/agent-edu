@@ -105,6 +105,7 @@
     "bestScoreTemplate": "最高分：{score} / {total}",
     "resetConfirm": "重置所有保存的课程进度？",
     "resetDone": "课程进度已重置。",
+    "resetFailed": "重置未能写入浏览器存储。尚未清除的课程内容仍会保留；请恢复存储访问后重试。",
     "capstonePath": "结课项目路径"
   },
   "units": {

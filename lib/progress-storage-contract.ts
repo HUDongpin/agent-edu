@@ -79,9 +79,37 @@ export const AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY =
   "ae.progress.agent-orchestration-corrupt-backup";
 export const CODEX_CAPSTONE_DRAFT_STORAGE_KEY =
   "aicourse.codex.capstone-draft.v1";
+export const CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY =
+  "ae.cursor.final-quiz-attempt.v1";
+export const CURSOR_CAPSTONE_DRAFT_STORAGE_KEY =
+  "ae.cursor.capstone-assessment.v1";
+export const CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY =
+  "ae.cursor.capstone-receipt-memory.v1";
+export const CURSOR_SESSION_DRAFT_PROBE_KEY =
+  "ae.cursor.session-draft-probe.v1";
+
+/** Keys that may contain JSON in sessionStorage. Receipt text is never written. */
+export const CURSOR_PERSISTED_SESSION_DRAFT_KEYS = [
+  CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY,
+  CURSOR_CAPSTONE_DRAFT_STORAGE_KEY,
+] as const;
+
+/** Exact tab-scoped keys removed by Course 4 course/global reset. */
+export const CURSOR_SESSION_OWNED_KEYS = [
+  ...CURSOR_PERSISTED_SESSION_DRAFT_KEYS,
+  CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY,
+] as const;
+
+export type CursorPersistedSessionDraftKey =
+  (typeof CURSOR_PERSISTED_SESSION_DRAFT_KEYS)[number];
+export type CursorSessionOwnedKey = (typeof CURSOR_SESSION_OWNED_KEYS)[number];
 
 export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
   CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
+  CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY,
+  CURSOR_CAPSTONE_DRAFT_STORAGE_KEY,
+  CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY,
+  CURSOR_SESSION_DRAFT_PROBE_KEY,
   CORRUPT_LEARNING_BACKUP_KEY,
   RAG_CORRUPT_PROGRESS_BACKUP_KEY,
   AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY,

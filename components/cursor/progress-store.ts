@@ -15,7 +15,10 @@ import {
   CURSOR_PROGRESS_RESET_QUARANTINE_KEY,
 } from "@/lib/progress-storage-contract";
 import type { CursorLessonSlug } from "@/lib/cursor/types";
-import { clearCursorAssessmentDrafts } from "./session-draft-store";
+import {
+  clearCursorAssessmentDrafts,
+  isCursorSessionDraftStorageAvailable,
+} from "./session-draft-store";
 
 export { CURSOR_PROGRESS_EVENT };
 export const COURSE_PROGRESS_STORAGE_KEY = CURSOR_PROGRESS_STORAGE_KEY;
@@ -92,7 +95,7 @@ export function readCourseProgressSnapshot(): string {
 export function isCourseProgressPersistenceAvailable(): boolean {
   if (typeof window === "undefined") return true;
   readCourseProgressSnapshot();
-  return persistenceAvailable !== false;
+  return persistenceAvailable !== false && isCursorSessionDraftStorageAvailable();
 }
 
 export function lessonProgressKey(slug: CursorLessonSlug): `cursor.lesson.${CursorLessonSlug}` {
@@ -282,9 +285,21 @@ export async function applyCursorProgressPatch(
 }
 
 export async function resetCursorProgress(): Promise<CourseProgressUpdateResult> {
-  const result = await applyCursorProgressPatch({ clearCursor: true });
-  clearCursorAssessmentDrafts();
-  return result;
+  // Explicit reset is the recovery path after a prior denied write. Re-open
+  // the durable transaction so a learner can retry once storage is available.
+  persistenceAvailable = null;
+  failureReason = undefined;
+  const progressResult = await applyCursorProgressPatch({ clearCursor: true });
+  const draftResult = clearCursorAssessmentDrafts();
+  if (!progressResult.persisted) return progressResult;
+  if (!draftResult.persisted) {
+    return {
+      ...progressResult,
+      persisted: false,
+      reason: draftResult.reason ?? "unavailable",
+    };
+  }
+  return progressResult;
 }
 
 /**
@@ -298,13 +313,13 @@ export async function resetCursorProgressAfterGlobalReset(): Promise<CourseProgr
   const commitReset = (): CourseProgressUpdateResult => {
     const progress = {};
     memorySnapshot = "{}";
-    clearCursorAssessmentDrafts();
     if (typeof window === "undefined") {
       persistenceAvailable = false;
       failureReason = "unavailable";
       return { progress, persisted: false, reason: failureReason };
     }
 
+    let progressResult: CourseProgressUpdateResult;
     try {
       const raw = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY);
       if (raw !== null && !isJsonObjectRecord(raw)) {
@@ -316,25 +331,41 @@ export async function resetCursorProgressAfterGlobalReset(): Promise<CourseProgr
         });
         persistenceAvailable = reset.persisted;
         failureReason = reset.persisted ? undefined : reset.reason ?? "unavailable";
-        window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
-        return {
+        progressResult = {
           progress,
           persisted: reset.persisted,
           ...(reset.persisted ? {} : { reason: failureReason }),
           ...(reset.quarantined ? { quarantined: true } : {}),
         };
+      } else {
+        window.localStorage.removeItem(COURSE_PROGRESS_STORAGE_KEY);
+        if (window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) !== null) {
+          persistenceAvailable = false;
+          failureReason = "unavailable";
+          progressResult = { progress, persisted: false, reason: failureReason };
+        } else {
+          persistenceAvailable = true;
+          failureReason = undefined;
+          progressResult = { progress, persisted: true };
+        }
       }
-      window.localStorage.removeItem(COURSE_PROGRESS_STORAGE_KEY);
-      persistenceAvailable = true;
-      failureReason = undefined;
-      window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
-      return { progress, persisted: true };
     } catch (error) {
       persistenceAvailable = false;
       failureReason = reasonForError(error);
-      window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
-      return { progress, persisted: false, reason: failureReason };
+      progressResult = { progress, persisted: false, reason: failureReason };
     }
+
+    const draftResult = clearCursorAssessmentDrafts();
+    window.dispatchEvent(new Event(CURSOR_PROGRESS_EVENT));
+    if (!progressResult.persisted) return progressResult;
+    if (!draftResult.persisted) {
+      return {
+        ...progressResult,
+        persisted: false,
+        reason: draftResult.reason ?? "unavailable",
+      };
+    }
+    return progressResult;
   };
 
   if (typeof window === "undefined") return commitReset();

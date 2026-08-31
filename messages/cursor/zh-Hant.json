@@ -105,6 +105,7 @@
     "bestScoreTemplate": "最佳成績：{score} / {total}",
     "resetConfirm": "要重設所有已儲存的課程進度嗎？",
     "resetDone": "課程進度已重設。",
+    "resetFailed": "重設未能寫入瀏覽器儲存空間。尚未清除的課程內容仍會保留；請恢復儲存存取後再試。",
     "capstonePath": "總整專案路徑"
   },
   "units": {

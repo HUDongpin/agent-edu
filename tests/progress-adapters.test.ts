@@ -43,7 +43,11 @@ import { DEEPSEEK_KEY_STORAGE } from "../lib/byok/key-store";
 import { LAB_DRAFT_KEY } from "../lib/lab/draft";
 import {
   CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
+  CURSOR_CAPSTONE_DRAFT_STORAGE_KEY,
+  CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY,
+  CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY,
   CURSOR_PROGRESS_RESET_QUARANTINE_KEY,
+  CURSOR_SESSION_DRAFT_PROBE_KEY,
   GROK_PROGRESS_RESET_QUARANTINE_KEY,
   RECENCY_RESET_QUARANTINE_KEY,
   SHARED_PROGRESS_RESET_QUARANTINE_KEY,
@@ -306,7 +310,13 @@ test("blocked progress adapters stay dormant until the generated registry publis
           EXPECTED_FIRST_HREFS.codex,
         ],
         ["claude", "claude:progress-change", ["ae.progress"], EXPECTED_FIRST_HREFS.claude],
-        ["cursor", "cursor:progress-change", ["aicourse.cursor.progress.v1"], EXPECTED_FIRST_HREFS.cursor],
+        ["cursor", "cursor:progress-change", [
+          "aicourse.cursor.progress.v1",
+          CURSOR_SESSION_DRAFT_PROBE_KEY,
+          CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY,
+          CURSOR_CAPSTONE_DRAFT_STORAGE_KEY,
+          CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY,
+        ], EXPECTED_FIRST_HREFS.cursor],
       ],
     );
 

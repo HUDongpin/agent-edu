@@ -105,6 +105,7 @@
     "bestScoreTemplate": "Beste Punktzahl: {score} von {total}",
     "resetConfirm": "Alle gespeicherten Kursfortschritte zurücksetzen?",
     "resetDone": "Kursfortschritt zurückgesetzt.",
+    "resetFailed": "Das Zurücksetzen konnte nicht im Browser-Speicher gesichert werden. Verbleibende Kursarbeit bleibt erhalten; stellen Sie den Speicherzugriff wieder her und versuchen Sie es erneut.",
     "capstonePath": "Pfad zum Abschlussprojekt"
   },
   "units": {
