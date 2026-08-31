@@ -1036,7 +1036,7 @@ test.describe("Course 12 approved UI and UX Phase 2 regressions", () => {
       name: "Course overview: How to Make Money with Claude",
     })).toBeVisible();
     const sourceLedger = dashboard.locator("details").filter({ hasText: "Source ledger" });
-    if (!(await sourceLedger.getAttribute("open"))) await sourceLedger.locator("summary").click();
+    if ((await sourceLedger.getAttribute("open")) === null) await sourceLedger.locator("summary").click();
     await expectNewTabCues(dashboard);
 
     await page.goto("/en/claude-income/choose-a-money-path/");

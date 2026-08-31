@@ -131,7 +131,7 @@ test("the external completion note is explicit, local, and reversible", async ({
   expect(response?.status()).toBe(200);
 
   const disclosure = page.locator("#local-progress");
-  if (!(await disclosure.getAttribute("open"))) {
+  if ((await disclosure.getAttribute("open")) === null) {
     await disclosure.locator(":scope > summary").click();
   }
   const status = disclosure.getByRole("status").filter({ hasText: /Noted|storage/i });
@@ -150,7 +150,7 @@ test("the external completion note is explicit, local, and reversible", async ({
 
   await page.reload();
   const restored = page.locator("#local-progress");
-  if (!(await restored.getAttribute("open"))) {
+  if ((await restored.getAttribute("open")) === null) {
     await restored.locator(":scope > summary").click();
   }
   const remove = restored.getByRole("button", { name: "Remove this note" });

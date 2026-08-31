@@ -447,6 +447,10 @@ test.describe.serial("private browser progress", () => {
 });
 
 test.describe.serial("final quiz", () => {
+  test.beforeEach(({ browserName }) => {
+    test.slow(browserName === "webkit", "WebKit runs the dense serial quiz flow");
+  });
+
   test("reload restores the exact in-progress question and Course reset clears the active attempt", async ({ page }) => {
     await clearProgress(page);
     const quiz = page.locator('[data-testid="codex-final-quiz"]');
@@ -619,6 +623,10 @@ test.describe.serial("final quiz", () => {
 });
 
 test.describe.serial("capstone receipt", () => {
+  test.beforeEach(({ browserName }) => {
+    test.slow(browserName === "webkit", "WebKit runs the dense serial capstone flow");
+  });
+
   test("restores the exact session draft after reload and Course reset clears it", async ({ page }) => {
     await clearProgress(page);
     await gotoHydrated(page, "/en/codex/automation-capstone/");
@@ -979,6 +987,7 @@ test.describe("accessibility, responsive layout, and static metadata", () => {
     await railLink.focus();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/en\/codex\/task-contracts\/$/);
+    await settleHydration(page);
 
     const nextLink = page.locator('article nav a[rel="next"]');
     await nextLink.focus();
