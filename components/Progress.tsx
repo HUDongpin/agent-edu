@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 import {
   readLearningState,
   readLearningStateOnServer,
@@ -11,8 +11,9 @@ import {
   subscribeLearningState,
 } from "@/lib/progress";
 import { useI18n } from "./I18nProvider";
+import Rich from "./Rich";
 
-type Item = { label: string; done: boolean; note: string };
+type Item = { label: string; done: boolean; note: ReactNode };
 
 /**
  * Progress lives in localStorage and nowhere else — no account, nothing sent
@@ -36,12 +37,14 @@ export default function Progress({ locale }: { locale: string }) {
     {
       label: t("track.1.title"),
       done: handbook.completed,
-      note: `${handbook.coveredSteps} ${t("ui.of")} ${handbook.totalSteps}`,
+      note: <Rich k="cat.count.sections"
+        vars={{ current: handbook.exploredSections, total: handbook.totalSections }} />,
     },
     {
       label: t("track.2.title"),
       done: lab.completed,
-      note: `${lab.completedCount} ${t("ui.of")} ${lab.totalSteps}`,
+      note: <Rich k="cat.count.steps"
+        vars={{ current: lab.completedCount, total: lab.totalSteps }} />,
     },
     {
       label: t("track.3.title"),
@@ -74,7 +77,7 @@ export default function Progress({ locale }: { locale: string }) {
         {items.map((i) => (
           <li key={i.label} className={i.done ? "done" : ""}>
             <span className="tick">{i.done ? "✓" : "○"}</span>
-            <span>{i.label}{i.note ? `  ${i.note}` : ""}</span>
+            <span>{i.label}{i.note ? <>{"  "}{i.note}</> : ""}</span>
           </li>
         ))}
       </ul>

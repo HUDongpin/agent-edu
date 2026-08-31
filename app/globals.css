@@ -1107,7 +1107,9 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 :root[lang="ar"] .course-facts dt{font-family:var(--sans);letter-spacing:0}
 .cfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cprog{display:flex;align-items:center;gap:8px;flex:1 1 110px;min-width:0}
-.cbar{flex:1 1 auto;height:6px;background:var(--line-2);border-radius:999px;overflow:hidden}
+/* min-width: .cpct is flex:0 0 auto and now carries a word as well as digits,
+   so a long counter ("4/11 Abschnitte") would otherwise crush the bar to nothing. */
+.cbar{flex:1 1 auto;min-width:44px;height:6px;background:var(--line-2);border-radius:999px;overflow:hidden}
 .cbar span{display:block;height:100%;border-radius:999px;transition:width .4s ease}
 .cpct{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
   font-variant-numeric:tabular-nums;flex:0 0 auto}

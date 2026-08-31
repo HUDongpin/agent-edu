@@ -77,23 +77,6 @@ export interface HandbookProgress {
   readonly completed: boolean;
   readonly exploredSections: number;
   readonly totalSections: number;
-  /**
-   * Sections explored plus the Control Room round, out of twelve.
-   *
-   * `exploredSections / totalSections` is an honest count of sections and a
-   * misleading progress bar: it reaches eleven of eleven while the course is
-   * unfinished, because `c.handbook.evidence` defines completion as submitting
-   * all ten briefs and not as opening sections. A card showing a full bar
-   * beside "Resume" is the visible result. Counting the round as the twelfth
-   * unit makes a full bar mean the same thing the verdict means.
-   *
-   * The implication runs one way on purpose. A full bar proves completion; a
-   * completed handbook does not imply a full bar, because a reader may submit
-   * the briefs having read very little — which is the state
-   * `c.handbook.artifact` describes as "targeted sections to revisit".
-   */
-  readonly coveredSteps: number;
-  readonly totalSteps: number;
   readonly lastSection: HandbookSectionId;
   readonly completedRuns: number;
   readonly bestScore?: number;
@@ -120,6 +103,24 @@ export type CourseProgress =
       readonly current: number;
       readonly total: number;
       readonly percent: number;
+      /**
+       * What `current` and `total` count, so the card can name the unit.
+       *
+       * The Handbook's bar and its verdict measure different things on
+       * purpose: sections opened, and the ten briefs `c.handbook.evidence`
+       * defines completion as. Eleven is the only Handbook denominator the
+       * product names — `c.handbook.blurb` says "Eleven illustrated sections"
+       * and the in-handbook readout `w.progress.sections` is "{n}/11 sections"
+       * in all nine languages — so the bar keeps that denominator and names its
+       * unit, rather than borrowing the verdict's meaning from its own shape.
+       */
+      readonly measure: "sections" | "steps";
+      /**
+       * What the call to action should say. A full bar that is not yet a
+       * completed course reads "finish", never "resume" — which is the
+       * contradiction this field exists to make unreachable.
+       */
+      readonly action: "start" | "resume" | "finish" | "review";
     }
   | {
       /**
@@ -456,8 +457,6 @@ export function selectHandbookProgress(state: LearningStateV2): HandbookProgress
     completed,
     exploredSections,
     totalSections: HANDBOOK_SECTION_IDS.length,
-    coveredSteps: exploredSections + (completed ? 1 : 0),
-    totalSteps: HANDBOOK_SECTION_IDS.length + 1,
     lastSection: state.handbook.lastSection,
     completedRuns: state.handbook.controlRoom.completedRuns,
     ...(state.handbook.controlRoom.bestScore === undefined
@@ -485,16 +484,37 @@ export function selectLabProgress(state: LearningStateV2): LabProgress {
   };
 }
 
+/**
+ * The word on a tracked course's button.
+ *
+ * "resume" is unreachable once the bar is full, which is the whole point: a
+ * reader who has opened every section but not submitted the briefs is not
+ * resuming, they are finishing.
+ */
+function trackedAction(
+  status: LearningStatus,
+  current: number,
+  total: number,
+): "start" | "resume" | "finish" | "review" {
+  if (status === "completed") return "review";
+  if (status !== "in-progress") return "start";
+  return current >= total ? "finish" : "resume";
+}
+
 export function selectCourseProgress(state: LearningStateV2, courseId: string): CourseProgress {
   if (courseId === "handbook") {
     const progress = selectHandbookProgress(state);
+    const current = progress.exploredSections;
+    const total = progress.totalSections;
     return {
       kind: "tracked",
       courseId,
       status: progress.status,
-      current: progress.coveredSteps,
-      total: progress.totalSteps,
-      percent: Math.round((progress.coveredSteps / progress.totalSteps) * 100),
+      current,
+      total,
+      percent: Math.round((current / total) * 100),
+      measure: "sections",
+      action: trackedAction(progress.status, current, total),
     };
   }
   if (courseId === "lab") {
@@ -506,6 +526,9 @@ export function selectCourseProgress(state: LearningStateV2, courseId: string): 
       current: progress.completedCount,
       total: progress.totalSteps,
       percent: Math.round((progress.completedCount / progress.totalSteps) * 100),
+      measure: "steps",
+      // "finish" is unreachable here: the Lab's last step is its completion.
+      action: trackedAction(progress.status, progress.completedCount, progress.totalSteps),
     };
   }
   if (isDeclarableCourseId(courseId)) {
