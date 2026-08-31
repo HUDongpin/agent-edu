@@ -54,6 +54,7 @@ import {
   GROK_TASK_CONTRACT_DRAFT_KEY,
   INCOME_PROGRESS_PROBE_KEY,
   PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
+  PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_PROBE_KEY,
   PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
   PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
   PROMPT_PROGRESS_PROBE_KEY,
@@ -208,6 +209,9 @@ import {
   readProductManagementProgress,
   resetProductManagementProgressAfterGlobalReset,
 } from "./product-management/progress-store";
+import {
+  isProductManagementAssessmentAttemptPersistenceAvailable,
+} from "./product-management/assessment-attempt-store";
 import {
   AGENT_ORCHESTRATION_PROGRESS_STORAGE_KEY,
   isAgentOrchestrationStorageAvailable,
@@ -977,6 +981,7 @@ export function createAllProgressAdapters(
         PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
         PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
         PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
+        PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_PROBE_KEY,
       ],
       progressEvent: PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.progressEvent,
       slugs: PRODUCT_MANAGEMENT_PROGRESS_MODULE_SLUGS,
@@ -995,7 +1000,8 @@ export function createAllProgressAdapters(
             && key !== PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.versionKey,
         ),
       reset: resetProductManagementProgressAfterGlobalReset,
-      isPersistent: isProductManagementStorageAvailable,
+      isPersistent: () => isProductManagementStorageAvailable()
+        && isProductManagementAssessmentAttemptPersistenceAvailable(),
     }),
     milestoneAdapter(localeFor("agent-orchestration"), {
       courseId: "agent-orchestration",

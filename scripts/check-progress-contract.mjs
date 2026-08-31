@@ -24,6 +24,11 @@ const RECENCY_TRACKER = join(COMPONENTS, "ProgressRecencyTracker.tsx");
 const SHELL = join(COMPONENTS, "Shell.tsx");
 const PUBLIC_PROGRESS_CONTRACT = join(ROOT, "lib", "public-progress-contract.ts");
 const PROGRESS_STORAGE_CONTRACT = join(ROOT, "lib", "progress-storage-contract.ts");
+const PRODUCT_MANAGEMENT_ATTEMPT_STORE = join(
+  COMPONENTS,
+  "product-management",
+  "assessment-attempt-store.ts",
+);
 
 // Migration ratchet: all learner-facing progress surfaces use the registered
 // adapters. Twelve legacy shared-key owners remain until their physical stores
@@ -262,7 +267,8 @@ const progressStorageFiles = files.filter(({ path }) =>
     || path.endsWith("/grok/task-contract-draft-store.ts")
     || path.endsWith("/claude-income/quiz-attempt-store.ts")
     || path.endsWith("/make-money-with-codex/session-draft-store.ts")
-    || path.endsWith("/make-money-with-codex/useSessionDraft.ts"));
+    || path.endsWith("/make-money-with-codex/useSessionDraft.ts")
+    || path === PRODUCT_MANAGEMENT_ATTEMPT_STORE);
 for (const { path, text } of progressStorageFiles) {
   for (const match of text.matchAll(
     /(?:window\.)?(localStorage|sessionStorage)\.(?:getItem|setItem|removeItem)\(\s*(\w+|["'`][^"'`]+["'`])/g,

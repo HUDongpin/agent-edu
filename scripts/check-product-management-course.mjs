@@ -147,7 +147,9 @@ function checkFilesAndRoutes() {
     "components/product-management/CourseDashboard.tsx",
     "components/product-management/Interactions.tsx",
     "components/product-management/ModuleView.tsx",
+    "components/product-management/assessment-attempt-store.ts",
     "components/product-management/progress-store.ts",
+    "tests/product-management-assessment-attempt.test.ts",
     "tests/product-management-course.spec.ts",
     "lib/product-management/copy/en.ts",
     "lib/product-management/format.ts",
@@ -250,6 +252,12 @@ function checkFilesAndRoutes() {
   if (/localStorage\.clear\s*\(/.test(store)) {
     fail("Course 14 must not clear the shared progress store");
   }
+  requireTokens("components/product-management/assessment-attempt-store.ts", [
+    "parseProductManagementAssessmentAttempt",
+    "PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_PROBE_KEY",
+    "clearProductManagementAssessmentAttempt(): PersistenceResult",
+    "window.sessionStorage.getItem(PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY) !== null",
+  ]);
 }
 
 function checkIntegration() {

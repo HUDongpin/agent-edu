@@ -33,7 +33,16 @@ import {
   updateProductManagementProgress,
   type ProductManagementProgressRecord,
 } from "./progress-store";
-import { PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY } from "@/lib/progress-storage-contract";
+import {
+  clearProductManagementAssessmentAttempt,
+  createProductManagementAssessmentAttemptConfig,
+  isProductManagementAssessmentAttemptPersistenceAvailable,
+  parseProductManagementAssessmentAttempt,
+  readProductManagementAssessmentAttemptSnapshot,
+  subscribeToProductManagementAssessmentAttempt,
+  writeProductManagementAssessmentAttempt,
+  type ProductManagementAssessmentAttemptDraft,
+} from "./assessment-attempt-store";
 import styles from "./ProductManagementCourse.module.css";
 
 type Labels = ProductManagementCourseCopy["ui"];
@@ -107,6 +116,14 @@ function useProductManagementProgress(): {
   }
 
   return { progress, storageAvailable };
+}
+
+function useProductManagementAssessmentAttemptRaw(): string | null {
+  return useSyncExternalStore(
+    subscribeToProductManagementAssessmentAttempt,
+    readProductManagementAssessmentAttemptSnapshot,
+    () => null,
+  );
 }
 
 function StorageWarning({ labels }: { labels: Labels }) {
@@ -225,6 +242,7 @@ export function CourseProgress({
   reviewLabel: string;
 }) {
   const { progress, storageAvailable } = useProductManagementProgress();
+  const savedAssessmentRaw = useProductManagementAssessmentAttemptRaw();
   const [resetMessage, setResetMessage] = useState("");
   const resetStatusRef = useRef<HTMLParagraphElement>(null);
 
@@ -327,16 +345,22 @@ export function CourseProgress({
         <button
           className={styles.secondaryButton}
           type="button"
-          disabled={!state.hasProgress}
+          disabled={!state.hasProgress && savedAssessmentRaw === null}
           onClick={() => {
             if (!window.confirm(label(
               labels,
               "resetConfirm",
               "Reset module progress, assessment results, artifacts, and capstone work?",
             ))) return;
-            const persisted = resetProductManagementProgress();
-            setResetMessage(persisted
+            const reset = resetProductManagementProgress();
+            setResetMessage(reset.persisted
               ? label(labels, "resetDone", "Course progress reset.")
+              : reset.progressPersisted && !reset.attemptPersisted
+                ? label(
+                    labels,
+                    "resetAttemptFailed",
+                    "Course 14 results were reset, but the saved assessment attempt could not be cleared. Retry reset before leaving this page.",
+                  )
               : label(
                   labels,
                   "resetDoneMemory",
@@ -875,74 +899,44 @@ export function ArtifactWorkbench({
 
 export type ProductManagementAssessmentQuestion = ProductManagementFinalQuestionCopy;
 
-type ProductManagementAssessmentAttempt = {
-  version: 1;
-  index: number;
-  answers: Record<string, boolean>;
-};
-
-function readAssessmentAttempt(
-  questions: readonly ProductManagementAssessmentQuestion[],
-): ProductManagementAssessmentAttempt | null {
-  try {
-    const parsed: unknown = JSON.parse(
-      sessionStorage.getItem(PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY) || "null",
-    );
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
-    const candidate = parsed as Record<string, unknown>;
-    if (candidate.version !== 1
-      || typeof candidate.index !== "number"
-      || !Number.isInteger(candidate.index)
-      || candidate.index < 0
-      || candidate.index >= questions.length
-      || !candidate.answers
-      || typeof candidate.answers !== "object"
-      || Array.isArray(candidate.answers)) return null;
-    const allowedIds = new Set(questions.map((question) => question.id));
-    const answers = Object.fromEntries(
-      Object.entries(candidate.answers as Record<string, unknown>).filter(
-        ([id, value]) => allowedIds.has(id) && typeof value === "boolean",
-      ),
-    ) as Record<string, boolean>;
-    return { version: 1, index: candidate.index, answers };
-  } catch {
-    return null;
-  }
-}
-
-function writeAssessmentAttempt(attempt: ProductManagementAssessmentAttempt | null): void {
-  try {
-    if (attempt) {
-      sessionStorage.setItem(
-        PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
-        JSON.stringify(attempt),
-      );
-    } else sessionStorage.removeItem(PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY);
-  } catch {
-    // The assessment remains usable when this tab cannot persist session state.
-  }
-}
-
 export function FinalAssessment({
   questions,
+  bankVersion,
   passPercent,
   title,
   summary,
   labels,
 }: {
   questions: readonly ProductManagementAssessmentQuestion[];
+  bankVersion: string;
   passPercent: number;
   title: string;
   summary: string;
   labels: Labels;
 }) {
   const { progress, storageAvailable } = useProductManagementProgress();
+  const attemptConfig = useMemo(
+    () => createProductManagementAssessmentAttemptConfig({ bankVersion, questions }),
+    [bankVersion, questions],
+  );
+  const savedAttemptRaw = useProductManagementAssessmentAttemptRaw();
+  const attemptPersistenceAvailable = useSyncExternalStore(
+    subscribeToProductManagementAssessmentAttempt,
+    isProductManagementAssessmentAttemptPersistenceAvailable,
+    () => true,
+  );
+  const savedAttempt = useMemo(
+    () => savedAttemptRaw
+      ? parseProductManagementAssessmentAttempt(savedAttemptRaw, attemptConfig)
+      : null,
+    [attemptConfig, savedAttemptRaw],
+  );
   const [active, setActive] = useState(false);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
-  const [savedAttempt, setSavedAttempt] = useState<ProductManagementAssessmentAttempt | null>(null);
+  const [attemptClearFailed, setAttemptClearFailed] = useState(false);
   const [result, setResult] = useState<{
     correct: number;
     percent: number;
@@ -962,21 +956,17 @@ export function FinalAssessment({
   const feedbackId = current ? `assessment-${current.id}-feedback` : undefined;
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setSavedAttempt(readAssessmentAttempt(questions));
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [questions]);
+    if (savedAttemptRaw && !savedAttempt) clearProductManagementAssessmentAttempt();
+  }, [savedAttempt, savedAttemptRaw]);
 
   useEffect(() => {
     function resetAttempt() {
-      writeAssessmentAttempt(null);
       setActive(false);
       setIndex(0);
       setSelected(null);
       setChecked(false);
       setAnswers({});
-      setSavedAttempt(null);
+      setAttemptClearFailed(false);
       setResult(null);
     }
     window.addEventListener(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT, resetAttempt);
@@ -990,14 +980,22 @@ export function FinalAssessment({
     else questionRef.current?.focus();
   }, [active, checked, index, result]);
 
-  function begin(attempt: ProductManagementAssessmentAttempt | null = null): void {
-    if (!attempt) writeAssessmentAttempt(null);
+  function begin(attempt: ProductManagementAssessmentAttemptDraft | null = null): void {
+    if (!attempt) {
+      writeProductManagementAssessmentAttempt({
+        schemaVersion: 1,
+        bankVersion: attemptConfig.bankVersion,
+        questionIds: attemptConfig.questionIds,
+        index: 0,
+        answers: {},
+      });
+    }
     setActive(true);
     setIndex(attempt?.index ?? 0);
     setSelected(null);
     setChecked(false);
     setAnswers(attempt?.answers ?? {});
-    setSavedAttempt(null);
+    setAttemptClearFailed(false);
     setResult(null);
   }
 
@@ -1005,8 +1003,13 @@ export function FinalAssessment({
     if (!current || selected === null) return;
     const nextAnswers = { ...answers, [current.id]: correct };
     if (index < questions.length - 1) {
-      const attempt = { version: 1, index: index + 1, answers: nextAnswers } as const;
-      writeAssessmentAttempt(attempt);
+      writeProductManagementAssessmentAttempt({
+        schemaVersion: 1,
+        bankVersion: attemptConfig.bankVersion,
+        questionIds: attemptConfig.questionIds,
+        index: index + 1,
+        answers: nextAnswers,
+      });
       setAnswers(nextAnswers);
       setIndex((value) => value + 1);
       setSelected(null);
@@ -1021,8 +1024,8 @@ export function FinalAssessment({
     const passed = percent >= passPercent;
     setAnswers(nextAnswers);
     setResult({ correct: correctCount, percent, passed });
-    writeAssessmentAttempt(null);
-    setSavedAttempt(null);
+    const cleared = clearProductManagementAssessmentAttempt();
+    setAttemptClearFailed(!cleared.persisted);
     updateProductManagementProgress((record) => {
       const priorBest = typeof record[PRODUCT_MANAGEMENT_QUIZ_BEST_KEY] === "number"
         ? record[PRODUCT_MANAGEMENT_QUIZ_BEST_KEY] as number
@@ -1030,6 +1033,11 @@ export function FinalAssessment({
       record[PRODUCT_MANAGEMENT_QUIZ_BEST_KEY] = Math.max(priorBest, percent);
       if (passed) record[PRODUCT_MANAGEMENT_QUIZ_PASSED_KEY] = true;
     });
+  }
+
+  function retryAttemptCleanup(): void {
+    const cleared = clearProductManagementAssessmentAttempt();
+    setAttemptClearFailed(!cleared.persisted);
   }
 
   if (!questions.length) return null;
@@ -1056,6 +1064,29 @@ export function FinalAssessment({
       </header>
 
       {!storageAvailable ? <StorageWarning labels={labels} /> : null}
+      {!result && (active || savedAttempt) && !attemptPersistenceAvailable ? (
+        <p className={styles.storageWarning} role="status">
+          {label(
+            labels,
+            "assessmentStorageUnavailable",
+            "This unfinished assessment cannot be restored after leaving this page, closing the tab, or refreshing.",
+          )}
+        </p>
+      ) : null}
+      {result && attemptClearFailed ? (
+        <div className={styles.storageWarning} role="status">
+          <p>
+            {label(
+              labels,
+              "assessmentCleanupFailed",
+              "Your result is ready, but the saved assessment attempt could not be cleared. Retry cleanup before leaving this page.",
+            )}
+          </p>
+          <button className={styles.secondaryButton} type="button" onClick={retryAttemptCleanup}>
+            {label(labels, "assessmentCleanupRetry", "Retry saved-attempt cleanup")}
+          </button>
+        </div>
+      ) : null}
       {alreadyPassed ? (
         <p className={styles.savedFlag} role="status">
           {label(labels, "assessmentRecorded", "Passing result recorded")}
