@@ -75,8 +75,6 @@ export default function CourseDashboard({
         <span aria-hidden="true">/</span>
         <span aria-current="page">{label(course.copy.ui, "course", "Course")} 14</span>
       </nav>
-      <CourseShell courseId="product-management" locale={course.locale} showBreadcrumb={false} />
-
       <header className={styles.courseHero}>
         <div className={styles.heroCopy}>
           <p className={styles.kicker}>{course.copy.meta.kicker}</p>
@@ -130,6 +128,8 @@ export default function CourseDashboard({
           </p>
         </section>
       </header>
+
+      <CourseShell courseId="product-management" locale={course.locale} showBreadcrumb={false} />
 
       <section className={styles.courseFacts} aria-label="Course facts">
         <dl>

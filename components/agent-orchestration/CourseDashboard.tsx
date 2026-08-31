@@ -91,8 +91,6 @@ export default function CourseDashboard({
         <span aria-hidden="true">/</span>
         <span aria-current="page">{label(course.copy.ui, "course", "Course 15")}</span>
       </nav>
-      <CourseShell courseId="agent-orchestration" locale={course.locale} showBreadcrumb={false} />
-
       <header className={styles.hero}>
         <div className={styles.heroCopy}>
           <div className={styles.heroEyebrow}>
@@ -151,6 +149,8 @@ export default function CourseDashboard({
           />
         </aside>
       </header>
+
+      <CourseShell courseId="agent-orchestration" locale={course.locale} showBreadcrumb={false} />
 
       <CourseNavigator
         contentLocale={course.contentLocale}
