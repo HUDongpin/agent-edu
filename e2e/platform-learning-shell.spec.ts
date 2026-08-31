@@ -15,6 +15,7 @@ function learningRecord(visitedSections: readonly string[]): string {
       completedSteps: [],
       evalRunsCompleted: 0,
     },
+    declared: { completed: [] },
   });
 }
 
