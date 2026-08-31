@@ -957,7 +957,8 @@ test.describe("Course 12 approved UI and UX Phase 2 regressions", () => {
     await page.goto("/en/learning/");
     page.once("dialog", async (dialog) => dialog.accept());
     await page.getByRole("button", { name: "Clear all progress" }).click();
-    await expect(page.locator(".learning-reset-feedback")).toBeVisible();
+    await expect(page.locator('.learning-feedback[role="status"][aria-live="polite"]'))
+      .toHaveText("All active learning progress on this device was cleared.");
     expect(await page.evaluate(
       (attemptKey) => window.sessionStorage.getItem(attemptKey),
       QUIZ_ATTEMPT_KEY,

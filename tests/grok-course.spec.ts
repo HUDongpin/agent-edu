@@ -696,7 +696,10 @@ test.describe("How to Use Grok course", () => {
     await expect(card).toContainText("Course 5");
     await expect(card).toContainText("14 lessons, 11 hours 35 minutes, 10 authentic UI figures");
     await expect(card.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "6");
-    await expect(card.getByRole("link")).toHaveAttribute("href", "/en/grok/");
+    await expect(card.getByRole("link")).toHaveAttribute(
+      "href",
+      `/en/grok/${COURSE_MANIFEST.lessons[1].slug}/`,
+    );
     const catalogueJsonLd = (await page.locator('script[type="application/ld+json"]').allTextContents())
       .map((value) => JSON.parse(value) as Record<string, unknown>)
       .find((value) => value["@type"] === "ItemList") as {
@@ -1533,7 +1536,9 @@ test.describe("How to Use Grok course", () => {
       "accept",
     )).toBe("confirm");
     await expect(page.locator('.learning-feedback[role="status"][aria-live="polite"]'))
-      .toHaveText("All active learning progress on this device was cleared.");
+      .toHaveText(
+        "The current tab was reset, but one or more records on this device could not be cleared safely. They may reappear after refresh.",
+      );
     await page.locator('footer a[href="/en/grok/"]').click();
     await expect(page).toHaveURL(/\/en\/grok\/$/);
     await expectSessionMemoryFallbacksClearedAfterRemount(page);

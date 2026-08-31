@@ -172,7 +172,8 @@ test("Course 14 assessment resumes the exact next question after reload", async 
   await page.goto("/en/learning/");
   page.once("dialog", async (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Clear all progress" }).click();
-  await expect(page.locator(".learning-reset-feedback")).toBeVisible();
+  await expect(page.locator('.learning-feedback[role="status"][aria-live="polite"]'))
+    .toHaveText("All active learning progress on this device was cleared.");
   await page.goto(`${DASHBOARD}#product-management-final-assessment`);
   await expect(page.getByRole("button", { name: "Resume question 2" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Start assessment" })).toBeVisible();
