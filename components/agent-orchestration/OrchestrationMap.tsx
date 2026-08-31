@@ -105,22 +105,31 @@ export function RuntimeSemanticsLedger({
   ] as const;
   return (
     <div className={styles.runtimeLedger}>
-      <div className={styles.runtimeTable} role="table" aria-label={chinese ? "运行时特定的编排语义" : "Runtime-specific orchestration semantics"}>
-        <div role="row" className={styles.runtimeHeader}>
-          {headers.map((header) => (
-            <span role="columnheader" id={header.id} key={header.id}>{header.label}</span>
+      <table
+        className={styles.runtimeTable}
+        aria-label={chinese
+          ? "运行时特定的编排语义"
+          : "Runtime-specific orchestration semantics"}
+      >
+        <thead>
+          <tr className={styles.runtimeHeader}>
+            {headers.map((header) => (
+              <th scope="col" id={header.id} key={header.id}>{header.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.surface}>
+              <th scope="row" data-label={headers[0].label}>{row.surface}</th>
+              <td data-label={headers[1].label}>{row.layer}</td>
+              <td data-label={headers[2].label}>{row.unit}</td>
+              <td data-label={headers[3].label}>{row.root}</td>
+              <td data-label={headers[4].label}>{row.owner}</td>
+            </tr>
           ))}
-        </div>
-        {rows.map((row) => (
-          <div role="row" key={row.surface}>
-            <strong role="cell" aria-label={`${headers[0].label}: ${row.surface}`} data-label={headers[0].label}>{row.surface}</strong>
-            <span role="cell" aria-label={`${headers[1].label}: ${row.layer}`} data-label={headers[1].label}>{row.layer}</span>
-            <span role="cell" aria-label={`${headers[2].label}: ${row.unit}`} data-label={headers[2].label}>{row.unit}</span>
-            <span role="cell" aria-label={`${headers[3].label}: ${row.root}`} data-label={headers[3].label}>{row.root}</span>
-            <span role="cell" aria-label={`${headers[4].label}: ${row.owner}`} data-label={headers[4].label}>{row.owner}</span>
-          </div>
-        ))}
-      </div>
+        </tbody>
+      </table>
       <p>
         {chinese
           ? "相同词语可能对应不同契约：容量和所有权由具体运行时定义。没有最新来源时，不要把某一行关于 slot、root 或 session 的事实移植到另一行。"

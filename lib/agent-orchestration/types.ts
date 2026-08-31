@@ -1,5 +1,6 @@
 export const AGENT_ORCHESTRATION_COURSE_ID = "agent-orchestration" as const;
 export const AGENT_ORCHESTRATION_DEFAULT_CONTENT_LOCALE = "en" as const;
+export const AGENT_ORCHESTRATION_CHECKPOINT_CONTENT_VERSION = 1 as const;
 
 export const AGENT_ORCHESTRATION_LOCALES = [
   "en",
@@ -218,11 +219,32 @@ export interface AgentOrchestrationPracticeCopy {
   readonly template: string;
 }
 
+export interface AgentOrchestrationCheckpointOptionCopy {
+  /** Stable semantic identity; display order and localized labels are not identity. */
+  readonly id: string;
+  readonly label: string;
+}
+
 export interface AgentOrchestrationCheckpointCopy {
+  /** Stable identity for the exact knowledge claim assessed by this checkpoint. */
+  readonly checkpointId: string;
+  readonly contentVersion: typeof AGENT_ORCHESTRATION_CHECKPOINT_CONTENT_VERSION;
   readonly question: string;
-  readonly options: readonly [string, string, string, string];
-  readonly correctIndex: 0 | 1 | 2 | 3;
+  readonly options: readonly [
+    AgentOrchestrationCheckpointOptionCopy,
+    AgentOrchestrationCheckpointOptionCopy,
+    AgentOrchestrationCheckpointOptionCopy,
+    AgentOrchestrationCheckpointOptionCopy,
+  ];
+  readonly correctOptionId: string;
   readonly explanation: string;
+}
+
+/** Serializable assessment entry assembled by a server route from module copy. */
+export interface AgentOrchestrationAssessmentQuestionCopy {
+  readonly moduleSlug: AgentOrchestrationModuleSlug;
+  readonly moduleTitle: string;
+  readonly checkpoint: AgentOrchestrationCheckpointCopy;
 }
 
 export interface AgentOrchestrationLabCopy {

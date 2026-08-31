@@ -1,0 +1,220 @@
+.courseNavigator {
+  margin-block: 22px 0;
+  border-block: var(--ao-rule);
+  background: var(--card);
+}
+
+.courseNavigator:lang(zh-Hans),
+.staticCoursePage:lang(zh-Hans) {
+  font-family:
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    "Noto Sans CJK SC",
+    "Noto Sans SC",
+    system-ui,
+    sans-serif;
+}
+
+.courseNavigator ol {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.courseNavItem + .courseNavItem {
+  border-inline-start: var(--ao-rule);
+}
+
+.courseNavigator .courseNavLink {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: 4px 9px;
+  min-height: 64px;
+  align-content: center;
+  padding: 10px 12px;
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 720;
+  line-height: 1.35;
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 140ms ease,
+    box-shadow 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.courseNavOrder {
+  grid-row: 1 / span 2;
+  color: var(--ao-gold);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 650;
+}
+
+.courseNavState {
+  width: max-content;
+  border: 1px solid var(--ao-blue-line);
+  border-radius: 999px;
+  padding: 2px 6px;
+  background: var(--ao-blue-soft);
+  color: var(--ao-blue);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 760;
+  line-height: 1.25;
+}
+
+@media (hover: hover) {
+  .courseNavLink:hover {
+    background: var(--bg-2);
+    color: var(--ao-blue);
+    transform: translateY(-1px);
+  }
+}
+
+.courseNavLink[aria-current="page"] {
+  box-shadow: inset 0 -3px 0 var(--ao-blue);
+  color: var(--ink);
+}
+
+.courseNavLink:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline-offset: -3px;
+}
+
+.courseNavLink:active {
+  background: var(--ao-blue-soft);
+  box-shadow: inset 0 -3px 0 var(--ao-blue);
+  color: var(--ao-blue);
+  transform: translateY(1px) scale(0.985);
+  transition-duration: 60ms;
+}
+
+.courseNavigator:lang(zh-Hans) .courseNavLink {
+  font-weight: 680;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+}
+
+.courseNavigator:lang(zh-Hans) :is(.courseNavOrder, .courseNavState) {
+  letter-spacing: 0.025em;
+}
+
+.overviewPage .compactSection {
+  margin-block: clamp(48px, 7vw, 82px);
+}
+
+.overviewPage .compactSection > :only-child {
+  margin-block: 0;
+}
+
+.compactModuleCopy > span {
+  display: none;
+}
+
+.staticCoursePage {
+  max-width: 1240px;
+}
+
+.staticCourseHero {
+  max-width: 900px;
+  margin-block: clamp(54px, 8vw, 96px) 0;
+  border-block-end: var(--ao-strong-rule);
+  padding-block-end: clamp(36px, 6vw, 64px);
+}
+
+.staticCourseHero h1 {
+  margin-block: 10px 20px;
+  font-size: clamp(2.7rem, 7vw, 6.2rem);
+  letter-spacing: -0.065em;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.staticCoursePage:lang(zh-Hans) .staticCourseHero h1 {
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.staticCourseSummary {
+  max-width: 760px;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: clamp(1rem, 1.7vw, 1.2rem);
+  line-height: 1.62;
+}
+
+.staticCourseBody > :first-child {
+  margin-block-start: clamp(50px, 7vw, 82px);
+}
+
+@media (max-width: 860px) {
+  .courseNavigator ol {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .courseNavItem {
+    border-block-end: var(--ao-rule);
+  }
+
+  .courseNavItem:nth-child(3n + 1) {
+    border-inline-start: 0;
+  }
+
+  .courseNavItem:nth-last-child(-n + 2) {
+    border-block-end: 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .courseNavigator ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .courseNavItem,
+  .courseNavItem:nth-child(3n + 1) {
+    border-inline-start: 0;
+    border-block-end: var(--ao-rule);
+  }
+
+  .courseNavItem:nth-child(even) {
+    border-inline-start: var(--ao-rule);
+  }
+
+  .courseNavItem:last-child {
+    grid-column: 1 / -1;
+    border-block-end: 0;
+    border-inline-start: 0;
+  }
+
+  .courseNavLink {
+    min-height: 58px;
+  }
+
+  .staticCourseHero h1 {
+    font-size: clamp(2.3rem, 12vw, 4rem);
+  }
+}
+
+@media (pointer: coarse) {
+  .courseNavLink {
+    min-height: 58px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .courseNavigator *,
+  .staticCoursePage * {
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+  }
+}
