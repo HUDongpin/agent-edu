@@ -24,19 +24,32 @@ identities match; later stages use measures appropriate to their own jobs.
 Even then, runtime comparability does not establish cause: inspect the learner
 prompt diff between Stages 2 and 4 before attributing the score movement.
 
-It will not be 20. Read the failures — most of them are prices, because the model has never seen your menu. You are about to fix that in stage 4 and watch the number move.
+Read the **observed score** and the individual failures. If failures concern
+facts absent from the prompt, missing menu context is a hypothesis, not a
+foregone diagnosis. Stage 4 tests that hypothesis with a new run; compare it
+only when the report marks the pair **configuration-matched** and inspect the
+prompt diff before attributing any movement.
 
 ## Why this complements unit testing
 
-In stage 1 you could write `assert.equal(handleOrder("tea")?.price, 2.80)` and it held forever. From stage 2 on, an exact assertion against the generated reply is a coin flip, because the same input can give different wording.
+In stage 1 you could write `assert.equal(handleOrder("tea")?.price, 2.80)` and
+it held forever. From stage 2 on, one exact string assertion against generated
+text is brittle: the same request can produce different valid wording.
 
 Keep unit tests for deterministic parsers, schemas, tools and safety gates. For the variable model output, stop asserting one exact answer and start measuring a rate over many cases. `cafe/evalset.ts` has twenty; look at it. Twelve are checked by a plain TypeScript function — exact, free, instant. Only eight need a second model call to judge, because "did it handle the vague order sensibly?" has no `===` you can write.
 
-**Prefer the rule-checked kind.** They cost nothing and never disagree with themselves. A judge is a model, with all the same problems — a vague standard makes it a coin flip too. Read the standards in `cafe/evalset.ts`: each one is specific enough that a stranger could apply it.
+**Prefer the rule-checked kind.** They make no Provider call and return the same
+result for the same structured value. A model judge remains run-dependent; a
+vague standard makes its result difficult to reproduce or audit. Read the
+standards in `cafe/evalset.ts`: each one is specific enough that a stranger
+could apply it.
 
 ## The trap
 
-Twenty cases cannot detect a one-case difference. If a change takes you from 14 to 15, that is noise — run it again and it may go back. To act on a one-case change you would need hundreds of cases.
+With twenty cases, one changed case moves the score by five percentage points.
+A 14-to-15 result in one pair does not by itself establish a reliable
+improvement. Preserve the cases and configuration, repeat deliberately, and
+expand the representative set when the decision needs narrower uncertainty.
 
 So: make changes big enough to see, or gather more cases. And when a real bug turns up in real use, **paste it into `CASES` before you fix it.** That is how the set becomes worth having, and it is the single habit that separates people who get good at this from people who keep guessing.
 

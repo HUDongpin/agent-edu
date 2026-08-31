@@ -686,13 +686,15 @@ function renderEntry(stage: number, entry: Entry): string {
     case 4:
       return `${renderScore(entry)} with the menu in context`;
     case 5:
-      return `${number(entry, "orders")} orders placed, recovering from a failed tool`;
+      return `${number(entry, "orders")} orders placed in the recorded run`;
     case 6:
       return `$${Number(number(entry, "gated")).toFixed(2)} spent unattended with the gate on`;
     case 7:
-      return `${number(entry, "blocked")} off-policy draft(s) stopped by the reviewer`;
+      return number(entry, "blocked") === 1
+        ? "reviewed and unreviewed outputs differed in the recorded run"
+        : "reviewed and unreviewed outputs matched in the recorded run";
     case 8:
-      return `refund capped at $${Number(number(entry, "capped")).toFixed(2)} despite the injection`;
+      return `refund capped at $${Number(number(entry, "capped")).toFixed(2)} with injection input`;
     default:
       return "·";
   }

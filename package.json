@@ -29,7 +29,7 @@
     "test:smoke:safe": "PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/smoke.spec.ts --project=chromium",
     "test:smoke:private": "node scripts/run-private-playwright.mjs",
     "test:smoke": "npm run evidence:prepare && npm run test:smoke:safe && npm run test:smoke:private",
-    "test:compat": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/compat.spec.ts e2e/course3-phase1.spec.ts",
+    "test:compat": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/compat.spec.ts e2e/course3-phase1.spec.ts e2e/course3-phase2.spec.ts e2e/course3-phase3.spec.ts",
     "test:resilience": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/resilience.spec.ts --project=chromium",
     "test:evidence-contract": "node scripts/verify-browser-evidence.mjs",
     "vitals:lab": "node scripts/measure-lab-vitals.mjs",
@@ -130,6 +130,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
     "@vercel/analytics": "^2.0.1",
+    "ajv": "^8.20.0",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"

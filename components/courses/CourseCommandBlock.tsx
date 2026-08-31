@@ -59,6 +59,7 @@ export default function CourseCommandBlock({
         aria-live="polite"
         aria-atomic="true"
         data-command-status
+        data-copy-state={status ? copied ? "success" : "error" : "idle"}
       >{status}</span>
     </div>
   );

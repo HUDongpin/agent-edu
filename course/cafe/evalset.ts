@@ -52,8 +52,9 @@ const JUDGE_SCHEMA = {
 /**
  * Ask a second model whether the answer meets a written standard.
  *
- * Note what makes this work: the standard is specific and checkable. A
- * standard like "the answer should be good" produces a coin flip.
+ * Note what makes this auditable: the standard is specific and checkable. A
+ * standard like "the answer should be good" leaves the model judge's
+ * run-dependent decision underspecified.
  */
 export async function judge(said: string, order: Order, standard: string): Promise<[boolean, string]> {
   const v = await ask<{ passes: boolean; why: string }>(

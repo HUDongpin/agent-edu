@@ -2,7 +2,9 @@ import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import AgenticTrackNav from "@/components/AgenticTrackNav";
 import CourseCommandBlock from "@/components/courses/CourseCommandBlock";
+import Course3PrintDisclosures from "@/components/courses/Course3PrintDisclosures";
 import styles from "@/components/courses/Course3Launchpad.module.css";
+import { COURSE3_SOURCE_FACTS } from "@/lib/course3-sources";
 import { getMessages, translator } from "@/lib/i18n";
 import { courseLocaleParams } from "@/lib/release-surface";
 import { SITE, seoFor, urlFor } from "@/lib/seo";
@@ -25,6 +27,9 @@ const COURSE_STAGES = [
 ] as const;
 
 const COURSE_TECHNICAL_TOKENS = [
+  "Anthropic TypeScript SDK",
+  "@anthropic-ai/sdk",
+  "DeepSeek Anthropic API",
   "course/stage0-hello/run.ts",
   "course/progress.json",
   "ANTHROPIC_API_KEY",
@@ -35,6 +40,7 @@ const COURSE_TECHNICAL_TOKENS = [
   "course/report.ts",
   "Tokenkosten",
   "TypeScript",
+  "JSON Schema",
   "CAFE_MODEL",
   "QUESTION",
   "DeepSeek",
@@ -101,6 +107,21 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
     copiedLabel: t("build.copySuccess"),
     copyErrorLabel: t("build.copyFailure"),
   };
+  const formatSourceDate = (value: string) => new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
+  const sourceLinks = [
+    ["build.sourcesDeepSeekPricing", COURSE3_SOURCE_FACTS.links.deepSeekPricing],
+    ["build.sourcesDeepSeekCompatibility", COURSE3_SOURCE_FACTS.links.deepSeekCompatibility],
+    ["build.sourcesDeepSeekThinking", COURSE3_SOURCE_FACTS.links.deepSeekThinking],
+    ["build.sourcesClaudeStructured", COURSE3_SOURCE_FACTS.links.claudeStructuredOutputs],
+    ["build.sourcesClaudeEffort", COURSE3_SOURCE_FACTS.links.claudeEffort],
+    ["build.sourcesClaudeTokenCounting", COURSE3_SOURCE_FACTS.links.claudeTokenCounting],
+    ["build.sourcesClaudeToolRunner", COURSE3_SOURCE_FACTS.links.claudeToolRunner],
+    ["build.sourcesClaudePricing", COURSE3_SOURCE_FACTS.links.claudePricing],
+    ["build.sourcesSdk", COURSE3_SOURCE_FACTS.links.sdk],
+  ] as const;
 
   const course = {
     "@context": "https://schema.org",
@@ -132,7 +153,10 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
   };
 
   return (
-    <div className="shellwrap build-page">
+    <div className={`shellwrap build-page ${styles.buildPage}`}>
+      <noscript>
+        <style>{".build-page [data-command-copy] { display: none !important; }"}</style>
+      </noscript>
       <JsonLd data={course} />
       <AgenticTrackNav locale={locale} current="build" />
       <section className="hero">
@@ -275,90 +299,201 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         </nav>
       </section>
 
-      <section className="sect">
-        <h2><CourseText>{t("build.providerTitle")}</CourseText></h2>
-        <div className={`grid2 ${styles.providerGrid}`}>
-          <article className="card"><div className="card-b">
-            <h3>{t("build.providerOffline")}</h3>
-            <p>{t("build.providerOfflineBody")}</p>
-            <CourseCommandBlock code="--offline" label={t("build.providerOffline")} {...copy} />
-          </div></article>
-          <article className="card"><div className="card-b">
-            <h3><CourseText>DeepSeek</CourseText></h3>
-            <p><CourseText>{t("build.providerDeepSeekBody")}</CourseText></p>
-            <div className={styles.providerShells}>
-              <CourseCommandBlock
-                code="export DEEPSEEK_API_KEY=your_key_here"
-                label={`DeepSeek: ${t("build.posixLabel")}`}
-                {...copy}
-              />
-              <CourseCommandBlock
-                code={`$env:DEEPSEEK_API_KEY = "your_key_here"`}
-                label={`DeepSeek: ${t("build.powerShellLabel")}`}
-                {...copy}
-              />
-            </div>
-          </div></article>
-          <article className="card"><div className="card-b">
-            <h3><CourseText>Claude</CourseText></h3>
-            <p><CourseText>{t("build.providerClaudeBody")}</CourseText></p>
-            <div className={styles.providerShells}>
-              <CourseCommandBlock
-                code={`export ANTHROPIC_API_KEY=your_key_here\nexport CAFE_PROVIDER=anthropic`}
-                label={`Claude: ${t("build.posixLabel")}`}
-                {...copy}
-              />
-              <CourseCommandBlock
-                code={`$env:ANTHROPIC_API_KEY = "your_key_here"\n$env:CAFE_PROVIDER = "anthropic"`}
-                label={`Claude: ${t("build.powerShellLabel")}`}
-                {...copy}
-              />
-            </div>
-          </div></article>
-          <article className="card"><div className="card-b">
-            <h3><CourseText>{t("build.costTitle")}</CourseText></h3>
-            <p><CourseText>{t("build.costBody")}</CourseText></p>
-          </div></article>
+      <section className={`sect ${styles.referenceSection}`} data-course3-reference>
+        <Course3PrintDisclosures />
+        <div className={styles.referenceIntro}>
+          <h2>{t("build.referenceTitle")}</h2>
+          <p>{t("build.referenceBody")}</p>
         </div>
-      </section>
 
-      <section className="sect">
-        <h2>{t("build.progressTitle")}</h2>
-        <p><CourseText>{t("build.progressBody")}</CourseText></p>
-        <CourseCommandBlock
-          code={`npx tsx course/report.ts\n# reads course/progress.json in this clone`}
-          label={t("build.progressTitle")}
-          {...copy}
-        />
-      </section>
-
-      <section className="sect">
-        <h2>{t("build.artifactTitle")}</h2>
-        <p>{t("build.artifactBody")}</p>
-        <ul>
-          <li>{t("build.artifactBoundary")}</li>
-          <li>{t("build.artifactFailure")}</li>
-          <li><CourseText>{t("build.artifactEval")}</CourseText></li>
-          <li>{t("build.artifactGate")}</li>
-          <li>{t("build.artifactTrust")}</li>
-          <li>{t("build.artifactReview")}</li>
-        </ul>
-      </section>
-
-      <section className="sect">
-        <h2>{t("build.stuckTitle")}</h2>
-        <p><CourseText>{t("build.stuckBody")}</CourseText></p>
-        <div className="acts">
-          <Link className="btn" href={p("/lab/")}>{t("build.backLab")}</Link>
-          <a
-            className="btn primary"
-            href={COURSE_ROOT}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`${t("build.openRepo")} (${t("build.opensNewTab")})`}
+        <div className={styles.disclosureList}>
+          <details
+            id="provider-options"
+            data-course3-disclosure
+            className={`${styles.disclosure} ${styles.sectionAnchor}`}
           >
-            <CourseText>{t("build.openRepo")}</CourseText><span className="arrow" aria-hidden="true">↗</span>
-          </a>
+            <summary className={styles.disclosureSummary}>
+              <span className={styles.summaryText}>
+                <CourseText>{t("build.providerDisclosure")}</CourseText>
+              </span>
+              <span className={styles.disclosureMarker} aria-hidden="true" />
+            </summary>
+            <div className={styles.disclosureBody} data-course3-disclosure-body>
+              <h3><CourseText>{t("build.providerTitle")}</CourseText></h3>
+              <div className={`grid2 ${styles.providerGrid}`}>
+                <article className="card provider-card"><div className="card-b">
+                  <h4>{t("build.providerOffline")}</h4>
+                  <p>{t("build.providerOfflineBody")}</p>
+                  <CourseCommandBlock code="--offline" label={t("build.providerOffline")} {...copy} />
+                </div></article>
+                <article className="card provider-card"><div className="card-b">
+                  <h4><CourseText>DeepSeek</CourseText></h4>
+                  <p><CourseText>{t("build.providerDeepSeekBody")}</CourseText></p>
+                  <div className={styles.providerShells}>
+                    <CourseCommandBlock
+                      code={`export DEEPSEEK_API_KEY=your_key_here\nexport CAFE_PROVIDER=deepseek\nunset CAFE_MODEL`}
+                      label={`DeepSeek: ${t("build.posixLabel")}`}
+                      {...copy}
+                    />
+                    <CourseCommandBlock
+                      code={`$env:DEEPSEEK_API_KEY = "your_key_here"\n$env:CAFE_PROVIDER = "deepseek"\n$env:CAFE_MODEL = $null`}
+                      label={`DeepSeek: ${t("build.powerShellLabel")}`}
+                      {...copy}
+                    />
+                  </div>
+                </div></article>
+                <article className="card provider-card"><div className="card-b">
+                  <h4><CourseText>Claude</CourseText></h4>
+                  <p><CourseText>{t("build.providerClaudeBody")}</CourseText></p>
+                  <div className={styles.providerShells}>
+                    <CourseCommandBlock
+                      code={`export ANTHROPIC_API_KEY=your_key_here\nexport CAFE_PROVIDER=anthropic\nunset CAFE_MODEL`}
+                      label={`Claude: ${t("build.posixLabel")}`}
+                      {...copy}
+                    />
+                    <CourseCommandBlock
+                      code={`$env:ANTHROPIC_API_KEY = "your_key_here"\n$env:CAFE_PROVIDER = "anthropic"\n$env:CAFE_MODEL = $null`}
+                      label={`Claude: ${t("build.powerShellLabel")}`}
+                      {...copy}
+                    />
+                  </div>
+                </div></article>
+                <article className="card provider-card"><div className="card-b">
+                  <h4><CourseText>{t("build.costTitle")}</CourseText></h4>
+                  <p><CourseText>{t("build.costBody")}</CourseText></p>
+                </div></article>
+              </div>
+
+              <aside
+                id="source-notes"
+                className={styles.sourceNotes}
+                data-course3-source-notes
+              >
+                <h4>{t("build.sourcesTitle")}</h4>
+                <p>{t("build.sourcesBody")}</p>
+                <dl className={styles.sourceFacts}>
+                  <div>
+                    <dt>{t("build.sourcesDeepSeekSnapshotLabel")}</dt>
+                    <dd>
+                      <time dateTime={COURSE3_SOURCE_FACTS.deepSeekPricingCheckedAt}>
+                        {formatSourceDate(COURSE3_SOURCE_FACTS.deepSeekPricingCheckedAt)}
+                      </time>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{t("build.sourcesClaudeSnapshotLabel")}</dt>
+                    <dd>
+                      <time dateTime={COURSE3_SOURCE_FACTS.claudePricingCheckedAt}>
+                        {formatSourceDate(COURSE3_SOURCE_FACTS.claudePricingCheckedAt)}
+                      </time>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{t("build.sourcesOfficialReviewLabel")}</dt>
+                    <dd>
+                      <time dateTime={COURSE3_SOURCE_FACTS.officialSourcesReviewedAt}>
+                        {formatSourceDate(COURSE3_SOURCE_FACTS.officialSourcesReviewedAt)}
+                      </time>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{t("build.sourcesSdkLabel")}</dt>
+                    <dd><code dir="ltr" translate="no">@anthropic-ai/sdk {COURSE3_SOURCE_FACTS.sdkVersion}</code></dd>
+                  </div>
+                </dl>
+                <p>{t("build.sourcesClaudeBoundary")}</p>
+                <p>{t("build.sourcesObservationBoundary")}</p>
+                <ul className={styles.sourceLinks}>
+                  {sourceLinks.map(([label, href]) => (
+                    <li key={href}>
+                      <a
+                        className={styles.sourceLink}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${t(label)} (${t("build.opensNewTab")})`}
+                      >
+                        <span className={styles.sourceLinkText}>
+                          <CourseText>{t(label)}</CourseText>
+                        </span>
+                        <span className="arrow" aria-hidden="true">↗</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </aside>
+            </div>
+          </details>
+
+          <details
+            id="local-progress"
+            data-course3-disclosure
+            className={`${styles.disclosure} ${styles.sectionAnchor}`}
+          >
+            <summary className={styles.disclosureSummary}>
+              <span className={styles.summaryText}>{t("build.progressDisclosure")}</span>
+              <span className={styles.disclosureMarker} aria-hidden="true" />
+            </summary>
+            <div className={styles.disclosureBody} data-course3-disclosure-body>
+              <h3>{t("build.progressTitle")}</h3>
+              <p><CourseText>{t("build.progressBody")}</CourseText></p>
+              <CourseCommandBlock
+                code={`npx tsx course/report.ts\n# reads course/progress.json in this clone`}
+                label={t("build.progressTitle")}
+                {...copy}
+              />
+            </div>
+          </details>
+
+          <details
+            id="stage9-artifact"
+            data-course3-disclosure
+            className={`${styles.disclosure} ${styles.sectionAnchor}`}
+          >
+            <summary className={styles.disclosureSummary}>
+              <span className={styles.summaryText}>{t("build.artifactDisclosure")}</span>
+              <span className={styles.disclosureMarker} aria-hidden="true" />
+            </summary>
+            <div className={styles.disclosureBody} data-course3-disclosure-body>
+              <h3>{t("build.artifactTitle")}</h3>
+              <p>{t("build.artifactBody")}</p>
+              <ul>
+                <li>{t("build.artifactBoundary")}</li>
+                <li>{t("build.artifactFailure")}</li>
+                <li><CourseText>{t("build.artifactEval")}</CourseText></li>
+                <li>{t("build.artifactGate")}</li>
+                <li>{t("build.artifactTrust")}</li>
+                <li>{t("build.artifactReview")}</li>
+              </ul>
+            </div>
+          </details>
+
+          <details
+            id="setup-help"
+            data-course3-disclosure
+            className={`${styles.disclosure} ${styles.sectionAnchor}`}
+          >
+            <summary className={styles.disclosureSummary}>
+              <span className={styles.summaryText}>{t("build.helpDisclosure")}</span>
+              <span className={styles.disclosureMarker} aria-hidden="true" />
+            </summary>
+            <div className={styles.disclosureBody} data-course3-disclosure-body>
+              <h3>{t("build.stuckTitle")}</h3>
+              <p><CourseText>{t("build.stuckBody")}</CourseText></p>
+              <div className="acts">
+                <Link className="btn" href={p("/lab/")}>{t("build.backLab")}</Link>
+                <a
+                  className="btn primary"
+                  href={COURSE_ROOT}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${t("build.openRepo")} (${t("build.opensNewTab")})`}
+                >
+                  <CourseText>{t("build.openRepo")}</CourseText><span className="arrow" aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </div>
+          </details>
         </div>
       </section>
     </div>

@@ -29,6 +29,10 @@ no live credential or network request was checked. If you choose to run live,
 set one key in the shell you are actually using, then repeat the run and check
 without `--offline`.
 
+**Live-cost boundary:** each shell block below makes one live call in the Stage
+0 run and another in its checker. Both may incur Provider charges. Review the
+printed estimate and use the Provider dashboard as the billing record.
+
 macOS/Linux (`bash` or `zsh`):
 
 ```bash
@@ -53,42 +57,93 @@ Each later stage is a folder with a `README.md` and a `run.ts` containing one
 or two `TODO`s. Fill them in, run the stage, then run its checker. The checker
 prints the next stage or transfer action when it passes.
 
-**No API key?** Add `--offline` to any command to use the scripted local stand-in after you fill that stage's `TODO`s. Every completed stage supports this path. Stage 2's lesson includes watching a real model answer the same question differently, which a deterministic stand-in cannot reproduce; if you later want that comparison, use a low-credit, revocable key of your own. Never borrow or share another person's credential.
+**No API key?** Add `--offline` to any command to use the scripted local
+stand-in after you fill that stage's `TODO`s. Every completed stage supports
+this path. Stage 2 samples whether a live model's answers vary; a deterministic
+stand-in cannot reproduce that measurement. If you later want the comparison,
+use a low-credit, revocable key of your own. Never borrow or share another
+person's credential.
 
 **Stuck?** [`SOLUTIONS.md`](SOLUTIONS.md) has every `TODO` filled in, one section per stage.
 
-**Cost:** the offline stand-in makes no Provider request. Live stages print measured usage and an estimate based on the model and the dated price table in the code. The total varies with Provider, model, cache, peak window and how often you re-run; an old sample total is not a promise. Check the estimate before a run and treat the Provider dashboard as the billing record. Claude can cost materially more than DeepSeek for the same exercise.
+**Cost:** the offline stand-in makes no Provider request. Live stages print
+returned usage and an estimated cost when the model and usage shape are
+recognized. The total varies with Provider, model, cache, time band, optional
+pricing modifiers and how often you re-run; an old sample total is not a
+promise. Check the estimate before a run and treat the Provider dashboard as
+the billing record. Claude can cost materially more than DeepSeek for the same
+exercise.
 
 ## Two providers, one seam
 
 The course runs on **DeepSeek** or on **Anthropic's Claude**, and not one line of any stage changes between them.
 
+Choose one Provider explicitly, especially if both keys exist in your shell:
+
 ```bash
-export DEEPSEEK_API_KEY=your_key_here # default if both are set
-export CAFE_PROVIDER=anthropic        # force one
-export CAFE_MODEL=deepseek-v4-pro     # or a Provider-supported model
+# DeepSeek
+export DEEPSEEK_API_KEY=your_key_here
+export CAFE_PROVIDER=deepseek
+export CAFE_MODEL=deepseek-v4-pro
+
+# Or Anthropic
+export ANTHROPIC_API_KEY=your_key_here
+export CAFE_PROVIDER=anthropic
+export CAFE_MODEL=claude-opus-5
 ```
 
-PowerShell uses the same variable names:
+PowerShell uses the same variable names with `$env:`, for example
+`$env:CAFE_PROVIDER = "deepseek"`. Do not combine a model name from one
+Provider with the other Provider's key. With exactly one configured key, the
+course infers that Provider. With neither key, it keeps DeepSeek as the
+deterministic offline default. With both keys and no `CAFE_PROVIDER`, it stops
+before constructing a client or sending a request and asks you to choose.
 
-```powershell
-$env:DEEPSEEK_API_KEY = "your_key_here"
-$env:CAFE_PROVIDER = "anthropic"
-$env:CAFE_MODEL = "deepseek-v4-pro"
-# For Claude instead:
-$env:ANTHROPIC_API_KEY = "your_key_here"
-```
-
-That works because DeepSeek publishes an **Anthropic-compatible endpoint**, so the same `@anthropic-ai/sdk` drives both with a different `baseURL`. Stages 5 and 6 build raw `tool_use` / `tool_result` blocks by hand and never notice.
+DeepSeek documents an **Anthropic-format endpoint**, so the same
+`@anthropic-ai/sdk` transport can drive the subset of fields this course uses
+with a different `baseURL`. That compatibility is not feature parity. The core
+`tool_use` / `tool_result` fields used in stages 5 and 6 are supported, while
+DeepSeek currently ignores `tool_result.is_error`; the portable error signal is
+therefore the human-readable tool-result text.
 
 The differences that *don't* vanish are the interesting part, and all of them live in [`cafe/llm.ts`](cafe/llm.ts):
 
 | | Anthropic | DeepSeek |
 |---|---|---|
-| structured outputs | native — the reply **cannot** be the wrong shape | **accepted and silently ignored.** You get prose. `llm.ts` asks in the prompt and validates the answer itself |
-| "think harder" | `output_config.effort` | `thinking: {type:"disabled"}` — and left on with a small `max_tokens`, it spends the whole budget thinking and returns an **empty string with no error** |
-| token counting | counts your text | counts the whole request, ~83 tokens of scaffolding included, so `llm.ts` subtracts the floor |
-| price | flat in this course snapshot | Flash/Pro, cache hit/miss and output use the dated shared table; peak windows are 01:00–04:00 and 06:00–10:00 UTC |
+| structured outputs | On supported Claude models, `output_config.format` uses constrained decoding. The adapter still meters and rejects refusal or schema-truncated responses, parses the result and validates every constraint in the supplied draft-7-compatible course schema. | DeepSeek's Anthropic-format interface currently supports only `output_config.effort`, not `output_config.format`. `llm.ts` prompts for JSON, then applies the same complete local schema validation before returning data. |
+| "think harder" | The course sends all five effort values one-for-one through `output_config.effort`. | The same field uses DeepSeek's documented mapping: `low` → `low`; `medium`, `high` and `xhigh` → `high`; `max` → `max`. |
+| token counting | The API estimates the whole structured request and may include system-added tokens. | The course measures and subtracts an empty-request baseline for its relative budgeting exercise. That normalization is implementation-specific, not a stable Provider constant. |
+| price | The course snapshots standard first-party, global Opus 5 rates checked 2026-08-31, with no time-of-day band. Cache-write usage remains unpriceable from the aggregate usage shape, and optional modifiers can still change the bill. | Flash/Pro cache-hit, cache-miss and output rates use the dated shared table. Official peak windows apply 01:00–04:00 and 06:00–10:00 UTC, Monday–Friday; all weekend hours are off-peak. |
+
+### Sources and version boundary
+
+Provider contracts change. The links below were rechecked **2026-08-31** with
+the locked **`@anthropic-ai/sdk` 0.117.1**. The DeepSeek price table in this
+checkout remains a separate **2026-08-21 snapshot**. Always verify a current
+Provider page before a paid run; returned usage supports an estimate, while the
+Provider dashboard is the billing record.
+
+- [DeepSeek models and pricing](https://api-docs.deepseek.com/quick_start/pricing/)
+- [DeepSeek Anthropic API compatibility](https://api-docs.deepseek.com/guides/anthropic_api/)
+- [DeepSeek thinking mode](https://api-docs.deepseek.com/guides/thinking_mode/)
+- [Claude structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)
+- [Claude effort controls](https://platform.claude.com/docs/en/build-with-claude/effort)
+- [Claude token counting](https://platform.claude.com/docs/en/build-with-claude/token-counting)
+- [Claude tool runner](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner)
+- [Official Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- [Anthropic TypeScript SDK 0.117.1](https://github.com/anthropics/anthropic-sdk-typescript/tree/sdk-v0.117.1)
+
+The runtime binds its Claude rate table to the official pricing URL and the
+2026-08-31 check date, and binds DeepSeek estimates to the separate 2026-08-21
+snapshot. DeepSeek band selection is weekday-aware. These are still dated
+course estimates, not invoices: unknown models, incomplete usage, Claude cache
+creation and unsupported pricing modifiers fail closed as `cost unknown`.
+
+Model variation, empty responses, token baselines, recovery and injection
+behavior are run-dependent behaviors to measure, not API guarantees. Rerun the
+evals for the Provider, requested model and version you select. A requested
+model string is also not proof of the served backend:
+DeepSeek documents alias mapping on its Anthropic-format endpoint.
 
 This is what a provider abstraction is actually for. Not "swap the URL" — anyone can do that. It is knowing which of your assumptions were really vendor behaviour, and the only way to find out is to run the same suite against two of them.
 
@@ -98,9 +153,9 @@ This is what a provider abstraction is actually for. Not "swap the URL" — anyo
 |---|---|---|---|
 | 0 | [call seam](stage0-hello/) | local call seam | local stand-in first, or a verified live response and network path |
 | 1 | [kiosk](stage1-kiosk/) | if/else rules | the wall that starts all of this |
-| 2 | [prompt](stage2-prompt/) | a system prompt | **the same question, five different answers** |
+| 2 | [prompt](stage2-prompt/) | a system prompt | sample repeated answers and measure variation |
 | 3 | [evals](stage3-evals/) | wire up 20 cases | variable model output needs evals; deterministic code still needs unit tests |
-| 4 | [context](stage4-context/) | the menu, in the prompt | most "bad model" is "never told" |
+| 4 | [context](stage4-context/) | the menu, in the prompt | test whether missing facts explain a failure |
 | 5 | [loop](stage5-loop/) | the agent loop itself | tools, failure, recovery, a step limit |
 | 6 | [harness](stage6-harness/) | retry, gate, log | same model, five controlled runs |
 | 7 | [graph](stage7-graph/) | a router and a reviewer | request vs guarantee |
@@ -168,7 +223,11 @@ The [`stage9-project/`](stage9-project/) folder provides a Markdown artifact tem
 
 ## Honest limits
 
-Nothing here makes you a machine-learning engineer; it is about **building systems that call models**, which is a different job. The security stage is an introduction to one attack, not a security course. And every model behaviour shown is **as of the model you run it on** — some will be wrong in a year. The questions will not be.
+Nothing here makes you a machine-learning engineer; it is about **building
+systems that call models**, which is a different job. The security stage is an
+introduction to one attack, not a security course. Bind every observed model
+behavior to the Provider, requested model, configuration and run date. The
+engineering questions remain useful even when those observations change.
 
 ---
 

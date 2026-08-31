@@ -19,7 +19,9 @@ npx tsx course/check.ts 4
 
 ## What to notice
 
-You did not write a better instruction. You gave the model a fact it could not have known. Most "the model is bad at this" turns out to be "the model was never told."
+You did not write a more forceful instruction. You supplied facts that were
+absent from the Stage 2 request context. When the matching failures concern
+those facts, Stage 4 lets you test whether missing context was the cause.
 
 Compare the two prompts side by side. Stage 2's was an instruction; stage 4's is an instruction plus a *briefing*.
 The report can establish that the two latest runs used matching runtime and
@@ -28,16 +30,24 @@ inspect this prompt diff before making that causal claim.
 
 ## Where this stops working
 
-Try pasting something big into the prompt — a thousand fake menu items, or the entire text of a novel. Two things happen:
+Try pasting something big into the prompt — a thousand fake menu items, or the
+entire text of a novel. Separate what the request structure guarantees from
+what the selected model does:
 
-1. Cost and latency climb, because you pay for every token on **every single call**.
-2. The score can go *down*, because the one line that mattered is now buried in noise.
+1. The repeated request contains more input tokens, which can increase the
+   dated cost estimate.
+2. Latency and score are run outcomes to measure. If the score changes, inspect
+   the failures before attributing that change to relevant context being harder
+   to retrieve.
 
 That is the actual discipline: not "give the model everything", but "give the model the few things that matter for *this* request". At scale you stop pasting and start retrieving — fetch the three relevant menu items rather than all seven hundred. The eval you built in stage 3 is what tells you whether your retrieval is actually picking the right three.
 
 ## The bit people skip
 
-Run `npx tsx course/stage4-context/run.ts` twice and compare the token counts it prints. Context is not free, and it is the line item that grows fastest as a system gets more capable. In stage 5, it grows on *every turn of a loop*.
+Run `npx tsx course/stage4-context/run.ts` twice and compare the returned token
+counts. Under the dated course rate tables, more billed input can increase the
+estimate; the actual mix also depends on cache buckets, output and Provider
+pricing. In stage 5, the loop resends its accumulated transcript on every turn.
 
 ---
 

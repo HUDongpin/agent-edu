@@ -24,6 +24,8 @@ export const DEEPSEEK_PRICING = {
   unitTokens: 1_000_000,
   checkedAt: "2026-08-21",
   sourceUrl: "https://api-docs.deepseek.com/quick_start/pricing/",
+  /** JavaScript UTC weekday numbers: Monday (1) through Friday (5). */
+  peakUtcWeekdays: [1, 2, 3, 4, 5],
   peakUtc: [
     { startHour: 1, endHour: 4 },
     { startHour: 6, endHour: 10 },
@@ -67,8 +69,13 @@ function dateFrom(value: Date | number): Date {
 }
 
 export function priceBandAt(value: Date | number = Date.now()): PriceBand {
-  const hour = dateFrom(value).getUTCHours();
-  return DEEPSEEK_PRICING.peakUtc.some(({ startHour, endHour }) => (
+  const date = dateFrom(value);
+  const weekday = date.getUTCDay();
+  const hour = date.getUTCHours();
+  const isPeakWeekday = DEEPSEEK_PRICING.peakUtcWeekdays.some(
+    (peakWeekday) => peakWeekday === weekday,
+  );
+  return isPeakWeekday && DEEPSEEK_PRICING.peakUtc.some(({ startHour, endHour }) => (
     hour >= startHour && hour < endHour
   )) ? "peak" : "off-peak";
 }

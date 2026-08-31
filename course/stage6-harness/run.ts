@@ -1,6 +1,14 @@
 /** Stage 6 — the same agent, wrapped in the boring code that makes it safe. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getClient, meter, MODEL, preflight, spend, tuning } from "../cafe/llm";
+import {
+  assertCompleteToolTurn,
+  getClient,
+  meter,
+  MODEL,
+  preflight,
+  spend,
+  tuning,
+} from "../cafe/llm";
 import * as tools from "../cafe/tools";
 
 /** Anything above this needs a human. Money is the classic irreversible action. */
@@ -41,10 +49,9 @@ export async function callTool(
   // Reject unknown item prices and non-positive/non-finite quantities before
   // estimating. Missing cost data must fail closed, never become $0.
   //
-  // Total, not just this one order. A per-order cap gets stepped around
-  // without anyone intending it: refuse a single $180 order and the model
-  // will place three $60 ones, because it is still trying to finish the job.
-  // You can read what is already committed off tools.ORDERS.
+  // Total, not just this one order. Several individually allowed orders can
+  // exceed a per-order cap in aggregate. Read the already committed amount
+  // from tools.ORDERS before deciding whether this request is allowed.
 
   // -- run, with retry and timeout ----------------------------------------
   const attempts = parts.retry ? 2 : 1;
@@ -85,7 +92,8 @@ export async function runAgent(parts: Parts) {
       model: MODEL, max_tokens: 2000, tools: tools.SCHEMAS as any, messages, ...tuning(),
     } as any);
     meter(response);
-    if (response.stop_reason === "end_turn" || response.stop_reason === "refusal") break;
+    assertCompleteToolTurn(response);
+    if (response.stop_reason === "end_turn") break;
 
     messages.push({ role: "assistant", content: response.content });
     const results: any[] = [];

@@ -27,6 +27,10 @@ That report evidence means “offline path works; live credential was not
 checked.” To verify a real credential and network response, configure one
 Provider and repeat both commands without `--offline`.
 
+**Live-cost boundary:** each shell block below makes one live call in the Stage
+0 run and another in its checker. Both may incur Provider charges. Review the
+printed estimate and use the Provider dashboard as the billing record.
+
 macOS/Linux (`bash` or `zsh`):
 
 ```bash
@@ -50,13 +54,13 @@ npx tsx course/check.ts 0
 ## What to notice
 
 Offline, the last line says that no tokens were spent. Live, it prints the
-measured usage and current estimate. Keep an eye on it as the stages get
+returned usage and a dated estimate. Keep an eye on it as the stages get
 bigger—by Stage 3 you are making 20+ calls per run.
 
 Offline mode is the safe local seam, not evidence of live model behaviour. The
-single most important thing you can later observe in Stage 2 is a live model
-giving a *different answer to the same question*; a deterministic stand-in
-cannot show that variation.
+Stage 2 samples the same request repeatedly so you can measure whether a live
+configuration varies. A deterministic stand-in cannot reproduce that
+measurement.
 
 ---
 
