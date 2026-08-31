@@ -1,0 +1,10 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:02.500 line:95%
+This cue intentionally crosses the portrait safe zone.
+
+00:00:02.000 --> 00:00:04.500
+This cue intentionally overlaps the previous cue.
+
+00:00:05.500 --> 00:00:07.000
+This cue intentionally extends beyond the six-second fault reel.

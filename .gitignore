@@ -63,6 +63,12 @@ __pycache__/
 # provenance/checker contract; a file's presence under tmp/ is never evidence.
 /tmp/
 
+# Course 20 first-party synthetic media runs. These workspaces can contain
+# generated MP4s and probe receipts; only the reviewed private staging fixtures
+# belong in git while the course is blocked.
+/tmp/agentic-video-editing-lab/
+/tmp/course20-synthetic-practicum/
+
 # Private working notes. Untracked is not enough: `git add -A` would stage
 # these into a public repo.
 2026*_claude suggestions*.md

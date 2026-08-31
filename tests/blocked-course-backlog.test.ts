@@ -7,7 +7,7 @@ import {
   summarizeOutput,
 } from "../scripts/run-blocked-course-backlog.mjs";
 
-test("blocked backlog derives exactly the three registry-owned development and release gates", () => {
+test("blocked backlog derives exactly the four registry-owned development and release gates", () => {
   const contract = JSON.parse(readFileSync("config/course-release-surface.json", "utf8"));
   const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
   const plan: Array<{
@@ -17,10 +17,16 @@ test("blocked backlog derives exactly the three registry-owned development and r
     releaseGate: string;
   }> = deriveBlockedGatePlan(contract, packageJson);
 
-  assert.deepEqual(plan.map((course) => course.courseId), ["claude", "codex", "cursor"]);
+  assert.deepEqual(plan.map((course) => course.courseId), [
+    "agentic-video-editing",
+    "claude",
+    "codex",
+    "cursor",
+  ]);
   assert.deepEqual(
     plan.map((course) => [course.devGate, course.releaseGate]),
     [
+      ["npm run agentic-video-editing:check", "npm run agentic-video-editing:check:release"],
       ["npm run claude:check", "npm run claude:check:release"],
       ["npm run codex:check", "npm run codex:check:release"],
       ["npm run cursor:check", "npm run cursor:check:release"],
@@ -38,7 +44,7 @@ test("blocked backlog derives exactly the three registry-owned development and r
     deriveBlockedGatePlan(onePublished, packageJson).map(
       (course: { courseId: string }) => course.courseId,
     ),
-    ["claude", "cursor"],
+    ["agentic-video-editing", "claude", "cursor"],
   );
   assert.deepEqual(
     deriveBlockedGatePlan({ ...contract, courses: [] }, packageJson),

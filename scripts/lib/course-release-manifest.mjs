@@ -149,7 +149,7 @@ export function validateCourseReleaseManifest(manifest, options = {}) {
   const staged = manifest.courses.filter((course) => course.state === "staged");
   const roadmap = manifest.courses.filter((course) => course.state === "roadmap");
   invariant(published.length === 12, "manifest must contain exactly 12 published courses");
-  invariant(blocked.length === 3, "manifest must contain exactly 3 blocked courses");
+  invariant(blocked.length === 4, "manifest must contain exactly 4 blocked courses");
   invariant(staged.length === 1, "manifest must contain exactly 1 staged course");
   invariant(roadmap.length === 2, "manifest must contain exactly 2 roadmap courses");
   invariant(
@@ -233,6 +233,31 @@ export function validateCourseReleaseManifest(manifest, options = {}) {
   invariant(
     creator.releaseGate === "npm run creator-ops:check:staged",
     "creator-ops releaseGate must run the staged checker",
+  );
+  const course20 = manifest.courses.find(
+    (course) => course.id === "agentic-video-editing",
+  );
+  invariant(
+    course20?.state === "blocked",
+    "agentic-video-editing must remain blocked until current human provenance is attached",
+  );
+  assertExactArray(
+    course20.reviewedContentLocales,
+    ["en", "zh-Hans"],
+    "agentic-video-editing.reviewedContentLocales",
+  );
+  invariant(
+    course20.routes.length === 11,
+    "agentic-video-editing must declare its dashboard plus 10 modules",
+  );
+  assertExactArray(
+    course20.blockers,
+    ["human-provenance-receipt-stale"],
+    "agentic-video-editing.blockers",
+  );
+  invariant(
+    course20.releaseGate === "npm run agentic-video-editing:check:release",
+    "agentic-video-editing releaseGate must run the fail-closed Course 20 checker",
   );
   return { manifest, published, blocked, staged, roadmap };
 }

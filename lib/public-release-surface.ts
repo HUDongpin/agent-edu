@@ -29,6 +29,7 @@ export const PUBLIC_COURSE_ID_CONTRACT = [
   "ai-tutor",
   "product-management",
   "agent-orchestration",
+  "agentic-video-editing",
   "ai-research",
   "responsible-ai",
 ] as const satisfies readonly RegistryCourseId[];

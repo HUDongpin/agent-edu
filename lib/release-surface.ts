@@ -26,6 +26,7 @@ export const COURSE_IDS = [
   "ai-tutor",
   "product-management",
   "agent-orchestration",
+  "agentic-video-editing",
   "creator-ops",
   "ai-research",
   "responsible-ai",

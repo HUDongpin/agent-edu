@@ -28,6 +28,7 @@ export const PROGRESS_ADAPTER_COURSE_IDS = [
   "ai-tutor",
   "product-management",
   "agent-orchestration",
+  "agentic-video-editing",
 ] as const;
 
 export type ProgressAdapterCourseId = (typeof PROGRESS_ADAPTER_COURSE_IDS)[number];

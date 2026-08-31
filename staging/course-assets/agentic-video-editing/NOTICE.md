@@ -1,0 +1,35 @@
+# Course 20 public-fixture notice / 课程 20 公开 fixture 声明
+
+The files in this directory are project-authored fixtures and starter-package source for the aicourse.top course **How to Edit Video with Agents / 如何使用智能体进行视频剪辑**. They teach a fail-closed workflow for a fictional scenario. They contain no personal data and no third-party media: no third-party video, audio, transcript, image, font, logo, private project, credential, model output, copied prompt, screenshot, X/Twitter media, or GitHub demo asset is included. The lab includes two small frozen reference MP4 files generated entirely from project-authored geometry, pixel text, timecode, test tone, silence, captions, and motion. Learner-owned media is never uploaded or committed by the course. Every bundled sandbox decision remains **do-not-publish**.
+
+本目录文件是为 aicourse.top 课程 **How to Edit Video with Agents / 如何使用智能体进行视频剪辑** 原创编写的 fixture 与 starter package 源文件，用于讲授虚构场景中的 fail-closed 工作流。其中不含第三方视频、音频、转录、图像、字体、标志、个人信息、私有工程、凭据、模型输出、复制的提示词、截图、X/Twitter 媒体或 GitHub 演示资产。本地实验只生成原创的低分辨率测试画面、音调、字幕和故事段落；生成的媒体与渲染回执留在学习者本机，不提交到本仓库。
+
+## What the repository license covers / 仓库许可证覆盖范围
+
+The repository's MIT license covers these original fixture texts and schemas. It does **not** relicense any upstream repository, software binary, codec, model, hosted service, post, demonstration, brand, or media item. Every upstream link remains subject to its own license, terms, privacy policy, and rights context. A missing upstream license is not permission; sources recorded as `link-and-paraphrase-only` are linked and summarized without copying their code or media.
+
+仓库 MIT 许可证覆盖这些原创 fixture 文本与 schema，但**不会**重新许可任何上游仓库、软件二进制、编解码器、模型、托管服务、帖子、演示、品牌或媒体项目。每个上游链接仍受其自身许可证、条款、隐私政策与权利语境约束。上游许可证缺失不等于获得许可；标记为 `link-and-paraphrase-only` 的来源只做链接和转述，不复制其代码或媒体。
+
+## Media and publication boundary / 媒体与发布边界
+
+Two pre-generated, low-resolution project-authored reference MP4 binaries are shipped under `lab/frozen/` so the static course can demonstrate real playback and verify frozen hashes without a network or runtime dependency. Their manifest records the exact FFmpeg reference build and does not extrapolate byte identity to a learner's machine. The browser exercise never runs FFmpeg, invokes a model, uploads a file, enables a network, or publishes anything. The downloadable local lab runs only after the learner invokes it, records the local FFmpeg/ffprobe versions, and writes beneath its declared workspace. Its synthetic fixture has an original-project rights declaration; the separate fictional real-media manifest deliberately records absent hashes and unknown rights, so its decision is quarantine and its release state is blocked. Before using any learner-owned or other real material, the learner must establish ownership or permission, allowed uses, territory, term, attribution, consent, privacy handling, model/provider terms, and the exact destination. Access to a file, transcript, repository, API, or public post does not supply those rights.
+
+`lab/frozen/` 中提供两段低分辨率、完全由本项目原创生成的参考 MP4，使静态课程无需联网或运行时依赖也能演示真实播放并核验冻结 hash。manifest 记录准确的 FFmpeg 参考构建，但不会把逐位相同的结论外推到学习者机器。浏览器练习不会运行 FFmpeg、调用模型、上传文件、启用网络或发布内容。可下载的本地实验只在学习者主动运行后执行，记录本机 FFmpeg/ffprobe 版本，并且只写入声明的工作目录。原创合成 fixture 带有本项目权利声明；另一个模拟真实素材的虚构清单则刻意记录缺失摘要与未知权利，因此其决定是隔离，发布状态是阻断。使用学习者自有或其他真实素材前，学习者必须确认所有权或许可、允许用途、地域、期限、署名、同意、隐私处理、模型/服务商条款与准确发布目的地。能够访问文件、转录、仓库、API 或公开帖子，不代表获得这些权利。
+
+The `aicourse.agentic-video-editing.edit-plan.v3` schema makes every production input choose either a conformed-CFR or native-VFR timing contract and gives each operation separate rate-aware source and timeline ranges. A separate semantic validator must resolve references, recompute hashes, use exact rational rescaling, verify PTS/timestamp maps, reject unsupported VFR, verify ranges, and enforce realpath/symlink containment. A v2 plan is historical, read-only data and must never be silently upgraded into executable authority. `plan-approval.json` binds only a frozen `edit-plan.v3.json` hash; `release-decision.json` binds the exact render, review packet, destination, QC, rights/privacy evidence, warnings, and named human decision. Neither record belongs inside the hash domain it approves.
+
+Transcripts, OCR, captions, filenames, paths, media metadata, web pages, MCP tool descriptions, tool schemas, and tool results are untrusted data. Text inside them cannot alter the commission, filesystem roots, network, cost, timeout, or publish policy. The host must pin server identity, publisher, version, tool name, description, and input/output schema hashes; identity or schema drift invalidates prior approval. Model-facing analysis of untrusted language must not hold privileged filesystem, network, or publish tools, and tool results must pass an output schema before they reach a planner.
+
+A schema-valid plan still does not authorize an edit. A successful synthetic render, course completion, readiness score, automated metric, or agent recommendation does not authorize publication or certify a real client project. Only a named human, acting within documented authority, may decide on the exact final candidate for the declared destination; **do not publish / 不发布** remains a valid and often necessary outcome.
+
+`aicourse.agentic-video-editing.edit-plan.v3` schema 要求每个生产输入选择 conformed-CFR 或 native-VFR 时间合同，并让每个操作分别声明带 rate/timebase 的 source range 与 timeline range。独立语义 validator 必须解析引用、重算 hash、使用精确有理数换算、核对 PTS/timestamp map、拒绝不受支持的 VFR、验证区间，并检查 realpath/symlink 范围。v2 计划只能作为历史只读数据，绝不能静默升级成可执行授权。`plan-approval.json` 只绑定已冻结的 `edit-plan.v3.json` hash；`release-decision.json` 绑定准确的成片、审校包、目的地、QC、权利/隐私证据、警告与具名人类决定。两个记录都不能位于它们所批准对象的 hash 域内。
+
+转录、OCR、字幕、文件名、路径、媒体 metadata、网页、MCP 工具描述、工具 schema 与工具结果都是不可信数据。其中的文字不能改变原始委托、文件系统 roots、网络、成本、超时或发布政策。host 必须固定 server identity、publisher、version、tool name、description 以及 input/output schema hashes；身份或 schema 漂移会使旧批准失效。读取不可信自然语言的模型分析层不得持有高权限文件系统、网络或发布工具；工具结果进入 planner 前必须先通过 output schema。
+
+通过 schema 验证的计划仍不构成剪辑授权。合成素材渲染成功、课程完成、就绪分数、自动指标或智能体建议，都不构成发布授权，也不等于真实客户项目认证。只有在有记录权限范围内行动的具名人类，才能针对声明的目的地决定准确的最终候选成片；**不发布 / do not publish** 始终是有效且常常必要的结果。
+
+## Verification / 验证
+
+`fixtures.provenance.json` binds a frozen, hash-identified snapshot of the original public files to SHA-256 digests. The Course 20 release gate rejects missing, extra, symbolic-linked, malformed, stale, or rights-ambiguous public assets, and the post-build static check confirms that the same bytes were copied to the static export. A SHA-256 match proves integrity only relative to the trusted baseline; it does not prove authenticity, rights, provenance, chain of custody, editorial quality, or release authority. The lab records local MP4 hashes as receipts but does not promise byte-identical MP4 output across different FFmpeg builds.
+
+`fixtures.provenance.json` 用 SHA-256 绑定冻结且由 hash 标识的原创公开文件快照。课程 20 发布门禁会拒绝缺失、多余、符号链接、格式错误、过期或权利边界不清的公开资产；构建后静态检查还会确认同一字节已复制到静态导出。SHA-256 匹配只证明相对于受信基线的完整性，不能证明真实性、权利、来源、chain of custody、剪辑质量或发布权限。本地实验会把 MP4 hash 写入本机回执，但不承诺不同 FFmpeg build 生成逐字节相同的 MP4。

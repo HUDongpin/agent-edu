@@ -101,6 +101,15 @@ export function githubLessonPage(slug: string): Page {
   return page as Page;
 }
 
+/** Private Course 20 route helper; publication still comes only from PAGES. */
+export function agenticVideoEditingModulePage(slug: string): Page {
+  const page = `agentic-video-editing/${slug}/`;
+  if (!KNOWN_PAGE_SET.has(page)) {
+    throw new Error(`Unknown Agentic Video Editing module route: ${slug}`);
+  }
+  return page;
+}
+
 export function ragLessonPage(slug: string): Page {
   const page = `rag/${slug}/`;
   if (!KNOWN_PAGE_SET.has(page)) {

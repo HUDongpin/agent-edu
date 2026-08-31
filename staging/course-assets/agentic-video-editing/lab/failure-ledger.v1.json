@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.failure-ledger.v1",
+  "projectSpecId": "course20-verified-cut-v2",
+  "policy": "Known-bad controls must remain failures. Detection proves the gate can reject a fault; it does not authorize automatic repair.",
+  "faults": [
+    { "id": "caption-overlap", "surface": "course20-fault-reel.en.vtt", "intervalSeconds": [2, 2.5], "detector": "WebVTT interval parser", "expectedBlockCode": "caption-overlap" },
+    { "id": "safe-zone-caption", "surface": "course20-fault-reel.en.vtt", "intervalSeconds": [0, 2.5], "detector": "cue line-position and safe-zone contract", "expectedBlockCode": "safe-zone-conflict" },
+    { "id": "wrong-crop", "surface": "course20-fault-reel.mp4", "intervalSeconds": [0, 1], "detector": "declared crop against edge-marker geometry", "expectedBlockCode": "crop-removes-required-marker" },
+    { "id": "flash", "surface": "course20-fault-reel.mp4", "intervalSeconds": [1, 2], "detector": "signalstats luma discontinuity", "expectedBlockCode": "flash-threshold-exceeded" },
+    { "id": "low-contrast-text", "surface": "course20-fault-reel.mp4", "intervalSeconds": [2, 3], "detector": "known-control foreground/background contrast", "expectedBlockCode": "contrast-below-contract" },
+    { "id": "freeze", "surface": "course20-fault-reel.mp4", "intervalSeconds": [3, 4], "detector": "FFmpeg freezedetect", "expectedBlockCode": "freeze-detected" },
+    { "id": "av-sync-offset", "surface": "course20-fault-reel.mp4", "intervalSeconds": [4, 5], "detector": "known flash at 4.0s versus tone onset at 4.5s", "expectedBlockCode": "sync-offset-exceeds-100ms" },
+    { "id": "excessive-loudness", "surface": "course20-fault-reel.mp4", "intervalSeconds": [5, 6], "detector": "FFmpeg ebur128 summary", "expectedBlockCode": "loudness-above-fixture-limit" }
+  ]
+}

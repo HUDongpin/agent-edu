@@ -24,7 +24,7 @@ test("both projections are byte-checked against the authoritative v3 manifest SH
     projection,
     JSON.parse(readFileSync("config/course-public-surface.json", "utf8")),
   );
-  assert.equal(projection.courses.length, 17);
+  assert.equal(projection.courses.length, 18);
   assert.equal(projection.courses.some((course: { id: string }) => course.id === "creator-ops"), false);
   assert.equal(JSON.stringify(projection).includes("releaseGate"), false);
   assert.equal(JSON.stringify(projection).includes("blockers"), false);
@@ -53,7 +53,7 @@ test("direct development, test, and course release entries validate projections 
   const directCourseReleaseGates = [
     "agentic", "codex", "claude", "cursor", "grok", "github", "prompts",
     "software-engineering", "rag", "mcp", "make-money-with-codex", "claude-income",
-    "ai-tutor", "product-management", "agent-orchestration",
+    "ai-tutor", "product-management", "agent-orchestration", "agentic-video-editing",
   ].map((courseId) => `${courseId}:check:release`);
   for (const name of directCourseReleaseGates) {
     const command = packageJson.scripts[name] as string;
@@ -64,7 +64,7 @@ test("direct development, test, and course release entries validate projections 
 test("blocked and staged curricula stay in one private root until an authorized state flip", () => {
   const manifest = JSON.parse(readFileSync("config/course-release-manifest.json", "utf8"));
   const current = projectAuthoredCourseRouteWrappers(manifest);
-  assert.equal(current.length, 8);
+  assert.equal(current.length, 10);
   for (const wrapper of current) {
     assert.equal(wrapper.source, null, wrapper.path);
   }
@@ -72,6 +72,9 @@ test("blocked and staged curricula stay in one private root until an authorized 
   assert.ok(current
     .filter((wrapper) => wrapper.courseId === "creator-ops")
     .every((wrapper) => wrapper.privateFolder === "_staged"));
+  assert.ok(current
+    .filter((wrapper) => wrapper.courseId === "agentic-video-editing")
+    .every((wrapper) => wrapper.privateFolder === "_blocked"));
 
   const flipped = structuredClone(manifest);
   const codex = flipped.courses.find((course: { id: string }) => course.id === "codex");

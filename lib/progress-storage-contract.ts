@@ -23,6 +23,8 @@ export const PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY =
   "__aicourse_product_management_storage_probe__";
 export const AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY =
   "__aicourse_agent_orchestration_storage_probe__";
+export const AGENTIC_VIDEO_EDITING_PROGRESS_PROBE_KEY =
+  "__aicourse_agentic_video_editing_storage_probe__";
 export const INCOME_PROGRESS_PROBE_KEY = "ae.progress.income-probe";
 export const GROK_PROGRESS_PROBE_KEY = "aicourse.grok.progress.v1.probe";
 export const GROK_QUIZ_ATTEMPT_KEY = "aicourse.grok.quiz-attempt.v1";
@@ -37,6 +39,7 @@ export const PROGRESS_LOCAL_EPHEMERAL_KEYS = [
   AI_TUTOR_PROGRESS_PROBE_KEY,
   PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
   AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY,
+  AGENTIC_VIDEO_EDITING_PROGRESS_PROBE_KEY,
   INCOME_PROGRESS_PROBE_KEY,
   GROK_PROGRESS_PROBE_KEY,
 ] as const;
@@ -79,6 +82,10 @@ export const AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY =
   "ae.progress.agent-orchestration-corrupt-backup";
 export const CODEX_CAPSTONE_DRAFT_STORAGE_KEY =
   "aicourse.codex.capstone-draft.v1";
+export const AGENTIC_VIDEO_EDITING_SESSION_PROBE_KEY =
+  "__aicourse_agentic_video_editing_session_probe__";
+export const AGENTIC_VIDEO_EDITING_CORRUPT_BACKUP_KEY =
+  "ae.progress.agentic-video-editing-corrupt-backup";
 
 export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
   CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
@@ -89,6 +96,8 @@ export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
   PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
   PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_PROBE_KEY,
   AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY,
+  AGENTIC_VIDEO_EDITING_SESSION_PROBE_KEY,
+  AGENTIC_VIDEO_EDITING_CORRUPT_BACKUP_KEY,
   GROK_QUIZ_ATTEMPT_KEY,
   GROK_TASK_CONTRACT_DRAFT_KEY,
   CLAUDE_INCOME_QUIZ_ATTEMPT_KEY,

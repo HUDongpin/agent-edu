@@ -51,6 +51,7 @@ const EXPECTED_FRESH_NEXT_HREF = {
   "ai-tutor": "/en/ai-tutor/objectives-concept-map/",
   "product-management": "/en/product-management/product-judgment-operating-model/",
   "agent-orchestration": "/en/agent-orchestration/workflow-agent-boundary/",
+  "agentic-video-editing": "/en/agentic-video-editing/agentic-editing-contract/",
 };
 
 const problems = [];

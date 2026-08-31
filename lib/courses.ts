@@ -64,6 +64,11 @@ import {
 } from "./release-surface";
 import { registryOrderedCourseRecords } from "./course-collection-contract";
 import { PUBLIC_COURSE_IDS } from "./public-release-surface";
+import {
+  AGENTIC_VIDEO_EDITING_PROGRESS_EVENT,
+  AGENTIC_VIDEO_EDITING_PROGRESS_MODULES,
+  summarizeAgenticVideoEditingProgress,
+} from "./progress-agentic-video-editing";
 
 export type Level = "beginner" | "intermediate" | "advanced";
 export type Format = "read" | "interactive" | "code";
@@ -106,8 +111,9 @@ export interface TopLevelCourse {
     | "claude-income"
     | "ai-tutor"
     | "product-management"
-    | "agent-orchestration";
-  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+    | "agent-orchestration"
+    | "agentic-video-editing";
+  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 20;
   href: string;
   minutes: number;
   durationMinutes: number;
@@ -123,7 +129,8 @@ export interface TopLevelCourse {
     | "seventeen-equal-milestones"
     | "eleven-equal-milestones"
     | "ten-equal-milestones"
-    | "twenty-equal-milestones";
+    | "twenty-equal-milestones"
+    | "twelve-receipt-milestones";
   /** Browser store supplied to the progress adapter; defaults to `ae.progress`. */
   progressStorageKey?: string;
   /** Same-tab invalidation event emitted by this course's progress store. */
@@ -653,6 +660,25 @@ const TOP_LEVEL_COURSE_DEFINITIONS: TopLevelCourse[] = [
     progressEvent: AGENT_ORCHESTRATION_PROGRESS_EVENT,
     progress: (p) => agentOrchestrationProgressPercent(p),
   },
+  {
+    id: "agentic-video-editing",
+    displayNumber: 20,
+    href: "/agentic-video-editing/",
+    minutes: 750,
+    durationMinutes: 750,
+    status: "available",
+    hue: "var(--gold)",
+    level: "intermediate-to-advanced",
+    moduleIds: AGENTIC_VIDEO_EDITING_PROGRESS_MODULES.map(({ slug }) => slug),
+    outcomeKeys: [
+      "c.agentic-video-editing.blurb",
+      "c.agentic-video-editing.title",
+      "c.agentic-video-editing.meta",
+    ],
+    progressStrategy: "twelve-receipt-milestones",
+    progressEvent: AGENTIC_VIDEO_EDITING_PROGRESS_EVENT,
+    progress: (record) => summarizeAgenticVideoEditingProgress(record).percent,
+  },
 ];
 
 const IMPLEMENTED_REGISTRY_COURSE_IDS = PUBLIC_COURSE_IDS.filter(
@@ -707,6 +733,9 @@ const productManagementCourse = TOP_LEVEL_COURSES.find(
 )!;
 const agentOrchestrationCourse = TOP_LEVEL_COURSES.find(
   (course) => course.id === "agent-orchestration",
+)!;
+const agenticVideoEditingCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "agentic-video-editing",
 )!;
 
 /**
@@ -1009,6 +1038,25 @@ const CATALOG_COURSE_DEFINITIONS: readonly CatalogCourse[] = [
     hue: agentOrchestrationCourse.hue,
     progressEvent: agentOrchestrationCourse.progressEvent,
     progress: agentOrchestrationCourse.progress,
+  },
+  {
+    id: "agentic-video-editing",
+    displayNumber: agenticVideoEditingCourse.displayNumber,
+    href: agenticVideoEditingCourse.href,
+    titleKey: "c.agentic-video-editing.title",
+    blurbKey: "c.agentic-video-editing.blurb",
+    metaKey: "c.agentic-video-editing.meta",
+    topic: "ai-systems",
+    topicKey: "topic.aiSystems",
+    level: agenticVideoEditingCourse.level,
+    levelKey: "c.agentic-video-editing.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: agenticVideoEditingCourse.minutes,
+    status: agenticVideoEditingCourse.status,
+    hue: agenticVideoEditingCourse.hue,
+    progressEvent: agenticVideoEditingCourse.progressEvent,
+    progress: agenticVideoEditingCourse.progress,
   },
   {
     id: "responsible-ai",

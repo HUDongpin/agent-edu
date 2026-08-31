@@ -3,7 +3,7 @@
   "manifestKind": "course-release-surface-projection",
   "source": {
     "path": "config/course-release-manifest.json",
-    "sha256": "1be42afbef75adf7667210cdb56b706833eba3982f9fdf24c6fca195952267b6"
+    "sha256": "0f0f65a9917004137aaf908c2c52b656479f0c150223a3b1c59193b7c01bc43c"
   },
   "siteLocales": [
     "en",
@@ -899,6 +899,55 @@
         "storageKey": "ae.progress",
         "event": "agent-orchestration:progress-change"
       }
+    },
+    {
+      "id": "agentic-video-editing",
+      "state": "blocked",
+      "href": "/agentic-video-editing/",
+      "titleKey": "c.agentic-video-editing.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "routes": [
+        "agentic-video-editing/",
+        "agentic-video-editing/agentic-editing-contract/",
+        "agentic-video-editing/media-ingest-provenance/",
+        "agentic-video-editing/transcripts-shots-index/",
+        "agentic-video-editing/semantic-analysis-director/",
+        "agentic-video-editing/declarative-edit-plan/",
+        "agentic-video-editing/agent-tools-mcp/",
+        "agentic-video-editing/captions-audio-formats/",
+        "agentic-video-editing/deterministic-rendering/",
+        "agentic-video-editing/verification-human-review/",
+        "agentic-video-editing/production-capstone/"
+      ],
+      "releaseGate": "npm run agentic-video-editing:check:release",
+      "progress": {
+        "strategy": "twelve-receipt-milestones",
+        "storageKey": "ae.progress",
+        "event": "agentic-video-editing:progress-change"
+      },
+      "blockers": [
+        "human-provenance-receipt-stale"
+      ]
     },
     {
       "id": "creator-ops",

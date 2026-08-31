@@ -27,6 +27,12 @@ import {
   RAG_PROGRESS_LESSON_SLUGS,
 } from "../lib/progress-topology";
 import {
+  AGENTIC_VIDEO_EDITING_CORRUPT_BACKUP_KEY,
+  AGENTIC_VIDEO_EDITING_PROGRESS_PROBE_KEY,
+  AGENTIC_VIDEO_EDITING_PROGRESS_STORAGE_KEY,
+  AGENTIC_VIDEO_EDITING_SESSION_PROBE_KEY,
+} from "../lib/progress-agentic-video-editing";
+import {
   PROMPT_CAPSTONE_REQUIRED_COUNT,
   PROMPT_CAPSTONE_RUBRIC_COUNT,
 } from "../lib/prompts/capstone";
@@ -168,6 +174,7 @@ const EXPECTED_FIRST_HREFS = {
   "ai-tutor": "/en/ai-tutor/objectives-concept-map/",
   "product-management": "/en/product-management/product-judgment-operating-model/",
   "agent-orchestration": "/en/agent-orchestration/workflow-agent-boundary/",
+  "agentic-video-editing": "/en/agentic-video-editing/agentic-editing-contract/",
 } as const;
 
 function readReleaseContract() {
@@ -249,7 +256,7 @@ test("blocked progress adapters stay dormant until the generated registry publis
     allAdapters.map((adapter) => adapter.courseId),
     expectedAdapterIds,
   );
-  assert.deepEqual(dormantIds, ["codex", "claude", "cursor"]);
+  assert.deepEqual(dormantIds, ["codex", "claude", "cursor", "agentic-video-editing"]);
   assert.ok(PUBLIC_COURSE_SURFACES
     .filter((surface) => dormantIds.includes(surface.id as never))
     .every((surface) => surface.state === "blocked" && surface.progressEvent === null));
@@ -267,7 +274,7 @@ test("blocked progress adapters stay dormant until the generated registry publis
   assert.deepEqual(
     futureAdapters.map((adapter) => adapter.courseId),
     expectedAdapterIds,
-    "a registry state flip activates all three adapters without adapter code changes",
+    "a registry state flip activates all four adapters without adapter code changes",
   );
 
   const storage = new MemoryStorage();
@@ -307,6 +314,17 @@ test("blocked progress adapters stay dormant until the generated registry publis
         ],
         ["claude", "claude:progress-change", ["ae.progress"], EXPECTED_FIRST_HREFS.claude],
         ["cursor", "cursor:progress-change", ["aicourse.cursor.progress.v1"], EXPECTED_FIRST_HREFS.cursor],
+        [
+          "agentic-video-editing",
+          "agentic-video-editing:progress-change",
+          [
+            AGENTIC_VIDEO_EDITING_PROGRESS_STORAGE_KEY,
+            AGENTIC_VIDEO_EDITING_PROGRESS_PROBE_KEY,
+            AGENTIC_VIDEO_EDITING_SESSION_PROBE_KEY,
+            AGENTIC_VIDEO_EDITING_CORRUPT_BACKUP_KEY,
+          ],
+          EXPECTED_FIRST_HREFS["agentic-video-editing"],
+        ],
       ],
     );
 
@@ -323,6 +341,7 @@ test("blocked progress adapters stay dormant until the generated registry publis
         ["codex", "/en/codex/task-contracts/"],
         ["claude", "/en/claude/describe-the-outcome/"],
         ["cursor", "/en/cursor/tab-inline-edit/"],
+        ["agentic-video-editing", EXPECTED_FIRST_HREFS["agentic-video-editing"]],
       ],
       "future adapters resume the exact first incomplete lesson",
     );
@@ -365,7 +384,12 @@ test("blocked progress adapters stay dormant until the generated registry publis
     assert.equal(storage.getItem(CURSOR_PROGRESS_RESET_QUARANTINE_KEY), "[]");
     assert.deepEqual(
       [...repaintEvents].sort(),
-      ["claude:progress-change", "codex:progress-change", "cursor:progress-change"],
+      [
+        "agentic-video-editing:progress-change",
+        "claude:progress-change",
+        "codex:progress-change",
+        "cursor:progress-change",
+      ],
     );
 
     // A second reset is idempotent and does not consume inactive recovery data.
@@ -392,10 +416,12 @@ test("global reset covers blocked stores without exposing them as public summari
   assert.equal(new Set(resetIds).size, resetIds.length);
   assert.ok(resetIds.includes("claude"));
   assert.ok(resetIds.includes("cursor"));
+  assert.ok(resetIds.includes("agentic-video-editing"));
   assert.equal(resetIds.at(-1), "recency");
   assert.equal(publicIds.has("codex"), false);
   assert.equal(publicIds.has("claude"), false);
   assert.equal(publicIds.has("cursor"), false);
+  assert.equal(publicIds.has("agentic-video-editing"), false);
 });
 
 test("central reset reports quota and unavailable without clearing unrelated device state", async () => {
