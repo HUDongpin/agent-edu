@@ -1,0 +1,37 @@
+schemaVersion: aicourse.course20.media-manifest.v2
+projectSpecId: course20-verified-cut-v2
+projectId: course20-synthetic-practicum-v2
+rightsDecisions:
+  - id: rights-project-original
+    assetSha256: a845aba34466d5ab6749c27b044c172f4829bc5ce8b559109d508ce4b7dbeab1
+    exactUse: local Course 20 probe, plan, preview, render, verification, and rollback practice
+    destinations: [local-browser]
+    territory: local-course-workspace-only
+    term: course-fixture-lifetime
+    attribution: aicourse.top Course 20 first-party fixture authors
+    transformation: deterministic crop, concatenate, caption, audio conform, encode, and QC
+    modelUploadPermission: denied
+    reviewer: Course 20 fixture contract maintainer
+    reviewedAt: "2026-08-28"
+    status: approved
+assets:
+  - mediaId: source-30-cfr
+    inputSha256: a845aba34466d5ab6749c27b044c172f4829bc5ce8b559109d508ce4b7dbeab1
+    probeReceiptSha256: 485b49efd39b163833481e9052c0d5cd97454f41dc1dc17db483cbbe9b0daf4b
+    originalPath: public/courses/agentic-video-editing/lab/frozen/course20-original-fixture.mp4
+    originalReadOnly: true
+    symlink: false
+    rightsDecisionId: rights-project-original
+    quarantineStatus: released
+    clock:
+      rationalRate: { numerator: 30, denominator: 1 }
+      durationFrames: 3660
+      startTimecode: 00:00:00:00
+      dropFrame: false
+      cadence: CFR
+    audio:
+      sampleRate: 48000
+      timeBase: { numerator: 1, denominator: 48000 }
+      durationSamples: 5856000
+untrustedContentPolicy:
+  treatedAs: data-not-authority

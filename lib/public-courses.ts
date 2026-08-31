@@ -82,6 +82,7 @@ const CATALOG_PRESENTATION_BY_ID = {
   "agentic-quant-trading": { catalogOrder: 18, displayNumber: 17, blurbKey: "c.agentic-quant-trading.blurb", metaKey: "c.agentic-quant-trading.meta", topic: "ai-systems", topicKey: "topic.aiSystems", level: "intermediate-to-advanced", levelKey: "c.agentic-quant-trading.level", format: "project-based", formatKey: "cat.formatProject", minutes: 780, hue: "var(--brand)" },
   "ai-teaching": { catalogOrder: 19, displayNumber: 18, blurbKey: "c.ai-teaching.blurb", metaKey: "c.ai-teaching.meta", topic: "teaching", topicKey: "topic.teaching", level: "beginner-to-advanced", levelKey: "c.ai-teaching.level", format: "project-based", formatKey: "cat.formatProject", minutes: 720, hue: "var(--green)" },
   "math-animation": { catalogOrder: 20, displayNumber: 19, blurbKey: "c.math-animation.blurb", metaKey: "c.math-animation.meta", topic: "coding-assistants", topicKey: "topic.codingAssistants", level: "beginner-to-advanced", levelKey: "c.math-animation.level", format: "project-based", formatKey: "cat.formatProject", minutes: 805, hue: "var(--coral)" },
+  "agentic-video-editing": { catalogOrder: 21, displayNumber: 20, blurbKey: "c.agentic-video-editing.blurb", metaKey: "c.agentic-video-editing.meta", topic: "ai-systems", topicKey: "topic.aiSystems", level: "intermediate-to-advanced", levelKey: "c.agentic-video-editing.level", format: "project-based", formatKey: "cat.formatProject", minutes: 750, hue: "var(--gold)" },
 } satisfies Record<CourseId, CatalogPresentationMetadata>;
 assertExactCourseIdSet(
   PUBLIC_COURSE_IDS,

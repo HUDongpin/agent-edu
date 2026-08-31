@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.artifact-graph.v1",
+  "projectSpecId": "course20-verified-cut-v2",
+  "nodes": [
+    { "id": "preflight", "path": "receipts/preflight.receipt.json", "dependsOn": [] },
+    { "id": "native-sources", "path": "evidence/media-manifest.v2.json", "dependsOn": ["preflight"] },
+    { "id": "conform", "path": "receipts/clock-conform.receipt.json", "dependsOn": ["native-sources"] },
+    { "id": "edit-plan", "path": "plan/edit-plan-v3.json", "dependsOn": ["conform"] },
+    { "id": "plan-approval", "path": "plan/fixture-plan-approval.v1.json", "dependsOn": ["edit-plan"] },
+    { "id": "tool-policy", "path": "plan/tool-policy.v1.json", "dependsOn": ["edit-plan"] },
+    { "id": "delivery-contract", "path": "plan/delivery-contract.v1.json", "dependsOn": ["tool-policy"] },
+    { "id": "candidate", "path": "render/course20-review-candidate.mp4", "dependsOn": ["plan-approval", "delivery-contract", "tool-policy"] },
+    { "id": "render-receipt", "path": "receipts/render.receipt.json", "dependsOn": ["candidate"] },
+    { "id": "verification", "path": "receipts/verify.receipt.json", "dependsOn": ["render-receipt"] },
+    { "id": "rollback", "path": "receipts/rollback.receipt.json", "dependsOn": ["verification"] }
+  ],
+  "terminalState": "verified-candidate-preserved-unapproved-canary-quarantined-do-not-publish"
+}

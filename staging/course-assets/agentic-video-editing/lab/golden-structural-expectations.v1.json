@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.golden-structural-expectations.v1",
+  "projectSpecId": "course20-verified-cut-v2",
+  "candidate": {
+    "durationSeconds": 47,
+    "durationToleranceSeconds": 0.08,
+    "width": 1080,
+    "height": 1920,
+    "frameRate": "30/1",
+    "audioSampleRateHz": 48000,
+    "videoStreamRequired": true,
+    "audioStreamRequired": true,
+    "captionSidecarRequired": true,
+    "captionCueCount": 4,
+    "publicationDecision": "do-not-publish"
+  },
+  "sourceControls": {
+    "canonicalSourceClock": "30/1 CFR",
+    "nativeClockModes": ["30/1 CFR canonical", "24/1 CFR control", "30000/1001 CFR control", "VFR native timestamp control"],
+    "normalizedClock": "30/1 CFR",
+    "geometryRequired": true,
+    "pixelTextRequired": true,
+    "timecodeRequired": true,
+    "motionRequired": true,
+    "toneRequired": true,
+    "sourceDurationSeconds": 122
+  },
+  "requiredFaultBlockCodes": ["caption-overlap", "safe-zone-conflict", "crop-removes-required-marker", "flash-threshold-exceeded", "contrast-below-contract", "freeze-detected", "sync-offset-exceeds-100ms", "loudness-above-fixture-limit"]
+}

@@ -61,6 +61,7 @@ const EXPECTED_FRESH_NEXT_HREF = {
   "agentic-quant-trading": "/en/agentic-quant-trading/scope-safety-autonomy/",
   "ai-teaching": "/en/ai-teaching/agentic-teaching-boundaries/",
   "math-animation": "/en/math-animation/outcome-before-engine/",
+  "agentic-video-editing": "/en/agentic-video-editing/agentic-editing-contract/",
 };
 
 const problems = [];

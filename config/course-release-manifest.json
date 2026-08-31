@@ -1021,6 +1021,50 @@
       "blockers": [
         "platform-release-v1-intake-freeze"
       ]
+    },
+    {
+      "id": "agentic-video-editing",
+      "state": "blocked",
+      "href": "/agentic-video-editing/",
+      "titleKey": "c.agentic-video-editing.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "routes": [
+        "agentic-video-editing/",
+        "agentic-video-editing/agentic-editing-contract/",
+        "agentic-video-editing/media-ingest-provenance/",
+        "agentic-video-editing/transcripts-shots-index/",
+        "agentic-video-editing/semantic-analysis-director/",
+        "agentic-video-editing/declarative-edit-plan/",
+        "agentic-video-editing/agent-tools-mcp/",
+        "agentic-video-editing/captions-audio-formats/",
+        "agentic-video-editing/deterministic-rendering/",
+        "agentic-video-editing/verification-human-review/",
+        "agentic-video-editing/production-capstone/"
+      ],
+      "releaseGate": "npm run agentic-video-editing:check:release",
+      "progress": {
+        "strategy": "twelve-receipt-milestones",
+        "storageKey": "ae.progress",
+        "event": "agentic-video-editing:progress-change"
+      },
+      "blockers": [
+        "human-provenance-receipt-stale"
+      ]
     }
   ]
 }

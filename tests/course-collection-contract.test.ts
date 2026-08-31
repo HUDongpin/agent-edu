@@ -90,6 +90,7 @@ test("registry-derived public catalogue preserves the reviewed visual order", ()
       "prompts", "software-engineering", "rag", "mcp", "make-money-with-codex",
       "claude-income", "ai-tutor", "product-management", "agent-orchestration",
       "responsible-ai", "agentic-quant-trading", "ai-teaching", "math-animation",
+      "agentic-video-editing",
     ],
   );
 });

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.negative-fixtures.v1",
+  "projectSpecId": "course20-verified-cut-v2",
+  "fixtures": [
+    {
+      "id": "metadata-prompt-injection",
+      "mutation": { "treatUntrustedTextAsInstruction": true },
+      "expectedBlockCode": "untrusted-data-promoted-to-instruction"
+    },
+    {
+      "id": "unknown-rights-archive",
+      "mutation": { "selectedSegmentIds": ["hook", "external-archive-unknown-rights"] },
+      "expectedBlockCode": "rights-unresolved"
+    },
+    {
+      "id": "asr-negation-mismatch",
+      "mutation": { "reviewedTranscript": "The archive is not cleared for use.", "asrTranscript": "The archive is cleared for use." },
+      "expectedBlockCode": "reviewed-transcript-mismatch"
+    },
+    {
+      "id": "approved-plan-hash-mismatch",
+      "mutation": { "approvedPlanSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "actualPlanSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+      "expectedBlockCode": "approved-plan-hash-mismatch"
+    },
+    {
+      "id": "output-root-escape",
+      "mutation": { "outputRelativePath": "../../outside/final.mp4" },
+      "expectedBlockCode": "output-root-escape"
+    },
+    {
+      "id": "network-publish-escalation",
+      "mutation": { "allowNetwork": true, "allowPublish": true },
+      "expectedBlockCode": "authority-escalation"
+    },
+    {
+      "id": "missing-recovery-path",
+      "mutation": { "recoveryPath": "" },
+      "expectedBlockCode": "recovery-path-missing"
+    },
+    {
+      "id": "caption-overlap",
+      "mutation": { "cues": [{ "start": 0, "end": 2.5 }, { "start": 2, "end": 4.5 }] },
+      "expectedBlockCode": "caption-overlap"
+    },
+    {
+      "id": "caption-out-of-bounds",
+      "mutation": { "cueEndSeconds": 7, "mediaDurationSeconds": 6 },
+      "expectedBlockCode": "caption-out-of-bounds"
+    },
+    {
+      "id": "portrait-safe-zone-conflict",
+      "mutation": { "captionBoundingBox": { "x": 10, "y": 1700, "width": 1050, "height": 100 }, "safeZone": { "left": 86, "top": 192, "right": 994, "bottom": 1728 } },
+      "expectedBlockCode": "safe-zone-conflict"
+    },
+    {
+      "id": "wrong-crop",
+      "mutation": { "crop": { "x": 0, "y": 0, "width": 101, "height": 180 }, "requiredMarkerX": 160 },
+      "expectedBlockCode": "crop-removes-required-marker"
+    },
+    {
+      "id": "flash-threshold",
+      "mutation": { "lumaBefore": 34, "lumaPeak": 245, "maximumDelta": 80 },
+      "expectedBlockCode": "flash-threshold-exceeded"
+    },
+    {
+      "id": "low-contrast-text",
+      "mutation": { "foregroundLuma": 132, "backgroundLuma": 125, "minimumDelta": 40 },
+      "expectedBlockCode": "contrast-below-contract"
+    },
+    {
+      "id": "freeze-duration",
+      "mutation": { "freezeDurationSeconds": 1, "maximumAllowedSeconds": 0.5 },
+      "expectedBlockCode": "freeze-detected"
+    },
+    {
+      "id": "av-sync-offset",
+      "mutation": { "visualEventSeconds": 4, "audioEventSeconds": 4.5, "maximumOffsetSeconds": 0.1 },
+      "expectedBlockCode": "sync-offset-exceeds-100ms"
+    },
+    {
+      "id": "excessive-loudness",
+      "mutation": { "integratedLufs": -3, "maximumIntegratedLufs": -14 },
+      "expectedBlockCode": "loudness-above-fixture-limit"
+    }
+  ]
+}

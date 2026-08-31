@@ -29,6 +29,8 @@ export const AI_TEACHING_PROGRESS_PROBE_KEY =
   "__aicourse_ai_teaching_storage_probe__";
 export const MATH_ANIMATION_PROGRESS_PROBE_KEY =
   "__aicourse_math_animation_storage_probe__";
+export const AGENTIC_VIDEO_EDITING_PROGRESS_PROBE_KEY =
+  "__aicourse_agentic_video_editing_storage_probe__";
 export const INCOME_PROGRESS_PROBE_KEY = "ae.progress.income-probe";
 export const GROK_PROGRESS_PROBE_KEY = "aicourse.grok.progress.v1.probe";
 export const GROK_QUIZ_ATTEMPT_KEY = "aicourse.grok.quiz-attempt.v1";
@@ -46,6 +48,7 @@ export const PROGRESS_LOCAL_EPHEMERAL_KEYS = [
   COURSE_KIT_PROGRESS_PROBE_KEY,
   AI_TEACHING_PROGRESS_PROBE_KEY,
   MATH_ANIMATION_PROGRESS_PROBE_KEY,
+  AGENTIC_VIDEO_EDITING_PROGRESS_PROBE_KEY,
   INCOME_PROGRESS_PROBE_KEY,
   GROK_PROGRESS_PROBE_KEY,
 ] as const;
@@ -118,6 +121,10 @@ export const CURSOR_SESSION_OWNED_KEYS = [
 export type CursorPersistedSessionDraftKey =
   (typeof CURSOR_PERSISTED_SESSION_DRAFT_KEYS)[number];
 export type CursorSessionOwnedKey = (typeof CURSOR_SESSION_OWNED_KEYS)[number];
+export const AGENTIC_VIDEO_EDITING_SESSION_PROBE_KEY =
+  "__aicourse_agentic_video_editing_session_probe__";
+export const AGENTIC_VIDEO_EDITING_CORRUPT_BACKUP_KEY =
+  "ae.progress.agentic-video-editing-corrupt-backup";
 
 export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
   CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
@@ -135,6 +142,8 @@ export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
   COURSE_KIT_CORRUPT_PROGRESS_BACKUP_KEY,
   AI_TEACHING_CORRUPT_PROGRESS_BACKUP_KEY,
   MATH_ANIMATION_CORRUPT_PROGRESS_BACKUP_KEY,
+  AGENTIC_VIDEO_EDITING_SESSION_PROBE_KEY,
+  AGENTIC_VIDEO_EDITING_CORRUPT_BACKUP_KEY,
   GROK_QUIZ_ATTEMPT_KEY,
   GROK_TASK_CONTRACT_DRAFT_KEY,
   CLAUDE_INCOME_QUIZ_ATTEMPT_KEY,

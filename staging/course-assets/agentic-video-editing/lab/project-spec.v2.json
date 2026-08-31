@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.synthetic-project-spec.v2",
+  "projectSpecId": "course20-verified-cut-v2",
+  "projectId": "course20-synthetic-practicum-v2",
+  "courseVersion": "1.2.0",
+  "purpose": "Original, offline 122-second audiovisual chapter fixture for rebuilding and falsifying the Course 20 control loop.",
+  "rights": {
+    "owner": "aicourse.top Course 20 fixture authors",
+    "sourceType": "first-party-generated-geometry-text-timecode-tone-and-motion",
+    "peopleOrPersonalData": false,
+    "thirdPartyMedia": false,
+    "musicOrVoicePerformance": false,
+    "permittedUse": "Course demonstration, local verification, and reproducible testing only",
+    "unknownRightsScenario": "external-archive-unknown-rights is a scenario-only quarantined negative and never enters a render; the executable bytes remain first-party synthetic"
+  },
+  "sourceRecipe": {
+    "canvas": { "width": 320, "height": 180 },
+    "aspectRatio": "16:9",
+    "durationSeconds": 122,
+    "frameLabelCadenceSeconds": 1,
+    "visualElements": ["geometry", "pixel text", "timecode", "safe-zone guides", "motion marker"],
+    "audioElements": ["440 Hz first-party continuous test tone"],
+    "sourceFrameRate": "30/1 CFR",
+    "canonicalEditingClock": "30/1 CFR",
+    "provenanceClockControls": ["24/1 CFR", "30000/1001 CFR", "deliberately irregular VFR timestamps"],
+    "audioSampleRateHz": 48000
+  },
+  "delivery": {
+    "fileName": "course20-review-candidate.mp4",
+    "captionSidecar": "course20-review-candidate.en.vtt",
+    "canvas": { "width": 1080, "height": 1920 },
+    "aspectRatio": "9:16",
+    "frameRate": "30/1",
+    "durationSeconds": { "target": 47, "minimum": 45, "maximum": 60, "tolerance": 0.08 },
+    "audioSampleRateHz": 48000,
+    "pixelFormat": "yuv420p",
+    "color": "SDR Rec.709 limited range",
+    "publicationDecision": "do-not-publish"
+  },
+  "faultReel": {
+    "fileName": "course20-fault-reel.mp4",
+    "captionSidecar": "course20-fault-reel.en.vtt",
+    "durationSeconds": 6,
+    "purpose": "Known-bad control surface; expected failures must be detected, never repaired or published automatically."
+  },
+  "processing": {
+    "networkAllowed": false,
+    "credentialsAccepted": false,
+    "paidApisAllowed": false,
+    "shellAllowed": false,
+    "overwriteAllowed": false,
+    "workspacePattern": "tmp/agentic-video-editing-lab/<run-id>"
+  }
+}

@@ -41,6 +41,7 @@ export const FROZEN_BLOCKED_COURSE_IDS = [
   "codex",
   "claude",
   "cursor",
+  "agentic-video-editing",
   "responsible-ai",
   "agentic-quant-trading",
   "ai-teaching",
@@ -261,6 +262,31 @@ export function validateCourseReleaseManifest(manifest, options = {}) {
   invariant(
     creator.releaseGate === "npm run creator-ops:check:staged",
     "creator-ops releaseGate must run the staged checker",
+  );
+  const course20 = manifest.courses.find(
+    (course) => course.id === "agentic-video-editing",
+  );
+  invariant(
+    course20?.state === "blocked",
+    "agentic-video-editing must remain blocked until current human provenance is attached",
+  );
+  assertExactArray(
+    course20.reviewedContentLocales,
+    ["en", "zh-Hans"],
+    "agentic-video-editing.reviewedContentLocales",
+  );
+  invariant(
+    course20.routes.length === 11,
+    "agentic-video-editing must declare its dashboard plus 10 modules",
+  );
+  assertExactArray(
+    course20.blockers,
+    ["human-provenance-receipt-stale"],
+    "agentic-video-editing.blockers",
+  );
+  invariant(
+    course20.releaseGate === "npm run agentic-video-editing:check:release",
+    "agentic-video-editing releaseGate must run the fail-closed Course 20 checker",
   );
   return { manifest, published, blocked, staged, roadmap };
 }

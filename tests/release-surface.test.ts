@@ -78,6 +78,7 @@ test("the manifest preserves the frozen published set and private candidate back
     BLOCKED_COURSE_SURFACES.map((course) => course.id).sort(),
     [
       "agentic-quant-trading",
+      "agentic-video-editing",
       "ai-teaching",
       "claude",
       "codex",
@@ -183,9 +184,9 @@ test("contentLocales match the loader-backed translation boundary", async () => 
 });
 
 test("catalogue display data and progress adapters stay joined to registry state", () => {
-  assert.equal(CATALOG_COURSE_RELEASES.length, 20);
+  assert.equal(CATALOG_COURSE_RELEASES.length, 21);
   assert.equal(PUBLISHED_CATALOG_COURSES.length, 12);
-  assert.equal(BLOCKED_CATALOG_COURSES.length, 7);
+  assert.equal(BLOCKED_CATALOG_COURSES.length, 8);
   assert.equal(ROADMAP_CATALOG_COURSES.length, 1);
 
   const soon = CATALOG_COURSES.filter((course) => course.status === "soon")
@@ -325,7 +326,7 @@ test("learner links resolve to real content locales and never expose blocked rou
   assert.equal(publicCourseHrefFor("codex", "en"), null);
   assert.equal(PUBLIC_COURSE_SURFACES.some((course) => "releaseGate" in course), false);
   assert.equal(PUBLIC_COURSE_SURFACES.some((course) => "blockers" in course), false);
-  assert.equal(PUBLIC_CATALOG_COURSE_RELEASES.length, 20);
+  assert.equal(PUBLIC_CATALOG_COURSE_RELEASES.length, 21);
   assert.ok(PUBLIC_CATALOG_COURSE_RELEASES
     .filter(({ surface }) => surface.state !== "published")
     .every(({ course }) => course.href === "#" && course.status === "soon"));
@@ -401,7 +402,7 @@ test("SEO, sitemap, and robots consume the same publication boundary", () => {
   assert.deepEqual(new Set(PAGES), published);
   assert.deepEqual(new Set(PAGES), new Set(PUBLISHED_LOCALIZED_PAGES));
   assert.deepEqual(new Set(INDEXABLE_PAGES), published);
-  assert.equal([...PAGES].some((page) => /^(codex|claude|cursor)\//.test(page)), false);
+  assert.equal([...PAGES].some((page) => /^(codex|claude|cursor|agentic-video-editing)\//.test(page)), false);
 
   const routes = publishedLocalizedRoutes();
   const expectedLocalizedRouteCount =
@@ -412,7 +413,7 @@ test("SEO, sitemap, and robots consume the same publication boundary", () => {
     );
   assert.equal(routes.length, expectedLocalizedRouteCount);
   assert.equal(new Set(routes).size, expectedLocalizedRouteCount);
-  assert.equal(routes.some((route) => /\/(codex|claude|cursor)(\/|$)/.test(route)), false);
+  assert.equal(routes.some((route) => /\/(codex|claude|cursor|agentic-video-editing)(\/|$)/.test(route)), false);
   assert.ok(routes.includes("/en/prompts"));
   assert.equal(routes.includes("/fr/prompts"), false);
   assert.ok(routes.includes("/zh-Hans/agent-orchestration"));
@@ -426,7 +427,7 @@ test("SEO, sitemap, and robots consume the same publication boundary", () => {
   assert.ok(Array.isArray(rules));
   const disallow = (rules[0] as { disallow?: string[] }).disallow ?? [];
   assert.deepEqual(disallow, []);
-  assert.doesNotMatch(JSON.stringify(robots()), /\b(?:codex|claude|cursor|ai-research|responsible-ai)\b/);
+  assert.doesNotMatch(JSON.stringify(robots()), /\b(?:codex|claude|cursor|agentic-video-editing|ai-research|responsible-ai)\b/);
 });
 
 test("the published ledger contains one fail-closed gate per published course", () => {

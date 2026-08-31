@@ -116,6 +116,15 @@ import {
   SOFTWARE_ENGINEERING_LESSON_SLUGS,
   SOFTWARE_ENGINEERING_QUESTION_IDS,
 } from "../lib/software-engineering/types";
+import {
+  AGENTIC_VIDEO_EDITING_PROGRESS_ARTIFACT_IDS,
+  AGENTIC_VIDEO_EDITING_PROGRESS_MODULES,
+} from "../lib/progress-agentic-video-editing";
+import {
+  AGENTIC_VIDEO_EDITING_ARTIFACT_IDS,
+  AGENTIC_VIDEO_EDITING_MODULE_SLUGS,
+} from "../staging/course-src/agentic-video-editing/types";
+import { AGENTIC_VIDEO_EDITING_COURSE_MANIFEST } from "../staging/course-src/agentic-video-editing/manifest";
 
 const ROOT = process.cwd();
 
@@ -241,6 +250,19 @@ test("lightweight progress topology exactly mirrors course route and schema cont
     AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS,
     AGENT_ORCHESTRATION_COURSE_MANIFEST.modules.map((module) => module.slug),
   );
+  assert.deepEqual(
+    AGENTIC_VIDEO_EDITING_PROGRESS_MODULES.map(({ slug }) => slug),
+    AGENTIC_VIDEO_EDITING_MODULE_SLUGS,
+  );
+  assert.deepEqual(
+    AGENTIC_VIDEO_EDITING_PROGRESS_MODULES.map(({ requires }) => requires),
+    AGENTIC_VIDEO_EDITING_COURSE_MANIFEST.modules.map((module) => module.requires),
+  );
+  assert.deepEqual(
+    AGENTIC_VIDEO_EDITING_PROGRESS_MODULES.map(({ artifacts }) => artifacts),
+    AGENTIC_VIDEO_EDITING_COURSE_MANIFEST.modules.map((module) => module.artifactIds),
+  );
+  assert.deepEqual(AGENTIC_VIDEO_EDITING_PROGRESS_ARTIFACT_IDS, AGENTIC_VIDEO_EDITING_ARTIFACT_IDS);
 
   assert.deepEqual(GITHUB_PROGRESS_QUIZ, {
     bankVersion: GITHUB_FINAL_QUIZ.bankVersion,
@@ -400,10 +422,12 @@ test("public progress client graph has no transitive course-content dependency",
     "components/ai-tutor/progress-store.ts",
     "components/product-management/progress-store.ts",
     "components/agent-orchestration/progress-store.ts",
+    "components/agentic-video-editing/progress-store.ts",
   ];
   const forbiddenRuntimeImports = [
     /from\s+["']@\/lib\/(?:codex|claude|cursor|github|prompts|software-engineering|rag|mcp|make-money-with-codex|claude-income|ai-tutor|product-management|agent-orchestration)["']/,
     /from\s+["'][^"']*\/(?:manifest|course|curriculum|quiz|capstone|sources|figures|copy\/[^"']+)["']/,
+    /from\s+["']@\/staging\/course-src\//,
   ];
   for (const relativePath of clientFiles) {
     const source = readFileSync(join(ROOT, relativePath), "utf8")
@@ -414,7 +438,7 @@ test("public progress client graph has no transitive course-content dependency",
   }
 
   const graph = clientDependencyGraph("components/progress-adapters.ts");
-  const courseLibrary = /^lib\/(?:codex|claude|cursor|grok|github|prompts|software-engineering|rag|mcp|make-money-with-codex|claude-income|ai-tutor|product-management|agent-orchestration)\//u;
+  const courseLibrary = /^(?:lib\/(?:codex|claude|cursor|grok|github|prompts|software-engineering|rag|mcp|make-money-with-codex|claude-income|ai-tutor|product-management|agent-orchestration)\/|staging\/course-src\/agentic-video-editing\/)/u;
   const allowedCourseRuntime = new Set([
     "lib/grok/progress.ts",
     "lib/prompts/progress-keys.ts",

@@ -19,6 +19,14 @@ import {
   publishedProgressCourseIdsForProjection,
 } from "@/lib/public-progress-contract";
 import { persistenceFailureReason } from "@/lib/progress-persistence";
+import {
+  AGENTIC_VIDEO_EDITING_CORRUPT_BACKUP_KEY,
+  AGENTIC_VIDEO_EDITING_PROGRESS_EVENT,
+  AGENTIC_VIDEO_EDITING_PROGRESS_PROBE_KEY,
+  AGENTIC_VIDEO_EDITING_PROGRESS_STORAGE_KEY,
+  AGENTIC_VIDEO_EDITING_SESSION_PROBE_KEY,
+  summarizeAgenticVideoEditingProgress,
+} from "@/lib/progress-agentic-video-editing";
 export {
   PUBLISHED_PROGRESS_COURSE_IDS,
   PROGRESS_ADAPTER_COURSE_IDS,
@@ -271,6 +279,11 @@ import {
   readMathAnimationProgress,
   resetMathAnimationProgressAfterGlobalReset,
 } from "./math-animation/progress-store";
+import {
+  isAgenticVideoEditingPersistenceAvailable,
+  readAgenticVideoEditingProgress,
+  resetAgenticVideoEditingProgressAfterGlobalReset,
+} from "./agentic-video-editing/progress-store";
 
 export interface ProgressStoreAdapter {
   readonly courseId: PublishedProgressCourseId;
@@ -819,6 +832,36 @@ function claudeIncomeAdapter(locale: string): ProgressStoreAdapter {
   };
 }
 
+function agenticVideoEditingAdapter(locale: string): ProgressStoreAdapter {
+  return {
+    courseId: "agentic-video-editing",
+    storageKeys: [
+      AGENTIC_VIDEO_EDITING_PROGRESS_STORAGE_KEY,
+      AGENTIC_VIDEO_EDITING_PROGRESS_PROBE_KEY,
+      AGENTIC_VIDEO_EDITING_SESSION_PROBE_KEY,
+      AGENTIC_VIDEO_EDITING_CORRUPT_BACKUP_KEY,
+    ],
+    progressEvent: AGENTIC_VIDEO_EDITING_PROGRESS_EVENT,
+    readSummary() {
+      return readFailClosed(isAgenticVideoEditingPersistenceAvailable, () => {
+        const current = summarizeAgenticVideoEditingProgress(
+          readAgenticVideoEditingProgress(),
+        );
+        const nextHref = current.percent >= 100
+          ? `/${locale}/agentic-video-editing/`
+          : current.nextSlug
+            ? `/${locale}/agentic-video-editing/${current.nextSlug}/`
+            : !current.assessmentComplete
+              ? `/${locale}/agentic-video-editing/#final-assessment`
+              : `/${locale}/agentic-video-editing/#capstone`;
+        return summary(current.percent, current.hasProgress, nextHref);
+      });
+    },
+    resetAfterGlobalReset: resetAgenticVideoEditingProgressAfterGlobalReset,
+    isPersistent: isAgenticVideoEditingPersistenceAvailable,
+  };
+}
+
 function contentLocaleForProjection(
   courseId: ProgressAdapterCourseId,
   requestedLocale: string,
@@ -1173,6 +1216,7 @@ export function createAllProgressAdapters(
       reset: resetMathAnimationProgressAfterGlobalReset,
       isPersistent: isMathAnimationStorageAvailable,
     }),
+    agenticVideoEditingAdapter(localeFor("agentic-video-editing")),
   ];
 
   return adapters;

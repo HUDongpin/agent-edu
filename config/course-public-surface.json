@@ -3,7 +3,7 @@
   "manifestKind": "course-public-surface-projection",
   "source": {
     "path": "config/course-release-manifest.json",
-    "sha256": "b5c54cce67a004df5cbcd702eab3385494cf0594f41a298d0c65224509f1d0e6"
+    "sha256": "f0a44fc17e4f337b5dc68488b31d2876dd6c10cb28b4ad3fcbc96ebc6fe49b2f"
   },
   "siteLocales": [
     "en",
@@ -648,6 +648,34 @@
       "state": "blocked",
       "href": null,
       "titleKey": "c.math-animation.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "progressEvent": null
+    },
+    {
+      "id": "agentic-video-editing",
+      "state": "blocked",
+      "href": null,
+      "titleKey": "c.agentic-video-editing.title",
       "interfaceLocales": [
         "en",
         "es",

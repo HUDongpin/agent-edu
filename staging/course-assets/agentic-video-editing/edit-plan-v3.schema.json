@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/agentic-video-editing/edit-plan-v3.schema.json",
+  "title": "Agentic video editing production plan v3",
+  "description": "Tool-neutral production shape. Project-specific identities, counts, durations, rights wording, and release policy belong in a separate fixture or deployment semantic validator.",
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "rationalRate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator", "denominator"],
+      "properties": {
+        "numerator": { "type": "integer", "minimum": 1 },
+        "denominator": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "confidenceDimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "method", "calibrationStatus"],
+      "properties": {
+        "value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "method": { "type": "string", "minLength": 1 },
+        "calibrationStatus": { "enum": ["calibrated", "uncalibrated", "not-applicable"] }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["localization", "transcript", "semanticFit"],
+      "properties": {
+        "localization": { "$ref": "#/$defs/confidenceDimension" },
+        "transcript": { "$ref": "#/$defs/confidenceDimension" },
+        "semanticFit": { "$ref": "#/$defs/confidenceDimension" }
+      }
+    },
+    "ambiguity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "evidence", "status", "owner", "resolutionRequirement"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 },
+        "evidence": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["open", "resolved", "accepted-with-accountable-owner"] },
+        "owner": { "type": "string", "minLength": 1 },
+        "resolutionRequirement": { "type": "string", "minLength": 1 }
+      }
+    },
+    "clipOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operationId", "type", "trackId", "timelineStartFrame", "durationFrames", "sourceMediaId", "sourceStartFrame", "candidateSegmentId", "evidenceIds", "rightsDecisionId", "reason", "confidence", "ambiguities", "requiresHumanReview", "reviewState", "untrustedTextPromotedToInstruction"],
+      "properties": {
+        "operationId": { "type": "string", "minLength": 1 },
+        "type": { "const": "clip" },
+        "trackId": { "type": "string", "minLength": 1 },
+        "timelineStartFrame": { "type": "integer", "minimum": 0 },
+        "durationFrames": { "type": "integer", "minimum": 1 },
+        "sourceMediaId": { "type": "string", "minLength": 1 },
+        "sourceStartFrame": { "type": "integer", "minimum": 0 },
+        "candidateSegmentId": { "type": "string", "minLength": 1 },
+        "evidenceIds": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "rightsDecisionId": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "ambiguities": { "type": "array", "items": { "$ref": "#/$defs/ambiguity" } },
+        "requiresHumanReview": { "type": "boolean" },
+        "reviewState": { "enum": ["not-reviewed", "changes-requested", "approved-for-plan", "approved-for-fixture-only", "approved-for-synthetic-fixture-only"] },
+        "untrustedTextPromotedToInstruction": { "const": false }
+      }
+    },
+    "captionOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operationId", "type", "trackId", "timelineStartFrame", "durationFrames", "captionId", "text", "evidenceIds", "safeZoneState", "reviewer"],
+      "properties": {
+        "operationId": { "type": "string", "minLength": 1 },
+        "type": { "const": "caption" },
+        "trackId": { "type": "string", "minLength": 1 },
+        "timelineStartFrame": { "type": "integer", "minimum": 0 },
+        "durationFrames": { "type": "integer", "minimum": 1 },
+        "captionId": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 },
+        "evidenceIds": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "safeZoneState": { "enum": ["not-reviewed", "reviewed-pass", "reviewed-fail"] },
+        "reviewer": { "type": "string", "minLength": 1 }
+      }
+    },
+    "titleOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operationId", "type", "trackId", "timelineStartFrame", "durationFrames", "text", "safeZoneState", "reviewer"],
+      "properties": {
+        "operationId": { "type": "string", "minLength": 1 },
+        "type": { "const": "title" },
+        "trackId": { "type": "string", "minLength": 1 },
+        "timelineStartFrame": { "type": "integer", "minimum": 0 },
+        "durationFrames": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string", "minLength": 1 },
+        "safeZoneState": { "enum": ["not-reviewed", "reviewed-pass", "reviewed-fail"] },
+        "reviewer": { "type": "string", "minLength": 1 }
+      }
+    },
+    "audioOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operationId", "type", "trackId", "timelineStartFrame", "durationFrames", "sampleRate", "mode", "action", "reason"],
+      "properties": {
+        "operationId": { "type": "string", "minLength": 1 },
+        "type": { "const": "audio" },
+        "trackId": { "type": "string", "minLength": 1 },
+        "timelineStartFrame": { "type": "integer", "minimum": 0 },
+        "durationFrames": { "type": "integer", "minimum": 1 },
+        "sampleRate": { "const": 48000 },
+        "mode": { "enum": ["replacement", "mix"] },
+        "action": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "cropOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operationId", "type", "trackId", "timelineStartFrame", "durationFrames", "sourceCrop", "outputCanvas", "safeZoneState", "reviewer"],
+      "properties": {
+        "operationId": { "type": "string", "minLength": 1 },
+        "type": { "const": "crop" },
+        "trackId": { "type": "string", "minLength": 1 },
+        "timelineStartFrame": { "type": "integer", "minimum": 0 },
+        "durationFrames": { "type": "integer", "minimum": 1 },
+        "sourceCrop": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y", "width", "height"],
+          "properties": {
+            "x": { "type": "integer", "minimum": 0 },
+            "y": { "type": "integer", "minimum": 0 },
+            "width": { "type": "integer", "minimum": 1 },
+            "height": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "outputCanvas": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height"],
+          "properties": {
+            "width": { "type": "integer", "minimum": 1 },
+            "height": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "safeZoneState": { "enum": ["not-reviewed", "reviewed-pass", "reviewed-fail"] },
+        "reviewer": { "type": "string", "minLength": 1 }
+      }
+    },
+    "transitionOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operationId", "type", "trackId", "timelineStartFrame", "durationFrames", "fromClipId", "toClipId", "transitionKind"],
+      "properties": {
+        "operationId": { "type": "string", "minLength": 1 },
+        "type": { "const": "transition" },
+        "trackId": { "type": "string", "minLength": 1 },
+        "timelineStartFrame": { "type": "integer", "minimum": 0 },
+        "durationFrames": { "type": "integer", "minimum": 0 },
+        "fromClipId": { "type": "string", "minLength": 1 },
+        "toClipId": { "type": "string", "minLength": 1 },
+        "transitionKind": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "projectSpecId", "planId", "status", "inputs", "rightsDecisions", "timeline", "operations", "compileContract", "unresolvedCriticalBlockers", "publicationDecision"],
+  "properties": {
+    "schemaVersion": { "const": "aicourse.agentic-video-editing.edit-plan.v3" },
+    "projectSpecId": { "type": "string", "minLength": 1 },
+    "planId": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["draft", "ready-for-human-review", "frozen-for-execution", "frozen-for-synthetic-fixture-execution"] },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["mediaId", "assetLedgerId", "path", "sha256", "probeReceiptSha256", "clock", "audio"],
+        "properties": {
+          "mediaId": { "type": "string", "minLength": 1 },
+          "assetLedgerId": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "$ref": "#/$defs/sha256" },
+          "probeReceiptSha256": { "$ref": "#/$defs/sha256" },
+          "clock": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rationalRate", "durationFrames", "startTimecode", "dropFrame", "cadence", "ptsReceiptSha256"],
+            "properties": {
+              "rationalRate": { "$ref": "#/$defs/rationalRate" },
+              "durationFrames": { "type": "integer", "minimum": 1 },
+              "startTimecode": { "type": "string", "pattern": "^\\d{2}:\\d{2}:\\d{2}[:;]\\d{2}$" },
+              "dropFrame": { "type": "boolean" },
+              "cadence": { "enum": ["CFR", "VFR"] },
+              "ptsReceiptSha256": { "$ref": "#/$defs/sha256" },
+              "conformReceiptSha256": {
+                "oneOf": [
+                  { "$ref": "#/$defs/sha256" },
+                  { "type": "null" }
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "if": { "properties": { "cadence": { "const": "VFR" } }, "required": ["cadence"] },
+                "then": { "required": ["conformReceiptSha256"], "properties": { "conformReceiptSha256": { "$ref": "#/$defs/sha256" } } }
+              }
+            ]
+          },
+          "audio": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sampleRate", "durationSamples", "timeBase"],
+            "properties": {
+              "sampleRate": { "const": 48000 },
+              "durationSamples": { "type": "integer", "minimum": 1 },
+              "timeBase": { "$ref": "#/$defs/rationalRate" }
+            }
+          }
+        }
+      }
+    },
+    "rightsDecisions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rightsDecisionId", "assetLedgerId", "exactUse", "destination", "territory", "term", "attribution", "transformation", "modelUploadPermission", "reviewer", "reviewedAt"],
+        "properties": {
+          "rightsDecisionId": { "type": "string", "minLength": 1 },
+          "assetLedgerId": { "type": "string", "minLength": 1 },
+          "exactUse": { "type": "string", "minLength": 1 },
+          "destination": { "type": "string", "minLength": 1 },
+          "territory": { "type": "string", "minLength": 1 },
+          "term": { "type": "string", "minLength": 1 },
+          "attribution": { "type": "string", "minLength": 1 },
+          "transformation": { "type": "string", "minLength": 1 },
+          "modelUploadPermission": { "type": "boolean" },
+          "reviewer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "role", "authorityBoundary"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "role": { "type": "string", "minLength": 1 },
+              "authorityBoundary": { "type": "string", "minLength": 1 }
+            }
+          },
+          "reviewedAt": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$" }
+        }
+      }
+    },
+    "timeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["editRate", "durationFrames", "startTimecode", "dropFrame"],
+      "properties": {
+        "editRate": { "$ref": "#/$defs/rationalRate" },
+        "durationFrames": { "type": "integer", "minimum": 1 },
+        "startTimecode": { "type": "string", "pattern": "^\\d{2}:\\d{2}:\\d{2}[:;]\\d{2}$" },
+        "dropFrame": { "type": "boolean" }
+      }
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/clipOperation" },
+          { "$ref": "#/$defs/captionOperation" },
+          { "$ref": "#/$defs/titleOperation" },
+          { "$ref": "#/$defs/audioOperation" },
+          { "$ref": "#/$defs/cropOperation" },
+          { "$ref": "#/$defs/transitionOperation" }
+        ]
+      }
+    },
+    "compileContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requires", "hashBindingStage"],
+      "properties": {
+        "requires": { "const": ["plan", "delivery-contract", "asset-ledger", "tool-policy"] },
+        "hashBindingStage": { "const": "external-compile-receipt-after-plan-freeze" }
+      }
+    },
+    "unresolvedCriticalBlockers": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "publicationDecision": { "enum": ["not-decided", "do-not-publish", "eligible-for-human-release-review"] }
+  }
+}

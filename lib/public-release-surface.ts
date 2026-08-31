@@ -34,6 +34,7 @@ export const PUBLIC_COURSE_ID_CONTRACT = [
   "agentic-quant-trading",
   "ai-teaching",
   "math-animation",
+  "agentic-video-editing",
 ] as const satisfies readonly RegistryCourseId[];
 
 export type PublicCourseId = (typeof PUBLIC_COURSE_ID_CONTRACT)[number];
