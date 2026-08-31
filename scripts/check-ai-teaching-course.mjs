@@ -321,24 +321,14 @@ function checkPackageWiring() {
   ) {
     fail("package.json: ai-teaching:check:release is not wired to release mode and the progress contract");
   }
-  for (const scriptName of ["build", "build:release"]) {
-    const script = String(scripts[scriptName] ?? "");
-    const orderedTokens = [
-      "npm run ai-teaching:check:release",
-      "next build",
-      "npm run ai-teaching:export-manifest",
-      "npm run ai-teaching:static-check",
-      "npm run test:ai-teaching",
-    ];
-    let cursor = -1;
-    for (const token of orderedTokens) {
-      const index = script.indexOf(token, cursor + 1);
-      if (index === -1) {
-        fail(`package.json: ${scriptName} lacks ordered Course 18 gate ${token}`);
-        break;
-      }
-      cursor = index;
-    }
+  if (!String(scripts.build ?? "").includes("courses:check:development")) {
+    fail("package.json: build must use the registry-derived development gate runner");
+  }
+  if (
+    !String(scripts["verify:source"] ?? "").includes("published:check:release")
+    || !String(scripts["build:release"] ?? "").includes("verify:source")
+  ) {
+    fail("package.json: release build must use the registry-derived published gate runner");
   }
   if (
     !String(scripts["ai-teaching:export-manifest"] ?? "").includes(
