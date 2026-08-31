@@ -97,7 +97,18 @@ const EXPECTED_PUBLISHED_IDS = [
   "software-engineering",
 ] as const;
 
-const EXPECTED_BLOCKED_IDS = ["claude", "codex", "cursor"] as const;
+const EXPECTED_BLOCKED_IDS = [
+  "agentic-quant-trading",
+  "agentic-video-editing",
+  "ai-teaching",
+  "claude",
+  "codex",
+  "cursor",
+  "math-animation",
+  "responsible-ai",
+] as const;
+
+const EXPECTED_ROADMAP_IDS = ["ai-research"] as const;
 
 const GROK_LESSON_SLUGS = [
   "map-grok",
@@ -1389,7 +1400,12 @@ test("blocked and roadmap courses stay localized, visible, non-linkable, and rea
       .map((course) => course.id)
       .sort(),
   ).toEqual([...EXPECTED_BLOCKED_IDS].sort());
-  expect(upcomingCourses.filter((course) => course.state === "roadmap")).toHaveLength(2);
+  expect(
+    upcomingCourses
+      .filter((course) => course.state === "roadmap")
+      .map((course) => course.id)
+      .sort(),
+  ).toEqual([...EXPECTED_ROADMAP_IDS].sort());
 
   for (const [locale, soonLabel] of Object.entries(soonLabels)) {
     await test.step(locale, async () => {
