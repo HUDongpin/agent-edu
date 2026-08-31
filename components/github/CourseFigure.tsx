@@ -1,13 +1,20 @@
 import Image from "next/image";
-import type { MaterializedGithubFigure } from "@/lib/github";
+import {
+  formatGithubDate,
+  type MaterializedGithubFigure,
+} from "@/lib/github";
 import base from "@/components/codex/CodexCourse.module.css";
 import styles from "./GithubCourse.module.css";
 
 export default function CourseFigure({
   figure,
+  locale,
+  fullSizeLabel,
   sourceLabel,
 }: {
   figure: MaterializedGithubFigure;
+  locale: string;
+  fullSizeLabel: string;
   sourceLabel: string;
 }) {
   const { manifest, copy } = figure;
@@ -23,8 +30,12 @@ export default function CourseFigure({
       <a
         className={base.figureImage}
         href={manifest.src}
+        aria-label={`${fullSizeLabel}: ${copy.alt}`}
         aria-describedby={captionId}
+        data-testid="github-figure-fullsize-action"
         dir="ltr"
+        target="_blank"
+        rel="noopener noreferrer"
       >
         <picture>
           <source srcSet={manifest.webpSrc} type="image/webp" />
@@ -44,7 +55,10 @@ export default function CourseFigure({
           <span>{copy.caption}</span>
           <span className={styles.figureAttribution}>
             <span dir="ltr">
-              GitHub Docs © GitHub, Inc. · CC BY 4.0 · {manifest.observedOn}
+              GitHub Docs © GitHub, Inc. · CC BY 4.0 ·{" "}
+              <time dateTime={manifest.observedOn}>
+                {formatGithubDate(locale, manifest.observedOn)}
+              </time>
             </span>
             <a
               href={manifest.sourcePage}

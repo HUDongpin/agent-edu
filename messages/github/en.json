@@ -5,7 +5,7 @@
     "summary": "Learn GitHub as a system for safe, traceable collaboration. Build one real repository from first commit to review, release, and reuse across software, research, writing, office work, and teaching.",
     "audience": "For complete beginners and experienced collaborators who want a reliable mental model, not a list of buttons.",
     "duration": "11 guided hours · 12 lessons · one continuous capstone",
-    "sourceNote": "Product behaviour is grounded first in GitHub Docs and GitHub's official projects, verified on 24 August 2026. Peer-reviewed and practitioner sources are clearly marked where they document enacted work practices.",
+    "sourceNote": "Product behaviour is grounded first in GitHub Docs and GitHub's official projects, verified on {sourceDate}. Peer-reviewed and practitioner sources are clearly marked where they document enacted work practices.",
     "figureNote": "All 21 interface figures are authentic GitHub Docs assets stored locally with intrinsic dimensions, SHA-256 checksums, a pinned github/docs source commit, and CC BY 4.0 attribution.",
     "startCta": "Start with account safety",
     "resumeCta": "Continue your repository",
@@ -39,6 +39,19 @@
     "browserStorageNote": "Progress stays in this browser and is never uploaded.",
     "backToCourse": "How to Use GitHub",
     "allLessons": "Course map",
+    "lessonPositionTemplate": "Lesson {current} of {total}",
+    "quizDraftAvailable": "You have an unfinished assessment saved in this browser.",
+    "resumeQuizDraft": "Resume unfinished assessment",
+    "discardQuizDraft": "Discard unfinished assessment",
+    "quizDraftRestored": "Your unfinished assessment has been restored.",
+    "quizDraftDiscarded": "Your unfinished assessment was discarded.",
+    "capstoneDraftAvailable": "You have an unfinished capstone draft saved in this browser.",
+    "resumeCapstoneDraft": "Resume capstone draft",
+    "discardCapstoneDraft": "Discard capstone draft",
+    "capstoneDraftRestored": "Your capstone draft has been restored.",
+    "capstoneDraftDiscarded": "Your capstone draft was discarded.",
+    "draftInvalid": "This saved draft is outdated or damaged and cannot be resumed.",
+    "draftStorageWarning": "Drafts cannot be saved in this browser. Reloading this page or leaving it discards unfinished work.",
     "finalQuizTitle": "Make the call, not the guess",
     "finalQuizIntro": "Each attempt selects four questions from every unit. Explanations reveal the relevant source after you answer.",
     "beginQuiz": "Begin 12-question assessment",
@@ -52,6 +65,7 @@
     "passRequirement": "Evidence standard",
     "resetConfirm": "Reset only your How to Use GitHub lessons, quiz, and capstone progress?",
     "resetDone": "GitHub course progress was reset.",
+    "resetNotSaved": "Progress was cleared for this tab, but the browser could not save the reset. It may return after reload.",
     "capstonePath": "Continuous capstone",
     "capstoneArtifacts": "Capstone evidence",
     "capstoneComplete": "Capstone complete",
@@ -61,6 +75,7 @@
     "exportSummary": "Export completion summary",
     "authenticFigure": "Authentic GitHub interface",
     "figureSource": "Open source page",
+    "openFigureFullSize": "Open full-size image in a new tab",
     "classroomNotice": "Current teaching notice"
   },
   "units": {
@@ -1109,7 +1124,7 @@
   "figures": {
     "fig-01": {
       "alt": "GitHub global Create menu with the New repository action outlined.",
-      "caption": "Start a repository from the global Create menu. Interface verified 24 August 2026."
+      "caption": "Start a repository from the global Create menu."
     },
     "fig-02": {
       "alt": "New repository form with hello entered in the Repository name field.",

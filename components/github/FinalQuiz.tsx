@@ -7,12 +7,22 @@ import type {
   GithubUiCopy,
   GithubUnitId,
 } from "@/lib/github";
+import {
+  GITHUB_QUIZ_DRAFT_KEY,
+  clearInvalidGithubQuizDraft,
+  clearGithubQuizDraft,
+  decodeGithubQuizDraft,
+  formatGithubVisibleNumbers,
+  setGithubQuizDraft,
+  type GithubQuizDraftContext,
+} from "@/lib/github";
 import { GITHUB_RESET_EVENT, updateCourseProgress } from "./progress-store";
 import useGithubProgress, {
   useGithubStorageAvailable,
 } from "./useGithubProgress";
 import GithubText from "./GithubText";
 import base from "@/components/codex/CodexCourse.module.css";
+import styles from "./GithubCourse.module.css";
 
 export type GithubFinalQuizQuestion = {
   readonly id: GithubQuizId;
@@ -120,10 +130,12 @@ export default function FinalQuiz({
   bank,
   config,
   labels,
+  locale,
 }: {
   bank: readonly GithubFinalQuizQuestion[];
   config: FinalQuizConfig;
   labels: GithubUiCopy;
+  locale: string;
 }) {
   const progress = useGithubProgress();
   const storageAvailable = useGithubStorageAvailable();
@@ -135,8 +147,10 @@ export default function FinalQuiz({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [completedScore, setCompletedScore] = useState<number | null>(null);
+  const [draftStatus, setDraftStatus] = useState("");
   const questionHeading = useRef<HTMLHeadingElement>(null);
   const feedback = useRef<HTMLDivElement>(null);
+  const numberFormat = useMemo(() => new Intl.NumberFormat(locale), [locale]);
 
   const current = attempt[questionIndex];
   const currentAnswer = current ? answers[current.id] : undefined;
@@ -157,6 +171,26 @@ export default function FinalQuiz({
     return counts;
   }, [bank]);
 
+  const draftContext = useMemo<GithubQuizDraftContext>(
+    () => ({
+      bankVersion: config.bankVersion,
+      questionCount: config.questionCount,
+      questionsPerUnit: config.questionsPerUnit,
+      questions: bank.map((question) => ({
+        id: question.id,
+        unitId: question.unitId,
+        optionCount: question.options.length,
+      })),
+    }),
+    [bank, config.bankVersion, config.questionCount, config.questionsPerUnit],
+  );
+  const storedDraftValue = progress[GITHUB_QUIZ_DRAFT_KEY];
+  const hasStoredDraft = Object.hasOwn(progress, GITHUB_QUIZ_DRAFT_KEY);
+  const resumableDraft = useMemo(
+    () => decodeGithubQuizDraft(storedDraftValue, draftContext),
+    [draftContext, storedDraftValue],
+  );
+
   const bankReady =
     bank.length >= config.questionCount &&
     bankByUnit.size * config.questionsPerUnit === config.questionCount &&
@@ -171,6 +205,13 @@ export default function FinalQuiz({
   }, [completedScore]);
 
   useEffect(() => {
+    if (attempt.length || !hasStoredDraft || resumableDraft) return;
+    updateCourseProgress((record) => {
+      clearInvalidGithubQuizDraft(record, draftContext);
+    });
+  }, [attempt.length, draftContext, hasStoredDraft, resumableDraft]);
+
+  useEffect(() => {
     const resetAttempt = () => {
       setAttempt([]);
       setPreviousAttempt([]);
@@ -178,10 +219,36 @@ export default function FinalQuiz({
       setSelectedIndex(null);
       setAnswers({});
       setCompletedScore(null);
+      setDraftStatus("");
     };
     window.addEventListener(GITHUB_RESET_EVENT, resetAttempt);
     return () => window.removeEventListener(GITHUB_RESET_EVENT, resetAttempt);
   }, []);
+
+  function persistDraft(
+    nextAttempt: readonly GithubFinalQuizQuestion[],
+    nextQuestionIndex: number,
+    nextSelectedIndex: number | null,
+    nextAnswers: Readonly<Record<string, Answer>>,
+  ) {
+    updateCourseProgress((record) => {
+      setGithubQuizDraft(
+        record,
+        {
+          orderedQuestionIds: nextAttempt.map((question) => question.id),
+          questionIndex: nextQuestionIndex,
+          selectedIndex: nextSelectedIndex,
+          submittedAnswers: Object.fromEntries(
+            Object.entries(nextAnswers).map(([id, answer]) => [
+              id,
+              answer.selectedIndex,
+            ]),
+          ),
+        },
+        draftContext,
+      );
+    });
+  }
 
   function beginAttempt() {
     const next = selectAttempt(bank, config.questionsPerUnit, previousAttempt);
@@ -191,7 +258,58 @@ export default function FinalQuiz({
     setSelectedIndex(null);
     setAnswers({});
     setCompletedScore(null);
+    setDraftStatus("");
+    persistDraft(next, 0, null, {});
     window.requestAnimationFrame(() => questionHeading.current?.focus());
+  }
+
+  function resumeAttempt() {
+    if (!resumableDraft) return;
+    const bankById = new Map(bank.map((question) => [question.id, question]));
+    const restoredAttempt = resumableDraft.orderedQuestionIds.map(
+      (id) => bankById.get(id)!,
+    );
+    const restoredAnswers = Object.fromEntries(
+      Object.entries(resumableDraft.submittedAnswers).map(
+        ([id, restoredSelectedIndex]) => {
+          const question = bankById.get(id as GithubQuizId)!;
+          return [
+            id,
+            {
+              selectedIndex: restoredSelectedIndex,
+              correct: restoredSelectedIndex === question.correctIndex,
+            },
+          ];
+        },
+      ),
+    );
+    setAttempt(restoredAttempt);
+    setPreviousAttempt(restoredAttempt);
+    setQuestionIndex(resumableDraft.questionIndex);
+    setSelectedIndex(resumableDraft.selectedIndex);
+    setAnswers(restoredAnswers);
+    setCompletedScore(null);
+    setDraftStatus(labels.quizDraftRestored);
+    window.requestAnimationFrame(() => {
+      if (Object.hasOwn(restoredAnswers, restoredAttempt[resumableDraft.questionIndex].id)) {
+        feedback.current?.focus();
+      } else {
+        questionHeading.current?.focus();
+      }
+    });
+  }
+
+  function discardAttempt() {
+    updateCourseProgress((record) => {
+      clearGithubQuizDraft(record);
+    });
+    setAttempt([]);
+    setPreviousAttempt([]);
+    setQuestionIndex(0);
+    setSelectedIndex(null);
+    setAnswers({});
+    setCompletedScore(null);
+    setDraftStatus(labels.quizDraftDiscarded);
   }
 
   function finishAttempt(nextAnswers: Record<string, Answer>) {
@@ -200,6 +318,7 @@ export default function FinalQuiz({
     ).length;
     setCompletedScore(score);
     updateCourseProgress((record) => {
+      clearGithubQuizDraft(record);
       const sameVersion =
         record[config.versionStorageKey] === config.bankVersion;
       const prior = sameVersion
@@ -225,18 +344,22 @@ export default function FinalQuiz({
       <header className={base.finalQuizHeader}>
         <div>
           <p className={base.kicker}>{labels.quiz}</p>
-          <h2 id="github-final-quiz-title" tabIndex={-1}>
+          <h2
+            className={styles.focusTarget}
+            id="github-final-quiz-title"
+            tabIndex={-1}
+          >
             {labels.finalQuizTitle}
           </h2>
           <p>{labels.finalQuizIntro}</p>
         </div>
         <div className={base.quizRequirement}>
           <strong>{labels.passRequirement}</strong>
-          <span>{labels.passingScore}</span>
-          <span>
+          <span>{formatGithubVisibleNumbers(locale, labels.passingScore)}</span>
+          <span data-testid="github-quiz-best-score">
             {formatTemplate(labels.bestScoreTemplate, {
-              score: bestScore,
-              total: config.questionCount,
+              score: numberFormat.format(bestScore),
+              total: numberFormat.format(config.questionCount),
             })}
           </span>
         </div>
@@ -244,30 +367,66 @@ export default function FinalQuiz({
 
       {!storageAvailable ? (
         <p className={base.storageWarning} role="status">
-          {labels.storageUnavailable}
+          {labels.storageUnavailable}{" "}
+          {attempt.length && completedScore === null
+            ? labels.draftStorageWarning
+            : null}
         </p>
       ) : null}
 
-      {!attempt.length ? (
+      {draftStatus || (hasStoredDraft && !resumableDraft) ? (
+        <p className={styles.draftStatus} role="status">
+          {draftStatus || labels.draftInvalid}
+        </p>
+      ) : null}
+
+      {!attempt.length && resumableDraft ? (
+        <div className={styles.draftPrompt}>
+          <p>{labels.quizDraftAvailable}</p>
+          <div className={styles.draftActions}>
+            <button
+              className={`${base.primaryAction} ${styles.courseAction}`}
+              type="button"
+              onClick={resumeAttempt}
+            >
+              {labels.resumeQuizDraft}
+            </button>
+            <button
+              className={`${base.secondaryAction} ${styles.courseAction}`}
+              type="button"
+              onClick={discardAttempt}
+            >
+              {labels.discardQuizDraft}
+            </button>
+          </div>
+        </div>
+      ) : !attempt.length ? (
         <button
-          className={base.primaryAction}
+          className={`${base.primaryAction} ${styles.courseAction}`}
           type="button"
           disabled={!bankReady}
           onClick={beginAttempt}
         >
-          {labels.beginQuiz}
+          {formatGithubVisibleNumbers(locale, labels.beginQuiz)}
         </button>
       ) : completedScore !== null ? (
         <div
-          className={base.finalQuizResult}
+          className={`${base.finalQuizResult} ${styles.focusTarget} ${
+            completedScore >= config.passingCorrectAnswers
+              ? styles.quizResultPassed
+              : styles.quizResultRetry
+          }`}
+          data-result-state={
+            completedScore >= config.passingCorrectAnswers ? "passed" : "retry"
+          }
           role="status"
           tabIndex={-1}
           ref={feedback}
         >
           <strong>
             {formatTemplate(labels.scoreSummaryTemplate, {
-              score: completedScore,
-              total: config.questionCount,
+              score: numberFormat.format(completedScore),
+              total: numberFormat.format(config.questionCount),
             })}
           </strong>
           <p>
@@ -276,7 +435,7 @@ export default function FinalQuiz({
               : labels.quizNeedsReview}
           </p>
           <button
-            className={base.secondaryAction}
+            className={`${base.secondaryAction} ${styles.courseAction}`}
             type="button"
             onClick={beginAttempt}
           >
@@ -295,22 +454,24 @@ export default function FinalQuiz({
               selectedIndex,
               correct: selectedIndex === current.correctIndex,
             };
-            setAnswers((currentAnswers) => ({
-              ...currentAnswers,
+            const nextAnswers = {
+              ...answers,
               [current.id]: answer,
-            }));
+            };
+            setAnswers(nextAnswers);
+            persistDraft(attempt, questionIndex, selectedIndex, nextAnswers);
           }}
         >
           <div className={base.quizQuestionMeta}>
             <span>
               {formatTemplate(labels.questionProgressTemplate, {
-                current: questionIndex + 1,
-                total: config.questionCount,
+                current: numberFormat.format(questionIndex + 1),
+                total: numberFormat.format(config.questionCount),
               })}
             </span>
             <span>{current.unitTitle}</span>
           </div>
-          <h3 ref={questionHeading} tabIndex={-1}>
+          <h3 className={styles.focusTarget} ref={questionHeading} tabIndex={-1}>
             <GithubText text={current.prompt} />
           </h3>
 
@@ -335,7 +496,10 @@ export default function FinalQuiz({
                   checked={selectedIndex === optionIndex}
                   disabled={Boolean(currentAnswer)}
                   required
-                  onChange={() => setSelectedIndex(optionIndex)}
+                  onChange={() => {
+                    setSelectedIndex(optionIndex);
+                    persistDraft(attempt, questionIndex, optionIndex, answers);
+                  }}
                 />
                 <span className={base.optionCopy}>
                   <span>
@@ -358,11 +522,11 @@ export default function FinalQuiz({
 
           {currentAnswer ? (
             <div
-              className={
+              className={`${
                 currentAnswer.correct
                   ? base.correctFeedback
                   : base.incorrectFeedback
-              }
+              } ${styles.focusTarget}`}
               ref={feedback}
               role="status"
               tabIndex={-1}
@@ -390,7 +554,7 @@ export default function FinalQuiz({
           ) : null}
 
           <button
-            className={base.primaryAction}
+            className={`${base.primaryAction} ${styles.courseAction}`}
             type={currentAnswer ? "button" : "submit"}
             onClick={
               currentAnswer
@@ -399,8 +563,15 @@ export default function FinalQuiz({
                       finishAttempt(answers);
                       return;
                     }
-                    setQuestionIndex((index) => index + 1);
+                    const nextQuestionIndex = questionIndex + 1;
+                    setQuestionIndex(nextQuestionIndex);
                     setSelectedIndex(null);
+                    persistDraft(
+                      attempt,
+                      nextQuestionIndex,
+                      null,
+                      answers,
+                    );
                     window.requestAnimationFrame(() =>
                       questionHeading.current?.focus(),
                     );

@@ -3,6 +3,152 @@
   position: relative;
 }
 
+.inlineTechnical {
+  display: inline;
+  inline-size: auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.courseAction {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  min-block-size: 44px;
+  overflow-wrap: anywhere;
+  text-align: center;
+  transition-duration: 140ms;
+  transition-property: background-color, border-color, color;
+  transition-timing-function: ease-out;
+  white-space: normal;
+}
+
+.githubCourse .courseAction:active:not(:disabled) {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  box-shadow: inset 0 0 0 1px var(--brand);
+  color: var(--brand);
+  transform: none;
+}
+
+.githubCourse .courseAction:disabled {
+  transform: none;
+}
+
+.focusTarget:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+.githubCourse [aria-labelledby="github-curriculum-title"] a,
+.contextCardGrid a,
+.githubCourse [data-testid="github-figure-fullsize-action"],
+.figureAttribution a,
+.githubCourse [aria-labelledby="github-checkpoint-title"] summary,
+.githubCourse [data-course-lesson-nav] a,
+.githubCourse [data-testid="github-final-quiz"] label,
+.githubCourse [data-testid="github-capstone"] label {
+  transition-duration: 140ms;
+  transition-property: background-color, border-color, color;
+  transition-timing-function: ease-out;
+}
+
+.githubCourse [data-testid="github-hero-journey-action"] {
+  margin-block-start: 20px;
+}
+
+.heroJourneyRegion {
+  margin: 0;
+}
+
+.githubCourse > header aside dt,
+.githubCourse article > header dl dt,
+.githubCourse [data-testid="github-course-progress"] output,
+.githubCourse [data-testid="github-final-quiz"] header > div:last-child,
+.githubCourse [data-testid="github-final-quiz"] form[data-question-id] > div:first-child,
+.githubCourse [data-testid="github-capstone"] header output,
+.githubCourse [data-testid="github-capstone"] fieldset small,
+.githubCourse [data-course-lesson-nav] a > span,
+.githubCourse section[aria-labelledby="github-objective-title"] > h2,
+.practiceDuration {
+  font-size: 13px;
+}
+
+.draftPrompt {
+  display: grid;
+  gap: 14px;
+  margin-block-start: 24px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius);
+  background: var(--brand-soft);
+  padding: 16px;
+}
+
+.draftPrompt p,
+.draftStatus {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.draftStatus {
+  margin-block-start: 16px;
+}
+
+.draftActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quizResultPassed {
+  border-color: var(--green-line);
+  background: var(--green-soft);
+}
+
+.quizResultPassed > strong {
+  color: var(--green);
+}
+
+.quizResultRetry {
+  border-color: var(--gold-line);
+  background: var(--gold-soft);
+}
+
+.quizResultRetry > strong {
+  color: var(--gold);
+}
+
+.githubCourse label:has(input:disabled),
+.githubCourse fieldset:disabled label {
+  cursor: not-allowed;
+}
+
+.githubCourse [data-testid="github-final-quiz"] label:has(input:checked):not(:has(input:disabled)),
+.githubCourse [data-testid="github-capstone"] label:has(input:checked):not(:has(input:disabled)) {
+  border-color: var(--brand-line);
+  background: var(--brand-soft);
+  color: var(--ink);
+}
+
+.githubCourse [data-testid="github-final-quiz"] label:has(input:disabled):not(:has(strong)):hover {
+  border-color: var(--line);
+  background: transparent;
+}
+
+.githubCourse [data-testid="github-capstone"] label:not(:has(input:disabled)):hover {
+  background: var(--brand-soft);
+}
+
+.githubCourse [data-testid="github-capstone"] fieldset:disabled label {
+  border-color: var(--green-line);
+  background: var(--green-soft);
+  color: var(--ink-2);
+  opacity: 0.78;
+}
+
 .githubCourse::before {
   content: "";
   position: absolute;
@@ -69,6 +215,10 @@
   background: var(--brand-soft);
 }
 
+.contextCardGrid a:active {
+  box-shadow: inset 0 0 0 2px var(--brand-line);
+}
+
 .contextCardGrid a:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 3px;
@@ -77,7 +227,7 @@
 .contextCardGrid span {
   color: var(--brand);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 750;
 }
 
@@ -89,7 +239,7 @@
 
 .contextCardGrid small {
   color: var(--ink-3);
-  font-size: 11.5px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -139,7 +289,7 @@
   padding: 10px 14px;
   color: var(--ink-3);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -176,13 +326,93 @@
 
 .figureAttribution a {
   color: var(--brand);
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 700;
+}
+
+.figureAttribution a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.figureAttribution a:active {
+  color: var(--brand-2);
 }
 
 .figureAttribution a:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
+}
+
+.githubCourse [aria-labelledby="github-curriculum-title"] a:hover,
+.githubCourse [aria-labelledby="github-curriculum-title"] a:focus-visible {
+  border-radius: 8px;
+  background: var(--brand-soft);
+}
+
+.githubCourse [aria-labelledby="github-curriculum-title"] a:active {
+  box-shadow: inset 0 0 0 2px var(--brand-line);
+}
+
+.githubCourse > nav:first-child a:hover,
+.githubCourse [data-course-lesson-nav] a:hover strong,
+.githubCourse [data-testid="github-final-quiz"] a:hover {
+  color: var(--brand);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.githubCourse > nav:first-child a:active,
+.githubCourse [data-testid="github-final-quiz"] a:active {
+  color: var(--brand-2);
+}
+
+.githubCourse [data-testid="github-figure-fullsize-action"]:hover {
+  box-shadow: 0 0 0 2px var(--brand-line);
+}
+
+.githubCourse [data-testid="github-figure-fullsize-action"]:active {
+  box-shadow: inset 0 0 0 3px var(--brand-line);
+}
+
+.githubCourse [aria-labelledby="github-checkpoint-title"] summary {
+  display: flex;
+  min-block-size: 44px;
+  align-items: center;
+  border-radius: 8px;
+  padding-inline: 10px;
+  overflow-wrap: anywhere;
+}
+
+.githubCourse [aria-labelledby="github-checkpoint-title"] summary:hover,
+.githubCourse [aria-labelledby="github-checkpoint-title"] details[open] > summary {
+  background: var(--brand-soft);
+}
+
+.githubCourse [aria-labelledby="github-checkpoint-title"] summary:active {
+  box-shadow: inset 0 0 0 2px var(--brand-line);
+}
+
+.githubCourse [data-course-lesson-nav] a {
+  min-block-size: 44px;
+  min-inline-size: 0;
+}
+
+.githubCourse [data-course-lesson-nav] a:hover {
+  background: var(--brand-soft);
+}
+
+.githubCourse [data-course-lesson-nav] a:active {
+  box-shadow: inset 0 0 0 2px var(--brand-line);
+}
+
+.githubCourse [data-course-lesson-nav] strong {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.githubCourse [data-testid="github-final-quiz"] a:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
 }
 
 .classroomAlert {
@@ -231,7 +461,7 @@
 .capstoneNotice {
   margin-block: 20px 0;
   color: var(--ink-3);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.65;
 }
 
@@ -254,6 +484,14 @@
 }
 
 @media (max-width: 640px) {
+  .courseAction {
+    inline-size: 100%;
+  }
+
+  .draftActions {
+    flex-direction: column;
+  }
+
   .githubCourse::before {
     inset-inline: 18% auto;
     inline-size: 82%;
@@ -281,6 +519,20 @@
 
   .codePanel pre {
     font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .courseAction,
+  .githubCourse a,
+  .githubCourse button,
+  .githubCourse label,
+  .githubCourse summary {
+    transition-duration: 0s;
+  }
+
+  .githubCourse .courseAction:active:not(:disabled) {
+    transform: none;
   }
 }
 

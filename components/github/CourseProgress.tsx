@@ -2,77 +2,102 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
+import type { GithubUiCopy } from "@/lib/github";
 import {
-  isGithubQuizPassed,
-  type GithubLessonSlug,
-  type GithubUiCopy,
-} from "@/lib/github";
-import {
-  GITHUB_CAPSTONE_STORAGE_KEY,
-  githubLessonProgressKey,
   hasGithubCourseProgress,
   resetGithubProgress,
 } from "./progress-store";
+import {
+  selectGithubJourney,
+  type GithubJourneyLesson,
+} from "./course-journey";
 import useGithubProgress, {
   useGithubStorageAvailable,
 } from "./useGithubProgress";
 import { useI18n } from "../I18nProvider";
 import base from "@/components/codex/CodexCourse.module.css";
+import styles from "./GithubCourse.module.css";
 
-type LessonLink = {
-  readonly slug: GithubLessonSlug;
-  readonly href: string;
-};
-
-export default function CourseProgress({
+export function CourseJourneyAction({
   lessons,
-  labels,
+  locale,
   startLabel,
   resumeLabel,
 }: {
-  lessons: readonly LessonLink[];
-  labels: GithubUiCopy;
+  lessons: readonly GithubJourneyLesson[];
+  locale: string;
   startLabel: string;
   resumeLabel: string;
 }) {
   const { t } = useI18n();
   const progress = useGithubProgress();
+  const state = useMemo(
+    () => selectGithubJourney(lessons, progress),
+    [lessons, progress],
+  );
+  const numberFormat = useMemo(() => new Intl.NumberFormat(locale), [locale]);
+  const hasProgress = hasGithubCourseProgress(progress);
+  const href = state.nextHref;
+  if (!href) return null;
+
+  return (
+    <>
+      <Link
+        className={`${base.primaryAction} ${styles.courseAction}`}
+        href={href}
+        data-course-journey-action
+        data-testid="github-hero-journey-action"
+        onClick={(event) => {
+          if (!href.startsWith("#")) return;
+          const target = document.querySelector<HTMLElement>(href);
+          if (!target) return;
+          event.preventDefault();
+          window.history.pushState(null, "", href);
+          target.focus({ preventScroll: true });
+          target.scrollIntoView({ block: "start" });
+        }}
+      >
+        {state.courseCompleted
+          ? t("cat.review")
+          : hasProgress
+            ? resumeLabel
+            : startLabel}
+        <span className={base.arrow} aria-hidden="true">
+          →
+        </span>
+      </Link>
+      <span className={base.srOnly}>
+        {`${numberFormat.format(state.completed)}/${numberFormat.format(state.total)}`}
+      </span>
+    </>
+  );
+}
+
+export default function CourseProgress({
+  lessons,
+  labels,
+  locale,
+}: {
+  lessons: readonly GithubJourneyLesson[];
+  labels: GithubUiCopy;
+  locale: string;
+}) {
+  const progress = useGithubProgress();
   const storageAvailable = useGithubStorageAvailable();
   const [resetMessage, setResetMessage] = useState("");
+  const [resetPersisted, setResetPersisted] = useState<boolean | null>(null);
   const resetStatus = useRef<HTMLParagraphElement>(null);
-
-  const state = useMemo(() => {
-    const completedLessons = lessons.filter(
-      (lesson) => progress[githubLessonProgressKey(lesson.slug)] === true,
-    ).length;
-    const quizPassed = isGithubQuizPassed(progress);
-    const capstonePassed = progress[GITHUB_CAPSTONE_STORAGE_KEY] === true;
-    const completed =
-      completedLessons + Number(quizPassed) + Number(capstonePassed);
-    const total = lessons.length + 2;
-    const incompleteLesson = lessons.find(
-      (lesson) => progress[githubLessonProgressKey(lesson.slug)] !== true,
-    );
-    const capstoneLesson = lessons.find(
-      (lesson) => lesson.slug === "teaching-capstone",
-    );
-    const courseCompleted = completed === total;
-    const nextAction = courseCompleted
-      ? lessons[0] ?? null
-      : incompleteLesson ??
-        (!quizPassed
-          ? { href: "#github-final-quiz-title" }
-          : capstoneLesson ?? null);
-
-    return {
-      completed,
-      total,
-      percent: Math.round((completed / total) * 100),
-      courseCompleted,
-      nextAction,
-    };
-  }, [lessons, progress]);
-
+  const state = useMemo(
+    () => selectGithubJourney(lessons, progress),
+    [lessons, progress],
+  );
+  const formats = useMemo(() => ({
+    number: new Intl.NumberFormat(locale),
+    percent: new Intl.NumberFormat(locale, {
+      style: "percent",
+      maximumFractionDigits: 0,
+    }),
+  }), [locale]);
   const hasProgress = hasGithubCourseProgress(progress);
 
   return (
@@ -87,15 +112,19 @@ export default function CourseProgress({
           <p>{labels.browserStorageNote}</p>
         </div>
         <output className={base.progressValue} aria-live="polite">
-          <strong>{state.percent}%</strong>
+          <strong data-testid="github-progress-percent">
+            {formats.percent.format(state.completed / state.total)}
+          </strong>
           <span>
-            {state.completed}/{state.total}
+            {formats.number.format(state.completed)}/{formats.number.format(state.total)}
           </span>
         </output>
       </div>
 
       {!storageAvailable ? (
-        <p className={base.storageWarning}>{labels.storageUnavailable}</p>
+        <p className={base.storageWarning} role="status">
+          {labels.storageUnavailable}
+        </p>
       ) : null}
 
       <progress
@@ -106,37 +135,17 @@ export default function CourseProgress({
       />
 
       <div className={base.progressActions}>
-        {state.nextAction ? (
-          <Link
-            className={base.primaryAction}
-            href={state.nextAction.href}
-            data-course-journey-action
-            onClick={(event) => {
-              if (!state.nextAction?.href.startsWith("#")) return;
-              const target = document.querySelector<HTMLElement>(
-                state.nextAction.href,
-              );
-              if (!target) return;
-              event.preventDefault();
-              window.history.pushState(null, "", state.nextAction.href);
-              target.focus({ preventScroll: true });
-              target.scrollIntoView({ block: "start" });
-            }}
-          >
-            {state.courseCompleted ? t("cat.review") : hasProgress ? resumeLabel : startLabel}
-            <span className={base.arrow} aria-hidden="true">
-              →
-            </span>
-          </Link>
-        ) : null}
         <button
-          className={base.secondaryAction}
+          className={`${base.secondaryAction} ${styles.courseAction}`}
           type="button"
           disabled={!hasProgress}
           onClick={() => {
             if (!window.confirm(labels.resetConfirm)) return;
-            resetGithubProgress();
-            setResetMessage(labels.resetDone);
+            const result = resetGithubProgress();
+            setResetPersisted(result.persisted);
+            setResetMessage(
+              result.persisted ? labels.resetDone : labels.resetNotSaved,
+            );
             window.requestAnimationFrame(() => resetStatus.current?.focus());
           }}
         >
@@ -144,7 +153,13 @@ export default function CourseProgress({
         </button>
       </div>
       <p
-        className={resetMessage ? base.resetStatus : base.srOnly}
+        className={
+          `${!resetMessage
+            ? base.srOnly
+            : resetPersisted
+              ? base.resetStatus
+              : base.storageWarning} ${styles.focusTarget}`
+        }
         ref={resetStatus}
         role="status"
         tabIndex={-1}

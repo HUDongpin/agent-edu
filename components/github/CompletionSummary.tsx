@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   getGithubQuizBest,
   isGithubQuizPassed,
@@ -12,17 +13,20 @@ import {
 } from "./progress-store";
 import useGithubProgress from "./useGithubProgress";
 import base from "@/components/codex/CodexCourse.module.css";
+import styles from "./GithubCourse.module.css";
 
 export default function CompletionSummary({
   courseTitle,
   courseVersion,
   lessonSlugs,
   labels,
+  locale,
 }: {
   courseTitle: string;
   courseVersion: string;
   lessonSlugs: readonly GithubLessonSlug[];
   labels: GithubUiCopy;
+  locale: string;
 }) {
   const progress = useGithubProgress();
   const lessonCount = lessonSlugs.filter(
@@ -32,6 +36,14 @@ export default function CompletionSummary({
   const capstonePassed = progress[GITHUB_CAPSTONE_STORAGE_KEY] === true;
   const milestones = lessonCount + Number(quizPassed) + Number(capstonePassed);
   const quizBest = getGithubQuizBest(progress);
+  const percentFormat = useMemo(
+    () =>
+      new Intl.NumberFormat(locale, {
+        style: "percent",
+        maximumFractionDigits: 0,
+      }),
+    [locale],
+  );
 
   if (milestones !== lessonSlugs.length + 2) return null;
 
@@ -46,9 +58,9 @@ export default function CompletionSummary({
         <h2 id="github-completion-summary-title">{labels.completionSummary}</h2>
         <p>{courseTitle}</p>
       </div>
-      <strong aria-label={labels.courseProgress}>100%</strong>
+      <strong aria-label={labels.courseProgress}>{percentFormat.format(1)}</strong>
       <button
-        className={base.secondaryAction}
+        className={`${base.secondaryAction} ${styles.courseAction}`}
         type="button"
         onClick={() => {
           const summary = {

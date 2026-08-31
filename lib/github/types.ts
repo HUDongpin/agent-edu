@@ -290,6 +290,19 @@ export interface GithubUiCopy {
   readonly browserStorageNote: string;
   readonly backToCourse: string;
   readonly allLessons: string;
+  readonly lessonPositionTemplate: string;
+  readonly quizDraftAvailable: string;
+  readonly resumeQuizDraft: string;
+  readonly discardQuizDraft: string;
+  readonly quizDraftRestored: string;
+  readonly quizDraftDiscarded: string;
+  readonly capstoneDraftAvailable: string;
+  readonly resumeCapstoneDraft: string;
+  readonly discardCapstoneDraft: string;
+  readonly capstoneDraftRestored: string;
+  readonly capstoneDraftDiscarded: string;
+  readonly draftInvalid: string;
+  readonly draftStorageWarning: string;
   readonly finalQuizTitle: string;
   readonly finalQuizIntro: string;
   readonly beginQuiz: string;
@@ -303,6 +316,7 @@ export interface GithubUiCopy {
   readonly passRequirement: string;
   readonly resetConfirm: string;
   readonly resetDone: string;
+  readonly resetNotSaved: string;
   readonly capstonePath: string;
   readonly capstoneArtifacts: string;
   readonly capstoneComplete: string;
@@ -312,6 +326,7 @@ export interface GithubUiCopy {
   readonly exportSummary: string;
   readonly authenticFigure: string;
   readonly figureSource: string;
+  readonly openFigureFullSize: string;
   readonly classroomNotice: string;
 }
 
