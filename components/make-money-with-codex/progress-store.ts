@@ -8,6 +8,10 @@ import {
 import type { PersistenceResult } from "@/lib/public-progress-contract";
 import { verifySharedProgressReset } from "@/lib/progress-persistence";
 import { INCOME_PROGRESS_PROBE_KEY } from "@/lib/progress-storage-contract";
+import {
+  isIncomeSessionDraftStorageAvailable,
+  resetIncomeSessionDraftsAfterProgressReset,
+} from "./session-draft-store";
 
 const MAKE_MONEY_WITH_CODEX_LESSON_SLUGS = MAKE_MONEY_PROGRESS_LESSON_SLUGS;
 const MAKE_MONEY_WITH_CODEX_COURSE_VERSION = MAKE_MONEY_PROGRESS_SCHEMA.courseVersion;
@@ -214,13 +218,15 @@ export function setIncomeCapstone(checks: readonly boolean[]): boolean {
 }
 
 export function resetIncomeProgress(): boolean {
-  return updateIncomeRecord((record) => {
+  const progressPersisted = updateIncomeRecord((record) => {
     const next = { ...record };
     for (const key of Object.keys(next)) {
       if (key.startsWith("make-money-with-codex.")) delete next[key];
     }
     return next;
   });
+  const draftsReset = resetIncomeSessionDraftsAfterProgressReset();
+  return progressPersisted && draftsReset.persisted;
 }
 
 /** Reset this module's session cache after the site-wide owner removed `ae.progress`. */
@@ -231,9 +237,12 @@ export function resetIncomeProgressAfterGlobalReset(): PersistenceResult {
   const result = typeof window === "undefined"
     ? { persisted: false, reason: "unavailable" } as const
     : verifySharedProgressReset(window.localStorage, SHARED_PROGRESS_KEY);
+  const draftsReset = resetIncomeSessionDraftsAfterProgressReset();
   storageDenied = !result.persisted;
-  window.dispatchEvent(new Event(INCOME_PROGRESS_EVENT));
-  return result;
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(INCOME_PROGRESS_EVENT));
+  }
+  return result.persisted ? draftsReset : result;
 }
 
 export function subscribeToIncomeProgress(callback: () => void): () => void {
@@ -262,7 +271,7 @@ export function incomeStorageAvailable(): boolean {
     window.localStorage.removeItem(INCOME_PROGRESS_PROBE_KEY);
     readIncomeProgress();
     if (storageDenied) return false;
-    return true;
+    return isIncomeSessionDraftStorageAvailable();
   } catch {
     return false;
   }

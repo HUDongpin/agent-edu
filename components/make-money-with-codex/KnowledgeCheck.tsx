@@ -6,6 +6,8 @@ import {
   CODEX_INCOME_SOURCE_BY_ID,
   type CodexIncomeQuizQuestion,
 } from "@/lib/make-money-with-codex";
+import { parseQuizAnswersSessionDraft } from "@/lib/make-money-with-codex/session-draft-schemas";
+import { MAKE_MONEY_WITH_CODEX_QUIZ_ANSWERS_DRAFT_KEY } from "@/lib/make-money-session-draft-contract";
 import { setIncomeQuiz } from "./progress-store";
 import useSessionDraft from "./useSessionDraft";
 import useIncomeProgress, { useIncomeStorageAvailable } from "./useIncomeProgress";
@@ -26,25 +28,17 @@ export default function KnowledgeCheck({
 }) {
   const progress = useIncomeProgress();
   const storageAvailable = useIncomeStorageAvailable();
-  const parseAnswers = useCallback((value: unknown): Record<string, number> | null => {
-    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-    const record = value as Record<string, unknown>;
-    const restored: Record<string, number> = {};
-    for (const question of questions) {
-      const answer = record[question.id];
-      if (typeof answer === "number" && Number.isInteger(answer) && answer >= 0 && answer < question.options.length) {
-        restored[question.id] = answer;
-      }
-    }
-    return restored;
-  }, [questions]);
+  const parseAnswers = useCallback(
+    (value: unknown) => parseQuizAnswersSessionDraft(value, questions),
+    [questions],
+  );
   const {
     value: answers,
     setValue: setAnswers,
     clear: clearAnswers,
     status: draftStatus,
   } = useSessionDraft({
-    storageKey: "aicourse.course11.quiz-answers.v1",
+    storageKey: MAKE_MONEY_WITH_CODEX_QUIZ_ANSWERS_DRAFT_KEY,
     initialValue: EMPTY_ANSWERS,
     parse: parseAnswers,
   });

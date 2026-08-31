@@ -60,6 +60,13 @@ import {
   RAG_CORRUPT_PROGRESS_BACKUP_KEY,
   RAG_PROGRESS_PROBE_KEY,
 } from "@/lib/progress-storage-contract";
+import {
+  MAKE_MONEY_WITH_CODEX_MARGIN_DRAFT_KEY,
+  MAKE_MONEY_WITH_CODEX_OFFER_DRAFT_KEY,
+  MAKE_MONEY_WITH_CODEX_QUIZ_ANSWERS_DRAFT_KEY,
+  MAKE_MONEY_WITH_CODEX_SCORECARD_DRAFT_KEY,
+  MAKE_MONEY_WITH_CODEX_SESSION_DRAFT_PROBE_KEY,
+} from "@/lib/make-money-session-draft-contract";
 import { isClaudeIncomeQuizAttemptPersistenceAvailable } from "./claude-income/quiz-attempt-store";
 import {
   AGENT_ORCHESTRATION_PROGRESS_MODULE_SLUGS,
@@ -664,7 +671,15 @@ function grokAdapter(locale: string): ProgressStoreAdapter {
 function makeMoneyAdapter(locale: string): ProgressStoreAdapter {
   return {
     courseId: "make-money-with-codex",
-    storageKeys: [SHARED_PROGRESS_KEY, INCOME_PROGRESS_PROBE_KEY],
+    storageKeys: [
+      SHARED_PROGRESS_KEY,
+      INCOME_PROGRESS_PROBE_KEY,
+      MAKE_MONEY_WITH_CODEX_SESSION_DRAFT_PROBE_KEY,
+      MAKE_MONEY_WITH_CODEX_MARGIN_DRAFT_KEY,
+      MAKE_MONEY_WITH_CODEX_QUIZ_ANSWERS_DRAFT_KEY,
+      MAKE_MONEY_WITH_CODEX_SCORECARD_DRAFT_KEY,
+      MAKE_MONEY_WITH_CODEX_OFFER_DRAFT_KEY,
+    ],
     progressEvent: INCOME_PROGRESS_EVENT,
     readSummary() {
       return readFailClosed(incomeStorageAvailable, () => {

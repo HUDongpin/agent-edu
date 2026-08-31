@@ -1,6 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
+import {
+  EMPTY_SCORECARD_SESSION_DRAFT,
+  parseScorecardSessionDraft,
+  SCORECARD_SESSION_DRAFT_CANDIDATE_MAX_LENGTH,
+  SCORECARD_SESSION_DRAFT_EVIDENCE_MAX_LENGTH,
+  type ScorecardSessionDraftScoreKey,
+} from "@/lib/make-money-with-codex/session-draft-schemas";
+import { MAKE_MONEY_WITH_CODEX_SCORECARD_DRAFT_KEY } from "@/lib/make-money-session-draft-contract";
 import useSessionDraft from "./useSessionDraft";
 import styles from "./IncomeCourse.module.css";
 
@@ -20,49 +28,11 @@ const riskFields = [
   ["dependency", "External dependency risk"],
 ] as const;
 
-type ScoreKey = (typeof positiveFields)[number][0] | (typeof riskFields)[number][0];
-type Scores = Record<ScoreKey, number>;
-type ScoreEvidence = Record<ScoreKey, string>;
-
-const emptyScores = Object.fromEntries(
-  [...positiveFields, ...riskFields].map(([key]) => [key, 0]),
-) as Scores;
-const emptyEvidence = Object.fromEntries(
-  [...positiveFields, ...riskFields].map(([key]) => [key, ""]),
-) as ScoreEvidence;
-
-type ScoreDraft = { readonly scores: Scores; readonly candidate: string; readonly evidence: ScoreEvidence };
-const emptyDraft: ScoreDraft = { scores: emptyScores, candidate: "", evidence: emptyEvidence };
-
-function parseScoreDraft(value: unknown): ScoreDraft | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  const record = value as Record<string, unknown>;
-  const rawScores = record.scores;
-  const rawEvidence = record.evidence;
-  if (!rawScores || typeof rawScores !== "object" || Array.isArray(rawScores)) return null;
-  if (!rawEvidence || typeof rawEvidence !== "object" || Array.isArray(rawEvidence)) return null;
-  const scores = { ...emptyScores };
-  const evidence = { ...emptyEvidence };
-  for (const [key] of [...positiveFields, ...riskFields]) {
-    const score = (rawScores as Record<string, unknown>)[key];
-    const note = (rawEvidence as Record<string, unknown>)[key];
-    if (typeof score === "number" && Number.isInteger(score) && score >= 0 && score <= 5) {
-      scores[key] = score;
-    }
-    if (typeof note === "string") evidence[key] = note;
-  }
-  return {
-    scores,
-    candidate: typeof record.candidate === "string" ? record.candidate : "",
-    evidence,
-  };
-}
-
 export default function OpportunityScorecard() {
   const { value: draft, setValue: setDraft, clear, status } = useSessionDraft({
-    storageKey: "aicourse.course11.scorecard.v1",
-    initialValue: emptyDraft,
-    parse: parseScoreDraft,
+    storageKey: MAKE_MONEY_WITH_CODEX_SCORECARD_DRAFT_KEY,
+    initialValue: EMPTY_SCORECARD_SESSION_DRAFT,
+    parse: parseScorecardSessionDraft,
   });
   const { scores, candidate, evidence } = draft;
   const score = useMemo(() => {
@@ -76,7 +46,10 @@ export default function OpportunityScorecard() {
       ? "Needs stronger evidence or a narrower scope"
       : "Do not build yet; investigate, narrow, or stop";
 
-  function field([key, label]: readonly [ScoreKey, string], kind: "signal" | "risk") {
+  function field(
+    [key, label]: readonly [ScorecardSessionDraftScoreKey, string],
+    kind: "signal" | "risk",
+  ) {
     const id = `income-score-${key}`;
     const evidenceId = `${id}-evidence`;
     return (
@@ -112,6 +85,7 @@ export default function OpportunityScorecard() {
             name={`make-money-with-codex-score-${key}-evidence`}
             autoComplete="off"
             rows={2}
+            maxLength={SCORECARD_SESSION_DRAFT_EVIDENCE_MAX_LENGTH}
             value={evidence[key]}
             onChange={(event) => setDraft((current) => ({
               ...current,
@@ -144,6 +118,7 @@ export default function OpportunityScorecard() {
           id="income-score-candidate"
           name="make-money-with-codex-score-candidate"
           autoComplete="off"
+          maxLength={SCORECARD_SESSION_DRAFT_CANDIDATE_MAX_LENGTH}
           value={candidate}
           onChange={(event) => setDraft((current) => ({ ...current, candidate: event.target.value }))}
           placeholder="For example: fixed-scope accessibility audit"

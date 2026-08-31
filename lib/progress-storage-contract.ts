@@ -89,6 +89,12 @@ export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
   GROK_QUIZ_ATTEMPT_KEY,
   GROK_TASK_CONTRACT_DRAFT_KEY,
   CLAUDE_INCOME_QUIZ_ATTEMPT_KEY,
+  // Course 11 course/global resets remove these exact tab-scoped work keys.
+  "aicourse.course11.session-draft-probe.v1",
+  "aicourse.course11.margin.v1",
+  "aicourse.course11.quiz-answers.v1",
+  "aicourse.course11.scorecard.v1",
+  "aicourse.course11.offer.v1",
 ] as const;
 
 export const PROGRESS_OWNED_STORAGE_KEYS = Object.freeze({

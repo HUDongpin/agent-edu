@@ -1,6 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  EMPTY_OFFER_SESSION_DRAFT,
+  OFFER_SESSION_DRAFT_FIELD_MAX_LENGTH,
+  parseOfferSessionDraft,
+} from "@/lib/make-money-with-codex/session-draft-schemas";
+import { MAKE_MONEY_WITH_CODEX_OFFER_DRAFT_KEY } from "@/lib/make-money-session-draft-contract";
 import CopyPrompt from "./CopyPrompt";
 import useSessionDraft from "./useSessionDraft";
 import styles from "./IncomeCourse.module.css";
@@ -17,25 +23,11 @@ const fields = [
   ["stop", "Stop conditions", "When must Codex stop and ask for authority or data?"],
 ] as const;
 
-type FieldKey = (typeof fields)[number][0];
-type Values = Record<FieldKey, string>;
-const empty = Object.fromEntries(fields.map(([key]) => [key, ""])) as Values;
-
-function parseOfferDraft(value: unknown): Values | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  const record = value as Record<string, unknown>;
-  const restored = { ...empty };
-  for (const [key] of fields) {
-    if (typeof record[key] === "string") restored[key] = record[key];
-  }
-  return restored;
-}
-
 export default function OfferBuilder() {
   const { value: values, setValue: setValues, clear, status } = useSessionDraft({
-    storageKey: "aicourse.course11.offer.v1",
-    initialValue: empty,
-    parse: parseOfferDraft,
+    storageKey: MAKE_MONEY_WITH_CODEX_OFFER_DRAFT_KEY,
+    initialValue: EMPTY_OFFER_SESSION_DRAFT,
+    parse: parseOfferSessionDraft,
   });
   const [copyResetKey, setCopyResetKey] = useState(0);
   const taskContract = useMemo(() => [
@@ -72,6 +64,7 @@ export default function OfferBuilder() {
               name={`make-money-with-codex-offer-${key}`}
               autoComplete="off"
               rows={3}
+              maxLength={OFFER_SESSION_DRAFT_FIELD_MAX_LENGTH}
               value={values[key]}
               placeholder={help}
               onChange={(event) => setValues((current) => ({ ...current, [key]: event.target.value }))}

@@ -5,6 +5,8 @@ import {
   calculateCodexIncomeMargin,
   type CodexIncomeMarginInputs,
 } from "@/lib/make-money-with-codex/economics";
+import { parseMarginSessionDraft } from "@/lib/make-money-with-codex/session-draft-schemas";
+import { MAKE_MONEY_WITH_CODEX_MARGIN_DRAFT_KEY } from "@/lib/make-money-session-draft-contract";
 import useSessionDraft from "./useSessionDraft";
 import styles from "./IncomeCourse.module.css";
 
@@ -36,24 +38,11 @@ const numericFields = [
 
 const percentageKeys = new Set<string>(["utilisation", "overhead", "reserve", "riskBuffer"]);
 
-function parseMarginDraft(value: unknown): CodexIncomeMarginInputs | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  const record = value as Record<string, unknown>;
-  const restored = { ...defaults };
-  if (typeof record.currency === "string") restored.currency = record.currency;
-  if (typeof record.observedOn === "string") restored.observedOn = record.observedOn;
-  for (const [key] of numericFields) {
-    const candidate = record[key];
-    if (typeof candidate === "number" && Number.isFinite(candidate)) restored[key] = candidate;
-  }
-  return restored;
-}
-
 export default function MarginCalculator({ locale = "en" }: { locale?: string }) {
   const { value: inputs, setValue: setInputs, clear, status } = useSessionDraft({
-    storageKey: "aicourse.course11.margin.v1",
+    storageKey: MAKE_MONEY_WITH_CODEX_MARGIN_DRAFT_KEY,
     initialValue: defaults,
-    parse: parseMarginDraft,
+    parse: parseMarginSessionDraft,
   });
   const analysis = useMemo(() => calculateCodexIncomeMargin(inputs), [inputs]);
   const changed = numericFields.some(([key]) => inputs[key] !== defaults[key])

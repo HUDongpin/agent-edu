@@ -8,6 +8,14 @@ import {
   useRef,
   useState,
 } from "react";
+import type { MakeMoneyWithCodexSessionDraftKey } from "@/lib/make-money-session-draft-contract";
+import {
+  clearIncomeSessionDraft,
+  isIncomeSessionDraftStorageAvailable,
+  readIncomeSessionDraft,
+  subscribeToIncomeSessionDraftReset,
+  writeIncomeSessionDraft,
+} from "./session-draft-store";
 
 export type SessionDraftStatus = "checking" | "available" | "unavailable";
 
@@ -16,7 +24,7 @@ export default function useSessionDraft<T>({
   initialValue,
   parse,
 }: {
-  storageKey: string;
+  storageKey: MakeMoneyWithCodexSessionDraftKey;
   initialValue: T;
   parse: (value: unknown) => T | null;
 }): {
@@ -28,51 +36,89 @@ export default function useSessionDraft<T>({
   const [value, setValue] = useState<T>(initialValue);
   const [status, setStatus] = useState<SessionDraftStatus>("checking");
   const initialRef = useRef(initialValue);
+  const initializedRef = useRef(false);
+  const dirtyRef = useRef(false);
+  const schemaWritableRef = useRef(true);
 
   useEffect(() => {
     initialRef.current = initialValue;
   }, [initialValue]);
 
   useEffect(() => {
-    let restored: T | null = null;
-    let nextStatus: SessionDraftStatus = "available";
-    try {
-      const probeKey = `${storageKey}.probe`;
-      window.sessionStorage.setItem(probeKey, "1");
-      window.sessionStorage.removeItem(probeKey);
-      const raw = window.sessionStorage.getItem(storageKey);
-      if (raw !== null) {
-        restored = parse(JSON.parse(raw) as unknown);
+    let frame = 0;
+    const applyStoredDraft = () => {
+      const storageAvailable = isIncomeSessionDraftStorageAvailable();
+      const snapshot = readIncomeSessionDraft(storageKey);
+      let restored: T | null = null;
+      let schemaValid = true;
+      if (snapshot.raw !== null) {
+        try {
+          restored = parse(JSON.parse(snapshot.raw) as unknown);
+          schemaValid = restored !== null;
+        } catch {
+          schemaValid = false;
+        }
       }
-    } catch {
-      nextStatus = "unavailable";
-    }
-    const frame = window.requestAnimationFrame(() => {
-      if (restored !== null) setValue(restored);
-      setStatus(nextStatus);
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        if (!dirtyRef.current) {
+          setValue(restored ?? initialRef.current);
+        }
+        schemaWritableRef.current = schemaValid;
+        initializedRef.current = true;
+        setStatus(
+          storageAvailable && snapshot.persisted && schemaValid
+            ? "available"
+            : "unavailable",
+        );
+      });
+    };
+
+    applyStoredDraft();
+    const unsubscribe = subscribeToIncomeSessionDraftReset(() => {
+      // A confirmed progress reset owns these drafts and must win over any
+      // pending write from the pre-reset render.
+      dirtyRef.current = false;
+      schemaWritableRef.current = true;
+      applyStoredDraft();
     });
-    return () => window.cancelAnimationFrame(frame);
+    return () => {
+      unsubscribe();
+      window.cancelAnimationFrame(frame);
+    };
   }, [parse, storageKey]);
 
   useEffect(() => {
-    if (status !== "available") return;
+    if (!initializedRef.current || !dirtyRef.current || !schemaWritableRef.current) return;
+    dirtyRef.current = false;
+    let nextStatus: SessionDraftStatus = "unavailable";
     try {
-      window.sessionStorage.setItem(storageKey, JSON.stringify(value));
-    } catch {
-      const frame = window.requestAnimationFrame(() => setStatus("unavailable"));
-      return () => window.cancelAnimationFrame(frame);
-    }
-    return undefined;
-  }, [status, storageKey, value]);
+      const normalized = parse(value as unknown);
+      if (normalized !== null) {
+        const result = writeIncomeSessionDraft(storageKey, JSON.stringify(normalized));
+        nextStatus = result.persisted ? "available" : "unavailable";
+      }
+    } catch {}
+    const frame = window.requestAnimationFrame(() => setStatus(nextStatus));
+    return () => window.cancelAnimationFrame(frame);
+  }, [parse, status, storageKey, value]);
+
+  const setDraftValue = useCallback<Dispatch<SetStateAction<T>>>((next) => {
+    dirtyRef.current = true;
+    setValue(next);
+  }, []);
 
   const clear = useCallback(() => {
-    setValue(initialRef.current);
-    try {
-      window.sessionStorage.removeItem(storageKey);
-    } catch {
+    const result = clearIncomeSessionDraft(storageKey);
+    if (!result.persisted) {
       setStatus("unavailable");
+      return;
     }
+    dirtyRef.current = false;
+    schemaWritableRef.current = true;
+    setValue(initialRef.current);
+    setStatus(isIncomeSessionDraftStorageAvailable() ? "available" : "unavailable");
   }, [storageKey]);
 
-  return { value, setValue, clear, status };
+  return { value, setValue: setDraftValue, clear, status };
 }
