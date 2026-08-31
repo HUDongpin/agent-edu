@@ -278,6 +278,7 @@ export default function CourseDashboard({
 
       <FinalAssessment
         questions={assessmentQuestions}
+        bankVersion={course.manifest.version}
         passPercent={course.copy.finalAssessment.passPercent}
         title={course.copy.finalAssessment.title}
         summary={course.copy.finalAssessment.summary}

@@ -4,10 +4,10 @@ import {
 import type { PersistenceResult } from "@/lib/public-progress-contract";
 import { verifySharedProgressReset } from "@/lib/progress-persistence";
 import {
-  PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
   PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
   PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
 } from "@/lib/progress-storage-contract";
+import { clearProductManagementAssessmentAttempt } from "./assessment-attempt-store";
 
 const PRODUCT_MANAGEMENT_PROGRESS_EVENT =
   PRODUCT_MANAGEMENT_PROGRESS_SCHEMA.progressEvent;
@@ -27,18 +27,13 @@ function isCurrentProductManagementProgress(
 
 export const PRODUCT_MANAGEMENT_PROGRESS_STORAGE_KEY = "ae.progress";
 export type ProductManagementProgressRecord = Record<string, unknown>;
+export type ProductManagementResetResult = PersistenceResult & {
+  readonly progressPersisted: boolean;
+  readonly attemptPersisted: boolean;
+};
 
 let memoryProgress: ProductManagementProgressRecord = {};
 let storageAvailable: boolean | null = null;
-
-function clearAssessmentAttempt(): void {
-  if (typeof window === "undefined") return;
-  try {
-    sessionStorage.removeItem(PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY);
-  } catch {
-    // The progress reset still completes when session storage is unavailable.
-  }
-}
 
 function holdCorruptProgress(raw: string | null): void {
   memoryProgress = {};
@@ -140,26 +135,38 @@ export function updateProductManagementProgress(
   return writeProductManagementProgress(record);
 }
 
-export function resetProductManagementProgress(): boolean {
+export function resetProductManagementProgress(): ProductManagementResetResult {
   const record = readProductManagementProgress();
   for (const key of Object.keys(record)) {
     if (key.startsWith(PRODUCT_MANAGEMENT_PROGRESS_PREFIX)) delete record[key];
   }
-  const persisted = writeProductManagementProgress(record);
-  clearAssessmentAttempt();
+  const progressPersisted = writeProductManagementProgress(record);
+  const attemptResult = clearProductManagementAssessmentAttempt();
   window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT));
-  return persisted;
+  const persisted = progressPersisted && attemptResult.persisted;
+  return {
+    persisted,
+    progressPersisted,
+    attemptPersisted: attemptResult.persisted,
+    ...(!persisted
+      ? { reason: progressPersisted ? attemptResult.reason ?? "unavailable" : "unavailable" }
+      : {}),
+  };
 }
 
 /** Reset this module's session cache after the site-wide owner removed `ae.progress`. */
 export function resetProductManagementProgressAfterGlobalReset(): PersistenceResult {
   memoryProgress = {};
-  const result = typeof window === "undefined"
+  const progressResult = typeof window === "undefined"
     ? { persisted: false, reason: "unavailable" } as const
     : verifySharedProgressReset(localStorage, PRODUCT_MANAGEMENT_PROGRESS_STORAGE_KEY);
-  storageAvailable = result.persisted;
-  clearAssessmentAttempt();
-  window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_EVENT));
-  window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT));
-  return result;
+  const attemptResult = clearProductManagementAssessmentAttempt();
+  storageAvailable = progressResult.persisted;
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_EVENT));
+    window.dispatchEvent(new CustomEvent(PRODUCT_MANAGEMENT_PROGRESS_RESET_EVENT));
+  }
+  if (!progressResult.persisted) return progressResult;
+  if (!attemptResult.persisted) return attemptResult;
+  return progressResult;
 }
