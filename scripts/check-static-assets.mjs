@@ -18,25 +18,27 @@ function baselineWithTenPercentHeadroom(baseline) {
   return { baseline, limit: Math.ceil(baseline * TEN_PERCENT) };
 }
 
-// Audited against the optimized 2026-08-26 Node 24 / Next 16.3.1 export at
-// codex/platform-release-hardening. These are uncompressed emitted bytes, not
-// transfer sizes. Updating one of these post-optimization baselines is a review
-// event: record the new clean build rather than increasing a percentage cap.
+// Audited against two byte-identical clean Node 24 / Next 16.3.1 exports at
+// 342ab475 (2026-08-31), after the public GitHub stylesheet ownership repair
+// and the Trackable lazy-graph optimization. These are uncompressed emitted
+// bytes, not transfer sizes. Updating one of these post-optimization baselines
+// is a review event: record the new clean build rather than increasing a
+// percentage cap.
 export const BUDGETS = {
-  nextStaticBytes: baselineWithTenPercentHeadroom(4_811_694),
-  javascriptBytes: baselineWithTenPercentHeadroom(4_261_292),
-  cssBytes: baselineWithTenPercentHeadroom(550_402),
+  nextStaticBytes: baselineWithTenPercentHeadroom(5_318_714),
+  javascriptBytes: baselineWithTenPercentHeadroom(4_627_427),
+  cssBytes: baselineWithTenPercentHeadroom(691_287),
   largestNextStaticBytes: baselineWithTenPercentHeadroom(234_172),
-  emittedPublicBytes: baselineWithTenPercentHeadroom(14_813_973),
+  emittedPublicBytes: baselineWithTenPercentHeadroom(14_814_031),
   largestPublicMediaBytes: { baseline: 495_549, limit: 500 * KIB },
-  largestHtmlRscBytes: { baseline: 383_772, limit: 500 * KIB },
+  largestHtmlRscBytes: { baseline: 414_577, limit: 500 * KIB },
   largestSitemapShardBytes: { baseline: 21_785, limit: 500 * KIB },
   routePayloadBytes: {
-    baseline: 345_648_063,
+    baseline: 402_827_884,
     limitForRouteCount: (routeCount) => routeCount * 550 * KIB,
   },
   totalExportBytes: {
-    baseline: 365_273_730,
+    baseline: 422_960_629,
     limitForRouteCount: (routeCount) => 64 * MIB + routeCount * 600 * KIB,
   },
 };
