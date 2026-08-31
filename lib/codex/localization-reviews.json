@@ -2,96 +2,32 @@
   "schema": "aicourse.codex.localization-reviews.v1",
   "courseId": "how-to-use-codex",
   "sourceLocale": "en",
-  "sourceMessageSha256": "9894e615d70cb3068fa9c6cf55da2fcf275d11b7d93439b9a917e98706775493",
+  "sourceMessageSha256": "bcdeb2937a2d380ef804595924e10246ec7a4dce1b60021a8644652c6b4f0cdc",
   "checklistVersion": "codex-localization-second-pass.v1",
   "locales": {
     "es": {
-      "status": "approved",
-      "reviewer": "project-owner",
-      "reviewedOn": "2026-08-24",
-      "messageSha256": "73452dd970c960dca178c36e7bf24c3e1ffb534a3caedcceae447744d74cff83",
-      "checks": {
-        "completeBundleReviewed": true,
-        "terminologyReviewed": true,
-        "semanticFidelityReviewed": true
-      }
+      "status": "pending"
     },
     "fr": {
-      "status": "approved",
-      "reviewer": "project-owner",
-      "reviewedOn": "2026-08-24",
-      "messageSha256": "54e05d339e41fdd9ff4567bb392c989f7a23c034cf650ab5a29f2143e6563309",
-      "checks": {
-        "completeBundleReviewed": true,
-        "terminologyReviewed": true,
-        "semanticFidelityReviewed": true
-      }
+      "status": "pending"
     },
     "de": {
-      "status": "approved",
-      "reviewer": "project-owner",
-      "reviewedOn": "2026-08-24",
-      "messageSha256": "052a266db931ce5a32593efb9b654f2f57e4ee615f406f432ef32f9d675585a4",
-      "checks": {
-        "completeBundleReviewed": true,
-        "terminologyReviewed": true,
-        "semanticFidelityReviewed": true
-      }
+      "status": "pending"
     },
     "zh-Hans": {
-      "status": "approved",
-      "reviewer": "project-owner",
-      "reviewedOn": "2026-08-24",
-      "messageSha256": "24e37542b7da60b61e985d51640094c3fc99c16c4eb32a4a938fb1cab8d7992d",
-      "checks": {
-        "completeBundleReviewed": true,
-        "terminologyReviewed": true,
-        "semanticFidelityReviewed": true
-      }
+      "status": "pending"
     },
     "zh-Hant": {
-      "status": "approved",
-      "reviewer": "project-owner",
-      "reviewedOn": "2026-08-24",
-      "messageSha256": "a26788e1b44c699a9b2634fc4acd5e293c315f4505e84c42ae8705777ef70cb9",
-      "checks": {
-        "completeBundleReviewed": true,
-        "terminologyReviewed": true,
-        "semanticFidelityReviewed": true
-      }
+      "status": "pending"
     },
     "ja": {
-      "status": "approved",
-      "reviewer": "project-owner",
-      "reviewedOn": "2026-08-24",
-      "messageSha256": "9454ce54b03ab3de3d653673aea4e290f8ecad35643c87be9f6591d89522b26a",
-      "checks": {
-        "completeBundleReviewed": true,
-        "terminologyReviewed": true,
-        "semanticFidelityReviewed": true
-      }
+      "status": "pending"
     },
     "ko": {
-      "status": "approved",
-      "reviewer": "project-owner",
-      "reviewedOn": "2026-08-24",
-      "messageSha256": "d135931e1aea5b2e299a62c5d5f3e7d8456b35696b09a90eaf43ddf42c22f2f6",
-      "checks": {
-        "completeBundleReviewed": true,
-        "terminologyReviewed": true,
-        "semanticFidelityReviewed": true
-      }
+      "status": "pending"
     },
     "ar": {
-      "status": "approved",
-      "reviewer": "project-owner",
-      "reviewedOn": "2026-08-24",
-      "messageSha256": "b6ddee81b4396ac2721e4d27c48a05d724238840a3692f8c20e5275b8c05730f",
-      "checks": {
-        "completeBundleReviewed": true,
-        "terminologyReviewed": true,
-        "semanticFidelityReviewed": true
-      }
+      "status": "pending"
     }
   }
 }
