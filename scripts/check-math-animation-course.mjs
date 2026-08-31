@@ -832,23 +832,25 @@ async function inspectSharedRelease(root, issues, courseModule) {
     const scripts = isRecord(pkg.scripts) ? pkg.scripts : {};
     const expected = {
       "math-animation:check": "node --import tsx scripts/check-math-animation-course.mjs",
-      "math-animation:check:release": "node --import tsx scripts/check-math-animation-course.mjs --release",
       "math-animation:static-check": "node scripts/check-math-animation-static.mjs",
       "test:math-animation": "playwright test --config tests/math-animation-playwright.config.ts --project=chromium --workers=1",
     };
     for (const [name, command] of Object.entries(expected)) {
       if (scripts[name] !== command) add(issues, "release", `package.json: ${name} is not wired to ${command}`);
     }
-    for (const name of ["build", "build:release"]) {
-      const command = String(scripts[name] ?? "");
-      if (!command.includes("npm run math-animation:check:release")) {
-        add(issues, "release", `package.json: ${name} omits the Course 19 release gate`);
-      }
-      if (!command.includes("next build") || !command.includes("npm run math-animation:static-check")) {
-        add(issues, "release", `package.json: ${name} omits the post-build Course 19 static audit`);
-      } else if (command.indexOf("next build") > command.indexOf("npm run math-animation:static-check")) {
-        add(issues, "release", `package.json: ${name} runs the Course 19 static audit before next build`);
-      }
+    if (!String(scripts["math-animation:check:release"] ?? "").includes(
+      "node --import tsx scripts/check-math-animation-course.mjs --release",
+    )) {
+      add(issues, "release", "package.json: math-animation:check:release is incomplete");
+    }
+    if (!String(scripts.build ?? "").includes("courses:check:development")) {
+      add(issues, "release", "package.json: build must use registry development gates");
+    }
+    if (
+      !String(scripts["verify:source"] ?? "").includes("published:check:release")
+      || !String(scripts["build:release"] ?? "").includes("verify:source")
+    ) {
+      add(issues, "release", "package.json: release build must use registry published gates");
     }
   }
 
