@@ -1,7 +1,7 @@
 # 第 18 门课《智能体赋能 K-12 和大学教学》一手来源核验报告
 
-> 核验快照：2026-08-26（Asia/Taipei）  
-> 核验对象：拟用于 aicourse.top 课程内容、实验与延伸阅读的官方 GitHub 仓库、可定位的 X 原帖，以及教育、教师监督和学生隐私的一手材料。  
+> 核验快照：2026-08-26（Asia/Taipei）
+> 核验对象：拟用于 aicourse.top 课程内容、实验与延伸阅读的官方 GitHub 仓库、可定位的 X 原帖，以及教育、教师监督和学生隐私的一手材料。
 > 结论边界：本报告核验“来源能否支持某项课程主张”，不把仓库星数、厂商宣传、X 热度或框架功能自动解释为教学成效、安全性或合规性。
 
 ## 一、执行结论
@@ -116,23 +116,23 @@
 
 ### 6.1 教师监督与教学决策
 
-1. [美国教育部 2023《Artificial Intelligence and the Future of Teaching and Learning》](https://files.eric.ed.gov/fulltext/ED631097.pdf)（重点见 PDF 页 20、56–57）明确要求把人置于回路中，教师应继续掌握重大教学决定；报告还讨论教师监看学生使用聊天机器人的方式、发现 AI 教案缺陷、避免过度信任，以及系统应可检查、可解释、可覆盖和可停止。  
-   **课程可支持主张：**agent 应增强教师判断，而非替代教师；重要决定需要人工审批和覆盖机制。  
+1. [美国教育部 2023《Artificial Intelligence and the Future of Teaching and Learning》](https://files.eric.ed.gov/fulltext/ED631097.pdf)（重点见 PDF 页 20、56–57）明确要求把人置于回路中，教师应继续掌握重大教学决定；报告还讨论教师监看学生使用聊天机器人的方式、发现 AI 教案缺陷、避免过度信任，以及系统应可检查、可解释、可覆盖和可停止。
+   **课程可支持主张：**agent 应增强教师判断，而非替代教师；重要决定需要人工审批和覆盖机制。
    **不能支持：**只要设置一个“确认”按钮就已解决偏差、准确性、责任归属和可访问性问题。
-2. [美国教育部 2024《Designing for Education with Artificial Intelligence》开发者指南](https://files.eric.ed.gov/fulltext/ED661949.pdf)覆盖 K-12、高等教育与非正式学习，强调安全、信任、隐私、公民权利、学习结果证据和师生反馈。文件本身是非监管指南。  
-   **课程可支持主张：**应在开发生命周期中收集教育者/学生反馈，并用真实学习指标评估。  
+2. [美国教育部 2024《Designing for Education with Artificial Intelligence》开发者指南](https://files.eric.ed.gov/fulltext/ED661949.pdf)覆盖 K-12、高等教育与非正式学习，强调安全、信任、隐私、公民权利、学习结果证据和师生反馈。文件本身是非监管指南。
+   **课程可支持主张：**应在开发生命周期中收集教育者/学生反馈，并用真实学习指标评估。
    **不能支持：**遵循该指南自动等于满足法律或采购合规。
-3. [NCES/IES 2026 官方综述](https://nces.ed.gov/learn/blog/ai-k-12-education-good-bad-and-guardrails-consider)指出当前强因果研究极少，且接触 AI 并不足以产生学习收益；AI 应支持而不是取代教师专业能力和学生思考。  
+3. [NCES/IES 2026 官方综述](https://nces.ed.gov/learn/blog/ai-k-12-education-good-bad-and-guardrails-consider)指出当前强因果研究极少，且接触 AI 并不足以产生学习收益；AI 应支持而不是取代教师专业能力和学生思考。
    **课程文案要求：**“提升成绩”“减少 X% 备课时间”“自动个性化有效”等句子，除非有明确研究或本地预注册试点数据，否则必须写成待验证假设。
 
 ### 6.2 年龄、隐私与学校授权
 
-1. [UNESCO《Guidance for generative AI in education and research》官方页](https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research)（2023-09-07 发布，页面 2026-01-16 更新）要求人本、数据隐私、年龄适切验证，并建议为与生成式 AI 的独立对话设定年龄限制。  
+1. [UNESCO《Guidance for generative AI in education and research》官方页](https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research)（2023-09-07 发布，页面 2026-01-16 更新）要求人本、数据隐私、年龄适切验证，并建议为与生成式 AI 的独立对话设定年龄限制。
    **重要限定：**文件讨论 13 岁门槛与家长许可的语境，但这不是全球统一授权年龄；供应商条款、国家/地区法律和学校政策可以更严格。
-2. [FTC 2025 COPPA 最终修订](https://www.ftc.gov/legal-library/browse/federal-register-notices/16-cfr-part-312-coppa-final-rule-amendments)及其[官方说明](https://www.ftc.gov/news-events/news/press-releases/2025/01/ftc-finalizes-changes-childrens-privacy-rule-limiting-companies-ability-monetize-kids-data)强化了针对定向广告的单独选择加入同意、数据保留限制，并扩展部分个人信息类型。COPPA 的核心覆盖包括面向 13 岁以下儿童的在线服务，以及实际知情其正在收集 13 岁以下儿童个人信息的运营者。  
+2. [FTC 2025 COPPA 最终修订](https://www.ftc.gov/legal-library/browse/federal-register-notices/16-cfr-part-312-coppa-final-rule-amendments)及其[官方说明](https://www.ftc.gov/news-events/news/press-releases/2025/01/ftc-finalizes-changes-childrens-privacy-rule-limiting-companies-ability-monetize-kids-data)强化了针对定向广告的单独选择加入同意、数据保留限制，并扩展部分个人信息类型。COPPA 的核心覆盖包括面向 13 岁以下儿童的在线服务，以及实际知情其正在收集 13 岁以下儿童个人信息的运营者。
    **重要限定：**最终规则没有采纳拟议中的全部教育科技/学校授权修改；课程不能把提案内容错写成现行规则。
 3. [FTC COPPA FAQ—学校部分](https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions)说明学校代为同意只限教育场景、为学校之使用与利益，且不得用于其他商业目的；如果运营方要作商业使用，仍需家长同意。[FTC 2022 教育科技政策声明](https://www.ftc.gov/news-events/news/press-releases/2022/05/ftc-crack-down-companies-illegally-surveil-children-learning-online)还强调不能强制收集超出合理必要范围的数据、不得将学生数据另作营销用途、不得无限期保留，并须维护机密性、安全性和完整性。
-4. [美国教育部 FERPA—school official 例外 FAQ](https://studentprivacy.ed.gov/faq/who-school-official-under-ferpa)要求外部服务承担学校原本会使用人员完成的机构职能，受学校对教育记录使用与维护的直接控制，且服从目的限制与禁止再披露等条件。[FERPA 官方总页](https://studentprivacy.ed.gov/content/family-educational-rights-and-privacy-act)说明其适用范围是接受美国教育部资金的教育机构。  
+4. [美国教育部 FERPA—school official 例外 FAQ](https://studentprivacy.ed.gov/faq/who-school-official-under-ferpa)要求外部服务承担学校原本会使用人员完成的机构职能，受学校对教育记录使用与维护的直接控制，且服从目的限制与禁止再披露等条件。[FERPA 官方总页](https://studentprivacy.ed.gov/content/family-educational-rights-and-privacy-act)说明其适用范围是接受美国教育部资金的教育机构。
    **重要限定：**FERPA 不仅涉及 K-12，也涉及符合范围的高等教育机构；但它不是全球通用法律。
 
 ### 6.3 课程必须落实的最低控制
