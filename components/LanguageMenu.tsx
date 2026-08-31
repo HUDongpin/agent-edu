@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LOCALES, LOCALE_CODES, metaFor } from "@/lib/i18n";
 import { publicLocaleSwitchHref } from "@/lib/public-release-surface";
 import { useI18n } from "./I18nProvider";
@@ -23,7 +23,6 @@ export default function LanguageMenu() {
   const wrap = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
-  const router = useRouter();
   const pathname = usePathname() || "/";
 
   useEffect(() => {
@@ -63,6 +62,11 @@ export default function LanguageMenu() {
   }
 
   function switchTo(code: string) {
+    if (code === locale) {
+      setOpen(false);
+      trigger.current?.focus();
+      return;
+    }
     // Keep the learner on the same page when that content locale exists. For
     // an English-only course, preserve the requested site language as an
     // explicit return path instead of manufacturing a translated 404 route.
@@ -73,7 +77,13 @@ export default function LanguageMenu() {
       /* private browsing */
     }
     setOpen(false);
-    router.push(destination);
+    // Reload the locale document so its pre-paint theme script and html
+    // attributes run exactly as they do on a direct visit.
+    const localeDocument = new URL(
+      destination,
+      window.location.href,
+    );
+    window.location.assign(localeDocument.href);
   }
 
   return (

@@ -366,6 +366,14 @@ export interface CursorCourseCopy {
     readonly checkpoint: string;
     readonly sources: string;
     readonly quiz: string;
+    readonly finalQuizQuestions: string;
+    readonly inThisLesson: string;
+    readonly learn: string;
+    readonly completion: string;
+    readonly capstone: string;
+    readonly missedConcepts: string;
+    readonly reviewMissedLessons: string;
+    readonly reviewLessonTemplate: string;
     readonly previous: string;
     readonly next: string;
     readonly capturePending: string;
@@ -380,6 +388,7 @@ export interface CursorCourseCopy {
     readonly completed: string;
     readonly markComplete: string;
     readonly markedComplete: string;
+    readonly markIncomplete: string;
     readonly resetProgress: string;
     readonly question: string;
     readonly of: string;
@@ -391,6 +400,7 @@ export interface CursorCourseCopy {
     readonly score: string;
     readonly quizPassed: string;
     readonly quizNeedsReview: string;
+    readonly finalQuizNeedsReview: string;
     readonly capstoneArtifacts: string;
     readonly capstoneReceipt: string;
     readonly artifactReady: string;
@@ -415,6 +425,8 @@ export interface CursorCourseCopy {
     readonly passRequirement: string;
     readonly source: string;
     readonly storageUnavailable: string;
+    readonly draftNotSaved: string;
+    readonly discardDraftConfirm: string;
     readonly receiptInstructions: string;
     readonly receiptSchemaLabel: string;
     readonly fixtureVersionLabel: string;

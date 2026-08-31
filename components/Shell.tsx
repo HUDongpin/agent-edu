@@ -89,7 +89,7 @@ export default async function Shell({
         <CourseLocaleReturn />
       </Suspense>
       <ProgressAdaptersProvider>
-        <main id="main">{children}</main>
+        <main id="main" tabIndex={-1}>{children}</main>
       </ProgressAdaptersProvider>
 
       <footer className="sitefoot">

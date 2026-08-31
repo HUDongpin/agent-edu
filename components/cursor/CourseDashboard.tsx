@@ -7,6 +7,7 @@ import {
   type MaterializedCursorCourse,
 } from "@/lib/cursor";
 import CompletionSummary from "./CompletionSummary";
+import CourseCurriculum from "./CourseCurriculum";
 import CourseProgress from "./CourseProgress";
 import FinalQuiz, { type FinalQuizQuestion } from "./FinalQuiz";
 import styles from "./CursorCourse.module.css";
@@ -23,10 +24,16 @@ export default function CourseDashboard({
   const quizBank: readonly FinalQuizQuestion[] = CURSOR_FINAL_QUIZ.bankQuestionIds.map((questionId) => {
     const question = CURSOR_QUIZ_BY_ID[questionId];
     const copy = course.copy.quiz[question.id];
+    const unit = course.units.find((item) => item.id === question.unitId)!;
+    const lesson = unit.lessons.find((item) => item.slug === question.lessonSlug)!;
     return {
       id: question.id,
       unitId: question.unitId,
-      unitTitle: course.copy.units[question.unitId].title,
+      unitOrder: unit.order,
+      unitTitle: unit.copy.title,
+      lessonOrder: lesson.order,
+      lessonTitle: lesson.copy.title,
+      reviewHref: `${hrefFor(question.lessonSlug)}#cursor-lesson-knowledge-check`,
       prompt: copy.question,
       options: CURSOR_QUIZ_OPTION_IDS.map((id) => ({ id, label: copy.options[id] })),
       correctOptionId: question.correctOptionId,
@@ -49,7 +56,11 @@ export default function CourseDashboard({
           <p className={styles.heroAudience}>{course.copy.meta.audience}</p>
         </div>
 
-        <aside className={styles.courseFacts} aria-label={course.copy.meta.title}>
+        <aside
+          className={styles.courseFacts}
+          aria-label={course.copy.meta.title}
+          data-testid="cursor-course-facts"
+        >
           <p>{course.copy.meta.duration}</p>
           <dl>
             <div>
@@ -61,7 +72,7 @@ export default function CourseDashboard({
               <dd>{lessons.length}</dd>
             </div>
             <div>
-              <dt>{course.copy.ui.quiz}</dt>
+              <dt>{course.copy.ui.finalQuizQuestions}</dt>
               <dd>{CURSOR_FINAL_QUIZ.questionCount}</dd>
             </div>
           </dl>
@@ -72,10 +83,30 @@ export default function CourseDashboard({
         lessons={lessons.map((lesson) => ({
           slug: lesson.slug,
           href: hrefFor(lesson.slug),
+          title: lesson.copy.title,
         }))}
         labels={course.copy.ui}
         startLabel={course.copy.meta.startCta}
         resumeLabel={course.copy.meta.resumeCta}
+        capstoneTitle={course.copy.capstone.title}
+      />
+
+      <CourseCurriculum
+        units={course.units.map((unit) => ({
+          id: unit.id,
+          order: unit.order,
+          title: unit.copy.title,
+          summary: unit.copy.summary,
+          lessons: unit.lessons.map((lesson) => ({
+            slug: lesson.slug,
+            order: lesson.order,
+            title: lesson.copy.title,
+            summary: lesson.copy.summary,
+            minutes: lesson.minutes,
+            href: hrefFor(lesson.slug),
+          })),
+        }))}
+        labels={course.copy.ui}
       />
 
       <aside className={styles.capstonePath} aria-labelledby="cursor-capstone-path-title">
@@ -84,47 +115,15 @@ export default function CourseDashboard({
           <h2 id="cursor-capstone-path-title">{course.copy.capstone.title}</h2>
           <p>{course.copy.capstone.summary}</p>
         </div>
-        <Link className={styles.primaryAction} href={hrefFor(capstone.slug)}>
+        <Link
+          className={styles.secondaryAction}
+          href={`${hrefFor(capstone.slug)}#cursor-capstone-title`}
+          data-course-action
+        >
           {course.copy.ui.capstonePath}
           <span className={styles.arrow} aria-hidden="true">→</span>
         </Link>
       </aside>
-
-      <section className={styles.curriculum} aria-labelledby="cursor-curriculum-title">
-        <header>
-          <h2 id="cursor-curriculum-title">{course.copy.ui.allLessons}</h2>
-        </header>
-
-        <div className={styles.unitList}>
-          {course.units.map((unit) => (
-            <section className={styles.unit} key={unit.id} aria-labelledby={`${unit.id}-title`}>
-              <div className={styles.unitHeading}>
-                <span aria-hidden="true">{unit.order}</span>
-                <div>
-                  <h3 id={`${unit.id}-title`}>{unit.copy.title}</h3>
-                  <p>{unit.copy.summary}</p>
-                </div>
-              </div>
-              <ol className={styles.lessonList}>
-                {unit.lessons.map((lesson) => (
-                  <li key={lesson.slug}>
-                    <Link href={hrefFor(lesson.slug)}>
-                      <span className={styles.lessonOrder}>{lesson.order}</span>
-                      <span className={styles.lessonCopy}>
-                        <strong>{lesson.copy.title}</strong>
-                        <span>{lesson.copy.summary}</span>
-                      </span>
-                      <span className={styles.lessonTime}>
-                        {lesson.minutes} {course.copy.ui.minutes}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ))}
-        </div>
-      </section>
 
       <FinalQuiz bank={quizBank} config={CURSOR_FINAL_QUIZ} labels={course.copy.ui} />
 
@@ -141,7 +140,7 @@ export default function CourseDashboard({
       </aside>
 
       <p className={styles.backLink}>
-        <Link href={`/${course.locale}/courses/`}>
+        <Link href={`/${course.locale}/courses/`} data-course-action>
           <span className={styles.backArrow} aria-hidden="true">←</span>
           {catalogLabel}
         </Link>
