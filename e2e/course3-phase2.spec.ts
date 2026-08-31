@@ -20,10 +20,8 @@ async function settleLayout(page: Page) {
 }
 
 test("the long mobile journey starts with core work and four closed secondary disclosures", async ({ page }) => {
-  for (const { locale, maxCourseHeight } of [
-    { locale: "en", maxCourseHeight: 4600 },
-    { locale: "ar", maxCourseHeight: 4600 },
-  ]) {
+  const maxCourseScreens = 6;
+  for (const locale of ["en", "ar"] as const) {
     await test.step(locale, async () => {
       await page.setViewportSize(VIEWPORTS[0]);
       expect((await page.goto(`/${locale}/build/`))?.status()).toBe(200);
@@ -47,7 +45,7 @@ test("the long mobile journey starts with core work and four closed secondary di
       const courseHeight = await page.locator(".build-page").evaluate((element) =>
         Math.round(element.getBoundingClientRect().height),
       );
-      expect(courseHeight).toBeLessThanOrEqual(maxCourseHeight);
+      expect(courseHeight).toBeLessThanOrEqual(VIEWPORTS[0].height * maxCourseScreens);
     });
   }
 });
