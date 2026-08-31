@@ -47,10 +47,14 @@ import {
   LEGACY_PROGRESS_KEY,
   LEGACY_SECTION_KEY,
   LEGACY_SEEN_KEY,
+  declareCourseCompleteWithResult,
   readLearningSnapshot,
+  readLearningState,
   resetLearningStateWithResult,
   selectAgenticJourneyPercent,
   selectAgenticJourneyStatus,
+  selectCourseProgress,
+  subscribeLearningState,
 } from "@/lib/progress";
 import {
   AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY,
@@ -301,6 +305,32 @@ export interface ProgressStoreAdapter {
 
 export interface PublishedProgressSummary extends ProgressStoreSummary {
   readonly courseId: PublishedProgressCourseId;
+}
+
+/**
+ * The Build page shares the already-lazy public progress graph instead of
+ * pulling a second copy of the full `ae.learning.v2` owner into its route
+ * bundle. These helpers still read and mutate only through `lib/progress`.
+ */
+export function readBuildDeclaration(): boolean {
+  const progress = selectCourseProgress(readLearningState(), "build");
+  return progress.kind === "external" && progress.declaredComplete;
+}
+
+export function subscribeBuildDeclaration(listener: () => void): () => void {
+  return subscribeLearningState(listener);
+}
+
+export function writeBuildDeclaration(complete: boolean): {
+  readonly declaredComplete: boolean;
+  readonly persisted: boolean;
+} {
+  const result = declareCourseCompleteWithResult("build", complete);
+  const progress = selectCourseProgress(result.state, "build");
+  return {
+    declaredComplete: progress.kind === "external" && progress.declaredComplete,
+    persisted: result.persisted,
+  };
 }
 
 type ProgressRecord = Record<string, unknown>;

@@ -1,35 +1,46 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
-import {
-  declareCourseCompleteWithResult,
-  readLearningState,
-  readLearningStateOnServer,
-  selectCourseProgress,
-  subscribeLearningState,
-} from "@/lib/progress";
+import { useEffect, useRef, useState } from "react";
 import { useI18n } from "../I18nProvider";
+
+type ProgressAdapters = typeof import("../progress-adapters");
 
 /**
  * A reversible learner note for the external Build-an-Agent module.
  *
  * The static site cannot inspect `course/progress.json`. This control therefore
  * records only what the learner says in the existing `ae.learning.v2` owner; it
- * does not measure the local stages or certify their result.
+ * does not measure the local stages or certify their result. It shares the
+ * already-lazy public progress graph instead of bundling a second store owner.
  */
 export default function Declare() {
   const { t } = useI18n();
-  const state = useSyncExternalStore(
-    subscribeLearningState,
-    readLearningState,
-    readLearningStateOnServer,
-  );
+  const adaptersRef = useRef<ProgressAdapters | null>(null);
+  const [done, setDone] = useState<boolean | null>(null);
   const [storageWarning, setStorageWarning] = useState(false);
-  const progress = selectCourseProgress(state, "build");
-  const done = progress.kind === "external" && progress.declaredComplete;
+
+  useEffect(() => {
+    let cancelled = false;
+    let unsubscribe = () => {};
+    void import("../progress-adapters").then((adapters) => {
+      if (cancelled) return;
+      adaptersRef.current = adapters;
+      const refresh = () => setDone(adapters.readBuildDeclaration());
+      refresh();
+      unsubscribe = adapters.subscribeBuildDeclaration(refresh);
+    });
+    return () => {
+      cancelled = true;
+      adaptersRef.current = null;
+      unsubscribe();
+    };
+  }, []);
 
   const toggle = () => {
-    const result = declareCourseCompleteWithResult("build", !done);
+    const adapters = adaptersRef.current;
+    if (!adapters || done === null) return;
+    const result = adapters.writeBuildDeclaration(!done);
+    setDone(result.declaredComplete);
     setStorageWarning(!result.persisted);
   };
 
@@ -44,16 +55,13 @@ export default function Declare() {
             type="button"
             className={done ? "iconbtn" : "btn"}
             aria-describedby="build-declaration-explanation"
-            aria-pressed={done}
+            aria-pressed={done === true}
+            disabled={done === null}
             onClick={toggle}
           >
             {done ? t("build.declaredCta") : t("build.declareCta")}
           </button>
-          {/*
-            Keep the live region mounted before the mutation. The confirmation
-            must also stand alone because assistive technology announces it
-            without the explanatory paragraph above.
-          */}
+          {/* Keep this live region mounted before the learner mutates state. */}
           <span className="muted" role="status" aria-live="polite" aria-atomic="true">
             {done ? (
               <span>
