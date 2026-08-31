@@ -1,4 +1,4 @@
-import { PROG } from "@/lib/progress";
+import { PROG } from "@/lib/progress-storage-key";
 import {
   MATH_ANIMATION_PROGRESS_EVENT,
   MATH_ANIMATION_PROGRESS_PREFIX,
@@ -8,12 +8,16 @@ import {
   MATH_ANIMATION_PROGRESS_VERSION_KEY,
   normalizeMathAnimationProgress,
 } from "@/lib/math-animation";
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import { verifySharedProgressReset } from "@/lib/progress-persistence";
+import {
+  MATH_ANIMATION_CORRUPT_PROGRESS_BACKUP_KEY,
+  MATH_ANIMATION_PROGRESS_PROBE_KEY,
+} from "@/lib/progress-storage-contract";
 
 export const MATH_ANIMATION_PROGRESS_STORAGE_KEY = PROG;
 export type MathAnimationProgressRecord = Record<string, unknown>;
 
-const STORAGE_PROBE_KEY = "__aicourse_math_animation_storage_probe__";
-const CORRUPT_BACKUP_KEY = "ae.progress.math-animation-corrupt-backup";
 let memoryProgress: MathAnimationProgressRecord = {};
 let storageAvailable: boolean | null = null;
 
@@ -29,17 +33,14 @@ function repairCorruptProgress(raw: string | null): MathAnimationProgressRecord 
   memoryProgress = normalizeMathAnimationProgress({});
   if (raw) {
     try {
-      sessionStorage.setItem(CORRUPT_BACKUP_KEY, raw);
+      sessionStorage.setItem(MATH_ANIMATION_CORRUPT_PROGRESS_BACKUP_KEY, raw);
     } catch {
       // The in-memory record remains usable when both browser stores are blocked.
     }
   }
-  try {
-    localStorage.setItem(MATH_ANIMATION_PROGRESS_STORAGE_KEY, JSON.stringify(memoryProgress));
-    storageAvailable = true;
-  } catch {
-    storageAvailable = false;
-  }
+  // An ordinary course read must never overwrite an unreadable shared record.
+  // The site-wide reset owner may clear it only after verified quarantine.
+  storageAvailable = false;
   return memoryProgress;
 }
 
@@ -47,8 +48,8 @@ export function isMathAnimationStorageAvailable(): boolean {
   if (typeof window === "undefined") return true;
   if (storageAvailable !== null) return storageAvailable;
   try {
-    localStorage.setItem(STORAGE_PROBE_KEY, "1");
-    localStorage.removeItem(STORAGE_PROBE_KEY);
+    localStorage.setItem(MATH_ANIMATION_PROGRESS_PROBE_KEY, "1");
+    localStorage.removeItem(MATH_ANIMATION_PROGRESS_PROBE_KEY);
     storageAvailable = true;
   } catch {
     storageAvailable = false;
@@ -131,4 +132,19 @@ export function resetMathAnimationProgress(): boolean {
     }));
   }
   return persisted;
+}
+
+export function resetMathAnimationProgressAfterGlobalReset(): PersistenceResult {
+  memoryProgress = {};
+  if (typeof window === "undefined") {
+    return { persisted: false, reason: "unavailable" };
+  }
+  const result = verifySharedProgressReset(
+    window.localStorage,
+    MATH_ANIMATION_PROGRESS_STORAGE_KEY,
+  );
+  storageAvailable = result.persisted;
+  window.dispatchEvent(new CustomEvent(MATH_ANIMATION_PROGRESS_EVENT, { detail: result }));
+  window.dispatchEvent(new CustomEvent(MATH_ANIMATION_PROGRESS_RESET_EVENT, { detail: result }));
+  return result;
 }

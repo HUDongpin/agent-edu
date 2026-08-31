@@ -24,7 +24,7 @@ test("both projections are byte-checked against the authoritative v3 manifest SH
     projection,
     JSON.parse(readFileSync("config/course-public-surface.json", "utf8")),
   );
-  assert.equal(projection.courses.length, 17);
+  assert.equal(projection.courses.length, 20);
   assert.equal(projection.courses.some((course: { id: string }) => course.id === "creator-ops"), false);
   assert.equal(JSON.stringify(projection).includes("releaseGate"), false);
   assert.equal(JSON.stringify(projection).includes("blockers"), false);
@@ -54,6 +54,7 @@ test("direct development, test, and course release entries validate projections 
     "agentic", "codex", "claude", "cursor", "grok", "github", "prompts",
     "software-engineering", "rag", "mcp", "make-money-with-codex", "claude-income",
     "ai-tutor", "product-management", "agent-orchestration",
+    "responsible-ai", "agentic-quant-trading", "ai-teaching", "math-animation",
   ].map((courseId) => `${courseId}:check:release`);
   for (const name of directCourseReleaseGates) {
     const command = packageJson.scripts[name] as string;
@@ -64,7 +65,7 @@ test("direct development, test, and course release entries validate projections 
 test("blocked and staged curricula stay in one private root until an authorized state flip", () => {
   const manifest = JSON.parse(readFileSync("config/course-release-manifest.json", "utf8"));
   const current = projectAuthoredCourseRouteWrappers(manifest);
-  assert.equal(current.length, 8);
+  assert.equal(current.length, 20);
   for (const wrapper of current) {
     assert.equal(wrapper.source, null, wrapper.path);
   }

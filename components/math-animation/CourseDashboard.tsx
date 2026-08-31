@@ -18,6 +18,7 @@ import {
 } from "./Interactions";
 import { SourceTraceDisclosure } from "./SourceTraceLinks";
 import styles from "./MathAnimationCourse.module.css";
+import CourseShell from "../course-shell/CourseShell";
 
 function verdictLabel(verdict: RepositoryVerdict, course: MaterializedMathAnimationCourse): string {
   return course.copy.ui[verdict];
@@ -147,6 +148,7 @@ export default function CourseDashboard({
       dir={course.contentDirection}
       data-testid="math-animation-course"
     >
+      <CourseShell courseId="math-animation" locale={course.locale} compact allowBlockedPreview />
       {course.locale !== course.contentLocale ? (
         <p className={styles.languageNotice}>{course.copy.ui.languageFallback}</p>
       ) : null}

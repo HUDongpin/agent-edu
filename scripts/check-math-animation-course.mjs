@@ -342,7 +342,7 @@ function inspectPoster(root, issues) {
   for (const forbidden of ["built-in image-generation tool", "generated poster is illustrative"]) {
     if (notice.includes(forbidden)) add(issues, "rights", `NOTICE.md: stale poster provenance ${JSON.stringify(forbidden)}`);
   }
-  requireTokens(root, "outputs/math-animation-course-research-brief.provenance.md", [
+  requireTokens(root, "evidence/course-audits/math-animation-course-research-brief.provenance.md", [
     "public/courses/math-animation/posters/unit-circle-sine-keyframes.svg",
     EXPECTED_POSTER_SHA256,
     "self-contained deterministic SVG",
@@ -686,10 +686,13 @@ function readZipEntries(buffer, issues, label) {
   return entries;
 }
 
-function inspectRoutesAndComponents(root, issues, courseModule) {
+function inspectRoutesAndComponents(root, issues, courseModule, release) {
+  const routeRoot = release
+    ? "app/[locale]/math-animation"
+    : "app/[locale]/_blocked/math-animation";
   const required = [
-    "app/[locale]/math-animation/page.tsx",
-    "app/[locale]/math-animation/[module]/page.tsx",
+    `${routeRoot}/page.tsx`,
+    `${routeRoot}/[module]/page.tsx`,
     "components/math-animation/AnimationPreview.tsx",
     "components/math-animation/CourseDashboard.tsx",
     "components/math-animation/Interactions.tsx",
@@ -699,13 +702,13 @@ function inspectRoutesAndComponents(root, issues, courseModule) {
     "components/math-animation/SourceTraceLinks.tsx",
     "components/math-animation/VisualWorkbench.module.css",
     "components/math-animation/progress-store.ts",
-    "outputs/math-animation-course-research-brief.md",
-    "outputs/math-animation-course-research-brief.provenance.md",
+    "evidence/course-audits/math-animation-course-research-brief.md",
+    "evidence/course-audits/math-animation-course-research-brief.provenance.md",
     "tests/math-animation-playwright.config.ts",
   ];
   for (const path of required) regularFile(root, path, issues, "files");
 
-  requireTokens(root, "app/[locale]/math-animation/page.tsx", [
+  requireTokens(root, `${routeRoot}/page.tsx`, [
     "dynamicParams = false",
     "generateStaticParams",
     "MATH_ANIMATION_LOCALES.map",
@@ -715,7 +718,7 @@ function inspectRoutesAndComponents(root, issues, courseModule) {
     "assertValidMathAnimationCourse",
     "<CourseDashboard",
   ], issues, "routes");
-  requireTokens(root, "app/[locale]/math-animation/[module]/page.tsx", [
+  requireTokens(root, `${routeRoot}/[module]/page.tsx`, [
     "dynamicParams = false",
     "MATH_ANIMATION_MODULE_SLUGS.map",
     "isMathAnimationModuleSlug",
@@ -760,7 +763,7 @@ function inspectRoutesAndComponents(root, issues, courseModule) {
     "normalizeMathAnimationProgress",
     "MATH_ANIMATION_PROGRESS_PREFIX",
     "MATH_ANIMATION_PROGRESS_RESET_GENERATION_KEY",
-    "CORRUPT_BACKUP_KEY",
+    "MATH_ANIMATION_CORRUPT_PROGRESS_BACKUP_KEY",
     "sessionStorage.setItem",
   ], issues, "progress");
   requireTokens(root, "tests/math-animation-playwright.config.ts", [
@@ -805,14 +808,14 @@ function inspectRoutesAndComponents(root, issues, courseModule) {
     }
   }
 
-  requireTokens(root, "outputs/math-animation-course-research-brief.md", [
+  requireTokens(root, "evidence/course-audits/math-animation-course-research-brief.md", [
     "### GitHub adoption and activity snapshot",
     "### Capability and dependency trace",
     "### Score reconstruction",
     "DOCUMENTARY_ONLY",
     "Stars are adoption context, not evidence of effectiveness",
   ], issues, "research");
-  requireTokens(root, "outputs/math-animation-course-research-brief.provenance.md", [
+  requireTokens(root, "evidence/course-audits/math-animation-course-research-brief.provenance.md", [
     "GitHub's primary REST metadata",
     "## X provenance",
     "## Inference register",
@@ -1158,7 +1161,7 @@ export async function checkMathAnimationCourse({
 
   inspectPoster(root, issues);
   inspectStarterKit(root, issues, repositories);
-  inspectRoutesAndComponents(root, issues, courseModule);
+  inspectRoutesAndComponents(root, issues, courseModule, release);
   if (release) await inspectSharedRelease(root, issues, courseModule);
 
   notes.push(`${manifest.phases.length} phases · ${manifest.modules.length} modules · ${totalMinutes} minutes`);

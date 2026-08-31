@@ -157,8 +157,12 @@ function checkAssets(courseId, issues, root) {
   return { files: allFiles.length, hashed: covered.size };
 }
 
-function checkStaticUi(courseId, issues, root) {
-  const routeDirectory = join(root, "app/[locale]", courseId);
+function checkStaticUi(courseId, issues, root, release) {
+  const routeDirectory = join(
+    root,
+    "app/[locale]",
+    ...(release ? [courseId] : ["_blocked", courseId]),
+  );
   const expectedRouteFiles = [
     join(routeDirectory, "page.tsx"),
     join(routeDirectory, "[module]/page.tsx"),
@@ -355,7 +359,7 @@ export function evaluateCourseKitFixture({ definition, contract, validationIssue
   return { ok: issues.length === 0, issues };
 }
 
-export async function checkCourseKitRelease(courseId, projectRoot = ROOT) {
+export async function checkCourseKitRelease(courseId, projectRoot = ROOT, release = false) {
   const root = resolve(projectRoot);
   const contract = CONTRACTS[courseId];
   if (!contract) throw new Error(`Unknown Course Kit ID: ${courseId}.`);
@@ -411,7 +415,7 @@ export async function checkCourseKitRelease(courseId, projectRoot = ROOT) {
   }
 
   const assetStats = checkAssets(courseId, issues, root);
-  checkStaticUi(courseId, issues, root);
+  checkStaticUi(courseId, issues, root, release);
   return {
     courseId,
     ok: issues.length === 0,
@@ -431,9 +435,15 @@ export async function checkCourseKitRelease(courseId, projectRoot = ROOT) {
   };
 }
 
-export async function checkAllCourseKitReleases(projectRoot = ROOT, selectedIds = COURSE_IDS) {
+export async function checkAllCourseKitReleases(
+  projectRoot = ROOT,
+  selectedIds = COURSE_IDS,
+  release = false,
+) {
   const results = [];
-  for (const courseId of selectedIds) results.push(await checkCourseKitRelease(courseId, projectRoot));
+  for (const courseId of selectedIds) {
+    results.push(await checkCourseKitRelease(courseId, projectRoot, release));
+  }
   return { ok: results.every((result) => result.ok), results };
 }
 
@@ -459,7 +469,11 @@ if (invoked) {
     console.error(`Use --course with one of: ${COURSE_IDS.join(", ")}`);
     process.exitCode = 2;
   } else {
-    const result = await checkAllCourseKitReleases(ROOT, selected);
+    const result = await checkAllCourseKitReleases(
+      ROOT,
+      selected,
+      process.argv.includes("--release"),
+    );
     if (process.argv.includes("--json")) console.log(JSON.stringify(result, null, 2));
     else console.log(format(result));
     if (!result.ok) process.exitCode = 1;

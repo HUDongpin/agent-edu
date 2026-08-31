@@ -3,7 +3,10 @@ import "server-only";
 import Link from "next/link";
 import { formatDeterministicInteger } from "@/lib/deterministic-format";
 import { getMessages, metaFor, translator } from "@/lib/i18n";
-import { PUBLISHED_CATALOG_COURSES } from "@/lib/public-courses";
+import {
+  CATALOG_COURSE_RELEASES,
+  PUBLISHED_CATALOG_COURSES,
+} from "@/lib/public-courses";
 import {
   publicContentLocaleForCourse,
   type PublicCourseId,
@@ -33,6 +36,7 @@ export default async function CourseShell({
   showHeading = true,
   standalone = false,
   compact = false,
+  allowBlockedPreview = false,
 }: {
   readonly courseId: PublicCourseId;
   readonly locale: string;
@@ -41,8 +45,13 @@ export default async function CourseShell({
   readonly standalone?: boolean;
   /** Keeps the platform facts and journey CTA while a bespoke dashboard supplies the H1. */
   readonly compact?: boolean;
+  /** Private `_blocked` implementations may render this without becoming public routes. */
+  readonly allowBlockedPreview?: boolean;
 }) {
-  const release = PUBLISHED_CATALOG_COURSES.find(({ course }) => course.id === courseId);
+  const release = (allowBlockedPreview
+    ? CATALOG_COURSE_RELEASES
+    : PUBLISHED_CATALOG_COURSES
+  ).find(({ course }) => course.id === courseId);
   if (!release) throw new Error(`CourseShell requires a published course: ${courseId}`);
 
   const { course, surface } = release;
@@ -106,7 +115,7 @@ export default async function CourseShell({
       <dl className="shared-course-facts" aria-label={t(course.titleKey)}>
         <div data-course-shell-field="status">
           <dt>{t("courseShell.status")}</dt>
-          <dd>{t("courseShell.available")}</dd>
+          <dd>{surface.state === "published" ? t("courseShell.available") : t("cat.soonBadge")}</dd>
         </div>
         <div data-course-shell-field="difficulty">
           <dt>{t("courseShell.difficulty")}</dt>
@@ -128,12 +137,14 @@ export default async function CourseShell({
         </p>
       ) : null}
 
-      <CourseShellProgress
-        courseId={courseId}
-        locale={locale}
-        labels={progressLabels}
-        designateJourneyAction={compact}
-      />
+      {surface.state === "published" ? (
+        <CourseShellProgress
+          courseId={courseId}
+          locale={locale}
+          labels={progressLabels}
+          designateJourneyAction={compact}
+        />
+      ) : null}
 
       <details className="course-shell-syllabus">
         <summary>

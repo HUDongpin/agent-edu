@@ -112,9 +112,12 @@ async function checkContract() {
 }
 
 function checkFilesAndRoutes() {
+  const routeRoot = RELEASE
+    ? "app/[locale]/ai-teaching"
+    : "app/[locale]/_blocked/ai-teaching";
   const required = [
-    "app/[locale]/ai-teaching/page.tsx",
-    "app/[locale]/ai-teaching/[module]/page.tsx",
+    `${routeRoot}/page.tsx`,
+    `${routeRoot}/[module]/page.tsx`,
     "components/ai-teaching/AgenticTeachingCourse.module.css",
     "components/ai-teaching/CourseDashboard.tsx",
     "components/ai-teaching/CourseNavigation.tsx",
@@ -130,13 +133,13 @@ function checkFilesAndRoutes() {
     "lib/ai-teaching/sources.ts",
     "lib/ai-teaching/types.ts",
     "lib/ai-teaching/validate.ts",
-    "outputs/course18-agentic-teaching-research.md",
-    "outputs/course18-agentic-teaching-research.provenance.md",
-    "outputs/course18-content-verification-2026-08-26.md",
-    "outputs/course18-content-verification-2026-08-26.provenance.md",
-    "outputs/course18-browser-qa.md",
-    "outputs/course18-source-verification.md",
-    "outputs/course18-repo-review.md",
+    "evidence/course-audits/course18-agentic-teaching-research.md",
+    "evidence/course-audits/course18-agentic-teaching-research.provenance.md",
+    "evidence/course-audits/course18-content-verification-2026-08-26.md",
+    "evidence/course-audits/course18-content-verification-2026-08-26.provenance.md",
+    "evidence/course-audits/course18-browser-qa.md",
+    "evidence/course-audits/course18-source-verification.md",
+    "evidence/course-audits/course18-repo-review.md",
     "scripts/check-ai-teaching-progress.mjs",
     "scripts/ai-teaching-export-state.mjs",
     "scripts/check-ai-teaching-static.mjs",
@@ -147,7 +150,7 @@ function checkFilesAndRoutes() {
   ];
   for (const path of required) regularFile(path);
 
-  requireTokens("app/[locale]/ai-teaching/page.tsx", [
+  requireTokens(`${routeRoot}/page.tsx`, [
     "dynamicParams = false",
     "AGENTIC_TEACHING_LOCALES.map",
     "availableLocales: AGENTIC_TEACHING_TRANSLATED_LOCALES",
@@ -156,7 +159,7 @@ function checkFilesAndRoutes() {
     "await assertValidAgenticTeachingCourse()",
     "<CourseDashboard",
   ]);
-  requireTokens("app/[locale]/ai-teaching/[module]/page.tsx", [
+  requireTokens(`${routeRoot}/[module]/page.tsx`, [
     "dynamicParams = false",
     "AGENTIC_TEACHING_MODULE_SLUGS.map",
     "isAgenticTeachingModuleSlug",
@@ -218,7 +221,7 @@ function checkFilesAndRoutes() {
     "sourcePrecedesExport",
     "validateCourse18ExportState",
   ]);
-  requireTokens("outputs/course18-content-verification-2026-08-26.md", [
+  requireTokens("evidence/course-audits/course18-content-verification-2026-08-26.md", [
     "Tutor CoPilot",
     "largely mitigated",
     "Public Beta",
@@ -228,7 +231,7 @@ function checkFilesAndRoutes() {
     "UNICEF",
     "残余不确定性",
   ]);
-  requireTokens("outputs/course18-content-verification-2026-08-26.provenance.md", [
+  requireTokens("evidence/course-audits/course18-content-verification-2026-08-26.provenance.md", [
     "5f9f4f09c3fe840b5a4c09bdbbf6f0b1239bf0ec",
     "57ac4a2ec742e0cb7622d899b0f5d3bcf769fd69",
     "X oEmbed",
@@ -274,7 +277,7 @@ function checkRegistryAndLocales() {
     "agenticTeachingProgressPercent",
   ]);
   requireTokens("lib/seo.ts", [
-    '"ai-teaching/"',
+    "`ai-teaching/${slug}/`",
     "agenticTeachingModulePage",
   ]);
   requireTokens("app/sitemap.ts", [

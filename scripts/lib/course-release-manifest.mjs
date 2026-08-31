@@ -37,6 +37,18 @@ export const FROZEN_PUBLISHED_COURSE_IDS = [
   "agent-orchestration",
 ];
 
+export const FROZEN_BLOCKED_COURSE_IDS = [
+  "codex",
+  "claude",
+  "cursor",
+  "responsible-ai",
+  "agentic-quant-trading",
+  "ai-teaching",
+  "math-animation",
+];
+
+export const FROZEN_ROADMAP_COURSE_IDS = ["ai-research"];
+
 function invariant(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -149,9 +161,15 @@ export function validateCourseReleaseManifest(manifest, options = {}) {
   const staged = manifest.courses.filter((course) => course.state === "staged");
   const roadmap = manifest.courses.filter((course) => course.state === "roadmap");
   invariant(published.length === 12, "manifest must contain exactly 12 published courses");
-  invariant(blocked.length === 3, "manifest must contain exactly 3 blocked courses");
+  invariant(
+    blocked.length === FROZEN_BLOCKED_COURSE_IDS.length,
+    `manifest must contain exactly ${FROZEN_BLOCKED_COURSE_IDS.length} blocked courses`,
+  );
   invariant(staged.length === 1, "manifest must contain exactly 1 staged course");
-  invariant(roadmap.length === 2, "manifest must contain exactly 2 roadmap courses");
+  invariant(
+    roadmap.length === FROZEN_ROADMAP_COURSE_IDS.length,
+    `manifest must contain exactly ${FROZEN_ROADMAP_COURSE_IDS.length} roadmap courses`,
+  );
   invariant(
     published.length + blocked.length + staged.length + roadmap.length === manifest.courses.length,
     "every course must be published, blocked, staged, or roadmap",
@@ -160,6 +178,16 @@ export function validateCourseReleaseManifest(manifest, options = {}) {
     published.map((course) => course.id),
     FROZEN_PUBLISHED_COURSE_IDS,
     "published course ids",
+  );
+  assertExactSet(
+    blocked.map((course) => course.id),
+    FROZEN_BLOCKED_COURSE_IDS,
+    "blocked course ids",
+  );
+  assertExactSet(
+    roadmap.map((course) => course.id),
+    FROZEN_ROADMAP_COURSE_IDS,
+    "roadmap course ids",
   );
 
   const allRoutes = [...manifest.core.routes];
@@ -338,6 +366,24 @@ export function generateStaticParams() {
 `;
 }
 
+function publishedFixedSource(courseId, pageName, privateFolder) {
+  return `${generatedHeader()}import { courseLocaleParams } from "@/lib/release-surface";
+
+export { default, generateMetadata } from "../../${privateFolder}/${courseId}/${pageName}/page";
+
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return courseLocaleParams("${courseId}");
+}
+`;
+}
+
+function publishedLayoutSource(courseId, privateFolder) {
+  return `${generatedHeader()}export { default } from "../${privateFolder}/${courseId}/layout";
+`;
+}
+
 export function projectAuthoredCourseRouteWrappers(manifest, projectRoot = process.cwd()) {
   invariant(Array.isArray(manifest?.courses), "release manifest courses are missing");
   const appRoot = resolve(projectRoot, "app/[locale]");
@@ -393,6 +439,33 @@ export function projectAuthoredCourseRouteWrappers(manifest, projectRoot = proce
         ? publishedChildSource(courseId, parameter, privateFolder)
         : null,
     });
+    const fixedEntries = readdirSync(implementationDirectory, { withFileTypes: true })
+      .filter((child) => child.isDirectory() && !/^\[[^\]]+\]$/.test(child.name))
+      .filter((child) => existsSync(join(implementationDirectory, child.name, "page.tsx")));
+    for (const fixedEntry of fixedEntries) {
+      invariant(
+        course.routes.includes(`${courseId}/${fixedEntry.name}/`),
+        `${courseId} private fixed page is absent from manifest routes: ${fixedEntry.name}`,
+      );
+      wrappers.push({
+        courseId,
+        privateFolder,
+        path: resolve(appRoot, routeRoot, fixedEntry.name, "page.tsx"),
+        source: course.state === "published"
+          ? publishedFixedSource(courseId, fixedEntry.name, privateFolder)
+          : null,
+      });
+    }
+    if (existsSync(join(implementationDirectory, "layout.tsx"))) {
+      wrappers.push({
+        courseId,
+        privateFolder,
+        path: resolve(appRoot, routeRoot, "layout.tsx"),
+        source: course.state === "published"
+          ? publishedLayoutSource(courseId, privateFolder)
+          : null,
+      });
+    }
   }
   return wrappers.sort((left, right) => left.path.localeCompare(right.path));
 }
