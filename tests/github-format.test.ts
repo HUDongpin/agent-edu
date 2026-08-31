@@ -5,6 +5,7 @@ import {
   GITHUB_LOCALES,
   formatGithubDate,
   formatGithubNumber,
+  formatGithubPercent,
   formatGithubVisibleNumbers,
   type GithubCourseCopy,
 } from "../lib/github";
@@ -16,13 +17,35 @@ function copy(locale: string): GithubCourseCopy {
 }
 
 test("Course 6 formats visible numbers with the explicit route locale", () => {
-  const ar = new Intl.NumberFormat("ar", { useGrouping: false });
-  assert.equal(formatGithubNumber("ar", 12), ar.format(12));
+  assert.equal(formatGithubNumber("ar", 12), "١٢");
+  assert.equal(formatGithubNumber("ar", 2, { minimumIntegerDigits: 2 }), "٠٢");
+  assert.equal(formatGithubNumber("en", 2, { minimumIntegerDigits: 2 }), "02");
   assert.equal(
     formatGithubVisibleNumbers("ar", "12 lessons · 660 minutes"),
-    `${ar.format(12)} lessons · ${ar.format(660)} minutes`,
+    "١٢ lessons · ٦٦٠ minutes",
   );
+  assert.equal(formatGithubPercent("ar", 1 / 14), "٧٪");
+  assert.equal(formatGithubPercent("en", 1 / 14), "7%");
   assert.equal(formatGithubNumber("zh-Hans", 12), "12");
+});
+
+test("Course 6 hydration-facing number formatting is byte-stable", () => {
+  for (const path of [
+    "components/github/CapstoneChecklist.tsx",
+    "components/github/CompletionSummary.tsx",
+    "components/github/CourseCurriculum.tsx",
+    "components/github/CourseDashboard.tsx",
+    "components/github/CourseProgress.tsx",
+    "components/github/FinalQuiz.tsx",
+    "components/github/LessonCourseMap.tsx",
+    "lib/github/format.ts",
+  ]) {
+    assert.doesNotMatch(
+      readFileSync(path, "utf8"),
+      /new\s+Intl\.NumberFormat|toLocaleString/,
+      path,
+    );
+  }
 });
 
 test("Course 6 formats ISO calendar dates deterministically in UTC", () => {

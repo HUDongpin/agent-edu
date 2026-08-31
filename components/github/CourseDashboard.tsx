@@ -47,10 +47,6 @@ export default function CourseDashboard({
     slug: lesson.slug,
     href: hrefFor(lesson.slug),
   }));
-  const twoDigitFormat = new Intl.NumberFormat(course.locale, {
-    minimumIntegerDigits: 2,
-    useGrouping: false,
-  });
   const figureCount = lessons.flatMap((lesson) => lesson.figures).length;
   const quizBank: readonly GithubFinalQuizQuestion[] = lessons.flatMap(
     (lesson) =>
@@ -187,7 +183,11 @@ export default function CourseDashboard({
         <div className={styles.contextCardGrid}>
           {contextLessons.map((lesson) => (
             <Link href={hrefFor(lesson.slug)} key={lesson.slug}>
-              <span>{twoDigitFormat.format(lesson.order)}</span>
+              <span>
+                {formatGithubNumber(course.locale, lesson.order, {
+                  minimumIntegerDigits: 2,
+                })}
+              </span>
               <strong>{lesson.copy.title}</strong>
               <small>{lesson.copy.summary}</small>
             </Link>

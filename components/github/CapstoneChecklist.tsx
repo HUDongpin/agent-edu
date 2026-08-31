@@ -6,6 +6,7 @@ import {
   clearInvalidGithubCapstoneDraft,
   clearGithubCapstoneDraft,
   decodeGithubCapstoneDraft,
+  formatGithubNumber,
   setGithubCapstoneDraft,
   type GithubCapstoneDraftContext,
   type GithubCourseCopy,
@@ -50,7 +51,6 @@ export default function CapstoneChecklist({
   const validationFeedback = useRef<HTMLParagraphElement>(null);
   const completionFeedback = useRef<HTMLParagraphElement>(null);
   const focusAfterCompletion = useRef(false);
-  const numberFormat = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const allChecked = useMemo(
     () => copy.artifacts.every((artifact) => checked[artifact.id]),
     [checked, copy.artifacts],
@@ -175,12 +175,13 @@ export default function CapstoneChecklist({
         </div>
         <output className={base.capstoneScore} aria-live="polite">
           <strong>
-            {numberFormat.format(
+            {formatGithubNumber(
+              locale,
               complete
                 ? copy.artifacts.length
                 : Object.values(checked).filter(Boolean).length,
             )}
-            /{numberFormat.format(copy.artifacts.length)}
+            /{formatGithubNumber(locale, copy.artifacts.length)}
           </strong>
           <span>{labels.capstoneArtifacts}</span>
         </output>

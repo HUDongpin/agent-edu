@@ -12,6 +12,7 @@ import {
   clearInvalidGithubQuizDraft,
   clearGithubQuizDraft,
   decodeGithubQuizDraft,
+  formatGithubNumber,
   formatGithubVisibleNumbers,
   setGithubQuizDraft,
   type GithubQuizDraftContext,
@@ -150,7 +151,6 @@ export default function FinalQuiz({
   const [draftStatus, setDraftStatus] = useState("");
   const questionHeading = useRef<HTMLHeadingElement>(null);
   const feedback = useRef<HTMLDivElement>(null);
-  const numberFormat = useMemo(() => new Intl.NumberFormat(locale), [locale]);
 
   const current = attempt[questionIndex];
   const currentAnswer = current ? answers[current.id] : undefined;
@@ -358,8 +358,8 @@ export default function FinalQuiz({
           <span>{formatGithubVisibleNumbers(locale, labels.passingScore)}</span>
           <span data-testid="github-quiz-best-score">
             {formatTemplate(labels.bestScoreTemplate, {
-              score: numberFormat.format(bestScore),
-              total: numberFormat.format(config.questionCount),
+              score: formatGithubNumber(locale, bestScore),
+              total: formatGithubNumber(locale, config.questionCount),
             })}
           </span>
         </div>
@@ -425,8 +425,8 @@ export default function FinalQuiz({
         >
           <strong>
             {formatTemplate(labels.scoreSummaryTemplate, {
-              score: numberFormat.format(completedScore),
-              total: numberFormat.format(config.questionCount),
+              score: formatGithubNumber(locale, completedScore),
+              total: formatGithubNumber(locale, config.questionCount),
             })}
           </strong>
           <p>
@@ -465,8 +465,8 @@ export default function FinalQuiz({
           <div className={base.quizQuestionMeta}>
             <span>
               {formatTemplate(labels.questionProgressTemplate, {
-                current: numberFormat.format(questionIndex + 1),
-                total: numberFormat.format(config.questionCount),
+                current: formatGithubNumber(locale, questionIndex + 1),
+                total: formatGithubNumber(locale, config.questionCount),
               })}
             </span>
             <span>{current.unitTitle}</span>

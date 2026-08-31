@@ -8,6 +8,8 @@ import {
   GITHUB_LESSON_SLUGS,
   GITHUB_LOCALES,
   GITHUB_QUIZ,
+  formatGithubNumber,
+  formatGithubPercent,
 } from "../lib/github";
 import {
   publishedSitemapUrls,
@@ -1862,11 +1864,7 @@ test.describe("Course 6 Phase 2 UI/UX regressions", () => {
     }) => {
       const lesson = GITHUB_LESSONS
         .find((candidate) => candidate.slug === "repository-readme")!;
-      const number = new Intl.NumberFormat(locale);
-      const percent = new Intl.NumberFormat(locale, {
-        style: "percent",
-        maximumFractionDigits: 0,
-      });
+      const number = (value: number) => formatGithubNumber(locale, value);
       const progressFixture = {
         "github.lesson.start-secure": true,
         "github.quiz.best": 7,
@@ -1878,6 +1876,11 @@ test.describe("Course 6 Phase 2 UI/UX regressions", () => {
           localStorage.setItem("ae.progress", JSON.stringify(progress));
         }, progressFixture);
       };
+      let pageErrorCount = 0;
+      const observePageErrors = (routePage: Page) => {
+        routePage.on("pageerror", () => { pageErrorCount += 1; });
+      };
+      page.context().on("page", observePageErrors);
 
       await withIsolatedRoutePage(
         page,
@@ -1890,16 +1893,16 @@ test.describe("Course 6 Phase 2 UI/UX regressions", () => {
           const facts = routePage.getByTestId("github-course-dashboard")
             .locator("header aside dl dd");
           await expect(facts).toHaveText([
-            number.format(GITHUB_LESSON_SLUGS.length),
-            number.format(GITHUB_FIGURES.length),
-            number.format(GITHUB_FINAL_QUIZ.questionCount),
+            number(GITHUB_LESSON_SLUGS.length),
+            number(GITHUB_FIGURES.length),
+            number(GITHUB_FINAL_QUIZ.questionCount),
           ]);
           await expect(routePage.getByTestId("github-progress-percent"))
-            .toHaveText(percent.format(1 / (GITHUB_LESSON_SLUGS.length + 2)));
+            .toHaveText(formatGithubPercent(locale, 1 / (GITHUB_LESSON_SLUGS.length + 2)));
           await expect(routePage.getByTestId("github-quiz-best-score"))
-            .toContainText(number.format(7));
+            .toContainText(number(7));
           await expect(routePage.getByTestId("github-quiz-best-score"))
-            .toContainText(number.format(GITHUB_FINAL_QUIZ.questionCount));
+            .toContainText(number(GITHUB_FINAL_QUIZ.questionCount));
         },
         {
           setup: setupProgress,
@@ -1915,15 +1918,15 @@ test.describe("Course 6 Phase 2 UI/UX regressions", () => {
             .getByTestId("github-lesson-repository-readme")
             .locator("article > header dl dd");
           await expect(metaValues).toHaveText([
-            number.format(lesson.minutes),
-            number.format(lesson.sourceIds.length),
+            number(lesson.minutes),
+            number(lesson.sourceIds.length),
           ]);
           const summary = routePage
             .getByTestId("github-mobile-course-map")
             .locator("summary");
-          await expect(summary).toContainText(number.format(lesson.order));
+          await expect(summary).toContainText(number(lesson.order));
           await expect(summary).toContainText(
-            number.format(GITHUB_LESSON_SLUGS.length),
+            number(GITHUB_LESSON_SLUGS.length),
           );
         },
         {
@@ -1931,6 +1934,11 @@ test.describe("Course 6 Phase 2 UI/UX regressions", () => {
           viewport: { width: 390, height: 844 },
         },
       );
+      page.context().off("page", observePageErrors);
+      expect(
+        pageErrorCount,
+        `${locale}: deterministic number formatting hydrates without page errors`,
+      ).toBe(0);
     });
   }
 
@@ -2051,6 +2059,11 @@ test.describe("Course 6 Phase 3 premium interaction and quality gates", () => {
     const resting = await snapshot(primary);
 
     await primary.hover();
+    await expect.poll(() => primary.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return `${style.backgroundColor}|${style.borderTopColor}`;
+    }), { message: "primary hover transition settles" })
+      .not.toBe(`${resting.style.background}|${resting.style.border}`);
     const hovered = await snapshot(primary);
     expect.soft(
       `${hovered.style.background}|${hovered.style.border}`,
@@ -2498,6 +2511,7 @@ test.describe("Course 6 Phase 3 premium interaction and quality gates", () => {
     await page.keyboard.press("Enter");
 
     let form = quiz.locator("form[data-question-id]");
+    await expect(form.locator("h3")).toBeFocused();
     const firstQuestionId = await form.getAttribute("data-question-id");
     expect(firstQuestionId).toBeTruthy();
     const firstOption = form.locator('input[type="radio"]').first();
@@ -2531,6 +2545,7 @@ test.describe("Course 6 Phase 3 premium interaction and quality gates", () => {
     await page.keyboard.press("Enter");
     form = quiz.locator("form[data-question-id]");
     await expect(form).toHaveAttribute("data-question-id", secondQuestionId!);
+    await expect(form.locator("h3")).toBeFocused();
     await expect(form.locator('input[type="radio"]').nth(selectedIndex)).toBeChecked();
     await form.getByRole("button", { name: "Check answer" }).focus();
     await page.keyboard.press("Enter");

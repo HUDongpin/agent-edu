@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
 import {
+  formatGithubPercent,
   getGithubQuizBest,
   isGithubQuizPassed,
   type GithubLessonSlug,
@@ -36,14 +36,6 @@ export default function CompletionSummary({
   const capstonePassed = progress[GITHUB_CAPSTONE_STORAGE_KEY] === true;
   const milestones = lessonCount + Number(quizPassed) + Number(capstonePassed);
   const quizBest = getGithubQuizBest(progress);
-  const percentFormat = useMemo(
-    () =>
-      new Intl.NumberFormat(locale, {
-        style: "percent",
-        maximumFractionDigits: 0,
-      }),
-    [locale],
-  );
 
   if (milestones !== lessonSlugs.length + 2) return null;
 
@@ -58,7 +50,7 @@ export default function CompletionSummary({
         <h2 id="github-completion-summary-title">{labels.completionSummary}</h2>
         <p>{courseTitle}</p>
       </div>
-      <strong aria-label={labels.courseProgress}>{percentFormat.format(1)}</strong>
+      <strong aria-label={labels.courseProgress}>{formatGithubPercent(locale, 1)}</strong>
       <button
         className={`${base.secondaryAction} ${styles.courseAction}`}
         type="button"

@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
-import type { GithubUiCopy } from "@/lib/github";
+import {
+  formatGithubNumber,
+  formatGithubPercent,
+  type GithubUiCopy,
+} from "@/lib/github";
 import {
   hasGithubCourseProgress,
   resetGithubProgress,
@@ -35,7 +39,6 @@ export function CourseJourneyAction({
     () => selectGithubJourney(lessons, progress),
     [lessons, progress],
   );
-  const numberFormat = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const hasProgress = hasGithubCourseProgress(progress);
   const href = state.nextHref;
   if (!href) return null;
@@ -67,7 +70,7 @@ export function CourseJourneyAction({
         </span>
       </Link>
       <span className={base.srOnly}>
-        {`${numberFormat.format(state.completed)}/${numberFormat.format(state.total)}`}
+        {`${formatGithubNumber(locale, state.completed)}/${formatGithubNumber(locale, state.total)}`}
       </span>
     </>
   );
@@ -91,13 +94,6 @@ export default function CourseProgress({
     () => selectGithubJourney(lessons, progress),
     [lessons, progress],
   );
-  const formats = useMemo(() => ({
-    number: new Intl.NumberFormat(locale),
-    percent: new Intl.NumberFormat(locale, {
-      style: "percent",
-      maximumFractionDigits: 0,
-    }),
-  }), [locale]);
   const hasProgress = hasGithubCourseProgress(progress);
 
   return (
@@ -113,10 +109,10 @@ export default function CourseProgress({
         </div>
         <output className={base.progressValue} aria-live="polite">
           <strong data-testid="github-progress-percent">
-            {formats.percent.format(state.completed / state.total)}
+            {formatGithubPercent(locale, state.completed / state.total)}
           </strong>
           <span>
-            {formats.number.format(state.completed)}/{formats.number.format(state.total)}
+            {formatGithubNumber(locale, state.completed)}/{formatGithubNumber(locale, state.total)}
           </span>
         </output>
       </div>

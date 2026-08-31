@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
-import type {
-  GithubLessonSlug,
-  GithubLocale,
-  GithubUiCopy,
+import {
+  formatGithubNumber,
+  type GithubLessonSlug,
+  type GithubLocale,
+  type GithubUiCopy,
 } from "@/lib/github";
 import base from "./GithubCourseFoundation.module.css";
 import { githubLessonProgressKey } from "./progress-store";
@@ -46,11 +46,6 @@ export default function CourseCurriculum({
   labels,
 }: CourseCurriculumProps) {
   const progress = useGithubProgress();
-  const numberFormat = useMemo(
-    () => new Intl.NumberFormat(locale),
-    [locale],
-  );
-
   return (
     <section
       className={base.curriculum}
@@ -69,7 +64,7 @@ export default function CourseCurriculum({
           >
             <div className={base.unitHeading}>
               <span aria-hidden="true" dir="auto">
-                {numberFormat.format(unit.order)}
+                {formatGithubNumber(locale, unit.order)}
               </span>
               <div>
                 <h3 id={`${unit.id}-github-title`}>{unit.title}</h3>
@@ -95,7 +90,7 @@ export default function CourseCurriculum({
                         className={`${base.lessonOrder} ${styles.functionalNumber}`}
                         dir="auto"
                       >
-                        {numberFormat.format(lesson.order)}
+                        {formatGithubNumber(locale, lesson.order)}
                       </span>
                       <span className={base.lessonCopy}>
                         <strong className={styles.lessonTitle}>
@@ -118,7 +113,7 @@ export default function CourseCurriculum({
                         className={`${base.lessonTime} ${styles.functionalNumber}`}
                         dir="auto"
                       >
-                        {numberFormat.format(lesson.minutes)} {labels.minutes}
+                        {formatGithubNumber(locale, lesson.minutes)} {labels.minutes}
                       </span>
                     </Link>
                   </li>

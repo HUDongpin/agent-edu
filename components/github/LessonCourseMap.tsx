@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef } from "react";
-import type { GithubLocale, GithubUiCopy } from "@/lib/github";
+import { useEffect, useRef } from "react";
+import {
+  formatGithubNumber,
+  type GithubLocale,
+  type GithubUiCopy,
+} from "@/lib/github";
 import { githubLessonProgressKey } from "./progress-store";
 import useGithubProgress from "./useGithubProgress";
 import styles from "./LessonCourseMap.module.css";
@@ -47,7 +51,7 @@ function UnitLinks({
   activeSlug: string;
   activeRef?: React.RefObject<HTMLAnchorElement | null>;
   completedLabel: string;
-  numberFormat: Intl.NumberFormat;
+  numberFormat: (value: number) => string;
   progress: Readonly<Record<string, unknown>>;
 }) {
   return units.map((unit) => (
@@ -57,7 +61,7 @@ function UnitLinks({
         {unit.lessons.map((lesson) => {
           const active = lesson.slug === activeSlug;
           const complete = progress[githubLessonProgressKey(lesson.slug)] === true;
-          const lessonNumber = numberFormat.format(lesson.order);
+          const lessonNumber = numberFormat(lesson.order);
           return (
             <li key={lesson.slug}>
               <Link
@@ -109,21 +113,14 @@ export default function LessonCourseMap({
   const desktopActiveRef = useRef<HTMLAnchorElement>(null);
   const mobileActiveRef = useRef<HTMLAnchorElement>(null);
   const progress = useGithubProgress();
-  const numberFormat = useMemo(
-    () => new Intl.NumberFormat(locale),
-    [locale],
-  );
-  const twoDigitFormat = useMemo(
-    () => new Intl.NumberFormat(locale, {
-      minimumIntegerDigits: 2,
-      useGrouping: false,
-    }),
-    [locale],
-  );
+  const numberFormat = (value: number) => formatGithubNumber(locale, value);
+  const twoDigitFormat = (value: number) => formatGithubNumber(locale, value, {
+    minimumIntegerDigits: 2,
+  });
   const position = formatLessonPosition(
     labels.lessonPositionTemplate,
-    numberFormat.format(current),
-    numberFormat.format(total),
+    numberFormat(current),
+    numberFormat(total),
   );
 
   useEffect(() => {
