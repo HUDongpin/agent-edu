@@ -62,7 +62,10 @@ test("catalog consumes the language contract before navigation", () => {
   assert.match(catalogSource, /hrefLang=\{course\.contentLocale/);
   assert.match(catalogSource, /<bdi/);
   assert.match(catalogSource, /dir=\{meta\.dir\}/);
-  assert.match(catalogSource, /t\(actionKey\(actionProgress\)\)/);
+  assert.match(catalogSource, /t\(actionKey\(progress\)\)/);
+  assert.match(catalogSource, /progress\?\.state === "completed"/);
+  assert.match(catalogSource, /progress\.percent >= 100/);
+  assert.match(catalogSource, /"cat\.finishIn"/);
 });
 
 test("catalog progress adapter load failure becomes visible instead of loading forever", () => {
@@ -112,6 +115,7 @@ test("all nine interface catalogs include language, learning, and CourseShell pr
     "cat.fallbackNotice",
     "cat.startIn",
     "cat.resumeIn",
+    "cat.finishIn",
     "cat.reviewIn",
     "learning.continue",
     "learning.inProgress",
