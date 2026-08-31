@@ -26,7 +26,8 @@ async function expectNoHorizontalOverflow(page: Page) {
   }), { message: "the static page must not overflow the viewport horizontally" }).toBeLessThanOrEqual(1);
 }
 
-test("the English static learning paths render at narrow and wide widths", async ({ page }) => {
+test("the English static learning paths render at narrow and wide widths", async ({ browserName, page }) => {
+  test.slow(browserName === "webkit", "WebKit serially verifies eight cold static-route layouts");
   for (const viewport of VIEWPORTS) {
     await page.setViewportSize(viewport);
     for (const route of STATIC_PATHS) {
