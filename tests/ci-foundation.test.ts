@@ -150,7 +150,7 @@ test("the secret scanner covers untracked release candidates and tolerates stage
   assert.match(source, /!info\.isFile\(\) \|\| info\.isSymbolicLink\(\)/);
 });
 
-test("the Vercel upload keeps the secret scanner required by build:release", () => {
+test("the Vercel upload keeps every repository input required by build:release", () => {
   const vercelIgnore = readFileSync(".vercelignore", "utf8");
   assert.match(vercelIgnore, /\*secret\*\n!scripts\/check-secrets\.mjs\n/);
   assert.doesNotMatch(vercelIgnore, /^course\/$/m);
@@ -175,7 +175,46 @@ test("the Vercel upload keeps the secret scanner required by build:release", () 
   ]) {
     assert.match(vercelIgnore, new RegExp(`^${generatedPrivatePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m"));
   }
-  assert.match(vercelIgnore, /^\/examples\/$/m);
+  assert.doesNotMatch(
+    vercelIgnore,
+    /^\/examples\/$/m,
+    "build:release executes the Course 20 lab gate, so Vercel cannot drop every example",
+  );
+  assert.match(vercelIgnore, /^\/examples\/\*$/m);
+  assert.match(vercelIgnore, /^!\/examples\/agentic-video-editing-lab\/$/m);
+  assert.match(vercelIgnore, /^!\/examples\/agentic-video-editing-lab\/\*\*$/m);
+
+  const requiredCourse20LabInputs = [
+    "examples/agentic-video-editing-lab/lab-core.mjs",
+    "examples/agentic-video-editing-lab/negative-fixtures.mjs",
+    "examples/agentic-video-editing-lab/run-lab.mjs",
+    "examples/agentic-video-editing-lab/verify.mjs",
+  ];
+  for (const requiredReleaseInput of requiredCourse20LabInputs) {
+    assert.ok(
+      existsSync(requiredReleaseInput),
+      `${requiredReleaseInput} must exist for agentic-video-editing:lab-check`,
+    );
+  }
+
+  const ignoredCourse20LabInputs = spawnSync(
+    "git",
+    [
+      "ls-files",
+      "--cached",
+      "--ignored",
+      "--exclude-from=.vercelignore",
+      "--",
+      "examples/agentic-video-editing-lab",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(ignoredCourse20LabInputs.status, 0, ignoredCourse20LabInputs.stderr);
+  assert.equal(
+    ignoredCourse20LabInputs.stdout.trim(),
+    "",
+    `Course 20 lab inputs excluded from the Vercel source upload:\n${ignoredCourse20LabInputs.stdout}`,
+  );
   assert.doesNotMatch(vercelIgnore, /^\/tests\/$/m);
   for (const requiredReleaseFixture of [
     "tests/fixtures/codex-course-demo/package.json",

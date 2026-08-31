@@ -21,6 +21,7 @@ export const COURSE20_BILINGUAL_EDITORIAL_ROOTS = Object.freeze([
   "examples/agentic-video-editing-lab",
   "staging/course-assets/agentic-video-editing",
   "lib/courses.ts",
+  "lib/public-courses.ts",
   "lib/seo.ts",
   "messages/en.json",
   "messages/zh-Hans.json",
