@@ -89,7 +89,7 @@ test("registry-derived public catalogue preserves the reviewed visual order", ()
       "agentic", "codex", "claude", "cursor", "grok", "ai-research", "github",
       "prompts", "software-engineering", "rag", "mcp", "make-money-with-codex",
       "claude-income", "ai-tutor", "product-management", "agent-orchestration",
-      "responsible-ai",
+      "responsible-ai", "agentic-quant-trading", "ai-teaching", "math-animation",
     ],
   );
 });

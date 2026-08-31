@@ -3,12 +3,17 @@ import type {
   CourseKitMilestoneCount,
   CourseKitProgressClientConfig,
 } from "./types";
+import { PROG } from "../progress-storage-key";
 import { validateCourseKitEvidenceReceipt } from "./evidence-receipt";
 
-export const COURSE_KIT_PROGRESS_STORAGE_KEY = "ae.progress" as const;
+export const COURSE_KIT_PROGRESS_STORAGE_KEY = PROG;
 export const COURSE_KIT_PROGRESS_EVENT = "ae:course-kit:progress" as const;
 export const COURSE_KIT_PROGRESS_RESET_EVENT =
   "ae:course-kit:progress-reset" as const;
+export const RESPONSIBLE_AI_COURSE_KIT_PROGRESS_EVENT =
+  "ae:course-kit:progress:responsible-ai" as const;
+export const AGENTIC_QUANT_TRADING_COURSE_KIT_PROGRESS_EVENT =
+  "ae:course-kit:progress:agentic-quant-trading" as const;
 
 export type CourseKitProgressRecord = Readonly<Record<string, unknown>>;
 
@@ -99,13 +104,15 @@ export function courseKitCapstoneCompleteKey(courseId: string): string {
 }
 
 export function courseKitProgressEvent(courseId: string): string {
-  void courseId;
-  return COURSE_KIT_PROGRESS_EVENT;
+  if (courseId === "responsible-ai") return RESPONSIBLE_AI_COURSE_KIT_PROGRESS_EVENT;
+  if (courseId === "agentic-quant-trading") {
+    return AGENTIC_QUANT_TRADING_COURSE_KIT_PROGRESS_EVENT;
+  }
+  return `${COURSE_KIT_PROGRESS_EVENT}:${safeId(courseId)}`;
 }
 
 export function courseKitProgressResetEvent(courseId: string): string {
-  void courseId;
-  return COURSE_KIT_PROGRESS_RESET_EVENT;
+  return `${COURSE_KIT_PROGRESS_RESET_EVENT}:${safeId(courseId)}`;
 }
 
 export function createCourseKitProgressConfig(

@@ -24,6 +24,27 @@ import {
   AGENT_ORCHESTRATION_PROGRESS_EVENT,
   agentOrchestrationProgressPercent,
 } from "./agent-orchestration";
+import {
+  RESPONSIBLE_AI_COURSE,
+  responsibleAiProgressPercent,
+} from "./responsible-ai";
+import {
+  AGENTIC_QUANT_TRADING_COURSE,
+  agenticQuantTradingProgressPercent,
+} from "./agentic-quant-trading";
+import {
+  AGENTIC_TEACHING_COURSE_MANIFEST,
+  AGENTIC_TEACHING_PROGRESS_EVENT,
+  AGENTIC_TEACHING_TOTAL_MINUTES,
+  agenticTeachingProgressPercent,
+} from "./ai-teaching";
+import {
+  MATH_ANIMATION_COURSE_MANIFEST,
+  MATH_ANIMATION_PROGRESS_EVENT,
+  MATH_ANIMATION_TOTAL_MINUTES,
+  mathAnimationProgressPercent,
+} from "./math-animation";
+import { courseKitProgressEvent } from "./course-kit/progress";
 import { CLAUDE_COURSE_MANIFEST } from "./claude/manifest";
 import { claudeProgressPercent } from "./claude/progress";
 import { CLAUDE_INCOME_COURSE } from "./claude-income/curriculum";
@@ -106,8 +127,12 @@ export interface TopLevelCourse {
     | "claude-income"
     | "ai-tutor"
     | "product-management"
-    | "agent-orchestration";
-  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+    | "agent-orchestration"
+    | "responsible-ai"
+    | "agentic-quant-trading"
+    | "ai-teaching"
+    | "math-animation";
+  displayNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19;
   href: string;
   minutes: number;
   durationMinutes: number;
@@ -123,6 +148,7 @@ export interface TopLevelCourse {
     | "seventeen-equal-milestones"
     | "eleven-equal-milestones"
     | "ten-equal-milestones"
+    | "twelve-equal-milestones"
     | "twenty-equal-milestones";
   /** Browser store supplied to the progress adapter; defaults to `ae.progress`. */
   progressStorageKey?: string;
@@ -653,6 +679,66 @@ const TOP_LEVEL_COURSE_DEFINITIONS: TopLevelCourse[] = [
     progressEvent: AGENT_ORCHESTRATION_PROGRESS_EVENT,
     progress: (p) => agentOrchestrationProgressPercent(p),
   },
+  {
+    id: "responsible-ai",
+    displayNumber: 16,
+    href: "/responsible-ai/",
+    minutes: RESPONSIBLE_AI_COURSE.manifest.modules.reduce((sum, module) => sum + module.minutes, 0),
+    durationMinutes: RESPONSIBLE_AI_COURSE.manifest.modules.reduce((sum, module) => sum + module.minutes, 0),
+    status: "available",
+    hue: "var(--red)",
+    level: "beginner-to-intermediate",
+    moduleIds: RESPONSIBLE_AI_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: ["c.responsibleAi.blurb", "c.responsibleAi.title", "c.responsibleAi.meta"],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: courseKitProgressEvent("responsible-ai"),
+    progress: (p) => responsibleAiProgressPercent(p),
+  },
+  {
+    id: "agentic-quant-trading",
+    displayNumber: 17,
+    href: "/agentic-quant-trading/",
+    minutes: AGENTIC_QUANT_TRADING_COURSE.manifest.modules.reduce((sum, module) => sum + module.minutes, 0),
+    durationMinutes: AGENTIC_QUANT_TRADING_COURSE.manifest.modules.reduce((sum, module) => sum + module.minutes, 0),
+    status: "available",
+    hue: "var(--brand)",
+    level: "intermediate-to-advanced",
+    moduleIds: AGENTIC_QUANT_TRADING_COURSE.manifest.modules.map((module) => module.slug),
+    outcomeKeys: ["c.agentic-quant-trading.blurb", "c.agentic-quant-trading.title", "c.agentic-quant-trading.meta"],
+    progressStrategy: "fourteen-equal-milestones",
+    progressEvent: courseKitProgressEvent("agentic-quant-trading"),
+    progress: (p) => agenticQuantTradingProgressPercent(p),
+  },
+  {
+    id: "ai-teaching",
+    displayNumber: 18,
+    href: "/ai-teaching/",
+    minutes: AGENTIC_TEACHING_TOTAL_MINUTES,
+    durationMinutes: AGENTIC_TEACHING_TOTAL_MINUTES,
+    status: "available",
+    hue: "var(--green)",
+    level: "beginner-to-advanced",
+    moduleIds: AGENTIC_TEACHING_COURSE_MANIFEST.modules.map((module) => module.slug),
+    outcomeKeys: ["c.ai-teaching.blurb", "c.ai-teaching.title", "c.ai-teaching.meta"],
+    progressStrategy: "twelve-equal-milestones",
+    progressEvent: AGENTIC_TEACHING_PROGRESS_EVENT,
+    progress: (p) => agenticTeachingProgressPercent(p),
+  },
+  {
+    id: "math-animation",
+    displayNumber: 19,
+    href: "/math-animation/",
+    minutes: MATH_ANIMATION_TOTAL_MINUTES,
+    durationMinutes: MATH_ANIMATION_TOTAL_MINUTES,
+    status: "available",
+    hue: "var(--coral)",
+    level: "beginner-to-advanced",
+    moduleIds: MATH_ANIMATION_COURSE_MANIFEST.modules.map((module) => module.slug),
+    outcomeKeys: ["c.math-animation.blurb", "c.math-animation.title", "c.math-animation.meta"],
+    progressStrategy: "fourteen-equal-milestones",
+    progressEvent: MATH_ANIMATION_PROGRESS_EVENT,
+    progress: (p) => mathAnimationProgressPercent(p),
+  },
 ];
 
 const IMPLEMENTED_REGISTRY_COURSE_IDS = PUBLIC_COURSE_IDS.filter(
@@ -707,6 +793,18 @@ const productManagementCourse = TOP_LEVEL_COURSES.find(
 )!;
 const agentOrchestrationCourse = TOP_LEVEL_COURSES.find(
   (course) => course.id === "agent-orchestration",
+)!;
+const responsibleAiCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "responsible-ai",
+)!;
+const agenticQuantTradingCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "agentic-quant-trading",
+)!;
+const aiTeachingCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "ai-teaching",
+)!;
+const mathAnimationCourse = TOP_LEVEL_COURSES.find(
+  (course) => course.id === "math-animation",
 )!;
 
 /**
@@ -1012,18 +1110,79 @@ const CATALOG_COURSE_DEFINITIONS: readonly CatalogCourse[] = [
   },
   {
     id: "responsible-ai",
-    href: "#",
+    displayNumber: responsibleAiCourse.displayNumber,
+    href: responsibleAiCourse.href,
     titleKey: "c.responsibleAi.title",
     blurbKey: "c.responsibleAi.blurb",
+    metaKey: "c.responsibleAi.meta",
     topic: "responsible-ai",
     topicKey: "topic.responsibleAi",
-    level: "beginner-to-intermediate",
+    level: responsibleAiCourse.level,
     levelKey: "c.responsibleAi.level",
     format: "guided",
     formatKey: "cat.formatGuided",
-    minutes: null,
-    status: "soon",
-    hue: "var(--red)",
+    minutes: responsibleAiCourse.minutes,
+    status: responsibleAiCourse.status,
+    hue: responsibleAiCourse.hue,
+    progressEvent: responsibleAiCourse.progressEvent,
+    progress: responsibleAiCourse.progress,
+  },
+  {
+    id: "agentic-quant-trading",
+    displayNumber: agenticQuantTradingCourse.displayNumber,
+    href: agenticQuantTradingCourse.href,
+    titleKey: "c.agentic-quant-trading.title",
+    blurbKey: "c.agentic-quant-trading.blurb",
+    metaKey: "c.agentic-quant-trading.meta",
+    topic: "ai-systems",
+    topicKey: "topic.aiSystems",
+    level: agenticQuantTradingCourse.level,
+    levelKey: "c.agentic-quant-trading.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: agenticQuantTradingCourse.minutes,
+    status: agenticQuantTradingCourse.status,
+    hue: agenticQuantTradingCourse.hue,
+    progressEvent: agenticQuantTradingCourse.progressEvent,
+    progress: agenticQuantTradingCourse.progress,
+  },
+  {
+    id: "ai-teaching",
+    displayNumber: aiTeachingCourse.displayNumber,
+    href: aiTeachingCourse.href,
+    titleKey: "c.ai-teaching.title",
+    blurbKey: "c.ai-teaching.blurb",
+    metaKey: "c.ai-teaching.meta",
+    topic: "teaching",
+    topicKey: "topic.teaching",
+    level: aiTeachingCourse.level,
+    levelKey: "c.ai-teaching.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: aiTeachingCourse.minutes,
+    status: aiTeachingCourse.status,
+    hue: aiTeachingCourse.hue,
+    progressEvent: aiTeachingCourse.progressEvent,
+    progress: aiTeachingCourse.progress,
+  },
+  {
+    id: "math-animation",
+    displayNumber: mathAnimationCourse.displayNumber,
+    href: mathAnimationCourse.href,
+    titleKey: "c.math-animation.title",
+    blurbKey: "c.math-animation.blurb",
+    metaKey: "c.math-animation.meta",
+    topic: "coding-assistants",
+    topicKey: "topic.codingAssistants",
+    level: mathAnimationCourse.level,
+    levelKey: "c.math-animation.level",
+    format: "project-based",
+    formatKey: "cat.formatProject",
+    minutes: mathAnimationCourse.minutes,
+    status: mathAnimationCourse.status,
+    hue: mathAnimationCourse.hue,
+    progressEvent: mathAnimationCourse.progressEvent,
+    progress: mathAnimationCourse.progress,
   },
 ];
 

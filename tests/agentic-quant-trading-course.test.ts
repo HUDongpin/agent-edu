@@ -411,10 +411,11 @@ test("method claims preserve five clocks, PBO and DSR boundaries, and avoid caus
   assert.doesNotMatch(copy, /causal backtest|causal simulator|因果回测|因果模拟器/i);
 });
 
-test("content and local release integration gates pass", async () => {
+test("content passes while the intake freeze keeps release fail-closed", async () => {
   const content = await checkAgenticQuantTradingCourse();
   assert.equal(content.status, "pass", JSON.stringify(content.issues, null, 2));
 
   const release = await checkAgenticQuantTradingCourse({ release: true });
-  assert.equal(release.status, "pass", JSON.stringify(release.issues, null, 2));
+  assert.equal(release.status, "fail");
+  assert.ok(release.issues.some((issue) => issue.gate === "release"));
 });

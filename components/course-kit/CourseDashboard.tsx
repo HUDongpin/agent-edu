@@ -1,8 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { CourseKitMaterialisedCourse } from "@/lib/course-kit/types";
+import type {
+  CourseKitCourseId,
+  CourseKitMaterialisedCourse,
+} from "@/lib/course-kit/types";
 import { CourseCapstone } from "./CourseCapstone";
 import { CourseLanguageNotice } from "./CourseLanguageNotice";
+import CourseShell from "../course-shell/CourseShell";
 import {
   CourseContinueLink,
   CourseMilestoneLinks,
@@ -55,6 +59,12 @@ export function CourseDashboard({
       data-course-number={course.displayNumber}
     >
       <CourseLanguageNotice course={course} />
+      <CourseShell
+        courseId={course.id as CourseKitCourseId}
+        locale={course.locale.requestedLocale}
+        compact
+        allowBlockedPreview
+      />
 
       <nav className={styles.breadcrumb} aria-label={course.copy.ui.courseMap}>
         <Link href={catalogHref}>

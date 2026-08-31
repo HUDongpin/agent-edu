@@ -1,4 +1,3 @@
-import { AGENTIC_PROGRESS_EVENT } from "../progress";
 import {
   AGENTIC_TEACHING_FINAL_QUIZ_CONTRACT,
   agenticTeachingArtifactRubricFingerprint,
@@ -14,7 +13,7 @@ import {
   type AgenticTeachingModuleSlug,
 } from "./types";
 
-export const AGENTIC_TEACHING_PROGRESS_EVENT = AGENTIC_PROGRESS_EVENT;
+export const AGENTIC_TEACHING_PROGRESS_EVENT = "ai-teaching:progress-change" as const;
 export const AGENTIC_TEACHING_PROGRESS_SCHEMA = 2 as const;
 export const AGENTIC_TEACHING_QUIZ_KEY = "agenticTeaching.quiz.v2";
 export const AGENTIC_TEACHING_CAPSTONE_KEY = "agenticTeaching.capstone.v2";

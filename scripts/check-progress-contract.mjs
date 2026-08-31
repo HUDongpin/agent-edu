@@ -24,6 +24,7 @@ const RECENCY_TRACKER = join(COMPONENTS, "ProgressRecencyTracker.tsx");
 const SHELL = join(COMPONENTS, "Shell.tsx");
 const PUBLIC_PROGRESS_CONTRACT = join(ROOT, "lib", "public-progress-contract.ts");
 const PROGRESS_STORAGE_CONTRACT = join(ROOT, "lib", "progress-storage-contract.ts");
+const PROGRESS_STORAGE_KEY = join(ROOT, "lib", "progress-storage-key.ts");
 const PRODUCT_MANAGEMENT_ATTEMPT_STORE = join(
   COMPONENTS,
   "product-management",
@@ -56,6 +57,10 @@ const EXPECTED_FRESH_NEXT_HREF = {
   "ai-tutor": "/en/ai-tutor/objectives-concept-map/",
   "product-management": "/en/product-management/product-judgment-operating-model/",
   "agent-orchestration": "/en/agent-orchestration/workflow-agent-boundary/",
+  "responsible-ai": "/en/responsible-ai/purpose-risk-classification/",
+  "agentic-quant-trading": "/en/agentic-quant-trading/scope-safety-autonomy/",
+  "ai-teaching": "/en/ai-teaching/agentic-teaching-boundaries/",
+  "math-animation": "/en/math-animation/outcome-before-engine/",
 };
 
 const problems = [];
@@ -453,6 +458,7 @@ for (const token of ["progressPending", 't("ui.loading")', "progressUnavailable"
 const hardCodedLegacyKey = files.filter(({ path, text }) =>
   path !== join(ROOT, "lib", "progress.ts")
     && path !== PROGRESS_STORAGE_CONTRACT
+    && path !== PROGRESS_STORAGE_KEY
     && /"ae\.progress"/.test(text));
 if (hardCodedLegacyKey.length > HARD_CODED_LEGACY_KEY_RATCHET) {
   fail(`modules hard-coding ae.progress grew to ${hardCodedLegacyKey.length}; `

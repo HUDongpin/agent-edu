@@ -39,10 +39,9 @@ import {
   validateAgenticTeachingCourse,
 } from "../lib/ai-teaching/index.ts";
 import {
-  mark,
-  progressSnapshot,
-  readProgress,
-} from "../lib/progress.ts";
+  aiTeachingProgressSnapshot,
+  markAiTeachingProgress,
+} from "../components/ai-teaching/progress-store.ts";
 
 function validArtifactText(slug, locale = "en", suffix = "") {
   const rubric = getAgenticTeachingArtifactRubric(slug, locale);
@@ -522,9 +521,9 @@ delete missingModule[agenticTeachingModuleKey(AGENTIC_TEACHING_MODULE_SLUGS[3])]
 assert.equal(createAgenticTeachingCapstoneReceipt(missingModule, currentFingerprint), null);
 
 // The shared store round-trips a structured receipt; legacy Booleans remain ignored.
-mark("agenticTeaching.progress-contract-test", tenOfTwelve);
+markAiTeachingProgress("agenticTeaching.progress-contract-test", tenOfTwelve);
 assert.deepEqual(
-  readProgress(progressSnapshot())["agenticTeaching.progress-contract-test"],
+  JSON.parse(aiTeachingProgressSnapshot())["agenticTeaching.progress-contract-test"],
   tenOfTwelve,
 );
 const legacy = Object.fromEntries([

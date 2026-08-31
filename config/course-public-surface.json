@@ -3,7 +3,7 @@
   "manifestKind": "course-public-surface-projection",
   "source": {
     "path": "config/course-release-manifest.json",
-    "sha256": "1be42afbef75adf7667210cdb56b706833eba3982f9fdf24c6fca195952267b6"
+    "sha256": "b5c54cce67a004df5cbcd702eab3385494cf0594f41a298d0c65224509f1d0e6"
   },
   "siteLocales": [
     "en",
@@ -561,7 +561,7 @@
     },
     {
       "id": "responsible-ai",
-      "state": "roadmap",
+      "state": "blocked",
       "href": null,
       "titleKey": "c.responsibleAi.title",
       "interfaceLocales": [
@@ -575,10 +575,100 @@
         "ko",
         "ar"
       ],
-      "reviewedContentLocales": [],
-      "fallbackLocale": null,
-      "primaryLocale": null,
-      "contentLocales": [],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "progressEvent": null
+    },
+    {
+      "id": "agentic-quant-trading",
+      "state": "blocked",
+      "href": null,
+      "titleKey": "c.agentic-quant-trading.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "progressEvent": null
+    },
+    {
+      "id": "ai-teaching",
+      "state": "blocked",
+      "href": null,
+      "titleKey": "c.ai-teaching.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "progressEvent": null
+    },
+    {
+      "id": "math-animation",
+      "state": "blocked",
+      "href": null,
+      "titleKey": "c.math-animation.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "primaryLocale": "en",
+      "contentLocales": [
+        "en",
+        "zh-Hans"
+      ],
       "progressEvent": null
     }
   ]

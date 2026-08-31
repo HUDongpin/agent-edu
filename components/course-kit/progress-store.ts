@@ -14,8 +14,10 @@ import {
   courseKitQuizPassedKey,
   courseKitQuizVersionKey,
   courseKitProgressPrefix,
+  AGENTIC_QUANT_TRADING_COURSE_KIT_PROGRESS_EVENT,
   COURSE_KIT_PROGRESS_EVENT,
   COURSE_KIT_PROGRESS_RESET_EVENT,
+  RESPONSIBLE_AI_COURSE_KIT_PROGRESS_EVENT,
   invalidateCourseKitProgressRecord,
 } from "@/lib/course-kit/progress";
 import type {
@@ -23,11 +25,16 @@ import type {
   CourseKitProgressClientConfig,
 } from "@/lib/course-kit/types";
 import { COURSE_KIT_COURSE_IDS } from "@/lib/course-kit/types";
+import type { PersistenceResult } from "@/lib/public-progress-contract";
+import { verifySharedProgressReset } from "@/lib/progress-persistence";
+import {
+  COURSE_KIT_CORRUPT_PROGRESS_BACKUP_KEY,
+  COURSE_KIT_PROGRESS_PROBE_KEY,
+} from "@/lib/progress-storage-contract";
+import { PROG } from "@/lib/progress-storage-key";
 
 export type CourseKitProgressRecord = Record<string, unknown>;
 
-const STORAGE_PROBE_KEY = "__aicourse_course_kit_storage_probe__";
-const CORRUPT_BACKUP_KEY = "ae.progress.course-kit-corrupt-backup";
 const EMPTY_SNAPSHOT = "{}";
 export const COURSE_KIT_GLOBAL_RESET_EVENT =
   COURSE_KIT_PROGRESS_RESET_EVENT;
@@ -54,8 +61,8 @@ function holdCorruptSharedRecord(raw: string): void {
   memorySnapshot = EMPTY_SNAPSHOT;
   if (typeof window !== "undefined") {
     try {
-      if (!sessionStorage.getItem(CORRUPT_BACKUP_KEY)) {
-        sessionStorage.setItem(CORRUPT_BACKUP_KEY, raw);
+      if (!sessionStorage.getItem(COURSE_KIT_CORRUPT_PROGRESS_BACKUP_KEY)) {
+        sessionStorage.setItem(COURSE_KIT_CORRUPT_PROGRESS_BACKUP_KEY, raw);
       }
     } catch {
       // The unreadable shared record remains untouched if backup storage fails.
@@ -69,8 +76,8 @@ export function isCourseKitProgressStorageAvailable(): boolean {
   if (typeof window === "undefined") return false;
   if (persistenceAvailable !== null) return persistenceAvailable;
   try {
-    localStorage.setItem(STORAGE_PROBE_KEY, "1");
-    localStorage.removeItem(STORAGE_PROBE_KEY);
+    localStorage.setItem(COURSE_KIT_PROGRESS_PROBE_KEY, "1");
+    localStorage.removeItem(COURSE_KIT_PROGRESS_PROBE_KEY);
     persistenceAvailable = true;
   } catch {
     persistenceAvailable = false;
@@ -83,7 +90,7 @@ function readSnapshot(): string {
     return memorySnapshot;
   }
   try {
-    const raw = localStorage.getItem("ae.progress") ?? EMPTY_SNAPSHOT;
+    const raw = localStorage.getItem(PROG) ?? EMPTY_SNAPSHOT;
     if (!parseSnapshot(raw)) {
       holdCorruptSharedRecord(raw);
       return memorySnapshot;
@@ -109,6 +116,19 @@ function dispatchProgressEvent(
       detail: { courseId: config.courseId, persisted },
     }),
   );
+  if (config.courseId === "responsible-ai") {
+    window.dispatchEvent(new CustomEvent(RESPONSIBLE_AI_COURSE_KIT_PROGRESS_EVENT,
+      { detail: { courseId: config.courseId, persisted } },
+    ));
+  } else if (config.courseId === "agentic-quant-trading") {
+    window.dispatchEvent(new CustomEvent(AGENTIC_QUANT_TRADING_COURSE_KIT_PROGRESS_EVENT,
+      { detail: { courseId: config.courseId, persisted } },
+    ));
+  } else {
+    window.dispatchEvent(new CustomEvent(config.progressEvent, {
+      detail: { courseId: config.courseId, persisted },
+    }));
+  }
 }
 
 export function writeCourseKitProgress(
@@ -116,17 +136,17 @@ export function writeCourseKitProgress(
   record: CourseKitProgressRecord,
 ): boolean {
   memorySnapshot = JSON.stringify(record);
-  const persisted = persistSnapshot(config.storageKey);
+  const persisted = persistSnapshot();
   dispatchProgressEvent(config, persisted);
   return persisted;
 }
 
-function persistSnapshot(storageKey: "ae.progress"): boolean {
+function persistSnapshot(): boolean {
   let persisted = false;
   if (typeof window !== "undefined") {
     try {
       if (isCourseKitProgressStorageAvailable()) {
-        localStorage.setItem(storageKey, memorySnapshot);
+        localStorage.setItem(PROG, memorySnapshot);
         persisted = true;
       }
     } catch {
@@ -161,6 +181,11 @@ export function resetCourseKitProgress(
         detail: { courseId: config.courseId, persisted },
       }),
     );
+    window.dispatchEvent(
+      new CustomEvent(config.resetEvent, {
+        detail: { courseId: config.courseId, persisted },
+      }),
+    );
   }
   return persisted;
 }
@@ -187,7 +212,7 @@ export function resetAllCourseKitProgress(
   }
 
   memorySnapshot = JSON.stringify(record);
-  const persisted = persistSnapshot("ae.progress");
+  const persisted = persistSnapshot();
   if (typeof window !== "undefined") {
     window.dispatchEvent(
       new CustomEvent(COURSE_KIT_PROGRESS_EVENT, {
@@ -201,6 +226,24 @@ export function resetAllCourseKitProgress(
     );
   }
   return persisted;
+}
+
+export function resetAllCourseKitProgressAfterGlobalReset(): PersistenceResult {
+  memorySnapshot = EMPTY_SNAPSHOT;
+  if (typeof window === "undefined") {
+    return { persisted: false, reason: "unavailable" };
+  }
+  const result = verifySharedProgressReset(window.localStorage, PROG);
+  persistenceAvailable = result.persisted;
+  window.dispatchEvent(new CustomEvent(COURSE_KIT_PROGRESS_EVENT, { detail: result }));
+  window.dispatchEvent(new CustomEvent(COURSE_KIT_PROGRESS_RESET_EVENT, { detail: result }));
+  window.dispatchEvent(new CustomEvent(RESPONSIBLE_AI_COURSE_KIT_PROGRESS_EVENT, {
+    detail: result,
+  }));
+  window.dispatchEvent(new CustomEvent(AGENTIC_QUANT_TRADING_COURSE_KIT_PROGRESS_EVENT, {
+    detail: result,
+  }));
+  return result;
 }
 
 export function setCourseKitCheckpoint(

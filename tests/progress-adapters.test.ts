@@ -253,7 +253,15 @@ test("blocked progress adapters stay dormant until the generated registry publis
     allAdapters.map((adapter) => adapter.courseId),
     expectedAdapterIds,
   );
-  assert.deepEqual(dormantIds, ["codex", "claude", "cursor"]);
+  assert.deepEqual(dormantIds, [
+    "codex",
+    "claude",
+    "cursor",
+    "responsible-ai",
+    "agentic-quant-trading",
+    "ai-teaching",
+    "math-animation",
+  ]);
   assert.ok(PUBLIC_COURSE_SURFACES
     .filter((surface) => dormantIds.includes(surface.id as never))
     .every((surface) => surface.state === "blocked" && surface.progressEvent === null));
@@ -317,6 +325,46 @@ test("blocked progress adapters stay dormant until the generated registry publis
           CURSOR_CAPSTONE_DRAFT_STORAGE_KEY,
           CURSOR_CAPSTONE_RECEIPT_MEMORY_KEY,
         ], EXPECTED_FIRST_HREFS.cursor],
+        [
+          "responsible-ai",
+          "ae:course-kit:progress:responsible-ai",
+          [
+            "ae.progress",
+            "__aicourse_course_kit_storage_probe__",
+            "ae.progress.course-kit-corrupt-backup",
+          ],
+          "/en/responsible-ai/purpose-risk-classification/",
+        ],
+        [
+          "agentic-quant-trading",
+          "ae:course-kit:progress:agentic-quant-trading",
+          [
+            "ae.progress",
+            "__aicourse_course_kit_storage_probe__",
+            "ae.progress.course-kit-corrupt-backup",
+          ],
+          "/en/agentic-quant-trading/scope-safety-autonomy/",
+        ],
+        [
+          "ai-teaching",
+          "ai-teaching:progress-change",
+          [
+            "ae.progress",
+            "__aicourse_ai_teaching_storage_probe__",
+            "ae.progress.ai-teaching-corrupt-backup",
+          ],
+          "/en/ai-teaching/agentic-teaching-boundaries/",
+        ],
+        [
+          "math-animation",
+          "math-animation:progress-change",
+          [
+            "ae.progress",
+            "__aicourse_math_animation_storage_probe__",
+            "ae.progress.math-animation-corrupt-backup",
+          ],
+          "/en/math-animation/outcome-before-engine/",
+        ],
       ],
     );
 
@@ -333,6 +381,10 @@ test("blocked progress adapters stay dormant until the generated registry publis
         ["codex", "/en/codex/task-contracts/"],
         ["claude", "/en/claude/describe-the-outcome/"],
         ["cursor", "/en/cursor/tab-inline-edit/"],
+        ["responsible-ai", "/en/responsible-ai/purpose-risk-classification/"],
+        ["agentic-quant-trading", "/en/agentic-quant-trading/scope-safety-autonomy/"],
+        ["ai-teaching", "/en/ai-teaching/agentic-teaching-boundaries/"],
+        ["math-animation", "/en/math-animation/outcome-before-engine/"],
       ],
       "future adapters resume the exact first incomplete lesson",
     );
@@ -375,7 +427,15 @@ test("blocked progress adapters stay dormant until the generated registry publis
     assert.equal(storage.getItem(CURSOR_PROGRESS_RESET_QUARANTINE_KEY), "[]");
     assert.deepEqual(
       [...repaintEvents].sort(),
-      ["claude:progress-change", "codex:progress-change", "cursor:progress-change"],
+      [
+        "ae:course-kit:progress:agentic-quant-trading",
+        "ae:course-kit:progress:responsible-ai",
+        "ai-teaching:progress-change",
+        "claude:progress-change",
+        "codex:progress-change",
+        "cursor:progress-change",
+        "math-animation:progress-change",
+      ],
     );
 
     // A second reset is idempotent and does not consume inactive recovery data.
@@ -507,7 +567,11 @@ test("a fresh learner gets the exact first lesson for every published course", (
       const current = adapter.readSummary();
       assert.equal(current.state, "not-started", adapter.courseId);
       assert.equal(current.percent, 0, adapter.courseId);
-      assert.equal(current.nextHref, EXPECTED_FIRST_HREFS[adapter.courseId], adapter.courseId);
+      assert.equal(
+        current.nextHref,
+        EXPECTED_FIRST_HREFS[adapter.courseId as keyof typeof EXPECTED_FIRST_HREFS],
+        adapter.courseId,
+      );
     }
   } finally {
     if (hadWindow) Object.defineProperty(globalThis, "window", { configurable: true, value: previousWindow });

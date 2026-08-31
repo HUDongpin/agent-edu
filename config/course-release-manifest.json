@@ -841,8 +841,8 @@
     },
     {
       "id": "responsible-ai",
-      "state": "roadmap",
-      "href": null,
+      "state": "blocked",
+      "href": "/responsible-ai/",
       "titleKey": "c.responsibleAi.title",
       "interfaceLocales": [
         "en",
@@ -855,11 +855,172 @@
         "ko",
         "ar"
       ],
-      "reviewedContentLocales": [],
-      "fallbackLocale": null,
-      "routes": [],
-      "releaseGate": null,
-      "progress": null
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "routes": [
+        "responsible-ai/",
+        "responsible-ai/purpose-risk-classification/",
+        "responsible-ai/stakeholders-impact-assessment/",
+        "responsible-ai/data-rights-privacy-minimisation/",
+        "responsible-ai/fairness-subgroup-audit/",
+        "responsible-ai/explainability-uncertainty-limitations/",
+        "responsible-ai/model-data-system-cards/",
+        "responsible-ai/human-authority-oversight-boundaries/",
+        "responsible-ai/escalation-appeal-contestability/",
+        "responsible-ai/red-teaming-incidents-disclosure/",
+        "responsible-ai/governance-dossier-capstone/"
+      ],
+      "releaseGate": "npm run responsible-ai:check:release",
+      "progress": {
+        "strategy": "twelve-equal-milestones",
+        "storageKey": "ae.progress",
+        "event": "ae:course-kit:progress:responsible-ai"
+      },
+      "blockers": [
+        "platform-release-v1-intake-freeze"
+      ]
+    },
+    {
+      "id": "agentic-quant-trading",
+      "state": "blocked",
+      "href": "/agentic-quant-trading/",
+      "titleKey": "c.agentic-quant-trading.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "routes": [
+        "agentic-quant-trading/",
+        "agentic-quant-trading/scope-safety-autonomy/",
+        "agentic-quant-trading/market-data-time-contracts/",
+        "agentic-quant-trading/agent-architecture-authority/",
+        "agentic-quant-trading/hypotheses-experiment-ledger/",
+        "agentic-quant-trading/features-labels-text-signals/",
+        "agentic-quant-trading/backtest-leakage-costs/",
+        "agentic-quant-trading/evaluation-uncertainty-overfitting/",
+        "agentic-quant-trading/multi-agent-debate-verification/",
+        "agentic-quant-trading/portfolio-risk-deterministic-gates/",
+        "agentic-quant-trading/paper-execution-reconciliation/",
+        "agentic-quant-trading/monitoring-kill-switch-incidents/",
+        "agentic-quant-trading/capstone-auditable-paper-desk/",
+        "agentic-quant-trading/assessment/",
+        "agentic-quant-trading/capstone/",
+        "agentic-quant-trading/sources/"
+      ],
+      "releaseGate": "npm run agentic-quant-trading:check:release",
+      "progress": {
+        "strategy": "fourteen-equal-milestones",
+        "storageKey": "ae.progress",
+        "event": "ae:course-kit:progress:agentic-quant-trading"
+      },
+      "blockers": [
+        "platform-release-v1-intake-freeze"
+      ]
+    },
+    {
+      "id": "ai-teaching",
+      "state": "blocked",
+      "href": "/ai-teaching/",
+      "titleKey": "c.ai-teaching.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "routes": [
+        "ai-teaching/",
+        "ai-teaching/agentic-teaching-boundaries/",
+        "ai-teaching/learning-design-task-contracts/",
+        "ai-teaching/teacher-copilot-workflows/",
+        "ai-teaching/tutoring-feedback-agents/",
+        "ai-teaching/multi-agent-inquiry/",
+        "ai-teaching/knowledge-tools-mcp/",
+        "ai-teaching/k12-safeguards/",
+        "ai-teaching/higher-ed-integrity/",
+        "ai-teaching/evals-learning-evidence/",
+        "ai-teaching/pilot-capstone/"
+      ],
+      "releaseGate": "npm run ai-teaching:check:release",
+      "progress": {
+        "strategy": "twelve-equal-milestones",
+        "storageKey": "ae.progress",
+        "event": "ai-teaching:progress-change"
+      },
+      "blockers": [
+        "platform-release-v1-intake-freeze"
+      ]
+    },
+    {
+      "id": "math-animation",
+      "state": "blocked",
+      "href": "/math-animation/",
+      "titleKey": "c.math-animation.title",
+      "interfaceLocales": [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "ar"
+      ],
+      "reviewedContentLocales": [
+        "en",
+        "zh-Hans"
+      ],
+      "fallbackLocale": "en",
+      "routes": [
+        "math-animation/",
+        "math-animation/outcome-before-engine/",
+        "math-animation/repository-evidence-lab/",
+        "math-animation/scene-contract-storyboard/",
+        "math-animation/manim-environment-first-scene/",
+        "math-animation/transformations-camera-continuity/",
+        "math-animation/equations-graphs-geometry/",
+        "math-animation/codex-implementation-loop/",
+        "math-animation/claude-direction-review/",
+        "math-animation/motion-canvas-web-track/",
+        "math-animation/voice-slides-remotion/",
+        "math-animation/mathematical-visual-accessibility-qa/",
+        "math-animation/capstone-release-pack/"
+      ],
+      "releaseGate": "npm run math-animation:check:release",
+      "progress": {
+        "strategy": "fourteen-equal-milestones",
+        "storageKey": "ae.progress",
+        "event": "math-animation:progress-change"
+      },
+      "blockers": [
+        "platform-release-v1-intake-freeze"
+      ]
     }
   ]
 }

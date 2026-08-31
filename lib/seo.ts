@@ -165,6 +165,22 @@ export function agentOrchestrationFixedPage(pageName: string): Page {
   return page as Page;
 }
 
+export function agenticTeachingModulePage(slug: string): Page {
+  const page = `ai-teaching/${slug}/`;
+  if (!KNOWN_PAGE_SET.has(page)) {
+    throw new Error(`Unknown Agentic Teaching module route: ${slug}`);
+  }
+  return page as Page;
+}
+
+export function mathAnimationModulePage(slug: string): Page {
+  const page = `math-animation/${slug}/`;
+  if (!KNOWN_PAGE_SET.has(page)) {
+    throw new Error(`Unknown Math Animation module route: ${slug}`);
+  }
+  return page as Page;
+}
+
 /** Open Graph uses language_TERRITORY rather than the site's BCP-47 route tags. */
 const OPEN_GRAPH_LOCALES: Readonly<Record<string, string>> = {
   en: "en_US",

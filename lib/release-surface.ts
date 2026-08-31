@@ -29,6 +29,9 @@ export const COURSE_IDS = [
   "creator-ops",
   "ai-research",
   "responsible-ai",
+  "agentic-quant-trading",
+  "ai-teaching",
+  "math-animation",
 ] as const;
 
 export type CourseId = (typeof COURSE_IDS)[number];

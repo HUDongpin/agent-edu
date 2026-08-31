@@ -278,18 +278,21 @@ export async function checkAgenticQuantTradingCourse({
     if (!signal.test(copyText)) add(issues, "safety", `Required safety signal is absent: ${signal}.`);
   }
 
+  const routeBase = release
+    ? `app/[locale]/${COURSE_ID}`
+    : `app/[locale]/_blocked/${COURSE_ID}`;
   const expectedPaths = [
-    `app/[locale]/${COURSE_ID}/page.tsx`,
-    `app/[locale]/${COURSE_ID}/[module]/page.tsx`,
+    `${routeBase}/page.tsx`,
+    `${routeBase}/[module]/page.tsx`,
     `components/agentic-quant-trading/EvidenceGateLab.tsx`,
     `components/agentic-quant-trading/EvidenceGateLab.module.css`,
-    "outputs/agentic-quant-trading-course-research-brief.md",
-    "outputs/agentic-quant-trading-course-research-brief.provenance.md",
+    "evidence/course-audits/agentic-quant-trading-course-research-brief.md",
+    "evidence/course-audits/agentic-quant-trading-course-research-brief.provenance.md",
   ];
   for (const path of expectedPaths) if (!existsSync(join(root, path))) add(issues, "files", `Missing ${path}.`);
 
-  const dashboardRoutePath = join(root, `app/[locale]/${COURSE_ID}/page.tsx`);
-  const moduleRoutePath = join(root, `app/[locale]/${COURSE_ID}/[module]/page.tsx`);
+  const dashboardRoutePath = join(root, `${routeBase}/page.tsx`);
+  const moduleRoutePath = join(root, `${routeBase}/[module]/page.tsx`);
   const dashboardRouteText = existsSync(dashboardRoutePath)
     ? readFileSync(dashboardRoutePath, "utf8")
     : "";

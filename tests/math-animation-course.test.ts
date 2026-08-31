@@ -393,10 +393,11 @@ test("the hero poster is self-contained and derives every view from one theta", 
   assert.match(validateMathPosterSvg(executableSvg).join("\n"), /executable SVG content/);
 });
 
-test("content and strict shared release gates pass", async () => {
+test("content passes while the intake freeze keeps release fail-closed", async () => {
   const content = await checkMathAnimationCourse();
   assert.equal(content.status, "pass", JSON.stringify(content.issues, null, 2));
 
   const release = await checkMathAnimationCourse({ release: true });
-  assert.equal(release.status, "pass", JSON.stringify(release.issues, null, 2));
+  assert.equal(release.status, "fail");
+  assert.ok(release.issues.some((issue) => issue.gate === "release"));
 });

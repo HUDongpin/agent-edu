@@ -45,8 +45,12 @@ import {
 import {
   AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY,
   AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY,
+  AI_TEACHING_CORRUPT_PROGRESS_BACKUP_KEY,
+  AI_TEACHING_PROGRESS_PROBE_KEY,
   AI_TUTOR_CORRUPT_PROGRESS_BACKUP_KEY,
   AI_TUTOR_PROGRESS_PROBE_KEY,
+  COURSE_KIT_CORRUPT_PROGRESS_BACKUP_KEY,
+  COURSE_KIT_PROGRESS_PROBE_KEY,
   CLAUDE_INCOME_QUIZ_ATTEMPT_KEY,
   CODEX_CAPSTONE_DRAFT_STORAGE_KEY,
   CURSOR_CAPSTONE_DRAFT_STORAGE_KEY,
@@ -57,6 +61,8 @@ import {
   GROK_QUIZ_ATTEMPT_KEY,
   GROK_TASK_CONTRACT_DRAFT_KEY,
   INCOME_PROGRESS_PROBE_KEY,
+  MATH_ANIMATION_CORRUPT_PROGRESS_BACKUP_KEY,
+  MATH_ANIMATION_PROGRESS_PROBE_KEY,
   PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
   PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_PROBE_KEY,
   PRODUCT_MANAGEMENT_CORRUPT_PROGRESS_BACKUP_KEY,
@@ -65,6 +71,32 @@ import {
   RAG_CORRUPT_PROGRESS_BACKUP_KEY,
   RAG_PROGRESS_PROBE_KEY,
 } from "@/lib/progress-storage-contract";
+import { RESPONSIBLE_AI_COURSE } from "@/lib/responsible-ai";
+import { AGENTIC_QUANT_TRADING_COURSE } from "@/lib/agentic-quant-trading";
+import {
+  courseKitProgressSummary,
+  createCourseKitProgressConfig,
+  isCourseKitCapstoneComplete,
+  isCourseKitModuleComplete,
+  isCourseKitQuizComplete,
+} from "@/lib/course-kit/progress";
+import {
+  AGENTIC_TEACHING_PROGRESS_EVENT,
+  AGENTIC_TEACHING_QUIZ_KEY,
+  isAgenticTeachingCapstoneComplete,
+  isAgenticTeachingModuleComplete,
+  readAgenticTeachingQuizReceipt,
+} from "@/lib/ai-teaching/progress";
+import { AGENTIC_TEACHING_MODULE_SLUGS } from "@/lib/ai-teaching/types";
+import type { CourseKitProgressClientConfig } from "@/lib/course-kit/types";
+import {
+  MATH_ANIMATION_CAPSTONE_KEY,
+  MATH_ANIMATION_PROGRESS_EVENT,
+  MATH_ANIMATION_PROGRESS_PREFIX,
+  MATH_ANIMATION_QUIZ_PASSED_KEY,
+  mathAnimationModuleProgressKey,
+} from "@/lib/math-animation/progress";
+import { MATH_ANIMATION_MODULE_SLUGS } from "@/lib/math-animation/types";
 import {
   MAKE_MONEY_WITH_CODEX_MARGIN_DRAFT_KEY,
   MAKE_MONEY_WITH_CODEX_OFFER_DRAFT_KEY,
@@ -222,6 +254,23 @@ import {
   readAgentOrchestrationProgress,
   resetAgentOrchestrationProgressAfterGlobalReset,
 } from "./agent-orchestration/progress-store";
+import {
+  readCourseKitProgress,
+  resetAllCourseKitProgressAfterGlobalReset,
+  isCourseKitProgressStorageAvailable,
+} from "./course-kit/progress-store";
+import {
+  AI_TEACHING_PROGRESS_STORAGE_KEY,
+  isAiTeachingProgressPersistenceAvailable,
+  readAiTeachingProgress,
+  resetAiTeachingProgressAfterGlobalReset,
+} from "./ai-teaching/progress-store";
+import {
+  MATH_ANIMATION_PROGRESS_STORAGE_KEY,
+  isMathAnimationStorageAvailable,
+  readMathAnimationProgress,
+  resetMathAnimationProgressAfterGlobalReset,
+} from "./math-animation/progress-store";
 
 export interface ProgressStoreAdapter {
   readonly courseId: PublishedProgressCourseId;
@@ -784,6 +833,42 @@ function contentLocaleForProjection(
     : surface.primaryLocale;
 }
 
+const RESPONSIBLE_AI_PROGRESS_CONFIG = {
+  ...createCourseKitProgressConfig(RESPONSIBLE_AI_COURSE),
+  courseId: "responsible-ai" as const,
+};
+const AGENTIC_QUANT_TRADING_PROGRESS_CONFIG = {
+  ...createCourseKitProgressConfig(AGENTIC_QUANT_TRADING_COURSE),
+  courseId: "agentic-quant-trading" as const,
+};
+
+function courseKitAdapter(
+  locale: string,
+  config: CourseKitProgressClientConfig & {
+    readonly courseId: "responsible-ai" | "agentic-quant-trading";
+  },
+): ProgressStoreAdapter {
+  return milestoneAdapter(locale, {
+    courseId: config.courseId,
+    storageKey: config.storageKey,
+    auxiliaryStorageKeys: [
+      COURSE_KIT_PROGRESS_PROBE_KEY,
+      COURSE_KIT_CORRUPT_PROGRESS_BACKUP_KEY,
+    ],
+    progressEvent: config.progressEvent,
+    slugs: config.moduleSlugs,
+    read: readCourseKitProgress,
+    lessonComplete: (record, slug) => isCourseKitModuleComplete(record, config, slug),
+    quizComplete: (record) => isCourseKitQuizComplete(record, config),
+    capstoneComplete: (record) => isCourseKitCapstoneComplete(record, config),
+    quizHref: (currentLocale) => `/${currentLocale}/${config.courseId}/assessment/`,
+    capstoneHref: (currentLocale) => `/${currentLocale}/${config.courseId}/capstone/`,
+    hasProgress: (record) => courseKitProgressSummary(record, config).completed > 0,
+    reset: resetAllCourseKitProgressAfterGlobalReset,
+    isPersistent: isCourseKitProgressStorageAvailable,
+  });
+}
+
 /**
  * Construct every implemented adapter, including dormant blocked courses.
  * This is used by the global reset and by release-transition contract tests;
@@ -1035,6 +1120,58 @@ export function createAllProgressAdapters(
       ),
       reset: resetAgentOrchestrationProgressAfterGlobalReset,
       isPersistent: isAgentOrchestrationStorageAvailable,
+    }),
+    courseKitAdapter(
+      localeFor("responsible-ai"),
+      RESPONSIBLE_AI_PROGRESS_CONFIG,
+    ),
+    courseKitAdapter(
+      localeFor("agentic-quant-trading"),
+      AGENTIC_QUANT_TRADING_PROGRESS_CONFIG,
+    ),
+    milestoneAdapter(localeFor("ai-teaching"), {
+      courseId: "ai-teaching",
+      storageKey: AI_TEACHING_PROGRESS_STORAGE_KEY,
+      auxiliaryStorageKeys: [
+        AI_TEACHING_PROGRESS_PROBE_KEY,
+        AI_TEACHING_CORRUPT_PROGRESS_BACKUP_KEY,
+      ],
+      progressEvent: AGENTIC_TEACHING_PROGRESS_EVENT,
+      slugs: AGENTIC_TEACHING_MODULE_SLUGS,
+      read: readAiTeachingProgress,
+      lessonComplete: (record, slug) => isAgenticTeachingModuleComplete(record, slug),
+      quizComplete: (record) => Boolean(readAgenticTeachingQuizReceipt(
+        record[AGENTIC_TEACHING_QUIZ_KEY],
+      )),
+      capstoneComplete: (record) => isAgenticTeachingCapstoneComplete(record),
+      quizHref: (currentLocale) => `/${currentLocale}/ai-teaching/#final-assessment`,
+      capstoneHref: (currentLocale) => `/${currentLocale}/ai-teaching/#capstone`,
+      hasProgress: (record) => Object.keys(record).some(
+        (key) => key.startsWith("agenticTeaching."),
+      ),
+      reset: resetAiTeachingProgressAfterGlobalReset,
+      isPersistent: isAiTeachingProgressPersistenceAvailable,
+    }),
+    milestoneAdapter(localeFor("math-animation"), {
+      courseId: "math-animation",
+      storageKey: MATH_ANIMATION_PROGRESS_STORAGE_KEY,
+      auxiliaryStorageKeys: [
+        MATH_ANIMATION_PROGRESS_PROBE_KEY,
+        MATH_ANIMATION_CORRUPT_PROGRESS_BACKUP_KEY,
+      ],
+      progressEvent: MATH_ANIMATION_PROGRESS_EVENT,
+      slugs: MATH_ANIMATION_MODULE_SLUGS,
+      read: readMathAnimationProgress,
+      lessonComplete: (record, slug) => record[mathAnimationModuleProgressKey(slug)] === true,
+      quizComplete: (record) => record[MATH_ANIMATION_QUIZ_PASSED_KEY] === true,
+      capstoneComplete: (record) => record[MATH_ANIMATION_CAPSTONE_KEY] === true,
+      quizHref: (currentLocale) => `/${currentLocale}/math-animation/#math-animation-assessment`,
+      capstoneHref: (currentLocale) => `/${currentLocale}/math-animation/#math-animation-capstone`,
+      hasProgress: (record) => Object.keys(record).some(
+        (key) => key.startsWith(MATH_ANIMATION_PROGRESS_PREFIX),
+      ),
+      reset: resetMathAnimationProgressAfterGlobalReset,
+      isPersistent: isMathAnimationStorageAvailable,
     }),
   ];
 
