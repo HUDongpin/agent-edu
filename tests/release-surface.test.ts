@@ -70,17 +70,25 @@ const ENGLISH_ONLY = [
   "product-management",
 ];
 
-test("the manifest preserves twelve published, three blocked, one staged, and two roadmap courses", () => {
+test("the manifest preserves the frozen published set and private candidate backlog", () => {
   assert.equal(COURSE_RELEASE_SURFACE.schemaVersion, 3);
   assert.deepEqual(COURSE_RELEASE_SURFACE.siteLocales, LOCALE_CODES);
   assert.equal(PUBLISHED_COURSE_SURFACES.length, 12);
   assert.deepEqual(
     BLOCKED_COURSE_SURFACES.map((course) => course.id).sort(),
-    ["claude", "codex", "cursor"],
+    [
+      "agentic-quant-trading",
+      "ai-teaching",
+      "claude",
+      "codex",
+      "cursor",
+      "math-animation",
+      "responsible-ai",
+    ],
   );
   assert.deepEqual(
     ROADMAP_COURSE_SURFACES.map((course) => course.id).sort(),
-    ["ai-research", "responsible-ai"],
+    ["ai-research"],
   );
   assert.deepEqual(STAGED_COURSE_SURFACES.map((course) => course.id), ["creator-ops"]);
   const checkerSource = readFileSync("scripts/check-release-surface.mjs", "utf8");
@@ -175,15 +183,15 @@ test("contentLocales match the loader-backed translation boundary", async () => 
 });
 
 test("catalogue display data and progress adapters stay joined to registry state", () => {
-  assert.equal(CATALOG_COURSE_RELEASES.length, 17);
+  assert.equal(CATALOG_COURSE_RELEASES.length, 20);
   assert.equal(PUBLISHED_CATALOG_COURSES.length, 12);
-  assert.equal(BLOCKED_CATALOG_COURSES.length, 3);
-  assert.equal(ROADMAP_CATALOG_COURSES.length, 2);
+  assert.equal(BLOCKED_CATALOG_COURSES.length, 7);
+  assert.equal(ROADMAP_CATALOG_COURSES.length, 1);
 
   const soon = CATALOG_COURSES.filter((course) => course.status === "soon")
     .map((course) => course.id)
     .sort();
-  assert.deepEqual(soon, ["ai-research", "responsible-ai"]);
+  assert.deepEqual(soon, ["ai-research"]);
 
   for (const { course, surface } of CATALOG_COURSE_RELEASES) {
     assert.equal(course.titleKey, surface.titleKey);
@@ -317,7 +325,7 @@ test("learner links resolve to real content locales and never expose blocked rou
   assert.equal(publicCourseHrefFor("codex", "en"), null);
   assert.equal(PUBLIC_COURSE_SURFACES.some((course) => "releaseGate" in course), false);
   assert.equal(PUBLIC_COURSE_SURFACES.some((course) => "blockers" in course), false);
-  assert.equal(PUBLIC_CATALOG_COURSE_RELEASES.length, 17);
+  assert.equal(PUBLIC_CATALOG_COURSE_RELEASES.length, 20);
   assert.ok(PUBLIC_CATALOG_COURSE_RELEASES
     .filter(({ surface }) => surface.state !== "published")
     .every(({ course }) => course.href === "#" && course.status === "soon"));

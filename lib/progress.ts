@@ -28,7 +28,7 @@ export const AGENTIC_PROGRESS_EVENT = LEARNING_PROGRESS_EVENT;
 export { CORRUPT_LEARNING_BACKUP_KEY } from "./progress-storage-contract";
 
 /** Kept temporarily for the Lab compatibility exports at the bottom. */
-export const PROG = LEGACY_PROGRESS_KEY;
+export { PROG } from "./progress-storage-key";
 
 export const HANDBOOK_SECTION_IDS = [
   "start", "code", "prompt", "context", "loop", "graph",

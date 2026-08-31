@@ -7,13 +7,12 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
-  isProgressPersistenceAvailable,
-  mark,
-  progressOnServer,
-  progressSnapshot,
-  readProgress,
-  subscribeProgress,
-} from "@/lib/progress";
+  aiTeachingProgressOnServer,
+  aiTeachingProgressSnapshot,
+  isAiTeachingProgressPersistenceAvailable,
+  markAiTeachingProgress,
+  subscribeAiTeachingProgress,
+} from "./progress-store";
 import {
   AGENTIC_TEACHING_CAPSTONE_KEY,
   AGENTIC_TEACHING_MILESTONE_COUNT,
@@ -58,15 +57,15 @@ import styles from "./AgenticTeachingCourse.module.css";
 
 function useProgressRecord() {
   const snapshot = useSyncExternalStore(
-    subscribeProgress,
-    progressSnapshot,
-    progressOnServer,
+    subscribeAiTeachingProgress,
+    aiTeachingProgressSnapshot,
+    aiTeachingProgressOnServer,
   );
-  return useMemo(() => readProgress(snapshot), [snapshot]);
+  return useMemo(() => JSON.parse(snapshot) as Record<string, unknown>, [snapshot]);
 }
 
 function persistenceMessage(labels: AgenticTeachingUiCopy): string {
-  return isProgressPersistenceAvailable()
+  return isAiTeachingProgressPersistenceAvailable()
     ? labels.savedLocally
     : labels.storageUnavailable;
 }
@@ -151,7 +150,7 @@ export function ArtifactNotebook({
     const invalidatesCompletion =
       isAgenticTeachingModuleComplete(record, slug) &&
       nextRecord.revisionId !== storedRecord?.revisionId;
-    mark(key, nextRecord);
+    markAiTeachingProgress(key, nextRecord);
     setDraftOverride(null);
     setStatus(
       invalidatesCompletion
@@ -266,7 +265,7 @@ export function ModuleCheckpoint({
             contentLocale,
             choice,
           );
-          if (receipt) mark(key, receipt);
+          if (receipt) markAiTeachingProgress(key, receipt);
         }}
       >
         {labels.checkAnswer}
@@ -328,7 +327,7 @@ export function ModuleCompletion({
         onClick={() => {
           const receipt = createAgenticTeachingModuleReceipt(record, slug);
           if (!receipt) return;
-          mark(agenticTeachingModuleKey(slug), receipt);
+          markAiTeachingProgress(agenticTeachingModuleKey(slug), receipt);
           setStatus(persistenceMessage(labels));
         }}
       >
@@ -599,7 +598,7 @@ export function FinalAssessment({
             );
           const passed = isAgenticTeachingQuizPassed(score, criticalPassed);
           const receipt = createAgenticTeachingQuizReceipt(score, criticalPassed);
-          if (receipt) mark(AGENTIC_TEACHING_QUIZ_KEY, receipt);
+          if (receipt) markAiTeachingProgress(AGENTIC_TEACHING_QUIZ_KEY, receipt);
           setHasSubmitted(true);
           setAttemptResult({ score, passed });
           if (!passed) {
@@ -755,7 +754,7 @@ export function CapstoneChecklist({
             attestedFingerprint,
           );
           if (!receipt) return;
-          mark(AGENTIC_TEACHING_CAPSTONE_KEY, receipt);
+          markAiTeachingProgress(AGENTIC_TEACHING_CAPSTONE_KEY, receipt);
           setStatus(persistenceMessage(labels));
         }}
       >

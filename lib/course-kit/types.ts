@@ -507,7 +507,7 @@ export interface CourseKitLocaleResolution {
 }
 
 export interface CourseKitProgressClientConfig {
-  readonly storageKey: "ae.progress";
+  readonly storageKey: typeof PROG;
   readonly courseId: string;
   readonly courseVersion: string;
   readonly progressPrefix: string;
@@ -590,3 +590,4 @@ export interface CourseKitMaterialisedCourse {
   };
   readonly progress: CourseKitProgressClientConfig;
 }
+import { PROG } from "../progress-storage-key";

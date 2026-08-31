@@ -23,6 +23,12 @@ export const PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY =
   "__aicourse_product_management_storage_probe__";
 export const AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY =
   "__aicourse_agent_orchestration_storage_probe__";
+export const COURSE_KIT_PROGRESS_PROBE_KEY =
+  "__aicourse_course_kit_storage_probe__";
+export const AI_TEACHING_PROGRESS_PROBE_KEY =
+  "__aicourse_ai_teaching_storage_probe__";
+export const MATH_ANIMATION_PROGRESS_PROBE_KEY =
+  "__aicourse_math_animation_storage_probe__";
 export const INCOME_PROGRESS_PROBE_KEY = "ae.progress.income-probe";
 export const GROK_PROGRESS_PROBE_KEY = "aicourse.grok.progress.v1.probe";
 export const GROK_QUIZ_ATTEMPT_KEY = "aicourse.grok.quiz-attempt.v1";
@@ -37,6 +43,9 @@ export const PROGRESS_LOCAL_EPHEMERAL_KEYS = [
   AI_TUTOR_PROGRESS_PROBE_KEY,
   PRODUCT_MANAGEMENT_PROGRESS_PROBE_KEY,
   AGENT_ORCHESTRATION_PROGRESS_PROBE_KEY,
+  COURSE_KIT_PROGRESS_PROBE_KEY,
+  AI_TEACHING_PROGRESS_PROBE_KEY,
+  MATH_ANIMATION_PROGRESS_PROBE_KEY,
   INCOME_PROGRESS_PROBE_KEY,
   GROK_PROGRESS_PROBE_KEY,
 ] as const;
@@ -77,6 +86,12 @@ export const PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_PROBE_KEY =
   "__aicourse_product_management_assessment_attempt_probe__";
 export const AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY =
   "ae.progress.agent-orchestration-corrupt-backup";
+export const COURSE_KIT_CORRUPT_PROGRESS_BACKUP_KEY =
+  "ae.progress.course-kit-corrupt-backup";
+export const AI_TEACHING_CORRUPT_PROGRESS_BACKUP_KEY =
+  "ae.progress.ai-teaching-corrupt-backup";
+export const MATH_ANIMATION_CORRUPT_PROGRESS_BACKUP_KEY =
+  "ae.progress.math-animation-corrupt-backup";
 export const CODEX_CAPSTONE_DRAFT_STORAGE_KEY =
   "aicourse.codex.capstone-draft.v1";
 export const CURSOR_FINAL_QUIZ_DRAFT_STORAGE_KEY =
@@ -117,6 +132,9 @@ export const PROGRESS_SESSION_EPHEMERAL_KEYS = [
   PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_KEY,
   PRODUCT_MANAGEMENT_ASSESSMENT_ATTEMPT_PROBE_KEY,
   AGENT_ORCHESTRATION_CORRUPT_PROGRESS_BACKUP_KEY,
+  COURSE_KIT_CORRUPT_PROGRESS_BACKUP_KEY,
+  AI_TEACHING_CORRUPT_PROGRESS_BACKUP_KEY,
+  MATH_ANIMATION_CORRUPT_PROGRESS_BACKUP_KEY,
   GROK_QUIZ_ATTEMPT_KEY,
   GROK_TASK_CONTRACT_DRAFT_KEY,
   CLAUDE_INCOME_QUIZ_ATTEMPT_KEY,

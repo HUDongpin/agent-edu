@@ -17,6 +17,7 @@ import {
   CoursePrimaryAction,
 } from "./CourseNavigation";
 import styles from "./AgenticTeachingCourse.module.css";
+import CourseShell from "../course-shell/CourseShell";
 
 type ContentLocale = MaterializedAgenticTeachingCourse["contentLocale"];
 
@@ -204,6 +205,7 @@ export default function CourseDashboard({
       dir={course.contentDirection}
       data-testid="ai-teaching-course"
     >
+      <CourseShell courseId="ai-teaching" locale={course.locale} compact allowBlockedPreview />
       <nav
         className={styles.courseBreadcrumb}
         aria-label={`${catalogLabel} · ${copy.meta.title}`}
