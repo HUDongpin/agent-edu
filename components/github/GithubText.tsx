@@ -1,4 +1,5 @@
 import base from "@/components/codex/CodexCourse.module.css";
+import styles from "./GithubCourse.module.css";
 
 const INLINE_CODE = /(`[^`\n]+`)/g;
 
@@ -12,7 +13,7 @@ export default function GithubText({ text }: { text: string }) {
       {text.split(INLINE_CODE).map((part, index) =>
         part.startsWith("`") && part.endsWith("`") ? (
           <code
-            className={base.inlineTechnical}
+            className={`${base.inlineTechnical} ${styles.inlineTechnical}`}
             dir="ltr"
             translate="no"
             key={`${index}-${part}`}

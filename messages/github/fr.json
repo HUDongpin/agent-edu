@@ -5,7 +5,7 @@
     "summary": "Apprenez à utiliser GitHub comme un système de collaboration sûr et traçable. Construisez un véritable dépôt, du premier commit à la révision, à la publication et à la réutilisation, dans les domaines du logiciel, de la recherche, de la rédaction, du travail administratif et de l’enseignement.",
     "audience": "Pour les personnes qui débutent entièrement comme pour les collaborateurs expérimentés qui souhaitent disposer d’un modèle mental fiable, et non d’une simple liste de boutons.",
     "duration": "11 heures guidées · 12 leçons · un projet final continu",
-    "sourceNote": "Le fonctionnement du produit s’appuie en priorité sur la documentation GitHub Docs et les projets officiels de GitHub, vérifiés le 24 août 2026. Les sources évaluées par les pairs et celles issues de la pratique sont clairement signalées lorsqu’elles décrivent des pratiques de travail effectivement mises en œuvre.",
+    "sourceNote": "Le fonctionnement du produit s’appuie en priorité sur la documentation GitHub Docs et les projets officiels de GitHub, vérifiés le {sourceDate}. Les sources évaluées par les pairs et celles issues de la pratique sont clairement signalées lorsqu’elles décrivent des pratiques de travail effectivement mises en œuvre.",
     "figureNote": "Les 21 figures d’interface sont d’authentiques ressources GitHub Docs, conservées localement avec leurs dimensions intrinsèques, leurs sommes de contrôle SHA-256, un commit source github/docs épinglé et l’attribution CC BY 4.0.",
     "startCta": "Commencer par la sécurité du compte",
     "resumeCta": "Continuer votre dépôt",
@@ -39,6 +39,19 @@
     "browserStorageNote": "La progression reste dans ce navigateur et n’est jamais téléversée.",
     "backToCourse": "Comment utiliser GitHub",
     "allLessons": "Plan du cours",
+    "lessonPositionTemplate": "Leçon {current} sur {total}",
+    "quizDraftAvailable": "Une évaluation inachevée est enregistrée dans ce navigateur.",
+    "resumeQuizDraft": "Reprendre l’évaluation inachevée",
+    "discardQuizDraft": "Abandonner l’évaluation inachevée",
+    "quizDraftRestored": "Votre évaluation inachevée a été restaurée.",
+    "quizDraftDiscarded": "Votre évaluation inachevée a été supprimée.",
+    "capstoneDraftAvailable": "Un brouillon de projet final est enregistré dans ce navigateur.",
+    "resumeCapstoneDraft": "Reprendre le brouillon du projet final",
+    "discardCapstoneDraft": "Abandonner le brouillon du projet final",
+    "capstoneDraftRestored": "Le brouillon de votre projet final a été restauré.",
+    "capstoneDraftDiscarded": "Le brouillon de votre projet final a été supprimé.",
+    "draftInvalid": "Ce brouillon enregistré est obsolète ou endommagé et ne peut pas être repris.",
+    "draftStorageWarning": "Les brouillons ne peuvent pas être enregistrés dans ce navigateur. Si vous rechargez ou quittez cette page, le travail inachevé sera supprimé.",
     "finalQuizTitle": "Décidez à partir des preuves",
     "finalQuizIntro": "Chaque tentative sélectionne quatre questions dans chaque unité. Après votre réponse, les explications indiquent la source pertinente.",
     "beginQuiz": "Commencer l’évaluation de 12 questions",
@@ -52,6 +65,7 @@
     "passRequirement": "Norme de preuve",
     "resetConfirm": "Réinitialiser uniquement vos leçons Comment utiliser GitHub, votre questionnaire et la progression du projet final ?",
     "resetDone": "La progression du cours GitHub a été réinitialisée.",
+    "resetNotSaved": "La progression a été effacée dans cet onglet, mais le navigateur n’a pas pu enregistrer la réinitialisation. Elle peut réapparaître après rechargement.",
     "capstonePath": "Projet final continu",
     "capstoneArtifacts": "Éléments de preuve du projet final",
     "capstoneComplete": "Projet final terminé",
@@ -61,6 +75,7 @@
     "exportSummary": "Exporter le récapitulatif d’achèvement",
     "authenticFigure": "Interface GitHub authentique",
     "figureSource": "Ouvrir la page source",
+    "openFigureFullSize": "Ouvrir l’image en taille réelle dans un nouvel onglet",
     "classroomNotice": "Avis actuel pour l’enseignement"
   },
   "units": {
@@ -1109,7 +1124,7 @@
   "figures": {
     "fig-01": {
       "alt": "Menu global Créer de GitHub, avec l’action Nouveau dépôt encadrée.",
-      "caption": "Commencez un dépôt depuis le menu global Créer. Interface vérifiée le 24 août 2026."
+      "caption": "Commencez un dépôt depuis le menu global Créer."
     },
     "fig-02": {
       "alt": "Formulaire de création d’un dépôt avec hello saisi dans le champ Repository name.",

@@ -5,7 +5,7 @@
     "summary": "GitHub를 안전하고 추적 가능한 협업 시스템으로 사용하는 법을 배웁니다. 첫 커밋부터 검토, 릴리스, 재사용까지 이어지는 실제 리포지토리 하나를 만들고, 이를 소프트웨어 개발, 연구, 글쓰기, 사무 업무, 교육에 적용합니다.",
     "audience": "버튼 목록이 아니라 신뢰할 수 있는 개념 모델을 원하는 완전 초보자와 숙련된 공동 작업자를 위한 과정입니다.",
     "duration": "안내 학습 11시간 · 레슨 12개 · 하나로 이어지는 캡스톤",
-    "sourceNote": "제품 동작은 GitHub Docs와 GitHub 공식 프로젝트를 우선 근거로 삼았으며 2026년 8월 24일에 검증했습니다. 실제 업무 관행을 기록한 동료 심사 연구와 실무자 자료는 명확히 구분해 표시합니다.",
+    "sourceNote": "제품 동작은 GitHub Docs와 GitHub 공식 프로젝트를 우선 근거로 삼았으며 {sourceDate}에 검증했습니다. 실제 업무 관행을 기록한 동료 심사 연구와 실무자 자료는 명확히 구분해 표시합니다.",
     "figureNote": "인터페이스 그림 21개는 모두 GitHub Docs의 실제 자산입니다. 원본 크기, SHA-256 체크섬, 고정된 github/docs 소스 커밋, CC BY 4.0 저작자 표시 정보를 함께 로컬에 저장했습니다.",
     "startCta": "계정 보안부터 시작",
     "resumeCta": "리포지토리 계속하기",
@@ -39,6 +39,19 @@
     "browserStorageNote": "진행률은 이 브라우저에만 저장되며 업로드되지 않습니다.",
     "backToCourse": "GitHub 사용법",
     "allLessons": "코스 지도",
+    "lessonPositionTemplate": "레슨 {current}/{total}",
+    "quizDraftAvailable": "완료하지 않은 평가가 이 브라우저에 저장되어 있습니다.",
+    "resumeQuizDraft": "완료하지 않은 평가 계속하기",
+    "discardQuizDraft": "완료하지 않은 평가 삭제",
+    "quizDraftRestored": "완료하지 않은 평가를 복원했습니다.",
+    "quizDraftDiscarded": "완료하지 않은 평가를 삭제했습니다.",
+    "capstoneDraftAvailable": "캡스톤 초안이 이 브라우저에 저장되어 있습니다.",
+    "resumeCapstoneDraft": "캡스톤 초안 계속하기",
+    "discardCapstoneDraft": "캡스톤 초안 삭제",
+    "capstoneDraftRestored": "캡스톤 초안을 복원했습니다.",
+    "capstoneDraftDiscarded": "캡스톤 초안을 삭제했습니다.",
+    "draftInvalid": "저장된 초안이 오래되었거나 손상되어 계속할 수 없습니다.",
+    "draftStorageWarning": "이 브라우저에서는 초안을 저장할 수 없습니다. 페이지를 새로 고치거나 떠나면 완료하지 않은 작업이 삭제됩니다.",
     "finalQuizTitle": "추측이 아니라 근거로 판단하세요",
     "finalQuizIntro": "시도할 때마다 각 단원에서 네 문항씩 선택합니다. 답한 뒤 설명과 관련 출처를 확인할 수 있습니다.",
     "beginQuiz": "12문항 평가 시작",
@@ -52,6 +65,7 @@
     "passRequirement": "근거 기준",
     "resetConfirm": "GitHub 사용법 레슨, 퀴즈, 캡스톤 진행률만 초기화할까요?",
     "resetDone": "GitHub 코스 진행률을 초기화했습니다.",
+    "resetNotSaved": "이 탭에서는 진행률을 지웠지만 브라우저가 초기화 상태를 저장하지 못했습니다. 새로고침하면 진행률이 다시 나타날 수 있습니다.",
     "capstonePath": "연속 캡스톤",
     "capstoneArtifacts": "캡스톤 증거",
     "capstoneComplete": "캡스톤 완료",
@@ -61,6 +75,7 @@
     "exportSummary": "완료 요약 내보내기",
     "authenticFigure": "실제 GitHub 인터페이스",
     "figureSource": "출처 페이지 열기",
+    "openFigureFullSize": "전체 크기 이미지를 새 탭에서 열기",
     "classroomNotice": "현재 교육 안내"
   },
   "units": {
@@ -1109,7 +1124,7 @@
   "figures": {
     "fig-01": {
       "alt": "GitHub 전역 Create 메뉴에서 New repository 항목이 강조되어 있습니다.",
-      "caption": "전역 Create 메뉴에서 리포지토리를 시작합니다. 2026년 8월 24일에 인터페이스를 검증했습니다."
+      "caption": "전역 Create 메뉴에서 리포지토리를 시작합니다."
     },
     "fig-02": {
       "alt": "Repository name 필드에 hello가 입력된 새 리포지토리 양식.",

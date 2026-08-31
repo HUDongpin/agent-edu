@@ -5,7 +5,7 @@
     "summary": "把 GitHub 学成一套安全、可追踪的协作系统。从首次提交开始，亲手建立一个真实存储库，贯通审查、发布与复用，并迁移到软件工程、研究、写作、办公和教学等场景。",
     "audience": "面向零基础学习者，也面向希望建立可靠心智模型而非只记按钮位置的有经验协作者。",
     "duration": "11 小时引导学习 · 12 节课 · 1 个贯穿全程的综合项目",
-    "sourceNote": "课程首先依据 GitHub Docs 和 GitHub 官方项目说明产品行为，并于 2026 年 8 月 24 日完成核验。同行评审文献和实践者资料仅在记录真实工作实践时使用，并会明确标注。",
+    "sourceNote": "课程首先依据 GitHub Docs 和 GitHub 官方项目说明产品行为，并于 {sourceDate} 完成核验。同行评审文献和实践者资料仅在记录真实工作实践时使用，并会明确标注。",
     "figureNote": "全部 21 幅界面图均为真实 GitHub Docs 资源，已存储在本地，并记录原始尺寸、SHA-256 校验和、固定的 github/docs 来源提交以及 CC BY 4.0 署名。",
     "startCta": "从账户安全开始",
     "resumeCta": "继续完善你的存储库",
@@ -39,6 +39,19 @@
     "browserStorageNote": "进度只保存在此浏览器中，绝不会上传。",
     "backToCourse": "如何使用 GitHub",
     "allLessons": "课程地图",
+    "lessonPositionTemplate": "第 {current} 课，共 {total} 课",
+    "quizDraftAvailable": "此浏览器中保存了一份尚未完成的评估。",
+    "resumeQuizDraft": "继续未完成的评估",
+    "discardQuizDraft": "舍弃未完成的评估",
+    "quizDraftRestored": "已恢复尚未完成的评估。",
+    "quizDraftDiscarded": "已舍弃尚未完成的评估。",
+    "capstoneDraftAvailable": "此浏览器中保存了一份综合项目草稿。",
+    "resumeCapstoneDraft": "继续综合项目草稿",
+    "discardCapstoneDraft": "舍弃综合项目草稿",
+    "capstoneDraftRestored": "已恢复综合项目草稿。",
+    "capstoneDraftDiscarded": "已舍弃综合项目草稿。",
+    "draftInvalid": "这份已保存的草稿已过期或损坏，无法继续。",
+    "draftStorageWarning": "此浏览器无法保存草稿。重新加载或离开此页面会舍弃尚未完成的工作。",
     "finalQuizTitle": "依据证据判断，不靠猜测",
     "finalQuizIntro": "每次作答会从每个单元抽取四题。提交答案后，解析会显示相关来源。",
     "beginQuiz": "开始 12 题评估",
@@ -52,6 +65,7 @@
     "passRequirement": "达标标准",
     "resetConfirm": "只重置“如何使用 GitHub”课程的课时、测验和综合项目进度吗？",
     "resetDone": "GitHub 课程进度已重置。",
+    "resetNotSaved": "此标签页中的进度已清除，但浏览器无法保存重置结果。重新加载后，进度可能会恢复。",
     "capstonePath": "贯穿全程的综合项目",
     "capstoneArtifacts": "综合项目证据",
     "capstoneComplete": "综合项目已完成",
@@ -61,6 +75,7 @@
     "exportSummary": "导出完成摘要",
     "authenticFigure": "真实 GitHub 界面",
     "figureSource": "打开来源页面",
+    "openFigureFullSize": "在新标签页中打开全尺寸图像",
     "classroomNotice": "当前教学提示"
   },
   "units": {
@@ -1104,7 +1119,7 @@
   "figures": {
     "fig-01": {
       "alt": "GitHub 全局创建菜单，其中列出了新建存储库操作。",
-      "caption": "从全局创建菜单启动存储库。界面已于 2026 年 8 月 24 日验证。"
+      "caption": "从全局创建菜单启动存储库。"
     },
     "fig-02": {
       "alt": "新建存储库表单，Repository name 字段中输入了 hello。",

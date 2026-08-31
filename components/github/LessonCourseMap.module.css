@@ -1,0 +1,252 @@
+.desktopMap {
+  position: sticky;
+  inset-block-start: calc(var(--topbar-h) + 24px);
+  max-block-size: calc(100dvh - var(--topbar-h) - 48px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.mapTitle {
+  display: block;
+  margin-block-end: 16px;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.unit + .unit {
+  margin-block-start: 18px;
+}
+
+.unitTitle {
+  margin: 0 0 6px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+:global([lang="ar"]) .unitTitle {
+  font-family: var(--sans);
+  letter-spacing: 0;
+}
+
+.unit ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.unit li + li {
+  margin-block-start: 2px;
+}
+
+.lessonLink {
+  display: grid;
+  min-block-size: 45px;
+  min-inline-size: 0;
+  grid-template-columns: 30px minmax(0, 1fr) 20px;
+  gap: 8px;
+  align-items: center;
+  border-radius: 8px;
+  padding: 7px 8px;
+  color: var(--ink-3);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: start;
+  text-decoration: none;
+  touch-action: manipulation;
+  transition-duration: 140ms;
+  transition-property: background-color, border-color, color;
+  transition-timing-function: ease-out;
+}
+
+.lessonLink:hover {
+  background: var(--bg-2);
+  color: var(--ink);
+}
+
+.lessonLink[aria-current="page"] {
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.lessonLink:active {
+  box-shadow: inset 0 0 0 2px var(--brand-line);
+  transform: none;
+}
+
+.lessonLink:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+.lessonNumber {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lessonTitle {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.completionSlot {
+  display: grid;
+  inline-size: 20px;
+  block-size: 20px;
+  place-items: center;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.mobileMap {
+  display: none;
+}
+
+.currentCrumb {
+  display: inline-flex;
+  min-inline-size: 0;
+  gap: 9px;
+  align-items: baseline;
+}
+
+.currentCrumb > span:last-child {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .desktopMap {
+    display: none;
+  }
+
+  .mobileMap {
+    display: block;
+    min-inline-size: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--card);
+  }
+
+  .mobileMap > summary {
+    display: grid;
+    min-block-size: 44px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    padding: 11px 14px;
+    color: var(--ink);
+    cursor: pointer;
+    list-style: none;
+    transition-duration: 140ms;
+    transition-property: background-color, border-color, color;
+    transition-timing-function: ease-out;
+  }
+
+  .mobileMap > summary:hover,
+  .mobileMap[open] > summary {
+    background: var(--brand-soft);
+  }
+
+  .mobileMap > summary:active {
+    box-shadow: inset 0 0 0 2px var(--brand-line);
+    transform: none;
+  }
+
+  .mobileMap > summary:focus-visible {
+    outline: 0;
+    box-shadow: inset 0 0 0 2px var(--brand);
+  }
+
+  .mobileMap > summary:focus-visible:active {
+    box-shadow:
+      inset 0 0 0 2px var(--brand),
+      inset 0 0 0 4px var(--brand-line);
+  }
+
+  .mobileMap > summary::marker,
+  .mobileMap > summary::-webkit-details-marker {
+    display: none;
+    content: "";
+  }
+
+  .summaryCopy {
+    display: grid;
+    min-inline-size: 0;
+    gap: 2px;
+  }
+
+  .summaryPosition {
+    color: var(--brand);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.35;
+  }
+
+  .summaryTitle {
+    min-inline-size: 0;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .summaryIndicator {
+    display: grid;
+    inline-size: 24px;
+    block-size: 24px;
+    place-items: center;
+    color: var(--brand);
+    font-family: var(--mono);
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .summaryIndicator::before {
+    content: "+";
+  }
+
+  .mobileMap[open] .summaryIndicator::before {
+    content: "−";
+  }
+
+  .mobileScrollport {
+    max-block-size: min(58dvh, 480px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    border-block-start: 1px solid var(--line);
+    padding: 12px 14px 16px;
+    scroll-padding-block: 8px;
+    scrollbar-width: thin;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lessonLink,
+  .mobileMap > summary {
+    transition-duration: 0s;
+  }
+
+  .lessonLink:active,
+  .mobileMap > summary:active {
+    transform: none;
+  }
+}
+
+@media print {
+  .desktopMap,
+  .mobileMap {
+    display: none !important;
+  }
+}

@@ -5,7 +5,7 @@
     "summary": "Lernen Sie GitHub als System für sichere, nachvollziehbare Zusammenarbeit kennen. Erstellen Sie ein echtes Repository, vom ersten Commit über Review und Release bis zur Wiederverwendung in Softwareentwicklung, Forschung, Schreiben, Büroarbeit und Lehre.",
     "audience": "Für Einsteigerinnen und Einsteiger ohne Vorkenntnisse sowie erfahrene Mitwirkende, die ein verlässliches mentales Modell statt einer Liste von Schaltflächen suchen.",
     "duration": "11 angeleitete Stunden · 12 Lektionen · ein durchgängiges Abschlussprojekt",
-    "sourceNote": "Das Produktverhalten stützt sich vorrangig auf GitHub Docs und offizielle Projekte von GitHub, geprüft am 24. August 2026. Peer-reviewte Quellen und Quellen aus der Praxis sind klar gekennzeichnet, wenn sie tatsächlich angewandte Arbeitsweisen dokumentieren.",
+    "sourceNote": "Das Produktverhalten stützt sich vorrangig auf GitHub Docs und offizielle Projekte von GitHub, geprüft am {sourceDate}. Peer-reviewte Quellen und Quellen aus der Praxis sind klar gekennzeichnet, wenn sie tatsächlich angewandte Arbeitsweisen dokumentieren.",
     "figureNote": "Alle 21 Abbildungen der Benutzeroberfläche sind authentische, lokal gespeicherte Assets aus GitHub Docs, einschließlich Originalabmessungen, SHA-256-Prüfsummen, eines festgeschriebenen Quell-Commits aus github/docs und der Namensnennung gemäß CC BY 4.0.",
     "startCta": "Mit der Kontosicherheit beginnen",
     "resumeCta": "Ihr Repository weiterführen",
@@ -39,6 +39,19 @@
     "browserStorageNote": "Der Fortschritt bleibt in diesem Browser und wird nie hochgeladen.",
     "backToCourse": "GitHub richtig nutzen",
     "allLessons": "Kursübersicht",
+    "lessonPositionTemplate": "Lektion {current} von {total}",
+    "quizDraftAvailable": "In diesem Browser ist ein nicht abgeschlossener Test gespeichert.",
+    "resumeQuizDraft": "Nicht abgeschlossenen Test fortsetzen",
+    "discardQuizDraft": "Nicht abgeschlossenen Test verwerfen",
+    "quizDraftRestored": "Ihr nicht abgeschlossener Test wurde wiederhergestellt.",
+    "quizDraftDiscarded": "Ihr nicht abgeschlossener Test wurde verworfen.",
+    "capstoneDraftAvailable": "In diesem Browser ist ein Entwurf für das Abschlussprojekt gespeichert.",
+    "resumeCapstoneDraft": "Entwurf des Abschlussprojekts fortsetzen",
+    "discardCapstoneDraft": "Entwurf des Abschlussprojekts verwerfen",
+    "capstoneDraftRestored": "Ihr Entwurf für das Abschlussprojekt wurde wiederhergestellt.",
+    "capstoneDraftDiscarded": "Ihr Entwurf für das Abschlussprojekt wurde verworfen.",
+    "draftInvalid": "Dieser gespeicherte Entwurf ist veraltet oder beschädigt und kann nicht fortgesetzt werden.",
+    "draftStorageWarning": "Entwürfe können in diesem Browser nicht gespeichert werden. Wenn Sie die Seite neu laden oder verlassen, wird nicht abgeschlossene Arbeit verworfen.",
     "finalQuizTitle": "Entscheiden statt raten",
     "finalQuizIntro": "Bei jedem Versuch werden aus jeder Einheit vier Fragen ausgewählt. Nach Ihrer Antwort zeigen die Erläuterungen die relevante Quelle.",
     "beginQuiz": "Test mit 12 Fragen beginnen",
@@ -52,6 +65,7 @@
     "passRequirement": "Nachweisstandard",
     "resetConfirm": "Nur Ihre Lektionen, den Test und den Fortschritt im Abschlussprojekt von „GitHub richtig nutzen“ zurücksetzen?",
     "resetDone": "Der Fortschritt im GitHub-Kurs wurde zurückgesetzt.",
+    "resetNotSaved": "Der Fortschritt wurde für diesen Tab gelöscht, aber der Browser konnte das Zurücksetzen nicht speichern. Nach dem Neuladen kann er wieder erscheinen.",
     "capstonePath": "Durchgängiges Abschlussprojekt",
     "capstoneArtifacts": "Nachweise zum Abschlussprojekt",
     "capstoneComplete": "Abschlussprojekt abgeschlossen",
@@ -61,6 +75,7 @@
     "exportSummary": "Abschlussübersicht exportieren",
     "authenticFigure": "Authentische GitHub-Benutzeroberfläche",
     "figureSource": "Quellseite öffnen",
+    "openFigureFullSize": "Bild in voller Größe in einem neuen Tab öffnen",
     "classroomNotice": "Aktueller Hinweis für die Lehre"
   },
   "units": {
@@ -1109,7 +1124,7 @@
   "figures": {
     "fig-01": {
       "alt": "Globales GitHub-Menü Create, in dem die Aktion New repository umrandet ist.",
-      "caption": "Starten Sie ein Repository über das globale Menü Create. Benutzeroberfläche geprüft am 24. August 2026."
+      "caption": "Starten Sie ein Repository über das globale Menü Create."
     },
     "fig-02": {
       "alt": "Formular zum Erstellen eines neuen Repositorys mit hello im Feld Repository name.",

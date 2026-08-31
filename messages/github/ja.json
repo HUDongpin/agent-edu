@@ -5,7 +5,7 @@
     "summary": "GitHub を、安全で追跡可能な協働の仕組みとして学びます。最初のコミットからレビュー、リリースまで、実際に1つのリポジトリを構築し、ソフトウェア開発、研究、執筆、オフィス業務、教育で再利用できる形にします。",
     "audience": "ボタンの場所を覚えるだけでなく、信頼できるメンタルモデルを身につけたい初心者と経験豊富な協働者のためのコースです。",
     "duration": "11時間のガイド付き学習 · 全12レッスン · 1つの継続型総合プロジェクト",
-    "sourceNote": "製品の動作は GitHub Docs と GitHub の公式プロジェクトを第一の根拠とし、2026年8月24日に検証しました。実際の仕事の進め方を示す査読済み文献と実務者資料は、該当箇所で明確に示します。",
+    "sourceNote": "製品の動作は GitHub Docs と GitHub の公式プロジェクトを第一の根拠とし、{sourceDate}に検証しました。実際の仕事の進め方を示す査読済み文献と実務者資料は、該当箇所で明確に示します。",
     "figureNote": "全21点のインターフェイス図は、GitHub Docs の実際の画像資産です。元の寸法、SHA-256 チェックサム、固定した github/docs のソースコミット、CC BY 4.0 の表示情報とともにローカルに保存しています。",
     "startCta": "アカウントを安全にするところから始める",
     "resumeCta": "リポジトリ作成を続ける",
@@ -39,6 +39,19 @@
     "browserStorageNote": "進捗はこのブラウザ内だけに保存され、アップロードされることはありません。",
     "backToCourse": "GitHub の使い方",
     "allLessons": "コースマップ",
+    "lessonPositionTemplate": "レッスン {current}/{total}",
+    "quizDraftAvailable": "未完了の評価がこのブラウザに保存されています。",
+    "resumeQuizDraft": "未完了の評価を再開",
+    "discardQuizDraft": "未完了の評価を破棄",
+    "quizDraftRestored": "未完了の評価を復元しました。",
+    "quizDraftDiscarded": "未完了の評価を破棄しました。",
+    "capstoneDraftAvailable": "総合プロジェクトの下書きがこのブラウザに保存されています。",
+    "resumeCapstoneDraft": "総合プロジェクトの下書きを再開",
+    "discardCapstoneDraft": "総合プロジェクトの下書きを破棄",
+    "capstoneDraftRestored": "総合プロジェクトの下書きを復元しました。",
+    "capstoneDraftDiscarded": "総合プロジェクトの下書きを破棄しました。",
+    "draftInvalid": "保存された下書きは古いか破損しているため、再開できません。",
+    "draftStorageWarning": "このブラウザでは下書きを保存できません。ページを再読み込みするか離れると、未完了の作業は破棄されます。",
     "finalQuizTitle": "推測せず、根拠に基づいて判断する",
     "finalQuizIntro": "各回、すべての単元から4問ずつ、合計12問が選ばれます。回答後の解説には関連する出典が表示されます。",
     "beginQuiz": "12問の評価を始める",
@@ -52,6 +65,7 @@
     "passRequirement": "合格基準",
     "resetConfirm": "「GitHub の使い方」のレッスン、クイズ、総合プロジェクトの進捗だけをリセットしますか。",
     "resetDone": "GitHub コースの進捗をリセットしました。",
+    "resetNotSaved": "このタブでは進捗を消去しましたが、ブラウザにリセットを保存できませんでした。再読み込みすると進捗が戻る可能性があります。",
     "capstonePath": "継続型総合プロジェクト",
     "capstoneArtifacts": "総合プロジェクトの証拠",
     "capstoneComplete": "総合プロジェクト完了",
@@ -61,6 +75,7 @@
     "exportSummary": "完了サマリーを書き出す",
     "authenticFigure": "実際の GitHub インターフェイス",
     "figureSource": "出典ページを開く",
+    "openFigureFullSize": "フルサイズ画像を新しいタブで開く",
     "classroomNotice": "現在の教育向け注意事項"
   },
   "units": {
@@ -1109,7 +1124,7 @@
   "figures": {
     "fig-01": {
       "alt": "GitHub グローバル [新規リポジトリ] アクションの概要が示された [作成] メニュー。",
-      "caption": "グローバルの「作成」メニューからリポジトリを開始します。インターフェイスは2026年8月24日に検証しました。"
+      "caption": "グローバルの「作成」メニューからリポジトリを開始します。"
     },
     "fig-02": {
       "alt": "Repository name フィールドに hello が入力された新しいリポジトリ フォーム。",

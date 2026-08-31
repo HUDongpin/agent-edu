@@ -3,12 +3,19 @@ import type {
   MaterializedGithubCourse,
   MaterializedGithubLesson,
 } from "@/lib/github";
+import {
+  formatGithubDate,
+  formatGithubNumber,
+  formatGithubVisibleNumbers,
+} from "@/lib/github";
 import CapstoneChecklist from "./CapstoneChecklist";
 import CourseFigure from "./CourseFigure";
 import GithubText from "./GithubText";
+import LessonCourseMap from "./LessonCourseMap";
 import LessonCompletion from "./LessonCompletion";
 import base from "@/components/codex/CodexCourse.module.css";
 import styles from "./GithubCourse.module.css";
+import courseMapStyles from "./LessonCourseMap.module.css";
 
 export default function LessonView({
   course,
@@ -23,6 +30,17 @@ export default function LessonView({
   const next =
     lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null;
   const hrefFor = (slug: string) => `/${course.locale}/github/${slug}/`;
+  const practiceMinutes = Math.max(20, Math.round(lesson.minutes * 0.45));
+  const courseMapUnits = course.units.map((unit) => ({
+    id: unit.id,
+    title: unit.copy.title,
+    lessons: unit.lessons.map((item) => ({
+      slug: item.slug,
+      order: item.order,
+      title: item.copy.title,
+      href: hrefFor(item.slug),
+    })),
+  }));
 
   return (
     <div
@@ -39,42 +57,37 @@ export default function LessonView({
           </span>
           {course.copy.ui.backToCourse}
         </Link>
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">{lesson.copy.title}</span>
+        <span className={courseMapStyles.currentCrumb}>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page" dir="auto">{lesson.copy.title}</span>
+        </span>
       </nav>
 
       <div className={base.lessonLayout}>
-        <aside className={base.lessonRail}>
-          <nav aria-label={course.copy.ui.allLessons}>
-            <strong>{course.copy.ui.allLessons}</strong>
-            {course.units.map((unit) => (
-              <div className={base.railUnit} key={unit.id}>
-                <p className={base.railGroup}>{unit.copy.title}</p>
-                <ol>
-                  {unit.lessons.map((item) => (
-                    <li key={item.slug}>
-                      <Link
-                        href={hrefFor(item.slug)}
-                        aria-current={
-                          item.slug === lesson.slug ? "page" : undefined
-                        }
-                      >
-                        <span>{item.order}</span>
-                        {item.copy.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            ))}
-          </nav>
-        </aside>
+        <LessonCourseMap
+          locale={course.locale}
+          units={courseMapUnits}
+          activeSlug={lesson.slug}
+          current={lesson.order}
+          total={lessons.length}
+          currentTitle={lesson.copy.title}
+          labels={{
+            allLessons: course.copy.ui.allLessons,
+            completed: course.copy.ui.completed,
+            lessonPositionTemplate: course.copy.ui.lessonPositionTemplate,
+          }}
+        />
 
         <div className={base.lessonMain}>
           <article>
             <header className={base.lessonHero}>
               <p className={base.kicker}>
-                <GithubText text={lesson.copy.kicker} />
+                <GithubText
+                  text={formatGithubVisibleNumbers(
+                    course.locale,
+                    lesson.copy.kicker,
+                  )}
+                />
               </p>
               <h1>
                 <GithubText text={lesson.copy.title} />
@@ -85,11 +98,13 @@ export default function LessonView({
               <dl className={base.lessonMeta}>
                 <div>
                   <dt>{course.copy.ui.minutes}</dt>
-                  <dd>{lesson.minutes}</dd>
+                  <dd>{formatGithubNumber(course.locale, lesson.minutes)}</dd>
                 </div>
                 <div>
                   <dt>{course.copy.ui.sources}</dt>
-                  <dd>{lesson.sources.length}</dd>
+                  <dd>
+                    {formatGithubNumber(course.locale, lesson.sources.length)}
+                  </dd>
                 </div>
               </dl>
               <p className={styles.disclaimer}>{course.copy.meta.disclaimer}</p>
@@ -153,7 +168,11 @@ export default function LessonView({
                         <figcaption>
                           <GithubText text={section.code.label} />
                         </figcaption>
-                        <pre dir="ltr">
+                        <pre
+                          aria-label={section.code.label}
+                          dir="ltr"
+                          tabIndex={0}
+                        >
                           <code>{section.code.value}</code>
                         </pre>
                       </figure>
@@ -169,6 +188,8 @@ export default function LessonView({
                       return (
                         <CourseFigure
                           figure={figure}
+                          locale={course.locale}
+                          fullSizeLabel={course.copy.ui.openFigureFullSize}
                           sourceLabel={course.copy.ui.figureSource}
                           key={figureId}
                         />
@@ -190,10 +211,13 @@ export default function LessonView({
                     {lesson.copy.practice.title}
                   </h2>
                 </div>
-                <span>
-                  {Math.max(20, Math.round(lesson.minutes * 0.45))}{" "}
+                <time
+                  className={styles.practiceDuration}
+                  dateTime={`PT${practiceMinutes}M`}
+                >
+                  {formatGithubNumber(course.locale, practiceMinutes)}{" "}
                   {course.copy.ui.minutes}
-                </span>
+                </time>
               </header>
               <p>
                 <GithubText text={lesson.copy.practice.brief} />
@@ -245,6 +269,7 @@ export default function LessonView({
               <CapstoneChecklist
                 copy={course.copy.capstone}
                 labels={course.copy.ui}
+                locale={course.locale}
               />
             ) : null}
 
@@ -265,7 +290,12 @@ export default function LessonView({
                         <strong dir="auto">{source.title}</strong>
                         <span dir="auto">{source.publisher}</span>
                         <span className={styles.sourceMeta}>
-                          <span dir="ltr">{source.accessedOn}</span>
+                          <time dateTime={source.accessedOn}>
+                            {formatGithubDate(
+                              course.locale,
+                              source.accessedOn,
+                            )}
+                          </time>
                         </span>
                       </span>
                     </a>

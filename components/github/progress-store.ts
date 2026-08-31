@@ -2,6 +2,10 @@ import {
   GITHUB_PROGRESS_LESSON_SLUGS,
   GITHUB_PROGRESS_QUIZ,
 } from "@/lib/progress-topology";
+import {
+  GITHUB_CAPSTONE_DRAFT_KEY,
+  GITHUB_QUIZ_DRAFT_KEY,
+} from "@/lib/github-progress-keys";
 import type { PersistenceResult } from "@/lib/public-progress-contract";
 import { verifySharedProgressReset } from "@/lib/progress-persistence";
 
@@ -18,6 +22,7 @@ export type CourseProgressUpdateResult = {
 
 let memorySnapshot = "{}";
 let persistenceAvailable: boolean | null = null;
+const handledResetStorageEvents = new WeakSet<StorageEvent>();
 
 function isProgressRecord(value: unknown): value is CourseProgressRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -36,7 +41,7 @@ export function readCourseProgressSnapshot(): string {
   if (persistenceAvailable === false) return memorySnapshot;
 
   try {
-    const storedSnapshot = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+    const storedSnapshot = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) ?? "{}";
     if (!snapshotIsValid(storedSnapshot)) {
       memorySnapshot = "{}";
       persistenceAvailable = false;
@@ -66,13 +71,38 @@ const GITHUB_PROGRESS_STORAGE_KEYS = [
   GITHUB_PROGRESS_QUIZ.bestStorageKey,
   GITHUB_PROGRESS_QUIZ.passedStorageKey,
   GITHUB_PROGRESS_QUIZ.versionStorageKey,
+  GITHUB_QUIZ_DRAFT_KEY,
   GITHUB_CAPSTONE_STORAGE_KEY,
+  GITHUB_CAPSTONE_DRAFT_KEY,
 ] as const;
 
 export function hasGithubCourseProgress(
   progress: CourseProgressRecord,
 ): boolean {
   return GITHUB_PROGRESS_STORAGE_KEYS.some((key) => key in progress);
+}
+
+function snapshotHasGithubCourseProgress(snapshot: string | null): boolean {
+  if (snapshot === null) return false;
+  try {
+    const value: unknown = JSON.parse(snapshot);
+    return isProgressRecord(value) && hasGithubCourseProgress(value);
+  } catch {
+    return false;
+  }
+}
+
+function adoptCrossTabResetSnapshot(snapshot: string | null): void {
+  if (snapshot === null) {
+    memorySnapshot = "{}";
+    return;
+  }
+  if (snapshotIsValid(snapshot)) {
+    memorySnapshot = snapshot;
+    return;
+  }
+  memorySnapshot = "{}";
+  persistenceAvailable = false;
 }
 
 export function readCourseProgress(): CourseProgressRecord {
@@ -89,7 +119,7 @@ export function writeCourseProgress(progress: CourseProgressRecord): boolean {
   }
   let persisted = false;
   try {
-    const current = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) || "{}";
+    const current = window.localStorage.getItem(COURSE_PROGRESS_STORAGE_KEY) ?? "{}";
     if (!snapshotIsValid(current)) {
       persistenceAvailable = false;
       window.dispatchEvent(new Event(GITHUB_PROGRESS_EVENT));
@@ -109,7 +139,14 @@ export function updateCourseProgress(
   update: (progress: CourseProgressRecord) => void,
 ): CourseProgressUpdateResult {
   const progress = readCourseProgress();
+  const previous = JSON.stringify(progress);
   update(progress);
+  if (JSON.stringify(progress) === previous) {
+    return {
+      progress,
+      persisted: typeof window !== "undefined" && persistenceAvailable === true,
+    };
+  }
   const persisted = writeCourseProgress(progress);
   return { progress, persisted };
 }
@@ -139,7 +176,20 @@ export function subscribeToCourseProgress(listener: () => void): () => void {
   if (typeof window === "undefined") return () => undefined;
 
   const handleStorage = (event: StorageEvent) => {
-    if (!event.key || event.key === COURSE_PROGRESS_STORAGE_KEY) listener();
+    if (event.key && event.key !== COURSE_PROGRESS_STORAGE_KEY) return;
+
+    const removedGithubProgress = event.key === null
+      || event.newValue === null
+      || (
+      snapshotHasGithubCourseProgress(event.oldValue)
+      && !snapshotHasGithubCourseProgress(event.newValue)
+    );
+    if (removedGithubProgress && !handledResetStorageEvents.has(event)) {
+      handledResetStorageEvents.add(event);
+      adoptCrossTabResetSnapshot(event.newValue);
+      window.dispatchEvent(new Event(GITHUB_RESET_EVENT));
+    }
+    listener();
   };
 
   window.addEventListener(GITHUB_PROGRESS_EVENT, listener);

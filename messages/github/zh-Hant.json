@@ -5,7 +5,7 @@
     "summary": "把 GitHub 學成一套安全、可追蹤的協作系統。從首次提交開始，親手建立一個真實存放庫，貫通審查、發布與重複使用，並延伸到軟體工程、研究、寫作、辦公與教學等情境。",
     "audience": "適合零基礎學習者，也適合想建立可靠心智模型，而不只是記住按鈕位置的有經驗協作者。",
     "duration": "11 小時引導學習 · 12 課 · 1 個貫穿全程的綜合專案",
-    "sourceNote": "課程首先依據 GitHub Docs 與 GitHub 官方專案說明產品行為，並於 2026 年 8 月 24 日完成核驗。同行評審文獻與實務工作者資料只在記錄真實工作實務時使用，且會清楚標示。",
+    "sourceNote": "課程首先依據 GitHub Docs 與 GitHub 官方專案說明產品行為，並於 {sourceDate} 完成核驗。同行評審文獻與實務工作者資料只在記錄真實工作實務時使用，且會清楚標示。",
     "figureNote": "全部 21 幅介面圖均為真實 GitHub Docs 資產，已儲存在本機，並記錄原始尺寸、SHA-256 校驗和、固定的 github/docs 來源提交，以及 CC BY 4.0 姓名標示。",
     "startCta": "從帳戶安全開始",
     "resumeCta": "繼續完成你的存放庫",
@@ -39,6 +39,19 @@
     "browserStorageNote": "進度只會保存在此瀏覽器中，絕不會上傳。",
     "backToCourse": "如何使用 GitHub",
     "allLessons": "課程地圖",
+    "lessonPositionTemplate": "第 {current} 課，共 {total} 課",
+    "quizDraftAvailable": "此瀏覽器中儲存了一份尚未完成的評量。",
+    "resumeQuizDraft": "繼續未完成的評量",
+    "discardQuizDraft": "捨棄未完成的評量",
+    "quizDraftRestored": "已恢復尚未完成的評量。",
+    "quizDraftDiscarded": "已捨棄尚未完成的評量。",
+    "capstoneDraftAvailable": "此瀏覽器中儲存了一份綜合專案草稿。",
+    "resumeCapstoneDraft": "繼續綜合專案草稿",
+    "discardCapstoneDraft": "捨棄綜合專案草稿",
+    "capstoneDraftRestored": "已恢復綜合專案草稿。",
+    "capstoneDraftDiscarded": "已捨棄綜合專案草稿。",
+    "draftInvalid": "這份已儲存的草稿已過期或損壞，無法繼續。",
+    "draftStorageWarning": "此瀏覽器無法儲存草稿。重新載入或離開此頁面會捨棄尚未完成的工作。",
     "finalQuizTitle": "根據證據判斷，不靠猜測",
     "finalQuizIntro": "每次作答會從每個單元抽取四題。送出答案後，解析會顯示相關來源。",
     "beginQuiz": "開始 12 題評量",
@@ -52,6 +65,7 @@
     "passRequirement": "達標標準",
     "resetConfirm": "只重設「如何使用 GitHub」課程的課程、測驗與綜合專案進度嗎？",
     "resetDone": "GitHub 課程進度已重設。",
+    "resetNotSaved": "此分頁中的進度已清除，但瀏覽器無法儲存重設結果。重新載入後，進度可能會恢復。",
     "capstonePath": "貫穿全程的綜合專案",
     "capstoneArtifacts": "綜合專案證據",
     "capstoneComplete": "綜合專案已完成",
@@ -61,6 +75,7 @@
     "exportSummary": "匯出完成摘要",
     "authenticFigure": "真實 GitHub 介面",
     "figureSource": "開啟來源頁面",
+    "openFigureFullSize": "在新分頁中開啟完整尺寸圖片",
     "classroomNotice": "目前教學提示"
   },
   "units": {
@@ -1104,7 +1119,7 @@
   "figures": {
     "fig-01": {
       "alt": "GitHub 全域性建立選單，其中列出了新建存放庫操作。",
-      "caption": "從全域建立選單啟動存放庫。介面已於 2026 年 8 月 24 日驗證。"
+      "caption": "從全域建立選單啟動存放庫。"
     },
     "fig-02": {
       "alt": "新增存放庫表單，Repository name 欄位中輸入了 hello。",
