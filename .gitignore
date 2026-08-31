@@ -73,6 +73,10 @@ __pycache__/
 # these into a public repo.
 2026*_claude suggestions*.md
 
+# Generated native-review working aids. They contain bulk source text and are
+# regenerated for an exact candidate; sanitized conclusions live elsewhere.
+review-packets/
+
 # Junk
 .DS_Store
 npm-debug.log*

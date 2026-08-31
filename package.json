@@ -52,6 +52,7 @@
     "handbook:extract": "node scripts/extract-handbook.mjs",
     "handbook:check": "node scripts/extract-handbook.mjs --check && node scripts/check-handbook-i18n.mjs",
     "widgets:check": "node scripts/check-widgets.mjs",
+    "review:packet": "node scripts/make-review-packet.mjs",
     "build:release": "npm run verify:source && next build && npm run export:prune-blocked && npm run sitemaps:generate && npm run agent-orchestration:static-check && npm run mcp:audit:export && npm run release-metadata:generate && npm run i18n:check:release && npm run routes:check && npm run assets:check && npm run tracked-artifacts:check",
     "release-metadata:generate": "node scripts/generate-release-metadata.mjs",
     "i18n:check": "node scripts/check-i18n-release.mjs",

@@ -150,6 +150,8 @@ entered.
 - `evidence/native-review-catalog-inventory.json` — generated only after the
   final candidate is frozen; deterministic 24-file candidate/workflow binding,
   deliberately absent until then and never a human-review pass.
+- `native-review-packet.md` — generate a current, scope-bound side-by-side
+  working aid; it is not evidence and cannot change pending review state.
 - `arabic-rtl-matrix.md` — the 979/980 breakpoint plus 390/1440 representative paths.
 - `provider-canary.md` — low-limit real Provider run and reconciliation.
 - `csp-verification.md` — executable report-only → enforced transition plus
