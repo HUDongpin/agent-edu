@@ -72,11 +72,7 @@ export default function CourseDashboard({
       dir="ltr"
       data-testid="claude-income-dashboard"
     >
-      <CourseShell
-        courseId="claude-income"
-        locale={locale}
-        landmarkLabel="Course 12 overview"
-      />
+      <CourseShell courseId="claude-income" locale={locale} />
       {locale !== "en" ? (
         <p className={styles.languageNotice} role="note">
           {CLAUDE_INCOME_ENGLISH_BODY_NOTICE}

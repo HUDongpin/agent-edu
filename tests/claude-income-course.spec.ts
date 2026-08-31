@@ -1029,7 +1029,9 @@ test.describe("Course 12 approved UI and UX Phase 2 regressions", () => {
 
     await page.goto(DASHBOARD);
     const dashboard = page.getByTestId("claude-income-dashboard");
-    await expect(page.getByRole("complementary", { name: "Course 12 overview" })).toBeVisible();
+    await expect(page.getByRole("region", {
+      name: "Course overview: How to Make Money with Claude",
+    })).toBeVisible();
     const sourceLedger = dashboard.locator("details").filter({ hasText: "Source ledger" });
     if (!(await sourceLedger.getAttribute("open"))) await sourceLedger.locator("summary").click();
     await expectNewTabCues(dashboard);
