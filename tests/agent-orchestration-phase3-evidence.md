@@ -93,4 +93,3 @@ against the exported static site, proving that the active-state sampler waits fo
 60 ms transition rather than reading the hover frame. The targeted coarse-control run
 passed in Chromium, Firefox, and WebKit (3/3). The focused workspace/client bundle
 boundary passed 5/5 under the unchanged limit.
-

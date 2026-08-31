@@ -208,4 +208,3 @@ function RestoredArtifactWorkbench({
     </div>
   );
 }
-
