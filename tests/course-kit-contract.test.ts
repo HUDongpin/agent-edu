@@ -40,6 +40,10 @@ import {
   type CourseKitOptionIndex,
 } from "../lib/course-kit/types";
 import { validateCourseKitDefinition } from "../lib/course-kit/validate";
+import { RESPONSIBLE_AI_PROGRESS } from "../lib/responsible-ai/progress";
+import {
+  AGENTIC_QUANT_TRADING_PROGRESS,
+} from "../lib/agentic-quant-trading/progress";
 import { evaluateCourseKitFixture } from "../scripts/check-course-kit-release.mjs";
 
 const EXPECTED = [
@@ -84,6 +88,13 @@ test("the independent Course Kit registry is exactly the Course 16–17 contract
     assert.equal(definition.manifest.milestoneCount, milestones);
     assert.deepEqual(validateCourseKitDefinition(definition), []);
   });
+});
+
+test("lightweight Course Kit progress topologies match the full definitions", () => {
+  assert.deepEqual(
+    [RESPONSIBLE_AI_PROGRESS, AGENTIC_QUANT_TRADING_PROGRESS],
+    COURSE_KIT_DEFINITIONS.map(createCourseKitProgressConfig),
+  );
 });
 
 test("every published learning outcome has evidence, practice and assessment coverage", () => {

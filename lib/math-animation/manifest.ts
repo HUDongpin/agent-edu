@@ -1,5 +1,6 @@
 import {
   MATH_ANIMATION_COURSE_ID,
+  MATH_ANIMATION_VERSION,
   type MathAnimationCourseManifest,
   type MathAnimationModuleManifest,
   type MathAnimationPhaseManifest,
@@ -198,7 +199,7 @@ export const MATH_ANIMATION_MODULES = [
 
 export const MATH_ANIMATION_COURSE_MANIFEST = {
   id: MATH_ANIMATION_COURSE_ID,
-  version: "1.0.0",
+  version: MATH_ANIMATION_VERSION,
   displayNumber: 19,
   publishedOn: "2026-08-26",
   modules: MATH_ANIMATION_MODULES,

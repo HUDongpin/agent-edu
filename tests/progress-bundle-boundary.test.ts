@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import test from "node:test";
 import ts from "typescript";
@@ -134,7 +134,9 @@ function resolveClientModule(fromPath: string, specifier: string): string | null
     join(base, "index.ts"),
     join(base, "index.tsx"),
   ];
-  return candidates.find((candidate) => existsSync(candidate)) ?? null;
+  return candidates.find(
+    (candidate) => existsSync(candidate) && statSync(candidate).isFile(),
+  ) ?? null;
 }
 
 function runtimeSpecifiers(path: string): readonly string[] {
@@ -388,9 +390,12 @@ test("public progress client graph has no transitive course-content dependency",
     "components/ai-tutor/progress-store.ts",
     "components/product-management/progress-store.ts",
     "components/agent-orchestration/progress-store.ts",
+    "components/course-kit/progress-store.ts",
+    "components/ai-teaching/progress-store.ts",
+    "components/math-animation/progress-store.ts",
   ];
   const forbiddenRuntimeImports = [
-    /from\s+["']@\/lib\/(?:codex|claude|cursor|github|prompts|software-engineering|rag|mcp|make-money-with-codex|claude-income|ai-tutor|product-management|agent-orchestration)["']/,
+    /from\s+["']@\/lib\/(?:codex|claude|cursor|github|prompts|software-engineering|rag|mcp|make-money-with-codex|claude-income|ai-tutor|product-management|agent-orchestration|responsible-ai|agentic-quant-trading|ai-teaching|math-animation)["']/,
     /from\s+["'][^"']*\/(?:manifest|course|curriculum|quiz|capstone|sources|figures|copy\/[^"']+)["']/,
   ];
   for (const relativePath of clientFiles) {
@@ -402,10 +407,17 @@ test("public progress client graph has no transitive course-content dependency",
   }
 
   const graph = clientDependencyGraph("components/progress-adapters.ts");
-  const courseLibrary = /^lib\/(?:codex|claude|cursor|grok|github|prompts|software-engineering|rag|mcp|make-money-with-codex|claude-income|ai-tutor|product-management|agent-orchestration)\//u;
+  const courseLibrary = /^lib\/(?:codex|claude|cursor|grok|github|prompts|software-engineering|rag|mcp|make-money-with-codex|claude-income|ai-tutor|product-management|agent-orchestration|responsible-ai|agentic-quant-trading|ai-teaching|math-animation)\//u;
   const allowedCourseRuntime = new Set([
     "lib/grok/progress.ts",
     "lib/prompts/progress-keys.ts",
+    "lib/responsible-ai/progress.ts",
+    "lib/agentic-quant-trading/progress.ts",
+    "lib/ai-teaching/progress.ts",
+    "lib/ai-teaching/contracts.ts",
+    "lib/ai-teaching/types.ts",
+    "lib/math-animation/progress.ts",
+    "lib/math-animation/types.ts",
   ]);
   const leakedCourseFiles = graph.filter(
     (path) => courseLibrary.test(path) && !allowedCourseRuntime.has(path),

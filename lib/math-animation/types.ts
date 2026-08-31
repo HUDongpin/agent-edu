@@ -1,4 +1,5 @@
 export const MATH_ANIMATION_COURSE_ID = "math-animation" as const;
+export const MATH_ANIMATION_VERSION = "1.0.0" as const;
 
 export const MATH_ANIMATION_LOCALES = [
   "en",

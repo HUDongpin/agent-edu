@@ -7,7 +7,7 @@ import {
   summarizeOutput,
 } from "../scripts/run-blocked-course-backlog.mjs";
 
-test("blocked backlog derives exactly the three registry-owned development and release gates", () => {
+test("blocked backlog derives every registry-owned development and release gate", () => {
   const contract = JSON.parse(readFileSync("config/course-release-surface.json", "utf8"));
   const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
   const plan: Array<{
@@ -17,13 +17,25 @@ test("blocked backlog derives exactly the three registry-owned development and r
     releaseGate: string;
   }> = deriveBlockedGatePlan(contract, packageJson);
 
-  assert.deepEqual(plan.map((course) => course.courseId), ["claude", "codex", "cursor"]);
+  assert.deepEqual(plan.map((course) => course.courseId), [
+    "agentic-quant-trading",
+    "ai-teaching",
+    "claude",
+    "codex",
+    "cursor",
+    "math-animation",
+    "responsible-ai",
+  ]);
   assert.deepEqual(
     plan.map((course) => [course.devGate, course.releaseGate]),
     [
+      ["npm run agentic-quant-trading:check", "npm run agentic-quant-trading:check:release"],
+      ["npm run ai-teaching:check", "npm run ai-teaching:check:release"],
       ["npm run claude:check", "npm run claude:check:release"],
       ["npm run codex:check", "npm run codex:check:release"],
       ["npm run cursor:check", "npm run cursor:check:release"],
+      ["npm run math-animation:check", "npm run math-animation:check:release"],
+      ["npm run responsible-ai:check", "npm run responsible-ai:check:release"],
     ],
   );
   assert.ok(plan.every((course) => course.declaredBlockers.length > 0));
@@ -38,7 +50,14 @@ test("blocked backlog derives exactly the three registry-owned development and r
     deriveBlockedGatePlan(onePublished, packageJson).map(
       (course: { courseId: string }) => course.courseId,
     ),
-    ["claude", "cursor"],
+    [
+      "agentic-quant-trading",
+      "ai-teaching",
+      "claude",
+      "cursor",
+      "math-animation",
+      "responsible-ai",
+    ],
   );
   assert.deepEqual(
     deriveBlockedGatePlan({ ...contract, courses: [] }, packageJson),

@@ -7,7 +7,7 @@ import {
   MATH_ANIMATION_PROGRESS_VERSION,
   MATH_ANIMATION_PROGRESS_VERSION_KEY,
   normalizeMathAnimationProgress,
-} from "@/lib/math-animation";
+} from "@/lib/math-animation/progress";
 import type { PersistenceResult } from "@/lib/public-progress-contract";
 import { verifySharedProgressReset } from "@/lib/progress-persistence";
 import {

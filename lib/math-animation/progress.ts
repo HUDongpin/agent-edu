@@ -1,12 +1,12 @@
-import { MATH_ANIMATION_COURSE_MANIFEST } from "./manifest";
 import {
   MATH_ANIMATION_MODULE_SLUGS,
+  MATH_ANIMATION_VERSION,
   type MathAnimationModuleSlug,
 } from "./types";
 
 export const MATH_ANIMATION_PROGRESS_PREFIX = "math-animation.";
 export const MATH_ANIMATION_PROGRESS_VERSION =
-  `${MATH_ANIMATION_COURSE_MANIFEST.version}:progress-v1`;
+  `${MATH_ANIMATION_VERSION}:progress-v1`;
 export const MATH_ANIMATION_PROGRESS_VERSION_KEY =
   "math-animation.progress.version";
 export const MATH_ANIMATION_PROGRESS_RESET_GENERATION_KEY =
@@ -31,7 +31,7 @@ export const MATH_ANIMATION_MAX_ARTIFACT_EVIDENCE_LENGTH = 2_048;
 export const MATH_ANIMATION_MAX_VERIFICATION_EVIDENCE_LENGTH = 2_048;
 export const MATH_ANIMATION_MAX_CAPSTONE_EVIDENCE_LENGTH = 5_000;
 export const MATH_ANIMATION_PROGRESS_MILESTONES =
-  MATH_ANIMATION_COURSE_MANIFEST.modules.length + 2;
+  MATH_ANIMATION_MODULE_SLUGS.length + 2;
 
 export function mathAnimationModuleProgressKey(slug: MathAnimationModuleSlug): string {
   return `math-animation.module.${slug}.complete`;
@@ -212,8 +212,8 @@ export function normalizeMathAnimationProgress(
 
 export function mathAnimationProgressPercent(progress: Record<string, unknown>): number {
   if (progress[MATH_ANIMATION_PROGRESS_VERSION_KEY] !== MATH_ANIMATION_PROGRESS_VERSION) return 0;
-  const modules = MATH_ANIMATION_COURSE_MANIFEST.modules.filter(
-    (module) => progress[mathAnimationModuleProgressKey(module.slug)] === true,
+  const modules = MATH_ANIMATION_MODULE_SLUGS.filter(
+    (slug) => progress[mathAnimationModuleProgressKey(slug)] === true,
   ).length;
   const quiz = progress[MATH_ANIMATION_QUIZ_PASSED_KEY] === true ? 1 : 0;
   const capstone = progress[MATH_ANIMATION_CAPSTONE_KEY] === true ? 1 : 0;
