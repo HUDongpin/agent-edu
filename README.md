@@ -233,7 +233,15 @@ Reports, per-locale native-review CSVs, screenshots, accessibility snapshots and
 
 ## Contributing a section
 
-New sections are genuinely welcome — *tool design*, *cost engineering* and *human-in-the-loop design* are already named as gaps in the catalogue. Here's the whole recipe.
+New sections are genuinely welcome. Here's the whole recipe.
+
+Three older standalone-course proposals—*tool design*, *cost engineering* and
+*human-in-the-loop design*—are preserved in
+[`docs/course-briefs/`](docs/course-briefs/) as dated design inputs. They are not
+current catalogue rows, roadmap commitments, or publication authority. The
+release registry remains the source of truth, and every dated repository claim
+in those briefs must be revalidated before reuse. The handbook-section recipe
+below is not the implementation route for those standalone proposals.
 
 **1. Claim a colour.** Three tokens in each of the **three** theme blocks in `app/globals.css` — `:root`, the `prefers-color-scheme: dark` block, **and** `:root[data-theme="dark"]`. All three, or your section goes invisible for anyone who toggled the theme by hand. The handbook's own hues are in the second set of blocks, under the `the handbook` banner comment.
 
