@@ -1758,6 +1758,8 @@ const RECALL={
       score++; streak++; best=Math.max(best,streak);
     }
     $('#gScore').textContent=score; $('#gStreak').textContent=streak;
+    // the tenth submitted brief is the completion the copy promises; the click that follows it is not
+    if (at===deck.length-1){ recordHandbookControlRoomFinish(score); if (window.__paintProgress) window.__paintProgress(); }
     progress();
     $('#gFeedback').innerHTML=
       '<div class="gfb '+(ok?'right':'wrong')+'">'+
@@ -1773,8 +1775,6 @@ const RECALL={
   $('#gRestart').addEventListener('click',start);
 
   function finish(){
-    recordHandbookControlRoomFinish(score);
-    if (window.__paintProgress) window.__paintProgress();
     $('#gStage').hidden=true;
     const e=$('#gEnd'); e.hidden=false;
     const pct=Math.round(score/deck.length*100);

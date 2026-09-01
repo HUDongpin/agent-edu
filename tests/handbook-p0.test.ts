@@ -142,6 +142,27 @@ test("Handbook visits and Control Room finishes write only through progress v2",
   assert.doesNotMatch(behaviour, /const PROG='ae\.progress'|localStorage\.getItem\('tch\.seen'\)/);
 });
 
+test("Control Room completion is recorded on the tenth submitted brief, not the score click", () => {
+  // c.handbook.evidence ships in all nine locales as "Completion means submitting
+  // all 10 briefs, not merely opening sections." A reader who answers the tenth and
+  // closes the tab has done that, so the write sits in answer() under the last-brief
+  // guard - not in finish(), which is only reached by clicking through to the score.
+  const calls = behaviour.match(/recordHandbookControlRoomFinish\(score\)/g) ?? [];
+  assert.equal(calls.length, 1, "completion must be recorded from exactly one place");
+  assert.match(behaviour, /at===deck\.length-1\)\s*\{\s*recordHandbookControlRoomFinish\(score\)/);
+  assert.ok(
+    behaviour.indexOf("recordHandbookControlRoomFinish(score)") < behaviour.indexOf("function finish(){"),
+    "the record belongs in answer(), ahead of finish()",
+  );
+
+  const locales = readdirSync("messages").filter((name) => name.endsWith(".json"));
+  assert.equal(locales.length, 9);
+  for (const file of locales) {
+    const messages = JSON.parse(readFileSync(`messages/${file}`, "utf8")) as Record<string, string>;
+    assert.ok(messages["c.handbook.evidence"], `${file} no longer promises the ten briefs`);
+  }
+});
+
 test("removed live-mode message keys stay removed in all nine locales", () => {
   for (const namespace of ["handbook", "widgets"]) {
     const files = readdirSync(`messages/${namespace}`).filter((file) => file.endsWith(".json"));
