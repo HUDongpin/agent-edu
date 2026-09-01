@@ -53,8 +53,10 @@ proves every key resolves, that the placeholders a message declares are the
 values the call site passes in every language, that a plural carries the forms
 its language needs, and that every id the file queries still exists in
 `markup.ts`. It also carries a ratchet on how much copy is still hard-coded:
-that number may fall and never rise, which is what lets the remaining widgets
-move across one at a time without the half-finished state rotting.
+that number may fall and never rise, which let the widgets move across one at
+a time without the half-finished state rotting. They have all moved: the
+ratchet is at zero, so it is now a floor rather than an allowance — put a
+reader-facing literal in `behaviour.ts` and the check fails.
 
 ## Static export
 `output: "export"`. No server, no middleware, no route handlers, no server

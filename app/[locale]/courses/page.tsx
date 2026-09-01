@@ -26,9 +26,8 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   const t = translator(await getMessages(locale));
 
-  /* Only the courses that exist. The three `soon` entries are greyed out on
-     the page for a reason; a crawler should be told the same thing the
-     reader is. */
+  /* Only the courses that exist. `soon` entries are greyed out on the page
+     for a reason; a crawler should be told the same thing the reader is. */
   const list = {
     "@context": "https://schema.org",
     "@type": "ItemList",
