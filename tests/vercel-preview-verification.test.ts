@@ -6,6 +6,7 @@ import {
   assertTargetCspStage,
   buildPreviewPlan,
   cspHeaderFindings,
+  closePreviewBrowserPage,
   deploymentMetadataPairFindings,
   deploymentMetadataMatches,
   isExpectedReportOnlyCspDiagnostic,
@@ -322,6 +323,35 @@ test("browser OIDC routing adds the token only to the verified origin and contai
   });
   await routeOriginBoundRequest(crossOrigin.route, deploymentOrigin, token);
   assert.deepEqual(crossOrigin.calls, [{ method: "continue", options: { headers: {} } }]);
+});
+
+test("Preview browser teardown removes OIDC routes before closing the page", async () => {
+  const withRouteCalls: string[] = [];
+  const withRoute = {
+    unrouteAll: async (options: unknown) => {
+      withRouteCalls.push(`unrouteAll:${JSON.stringify(options)}`);
+    },
+    close: async () => {
+      withRouteCalls.push("close");
+    },
+  };
+  await closePreviewBrowserPage(withRoute, true);
+  assert.deepEqual(withRouteCalls, [
+    'unrouteAll:{"behavior":"ignoreErrors"}',
+    "close",
+  ]);
+
+  const withoutRouteCalls: string[] = [];
+  const withoutRoute = {
+    unrouteAll: async () => {
+      withoutRouteCalls.push("unrouteAll");
+    },
+    close: async () => {
+      withoutRouteCalls.push("close");
+    },
+  };
+  await closePreviewBrowserPage(withoutRoute, false);
+  assert.deepEqual(withoutRouteCalls, ["close"]);
 });
 
 test("production metadata must agree across the custom and unique deployment origins", () => {

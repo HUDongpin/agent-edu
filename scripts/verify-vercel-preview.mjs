@@ -653,6 +653,23 @@ export async function routeOriginBoundRequest(route, deploymentOrigin, trustedOi
   await route.continue({ headers });
 }
 
+/**
+ * Close a browser page after verification without leaving an OIDC route
+ * callback running against a disposed request context.
+ *
+ * @param {{
+ *   unrouteAll: (options?: { behavior?: "wait" | "ignoreErrors" | "default" }) => Promise<void>,
+ *   close: () => Promise<void>,
+ * }} page
+ * @param {boolean} hasOidcRoute
+ */
+export async function closePreviewBrowserPage(page, hasOidcRoute) {
+  if (hasOidcRoute) {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  }
+  await page.close();
+}
+
 async function verifyBrowserConsole(
   paths,
   deploymentOrigin,
@@ -668,12 +685,14 @@ async function verifyBrowserConsole(
       const page = await browser.newPage({
         serviceWorkers: "block",
       });
+      let hasOidcRoute = false;
       if (trustedOidcToken) {
         await page.route("**/*", (route) => routeOriginBoundRequest(
           route,
           deploymentOrigin,
           trustedOidcToken,
         ));
+        hasOidcRoute = true;
       }
       let consoleErrors = 0;
       let pageErrors = 0;
@@ -712,7 +731,7 @@ async function verifyBrowserConsole(
       } catch {
         addFailure(report, "browser-navigation", path);
       } finally {
-        await page.close();
+        await closePreviewBrowserPage(page, hasOidcRoute);
       }
       report.checks.browserDocuments += 1;
     });
