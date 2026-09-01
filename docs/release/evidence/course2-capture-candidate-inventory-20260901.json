@@ -1,0 +1,54 @@
+{
+  "schema": "agent-edu.course2-capture-candidate-inventory.v1",
+  "status": "candidate-audit-complete-human-review-and-rights-pending",
+  "observedAt": "2026-09-01",
+  "courseId": "how-to-use-codex",
+  "automatedChecksDoNotConstituteApproval": true,
+  "humanReview": {
+    "privacyReview": "pending",
+    "pixelReviewAt200Percent": "pending",
+    "altAndCaptionReview": "pending",
+    "publicationRightsReview": "pending",
+    "appToIdeSurfaceDecision": "pending"
+  },
+  "candidateSource": {
+    "surface": "ide",
+    "productVersion": "Codex VS Code extension 26.820.60940",
+    "operatingSystem": "macOS 26.6.2 (25G83)",
+    "capturedOn": "2026-08-29",
+    "candidateCount": 11,
+    "allAutomatedAuditsPassed": true,
+    "allCandidatesPublishable": false
+  },
+  "candidates": [
+    { "figureId": "fig-03", "masterBytes": 881968, "masterSha256": "1a24c94a23c2beed91eb85e1b28737115b1fc9d50b0e763215c77e1de2690c4b", "preferredBytes": 493099, "preferredSha256": "06f427dc3e4e18a76b808531c8d689514b0fea1c53099558cbfe0f468cc3fde8" },
+    { "figureId": "fig-05", "masterBytes": 910273, "masterSha256": "d0a114ec05cd4a4baf618e2e60c020be67e7cbf071b3ebc1d3314a5fd9b7a6af", "preferredBytes": 499536, "preferredSha256": "c758dfd79fcefaae7c375af2a5210686bfb919b8629fabb522e261faec9d5eed" },
+    { "figureId": "fig-06", "masterBytes": 496864, "masterSha256": "42fc114dfa1eae3d63e0fb30bf5e019262d1da1337c4d415eeb77dfc1843d8af" },
+    { "figureId": "fig-07", "masterBytes": 414469, "masterSha256": "393dd7aecc266b10225cf27c2330337161e8c3dfb3a66e25e0d35ddda98055c9" },
+    { "figureId": "fig-08", "masterBytes": 552883, "masterSha256": "cd840484ac5e9c83b8497a01fc2b9f8c633c6abe2677615c63aba53b3f6d43d2", "preferredBytes": 495839, "preferredSha256": "4164be5185d94c0f5ee41830fa1250ca14c2a5aff386ab4eeb181ecc578fbf49" },
+    { "figureId": "fig-09", "masterBytes": 458113, "masterSha256": "079592a4aad512115ff3a42e40b2a5c9007b9b2c5623a0682ebd75aa3fa5ded2" },
+    { "figureId": "fig-10", "masterBytes": 483041, "masterSha256": "a8e789935a7537cbc1bf211fccc683588d82742bfe20a862a07e626ddff1a209" },
+    { "figureId": "fig-11", "masterBytes": 520608, "masterSha256": "6e554aa34fb73af52b7a6473ace15e223fd276e43e464b801d0aaf34037a9661", "preferredBytes": 496229, "preferredSha256": "80210678b902c25e425e9fe2e72a47a8d835f4443f60a6381eddecf3f3ac7488" },
+    { "figureId": "fig-12", "masterBytes": 596937, "masterSha256": "afa00df7641befdff31e892f4e9b64f3049b95b5c8019d7e73b26faa2d561c9c", "preferredBytes": 499637, "preferredSha256": "5dcbd1cb5bf9ce8f90a03ea27a0f60b7652e7270d6aa17ecd99e9211cba044ab" },
+    { "figureId": "fig-20", "masterBytes": 437850, "masterSha256": "84a907b354559844dd339d817380d8a9b457dda033b10b832268c7dc97d54ae4" },
+    { "figureId": "fig-21", "masterBytes": 484908, "masterSha256": "b15e00db1589ec1e6f204604ca973c486a6f1f713e1bd4760fe66972a72e8ae4" }
+  ],
+  "missingFigureIds": ["fig-01", "fig-02", "fig-04", "fig-18", "fig-19", "fig-23", "fig-24"],
+  "remoteAuthority": {
+    "repository": "HUDongpin/aicourse-codex-demo-capture",
+    "visibility": "private",
+    "defaultBranch": "main",
+    "mainSha": "4d391da60542a9baaf90a618176a8f8e34c3ca39",
+    "workflowRuns": 0,
+    "pullRequests": 0,
+    "repositorySecrets": 0,
+    "codexCloudConnected": false,
+    "workflowDispatchPerformed": false
+  },
+  "releaseEffect": {
+    "figureManifestChanged": false,
+    "publicAssetsChanged": false,
+    "releaseAuthorized": false,
+    "course2ReleaseBlockerCount": 18
+  }
+}
