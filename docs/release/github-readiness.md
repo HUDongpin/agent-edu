@@ -15,6 +15,16 @@ enforced. The precheck changed no repository setting and leaves the formal gate
 pending; a later independently reviewed ruleset/protection record is still
 required.
 
+That historical observation is now superseded for repository-configuration
+purposes by the read-only REST and GraphQL observation in
+`docs/release/evidence/github-required-checks-observation-20260902.json`.
+At `2026-09-02T01:14:04Z`, `main` was protected by rule
+`BPR_kwDOT7fvJ84E5_PT`; strict status checks, administrator enforcement, and all
+five required contexts were active, while force-pushes and deletions were
+disabled. The machine release record deliberately remains pending until the
+complete final target is frozen and this evidence can carry its exact candidate,
+checkpoint, integration-branch, deployment, and workflow bindings.
+
 - Protected branch:
 - Ruleset/branch-protection record ID:
 - `quality` required: yes / no
