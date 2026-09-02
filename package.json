@@ -41,7 +41,8 @@
     "report": "tsx course/report.ts",
     "handbook:extract": "node scripts/extract-handbook.mjs",
     "handbook:check": "node scripts/extract-handbook.mjs --check",
-    "widgets:check": "node scripts/check-widgets.mjs"
+    "widgets:check": "node scripts/check-widgets.mjs",
+    "review:packet": "node scripts/make-review-packet.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",

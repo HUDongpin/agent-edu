@@ -90,6 +90,12 @@
         "reason": "Agents is the same correctly spelled French plural noun."
       },
       {
+        "catalog": "site",
+        "key": "cat.count.sections",
+        "locales": ["fr"],
+        "reason": "sections is the same correctly spelled French plural noun, as already allowed for the w.progress.sections counter it mirrors."
+      },
+      {
         "catalog": "handbook",
         "key": "hb.body.p-code.10",
         "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],

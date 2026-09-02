@@ -53,8 +53,10 @@ proves every key resolves, that the placeholders a message declares are the
 values the call site passes in every language, that a plural carries the forms
 its language needs, and that every id the file queries still exists in
 `markup.ts`. It also carries a ratchet on how much copy is still hard-coded:
-that number may fall and never rise, which is what lets the remaining widgets
-move across one at a time without the half-finished state rotting.
+that number may fall and never rise, which let the widgets move across one at
+a time without the half-finished state rotting. They have all moved: the
+ratchet is at zero, so it is now a floor rather than an allowance — put a
+reader-facing literal in `behaviour.ts` and the check fails.
 
 ## Static export
 `output: "export"`. No server, no middleware, no route handlers, no server
@@ -67,5 +69,9 @@ British spelling. Sentence case in headings. Prefer deleting a widget over addin
 one. Do not rewrite existing copy to satisfy a linter.
 
 ## Before you say you're done
-`npm run build` must pass and still emit 50 pages. Never commit `All API Keys.docx`
-or anything matching the secrets block in `.gitignore`.
+`npm run build` must pass, and `npm run routes:check` must agree with
+`config/route-manifest.json` — that checker is the gate, not a number written
+down here. It currently reports 66 public + 2 internal = 68. The count moves by
+nine every time a localised path is added, so check it rather than trusting this
+sentence. Never commit `All API Keys.docx` or anything matching the secrets
+block in `.gitignore`.

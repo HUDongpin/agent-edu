@@ -129,6 +129,8 @@ headers. A green run cannot prove that GitHub made the jobs required.
 ## Forms
 
 - `native-review-form.md` — one signed copy for each of eight non-English locales.
+- `native-review-packet.md` — how to generate the side-by-side working aid that
+  reviewer uses, and what a review costs in source words. Not evidence.
 - `arabic-rtl-matrix.md` — the 979/980 breakpoint plus 390/1440 representative paths.
 - `provider-canary.md` — low-limit real Provider run and reconciliation.
 - `csp-verification.md` — executable report-only → enforced transition plus
