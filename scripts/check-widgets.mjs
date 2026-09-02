@@ -411,8 +411,17 @@ if (railOrder.length < 2) {
   if (markupIds.size) fail("could not read the rail order out of markup.ts — the chain check did not run");
 } else {
   railOrder.forEach((name, i) => {
-    if (i === 0) return; // the hub opens the sequence; it has no back/forward pair
     const nav = sectionNav(name);
+    /* The hub opens the sequence, so it carries a forward button and an empty
+       span where a back button would sit. That one pointer still has to agree
+       with the rail: unchecked, "Next" can leave the hub in the wrong place
+       and every later panel still reads as correct. */
+    if (i === 0) {
+      if (!nav || !nav.length) { chain.push(`p-${name} has no forward button`); return; }
+      const fwd = nav[nav.length - 1];
+      if (fwd !== railOrder[1]) chain.push(`p-${name} forward goes to ${fwd}, the rail says ${railOrder[1]}`);
+      return;
+    }
     if (!nav || nav.length < 2) { chain.push(`p-${name} has no back/forward pair`); return; }
     const wantBack = railOrder[i - 1];
     const wantFwd = i + 1 < railOrder.length ? railOrder[i + 1] : railOrder[0];
@@ -423,7 +432,7 @@ if (railOrder.length < 2) {
   /* Stated as the reader experiences it, so a rail entry that nothing links
      to reads as unreachable rather than as an off-by-one somewhere. */
   const walked = new Set([railOrder[0]]);
-  let cur = railOrder[1];
+  let cur = sectionNav(railOrder[0])?.slice(-1)[0];
   while (cur && !walked.has(cur)) { walked.add(cur); cur = sectionNav(cur)?.[1]; }
   const unreached = railOrder.filter((r) => !walked.has(r));
   if (unreached.length) {
