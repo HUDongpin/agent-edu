@@ -25,7 +25,7 @@ Then watch the token count per step. Every turn re-sends the entire transcript, 
 
 ## Why you are writing this by hand
 
-The SDK ships a tool runner (`client.beta.messages.tool_runner`) that does this loop for you, and in a real project you should probably use it — it handles retries, streaming and per-turn hooks properly.
+The SDK ships a tool runner (`client.beta.messages.toolRunner`) that does this loop for you, and in a real project you should probably use it — it handles retries, streaming and per-turn hooks properly.
 
 You are writing it manually once because the loop *is* the concept. After this stage, "an agent" should read as what it is: a while-loop, a list of tools, and a stopping rule.
 

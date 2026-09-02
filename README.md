@@ -143,7 +143,7 @@ FC.draw($('#fcYours'), {
 
 ### Before you open a PR
 
-`npm run build`, `npm run routes:check` and `npm run handbook:check` must pass. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported from the verified single-file build and contain tightly coupled DOM queries: fix a real bug in place, in the smallest diff you can, and do not rename an id, reformat, or turn the port into JSX as a side effect.
+`npm run build`, `npm run routes:check` and `npm run handbook:check` must pass. If you touched anything under `course/`, so must `npm run prose:check` — it reads the stage READMEs the compiler never opens and fails when they name a file or a function the tree does not have. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported from the verified single-file build and contain tightly coupled DOM queries: fix a real bug in place, in the smallest diff you can, and do not rename an id, reformat, or turn the port into JSX as a side effect.
 
 Then the checks used on every change to the handbook. Open the page and paste them into the browser console:
 

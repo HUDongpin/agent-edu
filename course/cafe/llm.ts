@@ -232,9 +232,17 @@ export async function ask<T>(prompt: string, opts: AskOptions = {}): Promise<str
     // thinking and returns an empty string. Say so, rather than letting an
     // empty reply fail somewhere less obvious.
     if (!text.trim() && response.stop_reason === "max_tokens") {
+      // The second remedy is vendor-specific and must not be stated as a
+      // general one. On DeepSeek, effort "low" maps to thinking mode off, so
+      // it really does stop the spend. On Anthropic, thinking stays on at
+      // every effort level — low only makes it shorter — so the honest advice
+      // there is a bigger budget first, less effort second.
+      const remedy = PROVIDER === "deepseek"
+        ? 'pass effort:"low" to turn thinking off'
+        : 'pass a lower effort so it thinks for less';
       throw new Error(
         `${CFG.label} used all ${maxTokens} tokens on hidden reasoning and left ` +
-        `no answer. Raise maxTokens, or pass effort:"low" to turn thinking off.`);
+        `no answer. Raise maxTokens, or ${remedy}.`);
     }
   }
 

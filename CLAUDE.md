@@ -58,6 +58,25 @@ a time without the half-finished state rotting. They have all moved: the
 ratchet is at zero, so it is now a floor rather than an allowance — put a
 reader-facing literal in `behaviour.ts` and the check fails.
 
+## Course prose
+`course/**/*.md` names real files and real functions, and the compiler never
+opens a README — a rename is silent here in a way it is nowhere else in this
+repo, because prose that has gone wrong still reads perfectly well. `npm run
+prose:check` is the gate: every path resolves, every identifier exists in
+`course/**/*.ts` or in the `@anthropic-ai/sdk` types, an identifier named in
+the same paragraph as one of the course's own files is *in* that file, and
+`_leading_underscore` names and `name=value` keyword arguments fail outright
+as leftovers from the Python original. It found `tool_runner` for
+`toolRunner` and `handleOrder` for `takeOrder` on its first run.
+
+Rename a course export and the gate tells you which paragraph now lies. Do not
+answer it by loosening the checker: `docs/course-briefs/` is out of scope on
+purpose — those specify courses that do not exist yet — and that exemption is
+the only one, because a checker that drowns in false positives gets switched
+off. `tests/course-prose.test.ts` watches each of its four rules fail on the
+prose it was written to catch, so weakening one is a red test rather than a
+quiet regression.
+
 ## Static export
 `output: "export"`. No server, no middleware, no route handlers, no server
 actions, no `next/image` optimiser. The lab calls the model provider straight
@@ -69,7 +88,8 @@ British spelling. Sentence case in headings. Prefer deleting a widget over addin
 one. Do not rewrite existing copy to satisfy a linter.
 
 ## Before you say you're done
-`npm run build` must pass, and `npm run routes:check` must agree with
+`npm run build` must pass, `npm run prose:check` must pass if you touched
+`course/`, and `npm run routes:check` must agree with
 `config/route-manifest.json` — that checker is the gate, not a number written
 down here. It currently reports 66 public + 2 internal = 68. The count moves by
 nine every time a localised path is added, so check it rather than trusting this
