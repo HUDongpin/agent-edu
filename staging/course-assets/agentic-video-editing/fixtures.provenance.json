@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "aicourse.public-fixtures.provenance.v2",
+  "courseId": "agentic-video-editing",
+  "courseVersion": "1.2.0",
+  "fixtureSetVersion": "1.2.0",
+  "verifiedOn": "2026-08-28",
+  "selfHashExcluded": true,
+  "rights": {
+    "basis": "project-authored-original-fixture",
+    "repositoryLicense": "MIT",
+    "containsThirdPartyCode": false,
+    "containsThirdPartyMedia": false,
+    "containsPersonalData": false,
+    "containsPrivateInput": false,
+    "containsModelOutput": false,
+    "shipsFrozenReferenceMedia": true
+  },
+  "scope": {
+    "browserNetworkAllowed": false,
+    "browserMediaUploadAllowed": false,
+    "authorizesLearnerMediaUse": false,
+    "authorizesExecution": false,
+    "authorizesPublication": false,
+    "syntheticFixtureDecision": "do-not-publish",
+    "unknownRightsDefault": "block"
+  },
+  "files": [
+    {
+      "path": "NOTICE.md",
+      "sha256": "fce0c063520e03137c22277be9f0765453e0cf1cca4a4e8ee1cb4259f1b0223d",
+      "byteLength": 9481,
+      "mediaType": "text/markdown",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Project-authored rights, media, runtime, learner-media, and do-not-publish boundary."
+    },
+    {
+      "path": "artifact-fixtures.v1.json",
+      "sha256": "5dd249bc1d5e3e3f4f01c81be074a7e3cbc544f878f47324813820f36ab6713d",
+      "byteLength": 14204,
+      "mediaType": "application/json",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Legacy fixture-name adapter retained only as inert beta-migration evidence; completion uses stable v2 artifact IDs and semantic validators."
+    },
+    {
+      "path": "artifact-submission.schema.json",
+      "sha256": "d71135e40c5173c6246e1070699ecff47c9214c9606bd1f62ee274e3a77541b0",
+      "byteLength": 4661,
+      "mediaType": "application/schema+json",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Artifact envelope, receipt, semantic hash, dependency, and review-decision contract."
+    },
+    {
+      "path": "creative-brief.fixture.json",
+      "sha256": "0b36db64da9d0b4422338288f3dcaf084df0ef6460ba5766e28dbc864cb4aa8c",
+      "byteLength": 1719,
+      "mediaType": "application/json",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Project-authored creative brief fixture."
+    },
+    {
+      "path": "delivery-contract.schema.json",
+      "sha256": "fb82aa98c91cff0919e2e77cb103ae65ba57a2e2f82426503005a6a88e344b21",
+      "byteLength": 4767,
+      "mediaType": "application/schema+json",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Destination, caption, audio, crop, accessibility, and color delivery matrix schema."
+    },
+    {
+      "path": "edit-plan.schema.json",
+      "sha256": "8d1554f88872ec14263c6acdcc690062c35d50cb517047f5bb3862738842fc05",
+      "byteLength": 5140,
+      "mediaType": "application/schema+json",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Blocked selection-only browser teaching plan v2."
+    },
+    {
+      "path": "edit-plan-v3.schema.json",
+      "sha256": "d80228a1f370bf9564a69836d6cf8d52ef643e7124e2ee15c700a73004d7b576",
+      "byteLength": 13882,
+      "mediaType": "application/schema+json",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Tool-neutral production Edit Plan v3 schema."
+    },
+    {
+      "path": "lab/fixture-manifest.v1.json",
+      "sha256": "4381d55a09c8950b93029a3c2cd17268fab83495802301d02f5c0792dd4a6195",
+      "byteLength": 3803,
+      "mediaType": "application/json",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Nested hash closure for the original audiovisual fixture, frozen media, lab contracts, and failure ledger."
+    },
+    {
+      "path": "media-manifest.fixture.json",
+      "sha256": "ad1762d6be5f9070eb6b62c7159a5af3ff508409e0fa1f0fb88294eb8cef5786",
+      "byteLength": 1834,
+      "mediaType": "application/json",
+      "origin": "project-authored-original-fixture",
+      "purpose": "JSON view of the v2 first-party frozen-media intake record."
+    },
+    {
+      "path": "media-manifest.fixture.yaml",
+      "sha256": "e56e37d566844228aec0c729480d11bd8c73379111788d885d6ece9d932d1c1c",
+      "byteLength": 1535,
+      "mediaType": "application/yaml",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Canonical editable YAML v2 first-party frozen-media intake record."
+    },
+    {
+      "path": "qc-checklist.md",
+      "sha256": "b5d449e925c426323a586b78b629fc5a481e8577779e6e782b6d18d54d91fafa",
+      "byteLength": 14944,
+      "mediaType": "text/markdown",
+      "origin": "project-authored-original-fixture",
+      "purpose": "Bilingual technical, semantic, editorial, audio, caption, color, accessibility, rights/privacy, destination, and release review guidance."
+    }
+  ],
+  "integrityNote": "This manifest intentionally excludes its own bytes. SHA-256 proves equality to this reviewed fixture snapshot; it does not prove truth, rights, consent, accessibility, editorial quality, or release authority. The nested lab manifest closes the frozen media set."
+}

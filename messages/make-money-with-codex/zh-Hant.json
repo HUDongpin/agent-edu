@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "如何運用 Codex 賺錢",
+    "shortTitle": "用 Codex 賺錢",
+    "languageNotice": "語言說明：僅導覽、課程標題、單元標題與課次標題已在地化。經稽核的課次內文、練習、評量、圖示、來源清冊與互動工具仍維持英文；獨立母語人士審校尚待完成。"
+  },
+  "availability": {
+    "contentLanguage": "en",
+    "localizedScope": "navigation-and-titles",
+    "reviewStatus": "pending-independent-native-review"
+  },
+  "ui": {
+    "course": "課程",
+    "courses": "課程",
+    "courseOutline": "課程大綱",
+    "lesson": "課次",
+    "lessons": "堂課",
+    "minutes": "分鐘",
+    "guidedWork": "引導式實作",
+    "authenticUi": "真實的 Codex 介面或實際終端紀錄圖示",
+    "evidenceVerified": "證據已核驗",
+    "startCourse": "從證據邊界開始",
+    "inspectLessons": "查看所有課次",
+    "curriculum": "課程內容",
+    "time": "時長",
+    "output": "產出",
+    "evidence": "證據",
+    "boundedSources": "有明確邊界的來源",
+    "previous": "上一課",
+    "next": "下一課",
+    "courseDashboard": "課程總覽",
+    "reviewEvidencePath": "檢視你的證據路徑",
+    "backToCatalog": "課程",
+    "resetConfirm": "是否只重設此瀏覽器中的第 11 門課程進度？"
+  },
+  "units": {
+    "value": {
+      "title": "價值先於程式碼"
+    },
+    "pilot": {
+      "title": "建立付費試點"
+    },
+    "sell": {
+      "title": "定價、銷售與交付"
+    },
+    "scale": {
+      "title": "在不失去控制的前提下產品化"
+    }
+  },
+  "lessons": {
+    "money-not-magic": {
+      "title": "Codex 是槓桿，不是賺錢按鈕"
+    },
+    "choose-market-wedge": {
+      "title": "選擇明確而聚焦的市場切入點"
+    },
+    "validate-before-building": {
+      "title": "建立前先驗證"
+    },
+    "write-commercial-spec": {
+      "title": "撰寫商業任務契約"
+    },
+    "protect-client-work": {
+      "title": "保護客戶工作"
+    },
+    "build-verified-pilot": {
+      "title": "建立經驗證的試點"
+    },
+    "price-for-margin": {
+      "title": "為利潤空間與風險定價"
+    },
+    "sell-with-proof": {
+      "title": "以證據銷售，而非承諾"
+    },
+    "deliver-with-control": {
+      "title": "以可控方式交付"
+    },
+    "productize-reuse": {
+      "title": "將經得起交付考驗的內容產品化"
+    },
+    "retain-and-automate": {
+      "title": "負責任地創造持續價值"
+    },
+    "launch-capstone": {
+      "title": "啟動以證據為基礎的營收試點"
+    }
+  }
+}

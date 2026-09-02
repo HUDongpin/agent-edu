@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "Codex로 수익을 창출하는 방법",
+    "shortTitle": "Codex 수익화",
+    "languageNotice": "언어 안내: 현지화된 범위는 탐색 메뉴와 과정 제목, 단원 제목, 레슨 제목뿐입니다. 감사를 거친 레슨 본문, 실습, 평가, 그림, 출처 기록부, 대화형 도구는 영어로 유지되며, 독립적인 원어민 검토는 아직 완료되지 않았습니다."
+  },
+  "availability": {
+    "contentLanguage": "en",
+    "localizedScope": "navigation-and-titles",
+    "reviewStatus": "pending-independent-native-review"
+  },
+  "ui": {
+    "course": "과정",
+    "courses": "과정",
+    "courseOutline": "과정 개요",
+    "lesson": "레슨",
+    "lessons": "레슨",
+    "minutes": "분",
+    "guidedWork": "가이드형 실습",
+    "authenticUi": "실제 Codex UI 또는 실행 기록 이미지",
+    "evidenceVerified": "검증된 증거",
+    "startCourse": "증거의 적용 범위부터 시작",
+    "inspectLessons": "모든 레슨 보기",
+    "curriculum": "커리큘럼",
+    "time": "시간",
+    "output": "산출물",
+    "evidence": "증거",
+    "boundedSources": "범위가 명시된 출처",
+    "previous": "이전",
+    "next": "다음",
+    "courseDashboard": "과정 대시보드",
+    "reviewEvidencePath": "증거 경로 검토",
+    "backToCatalog": "과정",
+    "resetConfirm": "이 브라우저에서 11번 과정의 진행 상황만 초기화할까요?"
+  },
+  "units": {
+    "value": {
+      "title": "코드보다 가치가 먼저"
+    },
+    "pilot": {
+      "title": "유료 파일럿 구축"
+    },
+    "sell": {
+      "title": "가격 책정, 판매, 납품"
+    },
+    "scale": {
+      "title": "통제력을 잃지 않고 제품화"
+    }
+  },
+  "lessons": {
+    "money-not-magic": {
+      "title": "Codex는 역량을 증폭하는 도구이지, 돈이 나오는 버튼이 아니다"
+    },
+    "choose-market-wedge": {
+      "title": "좁은 시장 진입점 선택"
+    },
+    "validate-before-building": {
+      "title": "구축 전에 검증"
+    },
+    "write-commercial-spec": {
+      "title": "상업적 작업 계약서 작성"
+    },
+    "protect-client-work": {
+      "title": "고객 작업 보호"
+    },
+    "build-verified-pilot": {
+      "title": "검증된 파일럿 구축"
+    },
+    "price-for-margin": {
+      "title": "마진과 위험을 반영한 가격 책정"
+    },
+    "sell-with-proof": {
+      "title": "약속이 아닌 증거로 판매"
+    },
+    "deliver-with-control": {
+      "title": "통제 가능한 방식으로 납품"
+    },
+    "productize-reuse": {
+      "title": "납품을 거치며 검증된 것을 제품화"
+    },
+    "retain-and-automate": {
+      "title": "책임 있게 지속적 가치를 창출"
+    },
+    "launch-capstone": {
+      "title": "증거 기반 수익 파일럿 시작"
+    }
+  }
+}

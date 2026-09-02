@@ -1,0 +1,1122 @@
+{
+  "meta": {
+    "title": "Claude richtig nutzen",
+    "kicker": "Kurs 3 · Delegieren. Beschreiben. Beurteilen. Sorgfältig handeln.",
+    "summary": "Lernen Sie Claude vom ersten Gespräch bis zu vertrauenswürdigen, wiederholbaren Arbeitsabläufen für Forschung, Schreiben, Büroarbeit, Lehre und Softwareentwicklung kennen.",
+    "audience": "Für neugierige Einsteiger und erfahrene Fachkräfte. Der Kernpfad funktioniert ohne kostenpflichtige Funktionen; kostenpflichtige und von Organisationen verwaltete Werkzeuge sind klar als Erweiterungen gekennzeichnet.",
+    "duration": "Etwa 12 bis 15 Stunden, einschließlich eines 120-minütigen Portfolio-Abschlussprojekts",
+    "sourceNote": "Claude Academy gibt die Lernabfolge vor; das aktuelle Claude Help Centre und die Produktdokumentation liefern Betriebs- und Tarifdetails. Bei Widersprüchen hat die neuere operative Quelle Vorrang. GitHub-Beispiele sind als offizielle Nachweise oder Erfahrungsbelege aus der Praxis gekennzeichnet, niemals als Wirksamkeitsnachweis.",
+    "figureNote": "Jede Abbildung zeigt eine reale, datierte Claude-Oberfläche oder -Ausgabe mit lokalen Dateien, Quellenherkunft, Datenschutzprüfung und geprüftem Hash. Sichtbare Modellnamen und Bedienelemente sind historische Belege, keine Verfügbarkeitszusagen. Unabhängiger Bildungsleitfaden; weder mit Anthropic verbunden noch von Anthropic unterstützt.",
+    "startCta": "Mit der Übersicht der Arbeitsumgebungen beginnen",
+    "resumeCta": "Ihre Claude-Praxis fortsetzen"
+  },
+  "ui": {
+    "lessons": "Lektionen",
+    "minutes": "Min.",
+    "objectives": "Lernziel",
+    "evidence": "Aufzubewahrende Nachweise",
+    "practice": "Angeleitete Übung",
+    "checkpoint": "Prüfschritt: Urteilsvermögen",
+    "sources": "Quellenverzeichnis",
+    "quiz": "Wissenscheck",
+    "previous": "Vorherige Lektion",
+    "next": "Nächste Lektion",
+    "capturePending": "Echtes UI-Bild erforderlich",
+    "optionalAdvanced": "Optionale kostenpflichtige oder fortgeschrittene Erweiterung",
+    "progress": "Fortschritt",
+    "courseProgress": "Kursfortschritt",
+    "completed": "Abgeschlossen",
+    "markComplete": "Als abgeschlossen markieren",
+    "markedComplete": "Als abgeschlossen markiert",
+    "resetProgress": "Fortschritt zurücksetzen",
+    "question": "Frage",
+    "of": "von",
+    "checkAnswer": "Antwort prüfen",
+    "checkAnswers": "Antworten prüfen",
+    "correct": "Richtig",
+    "incorrect": "Noch nicht",
+    "tryAgain": "Erneut versuchen",
+    "score": "Punktzahl",
+    "quizPassed": "Wissenscheck bestanden",
+    "quizNeedsReview": "Prüfen Sie die Nachweislinks und versuchen Sie es erneut",
+    "capstoneArtifacts": "Portfolio-Nachweise",
+    "capstoneReceipt": "Portfolio-Protokoll",
+    "artifactReady": "Nachweis bereit",
+    "rubric": "Bewertungsraster",
+    "rubricComplete": "Alle Nachweise geprüft",
+    "passingScore": "Mindestpunktzahl",
+    "weight": "Gewichtung",
+    "status": "Status",
+    "notStarted": "Nicht begonnen",
+    "printReceipt": "Protokoll drucken",
+    "browserStorageNote": "Dieser Kurs speichert in diesem Browser ausschließlich den Fortschritt des Claude-Kurses: 15 Abschlussmarkierungen für Lektionen; die beste Quizpunktzahl, den Bestehensstatus und die Version des Fragenpools; sechs Prüfmarkierungen für die Artefakte des Abschlussprojekts; vier Selbsteinschätzungswerte der Bewertungsrubrik; die Bestätigung der Prüfung kritischer Risiken; sowie die Abschlussmarkierung des Abschlussprojekts. Er speichert niemals Ihre Prompts, ausgewählten Quizantworten oder Dateien.",
+    "backToCourse": "Zurück zum Claude-Kurs",
+    "allLessons": "Alle Lektionen",
+    "recordCompletion": "Abschlussprojekt als erledigt dokumentieren",
+    "finalQuizTitle": "Abschlussprüfung mit Nachweisbezug",
+    "finalQuizIntro": "Beantworten Sie 16 Fragen, vier aus jeder Einheit. Zum Bestehen sind 13 richtige Antworten erforderlich. Die Fragen werden aus einem Pool von 30 Fragen ausgewählt; jede Erklärung verweist auf ihre Quelle.",
+    "beginQuiz": "Wissenscheck mit 16 Fragen beginnen",
+    "nextQuestion": "Nächste Frage",
+    "retryQuiz": "Einen neuen ausgewogenen Fragensatz versuchen",
+    "bestScore": "Bestes Ergebnis",
+    "passRequirement": "13 von 16 Antworten müssen richtig sein",
+    "source": "Nachweisquelle",
+    "sourceVerifiedOn": "Verifiziert",
+    "figureObservedOn": "Beobachtet",
+    "stars": "Sterne",
+    "license": "Lizenz",
+    "storageUnavailable": "Der Browserspeicher ist nicht verfügbar. Der Kurs bleibt nutzbar, der Fortschritt gilt jedoch nur für diese Sitzung.",
+    "receiptInstructions": "Prüfen Sie jedes Portfolioelement anhand des Bewertungsrasters. Dies ist eine vom Lernenden gesteuerte Selbstprüfung und kein unabhängig verifizierter Qualifikationsnachweis.",
+    "receiptSchemaLabel": "Protokollschema",
+    "fixtureVersionLabel": "Kursversion",
+    "fixtureHashLabel": "Nachweissatz",
+    "requiredChecksLabel": "Erforderliche Nachweise",
+    "pasteReceipt": "Portfolio-Nachweise",
+    "verifyReceipt": "Nachweise prüfen",
+    "receiptValid": "Portfolio-Selbstprüfung abgeschlossen",
+    "receiptInvalidJson": "Dieses Protokoll ist ungültig.",
+    "receiptWrongSchema": "Dieses Protokoll verwendet ein anderes Schema.",
+    "receiptWrongVersion": "Dieses Protokoll gehört zu einer anderen Kursversion.",
+    "receiptWrongHash": "Dieses Protokoll stimmt nicht mit dem Nachweissatz überein.",
+    "receiptIncomplete": "Prüfen Sie alle erforderlichen Portfolioelemente, bevor Sie den Abschluss dokumentieren.",
+    "downloadStarter": "Aufgabenbeschreibung für das Abschlussprojekt herunterladen",
+    "completionSummary": "Zusammenfassung des Kursabschlusses",
+    "exportSummary": "Private Zusammenfassung exportieren",
+    "finishQuiz": "Wissenscheck abschließen",
+    "questionProgressTemplate": "Frage {current} von {total}",
+    "scoreSummaryTemplate": "Punktzahl: {score} von {total}",
+    "bestScoreTemplate": "Bestes Ergebnis: {score} von {total}",
+    "resetConfirm": "Den gesamten lokal gespeicherten Fortschritt im Claude-Kurs zurücksetzen?",
+    "resetDone": "Der Fortschritt im Claude-Kurs wurde zurückgesetzt.",
+    "capstonePath": "Portfolio-Abschlussprojekt"
+  },
+  "units": {
+    "unit-1": {
+      "title": "Die Arbeit beschreiben",
+      "summary": "Wählen Sie die passende Claude-Arbeitsumgebung, verfassen Sie ein brauchbares Ergebnis-Briefing, verbessern Sie die Arbeit im Gespräch und prüfen Sie mit Urteilsvermögen, bevor Sie einer Antwort vertrauen."
+    },
+    "unit-2": {
+      "title": "Mit dauerhaftem Kontext arbeiten",
+      "summary": "Arbeiten Sie mit Dateien, Projects, Artifacts und Research und halten Sie dabei Quellgrenzen, die Prüfung der Datei im Originalformat und die Prüfung vor der Weitergabe sichtbar."
+    },
+    "unit-3": {
+      "title": "An Werkzeuge delegieren",
+      "summary": "Erweitern Sie Claude mit Skills und Connectors, delegieren Sie klar begrenzte Arbeit in Cowork und nutzen Sie Claude Code mit Inspektion, Tests, Diffs und menschlicher Prüfung."
+    },
+    "unit-4": {
+      "title": "Urteilsvermögen in der Praxis",
+      "summary": "Übertragen Sie dieselbe Nachweisschleife auf Forschung, Daten, Schreiben, Büroarbeit und Lehre und erstellen Sie anschließend ein prüfbares Portfoliopaket."
+    }
+  },
+  "lessons": {
+    "choose-your-surface": {
+      "kicker": "Lektion 1 · Übersicht der Arbeitsumgebungen",
+      "title": "Chat, Cowork oder Code bewusst auswählen",
+      "summary": "Claude bietet mehrere Arbeitsumgebungen und nicht nur ein austauschbares Textfeld. Beginnen Sie mit der einfachsten Umgebung, die zu Ergebnis, Datengrenze und erforderlicher Befugnis passt.",
+      "objective": "Unterscheiden Sie Chat, Cowork, Code und Platform und begründen Sie die Wahl einer Arbeitsumgebung für eine Aufgabe mit geringem Risiko.",
+      "sections": [
+        {
+          "heading": "Die charakteristische Funktion der Aufgabe zuordnen",
+          "body": "Verwenden Sie Chat, wenn die Arbeit von schrittweiser Verbesserung im Gespräch profitiert: erklären, entwerfen, vergleichen, eine hochgeladene Datei analysieren oder ein Artifact erstellen. Verwenden Sie Cowork, wenn eine Aufgabe in einem kostenpflichtigen Tarif mehrere Schritte oder Dateien umfasst und Claude innerhalb einer bewusst gewählten Arbeitsgrenze planen und handeln soll. Verwenden Sie Code, wenn die Aufgabe in einem Repository verankert ist und Code gelesen, Dateien bearbeitet, Befehle ausgeführt oder ein Diff geprüft werden müssen. Claude Platform ist eine Entwicklungsumgebung für Anwendungen und Agenten, nicht einfach ein weiterer persönlicher Chat. Diese Grenzen sind wichtig, weil derselbe Satz je nach Arbeitsumgebung sehr unterschiedliche Werkzeuge, Berechtigungen und Prüfpflichten bedeuten kann."
+        },
+        {
+          "heading": "Das Lernziel unabhängig vom Tarif halten",
+          "body": "Tarifzugang, Beta-Status, Organisationsrichtlinien, Geräteunterstützung und die Platzierung von Schaltflächen ändern sich. Das Kernziel setzt deshalb weder Cowork noch Research, Code oder ein bestimmtes Modell voraus. Lernende im kostenlosen Pfad können die Auswahl einer Arbeitsumgebung üben, indem sie in Chat ein Ergebnis-Briefing verfassen und erklären, wie sich die Befugnisse in einer anderen Umgebung ändern würden. Kostenpflichtige Erweiterungen bieten Gelegenheit, dieselbe Kontrollschleife anzuwenden, sind aber keine Voraussetzung für ihr Verständnis. Wenn Ihre Oberfläche von einer Abbildung abweicht, suchen Sie nach demselben Konzept — Modus, Kontext, Werkzeuge, Berechtigungen und Ausgabe — statt nach einem identischen Symbol."
+        },
+        {
+          "heading": "Vor dem Öffnen sensibler Inhalte entscheiden",
+          "body": "Klassifizieren Sie Daten und mögliche Folgen, bevor Sie einen Arbeitsbereich auswählen. Für Übungen sind synthetische oder öffentliche Materialien am sichersten. Private Forschungsdaten, Schülerakten, Kundeninformationen, Zugangsdaten, unveröffentlichte Texte und Arbeitgeberdateien können ein autorisiertes Organisationskonto, genehmigte Aufbewahrungseinstellungen oder einen vollständigen Verzicht auf den KI-Upload erfordern. Benennen Sie anschließend die erlaubte Handlung: beraten, entwerfen, lesen, bearbeiten, senden, veröffentlichen oder ausführen. Die Verfügbarkeit eines Werkzeugs erteilt noch keine Nutzungserlaubnis. Beginnen Sie nach Möglichkeit schreibgeschützt, bewahren Sie wiederherstellbare Kopien auf und behalten Sie folgenreiche externe Aktionen einer ausdrücklichen menschlichen Entscheidung vor."
+        }
+      ],
+      "practice": {
+        "title": "Erstellen Sie eine Entscheidungskarte mit vier Arbeitsumgebungen",
+        "brief": "Klassifizieren Sie vier synthetische Aufgaben – ein Konzept erklären, einen Ordner neu organisieren, einen getesteten Fehler beheben und eine kleine Anwendung erstellen – bevor Sie Claude verwenden.",
+        "steps": [
+          "Wählen Sie für jede Aufgabe Chat, Cowork, Code oder Platform und formulieren Sie das Ergebnis in einem Satz.",
+          "Listen Sie die mindestens erforderlichen Dateien, Werkzeuge, Schreibzugriffe und externen Aktionen der ausgewählten Arbeitsumgebung auf.",
+          "Wählen Sie eine Aufgabe des kostenlosen Lernpfads, führen Sie nur den ersten Schritt mit geringem Risiko aus und vergleichen Sie das Ergebnis mit Ihrer Entscheidungskarte."
+        ],
+        "evidence": [
+          "Eine vierzeilige Entscheidungskarte zu den Arbeitsumgebungen mit Ergebnis, Grenze und Befugnis.",
+          "Eine kurze Notiz, in der erläutert wird, ob der eigentliche erste Schritt Ihre Wahl bestätigt oder geändert hat."
+        ],
+        "safety": "Verwenden Sie synthetisches oder öffentliches Material. Verbinden Sie für diese Übung keine Konten, gewähren Sie keinen Schreibzugriff und laden Sie keine privaten Daten hoch."
+      },
+      "checkpoint": {
+        "prompt": "Eine Aufgabe kann sowohl in Chat als auch in Cowork erledigt werden. Sind die Arbeitsumgebungen dadurch gleichwertig?",
+        "answer": "Nein. Das Ergebnis kann sich überschneiden, aber die Ausführungsgrenzen, die verfügbaren Tools, die Autonomie, die Berechtigungen und die Nachweise, die Sie prüfen müssen, können sich erheblich unterscheiden."
+      },
+      "takeaway": "Wählen Sie die Arbeitsumgebung nach Ergebnis, Kontext, Befugnis und Überprüfungsaufwand aus – nicht danach, welche Schaltfläche am wirkungsvollsten aussieht."
+    },
+    "describe-the-outcome": {
+      "kicker": "Lektion 2 · Beschreibung",
+      "title": "Aus einem Prompt ein Ergebnis-Briefing machen",
+      "summary": "Eine brauchbare Anfrage gibt Claude genug Informationen für die nächste gute Entscheidung, ohne die Aufgabe unter irrelevanter Vorgeschichte zu begraben.",
+      "objective": "Verfassen Sie ein knappes Briefing mit Ziel, Zielgruppe, Kontext, Einschränkungen, Ausgabeform, Beispielen und Erfolgskontrollen.",
+      "sections": [
+        {
+          "heading": "Mit der gewünschten beobachtbaren Veränderung beginnen",
+          "body": "Beginnen Sie beim Ergebnis: Wer benötigt was, zu welchem Zweck, und was soll nach Abschluss der Arbeit anders sein? Geben Sie anschließend nur den Kontext an, der eine Entscheidung verändern kann. Eine Bitte wie „Verbessern Sie diesen Bericht“ lässt Zielgruppe, Problem und Abbruchkriterium offen. Ein stärkeres Briefing verlangt ein zweiseitiges Entscheidungsmemo für eine klar benannte Zielgruppe, nennt das Quellenpaket, fordert die Kennzeichnung unsicherer Behauptungen und definiert die Entscheidung, die das Memo unterstützen soll. Ein Prompt ist keine rituelle Formel. Ziel, Kontext, Aufgabe, Einschränkungen, Ausgabe, Beispiele und Erfolgskriterien sind Diagnosefragen, die wichtige Unklarheiten sichtbar machen."
+        },
+        {
+          "heading": "Die Arbeit mit Einschränkungen schützen",
+          "body": "Nennen Sie, was unverändert bleiben muss, welche Quellen maßgeblich sind, was Claude nicht erfinden darf, welcher Detailgrad, welche Sprache oder welcher Ton gelten und welche Handlungen außerhalb des Umfangs liegen. Trennen Sie nicht verhandelbare Einschränkungen von Präferenzen. Wenn Fakten fehlen, soll Claude die Lücke benennen, statt sie plausibel zu füllen. Kann die Aufgabe eine andere Person betreffen, verlangen Sie einen Entwurf zur Prüfung statt eines automatischen Versands. Wenn Nachweise wichtig sind, fordern Sie die Rückverfolgbarkeit von Behauptungen zu Quellen. Einschränkungen sollen den Prompt nicht verlängern; sie schließen Abzweigungen aus, die zu einem falschen Arbeitsergebnis oder einer unsicheren Handlung führen würden."
+        },
+        {
+          "heading": "Akzeptanzkriterien vor dem Feinschliff festlegen",
+          "body": "Das Ausgabeformat beschreibt die Form der Antwort; die Erfolgskriterien bestimmen, was sie brauchbar macht. Eine Tabelle mit fünf Spalten ist ein Format. Dass jede Empfehlung auf eine bereitgestellte Quelle zurückgeführt wird, alle Berechnungen reproduzierbar sind und ungelöste Widersprüche aufgeführt werden, sind Erfolgskriterien. Bitten Sie Claude, das Briefing in eigenen Worten wiederzugeben oder nur jene Unklarheiten zu markieren, die das Ergebnis wesentlich verändern würden. So lassen sich unvereinbare Annahmen erkennen, solange eine Korrektur noch wenig Aufwand verursacht. Bitten Sie bei einer unbekannten Aufgabe zunächst um einen Plan oder eine Gliederung. Ist die Aufgabe klar begrenzt und umkehrbar, kann das Briefing unmittelbar einen ersten Entwurf anfordern."
+        }
+      ],
+      "practice": {
+        "title": "Formulieren Sie eine vage Bitte neu",
+        "brief": "Machen Sie aus „Fasse dies zusammen“ ein Briefing, das eine andere Person prüfen kann, bevor Claude beginnt.",
+        "steps": [
+          "Wählen Sie einen kurzen öffentlichen Artikel und geben Sie die Zielgruppe, die Entscheidung und den maßgeblichen Beitrag an.",
+          "Fügen Sie Einschränkungen, die gewünschte Struktur, ein positives Beispiel oder Gegenbeispiel und drei Erfolgsüberprüfungen hinzu.",
+          "Bitten Sie Claude, das Briefing in eigenen Worten wiederzugeben und nur Unklarheiten aufzuzeigen, die die Entscheidung verändern würden, bevor die Zusammenfassung entsteht."
+        ],
+        "evidence": [
+          "Das Endergebnis-Briefing mit seinen sieben Teilen, die gut sichtbar beschriftet sind.",
+          "Ein Vergleich eines Folgeunterschieds zwischen den vagen und den begrenzten Ergebnissen."
+        ],
+        "safety": "Nutzen Sie eine öffentliche Quelle und fordern Sie einen Entwurf an. Fügen Sie keinen vertraulichen Text ein, nur um die Übung realistischer zu gestalten."
+      },
+      "checkpoint": {
+        "prompt": "Warum ist Professionalität und Genauigkeit kein ausreichendes Erfolgskriterium?",
+        "answer": "Keiner der Begriffe ist für sich allein beobachtbar. Nennen Sie die Zielgruppe, Beweisregeln, erforderliche Prüfungen, Struktur und was passieren muss, wenn Informationen unsicher sind."
+      },
+      "takeaway": "Beschreiben Sie das Ergebnis und seine Nachweisgrenze, bevor Sie den Wortlaut der Aufforderung optimieren."
+    },
+    "iterate-with-examples": {
+      "kicker": "Lektion 3 · Gespräch",
+      "title": "Mit Beispielen, Kritik und Neustarts iterieren",
+      "summary": "Der charakteristische Schritt mit Claude in Chat ist die Anschlussfrage: Bewahren Sie, was funktioniert, benennen Sie die Abweichung und machen Sie die nächste Änderung prüfbar.",
+      "objective": "Führen Sie eine Verbesserungsschleife über drei Gesprächsrunden durch und entscheiden Sie, wann Sie fortfahren, eine frühere Nachricht bearbeiten oder einen neuen Chat beginnen.",
+      "sections": [
+        {
+          "heading": "Die erste Antwort als Diagnosetest behandeln",
+          "body": "Eine erste Antwort zeigt, wie Claude die Aufgabe verstanden, welchen Kontext es herangezogen und welche Annahmen es getroffen hat. Prüfen Sie sie am Briefing, bevor Sie weiteren Feinschliff verlangen. Verweisen Sie auf konkrete Belege: Die Einleitung richtet sich an die falsche Zielgruppe, in der Tabelle fehlt die Unsicherheitsspalte oder das Beispiel verletzt den vorgegebenen Stil. Benennen Sie ausdrücklich, welche richtigen Teile erhalten bleiben sollen. Eine Anweisung wie „Behalten Sie die Quellentabelle bei und überarbeiten Sie nur den Empfehlungsteil“ ist hilfreicher als „Versuchen Sie es noch einmal“, weil sie sowohl die stabile Grundlage als auch die neue Grenze festlegt."
+        },
+        {
+          "heading": "Mit Beispielen Entscheidungsgrenzen verdeutlichen",
+          "body": "Verwenden Sie Beispiele, wenn eine Regel leichter zu erkennen als zu erklären ist. Ein positives Beispiel zeigt das Ziel; ein Gegenbeispiel verdeutlicht, was zu vermeiden ist. Erklären Sie, welche Eigenschaft zählt, damit Claude keine oberflächlichen Einzelheiten nachahmt. Nehmen Sie bei Klassifizierungen Fälle nahe der Grenze auf. Geben Sie für Schreibaufgaben eine kurze Sprachprobe und legen Sie fest, ob Satzrhythmus, Formalität oder Struktur übernommen werden sollen. Zeigen Sie für Analysen eine korrekt gestützte Behauptung und eine, die als unbekannt zu markieren ist. Beispiele sind Nachweise für Ihre Absicht, ersetzen aber nicht die Prüfung der Ausgabe."
+        },
+        {
+          "heading": "Erkennen, wann der Gesprächsverlauf zum Störfaktor wird",
+          "body": "Setzen Sie den Chat fort, solange Ziel und Nachweisbasis stabil sind. Bearbeiten Sie eine frühere Nachricht und senden Sie sie erneut, wenn eine grundlegende Anweisung falsch war und spätere Gesprächsrunden davon abhängen. Beginnen Sie einen neuen Chat, wenn sich das Ziel ändert, das Gespräch widersprüchliche Anweisungen enthält, sensibler Kontext nicht übernommen werden soll oder Sie testen möchten, ob Project-Anweisungen ohne verdeckte Reparaturrunden funktionieren. Kopieren Sie vor dem Neustart nur das geprüfte Briefing und den genehmigten Kontext. Ein langes Gespräch kann gut informiert wirken und dennoch unbemerkt veraltete Annahmen mitführen."
+        }
+      ],
+      "practice": {
+        "title": "Führen Sie eine Beschreibung-Unterscheidungsschleife mit drei Runden durch",
+        "brief": "Erstellen Sie eine kleine, öffentlich zugängliche FAQ oder ein visuelles Artifact und verbessern Sie es dann mithilfe evidenzbasierter Folgeschritte.",
+        "steps": [
+          "Geben Sie einen begrenzten ersten Auftrag und speichern Sie die erste Ausgabe, ohne sie zu bearbeiten.",
+          "Identifizieren Sie ein korrektes Merkmal und eine beobachtbare Nichtübereinstimmung und steuern Sie dann nur die Nichtübereinstimmung anhand eines Beispiels.",
+          "Bitten Sie Claude, die Erfolgskriterien selbst zu kritisieren, das Ergebnis selbst zu überprüfen und zu entscheiden, ob ein neuer Chat sauberer wäre."
+        ],
+        "evidence": [
+          "Das erste Briefing, zwei Follow-ups und das Endergebnis in der richtigen Reihenfolge.",
+          "Eine kurze Prüfung, die die Selbstkritik von Claude von Ihrem unabhängigen Urteil trennt."
+        ],
+        "safety": "Veröffentlichen Sie das Übungs-Artifact nicht. Verwenden Sie synthetische Inhalte und überprüfen Sie jedes sichtbare Feld, bevor Sie es teilen."
+      },
+      "checkpoint": {
+        "prompt": "Claude sagt, dass die Überarbeitung nun alle Kriterien erfüllt. Ist die Iteration abgeschlossen?",
+        "answer": "Erst nachdem Sie das tatsächliche Ergebnis mit dem Briefing, den Beispielen und dem Quellenmaterial verglichen haben. Selbstkritik ist ein nützlicher Nachweis, keine unabhängige Überprüfung."
+      },
+      "takeaway": "Eine gute Iteration ist ein kontrollierter Unterschied zwischen zwei Zuständen, kein endloses Verlangen nach etwas Besserem."
+    },
+    "discern-verify-protect": {
+      "kicker": "Lektion 4 · Urteilsvermögen",
+      "title": "Behauptungen prüfen und Grenzen schützen",
+      "summary": "Claude kann flüssig formulierte, überzeugende Fehler erzeugen. Urteilsvermögen bedeutet, Prüfmethode und Berechtigungsgrenze an die Folgen eines Irrtums anzupassen.",
+      "objective": "Prüfen Sie eine wichtige Behauptung, unterscheiden Sie Quellnachweise von der Modellausgabe und bewerten Sie eine Werkzeugberechtigung nach dem Prinzip der geringstmöglichen Rechte.",
+      "sections": [
+        {
+          "heading": "Vertrauen an den Folgen ausrichten",
+          "body": "Nutzen Sie für reversibles Brainstorming eine einfache Prüfung und für sachliche, finanzielle, rechtliche, medizinische, akademische, arbeitsbezogene, sicherheitsrelevante oder benotungsbezogene Entscheidungen strengere Kontrollen. Fragen Sie, was bei einer falschen Antwort geschehen würde und wer betroffen sein könnte. Ein Zitat von Claude, ein selbstsicherer Ton, ein Codeblock oder eine ausgefeilte Datei beweisen keine Richtigkeit. Öffnen Sie bei zentralen Behauptungen die Originalquelle, suchen Sie die stützende Passage, prüfen Sie, ob sie die Behauptung tatsächlich trägt, und kontrollieren Sie Daten, Einheiten, Populationen und Ausnahmen. Wenn Nachweise fehlen, behalten Sie die Kennzeichnung „nicht berichtet“ bei, statt eine plausible Ergänzung zuzulassen."
+        },
+        {
+          "heading": "Informationsabruf, Schlussfolgerung und Handlung trennen",
+          "body": "Ein Quellenlink kann zeigen, woher eine Information stammt; er belegt jedoch nicht die Schlussfolgerung von der Quelle zum Ergebnis. Auch eine richtige Erklärung erteilt keine Befugnis für eine externe Handlung. Prüfen Sie drei Ebenen getrennt: Eingaben und Quellenqualität, Transformation oder Analyse sowie die vorgeschlagene Handlung oder Ausgabe. Rechnen Sie bei Berechnungen eine kleine Stichprobe nach oder verwenden Sie eine unabhängige Methode. Prüfen Sie bei Code den Diff und führen Sie Tests aus. Öffnen Sie bei Dokumenten die tatsächliche Datei. Kontrollieren Sie bei Lehrmaterial Inhalt und Schwierigkeit mit pädagogischem Urteilsvermögen. Die Prüfung sollte sichtbar scheitern, wenn das Ergebnis falsch ist."
+        },
+        {
+          "heading": "Werkzeuge und externe Inhalte als Risikomultiplikatoren behandeln",
+          "body": "Skills, Connectors, Browsing, Dateiausführung, Cowork und Code können erheblich mehr lesen oder verändern als ein gewöhnliches Gespräch. Prüfen Sie die genaue Fähigkeit, die Herkunft, die angeforderte Ressource und den Schreibumfang. Verbundene Inhalte und hochgeladene Dateien können Anweisungen enthalten, die einen Agenten umlenken sollen; behandeln Sie sie als Daten, sofern der Nutzer sie nicht ausdrücklich als maßgeblich autorisiert hat. Gewähren Sie nur den für den aktuellen Schritt nötigen Zugriff, bevorzugen Sie manuelle Freigaben, halten Sie Sicherungskopien vor und stoppen Sie, wenn ein Werkzeug sachfremde Zugangsdaten oder ein weiter gefasstes Ziel verlangt. Die Authentifizierung bestätigt Identität und Zugriff, nicht die Angemessenheit jeder möglichen Handlung."
+        }
+      ],
+      "practice": {
+        "title": "Behauptungen und Berechtigungen prüfen",
+        "brief": "Verwenden Sie eine öffentliche Frage mit geringem Risiko, um sowohl die Beweisprüfung als auch eine hypothetische Entscheidung über den Werkzeugzugriff zu üben.",
+        "steps": [
+          "Bitten Sie Claude um eine kurze Antwort mit Quellenangabe und wählen Sie dann die folgenreichste Tatsachenbehauptung aus.",
+          "Öffnen Sie die Originalquelle und notieren Sie, ob sie die Behauptung stützt, qualifiziert, widerspricht oder nicht meldet.",
+          "Bewerten Sie eine hypothetische Netzwerk- oder Connector-Anfrage nach Ressource, Zweck, Schreibfähigkeit, engerer Alternative und Genehmigungsentscheidung."
+        ],
+        "evidence": [
+          "Ein Schadenbuch mit der Quellenangabe und Ihrem Schadensersatzurteil.",
+          "Eine Berechtigungsentscheidung mit den geringsten Privilegien und einer benannten engeren Alternative."
+        ],
+        "safety": "Wählen Sie eine öffentliche Frage mit geringen Risiken. Aktivieren Sie kein Tool nur, um die hypothetische Berechtigungsprüfung abzuschließen."
+      },
+      "checkpoint": {
+        "prompt": "Ein Connector wird überprüft, authentifiziert und kann in Ihren Kalender schreiben. Was muss noch überprüft werden?",
+        "answer": "Die spezifische Aktion, das Ziel, der Zeitpunkt, der Inhalt, die Konsequenzen und ob eine schreibgeschützte Alternative oder eine Entwurfsalternative das aktuelle Ziel erreichen würde."
+      },
+      "takeaway": "Souveräner Umgang bedeutet nicht nur, eine Ausgabe zu erhalten, sondern zu wissen, welche Nachweise und Befugnisse sie rechtfertigen."
+    },
+    "work-with-files": {
+      "kicker": "Lektion 5 · Dateien",
+      "title": "Dateien nutzen, ohne Vorschau mit Nachweis zu verwechseln",
+      "summary": "Claude kann hochgeladene Dateien analysieren und bearbeitbare Office-Dateien erstellen; zu prüfen ist jedoch die heruntergeladene Datei, nicht die Gesprächsvorschau.",
+      "objective": "Bereiten Sie ein sicheres Dateipaket vor, verlangen Sie eine nachvollziehbare Transformation und prüfen Sie die erzeugte Datei im nativen Format mit der vorgesehenen Anwendung.",
+      "sections": [
+        {
+          "heading": "Das kleinste nützliche Paket vorbereiten",
+          "body": "Entfernen Sie vor dem Hochladen Geheimnisse, personenbezogene Kennzeichen, ausgeblendete Tabellenblätter, nachverfolgbare Metadaten und sachfremde Anhänge. Erklären Sie Claude, welche Funktion jede Datei hat, welche Version maßgeblich ist und welche Schlüsse dateiübergreifend zulässig sind. Geben Sie bei einem PDF oder Bild die relevanten Seiten oder Bereiche an. Definieren Sie bei einer Tabelle Einheiten, Codes für fehlende Werte und ob Formeln oder nur die angezeigten Werte maßgeblich sind. Ein großes Kontextfenster garantiert nicht, dass jedes Detail gleich viel Aufmerksamkeit erhält. Verlangen Sie eine Dateibestandsaufnahme und eine Liste unlesbarer oder mehrdeutiger Elemente, bevor Sie die endgültige Transformation anfordern."
+        },
+        {
+          "heading": "Nachvollziehbare Transformationen verlangen",
+          "body": "Definieren Sie die Beziehung zwischen Quelle und Ausgabe. Ein Bericht kann verlangen, dass jede quantitative Behauptung ihre Quellzeile oder -seite nennt. Eine bereinigte Tabelle kann die unveränderten Ausgangsdaten auf einem schreibgeschützten Blatt sowie ein Änderungsprotokoll benötigen. Eine Präsentation kann Sprechernotizen und Quellenangaben in der Fußzeile erfordern. Eine Word-Überarbeitung kann Kommentare oder nachverfolgte Änderungen statt einer stillen Neufassung verlangen. Legen Sie fest, was Claude nicht verändern darf und was für eine menschliche Entscheidung zu markieren ist. Erfordert die Funktion eine Codeausführung oder einen begrenzten Netzwerkzugriff, prüfen Sie diese Berechtigung getrennt von der Dokumentaufgabe."
+        },
+        {
+          "heading": "Öffnen, neu berechnen und prüfen",
+          "body": "Laden Sie die Datei herunter und öffnen Sie sie in Word, Excel, PowerPoint, einem PDF-Programm oder der passenden nativen Anwendung. Prüfen Sie Seitenumbrüche, Formeln, Diagramme, Links, Bildzuschnitte, Schriftarten, Barrierefreiheit, Kommentare, Notizen und Quellenkennzeichnungen. Rechnen Sie eine Stichprobe der Tabellenwerte nach und vergleichen Sie mehrere Behauptungen der Ausgabe mit den Eingaben. Exportieren oder drucken Sie erst nach dieser Prüfung. Eine ansprechende Vorschau kann defekte Formeln, überlaufende Folien, fehlenden Text oder erfundene Nachweise verbergen. Versionieren Sie das Quellenpaket und die endgültige Datei, damit eine andere Person die Transformation reproduzieren kann."
+        }
+      ],
+      "practice": {
+        "title": "Erstellen und prüfen Sie eine bearbeitbare Datei",
+        "brief": "Verwenden Sie die synthetische Quellennotiz des Abschlussprojekts oder einen anderen öffentlichen Text, um ein einseitiges DOCX-, XLSX- oder PPTX-Arbeitsergebnis zu erstellen.",
+        "steps": [
+          "Schreiben Sie den Dateivertrag: Eingabe, Zielgruppe, Struktur, unveränderliche Fakten, Rückverfolgbarkeit und Prüfungen nativer Dateien.",
+          "Bitten Sie Claude, die Datei zu erstellen und alle Informationen offenzulegen, die nicht überprüft werden konnten.",
+          "Laden Sie es herunter, öffnen Sie es in der nativen Anwendung, überprüfen Sie mindestens fünf Eigenschaften und fordern Sie bei Bedarf eine begrenzte Korrektur an."
+        ],
+        "evidence": [
+          "Der Dateivertrag und die endgültig heruntergeladene Dateiversion.",
+          "Ein natives Inspektionsprotokoll mit fünf Elementen und mindestens einem Quellenvergleich."
+        ],
+        "safety": "Verwenden Sie synthetische Eingaben. Halten Sie die Speicherung auf externen Laufwerken und den Netzwerkzugriff deaktiviert, es sei denn, sie sind notwendig und werden ausdrücklich geprüft."
+      },
+      "checkpoint": {
+        "prompt": "Die Dateivorschau sieht in Claude korrekt aus. Warum die heruntergeladene Datei öffnen?",
+        "answer": "Die Vorschau belegt weder native Formeln noch Layout, Metadaten, Kommentare, Barrierefreiheit, Links oder anwendungsspezifische Darstellung."
+      },
+      "takeaway": "Das eigentliche Ergebnis ist die native Datei plus ein reproduzierbares Inspektionsprotokoll, keine beruhigende Vorschau."
+    },
+    "build-projects": {
+      "kicker": "Lektion 6 · Dauerhafter Kontext",
+      "title": "Ein Project erstellen, das in einem neuen Chat funktioniert",
+      "summary": "Projects bewahrt wiederverwendbares Wissen und Anweisungen, doch nützlicher Kontext muss ausgewählt, begrenzt und getestet werden, statt sich unbegrenzt anzusammeln.",
+      "objective": "Gestalten Sie Wissen und Anweisungen in Project, unterscheiden Sie beides von Chatverlauf und Speicher und testen Sie die Einrichtung in zwei neuen Gesprächen.",
+      "sections": [
+        {
+          "heading": "Wissen und Verfahren trennen",
+          "body": "Das Wissen eines Project enthält Fakten und Referenzmaterial, die in allen Arbeiten dieses Project verfügbar sein sollen: etwa einen Styleguide, ein Forschungsprotokoll, ein Produktglossar oder die Beschreibung eines öffentlichen Datensatzes. Die Project-Anweisungen legen fest, wie Claude mit diesem Wissen arbeitet: Seitenanker zitieren, fehlende Werte beibehalten, britische Schreibweise verwenden oder vor einer externen Handlung nachfragen. Gehen Sie nicht davon aus, dass Name und Beschreibung des Project den Aufgabenkontext automatisch bereitstellen. Hinterlegen Sie wichtige Informationen in den tatsächlichen Anweisungen oder Dateien. Bewahren Sie für jede Regel eine einzige maßgebliche Quelle auf und entfernen Sie ersetzte Fassungen."
+        },
+        {
+          "heading": "Kontextgrenzen verstehen",
+          "body": "Project-Wissen kann chatübergreifend gelten, doch ein Chat enthält nicht automatisch jedes Detail aus anderen Chats. Der Speicher ist, sofern verfügbar, ein eigener Mechanismus und kann je nach Konto oder Project variieren. Behandeln Sie beides als prüfbare Hilfen, nicht als unsichtbare Garantien. Wiederholen Sie bei wichtigen Entscheidungen die maßgebliche Tatsache oder hängen Sie sie an. Legen Sie Geheimnisse oder sensible persönliche Profile nicht allein aus Bequemlichkeit in dauerhaftem Kontext ab. Nutzen Sie Inkognito oder einen neuen Chat außerhalb des Project, wenn Sie eine saubere Grenze testen möchten; bedenken Sie dabei, dass Inkognito nicht in jedem System eine universelle Zusage von Nullspeicherung bedeutet."
+        },
+        {
+          "heading": "Mit einer Akzeptanzsuite in neuen Chats testen",
+          "body": "Ein Project ist nur dann zuverlässig, wenn ein neues Gespräch die beabsichtigten Regeln ohne Reparaturrunden befolgt. Erstellen Sie zwei oder drei kurze Test-Prompts: eine normale Aufgabe, einen nahen Grenzfall und eine Anfrage, welche die Anweisungen ablehnen oder markieren sollen. Notieren Sie das erwartete Verhalten vor der Ausführung. Übersieht Claude eine Regel, überarbeiten Sie die kleinste nötige Anweisung oder Quelle, statt einen widersprüchlichen Absatz hinzuzufügen. Halten Sie Anweisungen knapp, lagern Sie ausführliche Verfahren gegebenenfalls in eine Skill aus und testen Sie nach jeder wesentlichen Änderung erneut in einem neuen Chat."
+        }
+      ],
+      "practice": {
+        "title": "Erstellen Sie ein kleines, testbares Project",
+        "brief": "Erstellen Sie ein Project für eine öffentliche Leseliste, einen Styleguide oder einen synthetischen Büro-Workflow und verwenden Sie dabei nicht mehr als drei Quelldateien.",
+        "steps": [
+          "Schreiben Sie eine Zweckerklärung, fügen Sie bis zu drei maßgebliche Dateien hinzu und erstellen Sie prägnante Anweisungen mit Beweisen und Sicherheitsregeln.",
+          "Definieren Sie einen Normalfall und einen Randfall mit erwarteten Ergebnissen, bevor Sie einen Aufgabenchat öffnen.",
+          "Führen Sie beide Fälle in separaten neuen Chats aus, vergleichen Sie die Ergebnisse und überarbeiten Sie nur das fehlerhafte Kontextelement."
+        ],
+        "evidence": [
+          "Eine Project-Karte, in der Zweck, Wissensdateien, Anweisungen und ausgeschlossene Daten aufgeführt sind.",
+          "Ein Zwei-Fall-Testprotokoll mit erwartetem, beobachtetem und überarbeitetem Verhalten."
+        ],
+        "safety": "Verwenden Sie öffentliche oder synthetische Dateien. Fügen Sie dem dauerhaften Project-Kontext keine Passwörter, privaten Profile, Studentendaten oder nicht genehmigte Arbeitgeberdaten hinzu."
+      },
+      "checkpoint": {
+        "prompt": "Eine Regel funktionierte nach drei Korrekturrunden in einem Chat. Beweist das, dass die Project-Anweisungen funktionieren?",
+        "answer": "Nein. Testen Sie die Regel in einem neuen Chat, in dem nur das fundierte Wissen und die Anweisungen des Project das Ergebnis erklären können."
+      },
+      "takeaway": "Ein gutes Project ist ein kleines, versioniertes Kontextsystem mit expliziten Akzeptanztests."
+    },
+    "create-artifacts": {
+      "kicker": "Lektion 7 · Artifacts",
+      "title": "Artifacts bewusst prototypisieren, prüfen und teilen",
+      "summary": "Die Funktion Artifacts erzeugt neben dem Gespräch ein sichtbares Objekt und macht Iteration konkret; die Veröffentlichung eröffnet jedoch eine eigene Expositionsgrenze.",
+      "objective": "Erstellen Sie aus einem begrenzten Briefing ein Artifact, testen Sie es als Objekt und prüfen Sie vor dem Teilen Datenschutz und Richtigkeit.",
+      "sections": [
+        {
+          "heading": "Ein Artifact verwenden, wenn das Objekt zählt",
+          "body": "Ein Artifact eignet sich, wenn das Ergebnis von einer eigenen Vorschau oder interaktiven Arbeitsumgebung profitiert: etwa bei einem Diagramm, Dashboard, Erklärstück, einer kleinen Anwendung, einem Karteikartensatz oder wiederverwendbarem Text. Es unterscheidet sich von einer generierten DOCX-, XLSX-, PPTX- oder PDF-Datei. Wählen Sie das Format danach, wie Lernende oder Kollegen das Ergebnis nutzen werden, nicht nach seinem Neuheitswert. Beginnen Sie mit Inhalt, Nutzern, Interaktionen, Einschränkungen, Barrierefreiheit und einem prüfbaren Fertigstellungszustand. Halten Sie die erste Version so klein, dass sie sich untersuchen lässt, statt auf einmal eine vollständige Anwendung zu verlangen."
+        },
+        {
+          "heading": "Anhand einer Akzeptanzcheckliste iterieren",
+          "body": "Testen Sie das Artifact direkt. Betätigen Sie jedes Steuerelement, probieren Sie leere und extreme Eingaben, nutzen Sie die Tastatur, ändern Sie die Fenstergröße und prüfen Sie Textkontrast und Beschriftungen. Melden Sie Fehler mit reproduzierbaren Schritten und bewahren Sie in der Nachsteuerung korrektes Verhalten. Falls eine Codeansicht verfügbar ist, untersuchen Sie sie auf offensichtlich unsichere externe Aufrufe oder verborgene Datenerhebung; verwechseln Sie einen kurzen Blick jedoch nicht mit einem Sicherheitsaudit. Prüfen Sie bei faktischen Artifacts den Inhalt getrennt von der Interaktion. Eine attraktive Animation kann mit falschen oder unzugänglichen Informationen einhergehen."
+        },
+        {
+          "heading": "Veröffentlichen als neue Entscheidung behandeln",
+          "body": "Prüfen Sie vor dem Teilen das Artifact, seinen Titel, Anhänge, relevanten Gesprächskontext, eingebettete Links und alle Daten, welche die öffentliche Fassung offenlegen könnte. Entfernen Sie personenbezogene Daten und geschützte Texte. Testen Sie den Freigabelink gegebenenfalls abgemeldet oder in einem privaten Fenster. Das Teilen kann sich bei privaten Konten und Organisationskonten unterschiedlich verhalten; zudem können spätere Änderungen der Benutzeroberfläche Bedienelemente verschieben. Nutzen Sie deshalb die aktuelle Hilfe. Die Veröffentlichung ist nicht nur der letzte Erstellungsschritt, sondern verändert Zielgruppe und Bedrohungsmodell. Als sicherer Standard bleibt der Entwurf bis zum Abschluss der Prüfung privat und nicht freigegeben."
+        }
+      ],
+      "practice": {
+        "title": "Ein Artifact für einen einzigen Zweck erstellen",
+        "brief": "Erstellen Sie ein kleines öffentliches Informations-Artifact, z. B. einen Lerntimer, eine Konzeptkarte oder ein Vokabelübungstool.",
+        "steps": [
+          "Schreiben Sie fünf Akzeptanzprüfungen zu Inhalt, Interaktion, Zugänglichkeit, Fehlerbehandlung und Datenschutz.",
+          "Generieren Sie die kleinste Version, testen Sie jede Prüfung selbst und steuern Sie ein fehlerhaftes Verhalten mit reproduzierbaren Beweisen.",
+          "Führen Sie eine Überprüfung der Veröffentlichungsgrenzen durch, aber halten Sie das Artifact privat, es sei denn, Sie genehmigen absichtlich den genauen öffentlichen Inhalt."
+        ],
+        "evidence": [
+          "Die Fünf-Check-Akzeptanzliste mit beobachteten Ergebnissen.",
+          "Eine Bestandsaufnahme der sichtbaren Inhalte, des Kontexts, der Links und des verbleibenden Risikos vor der Freigabe."
+        ],
+        "safety": "Verwenden Sie synthetische Inhalte und keine Analyse-, Anmelde-, persönlichen Profil-, Zahlungs-, Gesundheits- oder Studentendaten."
+      },
+      "checkpoint": {
+        "prompt": "Ein Artifact enthält keine geheimen Eingabefelder. Ist die Veröffentlichung automatisch sicher?",
+        "answer": "Nein. Überprüfen Sie den Inhalt, den Konversationskontext, die Anhänge, Links, das eingebettete Verhalten, die Zielgruppe und was der Freigabemechanismus preisgibt."
+      },
+      "takeaway": "Erstellen Sie Prototypen mit schnellem Feedback; veröffentlichen Sie erst nach einer getrennten Prüfung von Zielgruppe und Offenlegung."
+    },
+    "research-with-citations": {
+      "kicker": "Lektion 8 · Informationsabruf",
+      "title": "Research mit Quellenangaben, die Sie tatsächlich prüfen",
+      "summary": "Die Suche ruft externe Fakten schnell ab; Research untersucht eine breitere Frage. Beides entbindet nicht davon, Originalquellen und ihre Stützung der Behauptungen zu prüfen.",
+      "objective": "Wählen Sie Search oder Research, definieren Sie Quellen- und Einschlussregeln und prüfen Sie das Behauptungsverzeichnis anhand der Originalquellen.",
+      "sections": [
+        {
+          "heading": "Den Abrufmodus nach der Frage wählen",
+          "body": "Verwenden Sie die Websuche für eine aktuelle, klar begrenzte Tatsache oder eine kleine Zahl von Quellen. Nutzen Sie Research, sofern Ihr Tarif dies bietet, für eine breitere Untersuchung mit mehreren Quellen, die von Zerlegung und Synthese profitiert. Vertieftes Denken ist etwas anderes: Es kann die Schlussfolgerung verbessern, ohne neue externe Nachweise zu liefern. Legen Sie vor dem Abruf Frage, Zeitgrenze, geografischen Raum, Quellentypen, Ein- und Ausschlusskriterien sowie die gewünschte Ausgabe fest. Versprechen Sie weder eine feste Quellenzahl noch eine feste Laufzeit. Lernende im kostenlosen Pfad können dieselbe Methode mit einer normalen Suche und einem manuell zusammengestellten Quellenpaket üben."
+        },
+        {
+          "heading": "Ein Verzeichnis von Quellen und Behauptungen erstellen",
+          "body": "Halten Sie für jede Quelle Titel, Herausgeber, Datum, direkte URL, Quellentyp, Relevanz und Einschränkungen fest. Dokumentieren Sie für jede wichtige Behauptung die stützende Quelle, die genaue Passage oder Tabelle und ob der Nachweis die Behauptung stützt, einschränkt, ihr widerspricht oder dazu nichts berichtet. Bevorzugen Sie Originalbeiträge, amtliche Statistiken, Standards und Primärdokumentation gegenüber Zusammenfassungen, wenn eine Behauptung davon abhängt. Unterscheiden Sie zwischen einer Quelle, die ein Design beschreibt, und einem Nachweis dafür, dass das Design wirkte. Bewahren Sie widersprüchliche Ergebnisse und fehlende Angaben, statt sie zu einem falschen Konsens zu verdichten."
+        },
+        {
+          "heading": "Zitate über die bloße Linkgültigkeit hinaus prüfen",
+          "body": "Öffnen Sie die Quelle und prüfen Sie Autoren, Titel, Datum, Zitat, Zahl, Einheit, Stichprobe, Vergleich und Schlussfolgerung. Ein Link kann funktionieren, obwohl die zitierte Seite den Satz nicht stützt. Kontrollieren Sie, ob eine Statistik aus einer Zusammenfassung, Tabelle, Sekundärquelle oder einer anderen Population übernommen wurde. Prüfen Sie bei wissenschaftlichen Arbeiten Identifikatoren und Veröffentlichungsstatus. Vergleichen Sie bei zeitkritischen Themen das Datum des Ereignisses mit dem Veröffentlichungsdatum. Bitten Sie Claude, Unsicherheiten zu benennen, und führen Sie anschließend eine eigene Stichprobenprüfung durch, die zentrale und überraschende Behauptungen stärker gewichtet. Wenn Sie eine Schlüsselbehauptung nicht prüfen können, entfernen oder kennzeichnen Sie sie."
+        }
+      ],
+      "practice": {
+        "title": "Erstellen Sie eine Entscheidungsvorlage mit fünf Quellen",
+        "brief": "Untersuchen Sie eine aktuelle Frage mit geringem Risiko mithilfe von Research oder einer gewöhnlichen Websuche und bewahren Sie gleichzeitig eine sichtbare Beweisspur auf.",
+        "steps": [
+          "Schreiben Sie vor der Suche die Frage, die Datumsgrenze, die Quellenprioritäten, die Einschlussregeln und die Ausgabeentscheidung auf.",
+          "Bitten Sie Claude um ein Quellenverzeichnis und ein Briefing, in dem jede wichtige Behauptung einer Quelle zugeordnet ist.",
+          "Öffnen Sie jede Quelle, die den drei wichtigsten Behauptungen zugrunde liegt, und erfassen Sie, ob sie die jeweilige Behauptung stützt, einschränkt, ihr widerspricht oder dazu nichts berichtet."
+        ],
+        "evidence": [
+          "Das Quellenverzeichnis mit direkten URLs, Daten, Quelltypen und Einschränkungen.",
+          "Eine Drei-Claim-Prüfung mit Originalpassagen und Ihren Konsequenzentscheidungen."
+        ],
+        "safety": "Wählen Sie ein Thema mit geringem Risiko. Nutzen Sie die Übung nicht, um medizinische, rechtliche, finanzielle, beschäftigungsbezogene oder andere wichtige Entscheidungen zu treffen."
+      },
+      "checkpoint": {
+        "prompt": "Alle zitierten URLs werden erfolgreich geöffnet. Welcher gravierende Misserfolg kann noch bleiben?",
+        "answer": "Die Quellen können minderwertig, veraltet, sekundär oder für die konkrete Behauptung irrelevant sein; außerdem kann die zitierte Passage die Synthese einschränken oder ihr widersprechen."
+      },
+      "takeaway": "Die Research ist abgeschlossen, wenn die wichtigen Behauptungen eine Prüfung der Originalquelle überstehen, und nicht, wenn die Bibliographie lang aussieht."
+    },
+    "extend-with-tools": {
+      "kicker": "Lektion 9 · Erweiterungen",
+      "title": "Claude sicher mit Skills und Connectors erweitern",
+      "summary": "Project liefert Aufgabenwissen, Skill ein wiederverwendbares Verfahren und Connector Zugriff oder Handlungsmöglichkeiten. Jedes löst ein anderes Kontextproblem und bringt ein eigenes Risiko mit sich.",
+      "objective": "Wählen Sie Project, Skill oder Connector für einen wiederholbaren Arbeitsablauf und prüfen Sie Herkunft, Berechtigungen, Testfälle und manuellen Ausweichweg.",
+      "sections": [
+        {
+          "heading": "Den passenden Erweiterungstyp wählen",
+          "body": "Verwenden Sie Project-Wissen für stabile Fakten und Referenzen, die zu einem Arbeitsbestand gehören. Verwenden Sie eine Skill für wiederverwendbare Verfahren, Vorlagen, Skripte oder Fachmethoden, die in mehreren Aufgaben aufgerufen werden sollen. Verwenden Sie einen Connector, wenn Claude Informationen aus einem anderen System abrufen oder dort handeln muss. Die Kombination kann leistungsfähig sein: Ein Project definiert den Kundenkontext, eine Skill das Prüfverfahren und ein Connector ruft eine genehmigte Datei ab. Fügen Sie jedoch keine Erweiterung hinzu, nur um ein klares Briefing zu vermeiden. Jede zusätzliche Komponente erhöht den Aufwand für Herkunftsprüfung, Wartung und Berechtigungen."
+        },
+        {
+          "heading": "Vor Installation oder Verbindung prüfen",
+          "body": "Prüfen Sie vor der Übernahme einer Skill Autor, Lizenz, Anweisungen, Skripte, angeforderte Pakete, Netzwerkverhalten und zugängliche Dateien. Öffentliche Verfügbarkeit oder Beliebtheit eines Repositorys ersetzen keine Sicherheitsprüfung. Ermitteln Sie bei einem Connector, ob er suchen, lesen, erstellen, aktualisieren oder löschen kann; identifizieren Sie Konto und geerbte Berechtigungen des Quellsystems; und prüfen Sie die Freigabe der Organisation. Behandeln Sie von einem Werkzeug zurückgegebenen Inhalt als nicht vertrauenswürdige Daten. Vermeiden Sie unbekannte Pakete, Anfragen nach Zugangsdaten, breiten Dateisystemzugriff und Anweisungen, welche die Prüfung umgehen. Verwenden Sie eine entbehrliche Testumgebung und den kleinstmöglichen Kontoumfang."
+        },
+        {
+          "heading": "Verfahren testen, nicht nur Idealfälle",
+          "body": "Definieren Sie einen Normalfall, einen Grenzfall, einen Fall mit fehlender Eingabe und eine Anfrage, welche die Erweiterung ablehnen oder eskalieren soll. Beobachten Sie, welche Skill oder welcher Connector aufgerufen wird, welche Daten den aktuellen Kontext verlassen und ob die Ausgabe dem zugesagten Verfahren folgt. Halten Sie einen manuellen Ersatzweg bereit, damit der Arbeitsablauf nicht von einer ausgefallenen Integration abhängig ist. Versionieren Sie eigene Skills, dokumentieren Sie ihre Quellen und testen Sie sie nach Aktualisierungen erneut. Trägt eine Erweiterung zu einer Entscheidung mit hoher Tragweite bei, muss ihre Ausgabe beratend und menschlich geprüft bleiben."
+        }
+      ],
+      "practice": {
+        "title": "Eine Entscheidungsakte zur Erweiterung verfassen",
+        "brief": "Bewerten Sie einen harmlosen Skill oder Connector, ohne Produktionsberechtigungen zu erteilen.",
+        "steps": [
+          "Geben Sie das wiederholte Problem an und vergleichen Sie Project-Wissen, eine Skill und einen Connector als Lösungen.",
+          "Überprüfen Sie die Herkunft, Lizenz, den Datenzugriff, die Schreibfähigkeit, die Abhängigkeiten und den Entfernungspfad der ausgewählten Erweiterung.",
+          "Führen Sie einen Normalfall und einen Randfall aus oder simulieren Sie ihn und notieren Sie dann, ob Sie ihn übernehmen, überarbeiten, isolieren oder ablehnen möchten."
+        ],
+        "evidence": [
+          "Ein einseitiger Erweiterungsentscheidungsdatensatz mit Berechtigungen und Fallback.",
+          "Zwei Testfälle mit erwartetem und beobachtetem Verhalten."
+        ],
+        "safety": "Bevorzugen Sie ein schreibgeschütztes, wegwerfbares Erstanbieterbeispiel. Verbinden Sie keine Produktions-E-Mails, Kalender, Laufwerke, Studentensysteme oder Kundenkonten."
+      },
+      "checkpoint": {
+        "prompt": "Ein Skill stammt aus einem beliebten öffentlichen Repository. Was stellt das fest?",
+        "answer": "Nur, dass die Quelle öffentlich und beliebt ist. Zu prüfen bleiben Lizenzen auf Dateiebene, Anweisungen, Skripte, Abhängigkeiten, Netzwerkzugriffe, Berechtigungen und Verhalten."
+      },
+      "takeaway": "Vertrauen in Erweiterungen entsteht durch Herkunftsnachweise, geringstmögliche Rechte, adversariale Tests und einen umkehrbaren Entfernungspfad."
+    },
+    "delegate-with-cowork": {
+      "kicker": "Lektion 10 · Handlungsautonomie",
+      "title": "Klar begrenzte Arbeit an Cowork delegieren",
+      "summary": "Cowork kann mehrstufige Wissensarbeit koordinieren, doch sinnvolle Autonomie beginnt mit einer eigenen Grenze, einem Ergebnis-Briefing, manuellen Freigaben und einem wiederherstellbaren Zustand.",
+      "objective": "Planen Sie in Cowork eine risikoarme Aufgabe, die einen eigens verbundenen Ordner oder ein Cowork-Projekt nutzt; prüfen Sie die Aktionen und verifizieren Sie jede geänderte Ausgabe.",
+      "sections": [
+        {
+          "heading": "Ergebnis und Arbeitsgrenze definieren",
+          "body": "Wählen Sie Cowork für ein mehrstufiges Ergebnis, etwa um einen synthetischen Ordner zu organisieren, ein Forschungspaket vorzubereiten oder mehrere zusammengehörige Office-Dateien zu erstellen. Benennen Sie die endgültigen Arbeitsergebnisse, maßgeblichen Eingaben, Einschränkungen und Akzeptanzprüfungen. Verwenden Sie einen eigens verbundenen Ordner oder ein klar abgegrenztes Cowork-Projekt mit Kopien, nicht Ihren gesamten Schreibtisch oder persönlichen Ordner. Cowork-Cloud-Sitzungen werden in einer isolierten, temporären Sandbox auf den Servern von Anthropic ausgeführt; Sitzungen und Dateien werden in Ihrem Claude-Konto gespeichert. Bestehende Desktop-Bereitstellungen können weiterhin lokal ausgeführt werden; prüfen Sie daher Ausführungsmodus und Richtlinie Ihrer Bereitstellung. Eine Cloud-Sitzung kann nur über eine laufende Claude Desktop-App und die bereits von Ihnen erteilten Ordnerberechtigungen auf einen lokalen Ordner zugreifen; alle lokalen Inhalte, die sie öffnet, werden weiterhin auf den Servern von Anthropic verarbeitet. Die Verfügbarkeit hängt von Tarif, Anwendungsoberfläche, Bereitstellung, Gerät und Administratoreinstellungen ab. Falls Cowork nicht verfügbar ist, schreiben Sie denselben Aufgabenplan und simulieren Sie jede Freigabe in Chat."
+        },
+        {
+          "heading": "Den Plan und jede Befugnisänderung prüfen",
+          "body": "Bitten Sie Claude, die Eingaben zu inventarisieren und vor jedem Handeln einen geordneten Plan vorzuschlagen. Prüfen Sie, ob jeder Schritt zum Ergebnis beiträgt und destruktive oder externe Handlungen ausgeschlossen sind. Verwenden Sie in der Kursübung manuelle Freigaben. Lesen Sie den genauen Dateipfad, Befehl, die Connector-Aktion oder Netzwerkanfrage, statt aus Gewohnheit zu genehmigen. „Alle Genehmigungen überspringen“ ist kein geeigneter Standard für Einsteiger. Verbundene Dokumente oder Webseiten können Prompt-Injection enthalten; halten Sie Berechtigungen daher eng und weisen Sie Claude an zu stoppen, wenn Inhalte sachfremde Handlungen, Geheimnisse oder eine Ausweitung des Umfangs verlangen."
+        },
+        {
+          "heading": "Den geänderten Zustand prüfen, nicht die Fortschrittserzählung",
+          "body": "Fortschrittsmeldungen helfen Ihnen, die Ausführung zu verfolgen, belegen aber nicht den Endzustand. Vergleichen Sie den Ordner vorher und nachher, prüfen Sie jede neue oder veränderte Datei und vergewissern Sie sich, dass keine sachfremde Datei verschoben wurde oder verschwunden ist. Öffnen Sie Arbeitsergebnisse in ihren nativen Anwendungen, testen Sie Links und Formeln und gleichen Sie zentrale Behauptungen mit den ursprünglichen Eingaben ab. Bewahren Sie Änderungsprotokoll und Sicherungskopie bis zum Abschluss der Prüfung auf. Geplante Aufgaben werden in der Cloud ausgeführt und können weiterlaufen, wenn Ihr Computer ausgeschaltet ist; eine Sitzung kann jedoch nicht auf einen verbundenen lokalen Ordner zugreifen, solange Claude Desktop offline ist. Prüfen Sie die Ausgaben jedes Laufs und die Grenze der verbundenen Ressourcen; leiten Sie aktuelles Verhalten nicht aus einem älteren Tutorial ab."
+        }
+      ],
+      "practice": {
+        "title": "Delegieren Sie eine Aufgabe für einen wiederherstellbaren Ordner",
+        "brief": "Verwenden Sie einen speziellen Ordner mit synthetischen Notizen, um einen Index zu erstellen, Kopien umzubenennen und ein kurzes Briefing ohne externe Schreibvorgänge zu erstellen.",
+        "steps": [
+          "Duplizieren Sie den Quellordner, zeichnen Sie seine anfängliche Dateiliste auf und schreiben Sie das Ergebnis, die Ausschlüsse und die Akzeptanzprüfungen.",
+          "Bitten Sie Cowork um einen Plan, behalten Sie manuelle Genehmigungen bei und überprüfen Sie jede angeforderte Aktion anhand des dedizierten Pfads.",
+          "Vergleichen Sie Vorher und Nachher, öffnen Sie jede Ausgabe, zeichnen Sie Abweichungen auf und stellen Sie die Kopie aus der Kopie wieder her, wenn eine Grenze überschritten wurde."
+        ],
+        "evidence": [
+          "Der genehmigte Plan und die Vorher/Nachher-Akteninventur.",
+          "Ein Verifizierungsprotokoll, das jede Ausgabe und jede abgelehnte Aktion abdeckt."
+        ],
+        "safety": "Verwenden Sie nur synthetische Dateien in einem speziellen Ordner mit einer wiederherstellbaren Kopie. Aktivieren Sie keine E-Mail-, Kalender-, Zahlungs-, Cloud-Laufwerk- oder Produktionssystem-Schreibvorgänge."
+      },
+      "checkpoint": {
+        "prompt": "Die letzte Nachricht von Cowork besagt, dass alle Dateien erfolgreich organisiert wurden. Was sollten Sie prüfen?",
+        "answer": "Der tatsächliche Dateisatz vor/nachher, jede geänderte Datei, Namen und Pfade, natives Rendering, fehlende Elemente, unerwartete Änderungen und die wiederherstellbare Sicherung."
+      },
+      "takeaway": "Delegieren Sie die Abfolge, behalten Sie aber die Kontrolle über Grenzen, Freigaben und Akzeptanznachweise."
+    },
+    "software-engineering": {
+      "kicker": "Lektion 11 · Claude Code",
+      "title": "Mit Inspektion, Tests und Diffs entwickeln",
+      "summary": "Claude Code kann Repositorys lesen, Dateien bearbeiten, Befehle ausführen und über Terminal, IDE, Desktop oder GitHub arbeiten. Vertrauen entsteht durch eine begrenzte Spezifikation und eine neue Überprüfung.",
+      "objective": "Führen Sie eine kleine Repository-Änderung mit schreibgeschützter Orientierung, genehmigtem Plan, geprüftem Diff und neuen Testnachweisen durch und nutzen Sie Claude Code, wenn Sie dazu berechtigt sind, oder Chat mit lokalen Werkzeugen als kostenlosen Weg.",
+      "sections": [
+        {
+          "heading": "Vor dem Bearbeiten Orientierung schaffen",
+          "body": "Claude Code ist eine kostenpflichtige oder von Ihrer Organisation freigeschaltete Erweiterung und keine Voraussetzung für diese Lektion. Mit Code beginnen Sie in einem entbehrlichen oder gut versionierten Repository und prüfen Arbeitsverzeichnis, Branch, nicht eingecheckte Änderungen, anwendbare CLAUDE.md-Anweisungen, Paketbefehle und Testeinstiegspunkte. Bitten Sie Claude, das aktuelle Verhalten nachzuverfolgen und Dateien zu nennen, ohne etwas zu ändern. Auf dem kostenlosen Weg geben Sie Chat nur ein kleines synthetisches oder öffentliches Codepaket, beschreiben denselben Repository-Status und das erwartete Verhalten und wenden anschließend jeden vorgeschlagenen Patch selbst lokal an. Übersetzen Sie das gewünschte Verhalten in Akzeptanztests, Einschränkungen und Nicht-Ziele. Lokales Claude Code kann umfassender auf Entwicklungswerkzeuge und Dateien zugreifen als ein abgegrenzter Cowork-Ordner; übernehmen Sie deshalb die Sicherheitsannahmen von Cowork nicht. Schützen Sie Geheimnisse, vermeiden Sie breite Berechtigungen und halten Sie Commits, Pushes, Pull Requests, Deployments und destruktive Befehle ausdrücklich außerhalb des Umfangs, sofern sie nicht autorisiert wurden."
+        },
+        {
+          "heading": "In überprüfbaren Schritten planen und umsetzen",
+          "body": "Verlangen Sie den kleinsten in sich schlüssigen Plan mit betroffenen Dateien, Teststrategie, Risiken und Entscheidungspunkten. Reproduzieren Sie einen Fehler und halten Sie nach Möglichkeit vor der Korrektur einen gezielten fehlschlagenden Test fest. Definieren Sie für eine neue Funktion das beobachtbare Verhalten und die Regressionsabdeckung. Implementieren Sie einen begrenzten Teil, prüfen Sie den Diff und richten Sie die nächsten Schritte an den Nachweisen aus. Parallele Agenten eignen sich nur für unabhängige, nicht überlappende Untersuchungen oder Module mit stabilen Schnittstellen. Skills, Hooks, MCP-Server und Subagenten erweitern die Befugnisse und müssen wie jede andere ausführbare Erweiterung geprüft werden."
+        },
+        {
+          "heading": "Den exakten Zustand und die Übergabe prüfen",
+          "body": "Prüfen Sie die vollständige Liste der geänderten Dateien, nicht nur Inline-Ausschnitte. Vergleichen Sie jede Datei mit dem Plan und achten Sie auf sachfremde Formatierungen, generierte Artefakte, geänderte Abhängigkeiten, gelöschte Tests und verborgene Konfiguration. Führen Sie zunächst gezielte Tests und danach risikogerechte Lint-, Typ-, Build-, Sicherheits- und Integrationsprüfungen aus. Protokollieren Sie Befehle, Exit-Codes und alles, was nicht ausgeführt wurde. GitHub-Automatisierung sollte Tokens mit geringstmöglichen Rechten verwenden, Issue- und Pull-Request-Texte als nicht vertrauenswürdig behandeln und Änderungen durch Branch-Schutz und menschliche Prüfung absichern. Eine ausgefeilte Abschlussmeldung ist eine zu prüfende Übergabe, kein Beweis für die Einsatzbereitschaft des Codes."
+        }
+      ],
+      "practice": {
+        "title": "Führen Sie eine reversible Repository-Änderung durch",
+        "brief": "Nutzen Sie Claude Code, wenn Sie dazu berechtigt sind, oder Chat mit Ihren eigenen lokalen Werkzeugen als kostenlosen Weg, um in einem kleinen öffentlichen Beispiel-Repository einen dokumentierten Fehler zu beheben oder ein begrenztes, getestetes Verhalten hinzuzufügen.",
+        "steps": [
+          "Erfassen Sie den Repository-Status. Fordern Sie in Code eine schreibgeschützte Orientierung an; stellen Sie Chat nur die relevanten synthetischen oder öffentlichen Dateien bereit. Genehmigen Sie einen Plan, der an beobachtbare Akzeptanzkriterien gebunden ist.",
+          "Erfassen Sie eine gezielte fehlgeschlagene Prüfung, bitten Sie um den kleinstmöglichen Patch und prüfen Sie anschließend die Änderung von Code oder wenden Sie den Vorschlag von Chat selbst lokal an und untersuchen Sie den vollständigen Diff.",
+          "Führen Sie erneut gezielte und umfassendere Prüfungen durch und verfassen Sie dann eine Übergabe mit geänderten Dateien, Beweisen, Einschränkungen und nicht ergriffenen unerlaubten Maßnahmen."
+        ],
+        "evidence": [
+          "Aufgabenvertrag, Orientierung, Plan und vollständig geprüfter Diff.",
+          "Ein Befehlsüberprüfungsdatensatz mit Fehlern, Erfolgen und nicht ausgeführten Prüfungen."
+        ],
+        "safety": "Verwenden Sie Versionskontrolle und keine echten Geheimnisse oder Zugangsdaten. Schließen Sie Push, Bereitstellung, Produktionsdaten, Paketveröffentlichung und destruktive Bereinigung aus, sofern diese Schritte nicht gesondert genehmigt wurden."
+      },
+      "checkpoint": {
+        "prompt": "Gezielte Tests und Build sind erfolgreich. Was kann dennoch falsch sein?",
+        "answer": "Die Tests können das Akzeptanzverhalten verfehlen, der Diff kann den Umfang überschreiten, Sicherheit oder Barrierefreiheit können sich verschlechtern, die Konfiguration kann abweichen oder eine wichtige Prüfung wurde nie ausgeführt."
+      },
+      "takeaway": "Für Code ist die Beweiskette Repository-Fakt → Plan → Diff → neue Prüfungen → ehrliche Übergabe."
+    },
+    "research-and-data": {
+      "kicker": "Lektion 12 · Praxiswerkstatt",
+      "title": "Forschung und Datenanalyse mit Prüfpfad durchführen",
+      "summary": "Nutzen Sie Claude, um Quellenrecherche, Codierung, Analyse und Synthese zu beschleunigen, während Studiengrenzen, Berechnungen und Inferenzgrenzen reproduzierbar bleiben.",
+      "objective": "Erstellen Sie einen Quellen- und Analysepass, den eine andere forschende Person von der Frage bis zur Schlussfolgerung prüfen kann.",
+      "sections": [
+        {
+          "heading": "Den Forschungsvertrag festschreiben",
+          "body": "Nennen Sie vor einer Synthese Forschungsfrage, Population oder Korpus, Zeitraum, Ein- und Ausschlussregeln, Variablen, Ergebnisse und Nachweishierarchie. Trennen Sie Möglichkeiten des Designs vom tatsächlich beobachteten Verhalten und beschreibende Muster von kausalen Behauptungen. Bitten Sie Claude, als „nicht berichtet“ gekennzeichnete, mehrdeutige und widersprüchliche Nachweise zu bewahren. Prüfen Sie bei Literaturarbeiten jeden aufgenommenen Beitrag und jedes zentrale Zitat im Original. Verwenden Sie bei qualitativer Codierung das exakte Codebuch und behalten Sie ein Unsicherheitsfeld bei. Definieren Sie bei quantitativen Analysen Einheiten, fehlende Werte, Ausschlüsse und geplante Prüfungen, bevor Sie ein überzeugendes Ergebnis untersuchen."
+        },
+        {
+          "heading": "Transformationen reproduzierbar machen",
+          "body": "Bewahren Sie die Originaldateien unverändert auf, erstellen Sie ein Datenwörterbuch und protokollieren Sie jede Transformation. Bitten Sie Claude nach Möglichkeit um Code oder Formeln statt um unerklärte Zahlen. Führen Sie die Analyse in einer geeigneten Umgebung aus, dokumentieren Sie Versionen und Parameter und vergleichen Sie eine kleine Stichprobe manuell oder mit einer unabhängigen Methode. Trennen Sie die vom Code erzeugten Ergebnisse von ihrer inhaltlichen Interpretation. Ein Diagramm belegt keine korrekte Pipeline: Prüfen Sie Quelldaten, Skala, Aggregation, Beschriftungen und Unsicherheit. Wenn Sie Claude Platform oder eine Agentensitzung verwenden, untersuchen Sie Werkzeuge, Ressourcen, Ereignisse und Ausgaben, statt sich allein auf die abschließende Darstellung zu verlassen."
+        },
+        {
+          "heading": "Behauptungen prüfen und Unterstützung offenlegen",
+          "body": "Erstellen Sie eine Matrix aus Behauptungen und Nachweisen, die jede Schlussfolgerung mit einer Quellenpassage, Tabelle, Codeausgabe oder Abbildung verknüpft. Markieren Sie unbelegte und bedingte Behauptungen. Prüfen Sie alternative Erklärungen und grenznahe Fälle gezielt unter Belastung. Bitten Sie Claude um eine kontradiktorische Kritik der Analyse und lassen Sie anschließend die Elemente mit dem höchsten Risiko von einem Menschen oder einer unabhängigen Methode prüfen. Bewahren Sie Prompts, Quellversionen, Skripte, Entscheidungen und generierte Entwürfe in einem Reproduzierbarkeitspass auf. Befolgen Sie disziplinäre, redaktionelle, arbeitsrechtliche und ethische Regeln zur Offenlegung von KI-Nutzung, Urheberschaft, Datenschutz und Daten menschlicher Studienteilnehmer. Claude kann keine Verantwortung für wissenschaftliche Behauptungen übernehmen."
+        }
+      ],
+      "practice": {
+        "title": "Erstellen Sie einen Mini-Reproduzierbarkeitspass",
+        "brief": "Verwenden Sie einen kleinen öffentlichen Datensatz oder drei öffentliche Aufsätze, um eine eng beschreibende Frage zu beantworten.",
+        "steps": [
+          "Schreiben Sie vor der Analyse die Frage, Einschlussregeln, Variablen oder Codierungsschemata, Quellversionen und geplante Ausgaben auf.",
+          "Bitten Sie Claude, eine nachverfolgbare Pipeline zu erstellen, sie auszuführen oder zu überprüfen und zwei Transformationen oder Behauptungen unabhängig zu überprüfen.",
+          "Erstellen Sie eine Behauptungs-Nachweis-Matrix, einen Abschnitt zu Einschränkungen und eine genaue Offenlegung der KI-Nutzung."
+        ],
+        "evidence": [
+          "Das Quell-/Datenwörterbuch, das Transformationsprotokoll und die ausführbare oder überprüfbare Analyse.",
+          "Eine Behauptungs-Nachweis-Matrix mit Verifizierungsstatus, Einschränkungen und Offenlegung."
+        ],
+        "safety": "Verwenden Sie offene, nicht identifizierbare Daten. Laden Sie ohne Genehmigung keine zugriffsbeschränkten Fachartikel, Teilnehmerdaten, Peer-Review-Unterlagen oder vertraulichen Anträge hoch."
+      },
+      "checkpoint": {
+        "prompt": "Claude hat gültigen Code und eine plausible Schlussfolgerung generiert. Was muss der Reproduzierbarkeitspass noch ausweisen?",
+        "answer": "Die tatsächlich ausgeführte Umgebung, Quellversionen, Transformationen, Ausgaben, unabhängige Prüfungen, Schlussfolgerungsgrenzen, Einschränkungen und von Menschen überprüfte Offenlegung."
+      },
+      "takeaway": "Ein Forschungsergebnis ist nur dann vertrauenswürdig, wenn eine andere Person den Nachweispfad nachvollziehen und hinterfragen kann."
+    },
+    "writing-and-office": {
+      "kicker": "Lektion 13 · Praxiswerkstatt",
+      "title": "Schreiben, präsentieren und rechnen, ohne die Urheberschaft abzugeben",
+      "summary": "Claude eignet sich besonders als strukturierter Arbeitspartner für Architektur, Alternativen, Kritik und Dateierstellung, gefolgt von sachlicher, rhetorischer und einer Prüfung im nativen Format.",
+      "objective": "Führen Sie einen versionierten Schreib- oder Office-Arbeitsablauf vom Quellenpaket und Zielgruppen-Briefing bis zum geprüften nativen Arbeitsergebnis und zur Offenlegung durch.",
+      "sections": [
+        {
+          "heading": "Das Dokument vor dem Textentwurf gestalten",
+          "body": "Geben Sie Zweck, Zielgruppe, Entscheidung, Quellenmaterial, Sprachproben, Länge, Pflichtabschnitte, Ausschlüsse und Freigabegrenze vor. Verlangen Sie bei wichtigen Inhalten eine Bestandsaufnahme der Behauptungen und eine Gliederung, bevor ausgefeilter Text entsteht. Nutzen Sie Claude, um alternative Strukturen, Gegenargumente, Übergänge oder Beispiele zu entwickeln, und wählen Sie dann bewusst aus. Eine Sprachprobe soll beobachtbare Merkmale vermitteln, ohne täuschend die Identität einer Person nachzuahmen. Bewahren Sie Versionen auf, damit sichtbar bleibt, was Claude geändert hat und warum. Lassen Sie in wissenschaftlichen oder beruflichen Texten nie zu, dass flüssiger Fülltext unbelegte Quellenangaben, Zitate, Leistungen oder Zusagen erfindet."
+        },
+        {
+          "heading": "Office-Dateien als konstruierte Arbeitsergebnisse behandeln",
+          "body": "Definieren Sie für Word Formatvorlagen, Überschriften, Tabellen, Kommentare, Änderungsverfolgung und Barrierefreiheit. Definieren Sie für PowerPoint den Erzählverlauf, einen Zweck je Folie, Quellenfußzeilen, Sprechernotizen, Bildrechte und Überlaufprüfungen. Definieren Sie für Excel das Datenwörterbuch, Formeln, Annahmen, Validierung und Diagrammsemantik. Lassen Sie Claude die Datei erstellen oder überarbeiten, prüfen Sie sie aber in der nativen Anwendung. Berechnen Sie Formeln neu, kontrollieren Sie Folienabmessungen und Notizen, bestätigen Sie Kommentare und Überarbeitungen, testen Sie Links und gleichen Sie Behauptungen mit dem Quellenpaket ab. Visueller Feinschliff und fehlerfreies Öffnen der Datei sagen nichts über die Gültigkeit des Inhalts aus."
+        },
+        {
+          "heading": "Folgenreiche Kommunikation in menschlicher Hand behalten",
+          "body": "Delegieren Sie Versand, Veröffentlichung, Unterzeichnung, Benotung, Einstellung oder finanzielle Verpflichtungen nicht allein deshalb, weil ein Connector oder Cowork-Arbeitsablauf sie ausführen kann. Nutzen Sie abgestufte Autonomie: vorschlagen, prüfen, genehmigen und erst dann ausführen, wenn Folgen und Zielgruppe verstanden sind. Kontrollieren Sie unmittelbar vor einer externen Handlung Empfänger, Anhänge, Daten, Ton und vertrauliche Inhalte. Legen Sie wesentliche KI-Beiträge offen, wenn Richtlinien oder Kontext dies verlangen. Die abschließende Stimme, die Verantwortung für Behauptungen und die Auswirkungen auf Beziehungen bleiben bei Ihnen."
+        }
+      ],
+      "practice": {
+        "title": "Ein Office-Arbeitsergebnis im nativen Format erstellen",
+        "brief": "Verwandeln Sie ein synthetisches Quellenpaket in ein zweiseitiges Memo, eine Präsentation mit fünf Folien oder eine kleine Arbeitsmappe zur Entscheidungsunterstützung.",
+        "steps": [
+          "Erstellen Sie das Zielgruppen-Briefing, das Quellenverzeichnis, die Bestandsaufnahme der Behauptungen, die Dateianforderungen und die Genehmigungsgrenze.",
+          "Generieren Sie die native Datei, überprüfen Sie eine strukturelle Alternative und fordern Sie nur begrenzte Überarbeitungen an.",
+          "Öffnen Sie die endgültige Datei nativ, führen Sie Inhalts- und Formatprüfungen durch und verfassen Sie eine kurze Offenlegung der KI-Nutzung."
+        ],
+        "evidence": [
+          "Das Briefing, das Quellenverzeichnis, versionierte Entscheidungsentwürfe und die endgültige native Datei.",
+          "Ein Überprüfungsprotokoll, das Fakten, Struktur, Zugänglichkeit, Darstellung, Berechnungen und Offenlegung abdeckt."
+        ],
+        "safety": "Verwenden Sie synthetische Beteiligte und Adressen. Senden, veröffentlichen oder unterzeichnen Sie während der Übung nichts und verbinden Sie kein aktives Arbeitsplatzkonto."
+      },
+      "checkpoint": {
+        "prompt": "Das generierte Foliendeck öffnet sich und weist keinen sichtbaren Überlauf auf. Ist es vollständig?",
+        "answer": "Noch nicht. Überprüfen Sie die Erzählung, Behauptungen, Quellen, Bilder, Sprechernotizen, Zugänglichkeit, Zielgruppenanpassung sowie alle nativen Links oder eingebetteten Daten."
+      },
+      "takeaway": "Claude kann die Dokumentenproduktion beschleunigen; Urheberschaft bedeutet, Nachweise, Entscheidungen, Überprüfung und Verantwortung aufzubewahren."
+    },
+    "teaching-and-learning": {
+      "kicker": "Lektion 14 · Praxiswerkstatt",
+      "title": "Mit Claude unterrichten und das Denken der Lernenden erhalten",
+      "summary": "Nutzen Sie Claude für Erklärungen, Beispiele, Differenzierung und formatives Feedback, ohne Lernziele, Richtigkeit, Bewertung oder das Denken der Lernenden auszulagern.",
+      "objective": "Entwerfen und prüfen Sie eine fundierte Lernaktivität mit barrierearmen Alternativen, sichtbarem Denken der Lernenden und pädagogisch kontrollierten Bewertungsgrenzen.",
+      "sections": [
+        {
+          "heading": "Die Unterrichtsgestaltung fundieren",
+          "body": "Beginnen Sie mit den Lernenden, ihrem Vorwissen, dem Ziel, den Lernnachweisen, der verfügbaren Zeit, den Ressourcen, Standards oder Ausgangsmaterialien und den Anforderungen an Barrierefreiheit. Bitten Sie Claude um mehrere pädagogische Möglichkeiten, bevor Sie eine auswählen. Prüfen Sie Inhalte und Standards anhand maßgeblicher Quellen. Unterscheiden Sie ein vollständiges Unterrichtspaket von einem Entwurf, dem noch ein Standard, eine Quelle oder eine lokale Einschränkung fehlt. Variieren Sie durch Differenzierung Unterstützung, Darstellung oder Herausforderung, ohne das angestrebte Lernziel unbemerkt abzusenken. Die Beurteilung von Eignung, kulturellem Kontext und Umsetzbarkeit im Unterricht bleibt bei der Lehrkraft."
+        },
+        {
+          "heading": "Gelegenheiten für eigenständiges Denken schaffen",
+          "body": "KI-Unterstützung kann jene produktive Anstrengung beseitigen, durch die Verständnis entsteht. Lassen Sie Lernende vor der Generierung eine Vorhersage treffen, vor Hinweisen Wissen abrufen, nach einer Antwort erklären, Fehler nachverfolgen, Alternativen vergleichen und das Gelernte anderen vermitteln. Sie sollen zeigen, was sie entschieden haben und warum. Nutzen Sie Claude, um mehrere Erklärungen oder formative Fragen zu erzeugen, und lassen Sie die Lernenden diese bewerten. Setzen Sie eine ausgefeilte Ausgabe nicht mit Lernen gleich. Soll eine Aufgabe eine Fertigkeit einüben, begrenzen Sie Claudes Beitrag so, dass die Lernenden den angestrebten Denkprozess weiterhin selbst ausführen."
+        },
+        {
+          "heading": "Bewertung und Schülerdaten schützen",
+          "body": "Laden Sie ohne institutionelle Genehmigung und geeignete Kontoeinstellungen keine identifizierbaren Schülerakten, Informationen zu Behinderungen, Verhaltensnotizen oder benoteten Arbeiten hoch. Verwenden Sie für die Planung synthetische Beispiele. Claude kann Feedback anhand eines Bewertungsrasters vorschlagen, doch vor einer Note oder Intervention muss eine qualifizierte Lehrkraft Inhalt, Fairness, Nachweise und Folgen prüfen. Erklären Sie den Lernenden, wie KI genutzt werden darf, was offenzulegen ist und welche Arbeit ihre eigene bleiben muss. Untersuchen Sie generierte Materialien auf Verzerrungen, erfundene Quellen, unangemessenen Schwierigkeitsgrad, mangelnde Barrierefreiheit und urheberrechtliche Grenzen."
+        }
+      ],
+      "practice": {
+        "title": "Eine Mikrolektion gestalten, die eigenständiges Lernen erhält",
+        "brief": "Erstellen Sie für eine fiktive Lerngruppe eine 20-minütige Lektion mit einer öffentlichen Quelle und einer ausdrücklichen Grenze für die KI-Nutzung.",
+        "steps": [
+          "Geben Sie die Lernenden, das Ziel, Vorkenntnisse, die Quelle, Erfolgsnachweise, Barrierefreiheitsanforderungen und das an, was Claude möglicherweise nicht für die Schüler tun darf.",
+          "Fragen Sie nach zwei Aktivitätsdesigns, wählen Sie eines aus und fügen Sie Vorhersage, Abruf, Fehlerverfolgung oder Teach-Back hinzu.",
+          "Überprüfen Sie jedes sachliche Element und jede Frage, testen Sie die Aktivität mit einer synthetischen Antwort und überarbeiten Sie die Rubrik für den Pädagogen."
+        ],
+        "evidence": [
+          "Das quellengestützte Unterrichtsbriefing, die Begründung der gewählten Gestaltung und die für Lernende formulierte Regel zur KI-Nutzung.",
+          "Ein Überprüfungsprotokoll zu Inhalt, Zugänglichkeit, Voreingenommenheit, Bewertung und Lernendendenken."
+        ],
+        "safety": "Verwenden Sie synthetische Studenten und öffentliche Quellen. Keine echten Schülerakten, Benotungsentscheidungen oder vertrauliches Schulmaterial."
+      },
+      "checkpoint": {
+        "prompt": "Mit Claude geben die Schüler präzise und ausgefeilte Antworten. Welche Lernnachweise fehlen noch?",
+        "answer": "Es fehlen eigene Vorhersagen, Wissensabruf, Erklärungen, Fehlerverfolgung, Transfer oder Rückerklärung – also Nachweise dessen, was sie ohne verdeckte Stellvertretung verstehen."
+      },
+      "takeaway": "Nutzen Sie Claude, um die Lernmöglichkeiten zu vervielfachen, und nicht, um das Denken der Lernenden verschwinden zu lassen."
+    },
+    "portfolio-capstone": {
+      "kicker": "Lektion 15 · Abschlussprojekt",
+      "title": "Ein vertrauenswürdiges Portfolio von Claude-Arbeitsabläufen erstellen",
+      "summary": "Führen Sie einen authentischen Arbeitsablauf mit geringem Risiko durch und übergeben Sie die Nachweise, die eine andere Person zum Verständnis von Delegation, Ergebnis, Grenzen und menschlichen Entscheidungen benötigt.",
+      "objective": "Erstellen Sie ein sechsteiliges Portfolio, das nach Delegation, Beschreibung, Urteilsvermögen und Sorgfalt bewertet wird.",
+      "sections": [
+        {
+          "heading": "Einen klar begrenzten Pfad wählen",
+          "body": "Wählen Sie Softwareentwicklung, Forschung und Daten, Schreiben und Büroarbeit oder Lehre. Verwenden Sie das bereitgestellte synthetische Briefing oder eine öffentliche, nicht sensible Aufgabe. Definieren Sie Nutzer, Ergebnis, maßgebliche Eingaben, Ausschlüsse, gewählte Arbeitsumgebung, Mindestberechtigungen, Akzeptanzprüfungen und Menschen vorbehaltene Handlungen. Die Aufgabe sollte groß genug für mindestens zwei Iterationen, aber klein genug für eine Prüfung innerhalb von zwei Stunden sein. Kostenpflichtige Werkzeuge sind optional: Chat mit öffentlichen Dateien reicht für das Abschlussprojekt aus, wenn die Nachweiskette stark ist."
+        },
+        {
+          "heading": "Während der Arbeit ein Nachweisprotokoll führen",
+          "body": "Dokumentieren Sie Quellversionen, hochgeladene Eingaben, das Prompt-Briefing, wichtige Folgeschritte, Entscheidungen zu Werkzeugen oder Berechtigungen, Ausgabeversionen und Fehler. Fügen Sie keine privaten Inhalte in den Kurs ein; Ihr Protokoll bleibt bei Ihnen. Prüfen Sie den Plan von Claude vor dem Handeln, erhalten Sie einen wiederherstellbaren Zustand und stoppen Sie, wenn die Aufgabe neue Befugnisse verlangt. Überprüfen Sie das Arbeitsergebnis mit Methoden, die Fehler sichtbar machen können: Kontrolle der Originalquellen, Nachrechnung, Prüfung der nativen Datei, Tests und Diff-Prüfung oder pädagogische Bewertung. Bitten Sie Claude um eine Kritik des Ergebnisses und unterscheiden Sie diese anschließend von Ihren unabhängigen Prüfungen."
+        },
+        {
+          "heading": "Mit Grenzen und Offenlegung übergeben",
+          "body": "Stellen Sie Aufgaben-Briefing, Eingabeprotokoll, Ausführungsprotokoll, Arbeitsergebnis, Prüfprotokoll sowie Offenlegung und Reflexion zusammen. Benennen Sie, was sich geändert hat, welche Prüfungen bestanden wurden, was ungetestet blieb, wo Unsicherheit fortbesteht und welche Entscheidungen weiterhin einen Menschen erfordern. Bewerten Sie das Paket anhand aller vier Rasterdimensionen und reparieren Sie das schwächste Glied, statt weiteren Feinschliff hinzuzufügen. Die exportierte Abschlussübersicht hält nur selbst gemeldete Meilensteine fest; sie ist kein Befähigungsnachweis und enthält weder Prompts noch Dateiinhalte. Eine vertrauenswürdige Übergabe ermöglicht einer anderen Person eine Entscheidung ohne Rätselraten."
+        }
+      ],
+      "practice": {
+        "title": "Das sechsteilige Portfolio vervollständigen",
+        "brief": "Durchlaufen Sie den gesamten Pfad vom Ergebnis-Briefing bis zum unabhängig geprüften Arbeitsergebnis und schließen Sie anschließend die Selbstprüfung auf der Seite ab.",
+        "steps": [
+          "Legen Sie Aufgaben-Briefing, Eingabe- und Datengrenze, Arbeitsumgebung, Berechtigungen, Akzeptanzprüfungen und ausschließlich menschliche Handlungen verbindlich fest.",
+          "Arbeiten Sie in nachvollziehbaren Iterationen und bewahren Sie das Laufprotokoll, die Ausgabeversionen, Fehler und unabhängige Verifizierungsnachweise auf.",
+          "Schreiben Sie die Offenlegung und Reflexion auf, bewerten Sie alle vier Dimensionen, schließen Sie Lücken und zeichnen Sie den Abschluss nur dann auf, wenn alle sechs Artefakte vorhanden sind."
+        ],
+        "evidence": [
+          "Die sechs Portfolio-Artefakte, privat aufbewahrt in Ihrem eigenen Arbeitsbereich.",
+          "Eine ausgefüllte Rubrik mit Bewertung, kritischer Sicherheitsprüfung, Einschränkungen und nächster menschlicher Entscheidung."
+        ],
+        "safety": "Verwenden Sie synthetische, öffentliche oder explizit autorisierte Eingaben. Behalten Sie externe Nachrichten, Veröffentlichungen, Bereitstellung, Benotung und wichtige Entscheidungen außerhalb der Übung."
+      },
+      "checkpoint": {
+        "prompt": "Was macht das Abschlussprojekt hervorragend und nicht nur ausgefeilt?",
+        "answer": "Ein Prüfer kann das Ergebnis, Quellen, Prompts, Berechtigungen, Transformationen, Ergebnisse, unabhängige Prüfungen, Fehler, Grenzen, Offenlegung und verbleibende menschliche Entscheidungen nachverfolgen."
+      },
+      "takeaway": "Ihr Portfolio soll eine vertrauenswürdige Arbeitsweise belegen, nicht für Claude werben oder verschleiern, wo menschliches Urteilsvermögen entscheidend war."
+    }
+  },
+  "quiz": {
+    "q01": {
+      "question": "Welcher Faktor sollte die Wahl zwischen Chat, Cowork und Code beeinflussen?",
+      "options": [
+        "Der neueste Modellname",
+        "Das Ergebnis, der Kontext, die Befugnis und der Überprüfungsaufwand",
+        "Die größte Anzahl verfügbarer Tools",
+        "Welche Arbeitsumgebung zuletzt verwendet wurde"
+      ],
+      "explanation": "Die Wahl der Arbeitsumgebung ist eine Risiko- und Arbeitsablaufentscheidung, keine Rangliste der Leistungsfähigkeit."
+    },
+    "q02": {
+      "question": "Welche Aufgabe gehört eindeutig zu Claude Code?",
+      "options": [
+        "Überlegen Sie sich drei Besprechungstitel",
+        "Fassen Sie einen öffentlichen Artikel zusammen",
+        "Untersuchen Sie ein Repository, bearbeiten Sie eine getestete Funktion und überprüfen Sie den Diff",
+        "Verfassen Sie eine private E-Mail, ohne sie zu senden"
+      ],
+      "explanation": "Repository-Prüfung, Dateibearbeitung, Befehle, Tests und Diffs bilden den charakteristischen Kontext von Code."
+    },
+    "q03": {
+      "question": "Was ist das stärkste Ergebnis-Briefing?",
+      "options": [
+        "Machen Sie das besser",
+        "Nutzen Sie Best Practices und seien Sie präzise",
+        "Schreiben Sie etwas Professionelles",
+        "Erstellen Sie ein zweiseitiges Entscheidungsmemo für eine definierte Zielgruppe, das nur die bereitgestellten Quellen nutzt, Unsicherheit kennzeichnet und Erfolgskriterien enthält"
+      ],
+      "explanation": "Das stärkste Briefing macht Nutzer, Zweck, Eingaben, Einschränkungen, Ergebnis und Akzeptanznachweise beobachtbar."
+    },
+    "q04": {
+      "question": "Was soll Claude tun, wenn eine wichtige Eingabe fehlt?",
+      "options": [
+        "Die Lücke benennen und nachfragen oder die Einschränkung kennzeichnen",
+        "Einen plausiblen Wert erfinden",
+        "Die Unsicherheit in einer geschliffenen Formulierung verbergen",
+        "Ohne Hinweis die häufigste Annahme wählen"
+      ],
+      "explanation": "Durch explizite Lücken bleibt die Nachweisgrenze erhalten und Entscheidungen bleiben beim Benutzer."
+    },
+    "q05": {
+      "question": "Was macht ein sinnvolles Follow-up nach einem Teilerfolg aus?",
+      "options": [
+        "Sich mehr anstrengen",
+        "Alles neu schreiben",
+        "Die geprüften Teile beibehalten und eine beobachtbare Abweichung sowie die nächste Prüfung benennen",
+        "Sachfremden Kontext hinzufügen"
+      ],
+      "explanation": "Die evidenzbasierte Steuerung definiert den stabilen Zustand und eine begrenzte Änderung."
+    },
+    "q06": {
+      "question": "Wann ist ein neuer Chat am nützlichsten?",
+      "options": [
+        "Nach jedem Satz",
+        "Wenn sich das Ziel oder die grundlegende Anweisung geändert hat und der Verlauf nun widersprüchlichen Kontext enthält",
+        "Nur wenn sich das Modell ändert",
+        "Niemals innerhalb eines Project"
+      ],
+      "explanation": "Ein neuer Chat testet den dauerhaften Kontext und entfernt veraltete oder widersprüchliche Konversationsannahmen."
+    },
+    "q07": {
+      "question": "Was ist die beste Prüfreaktion auf eine wichtige Tatsachenbehauptung?",
+      "options": [
+        "Die Originalquelle öffnen und prüfen, ob die Passage genau diese Behauptung stützt",
+        "Claude fragen, ob es sich seiner Antwort sicher ist",
+        "Das Zitat akzeptieren, wenn sich der Link öffnen lässt",
+        "Nach der Schreibqualität urteilen"
+      ],
+      "explanation": "Urteilsvermögen erfordert die Prüfung der Originalquelle und ihrer Deckung mit der Behauptung, nicht Sprachfluss oder das vom Modell bekundete Selbstvertrauen."
+    },
+    "q08": {
+      "question": "Was wird durch die Authentifizierung bei einem Connector festgestellt?",
+      "options": [
+        "Jede Aktion ist sicher",
+        "Der Connector ist schreibgeschützt",
+        "Claude kann jede Kontoberechtigung nutzen",
+        "Identität und Zugang, nicht dass jede mögliche Aktion angemessen ist"
+      ],
+      "explanation": "Spezifische Maßnahmen, Ziele, Konsequenzen und engere Alternativen müssen noch überprüft werden."
+    },
+    "q09": {
+      "question": "Welche Datei ist das eigentliche Arbeitsergebnis, nachdem Claude eine Tabelle erstellt hat?",
+      "options": [
+        "Die Chat-Zusammenfassung",
+        "Die heruntergeladene und in einer nativen Anwendung geprüfte Arbeitsmappe",
+        "Allein das Vorschaubild",
+        "Der in Claude angezeigte Dateiname"
+      ],
+      "explanation": "Native Formeln, Diagramme, Metadaten, Links und Rendering müssen in der echten Datei überprüft werden."
+    },
+    "q10": {
+      "question": "Was sollte ein sicheres Upload-Paket enthalten?",
+      "options": [
+        "Alle zugehörigen Dateien verfügbar",
+        "Ausgeblendete Blätter und Metadaten der Vollständigkeit halber",
+        "Nur notwendige, autorisierte Dateien mit Erläuterungen zu Versionen, Rollen und Mehrdeutigkeiten",
+        "Anmeldeinformationen, damit Claude fehlenden Kontext abrufen kann"
+      ],
+      "explanation": "Datenminimierung und Klarheit der Dateirollen verringern das Datenschutz- und Interpretationsrisiko."
+    },
+    "q11": {
+      "question": "Welche Aussage zum Project-Kontext ist richtig?",
+      "options": [
+        "Jeder Chat enthält automatisch jeden vorherigen Chat",
+        "Allein der Project-Name liefert den gesamten Kontext",
+        "Gedächtnis und Wissen sind der gleiche Mechanismus",
+        "Project-Wissen kann wiederverwendet werden, doch wichtige Fakten müssen weiterhin ausdrücklich benannt und in neuen Chats getestet werden"
+      ],
+      "explanation": "Project-Wissen, Anweisungen, Chats und Gedächtnis haben klare Grenzen."
+    },
+    "q12": {
+      "question": "Was ist der stärkste Test für Project-Anweisungen?",
+      "options": [
+        "Ein normaler Fall und ein Randfall in separaten neuen Chats, wobei die erwarteten Ergebnisse zuerst geschrieben werden",
+        "Ein repariertes Gespräch",
+        "Eine lange Anleitungsdatei",
+        "Die Behauptung von Claude, die Anweisung verstanden zu haben"
+      ],
+      "explanation": "Akzeptanzfälle in neuen Chats zeigen, ob dauerhafter Kontext ohne verdeckte Korrektur durch den Gesprächsverlauf funktioniert."
+    },
+    "q13": {
+      "question": "Wann passt ein Artifact gut?",
+      "options": [
+        "Immer wenn ein DOCX benötigt wird",
+        "Immer wenn eine Antwort lang ist",
+        "Wenn das Ergebnis von einem sichtbaren, interaktiven oder separat iterierten Objekt profitiert",
+        "Nur für professionelle Entwickler"
+      ],
+      "explanation": "Artifacts sind eigenständige Objekte; generierte Office-Dateien sind ein anderer Ausgabetyp."
+    },
+    "q14": {
+      "question": "Was sollte unmittelbar vor der Veröffentlichung eines Artifact passieren?",
+      "options": [
+        "Der Vorschau vertrauen",
+        "Inhalt, Kontext, Anhänge, Links, Verhalten, Zielgruppe und Offenlegung prüfen",
+        "Alle Integrationen aktivieren",
+        "Die Abnahme-Checkliste entfernen"
+      ],
+      "explanation": "Durch die Veröffentlichung ändern sich Zielgruppe und Bedrohungsmodell; deshalb ist ein eigener Prüfpunkt erforderlich."
+    },
+    "q15": {
+      "question": "Welche Abrufoption passt am besten zu einer umfassenden Frage mit mehreren Quellen?",
+      "options": [
+        "Research, sofern verfügbar, mit explizitem Umfang und späterer Zitierprüfung",
+        "Allein gründlicheres Nachdenken garantiert aktuelle Quellen",
+        "Keine Quellregeln",
+        "Ein festes Versprechen von zehn Quellen in fünf Minuten"
+      ],
+      "explanation": "Research unterstützt eine breitere Untersuchung, doch Umfang, Dauer und Quellenzahl bleiben variabel und die Zitate müssen geprüft werden."
+    },
+    "q16": {
+      "question": "Eine zitierte URL wird geöffnet. Was sollten Sie als nächstes überprüfen?",
+      "options": [
+        "Nur das Design der Website",
+        "Ob Claude einen langen Prompt verwendet hat",
+        "Ob die Quelle beliebt ist",
+        "Quellenqualität, Datum, genaue Passage, Population, Einheiten und inhaltliche Deckung der Behauptung"
+      ],
+      "explanation": "Die Linkgültigkeit ist nur der Anfang einer Quellenprüfung."
+    },
+    "q17": {
+      "question": "Welche Zuordnung ist richtig?",
+      "options": [
+        "Project = externe Aktion; Skill = Chatverlauf; Connector = Stil",
+        "Project = Aufgabenwissen; Skill = wiederverwendbares Verfahren; Connector = Zugriff oder Aktion",
+        "Project = Modell; Skill = Plan; Connector = Speicher",
+        "Alle drei sind austauschbar"
+      ],
+      "explanation": "Die drei Erweiterungsprimitive lösen unterschiedliche Kontext- und Fähigkeitsprobleme."
+    },
+    "q18": {
+      "question": "Was ist vor der Übernahme eines öffentlichen Skills erforderlich?",
+      "options": [
+        "Nur eine hohe Sternezahl",
+        "Nur ein Name, der nach Anthropic aussieht",
+        "Lizenz, Anweisungen, Skripte, Abhängigkeiten, Netzwerk, Berechtigungen und Verhaltensüberprüfung auf Dateiebene",
+        "Automatische Genehmigung seiner Anfragen"
+      ],
+      "explanation": "Öffentliche Sichtbarkeit und Popularität ersetzen nicht die Herkunfts- oder Sicherheitsprüfung."
+    },
+    "q19": {
+      "question": "Was ist die sicherste Standardeinstellung für die Cowork-Übung des Kurses?",
+      "options": [
+        "Alle Genehmigungen überspringen",
+        "Den gesamten persönlichen Ordner verwenden",
+        "Aktive E-Mail- und Kalenderkonten verbinden",
+        "Einen eigens angelegten Ordner mit Kopien, synthetischen Daten, manuellen Freigaben und einer Vorher-Nachher-Prüfung verwenden"
+      ],
+      "explanation": "Ein wiederherstellbarer, begrenzter Arbeitsbereich und manuelle Genehmigungen machen Aktionen überprüfbar."
+    },
+    "q20": {
+      "question": "Was beweist eine Cowork-Fortschrittsmeldung?",
+      "options": [
+        "Was die Meldung berichtet; der tatsächlich geänderte Zustand muss weiterhin geprüft werden",
+        "Dass jede Datei korrekt ist",
+        "Dass keine sachfremde Aktion erfolgt ist",
+        "Dass die Ausgabe sicher veröffentlicht werden kann"
+      ],
+      "explanation": "Die Fortschrittserzählung ist ein nützlicher Kontext und keine unabhängige Überprüfung des Dateisystems oder des externen Status."
+    },
+    "q21": {
+      "question": "Was sollte passieren, bevor Claude Code ein unbekanntes Repository bearbeitet?",
+      "options": [
+        "Stellen Sie einen spekulativen Fix bereit",
+        "Installieren Sie neue Abhängigkeiten",
+        "Anweisungen, Zustand, aktuelles Verhalten, Tests und voraussichtlich betroffene Dateien zunächst schreibgeschützt prüfen",
+        "Fehlgeschlagene Tests löschen"
+      ],
+      "explanation": "Die Repository-basierte Ausrichtung verhindert eine generische oder außerhalb des Gültigkeitsbereichs liegende Implementierung."
+    },
+    "q22": {
+      "question": "Welche technische Übergabe ist am stärksten?",
+      "options": [
+        "Es funktioniert",
+        "Geänderte Dateien, überprüfte Diffs, Befehle und Ergebnisse, Einschränkungen, nicht ausgeführte Prüfungen und verbleibende menschliche Entscheidungen",
+        "Ein großer Codeblock",
+        "Ein Versprechen der Produktionsbereitschaft"
+      ],
+      "explanation": "Prüfende benötigen Nachweise und Grenzen, die an den exakten Zustand des Repositorys gebunden sind."
+    },
+    "q23": {
+      "question": "Was gehört in einen Reproduzierbarkeitspass?",
+      "options": [
+        "Frage, Quell- und Datenversionen, Transformationen, Umgebung, Ausgaben, Prüfungen, Grenzen und Offenlegung",
+        "Nur die letzte Erzählung",
+        "Nur die Prompts von Claude",
+        "Ein Beliebtheitswert"
+      ],
+      "explanation": "Der Pass macht den gesamten Nachweis- und Entscheidungsweg prüfbar."
+    },
+    "q24": {
+      "question": "Wie sollte ein ausgefeiltes Diagramm geprüft werden?",
+      "options": [
+        "Nach dem Aussehen",
+        "Indem man Claude bittet, es zu loben",
+        "Durch Ausblenden der Quelldaten",
+        "Durch Überprüfung von Quelldaten, Transformationen, Skalierung, Beschriftungen, Aggregation, Unsicherheit und Reproduzierbarkeit"
+      ],
+      "explanation": "Visueller Feinschliff kann analytische Korrektheit nicht belegen."
+    },
+    "q25": {
+      "question": "Was ist ein starker Schreibworkflow?",
+      "options": [
+        "Ein einzelner Prompt, der direkt zur Veröffentlichung führt",
+        "Briefing zu Zielgruppe und Quellen → Bestandsaufnahme der Behauptungen und Architektur → alternative Entwürfe → sachliche und rhetorische Prüfung → versionierte Endfassung",
+        "Imitieren Sie eine Person ohne Offenlegung",
+        "Beseitigen Sie alle Unsicherheiten"
+      ],
+      "explanation": "Architektur, Quellen, Überarbeitung und Prüfung wahren Urheberschaft und Nachvollziehbarkeit."
+    },
+    "q26": {
+      "question": "Was sollten Sie tun, nachdem Claude eine PowerPoint- oder Excel-Datei generiert hat?",
+      "options": [
+        "Die Datei anhand der Miniaturansicht freigeben",
+        "Die Datei sofort senden",
+        "Die Datei in der nativen Anwendung öffnen und Inhalt, Quellen, Layout, Notizen, Formeln, Diagramme, Links und Barrierefreiheit prüfen",
+        "Die Datei in ein Bild umwandeln"
+      ],
+      "explanation": "Die native Anwendungsprüfung deckt Eigenschaften ab, die die Konversationsvorschau nicht beweisen kann."
+    },
+    "q27": {
+      "question": "Welche Unterrichtsentscheidung sollte von den Lehrkräften kontrolliert werden?",
+      "options": [
+        "Generierung alternativer Beispiele",
+        "Formative Fragen formulieren",
+        "Vorschläge für Barrierefreiheitsoptionen",
+        "Lernziel, Richtigkeit, Bewertungsnachweise und folgenreiche Benotung"
+      ],
+      "explanation": "Claude kann Materialien vorschlagen, doch das Urteil der Lehrkraft bestimmt die Grenzen von Unterricht und Bewertung."
+    },
+    "q28": {
+      "question": "Welche Aktivität bewahrt das Denken der Lernenden am besten?",
+      "options": [
+        "Vor der Generierung vorhersagen, danach erklären, Fehler nachverfolgen und das Gelernte anderen vermitteln",
+        "Die erste Antwort von Claude einreichen",
+        "Verstecken Sie alle Zwischenbegründungen",
+        "Nur den äußeren Feinschliff benoten"
+      ],
+      "explanation": "Vorhersage, Abruf, Fehlernachverfolgung und das Erklären für andere machen die eigene Denkleistung der Lernenden sichtbar."
+    },
+    "q29": {
+      "question": "Welcher Nachweis des Abschlussprojekts verdient im Bewertungsraster das höchste Gewicht?",
+      "options": [
+        "Visueller Schliff",
+        "Anzahl der Prompts",
+        "Urteilsvermögen und unabhängige Überprüfung",
+        "Nutzung eines kostenpflichtigen Modells"
+      ],
+      "explanation": "Im Abschlussprojekt entfallen 30 % auf Urteilsvermögen, weil vertrauenswürdige Nutzung die Bewertung von Behauptungen, Ausgaben und Grenzen erfordert."
+    },
+    "q30": {
+      "question": "Was macht eine Portfolioübergabe überprüfbar?",
+      "options": [
+        "Eine Behauptung, dass Claude Zeit gespart hat",
+        "Nachvollziehbare Eingaben, Entscheidungen, Iterationen, Berechtigungen, Arbeitsergebnisse, Prüfungen, Fehler, Grenzen, Offenlegung und die nächste menschliche Entscheidung",
+        "Ein verborgener Prompt-Verlauf",
+        "Automatische Veröffentlichung"
+      ],
+      "explanation": "Prüfende sollten den Gedankengang nachvollziehen und ohne Raten entscheiden können, was noch aussteht."
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "Übersicht von Claude Desktop mit den eigenständigen Modi Chat, Cowork und Code",
+      "caption": "Wählen Sie den Modus nach den Grenzen der Aufgabe. Offizielle Academy-Benutzeroberfläche, abgerufen am 23. August 2026; Bedienelemente und Verfügbarkeit können sich ändern."
+    },
+    "fig-02": {
+      "alt": "Claude Desktop Chat mit Seitenleiste, Gespräch, Antwortsteuerung, Eingabefeld und Modellanzeige",
+      "caption": "Das Eingabefeld ist nur ein Teil des Aufgabenkontexts: Auch Gespräch, Modus, Werkzeuge und sichtbare Grenzen zählen. Die Modellbezeichnungen in dieser datierten Abbildung sind keine Orientierung für aktuelle Tarife."
+    },
+    "fig-03": {
+      "alt": "Remix-Ansicht von Claude Artifact mit dem Gespräch links und einer interaktiven Darstellung rechts",
+      "caption": "Eine Nachsteuerung kann das vorhandene Artifact bewahren und zugleich eine beobachtbare Eigenschaft ändern. Prüfen Sie das Objekt nach jeder Überarbeitung direkt."
+    },
+    "fig-04": {
+      "alt": "Claude-Dialog zum begrenzten Netzwerkzugriff generierter Dateien und dem damit verbundenen Sicherheitsrisiko",
+      "caption": "Lesen Sie vor der Freigabe die genaue Fähigkeit und das Risiko. Eine Dateianforderung und eine Netzwerkberechtigung sind zwei getrennte Entscheidungen."
+    },
+    "fig-05": {
+      "alt": "Vorschau eines von Claude generierten Dokuments mit Download- und Google Drive-Steuerelementen",
+      "caption": "Vorschau, Download und Speichern auf einem externen Laufwerk überschreiten unterschiedliche Grenzen. Prüfen Sie vor dem Teilen die heruntergeladene Datei in ihrem nativen Format."
+    },
+    "fig-06": {
+      "alt": "Claude Projects mit Speicher, Anweisungen, Dateien, Eingabefeld und einzelnen Project-Chats",
+      "caption": "Projects trennt dauerhaften Speicher, Anweisungen, Dateien und Chats. Praxisaufnahme von Chris Blattman, Februar 2026, unter MIT-Lizenz verwendet und als datierter UI-Beleg behandelt."
+    },
+    "fig-07": {
+      "alt": "Dashboard eines Claude Artifact-Projekts mit Gesprächsbereich, Live-Vorschau, Code-Umschalter und Schaltfläche „Veröffentlichen“",
+      "caption": "Testen Sie das Artifact anhand der Akzeptanzkriterien, bevor Sie die Veröffentlichung als eigene Entscheidung über Zielgruppe und Sichtbarkeit behandeln."
+    },
+    "fig-08": {
+      "alt": "Literaturübersichts-Roadmap von Claude Academy mit Beitrag, Studiendesign, Ergebnissen, Statistiken und Notizfeld",
+      "caption": "Ungeprüftes Beispiel: Verwenden Sie diese medizinischen oder wissenschaftlichen Aussagen nicht als Beleg. Eine ausgefeilte Forschungsausgabe ist ein Prüfgegenstand, kein Beweis. Öffnen Sie jeden Originalbeitrag und kontrollieren Sie Titel, Studiendesigns, Zahlen, Zitate und die Deckung zwischen Behauptung und Quelle."
+    },
+    "fig-09": {
+      "alt": "Verzeichnis von Claude Connectors mit Kategorien für Web- und Desktop-Erweiterungen, Werkzeugbeschreibungen und Steuerelementen zum Hinzufügen",
+      "caption": "Eine Verzeichnisbeschreibung benennt eine Fähigkeit, keine pauschale Befugnis. Prüfen Sie vor der Verbindung den Lese- und Schreibumfang sowie geerbte Berechtigungen."
+    },
+    "fig-10": {
+      "alt": "Startseite von Claude Cowork mit Modusauswahl, Projects, geplanten Aufgaben, Live-Artifacts, Anpassung und Aufgaben-Eingabefeld",
+      "caption": "Wählen Sie Cowork, die Projekt- oder Ordnergrenze, den Aufgabentyp und die Genehmigungen bewusst. Modell- und Beta-Bezeichnungen sind lediglich datierte Belege der Benutzeroberfläche."
+    },
+    "fig-11": {
+      "alt": "Anthropics Claude-Code-Terminalbeispiel prüft die CLAUDE.md-Anweisungen eines Repositorys gegen den aktuellen Codebestand",
+      "caption": "Das Terminal macht Aufgabe, untersuchte Dateien, bewertete Prüfung und empfohlene Anweisungsänderungen nachvollziehbar. Bild aus dem offiziellen Anthropic-Repository, verwendet unter Apache 2.0 und als datierter UI-Beleg behandelt."
+    },
+    "fig-12": {
+      "alt": "Claude Platform Sessions mit Datenanalyse-Agent, Umgebung, Ressourcen, Tokenzahlen, Ereigniszeitleiste und Werkzeugaktivität",
+      "caption": "Ein echter Agentenlauf macht die Ressourcen und Ereignisse hinter der Antwort sichtbar. Offizielle Abbildung aus dem Anthropic-Cookbook, verwendet unter MIT-Lizenz; dies ist Claude Platform und nicht Chat in Claude.ai."
+    },
+    "fig-13": {
+      "alt": "E-Mail-Schreibassistent von Claude Artifact mit Gespräch, Entwurfssteuerung und interaktivem Schreibformular",
+      "caption": "Nutzen Sie einen Assistenten, um einen Entwurf zu strukturieren und zu prüfen; Fakten, Empfänger, Ton, Freigabe und Versand bleiben unter menschlicher Kontrolle."
+    },
+    "fig-14": {
+      "alt": "Sprachtutor von Claude Artifact mit Lernzielen, Fortschrittsanzeigen, Chat-Bereich und Anpassungssteuerung",
+      "caption": "Ein interaktiver Tutor kann Übungen erstellen, doch Lehrkräfte prüfen weiterhin Inhalt, Ziele, Barrierefreiheit und Nachweise für das Denken der Lernenden."
+    },
+    "fig-15": {
+      "alt": "Bestätigungsdialog zur Veröffentlichung eines Claude Artifact mit dem Hinweis, dass es im Web zugänglich sein wird",
+      "caption": "Halten Sie an der Veröffentlichungsgrenze inne. Prüfen Sie vor der Bestätigung das konkrete Artifact, den zugehörigen Kontext, die Zielgruppe, die Links und sensible Inhalte."
+    }
+  },
+  "capstone": {
+    "title": "Portfolio vertrauenswürdiger Arbeitsabläufe",
+    "summary": "Führen Sie einen authentischen Claude-Arbeitsablauf mit geringem Risiko durch und bewahren Sie die Nachweise auf, die nötig sind, um ihn zu reproduzieren, zu hinterfragen und verantwortungsvoll fortzusetzen.",
+    "scenario": "Wählen Sie einen Pfad: Softwareentwicklung, Forschung und Daten, Schreiben und Büroarbeit oder Lehre. Verwenden Sie öffentliche, synthetische oder ausdrücklich autorisierte Eingaben. Im kostenlosen Pfad genügen Chat und lokale Prüfung; kostenpflichtige Funktionen sind optional. Externe Nachrichten, Veröffentlichung, Bereitstellung, Benotung und folgenreiche Entscheidungen bleiben außerhalb der Übung.",
+    "instructions": [
+      "Briefing: Definieren Sie Nutzer, beobachtbares Ergebnis, maßgebliche Eingaben, Ausschlüsse, Arbeitsumgebung, Mindestberechtigungen, Akzeptanzprüfungen und ausschließlich menschliche Handlungen.",
+      "Eingaben: Inventarisieren Sie Dateien, Links, Versionen, Datenklassifizierungen, Lizenzen und alles bewusst Ausgeschlossene.",
+      "Durchführung: Bewahren Sie das erste Briefing, wichtige Folgeschritte, Werkzeug- und Berechtigungsentscheidungen, Fehler und Ausgabeversionen auf.",
+      "Arbeitsergebnis: Erstellen Sie eine begrenzte Codeänderung, ein Forschungs- oder Datenprodukt, eine Office-Datei im nativen Format oder eine Lernaktivität, die eine andere Person prüfen kann.",
+      "Prüfung: Kontrollieren Sie Originalquellen, rechnen Sie nach, inspizieren Sie die Datei im nativen Format, führen Sie Tests aus und prüfen Sie den Diff oder holen Sie eine pädagogische Bewertung ein; ergänzen Sie außerdem eine Erklärung der Grenzen.",
+      "Offenlegung und Reflexion: Benennen Sie den wesentlichen Beitrag von Claude, was menschlich blieb, was fehlschlug und welche nächste Entscheidung weiterhin einen Menschen erfordert."
+    ],
+    "artifacts": {
+      "task-brief": {
+        "title": "Aufgaben-Briefing",
+        "description": "Ergebnis, Zielgruppe, Arbeitsumgebung, Kontext, Einschränkungen, Akzeptanzprüfungen, Befugnisse und ausschließlich menschliche Handlungen."
+      },
+      "input-log": {
+        "title": "Eingabe- und Datenprotokoll",
+        "description": "Quellen, Dateien, Versionen, Klassifizierungen, Lizenzen, Ausschlüsse und Befugnisgrenzen."
+      },
+      "run-log": {
+        "title": "Prompt- und Ausführungsprotokoll",
+        "description": "Erstes Briefing, wesentliche Iterationen, Werkzeugentscheidungen, Berechtigungen, Fehler und Versionskontrollpunkte."
+      },
+      "deliverable": {
+        "title": "Prüfbares Arbeitsergebnis",
+        "description": "Eine begrenzte Ausgabe im tatsächlich verwendeten Format, aus der private Daten entfernt wurden."
+      },
+      "verification-record": {
+        "title": "Unabhängiges Prüfprotokoll",
+        "description": "Prüfungen, die Fehler aufdecken können, ihre beobachteten Ergebnisse, nicht ausgeführte Prüfungen, Unsicherheiten und Grenzen."
+      },
+      "disclosure-reflection": {
+        "title": "Offenlegung und Reflexion",
+        "description": "Beitrag von Claude, menschliche Entscheidungen, Fehleranalyse, Korrekturen und nächste verantwortliche Handlung."
+      }
+    },
+    "rubric": {
+      "delegation": {
+        "title": "Delegation · 25 Punkte",
+        "description": "Aufgabe, Arbeitsumgebung, Kontext, Befugnisse und ausschließlich menschliche Entscheidungen entsprechen dem tatsächlichen Ergebnis und seinen Folgen."
+      },
+      "description": {
+        "title": "Beschreibung · 25 Punkte",
+        "description": "Briefing, Eingaben, Einschränkungen, Beispiele, Ausgabeform und Erfolgskriterien machen die Arbeit reproduzierbar."
+      },
+      "discernment": {
+        "title": "Urteilsvermögen · 30 Punkte",
+        "description": "Zentrale Behauptungen und Verhaltensweisen werden unabhängig und den Folgen angemessen geprüft; Lücken und Widersprüche bleiben sichtbar."
+      },
+      "diligence": {
+        "title": "Sorgfalt · 20 Punkte",
+        "description": "Datenschutz, Berechtigungen, Urheberrecht, Offenlegung, betroffene Personen, Fehler, Grenzen und die abschließende menschliche Entscheidung werden ausdrücklich behandelt."
+      }
+    },
+    "pass": "Ziel sind mindestens 80 Punkte, wobei alle sechs Elemente vorhanden sein müssen und keine kritischen Datenschutz- oder Berechtigungsfehler, erfundenen Nachweise oder nicht offengelegten Fehler mit hoher Tragweite vorliegen dürfen.",
+    "retry": "Reparieren Sie das schwächste Glied der Nachweiskette im selben begrenzten Arbeitsablauf. Verbergen Sie die Lücke weder durch eine umfangreichere Ausgabe noch durch eine neue kostenpflichtige Funktion.",
+    "completion": "Sie sind fertig, wenn eine andere Person die Argumentation reproduzieren, das Arbeitsergebnis prüfen, die Nachweise hinterfragen und ohne Rätselraten über die nächste menschliche Handlung entscheiden kann."
+  }
+}

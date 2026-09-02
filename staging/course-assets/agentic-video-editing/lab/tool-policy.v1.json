@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.tool-policy.v1",
+  "projectSpecId": "course20-verified-cut-v2",
+  "policyId": "course20-offline-fixture-policy-v1",
+  "executables": {
+    "allowedBasenames": ["ffmpeg", "ffprobe"],
+    "mustResolveToAbsoluteRealpath": true,
+    "shell": false,
+    "stdin": "disabled",
+    "environmentAllowlist": ["PATH", "LANG", "LC_ALL", "AV_LOG_FORCE_NOCOLOR"]
+  },
+  "filesystem": {
+    "workspacePattern": "tmp/agentic-video-editing-lab/<run-id>",
+    "allowedDirectories": ["source", "probe", "evidence", "plan", "render", "receipts", "rollback"],
+    "sourceReadOnlyAfterGeneration": true,
+    "overwriteExisting": false,
+    "nodeExclusiveCreate": true,
+    "ffmpegNoOverwriteFlag": "-n",
+    "followSymbolicLinks": false,
+    "realpathContainmentRequired": true
+  },
+  "network": {
+    "allowed": false,
+    "remoteProtocolsRejected": ["http", "https", "ftp", "ftps", "rtmp", "rtmps", "rtsp", "tcp", "udp", "srt", "ssh"],
+    "credentialsAccepted": false
+  },
+  "mutation": {
+    "dryRunRequired": true,
+    "approvedPlanHashRequired": true,
+    "approvedDeliveryContractHashRequired": true,
+    "outputRoot": "render",
+    "rollbackCanaryRequired": true,
+    "recoveryPath": "Move only the unapproved canary media to rollback/quarantine with the same hash; preserve sources, receipts, and the verified candidate."
+  },
+  "process": {
+    "timeoutSeconds": 180,
+    "maxCapturedOutputBytes": 2000000,
+    "maxConcurrentMediaProcesses": 1
+  },
+  "publication": {
+    "allowed": false,
+    "decision": "do-not-publish",
+    "fixtureApprovalGrantsRealMediaAuthority": false,
+    "fixtureApprovalGrantsPublicationAuthority": false
+  }
+}

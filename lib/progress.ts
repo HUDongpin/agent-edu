@@ -7,13 +7,28 @@
  * Nothing in this module leaves the browser.
  */
 
+import {
+  clearCorruptProgressAfterVerifiedQuarantine,
+  persistenceFailureReason as reasonForStorageError,
+} from "./progress-persistence";
+import type { PersistenceFailureReason } from "./progress-persistence";
+import {
+  CORRUPT_LEARNING_BACKUP_KEY,
+  LEARNING_RESET_QUARANTINE_KEY,
+} from "./progress-storage-contract";
+
 export const LEARNING_KEY = "ae.learning.v2";
 export const LEGACY_PROGRESS_KEY = "ae.progress";
 export const LEGACY_SECTION_KEY = "tch.section";
 export const LEGACY_SEEN_KEY = "tch.seen";
+export const LEARNING_PROGRESS_EVENT = "agentic:progress-change";
+export const AGENTIC_PROGRESS_EVENT = LEARNING_PROGRESS_EVENT;
+
+/** A recovery copy only; the unreadable source record is never overwritten. */
+export { CORRUPT_LEARNING_BACKUP_KEY } from "./progress-storage-contract";
 
 /** Kept temporarily for the Lab compatibility exports at the bottom. */
-export const PROG = LEGACY_PROGRESS_KEY;
+export { PROG } from "./progress-storage-key";
 
 export const HANDBOOK_SECTION_IDS = [
   "start", "code", "prompt", "context", "loop", "graph",
@@ -25,8 +40,17 @@ export type HandbookSectionId = (typeof HANDBOOK_SECTION_IDS)[number];
 export const LAB_STEPS = ["first-call", "rules", "prompt-trial", "full-eval"] as const;
 
 export type LabStep = (typeof LAB_STEPS)[number];
+/**
+ * Modules whose work happens outside this static site and therefore cannot be
+ * measured here. A learner may keep a reversible note that they finished one;
+ * the note is self-declared completion, never verification of the local work.
+ */
+export const DECLARABLE_COURSE_IDS = ["build"] as const;
+
+export type DeclarableCourseId = (typeof DECLARABLE_COURSE_IDS)[number];
 export type LearningStatus = "not-started" | "in-progress" | "completed";
-export type ResetScope = "handbook" | "lab" | "all";
+export type ResetScope = "handbook" | "lab" | "declared" | "all";
+export type LearningPersistence = "persistent" | "session-only";
 
 export interface LearningStateV2 {
   readonly version: 2;
@@ -45,11 +69,25 @@ export interface LearningStateV2 {
     readonly evalRunsCompleted: number;
     readonly evalBest?: number;
   };
+  /**
+   * Reversible learner notes for modules this static site cannot observe.
+   *
+   * This extends the normalized v2 shape without changing its version. Older
+   * v2 records decode with an empty declaration while retaining Handbook and
+   * Lab state; a v3 bump would discard that existing progress.
+   */
+  readonly declared: {
+    readonly completed: readonly DeclarableCourseId[];
+    readonly lastDeclaredAt?: string;
+  };
 }
 
 export interface HandbookProgress {
   readonly status: LearningStatus;
+  /** Course completion requires both the full route and a submitted assessment. */
   readonly completed: boolean;
+  /** Any finished ten-answer run, independent of its score. */
+  readonly assessmentSubmitted: boolean;
   readonly exploredSections: number;
   readonly totalSections: number;
   readonly lastSection: HandbookSectionId;
@@ -72,7 +110,20 @@ export interface LabProgress {
 export type CourseProgress =
   | {
       readonly kind: "tracked";
-      readonly courseId: "handbook" | "lab";
+      readonly courseId: "handbook";
+      readonly status: LearningStatus;
+      /** A display measure, not a claim of mastery. */
+      readonly current: number;
+      readonly total: number;
+      readonly percent: number;
+      /** Submission is evidence of completing the activity, not a mastery claim. */
+      readonly assessmentSubmitted: boolean;
+      readonly completedRuns: number;
+      readonly bestScore?: number;
+    }
+  | {
+      readonly kind: "tracked";
+      readonly courseId: "lab";
       readonly status: LearningStatus;
       /** A display measure, not a claim of mastery. */
       readonly current: number;
@@ -82,7 +133,9 @@ export type CourseProgress =
   | {
       readonly kind: "external";
       readonly courseId: "build";
-      readonly action: "open";
+      readonly status: Extract<LearningStatus, "not-started" | "completed">;
+      readonly action: "open" | "review";
+      readonly declaredComplete: boolean;
       readonly percent: null;
     }
   | {
@@ -117,17 +170,39 @@ export interface LearningStoreOptions {
   readonly now?: () => Date;
 }
 
+export interface LearningSnapshot {
+  readonly state: LearningStateV2;
+  readonly persistence: LearningPersistence;
+}
+
+export interface LearningMutationResult extends LearningSnapshot {
+  /** False means the mutation remains usable in memory for this page session. */
+  readonly persisted: boolean;
+  readonly reason?: PersistenceFailureReason;
+  /** A corrupt active record was copied exactly to inactive recovery storage. */
+  readonly quarantined?: boolean;
+}
+
 export interface LearningStore {
   readLearningState(): LearningStateV2;
+  readLearningSnapshot(): LearningSnapshot;
+  isLearningPersistenceAvailable(): boolean;
   subscribeLearningState(listener: () => void): () => void;
   recordHandbookVisit(section: HandbookSectionId): LearningStateV2;
   recordHandbookControlRoomFinish(score: number): LearningStateV2;
   recordLabStep(step: LabStep, evidence?: LabStepEvidence): LearningStateV2;
+  declareCourseComplete(courseId: DeclarableCourseId, complete: boolean): LearningStateV2;
+  declareCourseCompleteWithResult(
+    courseId: DeclarableCourseId,
+    complete: boolean,
+  ): LearningMutationResult;
   resetLearningState(scope: ResetScope): LearningStateV2;
+  resetLearningStateWithResult(scope: ResetScope): LearningMutationResult;
 }
 
 const SECTION_SET = new Set<string>(HANDBOOK_SECTION_IDS);
 const STEP_SET = new Set<string>(LAB_STEPS);
+const DECLARABLE_SET = new Set<string>(DECLARABLE_COURSE_IDS);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -143,6 +218,16 @@ function isSection(value: unknown): value is HandbookSectionId {
 
 function isLabStep(value: unknown): value is LabStep {
   return typeof value === "string" && STEP_SET.has(value);
+}
+
+function isDeclarableCourseId(value: unknown): value is DeclarableCourseId {
+  return typeof value === "string" && DECLARABLE_SET.has(value);
+}
+
+function uniqueDeclared(value: unknown): DeclarableCourseId[] {
+  if (!Array.isArray(value)) return [];
+  const present = new Set(value.filter(isDeclarableCourseId));
+  return DECLARABLE_COURSE_IDS.filter((courseId) => present.has(courseId));
 }
 
 function uniqueSections(value: unknown): HandbookSectionId[] {
@@ -186,6 +271,8 @@ function freezeState(state: LearningStateV2): LearningStateV2 {
   Object.freeze(state.handbook);
   Object.freeze(state.lab.completedSteps);
   Object.freeze(state.lab);
+  Object.freeze(state.declared.completed);
+  Object.freeze(state.declared);
   return Object.freeze(state);
 }
 
@@ -201,6 +288,7 @@ function makeDefaultState(): LearningStateV2 {
       completedSteps: [],
       evalRunsCompleted: 0,
     },
+    declared: { completed: [] },
   });
 }
 
@@ -212,11 +300,16 @@ function normaliseLearningState(value: unknown): LearningStateV2 {
   const handbook = isRecord(value.handbook) ? value.handbook : {};
   const controlRoom = isRecord(handbook.controlRoom) ? handbook.controlRoom : {};
   const lab = isRecord(value.lab) ? value.lab : {};
+  const declared = isRecord(value.declared) ? value.declared : {};
 
   const bestScore = optionalInteger(controlRoom, "bestScore", 0, 10);
   const lastFinishedAt = optionalDate(controlRoom, "lastFinishedAt");
   const rulesBest = optionalInteger(lab, "rulesBest", 0, 10);
   const evalBest = optionalInteger(lab, "evalBest", 0, 20);
+  const declaredCompleted = uniqueDeclared(declared.completed);
+  const lastDeclaredAt = declaredCompleted.length
+    ? optionalDate(declared, "lastDeclaredAt")
+    : undefined;
 
   return freezeState({
     version: 2,
@@ -237,17 +330,33 @@ function normaliseLearningState(value: unknown): LearningStateV2 {
         ? lab.evalRunsCompleted : 0,
       ...(evalBest === undefined ? {} : { evalBest }),
     },
+    declared: {
+      completed: declaredCompleted,
+      ...(lastDeclaredAt === undefined ? {} : { lastDeclaredAt }),
+    },
   });
+}
+
+type DecodedLearningRecord =
+  | { readonly readable: true; readonly state: LearningStateV2 }
+  | { readonly readable: false; readonly state: LearningStateV2 };
+
+function decodeLearningRecord(raw: string | null): DecodedLearningRecord {
+  if (raw === null) return { readable: true, state: EMPTY_LEARNING_STATE };
+  try {
+    const value = JSON.parse(raw) as unknown;
+    if (!isRecord(value) || value.version !== 2) {
+      return { readable: false, state: EMPTY_LEARNING_STATE };
+    }
+    return { readable: true, state: normaliseLearningState(value) };
+  } catch {
+    return { readable: false, state: EMPTY_LEARNING_STATE };
+  }
 }
 
 /** Decode v2 only. A bad or different version never falls through to legacy. */
 export function decodeLearningState(raw: string | null): LearningStateV2 {
-  if (raw === null) return EMPTY_LEARNING_STATE;
-  try {
-    return normaliseLearningState(JSON.parse(raw) as unknown);
-  } catch {
-    return EMPTY_LEARNING_STATE;
-  }
+  return decodeLearningRecord(raw).state;
 }
 
 function legacyObject(raw: string | null): Record<string, unknown> {
@@ -295,6 +404,8 @@ export function migrateLegacyLearningState(input: LegacyLearningInput): Learning
       evalRunsCompleted: hasCompletedEval ? 1 : 0,
       ...(evalBest === undefined ? {} : { evalBest }),
     },
+    // Legacy records never carried an off-site completion declaration.
+    declared: { completed: [] },
   });
 }
 
@@ -314,32 +425,46 @@ function browserEvents(): EventTarget | null {
   return typeof window === "undefined" ? null : window;
 }
 
-type ReadResult = { readonly ok: true; readonly value: string | null } | { readonly ok: false };
+type ReadResult =
+  | { readonly ok: true; readonly value: string | null }
+  | { readonly ok: false; readonly reason: PersistenceFailureReason };
+
+type StorageMutationResult =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly reason: PersistenceFailureReason };
 
 function safeRead(storage: StorageLike, key: string): ReadResult {
   try {
     return { ok: true, value: storage.getItem(key) };
-  } catch {
-    return { ok: false };
+  } catch (error) {
+    return { ok: false, reason: reasonForStorageError(error) };
+  }
+}
+
+function writeResult(storage: StorageLike, key: string, value: string): StorageMutationResult {
+  try {
+    storage.setItem(key, value);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, reason: reasonForStorageError(error) };
+  }
+}
+
+function removeResult(storage: StorageLike, key: string): StorageMutationResult {
+  try {
+    storage.removeItem(key);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, reason: reasonForStorageError(error) };
   }
 }
 
 function safeWrite(storage: StorageLike, key: string, value: string): boolean {
-  try {
-    storage.setItem(key, value);
-    return true;
-  } catch {
-    return false;
-  }
+  return writeResult(storage, key, value).ok;
 }
 
 function safeRemove(storage: StorageLike, key: string): boolean {
-  try {
-    storage.removeItem(key);
-    return true;
-  } catch {
-    return false;
-  }
+  return removeResult(storage, key).ok;
 }
 
 function incrementSafely(value: number): number {
@@ -360,15 +485,24 @@ function stateWithLabReset(state: LearningStateV2): LearningStateV2 {
   });
 }
 
+function stateWithDeclaredReset(state: LearningStateV2): LearningStateV2 {
+  return freezeState({
+    ...state,
+    declared: EMPTY_LEARNING_STATE.declared,
+  });
+}
+
 export function selectHandbookProgress(state: LearningStateV2): HandbookProgress {
-  const completed = state.handbook.controlRoom.completedRuns > 0;
+  const assessmentSubmitted = state.handbook.controlRoom.completedRuns > 0;
   const exploredSections = state.handbook.visitedSections.length;
+  const completed = assessmentSubmitted && exploredSections === HANDBOOK_SECTION_IDS.length;
   const status: LearningStatus = completed
     ? "completed"
-    : exploredSections > 0 ? "in-progress" : "not-started";
+    : exploredSections > 0 || assessmentSubmitted ? "in-progress" : "not-started";
   return {
     status,
     completed,
+    assessmentSubmitted,
     exploredSections,
     totalSections: HANDBOOK_SECTION_IDS.length,
     lastSection: state.handbook.lastSection,
@@ -398,6 +532,45 @@ export function selectLabProgress(state: LearningStateV2): LabProgress {
   };
 }
 
+/**
+ * A display-only summary for the Agentic journey card.
+ *
+ * Handbook and Lab are the two browser-tracked modules and remain equally
+ * weighted, matching the catalogue's module-average language. Build is an
+ * external exercise and is deliberately excluded rather than shown as a fake
+ * zero or inferred completion.
+ */
+export function selectAgenticJourneyPercent(state: LearningStateV2): number {
+  const handbook = selectHandbookProgress(state);
+  const lab = selectLabProgress(state);
+  const handbookPercent = Math.round(
+    (handbook.exploredSections / handbook.totalSections) * 100,
+  );
+  const labPercent = Math.round((lab.completedCount / lab.totalSteps) * 100);
+  return Math.round((handbookPercent + labPercent) / 2);
+}
+
+/**
+ * Completion for the three-module Agentic journey.
+ *
+ * The percentage above intentionally measures only the two browser-observed
+ * modules. Completion is stricter: Handbook and Lab must be complete, and the
+ * learner must have made the reversible Build declaration. A 100% observed
+ * bar therefore cannot by itself promote the course to completed.
+ */
+export function selectAgenticJourneyStatus(state: LearningStateV2): LearningStatus {
+  const handbook = selectHandbookProgress(state);
+  const lab = selectLabProgress(state);
+  const buildDeclared = state.declared.completed.includes("build");
+  if (handbook.completed && lab.completed && buildDeclared) return "completed";
+  if (
+    handbook.status !== "not-started"
+    || lab.status !== "not-started"
+    || buildDeclared
+  ) return "in-progress";
+  return "not-started";
+}
+
 export function selectCourseProgress(state: LearningStateV2, courseId: string): CourseProgress {
   if (courseId === "handbook") {
     const progress = selectHandbookProgress(state);
@@ -408,6 +581,9 @@ export function selectCourseProgress(state: LearningStateV2, courseId: string): 
       current: progress.exploredSections,
       total: progress.totalSections,
       percent: Math.round((progress.exploredSections / progress.totalSections) * 100),
+      assessmentSubmitted: progress.assessmentSubmitted,
+      completedRuns: progress.completedRuns,
+      ...(progress.bestScore === undefined ? {} : { bestScore: progress.bestScore }),
     };
   }
   if (courseId === "lab") {
@@ -422,7 +598,17 @@ export function selectCourseProgress(state: LearningStateV2, courseId: string): 
     };
   }
   if (courseId === "build") {
-    return { kind: "external", courseId, action: "open", percent: null };
+    const declaredComplete = state.declared.completed.includes(courseId);
+    return {
+      kind: "external",
+      courseId,
+      status: declaredComplete ? "completed" : "not-started",
+      action: declaredComplete ? "review" : "open",
+      declaredComplete,
+      // The site cannot inspect course/progress.json, so it never invents a
+      // numeric measure for this declaration.
+      percent: null,
+    };
   }
   return { kind: "untracked", courseId, action: "unavailable", percent: null };
 }
@@ -433,20 +619,63 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
   const getStorage = () => hasInjectedStorage ? options.storage ?? null : browserStorage();
   const getEvents = () => hasInjectedEvents ? options.events ?? null : browserEvents();
   const now = options.now ?? (() => new Date());
+  // Only an actual browser tab may promise session-only continuity. Injected
+  // storage in Node and SSR must stay fail-closed and cannot claim a transient
+  // completion the rendered application will never observe.
+  const permitsSessionMemory = typeof window !== "undefined";
 
   const watchers = new Set<() => void>();
   let listeningTarget: EventTarget | null = null;
   let cachedToken: string | undefined;
   let cachedState = EMPTY_LEARNING_STATE;
+  let persistenceAvailable: boolean | null = null;
+  let sessionAuthoritative = false;
+  let lastMutationPersisted = true;
+  let lastMutationQuarantined = false;
+  let lastPersistenceFailureReason: PersistenceFailureReason | undefined;
 
   const notify = () => {
     for (const watcher of watchers) watcher();
   };
 
+  const announceMutation = () => {
+    notify();
+    const target = getEvents();
+    try {
+      if (target) target.dispatchEvent(new Event(LEARNING_PROGRESS_EVENT));
+    } catch {
+      // The state mutation is still valid when a host cannot dispatch DOM events.
+    }
+  };
+
+  const keepInSession = (state: LearningStateV2): LearningStateV2 => {
+    cachedState = state;
+    cachedToken = `memory\u0000${serialise(state)}`;
+    persistenceAvailable = false;
+    sessionAuthoritative = true;
+    return state;
+  };
+
+  const holdUnreadableRecord = (raw: string): LearningStateV2 => {
+    lastPersistenceFailureReason = "corrupt";
+    if (typeof window !== "undefined") {
+      try {
+        window.sessionStorage.setItem(CORRUPT_LEARNING_BACKUP_KEY, raw);
+      } catch {
+        // The source record remains untouched even when recovery storage is blocked.
+      }
+    }
+    return keepInSession(EMPTY_LEARNING_STATE);
+  };
+
   const onStorage = (event: Event) => {
     const key = (event as StorageEvent).key;
     if (key !== LEARNING_KEY && key !== null) return;
+    // A failed write makes memory authoritative for this session. Do not erase
+    // it merely because another tab later wrote a value this tab cannot trust.
+    if (sessionAuthoritative) return;
     cachedToken = undefined;
+    persistenceAvailable = null;
     notify();
   };
 
@@ -473,28 +702,58 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
   }
 
   function readLearningState(): LearningStateV2 {
+    if (sessionAuthoritative) return cachedState;
+
     const storage = getStorage();
-    if (!storage) return EMPTY_LEARNING_STATE;
+    if (!storage) {
+      persistenceAvailable = false;
+      lastPersistenceFailureReason = "unavailable";
+      return permitsSessionMemory ? keepInSession(cachedState) : EMPTY_LEARNING_STATE;
+    }
 
     const current = safeRead(storage, LEARNING_KEY);
-    if (!current.ok) return EMPTY_LEARNING_STATE;
+    if (!current.ok) {
+      lastPersistenceFailureReason = current.reason;
+      return keepInSession(cachedState);
+    }
 
     if (current.value !== null) {
       const token = `v2\u0000${current.value}`;
       if (token === cachedToken) return cachedState;
 
-      const state = decodeLearningState(current.value);
+      const decoded = decodeLearningRecord(current.value);
+      if (!decoded.readable) return holdUnreadableRecord(current.value);
+
+      const state = decoded.state;
       const canonical = serialise(state);
-      const repaired = canonical === current.value || safeWrite(storage, LEARNING_KEY, canonical);
-      cachedToken = repaired ? `v2\u0000${canonical}` : token;
+      if (canonical !== current.value) {
+        const canonicalWrite = writeResult(storage, LEARNING_KEY, canonical);
+        if (!canonicalWrite.ok) {
+          lastPersistenceFailureReason = canonicalWrite.reason;
+          return keepInSession(state);
+        }
+      }
+      cachedToken = `v2\u0000${canonical}`;
       cachedState = state;
+      persistenceAvailable = true;
+      sessionAuthoritative = false;
+      lastPersistenceFailureReason = undefined;
       return state;
     }
 
     const section = safeRead(storage, LEGACY_SECTION_KEY);
     const seen = safeRead(storage, LEGACY_SEEN_KEY);
     const progress = safeRead(storage, LEGACY_PROGRESS_KEY);
-    if (!section.ok || !seen.ok || !progress.ok) return EMPTY_LEARNING_STATE;
+    if (!section.ok || !seen.ok || !progress.ok) {
+      lastPersistenceFailureReason = !section.ok
+        ? section.reason
+        : !seen.ok
+          ? seen.reason
+          : !progress.ok
+            ? progress.reason
+            : "unavailable";
+      return keepInSession(cachedState);
+    }
 
     const token = `legacy\u0000${JSON.stringify([section.value, seen.value, progress.value])}`;
     if (token === cachedToken) return cachedState;
@@ -505,10 +764,18 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
       progress: progress.value,
     });
     const canonical = serialise(state);
-    const persisted = safeWrite(storage, LEARNING_KEY, canonical);
-    if (persisted) writeLegacy(state, storage);
-    cachedToken = persisted ? `v2\u0000${canonical}` : token;
+    const migrated = writeResult(storage, LEARNING_KEY, canonical);
+    if (!migrated.ok) {
+      lastPersistenceFailureReason = migrated.reason;
+      return keepInSession(state);
+    }
+
+    writeLegacy(state, storage);
+    cachedToken = `v2\u0000${canonical}`;
     cachedState = state;
+    persistenceAvailable = true;
+    sessionAuthoritative = false;
+    lastPersistenceFailureReason = undefined;
     return state;
   }
 
@@ -517,15 +784,33 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     const next = update(current);
     const currentRaw = serialise(current);
     const nextRaw = serialise(next);
-    if (nextRaw === currentRaw) return current;
+    if (nextRaw === currentRaw) {
+      lastMutationPersisted = persistenceAvailable !== false;
+      return current;
+    }
 
     const storage = getStorage();
-    if (!storage || !safeWrite(storage, LEARNING_KEY, nextRaw)) return current;
+    const write = storage && !sessionAuthoritative
+      ? writeResult(storage, LEARNING_KEY, nextRaw)
+      : null;
+    if (!storage || sessionAuthoritative || !write?.ok) {
+      lastMutationPersisted = false;
+      if (!storage) lastPersistenceFailureReason = "unavailable";
+      else if (write && !write.ok) lastPersistenceFailureReason = write.reason;
+      if (!permitsSessionMemory) return keepInSession(current);
+      keepInSession(next);
+      announceMutation();
+      return next;
+    }
 
     writeLegacy(next, storage);
     cachedToken = `v2\u0000${nextRaw}`;
     cachedState = next;
-    notify();
+    persistenceAvailable = true;
+    sessionAuthoritative = false;
+    lastMutationPersisted = true;
+    lastPersistenceFailureReason = undefined;
+    announceMutation();
     return next;
   }
 
@@ -570,6 +855,41 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     });
   }
 
+  function declareCourseComplete(
+    courseId: DeclarableCourseId,
+    complete: boolean,
+  ): LearningStateV2 {
+    lastMutationQuarantined = false;
+    if (!isDeclarableCourseId(courseId)) {
+      const state = readLearningState();
+      lastMutationPersisted = persistenceAvailable !== false;
+      return state;
+    }
+
+    return commit((state) => {
+      const alreadyComplete = state.declared.completed.includes(courseId);
+      if (alreadyComplete === complete) return state;
+
+      const completed = complete
+        ? DECLARABLE_COURSE_IDS.filter(
+            (candidate) => state.declared.completed.includes(candidate) || candidate === courseId,
+          )
+        : state.declared.completed.filter((candidate) => candidate !== courseId);
+      if (!completed.length) return stateWithDeclaredReset(state);
+
+      let declaredAt: string;
+      try {
+        declaredAt = now().toISOString();
+      } catch {
+        declaredAt = new Date().toISOString();
+      }
+      return freezeState({
+        ...state,
+        declared: { completed, lastDeclaredAt: declaredAt },
+      });
+    });
+  }
+
   function recordLabStep(step: LabStep, evidence: LabStepEvidence = {}): LearningStateV2 {
     if (!isLabStep(step)) return readLearningState();
     const scoreLimit = step === "rules" ? 10 : step === "full-eval" ? 20 : null;
@@ -604,12 +924,125 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     });
   }
 
+  function readLearningSnapshot(): LearningSnapshot {
+    const state = readLearningState();
+    return {
+      state,
+      persistence: persistenceAvailable === false ? "session-only" : "persistent",
+    };
+  }
+
+  function isLearningPersistenceAvailable(): boolean {
+    readLearningState();
+    return persistenceAvailable !== false;
+  }
+
+  function mutationResult(state: LearningStateV2): LearningMutationResult {
+    return {
+      state,
+      persistence: persistenceAvailable === false ? "session-only" : "persistent",
+      persisted: lastMutationPersisted,
+      ...(lastMutationPersisted || !lastPersistenceFailureReason
+        ? {}
+        : { reason: lastPersistenceFailureReason }),
+      ...(lastMutationQuarantined ? { quarantined: true } : {}),
+    };
+  }
+
+  function declareCourseCompleteWithResult(
+    courseId: DeclarableCourseId,
+    complete: boolean,
+  ): LearningMutationResult {
+    return mutationResult(declareCourseComplete(courseId, complete));
+  }
+
   function resetLearningState(scope: ResetScope): LearningStateV2 {
-    if (scope !== "handbook" && scope !== "lab" && scope !== "all") return readLearningState();
+    lastMutationQuarantined = false;
+    if (
+      scope !== "handbook"
+      && scope !== "lab"
+      && scope !== "declared"
+      && scope !== "all"
+    ) {
+      const state = readLearningState();
+      lastMutationPersisted = persistenceAvailable !== false;
+      return state;
+    }
+
+    if (scope === "all") {
+      const storage = getStorage();
+      const canonical = serialise(EMPTY_LEARNING_STATE);
+      let persisted = false;
+
+      if (!storage) {
+        lastPersistenceFailureReason = "unavailable";
+        if (permitsSessionMemory) keepInSession(EMPTY_LEARNING_STATE);
+      } else {
+        const current = safeRead(storage, LEARNING_KEY);
+        if (!current.ok) {
+          lastPersistenceFailureReason = current.reason;
+          if (permitsSessionMemory) keepInSession(EMPTY_LEARNING_STATE);
+        } else if (current.value !== null && !decodeLearningRecord(current.value).readable) {
+          const reset = clearCorruptProgressAfterVerifiedQuarantine({
+            storage,
+            sourceKey: LEARNING_KEY,
+            quarantineKey: LEARNING_RESET_QUARANTINE_KEY,
+            corruptRaw: current.value,
+            replacement: canonical,
+          });
+          if (!reset.persisted) {
+            lastPersistenceFailureReason = reset.reason ?? "unavailable";
+            if (permitsSessionMemory) keepInSession(EMPTY_LEARNING_STATE);
+          } else {
+            const sectionRemoval = removeResult(storage, LEGACY_SECTION_KEY);
+            const seenRemoval = removeResult(storage, LEGACY_SEEN_KEY);
+            const removalFailure = !sectionRemoval.ok
+              ? sectionRemoval.reason
+              : !seenRemoval.ok
+                ? seenRemoval.reason
+                : undefined;
+            cachedState = EMPTY_LEARNING_STATE;
+            cachedToken = `v2\u0000${canonical}`;
+            persistenceAvailable = true;
+            sessionAuthoritative = false;
+            persisted = !removalFailure;
+            lastMutationQuarantined = reset.quarantined === true;
+            lastPersistenceFailureReason = removalFailure;
+          }
+        } else {
+          const write = writeResult(storage, LEARNING_KEY, canonical);
+          if (!write.ok) {
+            lastPersistenceFailureReason = write.reason;
+            if (permitsSessionMemory) keepInSession(EMPTY_LEARNING_STATE);
+          } else {
+            // The shared-record owner clears ae.progress. Repeating that here
+            // would erase a quarantined shared record after the owner refused.
+            const sectionRemoval = removeResult(storage, LEGACY_SECTION_KEY);
+            const seenRemoval = removeResult(storage, LEGACY_SEEN_KEY);
+            const removalFailure = !sectionRemoval.ok
+              ? sectionRemoval.reason
+              : !seenRemoval.ok
+                ? seenRemoval.reason
+                : undefined;
+            cachedState = EMPTY_LEARNING_STATE;
+            cachedToken = `v2\u0000${canonical}`;
+            persistenceAvailable = true;
+            sessionAuthoritative = false;
+            persisted = !removalFailure;
+            lastPersistenceFailureReason = removalFailure;
+          }
+        }
+      }
+
+      lastMutationPersisted = persisted;
+      announceMutation();
+      return EMPTY_LEARNING_STATE;
+    }
+
     const result = commit((state) => {
       if (scope === "handbook") return stateWithHandbookReset(state);
       if (scope === "lab") return stateWithLabReset(state);
-      return EMPTY_LEARNING_STATE;
+      return stateWithDeclaredReset(state);
     });
 
     const storage = getStorage();
@@ -624,18 +1057,22 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
       && result.lab.evalRunsCompleted === 0
       && result.lab.evalBest === undefined;
 
-    if ((scope === "handbook" && handbookWasReset) || (scope === "all" && handbookWasReset && labWasReset)) {
-      safeRemove(storage, LEGACY_SECTION_KEY);
-      safeRemove(storage, LEGACY_SEEN_KEY);
+    if (scope === "handbook" && handbookWasReset) {
+      const sectionCleared = safeRemove(storage, LEGACY_SECTION_KEY);
+      const seenCleared = safeRemove(storage, LEGACY_SEEN_KEY);
+      const legacyCleared = sectionCleared && seenCleared;
+      lastMutationPersisted = lastMutationPersisted && legacyCleared;
     }
-    if (scope === "all" && handbookWasReset && labWasReset) {
-      safeRemove(storage, LEGACY_PROGRESS_KEY);
-    } else if (scope === "lab" && labWasReset) {
+    if (scope === "lab" && labWasReset) {
       // `commit` already rewrote only the expressible Lab fields and preserved
       // unrelated legacy data such as part2 for the retirement window.
       writeLegacy(result, storage);
     }
     return result;
+  }
+
+  function resetLearningStateWithResult(scope: ResetScope): LearningMutationResult {
+    return mutationResult(resetLearningState(scope));
   }
 
   function subscribeLearningState(listener: () => void): () => void {
@@ -655,11 +1092,16 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
 
   return {
     readLearningState,
+    readLearningSnapshot,
+    isLearningPersistenceAvailable,
     subscribeLearningState,
     recordHandbookVisit,
     recordHandbookControlRoomFinish,
     recordLabStep,
+    declareCourseComplete,
+    declareCourseCompleteWithResult,
     resetLearningState,
+    resetLearningStateWithResult,
   };
 }
 
@@ -667,6 +1109,14 @@ const learningStore = createLearningStore();
 
 export function readLearningState(): LearningStateV2 {
   return learningStore.readLearningState();
+}
+
+export function readLearningSnapshot(): LearningSnapshot {
+  return learningStore.readLearningSnapshot();
+}
+
+export function isLearningPersistenceAvailable(): boolean {
+  return learningStore.isLearningPersistenceAvailable();
 }
 
 /** Static export and SSR have no browser-local learning record. */
@@ -690,8 +1140,26 @@ export function recordLabStep(step: LabStep, evidence?: LabStepEvidence): Learni
   return learningStore.recordLabStep(step, evidence);
 }
 
+export function declareCourseComplete(
+  courseId: DeclarableCourseId,
+  complete: boolean,
+): LearningStateV2 {
+  return learningStore.declareCourseComplete(courseId, complete);
+}
+
+export function declareCourseCompleteWithResult(
+  courseId: DeclarableCourseId,
+  complete: boolean,
+): LearningMutationResult {
+  return learningStore.declareCourseCompleteWithResult(courseId, complete);
+}
+
 export function resetLearningState(scope: ResetScope): LearningStateV2 {
   return learningStore.resetLearningState(scope);
+}
+
+export function resetLearningStateWithResult(scope: ResetScope): LearningMutationResult {
+  return learningStore.resetLearningStateWithResult(scope);
 }
 
 /* --------------------------------------------------------------------------
@@ -729,7 +1197,7 @@ export function readProgress(raw: string): Record<string, unknown> {
   return legacyObject(raw);
 }
 
-export function mark(key: string, value: unknown = true): void {
+export function mark(key: string, value: unknown = true): boolean {
   if (key === "play0" && value === true) recordLabStep("first-call");
   else if (key === "play1" && value === true) recordLabStep("rules");
   else if (key === "play2" && value === true) recordLabStep("prompt-trial");
@@ -739,4 +1207,5 @@ export function mark(key: string, value: unknown = true): void {
     const state = readLearningState();
     if (!state.lab.completedSteps.includes("full-eval")) recordLabStep("full-eval");
   }
+  return isLearningPersistenceAvailable();
 }

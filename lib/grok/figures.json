@@ -1,0 +1,382 @@
+[
+  {
+    "id": "fig-01",
+    "status": "available",
+    "usedBy": ["map-grok", "task-contracts", "writing-workflow"],
+    "surface": "web-chat",
+    "src": "/courses/grok/figures/fig-01-grok-composer.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-01-grok-composer-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-01-grok-composer-2240.webp",
+      "mobile": "/courses/grok/figures/fig-01-grok-composer-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 611, "sha256": "3025142ce43e74e905c23940039e85b49c467cfee8c6b8de5b8fb8d7111457e6" },
+      "webp2240": { "width": 2240, "height": 1223, "sha256": "020c33404885144229469ba3c807afad8c3e83f387b004cbd6416781dc1ef0c1" },
+      "mobile": { "width": 760, "height": 402, "sha256": "0f927c2d6a1b87552b63a578b0455437bb9f01e8155750d588131d44419ace3c" }
+    },
+    "width": 2400,
+    "height": 1310,
+    "sha256": "af5b12d03a125504a723150b08577ce318d4cc248f27ca15f314db49b19963a8",
+    "sourceUrl": "https://grok.com/",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Grok web, live public interface",
+    "accountTier": "Signed out",
+    "captureEnvironment": "Chromium via Playwright on macOS",
+    "viewport": "2400 × 1310",
+    "locale": "en",
+    "theme": "light",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Signed-out interface; no account, conversation or personal data is visible." },
+    "rightsBasis": "Limited instructional screenshot with direct source attribution; independent course; no xAI endorsement implied.",
+    "altKey": "figures.fig-01.alt",
+    "captionKey": "figures.fig-01.caption",
+    "callouts": [
+      { "id": "composer", "labelKey": "figures.fig-01.callouts.composer", "xPercent": 50, "yPercent": 42 },
+      { "id": "attach", "labelKey": "figures.fig-01.callouts.attach", "xPercent": 21, "yPercent": 42 },
+      { "id": "mode", "labelKey": "figures.fig-01.callouts.mode", "xPercent": 73, "yPercent": 42 }
+    ]
+  },
+  {
+    "id": "fig-02",
+    "status": "available",
+    "usedBy": ["read-interface", "search-verify", "research-workflow"],
+    "surface": "web-chat",
+    "src": "/courses/grok/figures/fig-02-model-menu.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-02-model-menu-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-02-model-menu-2240.webp",
+      "mobile": "/courses/grok/figures/fig-02-model-menu-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 611, "sha256": "bf8e2baf098e5ed1fbd17d09e3df5890bf930a1e402848a937b33fa0c8dd7973" },
+      "webp2240": { "width": 2240, "height": 1223, "sha256": "e74df243622b7702dde9b43a53d75f535e7da24288a8f136ed2e575f06424f96" },
+      "mobile": { "width": 760, "height": 517, "sha256": "271257bca981ba3871bda1ad57d8741fa025e67eaae11392d910195f37f1657c" }
+    },
+    "width": 2400,
+    "height": 1310,
+    "sha256": "c8429e2275519663c58faf08836fde6d67f0d454fffaf864661482649b3cca9f",
+    "sourceUrl": "https://grok.com/",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Grok web mode menu; visible labels include Grok 4.5 and Build beta with Grok 4.6",
+    "accountTier": "Signed out",
+    "captureEnvironment": "Chromium via Playwright on macOS",
+    "viewport": "2400 × 1310",
+    "locale": "en",
+    "theme": "light",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Signed-out menu; no account or conversation data is visible." },
+    "rightsBasis": "Limited instructional screenshot with direct source attribution; independent course; no xAI endorsement implied.",
+    "altKey": "figures.fig-02.alt",
+    "captionKey": "figures.fig-02.caption",
+    "callouts": [
+      { "id": "fast", "labelKey": "figures.fig-02.callouts.fast", "xPercent": 51, "yPercent": 50 },
+      { "id": "expert", "labelKey": "figures.fig-02.callouts.expert", "xPercent": 51, "yPercent": 65 },
+      { "id": "build", "labelKey": "figures.fig-02.callouts.build", "xPercent": 51, "yPercent": 82 }
+    ]
+  },
+  {
+    "id": "fig-03",
+    "status": "available",
+    "usedBy": ["files-data", "teaching-workflow"],
+    "surface": "web-chat",
+    "src": "/courses/grok/figures/fig-03-attach-menu.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-03-attach-menu-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-03-attach-menu-2240.webp",
+      "mobile": "/courses/grok/figures/fig-03-attach-menu-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 611, "sha256": "8679855e00b6e1f10736fad2f2dd25fa92385d38cdc9481c1372adbf200d5264" },
+      "webp2240": { "width": 2240, "height": 1223, "sha256": "0369d29b77fcccc7de14fe018481e2defa6614afc1403dc9a6000b40e7a4bb71" },
+      "mobile": { "width": 760, "height": 329, "sha256": "0fbfc18a549e14311fafab0c9b49e1bea1865b9832e6c4aec886be79d70e78f0" }
+    },
+    "width": 2400,
+    "height": 1310,
+    "sha256": "6ec9d00d9766e4d3316000efe6854f2cb06bbb6b4a8cb2429cc1c3894edd2a1e",
+    "sourceUrl": "https://grok.com/",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Grok web attachment menu",
+    "accountTier": "Signed out",
+    "captureEnvironment": "Chromium via Playwright on macOS",
+    "viewport": "2400 × 1310",
+    "locale": "en",
+    "theme": "light",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Signed-out menu with no recent-file names or user identifiers." },
+    "rightsBasis": "Limited instructional screenshot with direct source attribution; independent course; no xAI endorsement implied.",
+    "altKey": "figures.fig-03.alt",
+    "captionKey": "figures.fig-03.caption",
+    "callouts": [
+      { "id": "upload", "labelKey": "figures.fig-03.callouts.upload", "xPercent": 38, "yPercent": 44 },
+      { "id": "recent", "labelKey": "figures.fig-03.callouts.recent", "xPercent": 38, "yPercent": 52 },
+      { "id": "project", "labelKey": "figures.fig-03.callouts.project", "xPercent": 38, "yPercent": 60 }
+    ]
+  },
+  {
+    "id": "fig-04",
+    "status": "available",
+    "usedBy": ["privacy-boundaries", "connect-automate"],
+    "surface": "settings",
+    "src": "/courses/grok/figures/fig-04-data-controls.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-04-data-controls-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-04-data-controls-2240.webp",
+      "mobile": "/courses/grok/figures/fig-04-data-controls-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 526, "sha256": "2daddd949803001ddbaa66a3e2f376a52df16900df1d391bb37764e1b7be27ca" },
+      "webp2240": { "width": 2240, "height": 1053, "sha256": "767d821c368253ec4ec576f47f5e408ada5fc3a1e3fb16d8007addb2ae40ba2e" },
+      "mobile": { "width": 760, "height": 507, "sha256": "093a26636224a551c3eadd3a0a427ee39592245289277f0f45c722cfb5e03539" }
+    },
+    "width": 2400,
+    "height": 1128,
+    "sha256": "4b62e21ff79aa9be188305bf1b82c27dc06fab95580d47b733cf2db1a721c68e",
+    "sourceUrl": "https://x.ai/legal/faq",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Official xAI web Data settings figure",
+    "accountTier": "Official demonstration",
+    "captureEnvironment": "Official media asset rendered in Chromium",
+    "viewport": "2400 × 1128",
+    "locale": "en",
+    "theme": "dark",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Official settings illustration; no personal values or identifiers." },
+    "rightsBasis": "Official xAI instructional figure shown with source attribution for commentary and teaching; no endorsement implied.",
+    "altKey": "figures.fig-04.alt",
+    "captionKey": "figures.fig-04.caption",
+    "callouts": [
+      { "id": "training", "labelKey": "figures.fig-04.callouts.training", "xPercent": 65, "yPercent": 31 },
+      { "id": "personalise", "labelKey": "figures.fig-04.callouts.personalise", "xPercent": 65, "yPercent": 44 },
+      { "id": "export-delete", "labelKey": "figures.fig-04.callouts.export-delete", "xPercent": 66, "yPercent": 70 }
+    ]
+  },
+  {
+    "id": "fig-05",
+    "status": "available",
+    "usedBy": ["map-grok"],
+    "surface": "usage",
+    "src": "/courses/grok/figures/fig-05-usage-dashboard.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-05-usage-dashboard-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-05-usage-dashboard-2240.webp",
+      "mobile": "/courses/grok/figures/fig-05-usage-dashboard-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 841, "sha256": "92df2e5236caee7f7944b0ce4bd453bf9bab0f5ac2374d2c7e5beae33749146b" },
+      "webp2240": { "width": 1748, "height": 1312, "sha256": "2d160f3e6453860b9326af8e8e2c09a3fdefe95f40394620bd60b7f98bbf8148" },
+      "mobile": { "width": 756, "height": 900, "sha256": "9530e791f0dcaa239b19ce8453f773a116a691d1544dadb16024d09986a9b97d" }
+    },
+    "width": 1748,
+    "height": 1312,
+    "sha256": "55709d934d13c46756e8ddb6fe94865ca6fbaec3df95b8c437667244e5bae61e",
+    "sourceUrl": "https://docs.x.ai/grok/faq",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Official xAI consumer usage dashboard figure",
+    "accountTier": "Official demonstration",
+    "captureEnvironment": "Official documentation asset",
+    "viewport": "1748 × 1312",
+    "locale": "en",
+    "theme": "light",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Official demonstration showing generic usage values only." },
+    "rightsBasis": "Official xAI documentation figure shown with source attribution for commentary and teaching; no endorsement implied.",
+    "altKey": "figures.fig-05.alt",
+    "captionKey": "figures.fig-05.caption",
+    "callouts": [
+      { "id": "pool", "labelKey": "figures.fig-05.callouts.pool", "xPercent": 49, "yPercent": 31 },
+      { "id": "surfaces", "labelKey": "figures.fig-05.callouts.surfaces", "xPercent": 49, "yPercent": 53 },
+      { "id": "credits", "labelKey": "figures.fig-05.callouts.credits", "xPercent": 51, "yPercent": 78 }
+    ]
+  },
+  {
+    "id": "fig-06",
+    "status": "available",
+    "usedBy": ["software-engineering"],
+    "surface": "build",
+    "src": "/courses/grok/figures/fig-06-build-tui.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-06-build-tui-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-06-build-tui-2240.webp",
+      "mobile": "/courses/grok/figures/fig-06-build-tui-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 588, "sha256": "248a41a09d392ccb9185c337bb3bb3b42a212aa989a5947cf83c0544f0a8edbd" },
+      "webp2240": { "width": 2240, "height": 1176, "sha256": "54c9ffeadf01eefcfc493ade27d5363f0cf583955ed18a7d52a5487c420b1da0" },
+      "mobile": { "width": 760, "height": 483, "sha256": "388025ad89938cda08bce650f646dbc9f13aeb81cd16be06d39dae603bdd59eb" }
+    },
+    "width": 2400,
+    "height": 1260,
+    "sha256": "4fd313fa1476b1f26a37ec74870086e8721165b3276ba51a5dcb85875d005e79",
+    "sourceUrl": "https://github.com/xai-org/grok-build/tree/19d42e35c07a9c9244f03f6df0c4c353f970d4f9",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Grok Build terminal UI at pinned repository revision",
+    "accountTier": "Official repository demonstration",
+    "captureEnvironment": "Official repository media asset rendered in Chromium",
+    "viewport": "2400 × 1260",
+    "locale": "en",
+    "theme": "dark",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Official public demonstration with no credentials or private repository data." },
+    "rightsBasis": "Official repository screenshot used under the repository's Apache-2.0 terms and third-party notices, with attribution.",
+    "altKey": "figures.fig-06.alt",
+    "captionKey": "figures.fig-06.caption",
+    "callouts": [
+      { "id": "task", "labelKey": "figures.fig-06.callouts.task", "xPercent": 40, "yPercent": 24 },
+      { "id": "worklog", "labelKey": "figures.fig-06.callouts.worklog", "xPercent": 50, "yPercent": 50 },
+      { "id": "status", "labelKey": "figures.fig-06.callouts.status", "xPercent": 51, "yPercent": 83 }
+    ]
+  },
+  {
+    "id": "fig-07",
+    "status": "available",
+    "usedBy": ["office-workflow"],
+    "surface": "office",
+    "src": "/courses/grok/figures/fig-07-excel-addin.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-07-excel-addin-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-07-excel-addin-2240.webp",
+      "mobile": "/courses/grok/figures/fig-07-excel-addin-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 700, "sha256": "f4627db2f0e7f5d26bc8356496febfa55b90daeb87b39715a9aac723b1e16f59" },
+      "webp2240": { "width": 1440, "height": 900, "sha256": "9773f52110799e6d5679c329de344718cb8bad9a6e4ce337b14737f3a5f2a2d4" },
+      "mobile": { "width": 760, "height": 709, "sha256": "3232f8da7617e315bc4c2958d52dd6e98967a801da5ee062de1facbc62d90569" }
+    },
+    "width": 1440,
+    "height": 900,
+    "sha256": "d5105d5dcc8e796b1d9c34f21c8ae0bf105b1260820ad23a7d45c20f12cbd120",
+    "sourceUrl": "https://x.ai/news/introducing-excel-addin",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Official xAI Excel add-in animated demonstration",
+    "accountTier": "Official demonstration",
+    "captureEnvironment": "Official animation frame captured in Chromium",
+    "viewport": "1440 × 900",
+    "locale": "en",
+    "theme": "light",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Official synthetic cash-receipts workbook; no real organisation or personal data." },
+    "rightsBasis": "Official xAI product demonstration shown with source attribution for commentary and teaching; no endorsement implied.",
+    "altKey": "figures.fig-07.alt",
+    "captionKey": "figures.fig-07.caption",
+    "callouts": [
+      { "id": "range", "labelKey": "figures.fig-07.callouts.range", "xPercent": 38, "yPercent": 47 },
+      { "id": "trace", "labelKey": "figures.fig-07.callouts.trace", "xPercent": 80, "yPercent": 37 },
+      { "id": "analysis", "labelKey": "figures.fig-07.callouts.analysis", "xPercent": 80, "yPercent": 67 }
+    ]
+  },
+  {
+    "id": "fig-08",
+    "status": "available",
+    "usedBy": ["imagine-multimodal"],
+    "surface": "imagine",
+    "src": "/courses/grok/figures/fig-08-imagine-home.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-08-imagine-home-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-08-imagine-home-2240.webp",
+      "mobile": "/courses/grok/figures/fig-08-imagine-home-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 611, "sha256": "15b6d58625ce646331f2279c8d385d57aaa027b6c310e2cb2ab1e37485aa4316" },
+      "webp2240": { "width": 2240, "height": 1223, "sha256": "ff3cf09806f576e8fc61938a34b9e510089931d50f0e4a9abc874e77e5a61b26" },
+      "mobile": { "width": 760, "height": 380, "sha256": "a96f9a78c576e3fa36077cf4fd9df2b3bd1eee3000350e8c5d7866c3dbad1763" }
+    },
+    "width": 2400,
+    "height": 1310,
+    "sha256": "b4600788555c576a2260b1cf78b61693987f3d30c6577c4421c8b9ca5afcb62f",
+    "sourceUrl": "https://grok.com/imagine",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Grok Imagine live public interface",
+    "accountTier": "Signed out",
+    "captureEnvironment": "Chromium via Playwright on macOS",
+    "viewport": "2400 × 1310",
+    "locale": "en",
+    "theme": "dark",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Public template gallery and empty prompt; no account or generated private media." },
+    "rightsBasis": "Limited instructional screenshot with direct source attribution; independent course; no xAI endorsement implied.",
+    "altKey": "figures.fig-08.alt",
+    "captionKey": "figures.fig-08.caption",
+    "callouts": [
+      { "id": "prompt", "labelKey": "figures.fig-08.callouts.prompt", "xPercent": 50, "yPercent": 30 },
+      { "id": "mode", "labelKey": "figures.fig-08.callouts.mode", "xPercent": 32, "yPercent": 39 },
+      { "id": "controls", "labelKey": "figures.fig-08.callouts.controls", "xPercent": 53, "yPercent": 39 }
+    ]
+  },
+  {
+    "id": "fig-09",
+    "status": "available",
+    "usedBy": ["imagine-multimodal"],
+    "surface": "imagine",
+    "src": "/courses/grok/figures/fig-09-photo-edit.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-09-photo-edit-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-09-photo-edit-2240.webp",
+      "mobile": "/courses/grok/figures/fig-09-photo-edit-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 611, "sha256": "a6f1339619a7b38b2b15f51a569b4ae5a7b98150ce24d7cc1fa14e5c5f2a084a" },
+      "webp2240": { "width": 2240, "height": 1223, "sha256": "61b6f78d57dc08e92b8047734316fbc82081df159a09c3904f1b5751148914db" },
+      "mobile": { "width": 760, "height": 871, "sha256": "63e1795b48041c898efab0296acdc6820b276c4eb9de97b2806ab004610f6225" }
+    },
+    "width": 2400,
+    "height": 1310,
+    "sha256": "2a08804f62c68b0f1cc66947be8975920b10bfe54d8f47cfe4f002cc6cade05a",
+    "sourceUrl": "https://grok.com/imagine/template/imagine-photo-edit",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Grok Imagine Photo Edit template, live public interface",
+    "accountTier": "Signed out",
+    "captureEnvironment": "Chromium via Playwright on macOS",
+    "viewport": "2400 × 1310",
+    "locale": "en",
+    "theme": "dark",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Official public template portrait and empty upload surface; no account data or private learner-supplied reference image." },
+    "rightsBasis": "Limited instructional screenshot with direct source attribution; independent course; no xAI endorsement implied.",
+    "altKey": "figures.fig-09.alt",
+    "captionKey": "figures.fig-09.caption",
+    "callouts": [
+      { "id": "reference", "labelKey": "figures.fig-09.callouts.reference", "xPercent": 74, "yPercent": 37 },
+      { "id": "presets", "labelKey": "figures.fig-09.callouts.presets", "xPercent": 76, "yPercent": 55 },
+      { "id": "review", "labelKey": "figures.fig-09.callouts.review", "xPercent": 42, "yPercent": 55 }
+    ]
+  },
+  {
+    "id": "fig-10",
+    "status": "available",
+    "usedBy": ["software-engineering", "capstone"],
+    "surface": "build",
+    "src": "/courses/grok/figures/fig-10-build-access.png",
+    "srcSet": {
+      "webp1120": "/courses/grok/figures/fig-10-build-access-1120.webp",
+      "webp2240": "/courses/grok/figures/fig-10-build-access-2240.webp",
+      "mobile": "/courses/grok/figures/fig-10-build-access-mobile.webp"
+    },
+    "derivatives": {
+      "webp1120": { "width": 1120, "height": 612, "sha256": "a6f86272f983d36c630da81edcc2690f63ba5e6b793f8fcba1fcc5a6dfa271e3" },
+      "webp2240": { "width": 2240, "height": 1225, "sha256": "27b33e1f4072d3d5fc5da0583361301cc735492a4891920080991f5b43209c35" },
+      "mobile": { "width": 760, "height": 405, "sha256": "d6f4dd5db7414c2e6d31407b212e2194688a1f67853c828d0d8f2cb239327fcb" }
+    },
+    "width": 2400,
+    "height": 1312,
+    "sha256": "72cbb1cde8a3ec736ea3c1f9c5796a39611b81c2638c8fff6c699a83654798f3",
+    "sourceUrl": "https://grok.com/build",
+    "capturedOn": "2026-08-23",
+    "verifiedOn": "2026-08-23",
+    "productVersion": "Grok Build live public access page",
+    "accountTier": "Signed out",
+    "captureEnvironment": "Chromium via Playwright on macOS",
+    "viewport": "2400 × 1312",
+    "locale": "en",
+    "theme": "dark",
+    "privacyReview": { "status": "passed", "syntheticOrPublicDataOnly": true, "note": "Public access and installation page; no terminal history, path, username or token." },
+    "rightsBasis": "Limited instructional screenshot with direct source attribution; independent course; no xAI endorsement implied.",
+    "altKey": "figures.fig-10.alt",
+    "captionKey": "figures.fig-10.caption",
+    "callouts": [
+      { "id": "access", "labelKey": "figures.fig-10.callouts.access", "xPercent": 50, "yPercent": 28 },
+      { "id": "install", "labelKey": "figures.fig-10.callouts.install", "xPercent": 50, "yPercent": 67 },
+      { "id": "boundaries", "labelKey": "figures.fig-10.callouts.boundaries", "xPercent": 50, "yPercent": 50 }
+    ]
+  }
+]

@@ -118,17 +118,40 @@ rejects optimistic aggregate statuses.
 9. Run `npm run release:check` again. Preserve its passing output with the
    release record.
 10. If any native review, Arabic case, canary reconciliation, CSP stage, CI
-   observation, or rollback validation fails, stop the release and retain the
-   failure as `fail`.
+    observation, or rollback validation fails, stop the release and retain the
+    failure as `fail`.
+
+After the enforced final candidate, rollback evidence, and formal release gate
+all pass, run the stage-aware production verifier documented in
+`csp-verification.md`. A production alias or a `READY` deployment alone is not
+completion: the canonical origin, unique deployment URL, deployment ID,
+environment metadata, exact commit, enforced CSP, public/negative routes,
+SEO/sitemaps, and browser-console surface must all bind to the same production
+artifact.
 
 Automatic key, placeholder, plural, and fallback checks cannot sign for a
 native speaker. Mock Provider tests cannot replace the low-limit real canary.
 Local header configuration cannot replace inspecting Vercel preview response
 headers. A green run cannot prove that GitHub made the jobs required.
 
+The native-review catalog inventory is a separate automatic prerequisite, not
+a 34th external record and not a review decision. Once the final product
+candidate and CI workflow blob are frozen in `releaseTarget`, run
+`npm run native-review:inventory:generate`, review the exact 24-file output,
+and keep `npm run native-review:inventory:check` green through sign-off. The
+release checker fails closed when that final inventory is absent, stale,
+misbound, incomplete, overcomplete, path-unsafe, or privacy-unsafe; all eight
+human review records remain independently pending until their signed forms are
+entered.
+
 ## Forms
 
 - `native-review-form.md` — one signed copy for each of eight non-English locales.
+- `evidence/native-review-catalog-inventory.json` — generated only after the
+  final candidate is frozen; deterministic 24-file candidate/workflow binding,
+  deliberately absent until then and never a human-review pass.
+- `native-review-packet.md` — generate a current, scope-bound side-by-side
+  working aid; it is not evidence and cannot change pending review state.
 - `arabic-rtl-matrix.md` — the 979/980 breakpoint plus 390/1440 representative paths.
 - `provider-canary.md` — low-limit real Provider run and reconciliation.
 - `csp-verification.md` — executable report-only → enforced transition plus

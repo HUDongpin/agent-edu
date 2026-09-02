@@ -1,0 +1,1006 @@
+{
+  "meta": {
+    "title": "Codex の使い方",
+    "kicker": "コース 2",
+    "summary": "明確なタスクを、安全でレビュー可能なコード変更へ変換し、Codex アプリ、CLI、IDE、クラウドを使い分ける方法を学びます。",
+    "audience": "ファイルを探し、基本的なコマンドを実行できる学習者向けです。実務のソフトウェア経験は不要です。",
+    "duration": "130 分の修了課題を含む約 9 から 11 時間",
+    "sourceNote": "本コースは、最新の OpenAI ドキュメントと、選定したスター数の多い GitHub リポジトリに基づいています。リポジトリのスター数は特定日時の人気指標であり、正確性や安全性の証拠ではありません。",
+    "figureNote": "図は、実際の Codex 画面がバージョン、プライバシー、キャプションの検査を通った後にだけ公開されます。キャプチャ待ちは意図的であり、模擬画面ではありません。",
+    "startCta": "コースを始める",
+    "resumeCta": "学習を続ける"
+  },
+  "ui": {
+    "lessons": "レッスン",
+    "minutes": "分",
+    "objectives": "学習目標",
+    "evidence": "残す証拠",
+    "practice": "演習",
+    "checkpoint": "確認ポイント",
+    "sources": "出典",
+    "quiz": "理解度チェック",
+    "previous": "前のレッスン",
+    "next": "次のレッスン",
+    "capturePending": "実際の UI キャプチャが必要",
+    "optionalAdvanced": "任意の発展内容",
+    "progress": "進捗",
+    "courseProgress": "コース進捗",
+    "completed": "完了",
+    "markComplete": "完了にする",
+    "markedComplete": "完了済み",
+    "resetProgress": "進捗をリセット",
+    "question": "問題",
+    "of": "全",
+    "checkAnswer": "答えを確認",
+    "checkAnswers": "回答を確認",
+    "correct": "正解",
+    "incorrect": "もう一度確認",
+    "tryAgain": "再挑戦",
+    "score": "得点",
+    "quizPassed": "理解度チェック合格",
+    "quizNeedsReview": "レッスンを復習して再挑戦してください",
+    "capstoneArtifacts": "必須成果物",
+    "capstoneReceipt": "修了課題の記録",
+    "artifactReady": "成果物準備済み",
+    "rubric": "評価基準",
+    "rubricComplete": "評価完了",
+    "passingScore": "合格点",
+    "weight": "配点",
+    "status": "状態",
+    "notStarted": "未開始",
+    "printReceipt": "記録を印刷",
+    "browserStorageNote": "進捗はこのブラウザだけに保存されます。",
+    "backToCourse": "コースへ戻る",
+    "allLessons": "すべてのレッスン",
+    "courseOutlineSummaryTemplate": "レッスン {current}/{total} · {title}",
+    "currentLesson": "現在のレッスン",
+    "completedLesson": "完了したレッスン",
+    "recommendedNextLesson": "次におすすめのレッスン",
+    "recordCompletion": "修了を記録",
+    "markIncomplete": "未完了に戻す",
+    "finalQuizTitle": "最終知識チェック",
+    "finalQuizIntro": "全 {questionCount} 問に答えます。各ユニットから {questionsPerUnit} 問ずつ出題され、{passingCorrectAnswers} 問正解で合格です。最高得点はこのブラウザに保存されます。",
+    "beginQuiz": "テストを開始",
+    "continueQuiz": "テストを続ける",
+    "nextQuestion": "次の問題",
+    "retryQuiz": "もう一度受ける",
+    "retakeQuiz": "テストを再受験",
+    "quizInProgress": "テスト進行中",
+    "priorPassPreserved": "以前の合格結果は引き続き保持されます。",
+    "quizDraftRestored": "進行中のテストを復元しました。",
+    "bestScore": "最高得点",
+    "passRequirement": "全 {questionCount} 問中 {passingCorrectAnswers} 問の正解が必要",
+    "source": "出典",
+    "storageUnavailable": "ブラウザのストレージを利用できません。コースは引き続き利用できますが、このセッション終了後は進捗と修了状況が保存されません。",
+    "receiptInstructions": "キャップストーン検証ツールが生成した構造化レシートを貼り付けてください。スキーマ、スタータープロジェクトのバージョンとハッシュ、すべての必須チェックを確認します。",
+    "receiptSchemaLabel": "レシートのスキーマ",
+    "fixtureVersionLabel": "スタータープロジェクトのバージョン",
+    "fixtureHashLabel": "スタータープロジェクトの SHA-256",
+    "requiredChecksLabel": "必須の検証項目",
+    "pasteReceipt": "レシート JSON を貼り付ける",
+    "receiptDraftRestored": "修了課題レシートの下書きを復元しました。",
+    "verifyReceipt": "レシートを検証",
+    "receiptValid": "レシートを検証しました",
+    "receiptInvalidJson": "有効な JSON ではありません。",
+    "receiptWrongSchema": "レシートのスキーマが正しくありません。",
+    "receiptWrongVersion": "スタータープロジェクトのバージョンがサポート対象外です。",
+    "receiptWrongHash": "レシートが指定のスタータープロジェクトと一致しません。",
+    "receiptIncomplete": "レシートに合格済みの必須チェックが不足しています。",
+    "downloadStarter": "スタータープロジェクトをダウンロード",
+    "completionSummary": "完了状況の概要",
+    "exportSummary": "概要をエクスポート",
+    "finishQuiz": "テストを完了",
+    "questionProgressTemplate": "全 {total} 問中 {current} 問目",
+    "scoreSummaryTemplate": "得点：{score} / {total}",
+    "bestScoreTemplate": "最高得点：{score} / {total}",
+    "resetConfirm": "保存済みのコース進捗をすべてリセットしますか？",
+    "resetDone": "コース進捗をリセットしました。",
+    "resetSessionOnly": "このセッションのコース進捗をリセットしましたが、ブラウザにはリセットを保存できませんでした。",
+    "capstonePath": "キャップストーンへの道",
+    "sourceVerifiedOn": "検証日",
+    "stars": "GitHub スター",
+    "license": "ライセンス",
+    "supportingSourceTemplate": "補足出典 {number}：{title}",
+    "verifiedOnTemplate": "{date} に検証",
+    "pendingFigureAltTemplate": "{status}：{alt}",
+    "passingScoreTemplate": "合格点：{score}",
+    "rubricWeightTemplate": "配点：{weight}",
+    "completionPercentTemplate": "コース進捗：{percent}",
+    "sourceRepositoryMetaTemplate": "GitHub スター {stars} · {licenseLabel}：{license}",
+    "scrollableCodeTemplate": "スクロール可能な {language} コード例",
+    "scrollableComparison": "スクロール可能な比較表"
+  },
+  "units": {
+    "unit-1": {
+      "title": "安全な最初の成果",
+      "summary": "正しい全体像を持ち、範囲を区切ったタスク契約を書き、権限を慎重に選び、リポジトリの証拠から計画します。"
+    },
+    "unit-2": {
+      "title": "証拠を伴う実装",
+      "summary": "実装を導き、根本原因からデバッグし、現在の状態でテストし、受け入れる前に正確な差分をレビューします。"
+    },
+    "unit-3": {
+      "title": "すべての操作面を使い分ける",
+      "summary": "CLI、IDE、アプリ、クラウドを仕事に合わせ、本当に独立した作業だけを並行化します。"
+    },
+    "unit-4": {
+      "title": "本番を意識した修了課題",
+      "summary": "範囲を限定した変更を完成させ、スコープ、安全性、動作、制約を示すレビュー可能な資料を提出します。"
+    }
+  },
+  "lessons": {
+    "meet-codex": {
+      "kicker": "レッスン1",
+      "title": "Codex と作業サーフェスを知る",
+      "summary": "Codex は、ChatGPT デスクトップアプリ、CLI、IDE、クラウドの各サーフェスで、プロジェクトの調査、発見事項の説明、ファイル編集、コマンド実行、証拠の報告を行えます。サーフェス、コンテキスト、権限、受け入れ判断を選ぶのはあなたです。",
+      "objective": "4つの Codex サーフェスを比較し、ChatGPT サインインと API 課金のアクセスを区別し、合成プロジェクトを開き、範囲を限定したタスクに適切なサーフェスを選ぶ。",
+      "sections": [
+        {
+          "heading": "タスクが実際に必要とするコンテキストを添付する",
+          "body": "ChatGPT デスクトップアプリで Codex を選び、リポジトリ作業に使うフォルダまたはプロジェクトを開きます。自己完結したチャットはプロジェクトなしでも始められますが、添付していないリポジトリのコンテキストが自動で与えられることはありません。CLI では作業ディレクトリがファイルと指示の検出基点になります。IDE では開いているワークスペース、ファイル、選択範囲が正確なコンテキストを提供します。クラウドでは、選択したリポジトリのリビジョンと構成済み環境が開始状態を定めます。目標、証拠、レビュー履歴の一貫性を保つため、異なる成果ごとに別のチャットを使います。"
+        },
+        {
+          "heading": "サーフェスとサインイン方式を選ぶ",
+          "body": "プロジェクト単位のチャット、視覚的レビュー、Worktree、Goal、スケジュール済みタスクにはデスクトップアプリを、コマンドとターミナル出力が中心なら CLI を、開いているファイルや選択コードのコンテキストが重要なら IDE を、準備済みのリポジトリタスクを独立して実行できるならクラウドを使います。デスクトップアプリ、CLI、IDE でのローカル作業は、ChatGPT サインインまたは API キーのいずれにも対応します。ChatGPT サインインはサブスクリプションアクセスとワークスペースポリシーを使います。API キーでのサインインは API 課金と API 組織のデータ管理を使います。Codex Cloud には ChatGPT サインインが必要で、API キーのみのアクセスでは一部のサブスクリプション機能やクラウド機能を利用できません。会話に API キーを貼り付けてはいけません。"
+        },
+        {
+          "heading": "人間の責任を明示する",
+          "body": "サーフェスが変わっても責任モデルは変わりません。成果を定義し、適切なコンテキストを添付し、権限を選択し、証拠を判断するのはあなたです。進捗メッセージはライブの作業記録として扱い、それだけを証明とはせず、最終回答は引き継ぎとして扱います。変更を受け入れる前に、実際の diff と新しい検証出力を確認します。コード編集の許可は、commit、push、pull request、deploy、削除、メッセージ送信、その他の外部操作を自動的に許可するものではありません。Codex は範囲を限定した作業を実行できますが、製品意図と重大な判断はあなたが保持します。"
+        }
+      ],
+      "practice": {
+        "title": "6つのシナリオに適切なサーフェスを選ぶ",
+        "brief": "よくある6つのタスクを分類し、各サーフェスの選択理由を示した後、使い捨ての aicourse-codex-demo を変更せずに開きます。",
+        "steps": [
+          "選択した関数の診断、コマンド中心のテストトリアージ、複数ファイルの視覚的レビュー、独立して実行できる準備済みタスク、読み取り専用のオリエンテーション、スキーマ制約付き自動化ジョブについて、desktop、CLI、IDE、cloud のいずれかを選びます。",
+          "各選択について、必要なコンテキスト、フィードバックループ、サインインまたは課金方式、別のサーフェスでは効率が下がる理由を示します。",
+          "Codex を選択した ChatGPT デスクトップアプリで aicourse-codex-demo を開き、タスクを送る前にプロジェクト名と読み取り専用の境界を確認します。"
+        ],
+        "evidence": [
+          "各シナリオに証拠に基づく理由を1つ添えた6行のサーフェス選択表。",
+          "合成プロジェクト、選択したサインイン方式、ファイルが変更されていないことを確認するメモ。"
+        ],
+        "safety": "秘密情報を含まない公開サンプルまたは使い捨てリポジトリを使います。この演習では書き込み権限を与えません。"
+      },
+      "checkpoint": {
+        "prompt": "Codex における ChatGPT サインインと API キーでのサインインの実務上の違いは何ですか。",
+        "answer": "ChatGPT サインインはサブスクリプションアクセスとワークスペース管理を使い、Codex Cloud に必須です。API キーでのサインインは API 課金と API 組織の管理を使い、サブスクリプション機能やクラウド機能を利用できない場合があります。"
+      },
+      "takeaway": "コンテキストとフィードバックループからサーフェスを選び、タスクが必要とするワークスペースと権限だけを添付します。"
+    },
+    "task-contracts": {
+      "kicker": "レッスン2",
+      "title": "Codex が完了できるタスク契約を書く",
+      "summary": "最も速いプロンプトは、最も短いプロンプトではありません。実装前に重大な曖昧さを取り除く、最小限で完全な契約です。",
+      "objective": "このコースの6部構成のタスク契約テンプレート（Goal、Context、Constraints、Non-goals、Acceptance Criteria、Verification）を使用する。",
+      "sections": [
+        {
+          "heading": "観察可能な成果を指定する",
+          "body": "タスク完了時にユーザーや保守担当者にとって何が変わるべきかを最初に示し、その後で関係する場所と現在の挙動を示します。例えば「フォームを改善する」よりも、「1つのフィールド検証が失敗しても、他の有効な値を保持する」と依頼する方が明確です。観察可能な成果は Codex に停止条件を与え、あなたにはテスト対象を与えます。誤解しやすい境界条件には例を添えます。スクリーンショット、issue、ログがコンテキストになる場合、どの部分が正とされるかを説明します。コンテキストは多ければよいわけではありません。実装判断を変える少数の事実を提供し、タスクを逸らす無関係な履歴を除きます。"
+        },
+        {
+          "heading": "制約と非目標を明記する",
+          "body": "制約は、アーキテクチャ、互換性、安全性、スコープを守ります。維持すべきファイルやインターフェース、追加してはならない依存関係、対応プラットフォーム、commit や外部書き込みを除外するかを明示します。非目標も同様に有用で、魅力的でも不要な作業の分岐を閉じます。例えば、視覚システムを再設計せずに、ダイアログのキーボードアクセシビリティだけを修正できます。「本番対応にする」のような曖昧な要求は避け、実行時依存を増やさない、既存の公開型との互換性を維持する、フォーカスをトリガーへ戻す、関連テストを通す、といった検査へ変換します。制約と成果が衝突した場合、Codex に黙って選ばせず、停止して衝突を示すよう求めます。"
+        },
+        {
+          "heading": "受け入れ条件と検証を分けて定義する",
+          "body": "受け入れ条件は必要な挙動を示し、検証は Codex がその挙動について信頼できる証拠をどう生成するかを示します。テストコマンドは検証の一部になれますが、通過だけで受け入れ全体を満たすわけではありません。変更を実行する焦点化した検査、リスクに比例した広範な検査、diff レビューを求めます。また、検査を実行できない場合は明示させます。これにより、依存関係の不足やサービス停止が根拠のない成功主張へ変わるのを防ぎます。最後に、変更ファイル、結果、制限、まだ必要な判断という引き継ぎ内容を示します。契約は協働の道具なので、調査によって元の仮定が誤りだと分かったら改訂します。"
+        }
+      ],
+      "practice": {
+        "title": "曖昧な依頼を範囲のある契約へ変える",
+        "brief": "曖昧な依頼を3件修正し、Codex にコード変更を求める前に6要素の契約を1件提出します。",
+        "steps": [
+          "3つの曖昧な依頼それぞれについて、スコープ、アーキテクチャ、安全性、受け入れに最も影響する欠落判断を特定します。",
+          "1つの依頼を、Goal、Context、Constraints、Non-goals、Acceptance Criteria、Verification の6つのラベル付き項目で書き直します。",
+          "Codex には重大な曖昧さだけを示すよう求め、契約を改訂し、期待する引き継ぎ証拠を正確に含めます。"
+        ],
+        "evidence": [
+          "3件の短い曖昧さ診断と、6項目すべてにラベルを付けた最終契約。",
+          "どの重大な曖昧さを除き、受け入れをどう観察可能にしたかを示すメモ。"
+        ],
+        "safety": "意図的に許可しない限り、commit、push、deploy、データ変更、外部メッセージを契約の外に保ちます。"
+      },
+      "checkpoint": {
+        "prompt": "「機能をテストする」が不完全な検証指示なのはなぜですか。",
+        "answer": "挙動、コマンド、期待結果、リスク範囲、テストを実行できない場合に Codex が報告すべき内容を特定していないからです。"
+      },
+      "takeaway": "良いタスク契約は短時間で読める一方、成功を観察可能にするだけの完全性があります。"
+    },
+    "environments-permissions": {
+      "kicker": "レッスン3",
+      "title": "環境と権限を意図的に選ぶ",
+      "summary": "Codex は、技術的な権限がタスク契約と一致するとき最も信頼できます。最小の境界から始め、明確な理由がある場合だけ拡張します。",
+      "objective": "Local、Worktree、Cloud を選び、sandbox と approval policy を区別し、ファイル、コマンド、ネットワーク、秘密情報、破壊的操作に最小権限を適用する。",
+      "sections": [
+        {
+          "heading": "3つの実行モードを区別する",
+          "body": "Local モードは現在のプロジェクトディレクトリで直接作業します。Worktree モードも自分のコンピューター上で動作しますが、チャット専用の独立した Git worktree を使います。これにより作業ファイルを Local のチェックアウトから分離し、直接のチェックアウトへの干渉を減らせますが、マージや統合時の競合までは解消しません。Cloud モードは選択したリポジトリのリビジョンをホストされたコンテナへ checkout します。クラウドセットアップが再現可能になるのは、リビジョン、ランタイム、依存関係を管理した場合だけです。これとは別に、デスクトップ機能の local environments は、worktree 用 setup script と再利用可能な project action を構成するもので、Local モードの別名ではありません。あるモードが常に安全だと決めつけず、コードとデータの境界、セットアップ要件、分離、望むフィードバックループから選びます。"
+        },
+        {
+          "heading": "sandbox の能力と approval のタイミングを分ける",
+          "body": "sandbox は Codex が技術的に実行できることを定めます。approval policy は、Codex がいつ一時停止して承認を求めるかを定めます。承認リクエストは既定ではユーザーに送られますが、対象となるリクエストは Auto-review によって評価される場合があります。オリエンテーションや計画中は権限コントロールから読み取り専用を使い、実装で必要になったときだけワークスペースへの書き込みを許可します。承認には、ルート外への書き込みやコマンドのネットワークアクセスに対する例外を求めるものもあれば、信頼されていないコマンド、要求された permission profile、Skill script、副作用のある app または MCP 操作を対象にするものもあります。正確な操作またはコマンド、対象、理由、要求されたスコープを確認します。再利用可能なルールまたはプロファイルについては、今後どのリクエストまで対象になるかも確認します。未展開の glob や変数、範囲が広すぎる再利用可能なルールまたはプロファイル、破壊的な対象は拒否します。より狭い代替策があれば Codex にそれを使わせ、なければ正直な blocker 報告を求めます。"
+        },
+        {
+          "heading": "秘密情報と信頼できない入力を分離する",
+          "body": "認証情報、token、秘密鍵、署名付きリンク、顧客データを prompt、screenshot、fixture、log に置いてはいけません。ローカルコマンドのネットワークアクセスはデフォルトで無効です。Codex Cloud では setup 中はインターネットを利用できますが、agent phase のネットワークアクセスは構成しない限りデフォルトで無効です。Web 検索、アプリ／コネクタ、MCP、ブラウザ／Computer Use、クラウドタスク、model／認証トラフィックには、それぞれ別のネットワーク制御が適用されます。ある領域の設定を別の領域に当てはめてはいけません。クラウドでは通常の環境変数はチャット全体で利用できますが、構成済み secret は setup 中だけ公開され、agent phase 前に削除されます。そのため、agent phase のコマンドが secret を引き続き利用できる前提で設計してはいけません。未知のリポジトリは、その AGENTS.md、hook、Skill、installer、script を含め、レビューするまでは潜在的に信頼できないものとして扱います。受け入れた後、適用対象の AGENTS.md は意図されたスコープ付き指示ですが、より上位の user、developer、security、permission 境界を上書きしません。issue と pull request のテキストはデータとして引用し、第三者構成を調査し、書き込み権限とネットワーク権限を最小化します。"
+        }
+      ],
+      "practice": {
+        "title": "提案された8つの操作を判断する",
+        "brief": "無害または合成の8操作を、環境、sandbox 能力、approval の必要性、別個の外部承認で分類します。",
+        "steps": [
+          "ソースファイルを読む、ワークスペース内を編集する、外部へ書き込む、ネットワーク経由でパッケージをインストールする、焦点化したテストを実行する、解決済みの一時ファイルを削除する、副作用のある app を呼び出す、setup secret を使う、の8件を評価します。",
+          "各操作について、Local、Worktree、Cloud、sandbox 能力、approval が発生し得るか、外部承認、正確な対象、より狭い代替策を記録します。",
+          "各操作に allow、approve once、revise、deny、stop のいずれかを選び、その判断が契約した成果をどう支えるかを説明します。"
+        ],
+        "evidence": [
+          "環境、sandbox、approval、外部承認を分離した8行の判断表。",
+          "最もリスクが高い2件の判断と、より狭い代替策についての短い根拠。"
+        ],
+        "safety": "無害なコマンドと合成データを使います。秘密情報の取り扱いを試すためだけに本物の secret を作ってはいけません。"
+      },
+      "checkpoint": {
+        "prompt": "sandbox と approval policy の違いは何ですか。",
+        "answer": "sandbox は技術的に利用可能な操作を定義します。approval policy は、関連する操作を実行する前に Codex がいつ停止すべきかを定義します。"
+      },
+      "takeaway": "権限は、利便性や不確実性ではなく、タスク契約の具体的な手順に対応させます。"
+    },
+    "ground-plan": {
+      "kicker": "レッスン4",
+      "title": "作業を根拠づけ、計画を承認する",
+      "summary": "計画は、実際のリポジトリ事実を解決し、リスクを順序づけ、変更コストがまだ低いうちに判断を可視化するときに価値を持ちます。",
+      "objective": "各フェーズに milestone、decision point、verification を備えた、読み取り専用で証拠に基づく計画を Codex に依頼する。",
+      "sections": [
+        {
+          "heading": "アーキテクチャを提案する前に調べる",
+          "body": "信頼できる計画は、書き込みを行わない確認から始まります。適用される AGENTS.md、README の案内、package または build manifest、Git status、現在の entry point、近くにある動作例、焦点化したテストと広範なテストのコマンドを確認します。interface から implementation、test まで挙動を追跡し、最小と考えられる変更面を特定します。観察した事実と推論を分け、ドキュメントとコードの未解決な衝突を示します。bug なら再現手順を記録し、feature なら拡張点と互換性境界を特定します。この checklist により、もっともらしい一般論の計画が、そのリポジトリで使われていないパターンを持ち込むのを防ぎます。"
+        },
+        {
+          "heading": "独立して検証できるフェーズを順序づける",
+          "body": "意図と実装を分けます。Specify、重大な曖昧さの Clarify、Plan、Tasks の定義、Implement、Verify の順です。OpenAI Cookbook の ExecPlans ガイダンスは、独立して確認できる milestone を推奨しています。現行の Spec Kit は Specify、Plan、Tasks、Implement、Converge の分離を独立に裏付けますが、Clarify コマンドは計画前の任意手順なので、コースの順序を Spec Kit の文字どおりの workflow と誤って説明してはいけません。各フェーズには1つの成果、限定されたファイル、明示的な非目標、焦点化した検証、依存関係、停止条件が必要です。活動のリストは、順序と証拠によって完了をレビュー可能にして初めて計画になります。"
+        },
+        {
+          "heading": "重大な選択では停止する",
+          "body": "Codex は承認済み計画の中で通常の実装判断を行えますが、製品挙動、公開インターフェース、データ、コスト、安全性、スコープを変える選択には明示的な人間の入力が必要です。trade-off と推奨を含む、最小で有用な選択肢の提示を求めます。すべての行について確認を求めるとノイズになり、重要な判断から注意がそれます。一方、未解決の製品判断をコードの中へ隠してもいけません。タスク契約を扱い、ローカル指示を守り、validation を示し、未承認の外部操作を除外していることを確認してから計画を承認します。実装中に新しい証拠が計画を無効にしたら、古い順序を続けず、理由とともに計画を更新します。"
+        }
+      ],
+      "practice": {
+        "title": "広すぎる計画を修正する",
+        "brief": "aicourse-codex-demo の Incomplete filter に対する意図的に広すぎる計画を監査し、書き込みモードへ入らずに置き換えます。",
+        "steps": [
+          "裏付けのない仮定、無関係な refactor、欠けた非目標、危険な操作、欠けたリポジトリ検査、独立して検証できないフェーズをすべて指摘します。",
+          "AGENTS.md、README、manifest、Git status、CourseList.tsx、lib/courses.ts、付属の CourseList test、route entry point、近くにある動作中の filter pattern を調べます。",
+          "各フェーズに成果、担当ファイル、非目標、焦点化した検査、依存関係、停止条件を持つ2〜4フェーズの安全な代替計画を作成します。"
+        ],
+        "evidence": [
+          "リポジトリ証拠を添えた、広すぎる計画の注釈付き欠陥一覧。",
+          "より安全な代替計画と、明示的な承認または改訂の判断。"
+        ],
+        "safety": "計画中はファイル、依存関係、branch、commit、外部システムを一切変更しないと明記します。"
+      },
+      "checkpoint": {
+        "prompt": "単にもっともらしい計画ではなく、リポジトリに根拠づけられた計画とは何ですか。",
+        "answer": "手順と仮定が、実際のワークスペースで確認した指示、コードパス、テスト、現在の挙動にたどれる計画です。"
+      },
+      "takeaway": "証拠、フェーズ、判断、検査によって次の操作を予測可能にする計画を承認します。"
+    },
+    "implement-steer": {
+      "kicker": "レッスン5",
+      "title": "実装し、観察し、軌道修正する",
+      "summary": "通常の作業には範囲を限定したフェーズを、長時間の成果には Goal モードを使い、権限境界を変えないまま証拠に基づいて同じタスクを軌道修正します。",
+      "objective": "測定可能な Goal を作成し、独立してテストできるフェーズを実行し、正確な軌道修正を2回行い、blocker があれば明確に停止する。",
+      "sections": [
+        {
+          "heading": "不明確な長時間作業を測定可能な Goal に変える",
+          "body": "成果がまだ不明確なら、/plan を使って制約を明らかにし、結果を測定可能な完了基準へ変換します。Goal のテキストは最初の prompt と完了基準の両方になるため、成果、制約、検証を含めます。ChatGPT デスクトップアプリで Goal を開始した後は、Goal の進捗行から pause、resume、edit、clear を操作します。Codex CLI では文書化された /goal コマンドを使って Goal を管理し、同じセッション内の follow-up で方向を調整します。IDE では /goal で Goal を開始し、同じチャット内の follow-up で方向を調整します。Goal を開始してもアクセス権は広がらず、既存の sandbox と approval policy が引き続き適用されます。数時間に及ぶ作業では living ExecPlan を維持し、別のレビュアーが永続的な milestone から状態を復元できるようにします。"
+        },
+        {
+          "heading": "一度に1つのテスト可能なフェーズを承認し、軌道修正する",
+          "body": "各フェーズに「Outcome / owned files / non-goals / focused verification / stop before」という簡潔な契約を与えます。リスクのあるフェーズでは、コードが増える前に早期の diff とテスト結果を返させます。各操作をそのフェーズへ追跡できる進捗報告を求めます。同じタスク内で新しい証拠を引用し、既に検証済みのものを維持しながら軌道修正します。例えば、正しい desktop layout は保ち、mobile focus order だけを変え、その修正を維持したまま keyboard flow と1つの regression check を再実行します。修正によって意図した成果、リスク、権限が変わる場合、現在の契約を黙って拡張せず、新しいタスク契約を作ります。"
+        },
+        {
+          "heading": "本当の blocker を見分ける",
+          "body": "任意ツールがないだけでは必ずしも blocker ではありません。まずローカルの代替手段、より狭い検査、再現可能な手動手順を調べます。本当の blocker は、必要な認証情報、未解決の製品判断、安全な代替策のない再現可能な環境障害など、承認された範囲内で信頼できる進捗を妨げるものです。Goal またはフェーズを pause し、レビュー可能な状態を保ち、正確な条件、試したこと、変更していないファイル、未実行の検査、必要な最小入力を報告します。勢いを維持するために成功を捏造してはいけません。部分的な作業は、その状態と限界が明示されて初めて有用です。"
+        }
+      ],
+      "practice": {
+        "title": "再開せずに2回軌道修正する",
+        "brief": "使い捨てプロジェクトで小さな2フェーズの編集を実行し、同じタスク内で証拠に基づく正確な修正を2回伝えます。",
+        "steps": [
+          "最初のフェーズを Outcome / owned files / non-goals / focused verification / stop before の形式で書き、そのフェーズだけを承認します。",
+          "diff を確認した後、1つの検証済み挙動を保ちながら観察した不具合を1つ変える修正を送り、続けて次の焦点化した検査を絞る2回目の修正を送ります。ただし、最終的な受け入れ検査や回帰検査は削除せず、タスクも再開しません。",
+          "Codex に範囲を限定したタスクを完了させ、両方の follow-up が結果の diff と新しい検査出力にどう反映されたかを示させます。"
+        ],
+        "evidence": [
+          "フェーズ契約、最初の diff、焦点化した検証結果。",
+          "2つの軌道修正メッセージと、それぞれをコードまたはテスト証拠へ対応づけた最終メモ。"
+        ],
+        "safety": "元に戻せるローカル限定の編集を使います。commit、push、package publish、deploy を許可しません。"
+      },
+      "checkpoint": {
+        "prompt": "/goal を開始すると Codex の権限は広がりますか。",
+        "answer": "いいえ。Goal モードは同じ sandbox と approval policy を保持し、判断または追加権限が必要になると停止します。"
+      },
+      "takeaway": "曖昧に否定して再開するのではなく、観察した証拠を引用し、検証済み作業を保って軌道修正します。"
+    },
+    "debug-test": {
+      "kicker": "レッスン6",
+      "title": "証拠からデバッグし、修正をテストする",
+      "summary": "信頼できるデバッグは、再現から根本原因、最小修正へ進み、焦点化したテストとリスクに比例した広範な検査で結果を証明します。",
+      "objective": "再現、根本原因分析、期待される失敗、最小修正、新しい検証を通して Codex を導く。",
+      "sections": [
+        {
+          "heading": "説明する前に再現する",
+          "body": "最小で信頼できる再現から始め、失敗全体を読みます。入力、環境、コマンドまたは操作、実際の結果、期待結果を記録します。編集前に最近の変更を調べ、近くにある動作例を探します。「Y だから X が失敗原因だと考える」という形式で、反証可能な仮説を1つ書きます。それを否定できる最小の単一変数を試し、否定されたら次の仮説を立てる前に捨てます。トリガー条件、誤った仮定、観察した症状がつながるまで値または制御フローを追跡します。環境によって再現が異なる場合、推測でコードを編集せず、version、seed、time、permission、data を比較します。"
+        },
+        {
+          "heading": "red、green、その後に refactor",
+          "body": "本番コードを変える前に、不具合を焦点化したテストとして表現します。実行し、typo や壊れた fixture ではなく、期待した理由で失敗することを確認します。同じ検査を green にする最小の変更を行います。green の後だけ、挙動を保つ cleanup を行えます。各 cleanup の手順で焦点化したテストを green のまま維持します。原因修正と無関係な refactor を混ぜてはいけません。自動テストが不可能なら、入力と出力を記録した再現可能な手動検査を使います。失敗を観察し、原因となる領域を1つ変更し、同じ検査を繰り返し、その後で証拠を保つ cleanup だけを行います。"
+        },
+        {
+          "heading": "新しい挙動を検証してから範囲を広げる",
+          "body": "修正後に焦点化した検査を実行し、実際の出力を保存します。次に、回帰し得る範囲から広範な検査を選びます。隣接 unit test、type check、lint、build、integration test、対象を絞った user flow などです。以前通った、またはコードが正しそうという理由で、コマンドが通ったと主張してはいけません。検証は新しく、現在のワークスペースに対応している必要があります。テスト通過後も diff を読みます。green のテストと、偶発的なファイル、弱められた assertion、不要な変更は両立し得ます。広範な検査が既存理由で失敗する場合、変更による失敗から証拠を分け、どう区別したかを説明します。green 出力を得るために意味のあるテストを削除または無効化してはいけません。"
+        }
+      ],
+      "practice": {
+        "title": "red-green-refactor サイクルを完了する",
+        "brief": "使い捨ての aicourse-codex-demo に用意された CourseList の Incomplete filter 不具合を使い、焦点化した回帰テストを追加または維持します。",
+        "steps": [
+          "filter の失敗を再現し、最近のコードと動作中の filter 例を調べ、反証可能な根本原因仮説を1つ示します。",
+          "CourseList の焦点化したテストを実行し、CourseList.tsx または lib/courses.ts を変更する前に期待どおり red になることを確認します。",
+          "最小修正で green にし、必要な挙動維持の cleanup だけを行い、焦点化したテストを再実行し、広範な検査を1つ実行して diff を確認します。"
+        ],
+        "evidence": [
+          "期待した red 出力、動作例、1つの根本原因仮説。",
+          "cleanup 後の新しい green 出力、1つの広範な結果、diff が焦点化されていることを確認するメモ。"
+        ],
+        "safety": "合成の失敗を使います。本番データ、稼働中のサービス、価値ある未コミット変更があるリポジトリで試してはいけません。"
+      },
+      "checkpoint": {
+        "prompt": "修正を実装する前に、新しいテストが失敗するのを確認する必要があるのはなぜですか。",
+        "answer": "テストが不具合を実際に検出し、意図した理由で失敗することを示すため、後の通過が意味のある証拠になります。"
+      },
+      "takeaway": "信頼できる修正には、再現可能な症状、因果説明、最小変更、新しい証拠があります。"
+    },
+    "review-diff": {
+      "kicker": "レッスン7",
+      "title": "実際の diff と証拠をレビューする",
+      "summary": "レビューでは、Codex が一連のコマンドを完了したかではなく、実装が契約に合っているかを判断します。",
+      "objective": "正しい review scope を選び、対応する surface で /review を使う。デスクトップの review pane では inline comment と stage／revert の操作を使い、CLI または IDE では Git または editor の workflow を使って、修正を検証し正直な引き継ぎを作成する。",
+      "sections": [
+        {
+          "heading": "正しいリポジトリ範囲をレビューする",
+          "body": "デスクトップの review pane は Codex の編集だけでなく、リポジトリの状態を反映します。変更ファイルの完全な一覧から始め、受け入れ主張に応じて Unstaged、Staged、Commit、Branch、Last turn を選びます。CLI では /review を実行し、未コミット変更、base branch、commit、またはカスタム指示を選べます。IDE の /review で選べるのは未コミット変更または base branch だけです。/review が表示されない場合、このコマンドは Git 管理のプロジェクトにだけ表示されるため、まず開いているプロジェクトが Git リポジトリ内にあることを確認します。review はツリーを編集せず、優先度付きの指摘を報告します。すべての変更ファイルを計画へ対応づけます。個々の hunk を文脈の中で読む前に、予期しない lockfile、生成物、削除された test、route 編集、広範な format、安全性設定を調べます。"
+        },
+        {
+          "heading": "指摘を範囲のある修正へ変える",
+          "body": "有用な指摘は、具体的な挙動、場所、trigger、影響を示します。デスクトップの review pane では、不具合に行単位の comment を残し、その comment だけを直すよう Codex に依頼して、受け入れ前に修正 diff を確認します。正確な対象を確認してから pane の stage または revert 操作を使います。CLI または IDE では、Git または editor の workflow を使って指摘を記録し、修正を確認して、変更を stage または取り消します。より独立した pass にするには、デスクトップアプリで detached review を構成するか、IDE 拡張の chatgpt.reviewDelivery を detached に設定します。CLI は現在の session 内に review を報告します。また、元の契約と現在の diff を使って新しい reviewer pass を開始できます。自信のある要約が複数あっても証明にはなりません。すべての指摘を artifact と比較し、修正後に焦点化した検証を再実行します。プロジェクト規則のないスタイル上の好みは不具合ではなく、green の suite でも未テストの明白な製品上または安全上の誤りは免責されません。"
+        },
+        {
+          "heading": "証拠を受け入れ条件へ対応づけ、引き継ぐ",
+          "body": "各受け入れ条件について、それを検証する test、command、inspection、manual flow と実際の結果を記録します。skip、warning、cached output、誤った package で実行された command がないか log を読みます。実行できない検査は not run と明記し、残る不確実性を説明します。その後、成果、変更領域、新しい検証、リスク、残る人間の判断を先に示して引き継ぎます。リポジトリが既に dirty だった場合、タスク変更と保持したユーザー作業を分けます。証拠がその正確な範囲を裏付けない限り、production-ready、secure、fully tested と主張してはいけません。"
+        }
+      ],
+      "practice": {
+        "title": "用意されたレビュー不具合を見つけ、修正を検証する",
+        "brief": "mouse-only control、誤った count、偶発的な route 編集、弱められた test を含む準備済み CourseList diff をレビューし、範囲を限定した修正を検証します。",
+        "steps": [
+          "使い捨てリポジトリで正しい review scope を選び、対応する surface で /review を実行し、すべての変更ファイルを確認して、用意された各不具合を具体的な影響で順位づけします。",
+          "デスクトップの review pane では少なくとも1つの inline comment を残します。CLI または IDE を使う場合は、同等の範囲を限定した指摘をチャットまたは editor に記録します。限定した修正だけを依頼して新しい diff を確認し、デスクトップの pane または Git／editor の workflow で各結果を意図的に stage、revert、または reject します。",
+          "焦点化したテストを再実行し、受け入れマトリクスを更新し、制限と引き続き未承認の操作を含む引き継ぎを書きます。"
+        ],
+        "evidence": [
+          "範囲を指定した /review の結果、優先順位付き不具合、inline comment、レビュー済み修正 diff。",
+          "新しい検証、完成した受け入れマトリクス、最終引き継ぎ。"
+        ],
+        "safety": "使い捨てリポジトリ内だけでローカルレビューを行います。review が好意的でも、それだけを理由に merge、commit、push、deploy しません。"
+      },
+      "checkpoint": {
+        "prompt": "関連する test suite を1つ開始できなかったのに「すべてのテストが通った」と書くと、何が問題ですか。",
+        "answer": "既知の証拠不足を成功主張へ変えてしまいます。どの検査が通り、どれを実行できず、何が不確実なままかを報告します。"
+      },
+      "takeaway": "diff、証拠、制限のすべてが元の契約に合う場合だけ、変更を受け入れます。"
+    },
+    "agents-skills": {
+      "kicker": "レッスン8",
+      "title": "AGENTS.md、Skill、subagent を適切に使う",
+      "summary": "永続的な指示、再利用可能な workflow、並列 agent はそれぞれ別の問題を解きます。境界を明示して検査できる場合にだけ使います。",
+      "objective": "AGENTS.md の discovery と precedence を適用し、指示優先の Skill を設計し、安全でない第三者構成を拒否し、独立した subagent へ brief を渡す。",
+      "sections": [
+        {
+          "heading": "AGENTS.md の discovery と precedence を適用する",
+          "body": "AGENTS.md には永続的な build command、architecture boundary、naming rule、generated file、必須 review step を記録します。global scope と各 project directory では、Codex は AGENTS.override.md、AGENTS.md、構成済みの fallback filename の順に確認し、各 directory から空でない指示ファイルを最大1つだけ採用します。リポジトリでは project root から現在の working directory まで走査し、root から順にファイルを結合して、近い指示で以前の指示を詳細化または上書きします。discovery は run 開始時に行われ、結合後の既定上限は 32 KiB です。ファイルは簡潔、具体的、検証可能にし、subtree に異なる狭い指示が本当に必要な場合だけ nested file を作ります。未知のリポジトリでは、権限を伴う作業を許す前に指示を確認します。"
+        },
+        {
+          "heading": "繰り返しが実証された後に Skill を作る",
+          "body": "Skill は、明確な trigger、input、output、decision rule、validation を持つ、実証済みの反復可能な1つの作業をまとめます。主要な SKILL.md は簡潔にし、必要なときだけ reference や asset を段階的に開示します。指示だけの Skill を優先します。決定的な挙動、壊れやすい command sequence、外部 tool のために文章だけでは不十分な場合に限り、テスト済み script を追加または再利用し、実行前に確認します。第三者の Skill、plugin、hook、MCP server、installer は実行可能な supply-chain code として扱い、network と write の挙動を調べ、正確な release または commit を監査し、secret なしで project scope にてテストし、動く main branch の download を特権 shell へ pipe してはいけません。"
+        },
+        {
+          "heading": "独立した作業だけを委任する",
+          "body": "現在のリリースでは subagent がデフォルトで有効です。1つの API の調査、別 module の review、独立した test audit など、範囲を限定した subtask が独立して進められる場合は、subagent に直接委任できます。各 subagent は追加の token と tool call のコストを伴うため、関連コンテキスト、担当ファイル範囲、期待出力、重複編集の禁止を与えます。subagent は親 agent の sandbox と permission を継承し、承認が必要な場合、その承認リクエストは委任元の thread で扱われます。複数の agent が同じ未解決判断に依存する、または同じファイルを変更する場合、並列化は逆効果です。coordinator は結果を統合し、矛盾を解消し、結合状態で検証を再実行する必要があります。複数の自信ある報告を独立した証明と取り違えてはいけません。初心者の作業では通常、良い計画を持つ1 agent で十分です。分解が明らかで、調整コストが節約時間より小さいときに subagent が価値を持ちます。"
+        }
+      ],
+      "practice": {
+        "title": "スコープ付き指示を書き、安全でない installer を拒否する",
+        "brief": "範囲を限定した AGENTS.md rule を1つ作り、実行しない安全でない Skill installer 抜粋を監査し、独立した subagent handoff を作成します。",
+        "steps": [
+          "scope、正とする command、観察可能な validation、期待する precedence 結果を含む、簡潔な root または nested AGENTS.md rule を書きます。",
+          "動く branch を download して shell に pipe する、secret を要求する、hook を追加する、network write を有効にする installer を実行せずに拒否し、代わりに必要な正確な release または commit と secret-free audit を示します。",
+          "独立した scope、完全な context、重複する writable file の禁止、期待する return contract、integration verification を含む subagent brief を作ります。"
+        ],
+        "evidence": [
+          "スコープ付き AGENTS.md rule と、root-to-leaf の衝突でどの指示が勝つかの説明。",
+          "拒否した installer の監査と、重複しない subagent brief。"
+        ],
+        "safety": "この演習は使い捨てリポジトリで行い、第三者 Skill を install または実行しません。採用前に調査し、可能ならレビュー済み version を pin します。"
+      },
+      "checkpoint": {
+        "prompt": "nested AGENTS.md が適切なのはいつですか。",
+        "answer": "特定の subtree に、リポジトリ全体の rule と異なる、またはそれを詳細化する永続的指示があり、scope boundary が明確な場合です。"
+      },
+      "takeaway": "AGENTS.md は永続的なローカル規則、Skill は実証済みの反復可能な workflow、subagent は本当に独立した作業に使います。"
+    },
+    "cli": {
+      "kicker": "レッスン9",
+      "title": "Codex CLI を自在に使う",
+      "summary": "CLI は同じ証拠優先のループをターミナルへ持ち込み、現在のディレクトリ、コマンド出力、自動化境界を特に見やすくします。",
+      "objective": "CLI をインストールして認証し、session を確認・制御し、作業を再開し、/review を実行し、正しい構造化出力契約で codex exec を使う。",
+      "sections": [
+        {
+          "heading": "インストール、認証、コンテキスト確認",
+          "body": "公式のプラットフォーム手順に従って最新 CLI をインストールします。npm では npm install -g @openai/codex です。目的のリポジトリルートから codex を実行します。ブラウザによる ChatGPT 認証には codex login、現在の mode の確認には codex login status、使用量ベースの API アクセスには printenv OPENAI_API_KEY | codex login --with-api-key を使います。キーをチャットやログへ貼り付けてはいけません。ChatGPT サインインはサブスクリプションとワークスペース管理を、API キーでのサインインは API 課金と API 組織管理を使い、Codex Cloud には引き続き ChatGPT サインインが必要です。作業前に directory、Git status、適用される AGENTS.md 指示を確認します。"
+        },
+        {
+          "heading": "対話 session を制御し、再開する",
+          "body": "/status で active model、approval policy、writable root、session context を確認し、/permissions で必要な境界を選び、/model で model を変更し、/init で AGENTS.md の scaffold を作り、/diff で変更を確認し、/review で未コミット作業、base branch、commit、custom criteria をレビューします。オリエンテーションは読み取り専用で始め、その後1つの限定された編集を承認します。command menu の /resume または codex resume --last を使い、現在の directory に対する最新 session を再開します。より広い session list が意図的に必要な場合だけ --all を追加します。広範または破壊的な command の前に、shell substitution、glob、variable、解決後の対象を確認します。"
+        },
+        {
+          "heading": "定義済み自動化にだけ codex exec を使う",
+          "body": "OpenAI の非対話モードガイドは、上書き設定がない場合の既定値を読み取り専用と説明しています。一方、現在のコマンドリファレンスでは、--sandbox を省略すると有効な設定を継承するとされています。したがって自動化では、このフラグを省略したときに読み取り専用だと仮定してはいけません。読み取り専用の調査やレビューでは、--sandbox read-only を明示的に指定します。codex exec --json \"Inspect the test command without editing\" は、最終 JSON object 1つではなく JSON Lines の event stream を出力します。下流利用者が schema で拘束された最終結果を必要とする場合、codex exec \"...\" --output-schema ./schema.json -o ./result.json を使い、非ゼロ終了、ファイル欠落、schema mismatch を失敗として扱います。範囲を限定した編集が明示されたタスクでのみ --sandbox workspace-write を追加します。意図した自動化 session を再開するときだけ codex exec resume --last を使います。workflow は対話的に始め、権限と失敗を観察し、安定した契約になってから自動化します。"
+        }
+      ],
+      "practice": {
+        "title": "読み取り専用でレビューし、その後1つの編集を承認する",
+        "brief": "使い捨てリポジトリで対話的なオリエンテーションとレビュー、明示的に承認した1編集、焦点化した検証を行います。",
+        "steps": [
+          "確認済みのリポジトリルートから /status を実行し、/permissions で読み取り専用を選び、scaffold が本当に必要な場合だけ /init を使い、path 証拠付きのリポジトリ map を依頼します。",
+          "意図した範囲に /review を実行し、ワークスペース内の1編集を承認して、受け入れる前に /diff を確認します。",
+          "焦点化した検証を実行し、認証情報を公開せずに codex exec --json の JSONL 出力または schema 制約付き最終結果のどちらかを別途実演します。"
+        ],
+        "evidence": [
+          "対話タスクの /status、permission、/review、/diff の証拠。",
+          "新しい焦点化した検証と、JSONL または schema 制約付き出力、および明示的な失敗規則。"
+        ],
+        "safety": "レビューと非対話デモをローカルに保ちます。範囲を限定した1件のワークスペース編集だけを許可し、承認前にすべてのコマンドを確認し、認証情報を使いません。"
+      },
+      "checkpoint": {
+        "prompt": "新しい workflow を codex exec へ移す前に、対話的に始めるべきなのはなぜですか。",
+        "answer": "自動化で確認ループを失う前に、対話実行によって曖昧さ、必要な権限、失敗モード、有用な出力契約が明らかになるからです。"
+      },
+      "takeaway": "発見と軌道修正には対話 CLI を、安定して範囲を限定した契約だけに codex exec を選びます。"
+    },
+    "ide": {
+      "kicker": "レッスン10",
+      "title": "IDE 内で Codex を使う",
+      "summary": "IDE サーフェスは、開いているファイル、選択コード、最近のチャット、checkpoint、inline diff が実際に必要なコンテキストであるとき最も力を発揮します。",
+      "objective": "文書化された editor context を添付し、Git checkpoint を作り、焦点化した変更を実装・レビューし、安全に復元し、範囲を限定したタスクを cloud へ委任する。",
+      "sections": [
+        {
+          "heading": "少なく、しかし正確に添付する",
+          "body": "開いているファイル、選択コード、最近のチャットによって IDE の依頼を正確にできます。どのコンテキストが正で、その理由は何かを Codex に伝え、IDE の composer でそのコンテキストを確認するか、意図的に添付します。/ide-context は自動 IDE コンテキストをオンまたはオフにするときだけ使います。これは設定の切り替えであり、検査コマンドではありません。説明のない directory を添付する代わりに、失敗している function とその caller を選択します。ただし、表示中のファイルが契約全体を含むとは限らないため、編集前に適用される repository instruction と test も要求します。挙動が type、service、route、component の境界をまたぐなら、その trace を依頼します。正確な選択は検索コストを下げますが、リポジトリ全体の受け入れと検証を置き換えません。"
+        },
+        {
+          "heading": "checkpoint、review、recovery",
+          "body": "タスク前に Git checkpoint を作り、baseline と Codex の作業を区別できるようにします。適切なら、レビュー済み成果の後にも checkpoint を作ります。source の横で inline diff を確認し、無関係な format や cleanup を拒否します。/review で利用できる範囲（未コミット変更または base branch）から意図に合うものを選び、焦点化した test を実行し、その後契約で必要な広範な command を実行します。変更が誤っていれば、他のユーザー作業を捨てるのではなく、解決済みの hunk だけを revert するか、既知の checkpoint から復元します。inline diff が正しく見えても runtime behavior、generated file、lockfile が誤ることがあるため、変更ファイルの完全な一覧を必ず確認します。"
+        },
+        {
+          "heading": "範囲を限定したタスクを cloud へ委任する",
+          "body": "準備済みのリポジトリタスクを独立して実行できる場合、IDE から /cloud を使い、意図した /cloud-environment を選びます。base revision、成果、制約、検証、引き続き未承認の外部操作を改めて示します。cloud task 完了後に editor へ戻り、その結果を checkpoint と比較し、適用または受け入れの前に完全な diff をレビューします。ローカルコンテキストや分離したローカル編集の方が適切なら /local または /worktree を使います。2つのサーフェスに同じ checkout を同時に書き込ませてはいけません。1つの owner だけが編集し、他の作業は読み取り専用または分離状態に保ちます。"
+        }
+      ],
+      "practice": {
+        "title": "editor の根拠に基づく修正を1つ行う",
+        "brief": "小さな関数と既存テストを含む使い捨てプロジェクトを使います。",
+        "steps": [
+          "baseline の Git checkpoint を作り、関連する function だけを選択し、観察可能な挙動、リポジトリ制約、受け入れ検査を説明します。",
+          "Codex に caller と test を調べ、最小の inline 修正を行い、結果の diff だけを /review で確認するよう依頼します。",
+          "焦点化した検査とリポジトリ全体の検査を実行し、安全な revert または checkpoint 比較を練習してから、重複 writer を開始せずに範囲を限定した /cloud 委任を概説します。"
+        ],
+        "evidence": [
+          "baseline checkpoint と、変更ファイルごとの説明を添えた受け入れ済み inline diff。",
+          "新しい検証、recovery の証拠、範囲を限定した cloud handoff contract。"
+        ],
+        "safety": "自動 deploy または publish hook を無効にし、選択ファイルに対する active writer を1つだけにします。"
+      },
+      "checkpoint": {
+        "prompt": "現在選択している関数だけを添付すると、どのようなリスクがありますか。",
+        "answer": "正しい変更を左右する repository instruction、caller、test、public contract、cross-file effect が選択範囲の外に隠れる可能性があります。"
+      },
+      "takeaway": "editor context で精度を高め、変更を受け入れる前に repository context を復元します。"
+    },
+    "cloud-parallel": {
+      "kicker": "レッスン11",
+      "title": "Desktop、Cloud、Worktree、並列作業を使う",
+      "summary": "project、integrated terminal、Goal、cloud task、worktree、subagent、scheduled task は、それぞれに範囲を限定した owner とレビュー可能な結果がある場合だけ効果を高めます。",
+      "objective": "再現可能な cloud 作業を準備し、分離した worktree を引き継ぎ、subagent をレビューし、Goal と scheduled task を運用し、並行できる作業を識別する。",
+      "sections": [
+        {
+          "heading": "ローカル状態と cloud 状態を明示する",
+          "body": "project と別々の chat を使い、関連ファイルと異なる成果を整理します。各 desktop chat には project または worktree に限定された integrated terminal があります。ChatGPT は現在の出力を読めるため、そこで焦点化した test を実行できますが、表示された出力を自動的な成功と見なしてはいけません。cloud task は、見えない laptop 状態ではなく、選択した repository revision と構成済み setup から開始します。再現性が重要なら runtime と dependency を pin します。cloud secret は setup 中だけ存在し、agent phase 前に削除されます。agent phase の internet は、構成しない限り既定で無効です。タスクが未コミットファイルや手動 service に依存するなら、再現可能にするかローカルに保ちます。"
+        },
+        {
+          "heading": "writer を分離し、並列結果をすべてレビューする",
+          "body": "Worktree chat はコンピューター上のファイルを分離し、Local と Worktree の間で handoff できますが、別 branch でも互換性のない仮定を置くことがあります。各 cloud task または subagent に、安定した base revision、完全な context、重ならない担当 scope、明示的な return contract、焦点化した validation を与えます。CLI の /agent で subagent thread を確認または切り替えます。長時間の測定可能な成果には /goal を開始できます。デスクトップアプリでは Goal の進捗行から pause、resume、edit、clear を操作し、CLI では同じセッション内の follow-up、IDE では同じチャット内の follow-up で方向を調整します。Goal モードは権限を拡大しません。読み取り中心の探索、test、triage は、重複する書き込み中心の作業より安全な最初の subagent 用途です。coordinator は各結果をレビューし、統合状態で新しい検査を実行します。"
+        },
+        {
+          "heading": "手動で実証済みの prompt だけを schedule する",
+          "body": "ChatGPT デスクトップアプリでは、scheduled task を local project または専用 background worktree で実行できます。コンピューターの電源が入り、app が動作し、project が利用可能である必要があります。web の scheduled task は upload または接続された context を使えますが、任意の local folder や worktree を直接保持できません。schedule 前に prompt を手動で実行し、最初の数回の出力をレビューします。action、重要とみなす条件、output destination、cadence、既定 sandbox の必要性、停止または入力要求の条件を示します。scheduled task は無人で動くため、最小アクセスを選び、反復を信頼する前に初期 run をレビューします。"
+        }
+      ],
+      "practice": {
+        "title": "複数要素の依頼を安全に分解する",
+        "brief": "Goal、2つの独立 agent または worktree、integration、1つの scheduled follow-up にまたがる複数要素の依頼を、実行せずに計画します。",
+        "steps": [
+          "測定可能な /goal の成果と共有 base revision を定義し、逐次処理を必要とする dependency または未解決の interface decision をすべて示します。",
+          "本当に独立した2つの lane に、重ならない file または responsibility、完全な context、明示的な return、焦点化した check、/agent または worktree review step を与えます。",
+          "integration order と combined check を書き、local-versus-web の選択、cadence、stop condition、review destination を含む、手動でテスト可能な scheduled prompt を作成します。"
+        ],
+        "evidence": [
+          "dependency map と、明示的な return contract を持つ重複しない2つの task brief。",
+          "integration checklist と、manual test および stop criteria を含む scheduled-task prompt。"
+        ],
+        "safety": "この演習は plan mode に保ちます。remote branch、pull request、deploy、破壊的 cleanup を作成しません。"
+      },
+      "checkpoint": {
+        "prompt": "別々の worktree だけでは、2つのタスクを安全に並行実行できる証明にならないのはなぜですか。",
+        "answer": "worktree はファイルを分離しますが、タスクは互換性のない仮定を置き、共有 contract を変更し、integration 後にだけ失敗する可能性があるからです。"
+      },
+      "takeaway": "独立した contract だけを並列化し、integration を独立した reviewed・freshly tested change として扱います。"
+    },
+    "automation-capstone": {
+      "kicker": "レッスン12",
+      "title": "慎重に自動化し、キャップストーンを完了する",
+      "summary": "自動化は workflow を理解した後に初めて正当化されます。最小権限の Review → Repair → Validate ループを構築し、権限、失敗、不確実性を隠さずに範囲を限定したローカル capstone を完了します。",
+      "objective": "injection 防御と停止条件を備え、別個に承認される GitHub 自動化ループを設計し、コース capstone を提出してローカル検証する。",
+      "sections": [
+        {
+          "heading": "Review、Repair、Validate を分離する",
+          "body": "まず actions/checkout を persist-credentials: false、contents: read で構成し、不要な secret や network を与えず、openai/codex-action@v1 を使う Review job を実行します。Action の @v1 参照は Codex CLI を固定しません。再現性が重要なら、codex-version を監査済みの互換 CLI version に別途設定します。permission-profile には現在 Codex CLI 0.138.0 以降が必要です。信頼できる人間または policy gate が Repair を別途承認します。checkout を編集する場合、:workspace のような最小の permission-profile を使います。これは safety-strategy の代わりではなく、legacy sandbox input と同時に使えません。action の drop-sudo または unprivileged-user isolation を維持します。job の最後に Codex を実行し、宣言された output だけを新しい Validate job へ渡し、決定的な test で修正 artifact を先へ進めるか判断します。"
+        },
+        {
+          "heading": "信頼できない指示から CI を守る",
+          "body": "issue text、pull-request body、code comment、screenshot、filename、commit message、fixture、repository instruction は攻撃者が制御している可能性があります。信頼できる task contract の下でデータとして引用し、生の ${{ ... }} value を shell command へ埋め込んではいけません。外部値は env で渡し、shell variable を quote します。codex-home configuration と named permission profile は信頼済み code として扱います。OPENAI_API_KEY を保護し、workflow を trigger できる人を制限し、fork run から secret を遠ざけます。最大 repair 回数を設定し、進捗のない出力が続く、または validation が失敗する場合は停止して人間へ引き継ぎ、無限 retry や外部 write を行いません。"
+        },
+        {
+          "heading": "安全な変更パケットを提出する",
+          "body": "capstone は使い捨ての aicourse-codex-demo を使います。task contract、read-only orientation、approved plan、reviewed diff、新しい verification record、maintainer handoff の6 artifact を保持します。rubric で自己評価し、最も弱い証拠リンクを修復します。ブラウザの structured receipt は技術的な完了 gate であり、ローカルの honor-system self-check にすぎません。source code を upload せず、packet を検証せず、identity credential を発行せず、ローカル実行を改ざん防止にもしません。信頼できる handoff は全 artifact をつなぎ、commit、push、pull request、merge、deploy、その他の外部 write を別途未承認のままにします。"
+        }
+      ],
+      "practice": {
+        "title": "aicourse-codex-demo の capstone を完了する",
+        "brief": "提供された aicourse-codex-demo を download し、依存関係を追加せず既存 route を変えずに、keyboard-accessible な Incomplete course filter を追加します。",
+        "steps": [
+          "demo を展開して npm ci を実行し、編集前に CourseList.tsx、lib/courses.ts、付属の CourseList.test.tsx、package script、/ と /courses/ の route file を調べます。",
+          "npm test を実行して用意された Incomplete-filter の失敗を観察し、CourseList.tsx と lib/courses.ts に最小で一貫した keyboard-accessible な変更を実装します。付属の CourseList.test.tsx は変更せず、coverage を強化する場合だけ別の test file を追加します。",
+          "npm test、npm run lint、npm run build、npm run course:verify を実行し、完全な diff をレビューして、残る制限とともに生成された course-receipt.json を引き継ぎます。"
+        ],
+        "evidence": [
+          "CourseList.tsx と lib/courses.ts を中心にした reviewed diff、付属の CourseList.test.tsx が変更されていないこと、および Incomplete filter の keyboard behavior と route preservation を証拠へ対応づけた記録。",
+          "生成された course-receipt.json と、新しい npm test、lint、build、course:verify の結果。未実行または失敗した検査をすべて明記します。"
+        ],
+        "safety": "download した demo の中だけで作業します。依存関係を増やさず、/ と /courses/ を維持し、実在する認証情報や private data を使わず、push、merge、deploy、外部システムへの write を行いません。"
+      },
+      "checkpoint": {
+        "prompt": "自動化された Review → Repair → Validate ループは、いつ停止して人間へ確認すべきですか。",
+        "answer": "定義した試行上限、進捗のない出力が繰り返されたとき、限定的な修正では validation failure を解消できないとき、またはより広い権限や外部操作が必要になったときです。"
+      },
+      "takeaway": "世界水準の Codex workflow は最も自律的なものではなく、scope、action、evidence、残る decision が明確なものです。"
+    }
+  },
+  "quiz": {
+    "q01": {
+      "question": "未知のリポジトリで最初に行うべきタスクはどれですか。",
+      "options": [
+        "全依存を更新する",
+        "入口、指示、テスト、リスクを読み取り専用で地図化する",
+        "掃除をコミットさせる",
+        "最長のテストを直ちに実行する"
+      ],
+      "explanation": "読み取り専用の把握は未知の空間を変更せず、検証可能な文脈を作ります。"
+    },
+    "q02": {
+      "question": "Codex の完了作業を受け入れるのは誰ですか。",
+      "options": [
+        "最後の進捗メッセージ",
+        "パッケージ管理ツール",
+        "証拠を確認した責任者",
+        "最初に通ったテスト"
+      ],
+      "explanation": "実行は任せられても、意図、承認、受け入れは人の責任です。"
+    },
+    "q03": {
+      "question": "最も観察可能な依頼はどれですか。",
+      "options": [
+        "画面を改善する",
+        "コードをきれいにする",
+        "全アクセシビリティを直す",
+        "メール検証失敗時に名前を保持し、メールエラーへフォーカスする"
+      ],
+      "explanation": "最後は再現可能な条件と動作を定めています。"
+    },
+    "q04": {
+      "question": "完全なタスク契約に含めるべきものは何ですか。",
+      "options": [
+        "Goal、context、constraints、non-goals、acceptance criteria、verification",
+        "望むコードについての長い説明だけ",
+        "定義せずに best practice を使うよう求めること",
+        "役立ちそうな操作を何でも行う許可"
+      ],
+      "explanation": "この6つのラベル付き項目により、Codex には範囲を限定した目標が、レビュアーには観察可能な受け入れ証拠が与えられます。"
+    },
+    "q05": {
+      "question": "権限要求にはどう対処すべきですか。",
+      "options": [
+        "信頼できる製品からの要求はすべて承認する",
+        "タスクに関係なくすべて拒否する",
+        "正確な操作、理由、対象、より狭い代替策を確認する",
+        "将来の中断を避けるため、今すぐ広いアクセスを承認する"
+      ],
+      "explanation": "sandbox と approval policy は別の制御です。それでも各承認は、現在の正確な操作、対象、リスク、より狭い代替策によって正当化されなければなりません。"
+    },
+    "q06": {
+      "question": "Local、Worktree、Cloud モードについて正しい説明はどれですか。",
+      "options": [
+        "Cloud には未コミットのローカルファイルがすべて自動的に含まれる",
+        "データ、セットアップ、分離、フィードバックループの要件から選ぶ",
+        "Local 実行では権限レビューが不要である",
+        "Cloud 実行は常により安全である"
+      ],
+      "explanation": "Local は現在のディレクトリで作業し、Worktree はローカルファイルを分離し、Cloud はリモートで動作します。適切なモードはタスクのコード、データ、セットアップ、分離、対話要件に依存します。"
+    },
+    "q07": {
+      "question": "リポジトリ固有の計画より先に何をしますか。",
+      "options": [
+        "指示、コード経路、テスト、動作を調査",
+        "最新設計を採用",
+        "ブランチで改修開始",
+        "全行の承認を求める"
+      ],
+      "explanation": "リポジトリ証拠が一般論ではない計画を作ります。"
+    },
+    "q08": {
+      "question": "段階の境界が役立つのはいつですか。",
+      "options": [
+        "計画を長くする時",
+        "全コード完了後",
+        "同じファイルを使う時",
+        "成果を単独でレビュー、検証できる時"
+      ],
+      "explanation": "独立検証できる段階は安全な停止点になります。"
+    },
+    "q09": {
+      "question": "最も良い調整メッセージはどれですか。",
+      "options": [
+        "やり直して",
+        "確認済みレイアウトを残し、モバイルのフォーカスだけ直して再テスト",
+        "別フレームワークで全て書き直す",
+        "最善に任せる"
+      ],
+      "explanation": "証拠に基づく調整は正しい作業を残し、新境界を明示します。"
+    },
+    "q10": {
+      "question": "/goal を開始すると権限はどうなりますか。",
+      "options": [
+        "Goal モードが自動的に完全アクセスを与える",
+        "Goal モードが完了まで全 approval を無効にする",
+        "既存の sandbox と approval policy が引き続き有効で、判断が必要になると Goal が停止する",
+        "完了基準が定義されたため Goal が自動 deploy できる"
+      ],
+      "explanation": "Goal モードは目的と完了基準を持続させますが、タスクの sandbox、approval、外部権限を広げません。"
+    },
+    "q11": {
+      "question": "デバッグの最初の目的は何ですか。",
+      "options": [
+        "症状を安定再現して原因を追う",
+        "疑わしいモジュールを改修",
+        "全体へログ追加",
+        "失敗テストを無効化"
+      ],
+      "explanation": "再現と原因追跡は推測変更を防ぎます。"
+    },
+    "q12": {
+      "question": "信頼できる回帰テストはどれですか。",
+      "options": [
+        "実装後に書き一度も失敗しない",
+        "修正の内部実装を複製",
+        "広いテストを全て置換",
+        "意図した欠陥で失敗し、最小修正後に合格"
+      ],
+      "explanation": "赤を観察して初めて欠陥を検出できると分かります。"
+    },
+    "q13": {
+      "question": "変更レビューで最初に見るものは何ですか。",
+      "options": [
+        "最終要約だけ",
+        "ビルドだけ",
+        "全変更ファイルと各ファイルの計画との関係",
+        "追加行数"
+      ],
+      "explanation": "一覧は予期しない成果物や範囲拡大を示します。"
+    },
+    "q14": {
+      "question": "関連テストが起動できない時の報告はどれですか。",
+      "options": [
+        "全テスト合格",
+        "未実行、理由、残る不確実性",
+        "省略",
+        "小テストが通れば合格"
+      ],
+      "explanation": "正確な証拠不足は根拠のない成功より信頼できます。"
+    },
+    "q15": {
+      "question": "AGENTS.md の良い用途は何ですか。",
+      "options": [
+        "全会話履歴",
+        "安全境界の上書き",
+        "一回限りの指示",
+        "簡潔で永続的なコマンド、境界、検証規則"
+      ],
+      "explanation": "AGENTS.md は、複数のタスクに共通する、安定した範囲付き指示に最も適しています。"
+    },
+    "q16": {
+      "question": "サブエージェントと skill をいつ使いますか。",
+      "options": [
+        "独立作業にサブエージェント、実証済み反復手順に skill",
+        "全一ファイル編集で両方",
+        "第三者確認を省くため skill",
+        "同じファイルへ並行エージェント"
+      ],
+      "explanation": "それぞれ独立並行と手順再利用を解決します。"
+    },
+    "q17": {
+      "question": "CLI 起動前に何を確認しますか。",
+      "options": [
+        "文字フォント",
+        "作業ディレクトリ、状態、指示",
+        "全ネットワーク許可",
+        "テストがないこと"
+      ],
+      "explanation": "現在のディレクトリが文脈の大部分を決めます。"
+    },
+    "q18": {
+      "question": "codex exec に適したタスクはどれですか。",
+      "options": [
+        "曖昧な設計相談",
+        "頻繁な製品判断",
+        "権限、失敗、検証、構造化出力が定義済みの安定タスク",
+        "未知の本番移行の初回"
+      ],
+      "explanation": "非対話実行には明示的な契約が必要です。"
+    },
+    "q19": {
+      "question": "IDE サーフェスの主な利点は何ですか。",
+      "options": [
+        "選択コード、開いているファイル、最近のチャット、inline diff から得られる正確なコンテキスト",
+        "runtime behavior が正しいことの自動的な証明",
+        "あらゆるリポジトリへの無制限アクセス",
+        "テストを実行する必要がないこと"
+      ],
+      "explanation": "editor context は正確な依頼とレビューを支えますが、リポジトリ全体の証拠は引き続き必要です。"
+    },
+    "q20": {
+      "question": "インライン差分が正しそうな次に何をしますか。",
+      "options": [
+        "直ちにデプロイ",
+        "生成物を未確認で受け入れ",
+        "二人目の書き込み担当を開始",
+        "焦点と広いチェックを実行し全ファイルをレビュー"
+      ],
+      "explanation": "見た目は動作とファイル間影響を証明しません。"
+    },
+    "q21": {
+      "question": "安全に並行化できる組はどれですか。",
+      "options": [
+        "同じ設定ファイル",
+        "同じ未解決判断",
+        "範囲が重ならず出力が明確な独立監査",
+        "同じ環境への二つのデプロイ"
+      ],
+      "explanation": "分離した範囲は統合リスクを下げます。"
+    },
+    "q22": {
+      "question": "自動化された Review → Repair → Validate ループは、いつ停止すべきですか。",
+      "options": [
+        "一度 deploy した後だけ",
+        "定義した試行上限、進捗のない結果の反復、未解決の validation failure、新しい権限の必要時",
+        "停止しない。何かを変更するまで自動化は retry すべきである",
+        "読み取り専用 review が指摘なしと報告したときは常に"
+      ],
+      "explanation": "明示的な停止条件は無限 retry を防ぎ、repair が収束しない場合や、より広い権限が必要な場合に人間の判断を要求します。"
+    },
+    "q23": {
+      "question": "PR 分析 CI の安全な既定値はどれですか。",
+      "options": [
+        "書き込みと全秘密",
+        "PR 本文のコマンド実行",
+        "固定されていない action",
+        "読み取り最小権限、文章をデータ扱い、変更はレビュー門"
+      ],
+      "explanation": "信頼できない入力を扱う自動化は権限を最小にします。"
+    },
+    "q24": {
+      "question": "信頼できる capstone handoff を構成するものは何ですか。",
+      "options": [
+        "contract、repository evidence、plan、diff、verification、正直な handoff を結ぶ追跡可能な packet",
+        "大量の変更ファイル",
+        "自動 production deploy",
+        "production-ready と書かれた最終メッセージ"
+      ],
+      "explanation": "evidence packet はプロセスをレビュー可能にします。これとは別に、ブラウザはローカルの structured receipt だけから技術的完了を記録します。"
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "Codex を選択した ChatGPT デスクトップアプリ",
+      "caption": "タスクを限定するリポジトリを開く前に、ChatGPT デスクトップアプリで Codex を選択します。"
+    },
+    "fig-02": {
+      "alt": "download した aicourse-codex-demo フォルダを Codex で開く ChatGPT デスクトップアプリ",
+      "caption": "download 可能な demo は、すべての guided action に使える使い捨てで再現可能な workspace を提供します。"
+    },
+    "fig-03": {
+      "alt": "「未完了」コースフィルターの完全なタスク契約を含む Codex 入力欄",
+      "caption": "契約は CourseList.tsx と lib/courses.ts を実装対象として固定し、付属 test を変更せず、編集前に route、依存関係、検証の制約を明示します。"
+    },
+    "fig-04": {
+      "alt": "ローカル、Worktree、クラウドの選択肢を示す Codex 環境ピッカー",
+      "caption": "ツールや書き込み権限を与える前に、タスクに合う実行境界を選びます。"
+    },
+    "fig-05": {
+      "alt": "CourseList のソース、テスト、スクリプト、ルートを引用する Codex の読み取り専用調査",
+      "caption": "根拠のある調査は、デモを変更せず、現在の動作と関連しそうなファイルを明らかにします。"
+    },
+    "fig-06": {
+      "alt": "正確なコマンドと限定理由を示す Codex の無害な操作の承認要求",
+      "caption": "理解できる最小の境界変更だけを承認し、効果が不明な要求は拒否します。"
+    },
+    "fig-07": {
+      "alt": "対象を絞った CourseList テストを実行する Codex 統合ターミナル",
+      "caption": "Codex が変更を実装する同じワークスペースで、最小の関連テストを実行します。"
+    },
+    "fig-08": {
+      "alt": "タスク途中のメッセージが Codex をキーボード操作可能な「未完了」フィルターへ導く",
+      "caption": "観察した証拠に基づく調整は、正しい作業を残しながら現在の経路を修正します。"
+    },
+    "fig-09": {
+      "alt": "CourseList の対象テストが変更前に失敗し変更後に合格する",
+      "caption": "赤から緑への結果が、実装を再現可能な回帰チェックに結び付けます。"
+    },
+    "fig-10": {
+      "alt": "付属 test を変更せず、CourseList.tsx と lib/courses.ts の変更ファイル一覧と差分を示す Codex",
+      "caption": "限定実装を受け入れる前に、変更ファイル全体をレビューします。"
+    },
+    "fig-11": {
+      "alt": "現在の変更に範囲を限定した /review コマンド横の Codex インラインレビュー",
+      "caption": "レビュー範囲を明記し、指摘を関連差分と受け入れ動作に結び付けます。"
+    },
+    "fig-12": {
+      "alt": "変更、コマンド、ルート確認、制約を列挙する Codex の証拠引き継ぎ",
+      "caption": "有用な引き継ぎは、最新証拠、未実行チェック、残るリスク、人の判断を分けます。"
+    },
+    "fig-13": {
+      "alt": "Codex CLI の /status 出力。バージョン 0.149.0-alpha.4、選択中のモデル、合成用の作業ディレクトリ /private/tmp/aicourse-codex-demo、Read Only 権限が表示されている",
+      "caption": "リポジトリでの作業を始める前に、/status で現在のモデル、作業ディレクトリ、権限モードを確認します。"
+    },
+    "fig-14": {
+      "alt": "Codex CLI に、選択済みのモデルと、「Ask for approval」が選択された /permissions メニューが表示されている。",
+      "caption": "隠れた既定値に頼らず、権限とモデルの選択を見えるようにします。"
+    },
+    "fig-15": {
+      "alt": "ベースブランチとの差分、未コミットの変更、特定のコミット、カスタムのレビュー指示から選べる Codex CLI の /review プリセットメニュー",
+      "caption": "調べる対象に合う最も狭いレビュー用プリセットを選びます。このメニューには完了済みのレビューは表示されていません。"
+    },
+    "fig-16": {
+      "alt": "Codex IDE 拡張機能が、選択された CourseList のソースコードをコンテキストとして確認し、アクセシブルな「Incomplete」フィルターの追加方法を説明している。",
+      "caption": "選択コードは正確な局所文脈を与えますが、事実の基準はリポジトリです。"
+    },
+    "fig-17": {
+      "alt": "Codex IDE の差分に、2つのファイルに対する「Incomplete」フィルターの編集が Review と Undo のコントロールの横に表示され、引き継ぎにはテストを実行していないことが記載されている。",
+      "caption": "編集した場所で変更を調べ、チェックポイントを最新検証へ結び付けます。"
+    },
+    "fig-18": {
+      "alt": "限定されたデモタスクをクラウドへ委任する Codex IDE",
+      "caption": "IDE からクラウドへの引き継ぎには、リポジトリ、タスク契約、制約、検証要件を含めます。"
+    },
+    "fig-19": {
+      "alt": "aicourse-codex-demo のクラウド設定、限定タスク、実行ログを示す Codex",
+      "caption": "環境設定、タスク範囲、ログがつながっていれば、クラウド作業をレビューできます。"
+    },
+    "fig-20": {
+      "alt": "ブランチと統合状態を示す Codex worktree コントロールと引き継ぎ",
+      "caption": "Worktree はファイル変更を隔離しますが、統合には明確な担当者と最新検証が必要です。"
+    },
+    "fig-21": {
+      "alt": "重複しない独立したリポジトリ質問に取り組む2つの Codex subagent",
+      "caption": "独立した調査だけを並列化し、各 agent thread を確認して integration check を再実行します。"
+    },
+    "fig-22": {
+      "alt": "systematic-debugging の結果と、表示中の Filesystem Only および Plugins ソースフィルターを示す Codex CLI の Skills ピッカー",
+      "caption": "このプラグイン提供の Skill は監査例としてのみ表示しています。使用前に名前、目的、提供元を確認してください。コース 2 はこの Skill に依存せず、推奨もしていません。"
+    },
+    "fig-23": {
+      "alt": "cadence、local project または worktree、永続的 prompt、model control を示す ChatGPT scheduled task 設定",
+      "caption": "明示的な sandbox 要件、停止条件、出力、レビュー先を持ち、手動テスト済みの prompt だけを schedule します。"
+    },
+    "fig-24": {
+      "alt": "最小権限の Codex GitHub Action と、その pull request 証拠",
+      "caption": "pull request 入力を信頼できないものとして扱い、読み取り専用 Review、承認済み Repair、新しい Validate job を分離します。"
+    }
+  },
+  "capstone": {
+    "title": "安全な変更パケット",
+    "summary": "再現可能な bug fix または範囲を限定した feature を1件完了し、その evidence packet を自己評価して、ブラウザの完了 gate 用のローカル技術 receipt を生成します。",
+    "scenario": "aicourse-codex-demo をダウンロードして展開します。CourseList.tsx と lib/courses.ts には、付属の CourseList.test.tsx で検証される、キーボードで操作可能な「未完了」コースフィルターが必要です。Codex が調査、計画、編集、検証できるのは、このデモ内だけです。付属 test を変更せず、依存関係を追加せず、/ と /courses/ の両方を保持します。コミット、プッシュ、PR、デプロイ、本物の秘密、非公開データ、外部書き込みは範囲外です。",
+    "instructions": [
+      "Contract：ネイティブでキーボード操作可能な control を使う Incomplete course filter を追加し、依存関係を増やさず、/ と /courses/ を維持し、すべての外部操作を未承認のままにします。",
+      "Orient：npm ci の後、ファイルを変更せずに CourseList.tsx、lib/courses.ts、付属の CourseList.test.tsx、package script、既存 filter、2つの route entry point を調べます。",
+      "Plan：欠けた挙動を焦点化した test へ結び、CourseList.tsx と lib/courses.ts の最小変更を示し、付属 test を変更せず、npm test、lint、build、route preservation、keyboard behavior、no-new-dependencies を gate にします。",
+      "Implement：npm test で期待した失敗を記録し、Incomplete filter のために CourseList.tsx と lib/courses.ts へ最小で一貫した変更を行います。付属の CourseList.test.tsx は編集せず、追加 coverage は新しい test file に置きます。",
+      "Verify：npm test、npm run lint、npm run build を実行し、/ と /courses/ の route が引き続き動作し、dependency file が予期せず変わっていないことを確認します。",
+      "Review：すべての変更ファイルを調べ、filter label、native button behavior、pressed state、incomplete-course logic、scope、safety constraint を diff と照合します。",
+      "Handoff：npm run course:verify を実行し、生成された course-receipt.json を保持し、outcome、changed file、command evidence、limitation、引き続き人間に留保された decision を報告します。"
+    ],
+    "artifacts": {
+      "task-contract": {
+        "title": "タスク契約",
+        "description": "限定成果、文脈、制約、受け入れ、検証、権限。"
+      },
+      "orientation-note": {
+        "title": "状況把握メモ",
+        "description": "ファイル根拠、現在動作、テスト、リスク、不確実性を含む読み取り専用の事実。"
+      },
+      "approved-plan": {
+        "title": "承認済み計画",
+        "description": "成果、対象、証拠、判断、停止条件を持つ順序付き段階。"
+      },
+      "reviewed-diff": {
+        "title": "レビュー済み差分",
+        "description": "全変更ファイル、範囲の理由、レビュー指摘。"
+      },
+      "verification-record": {
+        "title": "検証記録",
+        "description": "最新の失敗と成功、広いチェック、実際の出力、未実行項目。"
+      },
+      "handoff": {
+        "title": "保守担当への引き継ぎ",
+        "description": "簡潔な成果、変更、検証、制約、残る人の判断。"
+      }
+    },
+    "rubric": {
+      "scope": {
+        "title": "範囲と契約、20 点",
+        "description": "成果が観察可能で、非目標が明示され、全ファイルがタスクへつながります。"
+      },
+      "safety": {
+        "title": "環境と安全、20 点",
+        "description": "権限は最小、秘密と不可信入力は制御され、外部や破壊操作は未承認です。"
+      },
+      "implementation": {
+        "title": "実装品質、20 点",
+        "description": "リポジトリに根ざし、限定的で、ローカル規則に合い、無関係な書き換えがありません。"
+      },
+      "verification": {
+        "title": "検証品質、25 点",
+        "description": "最新証拠が受け入れと回帰リスクを覆い、失敗と不足が正直です。"
+      },
+      "handoff": {
+        "title": "レビューと引き継ぎ、15 点",
+        "description": "差分がレビューされ、結果、制約、次の判断を別の保守担当者が理解できます。"
+      }
+    },
+    "pass": "80 点以上で合格です。ただし重大な安全違反や架空の検証があってはいけません。",
+    "retry": "80 点未満なら最も弱い証拠のつながりを直し、範囲を広げず同じタスクを再提出します。",
+    "completion": "レビュアーが推測なしに推論を再現できるまで packet を自己評価します。ブラウザは有効なローカル receipt の後にだけ capstone の技術的完了を記録し、packet を検査または認証することはありません。"
+  }
+}

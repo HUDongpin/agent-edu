@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.delivery-contract.v1",
+  "contractId": "course20-synthetic-delivery-v1",
+  "projectSpecId": "course20-verified-cut-v2",
+  "status": "approved-for-synthetic-fixture-planning",
+  "candidate": {
+    "relativePath": "render/course20-review-candidate.mp4",
+    "width": 1080,
+    "height": 1920,
+    "frameRate": "30/1",
+    "durationSeconds": 47,
+    "durationToleranceSeconds": 0.08,
+    "minimumDurationSeconds": 45,
+    "maximumDurationSeconds": 60,
+    "pixelFormat": "yuv420p",
+    "colorPrimaries": "bt709",
+    "colorTransfer": "bt709",
+    "colorSpace": "bt709",
+    "audioSampleRateHz": 48000
+  },
+  "captions": {
+    "sidecarRelativePath": "render/course20-review-candidate.en.vtt",
+    "format": "WebVTT",
+    "language": "en",
+    "mustRemainEditable": true,
+    "mustFitMediaDuration": true,
+    "overlapAllowed": false
+  },
+  "portraitComposition": {
+    "fitMode": "reviewed-center-crop-then-scale",
+    "sourceCrop": { "width": 101, "height": 180, "x": 100, "y": 0 },
+    "safeZonePixels": { "left": 86, "top": 192, "right": 994, "bottom": 1728 },
+    "edgeMarkersMustRemainVisibleInSourceEvidence": true
+  },
+  "approval": {
+    "planHashRequired": true,
+    "toolPolicyHashRequired": true,
+    "publicationDecision": "do-not-publish"
+  }
+}

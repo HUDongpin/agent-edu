@@ -1,12 +1,17 @@
 import Handbook from "@/components/handbook/Handbook";
+import JsonLd from "@/components/JsonLd";
+import CourseShell from "@/components/course-shell/CourseShell";
 import { loadWidgetCopy } from "@/lib/handbook/copy";
 import { localiseHandbook } from "@/lib/handbook/localise";
-import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
-import { seoFor } from "@/lib/seo";
+import { getMessages, translator } from "@/lib/i18n";
+import { courseLocaleParams } from "@/lib/release-surface";
+import { SITE, seoFor, urlFor } from "@/lib/seo";
 import type { Metadata } from "next";
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
-  return LOCALE_CODES.map((locale) => ({ locale }));
+  return courseLocaleParams("agentic");
 }
 
 export async function generateMetadata(
@@ -29,7 +34,48 @@ export default async function HandbookPage(
   { params }: { params: Promise<{ locale: string }> },
 ) {
   const { locale } = await params;
-  const { html, localised } = await localiseHandbook(locale);
-  const copy = await loadWidgetCopy(locale);
-  return <Handbook html={html} localised={localised} copy={copy} />;
+  const [{ html, localised }, copy, messages] = await Promise.all([
+    localiseHandbook(locale),
+    loadWidgetCopy(locale),
+    getMessages(locale),
+  ]);
+  const t = translator(messages);
+  const data = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Course",
+        courseCode: "1",
+        name: t("c.agentic.title"),
+        description: t("c.agentic.blurb"),
+        url: urlFor(locale, "handbook/"),
+        provider: { "@id": `${SITE}/#org` },
+        inLanguage: locale,
+        isAccessibleForFree: true,
+        hasPart: [
+          { "@type": "LearningResource", name: t("track.1.title"), url: urlFor(locale, "handbook/"), inLanguage: locale },
+          { "@type": "LearningResource", name: t("track.2.title"), url: urlFor(locale, "lab/"), inLanguage: locale },
+          { "@type": "LearningResource", name: t("track.3.title"), url: urlFor(locale, "build/"), inLanguage: locale },
+        ],
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: t("nav.courses"), item: urlFor(locale, "courses/") },
+          { "@type": "ListItem", position: 2, name: t("c.agentic.title"), item: urlFor(locale, "handbook/") },
+        ],
+      },
+    ],
+  };
+  return (
+    <>
+      <JsonLd data={data} />
+      <Handbook
+        html={html}
+        localised={localised}
+        copy={copy}
+        courseShell={<CourseShell courseId="agentic" locale={locale} />}
+      />
+    </>
+  );
 }

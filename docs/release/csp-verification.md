@@ -24,6 +24,13 @@ policy, create evidence, deploy a preview, or mark either release gate as
 passed. Promotion to `enforced` must be an explicit reviewed commit after Stage
 A passes. Run `npm run csp:check` in CI and immediately before every preview.
 
+The manually dispatched same-SHA verifier must receive the expected stage
+explicitly. Stage A uses `csp_stage=report-only`; Stage B uses
+`csp_stage=enforced`. The verifier rejects a missing expected header, the
+opposite header appearing at the same time, deployment metadata for a different
+SHA/deployment/environment, and any target URL with credentials, query, or
+fragment. A workflow run from a different stage cannot be relabelled later.
+
 The release-evidence schema preserves both immutable observations. Stage A's
 five binding fields live in `vercelPreviewCsp.reportOnlyTarget`; Stage B's five
 binding fields are the final top-level `releaseTarget`. Every non-pending stage
@@ -152,3 +159,27 @@ Store only the deployment ID and sanitized header/violation summary. Never paste
 a signed preview bypass URL, Cookie/Authorization header, credential, Prompt,
 reply, or Provider raw response body. Local automated config checks cannot
 replace inspecting the deployed response headers.
+
+## Production verification
+
+Production is verified only after Stage B and rollback readiness pass. The
+canonical origin must be exactly `https://aicourse.top`; the unique production
+deployment URL remains a separate clean `https://*.vercel.app` origin used to
+bind `/.well-known/release.json` to the deployment artifact. Run from the clean
+checkout at the exact production commit:
+
+```bash
+npm run production:verify -- \
+  --url https://aicourse.top \
+  --deployment-id dpl_REPLACE_WITH_EXACT_ID \
+  --commit REPLACE_WITH_EXACT_40_CHARACTER_SHA \
+  --metadata-deployment-url https://REPLACE_WITH_UNIQUE_DEPLOYMENT.vercel.app \
+  --browser-console \
+  --output tmp/release/vercel-production-verification.json
+```
+
+Production verification requires `environment=production`, enforced CSP with
+no simultaneous report-only header, exact commit and deployment metadata, and
+the full route/404/SEO/sitemap/security/privacy/browser-console matrix. It
+refuses a Preview OIDC token so that a short-lived protected-Preview credential
+is never transmitted to the public custom domain.

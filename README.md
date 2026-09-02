@@ -1,20 +1,22 @@
-# aicourse.top — Top AI course
+# aicourse.top — Practical AI learning
 
-**Learn to build with AI, from first principles — written for people who are new to software engineering.**
+**Free, open courses to understand, use, build, and evaluate AI.**
 
-Every program is a list of steps. The only question is *who picks them*. Three parts, about four hours, and you finish having built a working agent and an eval suite that scores it.
+`aicourse.top` is a multilingual learning platform built around practical outcomes and visible evidence. Learners can start from AI first principles, practise with real model behaviour, build a small agent, or learn a complete evidence-first workflow for AI-assisted software work. Published courses are independent; curated paths help learners who want a sequence.
 
 **▶ [aicourse.top](https://aicourse.top)** · free · no account · no ads · anonymous page counts only · nine languages
 
-<img src="public/logo-lockup.svg" alt="aicourse.top — top AI course" width="252">
+<img src="public/logo-lockup.svg" alt="aicourse.top" width="252">
 
-| | | Needs |
+| Available course | Modules and outcomes | Needs |
 |---|---|---|
-| **1 · [The Handbook](https://aicourse.top/en/handbook/)** | eleven illustrated sections and scripted interactive simulations | nothing · works offline · no key |
-| **2 · [The Lab](https://aicourse.top/en/lab/)** | four browser steps — a real DeepSeek call, the rules wall, your own prompt, **and twenty cases that score it** | your DeepSeek key · real Provider charges |
-| **3 · [The Course](https://aicourse.top/en/build/)** | nine guided TypeScript stages (0–8), then a Stage 9 transfer project — the agent loop, a permission gate, a mandatory reviewer, prompt injection | TypeScript · DeepSeek / Claude / offline |
+| **[Agentic Engineering](https://aicourse.top/en/courses/#agentic-engineering)** | [Handbook](https://aicourse.top/en/handbook/), [Lab](https://aicourse.top/en/lab/), and [Build an Agent](course/) | nothing for the handbook; a DeepSeek key for optional live Lab calls; TypeScript for the build |
+| **[Software Engineering with Agentic AI](https://aicourse.top/en/software-engineering/)** | five units, eighteen evidence-producing lessons, a stratified 25-question bank, nine authentic figures, and an eight-package safe-change capstone | no account for the course; Git and code-reading ability for the hands-on labs |
+| **[How to Write Prompts](https://aicourse.top/en/prompts/)** | three units, nine lessons, nine original prompt figures, a source-linked assessment, and a prompt evidence-packet capstone | no account, API key, or coding experience |
+| **[Retrieval-Augmented Generation](https://aicourse.top/en/rag/)** | four units, twelve lessons in nine languages, a deterministic retrieval lab, five authentic UI figures, one official Anthropic teaching diagram, a source-linked assessment, and a production evidence-packet capstone | no account, API key, vector database, or coding experience for the teaching lab |
+| **[Agent Orchestration](https://aicourse.top/en/agent-orchestration/)** | four phases, fifteen evidence-bounded modules, six deterministic control-room labs, an assessment, and a fifteen-artifact production capstone | no account or API key; software-system design experience helps with the production exercises |
 
-All three, and what is still to come, are listed on the [catalogue](https://aicourse.top/en/courses/). Teaching it? There's a **[90-minute lesson plan](TEACHING.md)**.
+Published courses and the open roadmap—including AI tools, research, teaching, evaluation, and responsible AI—are listed in the [catalogue](https://aicourse.top/en/courses/). Teaching the foundations material? There is a **[90-minute lesson plan](TEACHING.md)**.
 
 ---
 
@@ -24,13 +26,119 @@ All three, and what is still to come, are listed on the [catalogue](https://aico
 npm install && npm run dev
 ```
 
-`npm run build` type-checks and writes the whole site to `out/` as static files. `npm run routes:check` compares every exported route and recovery artifact with the committed manifest. There is no application server, database or API route; you can serve `out/` with any static host.
+`npm run build` type-checks and writes the multilingual site to `out/` as static files. No server, no database, no API route — you can serve `out/` with anything.
 
 **Part 1 is not a real AI.** Every Handbook "model" reply is scripted, so it works offline, needs no key and stays pedagogically reproducible. Part 2 is deliberately different: give the browser Lab your own [DeepSeek](https://platform.deepseek.com/api_keys) key and it makes real calls with real Provider charges. The key is held in session storage for that tab; closing the tab forgets the local copy but does not revoke the Provider-side credential. The site does not intentionally send keys, prompts or replies to analytics. Vercel Analytics is nevertheless a same-origin third-party script and therefore a disclosed trust boundary, not a technical guarantee of isolation.
 
 ---
 
-## What's inside
+## Course: Agent Orchestration
+
+Course 15 teaches agent orchestration as a production control system, not a
+collection of impressive multi-agent demos. Its four phases and fifteen modules
+cover the workflow/agent boundary; task graphs and typed execution contracts;
+chaining, routing, fan-out/fan-in, managers, agents-as-tools and handoffs;
+orchestrator-workers and evaluator/verifier loops; tool and MCP boundaries;
+context, conversation state, sessions, checkpoints, memory and compaction;
+budgets, queues, backpressure and cancellation; timeout, retry, ambiguous
+outcomes, idempotency, effect journals, compensation and manual reconciliation;
+authority, prompt injection, sandboxing and human review; tracing, monitoring,
+audit and economics; evals, regression and version governance; and progressive
+production rollout.
+
+The long-form course is complete in English and Simplified Chinese. Its other
+seven locale routes retain their translated site shell and catalogue card but
+show an explicit English-content notice and canonicalize to the reviewed English
+edition. Every module has exactly three visible evidence modes—source-grounded,
+engineering synthesis and version watch—plus a twelve-field orchestration
+contract, editable artifact template, deterministic local lab and checkpoint.
+The labs make no model or network call and deliberately inject two critical
+failures: a committed side effect whose response is lost, and an untrusted
+RAG/MCP result that attempts to authorize data exfiltration.
+
+OpenAI and Anthropic/Claude Academy sources form the main evidence spine, with
+the current MCP 2026-07-28 specification and version-pinned official GitHub
+repositories providing implementation and lifecycle anchors. Provider surfaces
+remain distinct: OpenAI Responses Hosted Multi-agent Beta, Codex subagents,
+OpenAI Agents SDK orchestration, Claude Agent SDK subagents, application-level
+task graphs and MCP do not share one generic definition of root, session, slot,
+state or control ownership. The uploaded PPTX and ZIP were verified and used only
+as private reference evidence; third-party screenshots, chat captures, course
+media and close redraws are not published. The public boundary is documented in
+[`public/courses/agent-orchestration/NOTICE.md`](public/courses/agent-orchestration/NOTICE.md).
+
+Useful maintenance commands:
+
+```bash
+npm run agent-orchestration:check         # curriculum, source, route, i18n, progress, rights and integration contracts
+npm run agent-orchestration:check:release # strict Course 15 release gate
+```
+
+The evidence synthesis and publication boundaries live in
+[`evidence/course-audits/agent-orchestration-course-research-brief.md`](evidence/course-audits/agent-orchestration-course-research-brief.md)
+and
+[`evidence/course-audits/agent-orchestration-course-research-brief.provenance.md`](evidence/course-audits/agent-orchestration-course-research-brief.provenance.md).
+
+---
+
+## Course: Software Engineering with Agentic AI
+
+Course 8 teaches agentic coding as a controlled software-delivery system: specify, inspect, plan, implement, test, review, integrate, deploy, observe, and learn. Its five units and eighteen lessons orient learners to all eighteen SWEBOK v4.0a knowledge areas while covering requirements, architecture and design, construction, testing, debugging, Git and configuration management, review and maintenance, documentation, CI/CD, reliability, performance and economics, security/privacy/supply chain, professional practice, team governance, and agent evaluation. This is a knowledge-area orientation and evidence-producing practice course, not a claim to reproduce every topic in the SWEBOK guide.
+
+The final assessment draws fifteen questions from a versioned 25-question bank, exactly three per unit, and passes at 12/15. The capstone requires eight inspectable evidence packages and a five-dimension 100-point rubric with an 80-point threshold. Its browser control is explicitly a local self-attested progress checklist: it does not inspect the external dossier or authorize merge, release, deployment, legal acceptance, or residual-risk acceptance. A well-supported **do not release** decision can pass; a score never waives a blocker.
+
+Nine authentic figures are stored locally with dimensions, SHA-256 records, alt text, transcripts, dates, privacy review, rights notes, and responsive WebP delivery. One Codex and six GitHub assets are tied to immutable licensed repository commits. Two real Claude Desktop images are course-authored, privacy-reviewed editorial captures; they show a Cowork workspace/permission surface and an in-progress artifact workspace, and are never mislabeled as Claude Code diff, test, or release evidence. Claude/OpenAI Academy images remain link-only where republication rights were not established.
+
+Useful maintenance commands:
+
+```bash
+npm run software-engineering:check         # curriculum, source, locale, assessment, capstone, media and file contracts
+npm run software-engineering:check:release # strict shared-integration and release gate
+npm run test:software-engineering           # 35 Playwright route, state, locale, media, SEO, no-JS and responsive checks
+```
+
+The instructional body is English in this edition. All nine locale routes provide translated titles, shell and interactive-control labels plus a visible language notice; structured data honestly declares English instructional content. The research brief, source boundary, public capstone dossier, and media-rights record live under `evidence/course-audits/` and `public/courses/software-engineering/`.
+
+---
+
+## Course: How to Write Prompts
+
+The prompt course uses an evidence-driven loop: specify an observable result, supply relevant context, separate instructions from data, test representative cases, label failures, revise one meaningful factor, and rerun the same evaluation. Its pedagogical spine is informed by Andrew Ng and Isa Fulford's official DeepLearning.AI course, with current first-party guidance and selected GitHub teaching repositories used to update evaluation, grounding, privacy, and prompt-injection coverage. All course explanations, prompts, exercises, datasets, quiz questions, and figures are original to aicourse.top.
+
+Every lesson has its own static URL and includes a selectable prompt, an accessible instructional figure, a three-step practice, a scenario checkpoint, and exact source links. Two original raster teaching figures retain PNG masters, WebP delivery assets, intrinsic dimensions, SHA-256 records, image-generation provenance, and adjacent text transcripts. The remaining seven figures are semantic HTML so they remain readable, selectable, responsive, and accessible without images or JavaScript.
+
+Useful maintenance commands:
+
+```bash
+npm run prompts:check         # curriculum, source, route, prompt, quiz, and media checks
+npm run prompts:check:release # strict release gate; every required figure must be available
+```
+
+The long-form prompt course currently uses an explicit English content boundary inside its locale routes. Root-dictionary entries exist for the catalogue, homepage, progress labels and shell, but that structural fact is not a translation-quality approval; the release audit remains authoritative.
+
+---
+
+## Course: Retrieval-Augmented Generation
+
+Course 9 treats RAG as an evidence system rather than a PDF-chatbot feature. Its four units cover system selection; corpus authority, rights, permissions, provenance and lifecycle; parsing, chunking, embeddings and indexes; lexical, dense and hybrid retrieval; query transformation, filters, reranking and bounded context; grounding, citations and abstention; agentic, multimodal and graph patterns; stage-specific evaluation; prompt injection, poisoning, privacy and tenancy; freshness, deletion, latency, cost, observability, reliability and rollback.
+
+Every lesson has three teaching sections, one system practice, an evidence checklist, a four-option checkpoint, a figure with alternative text and a transcript, and exact source links with visible evidence labels. The browser-only retrieval laboratory compares deterministic lexical, dense and hybrid teaching scores without a model call, embedding API, vector database or network request. Twelve practices, a 12-question assessment and a production capstone form fourteen equal local progress milestones.
+
+Five authentic interface figures are stored locally with intrinsic dimensions, SHA-256 records, immutable upstream commits, responsive WebP derivatives, privacy review and a public rights notice. One is the MIT-licensed Anthropic customer-support quickstart powered by Claude; it is deliberately labelled as an Anthropic-maintained Claude-powered RAG reference interface, not the consumer Claude.ai interface. Four Dify documentation screens are reused under CC BY 4.0. A second MIT-licensed Anthropic visual is an official knowledge-wiki teaching diagram, explicitly not product UI. Six additional figures are original semantic HTML.
+
+Useful maintenance commands:
+
+```bash
+npm run rag:check         # curriculum, evidence, route, assessment, progress and media checks
+npm run rag:check:release # strict Course 9 release gate
+npm run test:rag          # Playwright route, interaction, mobile, locale and SEO suite
+```
+
+The complete long-form course, laboratory, assessment, capstone and figure transcripts are localized across English, Spanish, French, German, Simplified Chinese, Traditional Chinese, Japanese, Korean and Arabic. Metadata and structured data self-canonicalize to each content locale, while Arabic course views render right to left. The research audit and complete provenance ledger live in [`evidence/course-audits/rag-course-research-brief.md`](evidence/course-audits/rag-course-research-brief.md) and [`evidence/course-audits/rag-course-research-brief.provenance.md`](evidence/course-audits/rag-course-research-brief.provenance.md).
+
+---
+
+## Inside the Agentic Engineering course
 
 The site is built around one spine: **who decides the next step, at the moment the program runs?**
 
@@ -71,10 +179,22 @@ So it is now **Next.js 16 / React 19 / TypeScript, exported as static files** (`
 
 | | |
 |---|---|
-| `app/[locale]/` | the localized pages — home, courses, handbook, lab, build and about — across 9 locales |
+| `app/[locale]/` | localized platform, course, module, and lesson routes |
 | `messages/*.json` | every string, one flat file per language. A translator edits one line; no React, no build |
 | `messages/handbook/` | the handbook's article prose, extracted from the markup — same idea, one file per language |
+| `messages/codex/` | Codex-course locale tables for prose, assessment, captions, feedback, and accessibility copy; release status comes from the audit, not file presence |
+| `messages/prompts/` | original English prompt-course prose, prompts, practices, checkpoints, and capstone copy |
+| `messages/software-engineering/` | localized Course 8 titles, shell, progress, assessment, capstone, media, and language-boundary copy |
+| `messages/rag/` | original English RAG prose, deterministic lab scenarios, practices, checkpoints, accessibility copy, and capstone contract |
 | `components/` | the shell React owns: nav, language menu, theme toggle, the Lab |
+| `components/codex/` | Codex dashboard, lessons, private progress, figures, assessment, and capstone receipt verifier |
+| `components/prompts/` | prompt-course dashboard, lesson renderer, selectable prompts, semantic figures, private progress, assessment, and capstone checklist |
+| `components/software-engineering/` | Course 8 dashboard, lesson renderer, authentic figures, versioned progress, balanced final assessment, and self-attested capstone control |
+| `components/rag/` | RAG dashboard, lesson renderer, authentic and semantic figures, deterministic retrieval lab, private progress, assessment, and capstone checklist |
+| `lib/codex/` | language-neutral lesson, source, quiz, figure, practice, and receipt contracts |
+| `lib/prompts/` | prompt-course curriculum, source ledger, figure provenance, locale boundary, and materialisation contracts |
+| `lib/software-engineering/` | Course 8 curriculum, SWEBOK coverage map, source and media ledgers, quiz, capstone, locale, and manifest contracts |
+| `lib/rag/` | RAG curriculum, 34-concept contract, 40-source evidence ledger, figure provenance, locale boundary, and materialisation contracts |
 | `lib/flowchart.ts` | the diagram engine, byte-identical to the verified original |
 | `lib/handbook/` | `markup.ts`, the verified handbook markup, and `behaviour.ts`, its 22 widget modules |
 | `scripts/` | `extract-handbook.mjs`, which turns the markup's text nodes into `messages/handbook/en.json` |
@@ -87,23 +207,41 @@ Two things were deliberately **ported, not rewritten**: the flowchart engine and
 
 ## Languages
 
-The interface is fully translated into nine languages, and Arabic flips the whole layout to right-to-left:
+The site exposes nine locale routes, and Arabic flips the page shell to right-to-left:
 
 English · Español · Français · Deutsch · 简体中文 · 繁體中文 · 日本語 · 한국어 · العربية
 
-Pick one from the 🌐 menu, or link straight to it — each language is its own URL, so `/ar/handbook/` *is* the Arabic handbook. Your choice is remembered in the browser.
+Pick one from the language menu, or link straight to it — each language is its own URL, so `/ar/handbook/` *is* the Arabic handbook. Your choice is remembered in the browser.
 
-The Handbook article dictionaries contain all 540 current source keys in every locale. Code, URLs and model identifiers stay left-to-right inside Arabic. Structure checks can prove key, placeholder and markup parity; they do **not** replace the release gate for native-speaker review of meaning, terminology and beginner readability. The authoritative count is printed by `npm run handbook:check`; update this sentence whenever that source contract changes.
+**Translation release status is currently `NOT READY`.** Locale files or a language-menu entry do not prove that the corresponding pages, widgets, course contracts, media, error states, metadata, or accessibility copy are complete. The local candidate and the deployed site are audited as separate targets; neither may be described as complete until both columns in the same frozen-snapshot report are `PASS`. English product data or screenshots remain LTR only when they have a narrow, recorded exception and localized surrounding explanation.
 
 `messages/handbook/en.json` holds the 540 current strings of article prose, pulled out of the markup by `npm run handbook:extract`; each sibling locale file supplies the translated values. Substitution happens at build time, so the exported page is localized for a reader, crawler and anyone with JavaScript off. A part-finished contribution may use the English fallback during development, but the nine-language release gate rejects unexplained user-visible fallbacks.
 
 Keys are `hb.body.<nearest ancestor id>.<nth text node>`, and text broken by an `<em>` or a link arrives in pieces: only text is replaced, never the tags around it, which is what keeps the verified markup and its DOM queries intact. Dynamic readouts use the separate `messages/widgets/*.json` dictionaries and are subject to the same zero-unexplained-fallback release gate.
 
-Every string lives in [`messages/`](messages/) — one flat JSON file per language, the same keys in each. To fix a translation, edit one line. To add a language, copy `en.json`, translate the values, and add a row to `LOCALES` in [`lib/i18n.ts`](lib/i18n.ts) (set `dir:"rtl"` if it needs it). A missing key falls back to English rather than rendering blank, and the menu shows each translation's coverage — so a partial contribution is useful rather than embarrassing.
+Most translatable strings live in [`messages/`](messages/). To fix a translation, edit the relevant namespace file. To add a language, add it to `LOCALES` in [`lib/i18n.ts`](lib/i18n.ts) (set `dir:"rtl"` if it needs it) and supply every dynamically discovered namespace. A missing key may fall back to English during development, but it is a release failure. The language menu deliberately does not show a completion percentage because the old number covered only the root dictionary.
+
+Release audits are fail-closed and bind every result to a content snapshot:
+
+```bash
+npm run i18n:check:release -- --json  # structure, source, course, build, route, SEO, review and artifact gates
+npm run i18n:audit:browser            # CLI-only JS-on/JS-off browser evidence for that snapshot
+npm run i18n:audit:production         # run only after the identical local artifact passes
+```
+
+Reports, per-locale native-review CSVs, screenshots, accessibility snapshots and hashes are written below `output/i18n-audit/<snapshot-id>/` and `output/playwright/<snapshot-id>/`. `PASS`, `FAIL`, and `NOT_ASSESSABLE` are the only release states; any non-`PASS` target means the site must not claim complete translation.
 
 ## Contributing a section
 
-New sections are genuinely welcome — *tool design*, *cost engineering* and *human-in-the-loop design* are already named as gaps in the catalogue. Here's the whole recipe.
+New sections are genuinely welcome. Here's the whole recipe.
+
+Three older standalone-course proposals—*tool design*, *cost engineering* and
+*human-in-the-loop design*—are preserved in
+[`docs/course-briefs/`](docs/course-briefs/) as dated design inputs. They are not
+current catalogue rows, roadmap commitments, or publication authority. The
+release registry remains the source of truth, and every dated repository claim
+in those briefs must be revalidated before reuse. The handbook-section recipe
+below is not the implementation route for those standalone proposals.
 
 **1. Claim a colour.** Three tokens in each of the **three** theme blocks in `app/globals.css` — `:root`, the `prefers-color-scheme: dark` block, **and** `:root[data-theme="dark"]`. All three, or your section goes invisible for anyone who toggled the theme by hand. The handbook's own hues are in the second set of blocks, under the `the handbook` banner comment.
 
@@ -141,7 +279,7 @@ FC.draw($('#fcYours'), {
 
 ### Before you open a PR
 
-`npm run build`, `npm run routes:check` and `npm run handbook:check` must pass. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported from the verified single-file build and contain tightly coupled DOM queries: fix a real bug in place, in the smallest diff you can, and do not rename an id, reformat, or turn the port into JSX as a side effect.
+`npm run verify:source` and `npm run build:release` must pass for the complete registry-derived published surface. For a focused Handbook change, run `npm run handbook:check` and `npm run widgets:check` before the full gates. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported byte-for-byte from the verified single-file build, and `behaviour.ts` holds 210 DOM queries against the ids in `markup.ts`: fix a real bug in place, in the smallest diff you can, and don't rename an id, reformat, or turn it into JSX. `npm run lint` has pre-existing complaints about those files that are meant to stay.
 
 Then the checks used on every change to the handbook. Open the page and paste them into the browser console:
 
@@ -168,7 +306,7 @@ grep -rhoE 'src="https?://[^"]*"' out --include='*.html' | sort -u || echo "clea
 
 ## Publishing your own copy
 
-The live site is a static export on **Vercel** — zero config, it picks up `next build`. Any host that serves a folder will do just as well: `npm run build`, then upload `out/`.
+The live site is a static export on **Vercel**. `vercel.json` runs the complete `npm run build:release` boundary for deployment candidates. Any host that serves a folder will do just as well: run `npm ci` and `npm run build:release`, then upload `out/` only after the candidate's required review evidence is complete.
 
 If you fork it, change the canonical domain (`SITE`, in `lib/seo.ts` — one line, and the canonicals, hreflang, og:url, sitemap and robots.txt all follow) and the GitHub links in `components/Shell.tsx`. Note that Vercel uploads the working directory, not the git tree, so `.gitignore` does not protect you there — `.vercelignore` is what keeps `course/`, `legacy/` and anything secret out of the upload.
 

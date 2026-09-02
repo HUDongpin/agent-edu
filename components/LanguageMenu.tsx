@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LOCALES, LOCALE_CODES, metaFor } from "@/lib/i18n";
+import { publicLocaleSwitchHref } from "@/lib/public-release-surface";
 import { useI18n } from "./I18nProvider";
+import Icon from "./Icon";
 
 /**
  * Switching language changes the URL, not just the rendering — that is the
@@ -15,13 +17,12 @@ import { useI18n } from "./I18nProvider";
  * and Escape puts focus back on the button. Nine languages is a long list to
  * reach with Tab alone.
  */
-export default function LanguageMenu({ coverage }: { coverage: Record<string, number> }) {
+export default function LanguageMenu() {
   const { t, locale } = useI18n();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
-  const router = useRouter();
   const pathname = usePathname() || "/";
 
   useEffect(() => {
@@ -61,16 +62,28 @@ export default function LanguageMenu({ coverage }: { coverage: Record<string, nu
   }
 
   function switchTo(code: string) {
-    // swap only the locale segment, so you stay on the page you were reading
-    const rest = pathname.split("/").filter(Boolean);
-    if (LOCALE_CODES.includes(rest[0])) rest.shift();
+    if (code === locale) {
+      setOpen(false);
+      trigger.current?.focus();
+      return;
+    }
+    // Keep the learner on the same page when that content locale exists. For
+    // an English-only course, preserve the requested site language as an
+    // explicit return path instead of manufacturing a translated 404 route.
+    const destination = publicLocaleSwitchHref(pathname, code, window.location.hash);
     try {
       localStorage.setItem("ae.lang", code);
     } catch {
       /* private browsing */
     }
     setOpen(false);
-    router.push(`/${code}/${rest.join("/")}${rest.length ? "/" : ""}`);
+    // Reload the locale document so its pre-paint theme script and html
+    // attributes run exactly as they do on a direct visit.
+    const localeDocument = new URL(
+      destination,
+      window.location.href,
+    );
+    window.location.assign(localeDocument.href);
   }
 
   return (
@@ -84,13 +97,12 @@ export default function LanguageMenu({ coverage }: { coverage: Record<string, nu
         aria-label={`${t("nav.lang")}: ${metaFor(locale).native}`}
         onClick={() => setOpen((o) => !o)}
       >
-        <span aria-hidden="true">🌐</span>
+        <Icon name="globe" />
         <span id="aeLangNow">{metaFor(locale).native}</span>
       </button>
       {open && (
         <div className="langmenu" role="menu" ref={list} onKeyDown={walk}>
           {LOCALES.map((l) => {
-            const pct = coverage[l.code] ?? 100;
             return (
               <button
                 key={l.code}
@@ -100,9 +112,9 @@ export default function LanguageMenu({ coverage }: { coverage: Record<string, nu
                 aria-current={l.code === locale}
                 onClick={() => switchTo(l.code)}
               >
-                <span className="flag" aria-hidden="true">{l.flag}</span>
+                <span className="flag" aria-hidden="true">{l.mark}</span>
                 <span>{l.native}</span>
-                <span className="en">{pct === 100 ? l.name : `${l.name} · ${pct}%`}</span>
+                <span className="en">{l.name}</span>
               </button>
             );
           })}

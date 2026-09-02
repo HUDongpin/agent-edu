@@ -256,12 +256,6 @@
         "key": "w.context.used",
         "locales": ["es", "fr"],
         "reason": "The token-meter format and placeholders are intentionally unchanged."
-      },
-      {
-        "catalog": "widgets",
-        "key": "w.progress.sections",
-        "locales": ["fr"],
-        "reason": "sections is the same correctly spelled French plural noun."
       }
     ]
   },
@@ -340,16 +334,19 @@
     },
     "githubReadiness": {
       "status": "pending",
-      "requiredCheckNames": ["quality", "smoke-chromium"],
+      "requiredCheckNames": ["quality", "smoke-chromium", "compatibility", "published-courses", "Vercel Preview"],
       "requiredChecks": {
         "status": "pending",
         "checkedAt": null,
         "evidenceRefs": [],
-        "note": "Awaiting independent branch-protection proof that both CI jobs are required.",
+        "note": "Awaiting independent branch-protection proof that all four CI jobs and the same-SHA Vercel Preview verification are required.",
         "protectedBranch": null,
         "rulesetId": null,
         "qualityRequired": null,
-        "smokeChromiumRequired": null
+        "smokeChromiumRequired": null,
+        "compatibilityRequired": null,
+        "publishedCoursesRequired": null,
+        "vercelPreviewRequired": null
       },
       "stableRuns": [
         {
@@ -361,6 +358,9 @@
           "workflowSha": null,
           "qualityConclusion": null,
           "smokeChromiumConclusion": null,
+          "compatibilityConclusion": null,
+          "publishedCoursesConclusion": null,
+          "vercelPreviewConclusion": null,
           "completedAt": null,
           "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting first consecutive green run of the frozen candidate." }
         },
@@ -373,6 +373,9 @@
           "workflowSha": null,
           "qualityConclusion": null,
           "smokeChromiumConclusion": null,
+          "compatibilityConclusion": null,
+          "publishedCoursesConclusion": null,
+          "vercelPreviewConclusion": null,
           "completedAt": null,
           "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting second consecutive green run of the frozen candidate." }
         },
@@ -385,6 +388,9 @@
           "workflowSha": null,
           "qualityConclusion": null,
           "smokeChromiumConclusion": null,
+          "compatibilityConclusion": null,
+          "publishedCoursesConclusion": null,
+          "vercelPreviewConclusion": null,
           "completedAt": null,
           "result": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting third consecutive green run of the frozen candidate." }
         }

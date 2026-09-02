@@ -21,6 +21,10 @@ import {
   scanArtifactRoots,
 } from "../scripts/check-artifacts.mjs";
 import { validatePrivateReporterOutput } from "../scripts/run-private-playwright.mjs";
+import {
+  createUniformRedactionPng,
+  stripPngAncillaryChunks,
+} from "../e2e/png-sanitizer";
 
 type ZipEntry = {
   name: string;
@@ -133,20 +137,37 @@ function pngChunk(type: string, data: Buffer): Buffer {
   return chunk;
 }
 
-function strictPng(metadata = false, rgba = [0xe5, 0xe7, 0xeb, 0xff]): Buffer {
+function strictPng(
+  metadata: boolean | "webkit" = false,
+  rgba = [0xe5, 0xe7, 0xeb, 0xff],
+  dimensions = { width: 1, height: 1 },
+): Buffer {
   const header = Buffer.alloc(13);
-  header.writeUInt32BE(1, 0);
-  header.writeUInt32BE(1, 4);
+  header.writeUInt32BE(dimensions.width, 0);
+  header.writeUInt32BE(dimensions.height, 4);
   header[8] = 8;
   header[9] = 6;
   const chunks = [pngChunk("IHDR", header)];
   if (metadata) chunks.push(pngChunk("tEXt", Buffer.from("Comment\0private metadata", "utf8")));
+  if (metadata === "webkit") {
+    chunks.splice(1, 1,
+      pngChunk("sRGB", Buffer.from([0])),
+      pngChunk("eXIf", Buffer.alloc(68)),
+    );
+  }
   chunks.push(pngChunk("IDAT", deflateSync(Buffer.from([0, ...rgba]))));
   chunks.push(pngChunk("IEND", Buffer.alloc(0)));
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     ...chunks,
   ]);
+}
+
+function insertBeforeChunk(png: Buffer, target: string, chunk: Buffer) {
+  const typeOffset = png.indexOf(Buffer.from(target, "ascii"));
+  assert.ok(typeOffset >= 4);
+  const chunkOffset = typeOffset - 4;
+  return Buffer.concat([png.subarray(0, chunkOffset), chunk, png.subarray(chunkOffset)]);
 }
 
 function digest(bytes: Buffer): string {
@@ -181,7 +202,7 @@ function writeCuratedBundle(
     schemaVersion: "agent-edu.curated-browser-evidence.v1",
     kind: "curated-safe-browser-failure",
     provenance: {
-      sanitizerPolicy: "uniform-redaction-surface-v2",
+    sanitizerPolicy: "uniform-redaction-surface-v3",
       fixturePolicy: "public-fixed-safe-smoke-only",
       testIdSha256: "a".repeat(64),
       browserName: "chromium",
@@ -192,7 +213,7 @@ function writeCuratedBundle(
       "console.json": { contentType: "application/json", bytes: consoleFile.length, sha256: digest(consoleFile) },
       "screenshot.png": {
         contentType: "image/png",
-        sanitization: "uniform-redaction-surface-v2",
+        sanitization: "uniform-redaction-surface-v3",
         bytes: screenshot.length,
         sha256: digest(screenshot),
       },
@@ -556,6 +577,92 @@ test("a manifest-bound screenshot must be the uniform redaction surface", async 
   });
 });
 
+test("a device-scaled full-viewport PNG remains outside the curated shape contract", async () => {
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, {
+      screenshot: strictPng(
+        false,
+        [0xe5, 0xe7, 0xeb, 0xff],
+        { width: 2_560, height: 1_440 },
+      ),
+    });
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "png-shape-unsupported",
+    );
+  });
+});
+
+test("the screenshot producer strips ancillary chunks and rejects malformed PNG envelopes", () => {
+  const webkitPng = strictPng("webkit");
+  assert.deepEqual(stripPngAncillaryChunks(webkitPng), strictPng(false));
+
+  const invalidSignature = Buffer.from(webkitPng);
+  invalidSignature[0] ^= 0xff;
+  assert.throws(
+    () => stripPngAncillaryChunks(invalidSignature),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+
+  const invalidCrc = Buffer.from(webkitPng);
+  const srgbTypeOffset = invalidCrc.indexOf(Buffer.from("sRGB", "ascii"));
+  assert.ok(srgbTypeOffset >= 4);
+  invalidCrc[srgbTypeOffset + 4] ^= 0xff;
+  assert.throws(
+    () => stripPngAncillaryChunks(invalidCrc),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+
+  assert.throws(
+    () => stripPngAncillaryChunks(webkitPng.subarray(0, webkitPng.length - 1)),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+  assert.throws(
+    () => stripPngAncillaryChunks(Buffer.concat([webkitPng, Buffer.from([0])])),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+
+  const unknownCritical = insertBeforeChunk(
+    strictPng(false),
+    "IDAT",
+    pngChunk("ABCD", Buffer.alloc(0)),
+  );
+  assert.throws(
+    () => stripPngAncillaryChunks(unknownCritical),
+    { message: "curated screenshot PNG normalization failed" },
+  );
+});
+
+test("the browser-unavailable fallback is a strict uniform redaction PNG", async () => {
+  const fallback = createUniformRedactionPng();
+  assert.deepEqual(stripPngAncillaryChunks(fallback), fallback);
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, { screenshot: fallback });
+    const stats = await scanArtifactRoots([root], {
+      cwd: workspace,
+      curated: true,
+      requireRoots: true,
+    });
+    assert.equal(stats.files, 4);
+  });
+});
+
+test("a browser-sized redaction PNG contains no captured page or scrollbar pixels", async () => {
+  const redaction = createUniformRedactionPng({ width: 390, height: 900 });
+  assert.equal(redaction.readUInt32BE(16), 390);
+  assert.equal(redaction.readUInt32BE(20), 900);
+  assert.deepEqual(stripPngAncillaryChunks(redaction), redaction);
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, { screenshot: redaction });
+    const stats = await scanArtifactRoots([root], {
+      cwd: workspace,
+      curated: true,
+      requireRoots: true,
+    });
+    assert.equal(stats.files, 4);
+  });
+});
+
 test("required curated roots and manifests fail closed when missing", async () => {
   await inWorkspace(async ({ workspace, root }) => {
     await assert.rejects(
@@ -601,6 +708,13 @@ test("manifest-bound malformed curated JSON fails with a safe category", async (
 test("manifest-bound PNG metadata and secret text are still blocked", async () => {
   await inWorkspace(async ({ workspace, artifacts, root }) => {
     writeCuratedBundle(artifacts, { metadataPng: true });
+    await assert.rejects(
+      () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
+      (error: unknown) => category(error) === "png-chunk-unsupported",
+    );
+  });
+  await inWorkspace(async ({ workspace, artifacts, root }) => {
+    writeCuratedBundle(artifacts, { screenshot: strictPng("webkit") });
     await assert.rejects(
       () => scanArtifactRoots([root], { cwd: workspace, curated: true, requireRoots: true }),
       (error: unknown) => category(error) === "png-chunk-unsupported",
@@ -761,24 +875,52 @@ test("CI uploads browser evidence only after the privacy scanner succeeds", () =
     packageJson.scripts?.["artifacts:check"],
     "node scripts/check-artifacts.mjs --curated --require-root browser-evidence",
   );
-  assert.equal((workflow.match(/id: artifact_privacy/g) ?? []).length, 2);
-  assert.equal((workflow.match(/run: npm run artifacts:check/g) ?? []).length, 2);
-  assert.equal((workflow.match(/uses: actions\/upload-artifact@v7/g) ?? []).length, 2);
+  assert.equal((workflow.match(/id: artifact_privacy/g) ?? []).length, 4);
+  assert.equal((workflow.match(/run: npm run artifacts:check/g) ?? []).length, 4);
+  const pinnedUploadArtifact =
+    "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a";
+  assert.equal(workflow.split(pinnedUploadArtifact).length - 1, 6);
   assert.equal(
     (
       workflow.match(
-        /if: \$\{\{ failure\(\) && steps\.artifact_privacy\.outcome == 'success' \}\}\n\s+uses: actions\/upload-artifact@v7/g,
+        /if: \$\{\{ failure\(\) && [^\n]*steps\.artifact_privacy\.outcome == 'success' \}\}\n\s+uses: actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/g,
       ) ?? []
     ).length,
-    2,
+    4,
   );
-  assert.equal((workflow.match(/path: browser-evidence\//g) ?? []).length, 2);
-  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 2);
+  assert.equal((workflow.match(/path: browser-evidence\//g) ?? []).length, 4);
+  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 6);
+  assert.match(
+    workflow,
+    /if: \$\{\{ always\(\) \}\}[\s\S]{0,240}name: vercel-preview-verification[\s\S]{0,160}path: tmp\/release\/vercel-preview-verification\.json/,
+  );
   assert.doesNotMatch(workflow, /path:[\s\S]{0,100}(?:test-results|playwright-report)/);
   const contractOffset = workflow.indexOf("run: npm run test:evidence-contract");
   const smokeOffset = workflow.indexOf("run: npm run test:smoke");
   const scannerOffset = workflow.indexOf("run: npm run artifacts:check", smokeOffset);
   assert.ok(contractOffset >= 0 && contractOffset < smokeOffset && smokeOffset < scannerOffset);
+  for (const stepId of [
+    "evidence_contract",
+    "smoke_browser",
+    "compat_browser",
+    "resilience_browser",
+    "published_browser",
+    "codex_browser",
+  ]) {
+    assert.match(workflow, new RegExp(`id: ${stepId}`));
+  }
+  assert.match(
+    workflow,
+    /if: \$\{\{ failure\(\) && steps\.published_browser\.outcome == 'failure' \}\}/,
+  );
+  assert.match(
+    workflow,
+    /if: \$\{\{ failure\(\) && steps\.codex_browser\.outcome == 'failure' \}\}/,
+  );
+  assert.doesNotMatch(
+    workflow,
+    /name: Scan (?:browser|compatibility|published-course) failure evidence[^]*?if: \$\{\{ failure\(\) \}\}/,
+  );
 });
 
 test("private reporter output accepts only its closed status vocabulary", () => {
@@ -871,6 +1013,22 @@ test("browser suites that handle private Lab state disable automatic artifacts",
 test("safe failure evidence is curated without raw Playwright outputs", () => {
   const fixture = readFileSync(new URL("../e2e/fixtures.ts", import.meta.url), "utf8");
   const config = readFileSync(new URL("../playwright.config.ts", import.meta.url), "utf8");
+  const evidenceSafeConfig = readFileSync(
+    new URL("../playwright.evidence-safe.config.ts", import.meta.url),
+    "utf8",
+  );
+  const publishedConfig = readFileSync(
+    new URL("./published-playwright.config.ts", import.meta.url),
+    "utf8",
+  );
+  const mcpConfig = readFileSync(
+    new URL("./mcp-playwright.config.ts", import.meta.url),
+    "utf8",
+  );
+  const codexConfig = readFileSync(
+    new URL("./codex-playwright.config.ts", import.meta.url),
+    "utf8",
+  );
   const privateContract = readFileSync(
     new URL("../e2e-contract/intentional-private-failure.spec.ts", import.meta.url),
     "utf8",
@@ -881,6 +1039,18 @@ test("safe failure evidence is curated without raw Playwright outputs", () => {
   );
   const safeContract = readFileSync(
     new URL("../e2e-contract/intentional-safe-failure.spec.ts", import.meta.url),
+    "utf8",
+  );
+  const reporterContract = readFileSync(
+    new URL("../e2e-contract/intentional-reporter-failure.spec.ts", import.meta.url),
+    "utf8",
+  );
+  const curatedReporter = readFileSync(
+    new URL("../e2e/curated-evidence-reporter.ts", import.meta.url),
+    "utf8",
+  );
+  const curatedEvidence = readFileSync(
+    new URL("../e2e/curated-evidence.ts", import.meta.url),
     "utf8",
   );
   const privateReporter = readFileSync(
@@ -895,18 +1065,43 @@ test("safe failure evidence is curated without raw Playwright outputs", () => {
     new URL("../scripts/verify-browser-evidence.mjs", import.meta.url),
     "utf8",
   );
-  assert.match(config, /reporter: \[\["list"\]\]/);
+  for (const publicConfig of [
+    config,
+    evidenceSafeConfig,
+    publishedConfig,
+    mcpConfig,
+    codexConfig,
+  ]) {
+    assert.match(
+      publicConfig,
+      /reporter: \[\["(?:\.\.\/|\.\/)e2e\/curated-evidence-reporter\.ts"\]\]/,
+    );
+    assert.doesNotMatch(publicConfig, /\["(?:list|html|json|junit|blob|dot|line)"/);
+    assert.match(publicConfig, /preserveOutput: "never"/);
+    assert.match(publicConfig, /screenshot: "off"/);
+    assert.match(publicConfig, /trace: "off"/);
+    assert.match(publicConfig, /video: "off"/);
+    assert.match(publicConfig, /globalSetup: "(?:\.\.\/|\.\/)scripts\/prepare-browser-evidence\.mjs"/);
+  }
+  assert.match(mcpConfig, /retries: 0/);
+  assert.match(mcpConfig, /name: "firefox"/);
+  assert.match(mcpConfig, /name: "webkit"/);
+  assert.doesNotMatch(mcpConfig, /firefox-smoke|webkit-smoke/);
   assert.match(config, /preserveOutput: "never"/);
   assert.match(config, /screenshot: "off"/);
   assert.match(config, /trace: "off"/);
-  assert.match(fixture, /uniform-redaction-surface-v2/);
+  assert.match(curatedEvidence, /uniform-redaction-surface-v3/);
   assert.match(fixture, /new URL\(request\.url\(\)\)\.origin/);
-  assert.match(fixture, /page\.locator\(`#\$\{REDACTION_SURFACE_ID\}`\)\.screenshot/);
-  assert.match(fixture, /structural-metadata-only-no-url-query-header-body-text/);
-  assert.match(fixture, /counts-only-no-console-or-error-text/);
-  assert.match(fixture, /screenshots: false/);
-  assert.match(fixture, /sources: false/);
-  assert.match(fixture, /attachments: false/);
+  assert.match(fixture, /page\.viewportSize\(\)/);
+  assert.match(fixture, /createUniformRedactionPng\(viewport\)/);
+  assert.doesNotMatch(fixture, /\.screenshot\s*\(/);
+  assert.match(fixture, /context\.route\("https:\/\/api\.deepseek\.com\/\*\*"/);
+  assert.match(fixture, /createUniformRedactionPng\(\)/);
+  assert.match(curatedEvidence, /structural-metadata-only-no-url-query-header-body-text/);
+  assert.match(curatedEvidence, /counts-only-no-console-or-error-text/);
+  assert.match(curatedEvidence, /screenshots: false/);
+  assert.match(curatedEvidence, /sources: false/);
+  assert.match(curatedEvidence, /attachments: false/);
   assert.match(privateContract, /\.steps \[role="tab"\].*\.last\(\)\.click/);
   assert.match(privateContract, /PRIVATE_CONTRACT_ANNOTATION/);
   assert.doesNotMatch(
@@ -917,6 +1112,30 @@ test("safe failure evidence is curated without raw Playwright outputs", () => {
     safeContract,
     /safe evidence contract: reached intentional assertion/,
   );
+  assert.match(safeContract, /PUBLIC_EVIDENCE_CONTRACT_ANNOTATION/);
+  assert.match(reporterContract, /from "@playwright\/test"/);
+  assert.match(curatedReporter, /hasPublishedCuratedEvidence\(testCase\.id\)/);
+  assert.match(curatedReporter, /createUniformRedactionPng\(\)/);
+  assert.match(curatedReporter, /printsToStdio\(\): boolean \{\s+return true/);
+  assert.match(curatedReporter, /public-browser: test/);
+  assert.match(curatedReporter, /PUBLIC_EVIDENCE_CONTRACT_ANNOTATION/);
+  assert.doesNotMatch(
+    curatedReporter,
+    /onStdOut|onStdErr|titlePath\(|testCase\.title|result\.(?:errors?|stdout|stderr|attachments)|\.location|annotation\.description/,
+  );
+  assert.match(curatedEvidence, /final bundle already exists/);
+  assert.doesNotMatch(curatedEvidence, /rmSync\(directory/);
+  assert.match(curatedEvidence, /renameSync\(staging, directory\)/);
+  assert.match(curatedEvidence, /assertClosedEvidence\(evidence\)/);
+  assert.match(curatedEvidence, /toCuratedRequestMethod/);
+  assert.match(curatedEvidence, /toCuratedResourceType/);
+  assert.match(curatedEvidence, /toCuratedConsoleType/);
+  const evidencePrepare = readFileSync(
+    new URL("../scripts/prepare-browser-evidence.mjs", import.meta.url),
+    "utf8",
+  );
+  assert.match(evidencePrepare, /export default function globalSetup/);
+  assert.match(evidencePrepare, /prepareBrowserEvidence\(\)/);
   assert.match(privateTimeoutContract, /test\.setTimeout\(5_000\)/);
   assert.match(privateTimeoutContract, /PRIVATE_TIMEOUT_CONTRACT_ANNOTATION/);
   assert.match(privateTimeoutContract, /await keyField\.fill\(timeoutKey\);/);
@@ -928,6 +1147,7 @@ test("safe failure evidence is curated without raw Playwright outputs", () => {
   assert.match(privateReporter, /private evidence contract: reached intentional assertion/);
   assert.match(privateReporter, /private evidence contract: reached full-test input timeout/);
   assert.match(verifier, /safeMarker/);
+  assert.match(verifier, /public reporter output retained a private failure field/);
   assert.match(verifier, /runPrivatePlaywright/);
   assert.match(verifier, /timeoutMarkerCount !== 1/);
   assert.match(verifier, /\.last-run\.json/);

@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "aicourse.local-synthetic-risk-policy.v2",
+  "policyId": "course17-syn-a-local-replay",
+  "policyVersion": "1.0.0",
+  "mode": "local-synthetic-replay",
+  "owner": {
+    "role": "named-human-course-reviewer",
+    "identifierRequired": true,
+    "accountability": "The named reviewer owns policy changes and review decisions; an agent cannot approve either."
+  },
+  "changeControl": {
+    "namedHumanApprovalRequired": true,
+    "minimumApprovers": 1,
+    "changeReceiptRequired": true,
+    "versionIncrementRequired": true,
+    "agentSelfApprovalAllowed": false
+  },
+  "fixtureScope": {
+    "allowedAssetIds": ["SYN-A"],
+    "allowedDataFiles": [
+      "market-regime-synthetic-v1.csv",
+      "news-signals-synthetic-v1.json"
+    ],
+    "realMarketDataAllowed": false
+  },
+  "syntheticUnits": {
+    "price": "fictional price unit (FPU); not a currency",
+    "volume": "fictional volume unit (FVU); not shares or contracts",
+    "exposure": "unitless fraction of a fictional portfolio",
+    "positionWeight": "unitless fraction of a fictional portfolio",
+    "turnover": "gross absolute weight change per synthetic day",
+    "loss": "unitless fractional change in fictional portfolio value",
+    "orderNotional": "fictional notional unit (FNU); not money",
+    "time": "UTC timestamps embedded in the bundled fixtures"
+  },
+  "executionBoundary": {
+    "networkAccess": false,
+    "externalAccounts": false,
+    "brokerConnections": false,
+    "credentialsAccepted": false,
+    "remoteEndpoints": [],
+    "liveOrderCapability": false
+  },
+  "limits": {
+    "maxGrossExposure": {
+      "value": 0.25,
+      "unit": "unitless fraction of fictional portfolio"
+    },
+    "maxPositionWeight": {
+      "value": 0.1,
+      "unit": "unitless fraction of fictional portfolio"
+    },
+    "maxDailyTurnover": {
+      "value": 0.2,
+      "unit": "gross absolute weight change per synthetic day"
+    },
+    "maxIntentRate": {
+      "value": 3,
+      "unit": "new unique synthetic intents per rolling window",
+      "windowSeconds": 60,
+      "idempotentRetriesCountAsNew": false
+    },
+    "maxDailyLoss": {
+      "value": 0.01,
+      "unit": "unitless fractional loss in fictional portfolio value"
+    },
+    "staleDataAfterSeconds": {
+      "value": 300,
+      "unit": "seconds"
+    },
+    "maxOrderNotional": {
+      "value": 1000,
+      "unit": "fictional notional unit (FNU)"
+    }
+  },
+  "intentApproval": {
+    "requiredBeforeSubmittedState": true,
+    "namedHumanRequired": true,
+    "agentMayApprove": false,
+    "singleUse": true,
+    "mustBindExactIntentSha256": true,
+    "mustBindPolicyVersion": true,
+    "issuanceBoundary": {
+      "humanControlledChannelRequired": true,
+      "agentWriteAccess": false,
+      "acceptedProofTypes": [
+        "append-only-human-approval-event-with-acl-evidence",
+        "detached-signature-with-pinned-public-key"
+      ],
+      "verificationRequiredBeforeConsumption": true,
+      "revocationCheckRequiredBeforeConsumption": true,
+      "consumptionLedgerRequired": true
+    },
+    "requiredFields": [
+      "approvalId",
+      "approvalEventId",
+      "approverId",
+      "approvedAt",
+      "expiresAt",
+      "intentSha256",
+      "policyVersion",
+      "proofType",
+      "proofLocator"
+    ],
+    "failClosedOn": [
+      "missing",
+      "expired",
+      "reused",
+      "revoked",
+      "issuer-proof-invalid",
+      "intent-hash-mismatch",
+      "policy-version-mismatch"
+    ]
+  },
+  "requiredAssertions": [
+    "fixture-integrity",
+    "synthetic-identity",
+    "bar-date-ordering",
+    "timestamp-contract",
+    "decision-input-availability",
+    "declared-boundary-policy-shape",
+    "performance-metrics-not-computable"
+  ],
+  "failClosed": {
+    "enabled": true,
+    "defaultDecision": "deny",
+    "onMissingEvidence": "deny",
+    "onStaleData": "deny",
+    "onAssertionFailure": "deny",
+    "overrideAllowed": false,
+    "failureReasonsRequired": true
+  },
+  "humanReview": {
+    "required": true,
+    "eligibilityIsAuthorisation": false,
+    "reviewCannotEnableNetworkOrExternalExecution": true
+  },
+  "notice": "Original educational template declaring the local-synthetic-replay boundary for bundled fixtures. The bundled self-test checks selected schema fields only; it does not execute risk calculations, a replay, an order lifecycle, or performance metrics. It is not investment advice and cannot authorise any market action."
+}

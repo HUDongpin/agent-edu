@@ -1,0 +1,39 @@
+.lessonTitle {
+  display: flex;
+  min-inline-size: 0;
+  gap: 8px;
+  align-items: center;
+}
+
+.lessonTitleText {
+  min-inline-size: 0;
+}
+
+.functionalNumber {
+  font-size: 13px;
+}
+
+.completionIndicator {
+  display: inline-flex;
+  inline-size: 17px;
+  block-size: 17px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--green-line);
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+@media (forced-colors: active) {
+  .completionIndicator {
+    border-color: CanvasText;
+    color: CanvasText;
+    forced-color-adjust: auto;
+  }
+}

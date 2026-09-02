@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "404 · aicourse.top",
   description: "Choose a language and return to the free Agentic Engineering course.",
+  icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }] },
 };
 
 const LANGUAGES = [
@@ -46,8 +47,8 @@ export default function GlobalNotFound() {
                     <span className="recovery404-missing">{language.missing}</span>
                   </span>
                   <span className="recovery404-links">
-                    <a href={`/${language.code}/`}>{language.home}</a>
-                    <a href={`/${language.code}/courses/`}>{language.courses}</a>
+                    <a href={`/${language.code}/`} tabIndex={0}>{language.home}</a>
+                    <a href={`/${language.code}/courses/`} tabIndex={0}>{language.courses}</a>
                   </span>
                 </li>
               ))}

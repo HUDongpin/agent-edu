@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "aicourse.course20.creative-brief.v2",
+  "projectSpecId": "course20-verified-cut-v2",
+  "projectId": "course20-synthetic-practicum-v2",
+  "audience": "Learners reviewing a 9:16 evidence-bound media-control demonstration",
+  "intendedClaim": "A controlled edit is a chain of evidence and accountable decisions, not one prompt.",
+  "editingGoal": "Use the 122-second project-owned chapter control to create one 47-second, 9:16, locally verified candidate without changing its meaning.",
+  "storyBeats": [
+    "promise",
+    "context",
+    "method",
+    "verified close"
+  ],
+  "acceptanceCriteria": [
+    "the practice control remains local and exactly hash-bound",
+    "the independent capstone is 45–60 seconds and 9:16",
+    "captions and 48 kHz audio follow one named destination contract",
+    "no unsupported claim, unresolved rights decision, or hidden publication authority"
+  ],
+  "stopConditions": [
+    "unknown rights or privacy status",
+    "unresolved semantic or timing ambiguity",
+    "agent, tool, network, cost, or publication authority escalation",
+    "verification or recovery failure"
+  ],
+  "responsibilityMap": {
+    "planApprover": "named human editor",
+    "rightsReviewer": "named rights reviewer",
+    "releaseApprover": "named accountable publisher",
+    "agentMayPublish": false
+  },
+  "coreSyntheticMediaRestrictions": [
+    "synthetic-face",
+    "voice-clone",
+    "fabricated-quotation",
+    "fabricated-testimonial",
+    "event-replacement",
+    "unauthorized-identity-manipulation"
+  ],
+  "nonProductionNotes": "The 122-second canonical source and six-second fault reel prove only the local synthetic control loop, not real-media rights or a right to publish."
+}

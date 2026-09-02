@@ -9,6 +9,8 @@
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { checkNativeReviewInventory } from "./native-review-inventory.mjs";
+import { assertReleaseArtifactsCurrent } from "./sync-course-public-surface.mjs";
 
 export const LOCALES = ["en", "zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"];
 export const NATIVE_REVIEW_LOCALES = ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"];
@@ -57,7 +59,27 @@ const MATRIX_CHECKS = [
 ];
 const PROVIDER_STEPS = ["models", "stage1", "preview3", "flashEval28"];
 const PROVIDER_RECONCILIATIONS = ["pricing", "modelId", "usage", "billing", "cors", "credentialLifecycle"];
-const REQUIRED_CHECK_NAMES = ["quality", "smoke-chromium"];
+const REQUIRED_CHECK_NAMES = [
+  "quality",
+  "smoke-chromium",
+  "compatibility",
+  "published-courses",
+  "Vercel Preview",
+];
+const REQUIRED_CHECK_FIELDS = [
+  "qualityRequired",
+  "smokeChromiumRequired",
+  "compatibilityRequired",
+  "publishedCoursesRequired",
+  "vercelPreviewRequired",
+];
+const REQUIRED_RUN_CONCLUSION_FIELDS = [
+  "qualityConclusion",
+  "smokeChromiumConclusion",
+  "compatibilityConclusion",
+  "publishedCoursesConclusion",
+  "vercelPreviewConclusion",
+];
 const SAFE_SCHEMA_SEGMENTS = new Set([
   ...LOCALES,
   "schemaVersion", "releaseId", "status", "updatedAt", "releaseTarget", "sensitiveEvidencePolicy", "localization", "gates",
@@ -72,8 +94,8 @@ const SAFE_SCHEMA_SEGMENTS = new Set([
   ...PROVIDER_RECONCILIATIONS,
   "vercelPreviewCsp", "requiredHeaders", "reportOnlyTarget", "reportOnly", "enforced", "stages",
   "githubReadiness", "requiredCheckNames", "requiredChecks", "stableRuns", "sequence",
-  "protectedBranch", "rulesetId", "qualityRequired", "smokeChromiumRequired",
-  "runId", "runAttempt", "commitSha", "branch", "workflowSha", "qualityConclusion", "smokeChromiumConclusion", "completedAt",
+  "protectedBranch", "rulesetId", ...REQUIRED_CHECK_FIELDS,
+  "runId", "runAttempt", "commitSha", "branch", "workflowSha", ...REQUIRED_RUN_CONCLUSION_FIELDS, "completedAt",
   "rollbackReadiness", "previousProductionCommitSha", "previousProductionDeploymentId", "releaseTag", "rollbackPullRequestRef", "validatedCandidateCommitSha",
   "checkedAt", "evidenceRefs", "note",
 ]);
@@ -826,13 +848,18 @@ export function validateReleaseReadiness(config, options = {}) {
       issues,
     );
     if (!sameMembers(github.requiredCheckNames, REQUIRED_CHECK_NAMES)) {
-      addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredCheckNames", "must name the two CI jobs");
+      addIssue(
+        issues,
+        "schema-github",
+        "$.gates.githubReadiness.requiredCheckNames",
+        "must name the four CI jobs and same-SHA Vercel Preview verification",
+      );
     }
     const records = [];
     const required = github.requiredChecks;
     validateExtendedEvidenceRecord(
       required,
-      ["protectedBranch", "rulesetId", "qualityRequired", "smokeChromiumRequired"],
+      ["protectedBranch", "rulesetId", ...REQUIRED_CHECK_FIELDS],
       "$.gates.githubReadiness.requiredChecks",
       issues,
       evidenceOptions,
@@ -840,7 +867,7 @@ export function validateReleaseReadiness(config, options = {}) {
     if (isObject(required)) {
       records.push(required);
       if (required.status === "pending") {
-        for (const key of ["protectedBranch", "rulesetId", "qualityRequired", "smokeChromiumRequired"]) {
+        for (const key of ["protectedBranch", "rulesetId", ...REQUIRED_CHECK_FIELDS]) {
           if (required[key] !== null) {
             addIssue(issues, "schema-github", `$.gates.githubReadiness.requiredChecks.${key}`, "must remain null while branch-protection evidence is pending");
           }
@@ -852,13 +879,20 @@ export function validateReleaseReadiness(config, options = {}) {
         if (typeof required.rulesetId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._/-]{2,127}$/.test(required.rulesetId)) {
           addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredChecks.rulesetId", "must be one stable non-sensitive ruleset or branch-protection id");
         }
-        if (required.status === "pass" && (required.qualityRequired !== true || required.smokeChromiumRequired !== true)) {
-          addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredChecks", "a passing record must require both quality and smoke-chromium");
+        if (
+          required.status === "pass"
+          && REQUIRED_CHECK_FIELDS.some((key) => required[key] !== true)
+        ) {
+          addIssue(
+            issues,
+            "schema-github",
+            "$.gates.githubReadiness.requiredChecks",
+            "a passing record must require all four CI jobs and Vercel Preview",
+          );
         }
         if (
           required.status === "fail"
-          && (typeof required.qualityRequired !== "boolean"
-            || typeof required.smokeChromiumRequired !== "boolean")
+          && REQUIRED_CHECK_FIELDS.some((key) => typeof required[key] !== "boolean")
         ) {
           addIssue(issues, "schema-github", "$.gates.githubReadiness.requiredChecks", "a failed record must retain the observed required-check booleans");
         }
@@ -883,7 +917,7 @@ export function validateReleaseReadiness(config, options = {}) {
       if (isObject(run)) {
         validateExactKeys(
           run,
-          ["sequence", "runId", "runAttempt", "commitSha", "branch", "workflowSha", "qualityConclusion", "smokeChromiumConclusion", "completedAt", "result"],
+          ["sequence", "runId", "runAttempt", "commitSha", "branch", "workflowSha", ...REQUIRED_RUN_CONCLUSION_FIELDS, "completedAt", "result"],
           path,
           issues,
         );
@@ -894,7 +928,15 @@ export function validateReleaseReadiness(config, options = {}) {
       validateEvidenceRecord(run?.result, `${path}.result`, issues, evidenceOptions);
       if (isObject(run?.result)) records.push(run.result);
 
-      const metadataKeys = ["runId", "runAttempt", "commitSha", "branch", "workflowSha", "qualityConclusion", "smokeChromiumConclusion", "completedAt"];
+      const metadataKeys = [
+        "runId",
+        "runAttempt",
+        "commitSha",
+        "branch",
+        "workflowSha",
+        ...REQUIRED_RUN_CONCLUSION_FIELDS,
+        "completedAt",
+      ];
       if (run?.result?.status === "pending") {
         for (const key of metadataKeys) {
           if (run?.[key] !== null) addIssue(issues, "schema-github", `${path}.${key}`, "must remain null while the run is pending");
@@ -929,16 +971,21 @@ export function validateReleaseReadiness(config, options = {}) {
       if (run?.result?.checkedAt !== run?.completedAt) {
         addIssue(issues, "schema-github", `${path}.result.checkedAt`, "must equal the Actions completion time");
       }
-      for (const key of ["qualityConclusion", "smokeChromiumConclusion"]) {
+      for (const key of REQUIRED_RUN_CONCLUSION_FIELDS) {
         if (!GITHUB_CONCLUSIONS.has(run?.[key])) {
           addIssue(issues, "schema-github", `${path}.${key}`, "must be one GitHub Actions job conclusion");
         }
       }
       if (
         run?.result?.status === "pass"
-        && (run.qualityConclusion !== "success" || run.smokeChromiumConclusion !== "success")
+        && REQUIRED_RUN_CONCLUSION_FIELDS.some((key) => run[key] !== "success")
       ) {
-        addIssue(issues, "schema-github", path, "a stable run passes only when both required jobs conclude success");
+        addIssue(
+          issues,
+          "schema-github",
+          path,
+          "a stable run passes only when all four CI jobs and Vercel Preview conclude success",
+        );
       }
       if (
         typeof run?.runId === "string"
@@ -1260,8 +1307,23 @@ function evidenceSummary(config) {
   }));
 }
 
-/** Evaluate already-parsed fixtures without treating the production file as a test fixture. */
-export function evaluateReleaseReadiness({ config, catalogs, projectRoot }) {
+/**
+ * Evaluate already-parsed fixtures without treating the production file as a
+ * test fixture.
+ *
+ * @param {{
+ *   config: unknown,
+ *   catalogs: unknown,
+ *   projectRoot?: string,
+ *   nativeReviewInventoryIssues: Array<{code: string, path: string, message: string}>,
+ * }} input
+ */
+export function evaluateReleaseReadiness({
+  config,
+  catalogs,
+  projectRoot,
+  nativeReviewInventoryIssues,
+}) {
   const configIssues = validateReleaseReadiness(config, { projectRoot });
   const messages = validateMessageCatalogs(
     catalogs,
@@ -1272,9 +1334,11 @@ export function evaluateReleaseReadiness({ config, catalogs, projectRoot }) {
   return {
     ready: configIssues.length === 0
       && messages.issues.length === 0
+      && nativeReviewInventoryIssues.length === 0
       && config?.status === "pass"
       && externalReady,
     configIssues,
+    nativeReviewInventoryIssues,
     messageIssues: messages.issues,
     messageSummaries: messages.summaries,
     evidence,
@@ -1282,6 +1346,7 @@ export function evaluateReleaseReadiness({ config, catalogs, projectRoot }) {
 }
 
 export function checkReleaseReadiness(projectRoot = ROOT) {
+  assertReleaseArtifactsCurrent({ projectRoot });
   let config;
   try {
     config = JSON.parse(readFileSync(join(projectRoot, "config/release-readiness.json"), "utf8"));
@@ -1293,13 +1358,23 @@ export function checkReleaseReadiness(projectRoot = ROOT) {
         path: "config/release-readiness.json",
         message: "file is missing or invalid JSON",
       }],
+      nativeReviewInventoryIssues: [],
       messageIssues: [],
       messageSummaries: [],
       evidence: [],
     };
   }
   const loaded = loadMessageCatalogs(projectRoot);
-  const result = evaluateReleaseReadiness({ config, catalogs: loaded.catalogs, projectRoot });
+  const nativeReviewInventory = checkNativeReviewInventory({
+    projectRoot,
+    releaseTarget: config?.releaseTarget,
+  });
+  const result = evaluateReleaseReadiness({
+    config,
+    catalogs: loaded.catalogs,
+    projectRoot,
+    nativeReviewInventoryIssues: nativeReviewInventory.issues,
+  });
   result.messageIssues.unshift(...loaded.issues);
   if (loaded.issues.length) result.ready = false;
   return result;
@@ -1314,6 +1389,7 @@ export function formatReadinessReport(result) {
     return [
       "release readiness: PASS",
       "- [x] message key, placeholder, plural, and explained-English checks",
+      "- [x] native-review catalog inventory binds 24 files to the candidate and workflow blob",
       "- [x] eight native-language reviews",
       "- [x] Arabic RTL matrix",
       "- [x] Provider canary and reconciliation",
@@ -1334,6 +1410,18 @@ export function formatReadinessReport(result) {
     }
     if (result.configIssues.length > 20) {
       lines.push(`- [ ] ${result.configIssues.length - 20} additional schema blocker(s); inspect with imported validators`);
+    }
+  }
+
+  lines.push("", "Native-review inventory blockers:");
+  if (!result.nativeReviewInventoryIssues?.length) {
+    lines.push("- [x] exact 24-file inventory matches the candidate, workflow blob, and working tree");
+  } else {
+    for (const issue of result.nativeReviewInventoryIssues.slice(0, 20)) {
+      lines.push(`- [ ] ${issue.path} (${issue.code}): ${issue.message}`);
+    }
+    if (result.nativeReviewInventoryIssues.length > 20) {
+      lines.push(`- [ ] ${result.nativeReviewInventoryIssues.length - 20} additional inventory blocker(s); run npm run native-review:inventory:check`);
     }
   }
 

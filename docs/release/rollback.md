@@ -16,6 +16,17 @@ head. This safely identifies the prospective previous-production anchor only.
 It does not create a release tag or revert PR, exercise a revert preview,
 compare recovered response headers, or pass rollback readiness.
 
+That historical anchor has since been superseded. The read-only Vercel,
+GitHub-deployment, alias, and canonical-response comparison in
+`docs/release/evidence/production-rollback-anchor-observation-20260902.json`
+shows that `aicourse.top` and `www.aicourse.top` currently resolve to READY
+deployment `dpl_ChfEQ6t7LSL41pPbdgNoHdNXczVz`, bound to current `main` commit
+`bf1fde5bb09150bde3cba7b447f71a63dec3c160`. A newer successful Production
+deployment exists for another commit but does not own the canonical aliases.
+The canonical release-metadata route currently returns 404, so this observation
+identifies only the prospective previous-production anchor; it is not production
+parity evidence and does not pass the rollback gate.
+
 - Candidate commit SHA (must equal `releaseTarget.candidateCommitSha`):
 - Candidate Vercel deployment ID (must equal `releaseTarget.vercelDeploymentId`):
 - Previous production commit SHA (must be distinct):

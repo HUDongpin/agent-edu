@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "capturedOn": "2026-08-30",
+  "scope": "Course 15 Phase 3 visual, state, typography, and responsive evidence",
+  "matrix": {
+    "browsers": ["chromium", "firefox", "webkit"],
+    "locales": ["en", "zh-Hans"],
+    "themes": ["light", "dark"],
+    "viewports": [
+      { "width": 1440, "height": 900 },
+      { "width": 820, "height": 1180 },
+      { "width": 390, "height": 844 },
+      { "width": 320, "height": 700 }
+    ],
+    "cellsPerPhase": 48,
+    "before": {
+      "root": "output/playwright/course15-phase3/before",
+      "totalFiles": 56,
+      "matrixPng": 48,
+      "matrixJson": 3,
+      "ancillaryPng": 5,
+      "overflowCells": 0,
+      "measurementsByViewport": {
+        "1440x900": {
+          "ctaBottomMin": 802.4375,
+          "ctaBottomMax": 831.0666809082031,
+          "scrollHeightMin": 7016,
+          "scrollHeightMax": 7510
+        },
+        "820x1180": {
+          "ctaBottomMin": 619.15625,
+          "ctaBottomMax": 658.0333099365234,
+          "scrollHeightMin": 8414,
+          "scrollHeightMax": 8881
+        },
+        "390x844": {
+          "ctaBottomMin": 445.71875,
+          "ctaBottomMax": 554.3333282470703,
+          "scrollHeightMin": 11270,
+          "scrollHeightMax": 12568
+        },
+        "320x700": {
+          "ctaBottomMin": 495.65625,
+          "ctaBottomMax": 617.1999664306641,
+          "scrollHeightMin": 13299,
+          "scrollHeightMax": 14984
+        }
+      },
+      "preEditComputedFailures": {
+        "darkWorkspaceActionContrast": 2.16,
+        "evidenceModeFontPx": 9.76,
+        "sourceRoleFontPx": 10.24,
+        "webkitLabSelectHeightPx": 20
+      }
+    },
+    "after": {
+      "root": "output/playwright/course15-phase3/after",
+      "totalFiles": 64,
+      "matrixPng": 48,
+      "matrixJson": 3,
+      "ancillaryPng": 13,
+      "overflowCells": 0,
+      "colorSchemeMismatchCells": 0,
+      "workspaceContrastMin": 8.422156076752854,
+      "workspaceContrastMax": 9.055932097159467,
+      "navigatorFontPx": 13.44,
+      "navigatorFontWeightMin": 680,
+      "navigatorFontWeightMax": 720,
+      "navigatorStateFontPx": 10.88,
+      "zhHeadingLineHeightRatioMin": 1.119790625,
+      "zhHeadingLineHeightRatioMax": 1.120213820315067,
+      "zhHeadingTrackingRatioMin": -0.025000013357091146,
+      "zhHeadingTrackingRatioMax": -0.02499999866452999,
+      "coarseControlMinHeightPx": 44,
+      "measurementsByViewport": {
+        "1440x900": {
+          "ctaBottomMin": 823,
+          "ctaBottomMax": 831.0666809082031,
+          "scrollHeightMin": 7101,
+          "scrollHeightMax": 7507
+        },
+        "820x1180": {
+          "ctaBottomMin": 636.96875,
+          "ctaBottomMax": 658.0333099365234,
+          "scrollHeightMin": 8413,
+          "scrollHeightMax": 8878
+        },
+        "390x844": {
+          "ctaBottomMin": 483.765625,
+          "ctaBottomMax": 554.3333282470703,
+          "scrollHeightMin": 11362,
+          "scrollHeightMax": 12577
+        },
+        "320x700": {
+          "ctaBottomMin": 511.578125,
+          "ctaBottomMax": 617.1999664306641,
+          "scrollHeightMin": 13454,
+          "scrollHeightMax": 14993
+        }
+      }
+    }
+  },
+  "results": {
+    "fullAfterLive": { "passed": 16, "skipped": 2, "failed": 0 },
+    "staticChromiumState": { "passed": 1, "skipped": 0, "failed": 0 },
+    "coarseControlsAllBrowsers": { "passed": 3, "skipped": 0, "failed": 0 },
+    "bundleBoundary": { "passed": 5, "skipped": 0, "failed": 0 },
+    "expectedSkip": "The shared CSS source audit runs once in Chromium and is skipped in Firefox and WebKit."
+  },
+  "sha256": {
+    "before/chromium/matrix.json": "07bdc13838b5eae81349c9fece28f96c52d3ec0425609bd71fc8f62ce566086c",
+    "before/firefox/matrix.json": "d4c1a16a45e567f890dd3105ba497e73829cd89203c7b6763d0c3c0ec42c13d5",
+    "before/webkit/matrix.json": "6e40cc2f5d40d6c6a739c75b89c960c6e465f537c5dfc664f80929eeeb334c8b",
+    "after/chromium/matrix.json": "dd7821103fc15a05cfb5224a2fa18edb9cfc8cb833e9a972a0d910dba98c6c83",
+    "after/firefox/matrix.json": "226955f092d28dc16244c0034ff5a2d97b991208ed1d4d6350ffab61394a87ac",
+    "after/webkit/matrix.json": "76e2e7d535f95a255f9706e0f32ded76430c2601184db88f552ae145f2d6e244",
+    "after/chromium/en-light-1440x900.png": "8d6604663d6a58becc32053cb31c65b8fdbde4680fc74da5211b94abff154c0d",
+    "after/chromium/zh-Hans-dark-390x844.png": "c3d08b267a6922fe59137f1ea57e714c7ba6225eb619295ac7c8b7267e366b03",
+    "after/webkit/en-dark-320x700.png": "43e682a344034fc4c4d53dab8b269b7140ae50764e6058694bf54df02a2a4b7d",
+    "after/webkit/coarse-course-controls.png": "589dcaf8f68158af56cbaa86e8b284fe0682ec846f51eaf8ea80f491b81f6aab",
+    "after/chromium/assessment-selected.png": "915b2ded3cc8dca970d25a0541cb0ab1110957de0703ea80f741c52a6f5a8e9c"
+  }
+}

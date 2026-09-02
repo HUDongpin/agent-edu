@@ -1,4 +1,5 @@
 import Portrait from "@/components/about/Portrait";
+import LearningIcon from "@/components/home/LearningIcon";
 import { CREATOR, TEAM, type Person } from "@/lib/team";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
 import { seoFor } from "@/lib/seo";
@@ -21,15 +22,35 @@ export async function generateMetadata(
   });
 }
 
-function Card({ p, t, lead = false }: { p: Person; t: (k: string) => string; lead?: boolean }) {
+function Card({
+  p,
+  t,
+  locale,
+  lead = false,
+}: {
+  p: Person;
+  t: (k: string) => string;
+  locale: string;
+  lead?: boolean;
+}) {
+  const affiliation = t(`ab.p.${p.id}.aff`);
+  const officialEnglishAffiliation =
+    locale === "de" && (p.id === "hwang" || p.id === "tu");
   return (
     <article className={"person" + (lead ? " lead" : "")}>
       <Portrait initials={p.initials} hue={p.hue} photo={p.photo} focus={p.focus}
         size={lead ? 96 : 76} />
       <div className="pbody">
         <span className="prole" style={{ color: p.hue }}>{t(`ab.p.${p.id}.role`)}</span>
-        <h3>{p.name}</h3>
-        <p className="paff">{t(`ab.p.${p.id}.aff`)}</p>
+        <h3 lang="en" dir="ltr" translate="no">{p.name}</h3>
+        <p
+          className="paff"
+          lang={officialEnglishAffiliation ? "en" : undefined}
+          dir={officialEnglishAffiliation ? "ltr" : undefined}
+          translate={officialEnglishAffiliation ? "no" : undefined}
+        >
+          {affiliation}
+        </p>
         <p className="pbio">{t(`ab.p.${p.id}.bio`)}</p>
         <ul className="pareas" aria-label={t("ab.areas")}>
           {p.areas.map((a) => (
@@ -65,21 +86,21 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       <section className="sect" style={{ paddingTop: 22 }}>
         <h2 className="eyebrow">{t("ab.creatorLabel")}</h2>
-        <div style={{ marginTop: 12 }}><Card p={CREATOR} t={t} lead /></div>
+        <div style={{ marginTop: 12 }}><Card p={CREATOR} t={t} locale={locale} lead /></div>
       </section>
 
       <section className="sect">
         <h2 className="eyebrow">{t("ab.teamLabel")}</h2>
         <p className="sub" style={{ textAlign: "start", margin: "8px 0 0" }}>{t("ab.teamLede")}</p>
         <div className="people">
-          {TEAM.map((p) => <Card key={p.id} p={p} t={t} />)}
+          {TEAM.map((p) => <Card key={p.id} p={p} t={t} locale={locale} />)}
         </div>
       </section>
 
       <section className="sect">
         <div className="grid2">
           <div className="out" style={{ alignItems: "flex-start" }}>
-            <span className="ico" aria-hidden="true">❓</span>
+            <span className="ico"><LearningIcon name="purpose" size={20} /></span>
             <div>
               <h3>{t("ab.whyTitle")}</h3>
               <p>{t("ab.why1")}</p>
@@ -87,7 +108,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </div>
           </div>
           <div className="out" style={{ alignItems: "flex-start" }}>
-            <span className="ico" aria-hidden="true">🔧</span>
+            <span className="ico"><LearningIcon name="method" size={20} /></span>
             <div>
               <h3>{t("ab.howTitle")}</h3>
               <p>{t("ab.how1")}</p>

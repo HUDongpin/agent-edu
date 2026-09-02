@@ -1,0 +1,1021 @@
+{
+  "meta": {
+    "title": "Cómo usar Grok",
+    "kicker": "Curso práctico independiente",
+    "summary": "Domine Grok mediante interfaces reales, flujos de trabajo guiados por la evidencia, talleres prácticos y resultados que una persona pueda verificar.",
+    "audience": "Para principiantes con curiosidad y profesionales en activo. El itinerario principal no requiere una clave de API, un plan de pago ni conocimientos técnicos previos.",
+    "duration": "11 horas 35 minutos · 14 lecciones · un proyecto final para el portafolio",
+    "verified": "Interfaz, acceso y fuentes verificados el 23 de agosto de 2026",
+    "independent": "aicourse.top es independiente y no está afiliado ni respaldado por xAI. Grok y xAI son marcas comerciales propiedad de esa empresa.",
+    "sourceNote": "Las afirmaciones sobre capacidades se basan ante todo en las páginas vigentes de producto, documentación y asuntos legales de xAI. Los repositorios de GitHub fijados a una versión muestran flujos de trabajo implementables, no demuestran precisión, seguridad ni productividad.",
+    "startCta": "Comience por el mapa del producto",
+    "resumeCta": "Continúe con la siguiente lección",
+    "outcome": "Al terminar, podrá delimitar, fundamentar, generar, verificar y ejecutar de forma segura un flujo de trabajo real asistido por Grok, y mostrar las pruebas que sustentan su decisión."
+  },
+  "ui": {
+    "lessons": "Lecciones",
+    "minutes": "minutos",
+    "durationCompact": "{hours} h {minutes} min",
+    "correctAnswer": "Respuesta correcta",
+    "yourAnswer": "Su respuesta",
+    "milestoneComplete": "Completado",
+    "milestoneIncomplete": "Incompleto",
+    "milestoneLegend": "Q = comprobación final de conocimientos · C = proyecto final del portafolio",
+    "level": "De principiante a avanzado",
+    "free": "Curso gratuito",
+    "verified": "Verificado",
+    "learnOutcome": "Lo que podrá hacer",
+    "workflowTitle": "Delimitar. Fundamentar. Generar. Verificar. Actuar.",
+    "galleryTitle": "Interfaces reales. Práctica transferible.",
+    "galleryIntro": "Pase del código a las hojas de cálculo y a los contenidos multimedia sin rebajar el estándar de evidencia.",
+    "start": "Comenzar curso",
+    "resume": "Reanudar curso",
+    "progress": "Progreso",
+    "courseProgress": "Progreso del curso",
+    "completed": "Completado",
+    "markComplete": "Marcar lección completa",
+    "markedComplete": "Lección completada",
+    "resetProgress": "Restablecer progreso",
+    "resetConfirm": "¿Reiniciar el progreso del curso Grok en este navegador?",
+    "resetSuccess": "Se restableció el progreso del curso.",
+    "storageNote": "El progreso del curso permanece solo en este navegador y no se envía a aicourse.top. El sitio puede seguir contabilizando las visitas anónimas a las páginas.",
+    "storageUnavailable": "El almacenamiento del navegador no está disponible. Las lecciones aún funcionan, pero el progreso no persistirá.",
+    "storageQuota": "El almacenamiento del navegador está lleno. Las lecciones siguen funcionando, pero el progreso nuevo no se conservará.",
+    "storageCorrupt": "El progreso guardado del curso 5 está dañado. No se ha sobrescrito. Puede conservar una copia de recuperación exacta antes de restablecerlo.",
+    "repairProgress": "Reparar el progreso guardado",
+    "repairConfirm": "¿Conservar una copia de recuperación exacta del registro dañado y después restablecer el progreso del curso 5?",
+    "repairSuccess": "El registro dañado se conservó en una copia de recuperación local y se restableció el progreso del curso 5.",
+    "repairFailed": "No se pudo completar la reparación. El registro dañado permanece intacto.",
+    "allLessons": "Mapa del curso",
+    "objectives": "Objetivo de aprendizaje",
+    "seeIt": "Véalo",
+    "tryIt": "Pruébelo",
+    "inspectIt": "Examínelo",
+    "proveIt": "Demuéstrelo",
+    "keepIt": "Consérvelo",
+    "knowLimit": "Conozca el límite",
+    "promptTemplate": "Instrucción de práctica",
+    "copyPrompt": "Copiar instrucción",
+    "copied": "Copiado",
+    "copyFailed": "No se pudo copiar. Seleccione la instrucción manualmente.",
+    "contractBuilder": "Generador de contratos de tarea",
+    "contractBuilderIntro": "Redacte aquí las seis decisiones. El borrador se guarda solo durante la sesión de esta pestaña y nunca se envía a aicourse.top.",
+    "fieldGoal": "Objetivo",
+    "fieldContext": "Contexto",
+    "fieldEvidence": "Límite de evidencia",
+    "fieldConstraints": "Restricciones y no objetivos",
+    "fieldOutput": "Resultado",
+    "fieldAcceptance": "Aceptación y verificación",
+    "contractPreview": "Contrato completo",
+    "clear": "Limpiar",
+    "discardTaskContract": "Descartar borrador del contrato de tarea",
+    "discardTaskContractConfirm": "¿Descartar este borrador del contrato de tarea? Puede deshacerlo hasta que edite otro campo o salga de esta página.",
+    "undo": "Deshacer",
+    "taskDraftSaved": "Borrador guardado para la sesión de esta pestaña.",
+    "taskDraftSaveFailed": "No se pudo guardar este borrador. Mantenga abierta esta pestaña o copie el contrato antes de salir.",
+    "taskDraftRestored": "Borrador restaurado desde la sesión de esta pestaña.",
+    "taskDraftDiscarded": "Borrador descartado. Puede deshacerlo hasta que edite otro campo o salga de esta página.",
+    "steps": "Pasos guiados",
+    "evidence": "Pruebas que debe conservar",
+    "safety": "Límite de seguridad",
+    "checkpoint": "Comprobación rápida",
+    "reveal": "Revelar respuesta",
+    "hide": "Ocultar respuesta",
+    "takeaway": "Idea clave duradera",
+    "sources": "Registro de evidencias",
+    "sourceBoundary": "Lo que esta fuente hace y no establece",
+    "verifiedOn": "Verificado",
+    "versionSnapshot": "Evidencia del flujo de trabajo fijada a una versión",
+    "previous": "Lección anterior",
+    "next": "Siguiente lección",
+    "backCourse": "Volver al mapa del curso",
+    "quizTitle": "Comprobación final del conocimiento",
+    "quizIntro": "Responda una pregunta práctica de cada lección. Necesita acertar 12 de 14. Su mejor puntuación se guarda solo en este navegador.",
+    "beginQuiz": "Iniciar la comprobación del conocimiento",
+    "quizAttemptAvailable": "Hay un intento guardado en la pregunta {current} de {total}.",
+    "resumeQuizAttempt": "Reanudar intento guardado",
+    "discardQuizAttempt": "Descartar intento",
+    "discardQuizConfirm": "¿Descartar este intento de comprobación de conocimientos?",
+    "quizAttemptSaved": "Intento guardado para la sesión de esta pestaña.",
+    "quizAttemptSaveFailed": "No se pudo guardar este intento. Puede perderse al salir o actualizar la página.",
+    "quizAttemptDiscarded": "Se descartó el intento de comprobación de conocimientos.",
+    "question": "Pregunta",
+    "of": "de",
+    "checkAnswer": "Comprobar respuesta",
+    "nextQuestion": "Siguiente pregunta",
+    "finishQuiz": "Finalizar cuestionario",
+    "correct": "Correcto",
+    "incorrect": "Aún no",
+    "tryAgain": "Inténtelo de nuevo",
+    "retryQuiz": "Repetir la comprobación de conocimientos",
+    "score": "Puntuación",
+    "bestScore": "Mejor puntuación",
+    "passed": "Comprobación de conocimientos superada",
+    "needsReview": "Revise los límites de la evidencia e inténtelo de nuevo",
+    "passingScore": "Se requieren 12 de 14",
+    "figureSource": "Abrir fuente original",
+    "figureCaptured": "Capturado",
+    "figureVerified": "Interfaz verificada",
+    "calloutLegend": "Lo que hay que notar",
+    "figureFreshness": "Los controles, las etiquetas y el acceso pueden cambiar después de la fecha capturada.",
+    "figureProvenance": "Procedencia de la figura",
+    "privacyReviewed": "Revisión de privacidad aprobada",
+    "sha256": "SHA-256 de la captura original",
+    "capstone": "Proyecto final del portafolio",
+    "independent": "Aviso de curso independiente",
+    "sourceTypeOfficial": "Fuente oficial",
+    "sourceTypeGitHub": "Evidencia de GitHub fijada a una versión",
+    "readSource": "Leer fuente",
+    "currentLesson": "Lección actual",
+    "optional": "Entorno avanzado opcional",
+    "capstoneChecklist": "Lista de evidencias del proyecto final",
+    "capstoneChecklistIntro": "Confirme cada elemento de su paquete real. Marcar una casilla registra que está preparado, no constituye una certificación externa.",
+    "capstoneReady": "Paquete del proyecto final listo",
+    "capstoneNotReady": "Complete los siete elementos de evidencia",
+    "capstoneItems": "Resultado y contrato de tarea|Justificación del entorno, los datos y los permisos|Registro de fuentes y referencias exactas|Artefacto final o diff exacto|Verificación independiente y comprobaciones fallidas|Revisión de privacidad, derechos y limitaciones|Decisión humana final de aceptar, revisar o rechazar"
+  },
+  "units": {
+    "start": {
+      "title": "1 · Comience bien",
+      "summary": "Trace el mapa del producto, lea la interfaz activa y decida qué información puede entrar en la conversación antes de pedir una respuesta."
+    },
+    "ground": {
+      "title": "2 · Fundamente y verifique",
+      "summary": "Convierta una solicitud en un contrato verificable, busque con una estrategia de fuentes y ancle el análisis a ubicaciones exactas de la evidencia."
+    },
+    "studios": {
+      "title": "3 · Talleres profesionales",
+      "summary": "Aplique un flujo de trabajo fiable a la ingeniería, la investigación, la escritura, el trabajo de oficina y la enseñanza sin exagerar lo que Grok demuestra."
+    },
+    "create": {
+      "title": "4 · Cree y automatice",
+      "summary": "Produzca contenidos multimedia responsables, conecte solo los permisos necesarios para la tarea y complete un proyecto final auditable de principio a fin."
+    }
+  },
+  "lessons": {
+    "map-grok": {
+      "kicker": "Lección 1 · Orientación",
+      "title": "Trace el mapa de Grok antes de usarlo",
+      "summary": "Grok es una familia de entornos, no un único cuadro de texto intercambiable. Empiece por elegir dónde debe realizarse el trabajo y qué autoridad recibirá ese entorno.",
+      "objective": "Distinguir el chat para consumidores, Grok en X, las aplicaciones móviles, Imagine, el modo Build de la web y las aplicaciones móviles, el terminal Grok Build, Bot, los complementos de oficina, los conectores y la API; después, seleccionar un entorno según los requisitos de la tarea, los datos y las acciones.",
+      "sections": [
+        {
+          "eyebrow": "Véalo",
+          "heading": "Empiece por el chat habitual",
+          "body": "El cuadro de redacción activo de grok.com es el lugar más sencillo para delimitar una pregunta, adjuntar material público o sintético y elegir un modo visible. La misma familia de productos también está disponible en X y en aplicaciones móviles, pero esos entornos tienen contextos, controles y políticas aplicables distintos. Imagine está diseñado específicamente para contenidos multimedia. Los complementos de Microsoft 365 para Word, Excel, PowerPoint y Outlook, y el complemento de Google Workspace para Sheets, Slides y Docs, funcionan dentro de sus aplicaciones anfitrionas y archivos editables. Los conectores incorporan datos externos a una tarea. Ninguna de esas etiquetas elimina su responsabilidad de decidir qué datos pueden entrar y cómo se comprobará el resultado."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Distinga asistentes, creadores y agentes",
+          "body": "Use el chat para consumidores para conversar, sintetizar y trabajar de forma acotada con archivos. El modo Build de la web y las aplicaciones móviles crea y publica aplicaciones dentro de Grok para consumidores. El terminal Grok Build, que se instala por separado, es un agente de programación con contexto del repositorio que puede inspeccionar archivos, editarlos y ejecutar comandos; por eso necesita límites de repositorio, permisos y pruebas. Grok Bot es una función beta restringida a determinados planes, con un ordenador persistente en la nube, y es opcional en este curso. La API se factura por separado y ofrece controles para desarrolladores que no aparecen automáticamente en Grok para consumidores. Que una capacidad exista en un entorno nunca demuestra que otro tenga la misma herramienta, modelo, límite o política de datos."
+        },
+        {
+          "eyebrow": "Conozca el límite",
+          "heading": "Trate las etiquetas de planes y modelos como una instantánea fechada",
+          "body": "El anuncio más reciente que indicó explícitamente un despliegue de consumo multiplataforma, fechado el 22 de julio de 2026, dijo que Grok 4.5 impulsaba grok.com, X, iOS y Android. La página de precios vigente enumera Grok 4.6 como una prestación de SuperGrok, mientras que el lanzamiento de Grok 4.6 del 12 de agosto nombra Grok Build, Cursor, la API y socios. Ninguna página por sí sola establece qué modos de chat ordinarios se enrutan a 4.6. Nuestra captura fechada el 23 de agosto muestra Fast, Expert y Heavy etiquetados como Grok 4.5 y Build beta etiquetado como Grok 4.6. El modo Build de la web y las aplicaciones móviles se amplió a todos los planes el 19 de agosto de 2026, pero siguen aplicándose límites de uso; esa afirmación no establece acceso al terminal para todos los planes. Para los planes de pago de Grok, las preguntas frecuentes describen un único cupo semanal compartido entre los entornos del producto, mientras que los límites del nivel gratuito siguen separados. Consulte la interfaz activa antes de prometer a un colega un modelo, una cuota o una prestación incluida, e indique la fecha en toda captura usada como evidencia."
+        }
+      ],
+      "practice": {
+        "title": "Elija un entorno para cinco tareas reales",
+        "brief": "Haga una matriz de decisión de una página antes de iniciar sesión o cargar cualquier cosa.",
+        "prompt": "Necesito ayuda para elegir un entorno de Grok. Para cada tarea siguiente, recomiende un entorno principal y una alternativa. Explique el contexto necesario, la sensibilidad de los datos, la autoridad para actuar, el método de verificación y cualquier dependencia de un plan o una plataforma. No suponga que una capacidad se transfiere entre Grok para consumidores, X, el modo Build de la web o las aplicaciones móviles, el terminal Grok Build, Bot, los complementos o la API. Tareas: [pegue cinco escenarios sintéticos].",
+        "steps": [
+          "Enumere cinco situaciones: una pregunta sobre noticias actuales, una comparación de PDF, un pequeño cambio de código, un análisis de Excel y un informe periódico.",
+          "Para cada una, indique el entorno con menor autoridad que pueda producir un resultado examinable.",
+          "Compruebe una página oficial vigente antes de registrar cualquier afirmación sobre un modelo, plan o plataforma."
+        ],
+        "proof": [
+          "Una matriz de decisión de cinco filas con columnas de tarea, contexto, autoridad, verificación y alternativa.",
+          "Una nota fechada que separe las etiquetas observadas en la interfaz de las afirmaciones oficiales sobre el acceso."
+        ],
+        "safety": "Utilice solo escenarios públicos o sintéticos. No conecte una cuenta simplemente para explorar lo que un conector podría hacer."
+      },
+      "checkpoint": {
+        "question": "¿Por qué un ejemplo de API no puede probar que existe la misma característica en el chat ordinario de grok.com?",
+        "answer": "La API y el producto para consumidores tienen interfaces, facturación, herramientas, ciclos de lanzamiento y prestaciones distintas. La evidencia debe vincularse al entorno exacto que describe."
+      },
+      "takeaway": "Elija el entorno según el trabajo, los datos y la autoridad, no según el nombre del modelo más reciente.",
+      "limit": "La disponibilidad, los nombres de los planes, las cuotas y el enrutamiento cambian con frecuencia. Verifíquelos en el producto activo y en una página oficial vigente."
+    },
+    "read-interface": {
+      "kicker": "Lección 2 · Control",
+      "title": "Lea el cuadro de redacción, los modos y los límites",
+      "summary": "Elegir un modo es decidir qué coste y profundidad necesita la tarea, no obtener una garantía de veracidad. Aprenda qué significan los controles visibles y evalúe después el resultado con evidencia externa.",
+      "objective": "Leer el cuadro de redacción y los controles actuales de adjuntos y modos; elegir un modo proporcionado; y registrar la etiqueta observada del modelo sin convertirla en una afirmación atemporal.",
+      "sections": [
+        {
+          "eyebrow": "Véalo",
+          "heading": "La interfaz convierte la tarea en una decisión",
+          "body": "En el menú web capturado aparecen Fast, Auto, Expert, Heavy y Build. Fast, Expert y Heavy muestran Grok 4.5; Build beta muestra Grok 4.6. Es evidencia auténtica de la interfaz del 23 de agosto de 2026, no una matriz universal de planes. Empiece una redacción habitual o una pregunta acotada con el modo adecuado más ligero. Recurra a modos más profundos o paralelos solo cuando lo justifiquen la complejidad de la tarea y el presupuesto de verificación. En este menú, Build es el modo para crear aplicaciones dentro de Grok para consumidores; no es el terminal Grok Build que se instala por separado ni una mera respuesta de chat más reflexiva."
+        },
+        {
+          "eyebrow": "Pruébelo",
+          "heading": "Haga una comparación controlada entre modos",
+          "body": "Asigne a dos modos disponibles la misma tarea pública y falsable, sin cambiar la instrucción. Antes de ejecutarla, defina qué significa «mejor»: pertinencia de las fuentes, exhaustividad, precisión de los cálculos, incertidumbre explícita, tiempo de respuesta o uso. Examine las fuentes obtenidas y vuelva a calcular un valor relevante. No puntúe razonamientos ocultos ni la extensión del texto. Una respuesta más larga también puede ser errónea, y una etiqueta de equipo de expertos no demuestra corroboración independiente si la evidencia final no se puede examinar. Registre la etiqueta exacta del modo y la fecha para que la comparación siga siendo interpretable más adelante."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Mantenga una observación separada de una afirmación oficial",
+          "body": "Use dos columnas en sus notas. En «interfaz observada», registre lo que apareció en su cuenta: nombre del modo, etiqueta del modelo, plataforma y fecha. En «afirmación oficial», anote lo que indica una página vigente de xAI sobre el acceso o la capacidad. Si las columnas entran en conflicto, no las concilie en silencio. Explique la discrepancia y, para una afirmación de acceso, prefiera la fuente más reciente y específica del entorno. Este sencillo hábito de procedencia evita que las capturas se conviertan en instrucciones obsoletas y que el lenguaje comercial se presente como rendimiento medido."
+        }
+      ],
+      "practice": {
+        "title": "Compare dos modos sin guiarse por impresiones",
+        "brief": "Utilice una pequeña tarea pública y una rúbrica de cinco criterios.",
+        "prompt": "Use solo la fuente pública proporcionada para elaborar un informe de seis oraciones. Cite la sección exacta de cada oración factual, señale toda inferencia y termine con dos hechos que requieran verificación independiente. No utilice conocimientos externos. Fuente: [pegue o adjunte una fuente pública].",
+        "steps": [
+          "Defina cinco criterios observables antes de enviar el mensaje.",
+          "Ejecútela en dos modos disponibles para su cuenta sin cambiar la fuente ni la redacción.",
+          "Abra cada cita y verifique una fecha, una cita o un cálculo."
+        ],
+        "proof": [
+          "Una rúbrica comparativa con el modo observado, las etiquetas del modelo, la plataforma y la fecha.",
+          "Una afirmación verificada y una limitación identificada para cada respuesta."
+        ],
+        "safety": "No use una decisión sensible o de alto impacto solo para que la comparación parezca realista."
+      },
+      "checkpoint": {
+        "question": "¿Qué establece la selección de un modo más profundo sobre la respuesta?",
+        "answer": "Solo que seleccionó ese flujo de trabajo. No establece la exactitud factual, la calidad de las fuentes ni la corrección del razonamiento; todo ello requiere comprobaciones examinables."
+      },
+      "takeaway": "Seleccione la profundidad proporcionalmente, luego evalúe la evidencia en lugar de la etiqueta de modo.",
+      "limit": "El menú de modo capturado es un registro de interfaz fechado. Su plan, región, dispositivo o versión posterior pueden diferir."
+    },
+    "privacy-boundaries": {
+      "kicker": "Lección 3 · Protección",
+      "title": "Fije primero los límites de privacidad y actuación",
+      "summary": "Una instrucción útil empieza antes de escribirla: clasifique los datos, elija el entorno con la política adecuada y conceda solo la autoridad que necesita la tarea.",
+      "objective": "Configurar deliberadamente los controles de datos para consumidores, distinguir los controles de Private Chat y X, y redactar límites de datos y acciones para una tarea de Grok.",
+      "sections": [
+        {
+          "eyebrow": "Véalo",
+          "heading": "Conozca los controles que está cambiando",
+          "body": "La figura oficial de los ajustes de datos de la web separa la mejora del modelo, la personalización con datos de X, la exportación y la eliminación. Las conversaciones de Grok para consumidores pueden usarse para el entrenamiento salvo que se desactive el control correspondiente. Private Chat se excluye del entrenamiento y se pone en cola para eliminarse, normalmente en un plazo de 30 días y con las excepciones indicadas. Private Chat no está disponible actualmente en el modo Build de la web y las aplicaciones móviles. Las conversaciones y las sesiones de creación del modo Build de la web y las aplicaciones móviles se conservan para que el producto funcione y pueden utilizarse para mejorarlo cuando está activada la opción Improve the Model, incluidos los datos de las aplicaciones creadas. Los comentarios enviados pueden utilizarse para el entrenamiento aunque esté activa una exclusión más general. Grok en X tiene ajustes y políticas independientes. Si utiliza ambos entornos, compruebe los dos: cambiar uno no demuestra que el otro también haya cambiado."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Clasifique la información antes de subirla",
+          "body": "Clasifique las entradas como públicas, sintéticas, internas, confidenciales, reguladas o prohibidas. Sustituya nombres reales, expedientes de estudiantes, datos de clientes, credenciales, enlaces privados e investigaciones inéditas por equivalentes sintéticos siempre que el objetivo de aprendizaje no los necesite. Las cuentas de una organización pueden tener compromisos y controles de administración distintos, pero una etiqueta empresarial no autoriza a ignorar las políticas. Si interviene un conector, haga inventario de los datos que puede leer y las acciones que puede realizar. La instrucción de menor riesgo suele ser la que no necesita una cuenta ni un documento reales."
+        },
+        {
+          "eyebrow": "Consérvelo",
+          "heading": "Exprese con claridad los límites de actuación",
+          "body": "Indique qué puede leer, redactar y recomendar Grok, y después qué requiere confirmación. Un límite seguro para tareas de oficina puede permitir la lectura de un calendario sintético y la preparación de un mensaje, pero prohibir enviar, eliminar o invitar. Un límite seguro de programación puede permitir ediciones y pruebas en una rama desechable, pero excluir secretos, despliegues y datos de producción. En el momento de aprobar, revise la acción exacta, el destinatario, el destino y el alcance. La política de la plataforma es el mínimo; las tareas profesionales, escolares o reguladas pueden exigir controles más estrictos."
+        }
+      ],
+      "practice": {
+        "title": "Cree un filtro de datos y acciones",
+        "brief": "Clasifique un flujo de trabajo sintético antes de abrir Grok.",
+        "prompt": "Actúe como revisor de límites de privacidad. Para este flujo de trabajo propuesto, devuelva: (1) clases de datos presentes, (2) entorno mínimo de Grok, (3) información que debe eliminarse o sintetizarse, (4) permisos solicitados de lectura, escritura, envío y eliminación, (5) decisiones que requieren confirmación humana y (6) una alternativa más segura. No procese el contenido sensible subyacente. Flujo de trabajo: [describa solo la estructura].",
+        "steps": [
+          "Describa el flujo de trabajo sin pegar su contenido sensible.",
+          "Revise los controles de datos actuales de grok.com y, si corresponde, la configuración separada de X.",
+          "Escriba una lista explícita de permisos y otra de datos y acciones prohibidos."
+        ],
+        "proof": [
+          "Una tabla de clasificación y un registro sin capturas de pantalla de la configuración que revisó.",
+          "Un límite de permisos y prohibiciones con un punto de aprobación identificado."
+        ],
+        "safety": "Nunca pegue un secreto real para preguntar si lo es. Describa el tipo de dato, no el valor."
+      },
+      "checkpoint": {
+        "question": "¿Significa Private Chat que una conversación desaparece instantáneamente y nunca puede conservarse?",
+        "answer": "No. La guía oficial indica que se excluye del entrenamiento y se pone en cola para eliminarse, normalmente en un plazo de 30 días, con las excepciones legales, de protección y de seguridad indicadas."
+      },
+      "takeaway": "Clasifique primero, minimice después, configure el entorno correcto y conceda únicamente la autoridad útil imprescindible.",
+      "limit": "Este curso resume políticas públicas y no ofrece asesoramiento jurídico. Para usos de alto impacto, vuelva a leer las condiciones vigentes y las normas de su institución."
+    },
+    "task-contracts": {
+      "kicker": "Lección 4 · Delimitación",
+      "title": "Convierta una solicitud en un contrato de tarea",
+      "summary": "Una instrucción sólida define un resultado observable, el contexto pertinente, el límite de evidencia, las restricciones, el formato de salida y la prueba de aceptación.",
+      "objective": "Reescribir una solicitud ambigua como un contrato de tarea de seis partes y usar Grok para detectar solo las ambigüedades que podrían cambiar el resultado.",
+      "sections": [
+        {
+          "eyebrow": "Pruébelo",
+          "heading": "Empiece por el resultado observable",
+          "body": "Indique qué debe existir o cambiar cuando termine el trabajo. Sustituya «ayúdeme con mi informe» por un producto concreto, una audiencia y una decisión. Añada solo el contexto que modifique la respuesta: paquete de fuentes, periodo, conocimientos del lector y restricciones pertinentes. Un rol puede orientar el tono, pero no sustituye la evidencia ni los criterios de aceptación. Pida a Grok que se detenga ante cualquier ambigüedad importante que pueda cambiar el alcance, la seguridad, la interpretación o la decisión final. No debe inventar una suposición conveniente."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Cierre el límite de evidencia",
+          "body": "Indique qué fuentes puede usar Grok y cómo debe señalar el conocimiento externo. Para una tarea documental, exija referencias de página, tabla o celda. Para una investigación actual, establezca un intervalo de fechas y una jerarquía de fuentes. Para escribir, distinga los hechos aportados del lenguaje propuesto. Defina después restricciones y objetivos excluidos: extensión, idioma, dependencias, acciones no autorizadas y afirmaciones prohibidas. Un límite de evidencia cerrado hace visibles las carencias en vez de permitir que la prosa fluida las oculte."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Defina la aceptación por separado del formato",
+          "body": "El formato de salida indica cómo presentar el trabajo. Los criterios de aceptación explican cómo decidirá si es suficientemente bueno. Una tabla también puede contener hechos inventados. Solicite un plan de verificación: abrir las citas, recalcular cifras, examinar el archivo o el diff real, probar el comportamiento importante y declarar las comprobaciones que no pudieron ejecutarse. Termine con la entrega necesaria: fuentes, decisiones, limitaciones y siguiente acción humana. La mejor instrucción es el contrato completo más breve, no el párrafo más largo."
+        }
+      ],
+      "practice": {
+        "title": "Corrija una solicitud profesional imprecisa",
+        "brief": "Utilice la plantilla de seis campos, luego pruébela en material público o sintético.",
+        "prompt": "OBJETIVO: [entregable observable y resultado para el usuario]\nCONTEXTO: [solo los hechos y materiales que afectan al resultado]\nLÍMITE DE EVIDENCIA: [fuentes permitidas, intervalo de fechas y referencias obligatorias]\nRESTRICCIONES / OBJETIVOS EXCLUIDOS: [límites, acciones prohibidas y afirmaciones que deben evitarse]\nSALIDA: [estructura, público, extensión e idioma]\nACEPTACIÓN + VERIFICACIÓN: [comprobaciones, umbrales y evidencia que debe devolverse]\nAntes de empezar, haga solo las preguntas cuyas respuestas puedan cambiar de forma sustancial el alcance, la seguridad o la aceptación. Señale todas las suposiciones y no afirme que ejecutó una comprobación si no muestra su resultado.",
+        "steps": [
+          "Identifique la decisión faltante más consecuente en una solicitud vaga.",
+          "Complete los seis campos usando una entrada pública o sintética.",
+          "Pídale a Grok que critique el contrato contra los criterios de aceptación antes de producir el entregable."
+        ],
+        "proof": [
+          "La solicitud inicial y la revisada, con la ambigüedad importante resaltada.",
+          "Un resultado obtenido en función de los criterios de aceptación, incluida una comprobación fallida o incompleta."
+        ],
+        "safety": "Excluya explícitamente los envíos externos, la eliminación, la publicación y otras acciones de alto impacto, salvo que sean realmente necesarias y se aprueben por separado."
+      },
+      "checkpoint": {
+        "question": "¿Por qué ‘ponerlo en una tabla’ no es un criterio de aceptación?",
+        "answer": "Especifica la presentación, no la corrección. La aceptación necesita requisitos observables, como la cobertura de la fuente, las verificaciones de cálculo, el ajuste de la audiencia y las limitaciones divulgadas."
+      },
+      "takeaway": "Enmarque la tarea para que otra persona pueda inspeccionar lo que Grok usó, produjo y verificó.",
+      "limit": "Un contrato sólido reduce la ambigüedad, pero no hace fiable al modelo sin comprobaciones externas."
+    },
+    "search-verify": {
+      "kicker": "Lección 5 · Fundamentación",
+      "title": "Busque información actual y después verifíquela",
+      "summary": "La búsqueda permite acceder a fuentes actuales. No convierte las citas en pruebas ni las publicaciones sociales en evidencia primaria.",
+      "objective": "Diseñar una estrategia de fuentes, auditar una respuesta de Grok con citas en el nivel de cada afirmación y verificar de manera independiente una fecha, una cita textual y un cálculo.",
+      "sections": [
+        {
+          "eyebrow": "Pruébelo",
+          "heading": "Defina el protocolo de búsqueda antes de consultar",
+          "body": "Defina la pregunta, el intervalo de fechas pertinente, el ámbito geográfico y la jerarquía de fuentes. Prefiera la organización, la norma, la legislación, el conjunto de datos, el artículo o el repositorio que sustenta directamente la afirmación. Use informes y comentarios de especialistas para interpretarlos. Trate las publicaciones de X como pistas, declaraciones contemporáneas o reacciones, no como pruebas automáticas. Pida a Grok que separe los hechos verificados, las afirmaciones atribuidas a una fuente y las inferencias, y que indique cuándo no encuentra una fuente adecuada. Las páginas vigentes del producto anuncian la búsqueda web y en X; los ejemplos oficiales del SDK muestran citas y trazas de herramientas. Nada de ello garantiza que cada resultado sea completo o correcto."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Audite las afirmaciones, no la extensión de la bibliografía",
+          "body": "Divida la respuesta en afirmaciones relevantes. Para cada una, abra la página citada y plantee cuatro preguntas: ¿existe la página?, ¿es realmente la fuente indicada?, ¿el pasaje citado respalda esa redacción?, ¿está vigente para la fecha de la decisión? Registre con moderación la cita y el contexto de la página en vez de confiar en un marcador de cita. Busque una fuente primaria que pueda refutarla. Si dos páginas oficiales discrepan, compare sus fechas de publicación y ámbitos en lugar de combinarlas. Un resultado de referencia obtenido con instantáneas anteriores de Grok solo aporta evidencia sobre esa prueba limitada, no una tasa universal y actual de alucinaciones."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Recalcule y señale la incertidumbre",
+          "body": "Elija al menos una cifra relevante y reprodúzcala a partir de los datos originales. Compruebe las unidades, los denominadores, los periodos y el redondeo. Para una cita textual importante, compare la redacción exacta y su contexto. Asigne un nivel de confianza solo después de verificar la fuente y explique qué podría modificarlo. Si falta evidencia, la respuesta correcta es «no establecido», seguida del próximo paso de verificación. No pida ni trate la cadena de pensamiento oculta como prueba; examine las fuentes, las entradas, los cálculos y las afirmaciones finales."
+        }
+      ],
+      "practice": {
+        "title": "Elabore un informe actual de seis afirmaciones",
+        "brief": "Cree un registro de afirmaciones con fuentes primarias y una búsqueda de posibles refutaciones.",
+        "prompt": "Investigue esta pregunta actual: [pregunta]. Fecha límite: [fecha]. Prefiera fuentes primarias. Devuelva exactamente seis afirmaciones relevantes en una tabla con: afirmación; estado (verificada / atribuida a una fuente / inferencia / no establecida); fuente directa; fecha de publicación; ubicación del pasaje de apoyo; incertidumbre; y próxima comprobación. Después, enumere una posible contraafirmación y busque evidencia primaria que la respalde o la refute. Nunca invente una cita.",
+        "steps": [
+          "Escriba una jerarquía de fuentes antes de buscar.",
+          "Abra cada fuente citada y verifique de manera independiente una fecha, una cita textual y un cálculo.",
+          "Rebaje o elimine toda afirmación cuya fuente no respalde directamente la redacción."
+        ],
+        "proof": [
+          "Un registro de seis filas con enlaces funcionales y una búsqueda de posibles refutaciones.",
+          "Un registro de verificación que muestre la cifra reproducida y cualquier afirmación corregida."
+        ],
+        "safety": "No use este ejercicio para recibir asesoramiento médico, jurídico, financiero ni otra orientación personal de alto riesgo."
+      },
+      "checkpoint": {
+        "question": "¿Qué prueba un marcador de citación?",
+        "answer": "Muestra que una fuente se asoció con el texto. Aún debe abrirla y comprobar su identidad, respaldo, alcance, fecha y contexto."
+      },
+      "takeaway": "La búsqueda obtiene fuentes candidatas; la verificación convierte una afirmación respaldada en evidencia utilizable.",
+      "limit": "Los resúmenes basados en fuentes aún pueden contener afirmaciones sin respaldo, y los benchmarks de una versión concreta no establecen una tasa de error universal vigente."
+    },
+    "files-data": {
+      "kicker": "Lección 6 · Referencias exactas",
+      "title": "Trabaje con archivos, tablas y medios mixtos",
+      "summary": "Cargue el paquete pertinente más pequeño, formule preguntas vinculadas a ubicaciones exactas y compruebe que Grok haya procesado realmente los formatos proporcionados.",
+      "objective": "Planificar una tarea con archivos según los formatos compatibles y los límites de la plataforma, extraer evidencia con referencias exactas y validar una tabla, una imagen y un cálculo frente a los originales.",
+      "sections": [
+        {
+          "eyebrow": "Véalo",
+          "heading": "Adjunte archivos de forma deliberada",
+          "body": "El menú actual de adjuntos de la web ofrece Cargar un archivo, Reciente y Proyecto. La documentación oficial describe una amplia compatibilidad con documentos, hojas de cálculo, presentaciones, código, imágenes, audio y vídeo. La mayoría de los documentos, imágenes, archivos de código y audio tienen un límite de 150 MB por archivo; los límites de vídeo y otros pueden variar, y las cantidades dependen de la plataforma o la suscripción. Son límites operativos aproximados, no motivos para cargarlo todo. Seleccione solo el material necesario para la pregunta, use nombres de archivo claros y proporcione un inventario breve. Confirme que la carga terminó antes de confiar en la respuesta. Nunca incluya credenciales, expedientes de estudiantes ni archivos confidenciales del trabajo en un ejercicio de práctica."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Pida ubicaciones exactas de la evidencia",
+          "body": "Para los PDF, exija números de página y etiquetas de tablas o figuras. Para las hojas de cálculo, indique la hoja, el rango, la fórmula y la unidad. Para el código, indique el archivo y el intervalo de líneas. Para audio o vídeo, pida marcas de tiempo y señale las transcripciones inciertas. Para las imágenes, pregunte qué detalle visible respalda la afirmación. Los documentos largos pueden dividirse o resumirse, y las imágenes insertadas en archivos que no sean PDF pueden pasarse por alto. Añada una comprobación de cobertura: pida a Grok que enumere lo que leyó, lo que no pudo analizar y si alguna conclusión depende de un resumen en vez del pasaje original."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Contraste todos los formatos",
+          "body": "Cree una tabla de evidencias con la afirmación, el archivo, la ubicación, el valor extraído y la comprobación independiente. Compare un total comunicado con las filas de la hoja de cálculo, un gráfico con la tabla subyacente y una declaración de la transcripción con la marca de tiempo del audio. Si un documento y un conjunto de datos discrepan, conserve el conflicto en lugar de elegir la explicación más fluida. Los ejemplos oficiales de la API muestran flujos de trabajo con archivos y colecciones, pero no validan ninguna conclusión concreta ni demuestran que existan los mismos controles en el chat para consumidores. Elimine las cargas temporales cuando sea oportuno y esté permitido por la política del entorno aplicable."
+        }
+      ],
+      "practice": {
+        "title": "Audite un paquete sintético de archivos mixtos",
+        "brief": "Utilice un PDF corto, un CSV y una imagen que contenga un desacuerdo deliberado.",
+        "prompt": "Use solo los archivos adjuntos. Primero, haga inventario de cada archivo e indique qué pudo leer realmente. Después, devuelva una tabla de afirmaciones con referencias exactas a la página del PDF, la fila y columna del CSV o la región de la imagen. Identifique todos los desacuerdos entre archivos. Recalcule un total a partir de las filas originales y describa una comprobación visual. Si no puede analizar un elemento, márquelo como no disponible en lugar de inferirlo.",
+        "steps": [
+          "Cree u obtenga un paquete público o sintético con una discrepancia conocida.",
+          "Pida un inventario antes de la interpretación y compárelo con los archivos adjuntos reales.",
+          "Recalcule personalmente un total y examine un pasaje citado y una afirmación sobre la imagen."
+        ],
+        "proof": [
+          "Una tabla de afirmaciones con referencias exactas que cubra los tres formatos y conserve la discrepancia deliberada.",
+          "Un breve registro de cobertura del análisis y de comprobaciones independientes."
+        ],
+        "safety": "Use material sintético o con licencia abierta. Elimine metadatos e identificadores antes de subirlo."
+      },
+      "checkpoint": {
+        "question": "¿Por qué debe preguntar a Grok qué analizó realmente?",
+        "answer": "Un archivo adjunto visible no garantiza que se hayan procesado todas las páginas, imágenes incrustadas, fórmulas, segmentos de audio o secciones largas. La cobertura debe verificarse explícitamente."
+      },
+      "takeaway": "Cada afirmación importante sobre un archivo necesita una ubicación precisa y una comprobación reproducible por una persona.",
+      "limit": "La compatibilidad de formatos, la cantidad de archivos, los límites de tamaño y el comportamiento del análisis varían según la plataforma y pueden cambiar."
+    },
+    "software-engineering": {
+      "kicker": "Lección 7 · Taller de ingeniería",
+      "title": "Aplique un ciclo de inspección, prueba y revisión",
+      "summary": "Use Grok Build para trabajar en un repositorio solo después de definir el alcance, los permisos, las pruebas y la reversión. Trate cada edición generada como una propuesta.",
+      "objective": "Ejecutar una tarea de programación acotada mediante inspección, planificación, edición, pruebas y revisión del diff, manteniendo los secretos y las acciones externas fuera de la autoridad concedida.",
+      "sections": [
+        {
+          "eyebrow": "Véalo",
+          "heading": "Reconozca cuándo entra en un entorno agéntico",
+          "body": "El terminal de Grok Build puede inspeccionar repositorios, editar archivos y ejecutar comandos. Su instalador público es código de red ejecutable, así que examine el script oficial vigente y la política de su organización. No es necesario instalarlo para realizar este curso. Este flujo no es completamente local: el contenido de las instrucciones y los archivos se envía a xAI para la inferencia, mientras que el historial local de sesiones se almacena en ~/.grok/. Antes de abrir un repositorio, examine /privacy o /settings. Sin ZDR a nivel de equipo, esos controles pueden desactivar la conservación de datos de código; con ZDR, xAI no conserva rastro ni datos de código. La CLI pregunta por separado si se permite conservar datos para mejorar el producto y el modelo. Nunca dé por hecho que ZDR o una exclusión están activos. Proteja el historial local. El estado always-approve de la demostración oficial no es una opción predeterminada recomendada. A diferencia de los consejos de chat, este agente puede modificar el estado. Empiece en una rama desechable o un repositorio de ejemplo. Indique el objetivo, las rutas y comandos permitidos, la política de dependencias, las acciones excluidas y el límite relativo a las credenciales. Trate cada solicitud de aprobación como una ampliación propuesta: compruebe su destino resuelto y su necesidad antes de permitirla."
+        },
+        {
+          "eyebrow": "Pruébelo",
+          "heading": "Use el ciclo de ingeniería de cinco etapas",
+          "body": "Primero inspeccione, sin editar, las instrucciones del repositorio, el código pertinente y las pruebas existentes. Después, pida un plan breve vinculado a la evidencia. Autorice el conjunto mínimo de ediciones, reoriente el trabajo si aparecen pruebas que cambian el plan y exija pruebas específicas. Por último, examine el diff real, no solo el resumen. Ejecute comprobaciones más amplias en proporción al riesgo y pruebe el comportamiento modificado desde un estado limpio. Un complemento oficial de revisión demuestra un patrón útil de segunda revisión de solo lectura; demuestra que el flujo de trabajo existe, no que un segundo modelo encuentre todos los defectos."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Entregue un paquete de evidencias de ingeniería",
+          "body": "La entrega debe incluir el resultado contratado, los archivos modificados, el resumen del diff, los comandos y resultados exactos, las limitaciones sin resolver y la vía de reversión. Un comando superado solo es creíble si es reciente, pertinente y se muestra. Una suite de pruebas puede omitir comportamientos visibles para el usuario o relevantes para la seguridad; por eso debe examinar la implementación y ejecutar los criterios de aceptación. Mantenga fuera del alcance commit, push, pull request, deploy, las modificaciones de bases de datos y los mensajes externos, salvo que se autoricen por separado. El código fuente del repositorio establece funciones implementables; no demuestra un rendimiento de programación superior."
+        }
+      ],
+      "practice": {
+        "title": "Haga un cambio seguro en un repositorio desechable",
+        "brief": "Corrija un pequeño error documentado sin depender de la red, secretos ni producción.",
+        "prompt": "OBJETIVO: Corregir [un error observable] en este repositorio desechable.\nALCANCE: Puede inspeccionar el repositorio y editar solo [rutas].\nRESTRICCIONES: Sin dependencias nuevas, secretos ni red; sin commit/push/deploy; conserve las interfaces públicas.\nPROCESO: Inspeccione primero; cite el código y las pruebas pertinentes; proponga un plan breve; después edite.\nACEPTACIÓN: [dos comportamientos].\nVERIFICACIÓN: Ejecute [prueba específica] y [comprobación más amplia], examine el diff final e informe de cualquier comprobación que no pueda ejecutar. Deténgase si necesita ampliar el alcance.",
+        "steps": [
+          "Cree una rama desechable y confirme la prueba o el comportamiento previo al cambio.",
+          "Exija una inspección y un plan antes de editar; revise después toda ampliación de permisos solicitada.",
+          "Ejecute las pruebas usted mismo y lea cada línea cambiada antes de aceptar el resultado."
+        ],
+        "proof": [
+          "Un contrato de tarea acotado, el diff final y la salida reciente de los comandos.",
+          "Una breve revisión de riesgos que señale un posible vacío de pruebas y la vía de reversión."
+        ],
+        "safety": "Nunca pruebe por primera vez la programación agéntica en un repositorio de producción. Mantenga fuera del laboratorio los secretos, los comandos destructivos y los despliegues."
+      },
+      "checkpoint": {
+        "question": "¿Cuál es el primer uso más seguro de un segundo modelo de codificación?",
+        "answer": "Una revisión de solo lectura del diff exacto y de las pruebas, seguida de un juicio humano sobre qué hallazgos atender."
+      },
+      "takeaway": "El código generado es una propuesta de parche; el diff y el comportamiento comprobado de nuevo son la evidencia.",
+      "limit": "Los repositorios oficiales demuestran flujos de trabajo compatibles, no la detección completa de defectos, la seguridad o las ganancias de productividad."
+    },
+    "research-workflow": {
+      "kicker": "Lección 8 · Taller de investigación",
+      "title": "Cree una trazabilidad de afirmaciones a fuentes",
+      "summary": "Use Grok para acelerar el descubrimiento y la organización, sin ocultar las reglas de selección, la lectura de las fuentes ni la responsabilidad sobre las inferencias.",
+      "objective": "Crear un protocolo de búsqueda reproducible, una matriz de evidencias y una síntesis acotada que distinga los hallazgos de las fuentes de las inferencias generadas por Grok.",
+      "sections": [
+        {
+          "eyebrow": "Pruébelo",
+          "heading": "Escriba un protocolo de investigación antes de buscar",
+          "body": "Indique la pregunta, los conceptos clave, el intervalo de fechas, los tipos de fuentes admisibles, las exclusiones y la regla de detención. Pida a Grok posibles cadenas de búsqueda en vez de dejar que decida el corpus en silencio. Conserve un registro de búsqueda con la consulta, el motor o entorno, la fecha y el resultado. Para trabajos académicos, pase de la cita al documento real o al registro autorizado. Para investigar políticas vigentes o productos, prefiera la página primaria actual y compare versiones fechadas. No trate un resumen en redes sociales, un fragmento de resultados ni una referencia generada como si fuera el propio artículo."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Cree una matriz de evidencias antes de redactar",
+          "body": "Para cada fuente incluida, registre la identidad, el tipo de fuente, el método o contexto, el hallazgo exacto, la página o sección, la limitación y qué afirmación puede respaldar. Añada una columna separada para las inferencias, de modo que la síntesis de Grok no pueda hacerse pasar por un resultado del autor. Pida contradicciones y poblaciones o condiciones ausentes. Los ejemplos oficiales del SDK muestran la búsqueda web y en X, herramientas de código, citas y colecciones; no validan la respuesta generada ni establecen que el producto para consumidores tenga controles idénticos. SGI-Bench muestra una forma versionada de evaluar etapas del trabajo científico, no que Grok convierta los experimentos en válidos."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Someta la síntesis a una prueba rigurosa",
+          "body": "Redacte a partir de la matriz, no de memoria. Vincule cada oración relevante con una o más filas, señale las inferencias y conserve la evidencia negativa o contradictoria. Reproduzca los cálculos de manera independiente y examine las páginas citadas. Pregunte qué evidencia refutaría la conclusión y si el corpus puede realmente responder a la pregunta. Un benchmark de resúmenes basados en fuentes informa de contenido no respaldado distinto de cero en instantáneas anteriores y limitadas; úselo solo para justificar la verificación, nunca como una tasa universal vigente. El investigador sigue siendo responsable de la interpretación, la atribución y la decisión de publicar."
+        }
+      ],
+      "practice": {
+        "title": "Cree una matriz de evidencias de cinco fuentes",
+        "brief": "Use una pregunta acotada y no sensible y al menos tres fuentes primarias.",
+        "prompt": "Ayúdeme a ejecutar este protocolo de investigación sin modificarlo en silencio. PREGUNTA: [pregunta]. INCLUSIÓN: [tipos de fuente/fecha/idioma]. EXCLUSIÓN: [reglas]. REGLA DE DETENCIÓN: [regla]. Primero, proponga cadenas de búsqueda. Cuando yo proporcione fuentes verificadas, extraiga una matriz de evidencias con la sección o página exacta, el hallazgo declarado por la fuente, la limitación y una columna separada de inferencias. No invente datos bibliográficos. Marque como no disponible todo texto completo al que no se pueda acceder.",
+        "steps": [
+          "Escriba las reglas de inclusión, exclusión y detención antes de ejecutar la primera consulta.",
+          "Abra e identifique cada fuente usted mismo; proporcione solo registros verificados al paso de matriz.",
+          "Vincule una síntesis de 250 palabras con la matriz y señale cada inferencia."
+        ],
+        "proof": [
+          "Un registro de búsqueda, una matriz de cinco fuentes y la trazabilidad de cada afirmación de la síntesis hasta una fila.",
+          "Una contradicción, una carencia de evidencia y una verificación independiente de un cálculo o una cita textual."
+        ],
+        "safety": "No cargue datos confidenciales, material inédito sometido a revisión por pares ni textos completos protegidos por derechos de autor sin autorización."
+      },
+      "checkpoint": {
+        "question": "¿Qué establece un punto de referencia de repositorio que contiene un resultado de Grok?",
+        "answer": "Solo el rendimiento con la versión, los datos, las tareas y la métrica de ese benchmark. No establece la calidad de la investigación actual en general ni los resultados en el mundo real."
+      },
+      "takeaway": "Deje que Grok ayude a organizar la evidencia, pero haga que la fuente legible por humanos sea el centro de la investigación.",
+      "limit": "Ninguna búsqueda ni benchmark sustituye la lectura de la fuente real y la evaluación de si la evidencia puede responder a la pregunta."
+    },
+    "writing-workflow": {
+      "kicker": "Lección 9 · Taller de escritura",
+      "title": "Redacte sin perder la voz, los hechos ni la autoría",
+      "summary": "Trate a Grok como un colaborador de escritura iterativo: encargo, esquema, borrador, crítica, verificación de hechos y divulgación. No es un autor de un solo clic.",
+      "objective": "Crear un encargo de escritura limitado a las fuentes, generar alternativas estructuradas, revisar con una rúbrica de voz y verificar cada afirmación factual antes de publicar.",
+      "sections": [
+        {
+          "eyebrow": "Pruébelo",
+          "heading": "Separe el encargo del borrador",
+          "body": "Defina la audiencia, el propósito, la acción deseada, la base de evidencia, los rasgos de voz, las afirmaciones prohibidas y la extensión. Proporcione ejemplos breves de una voz que le pertenezca o que pueda usar, pero no pida imitar a un escritor vivo. Solicite un esquema y un inventario de afirmaciones antes de la prosa. Un recetario oficial de xAI demuestra resultados estructurados y perfiles sintéticos en un flujo de marketing; respalda la técnica, no su eficacia. La estructura ofrece campos estables para comparar, mientras que el inventario revela dónde aún hace falta investigar."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Revise por etapas con una rúbrica visible",
+          "body": "Haga pasadas separadas para el argumento, la organización, la evidencia, la voz, la claridad de las frases y la corrección lingüística. Pida a Grok que identifique el párrafo más débil y explique qué criterio de la rúbrica incumple antes de reescribirlo. Compare dos alternativas en vez de aceptar la primera. Conserve los matices deliberados y la incertidumbre. En documentos creados mediante Skills integradas o complementos, examine la estructura editable, los comentarios, los encabezados, los enlaces y la accesibilidad, no solo el acabado visual. Mantenga un registro de cambios para que los colaboradores vean qué propuso la máquina y qué aceptó una persona."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Audite las afirmaciones y la atribución",
+          "body": "Extraiga cada nombre, fecha, cifra, cita textual y afirmación causal a una lista de comprobación. Verifique cada elemento con las fuentes permitidas y elimine los detalles que no tengan respaldo. Compruebe que tiene derecho a usar los textos y contenidos multimedia de entrada, siga las normas de divulgación del trabajo o la publicación y atribuya Grok con precisión cuando corresponda. Las directrices de marca de xAI piden una referencia exacta y prohíben sugerir su respaldo. Un borrador fluido sigue siendo responsabilidad suya: la autoría implica tomar las decisiones sustantivas, revisar las afirmaciones y responder por la publicación."
+        }
+      ],
+      "practice": {
+        "title": "Redacte y audite un informe de 400 palabras",
+        "brief": "Redacte a partir de tres fuentes públicas y una rúbrica de voz con cuatro rasgos.",
+        "prompt": "Cree un informe de 400 palabras para [público], que debe tomar esta decisión: [decisión]. Use solo las tres fuentes proporcionadas. Devuelva primero un esquema y un inventario de afirmaciones. Tras la aprobación, redacte con esta rúbrica de voz: [cuatro rasgos]. Marque cada oración factual con el ID de su fuente. No invente citas textuales ni estadísticas. Termine con una tabla de auditoría de afirmaciones y una nota de divulgación que yo pueda adaptar.",
+        "steps": [
+          "Apruebe el esquema y el inventario de afirmaciones antes de pedir la prosa.",
+          "Haga pasadas distintas para el argumento, la evidencia y la voz.",
+          "Verifique cada oración factual y compare el texto final con el encargo original."
+        ],
+        "proof": [
+          "El esbozo aprobado, el borrador inicial, las notas de revisión y el resumen final.",
+          "Una lista completa de comprobación de hechos y una nota adecuada de autoría y divulgación."
+        ],
+        "safety": "Use textos que le pertenezcan o que esté autorizado a procesar. No pida a Grok que suplante a una persona real ni oculte una contribución sustancial de IA cuando deba declararse."
+      },
+      "checkpoint": {
+        "question": "¿Por qué conviene pedir un inventario de afirmaciones antes del borrador completo?",
+        "answer": "Expone necesidades factuales sin respaldo cuando la estructura aún es fácil de cambiar y evita que la prosa pulida oculte vacíos de evidencia."
+      },
+      "takeaway": "La buena escritura asistida por IA es una secuencia de decisiones humanas con un rastro visible de evidencia y revisiones.",
+      "limit": "Los ejemplos oficiales de escritura demuestran un flujo de trabajo, no el efecto sobre la audiencia, la originalidad ni que el texto esté listo para publicarse."
+    },
+    "office-workflow": {
+      "kicker": "Lección 10 · Taller de oficina",
+      "title": "Trabaje con seguridad en documentos, hojas, presentaciones y correo",
+      "summary": "Mantenga visible el alcance dentro de los archivos de oficina: seleccione el rango exacto, conserve las fórmulas y las fuentes, revise el diseño y prepare siempre un borrador antes de enviar.",
+      "objective": "Completar un flujo de trabajo auditable desde una hoja de cálculo hasta un informe breve, con comprobaciones de fórmulas, fuentes, formato, accesibilidad y destinatarios.",
+      "sections": [
+        {
+          "eyebrow": "Véalo",
+          "heading": "Vincule las solicitudes de oficina al material activo",
+          "body": "La demostración oficial de Excel muestra un rango seleccionado del libro y el panel lateral de Grok leyendo datos, creando un gráfico y explicando su análisis. También ofrece una oportunidad de auditoría: el panel afirma que las devoluciones representan menos del 2% de las ventas. Al usar las filas visibles Returns and allowances y Cash sales se obtienen 8.0%, 5.5% y 5.3% por mes; por tanto, la afirmación no está respaldada salvo que se defina otro denominador. Haga explícito el alcance en cada solicitud: libro, hoja, rango, encabezados, estado oculto o filtrado, unidad y cálculo previsto. Las Skills de Word, presentaciones y hojas de cálculo pueden crear artefactos editables; PDF Skill puede crear o transformar archivos PDF. Los complementos de Microsoft 365 y el complemento de Google Workspace trabajan directamente dentro de sus aplicaciones anfitrionas y archivos editables. Estas demostraciones del proveedor establecen las acciones anunciadas, no su corrección, accesibilidad ni ahorro de tiempo. Conserve siempre una copia intacta de la fuente y una versión reversible."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Audite el artefacto, no solo la prosa",
+          "body": "En las hojas de cálculo, examine fórmulas, referencias, filtros, hojas ocultas, celdas combinadas, totales y rangos de gráficos; vuelva a calcular de forma independiente las cifras relevantes. En los documentos, compruebe encabezados, control de cambios, citas, enlaces y paginación. En las presentaciones, compruebe el orden de lectura, el contraste, el tamaño de letra, el texto alternativo y si las imágenes respaldan realmente el mensaje. Para el correo, resuma primero, redacte después y verifique destinatarios, compromisos, adjuntos y tono. No envíe nada solo porque aparezca un borrador en el panel lateral."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Diagnostique el flujo de trabajo por capas",
+        "body": "Si falla un complemento o una automatización, aísle el archivo de entrada, la respuesta de Grok, el conector, la aplicación anfitriona y el flujo completo. Registre las versiones y el error exacto. La documentación de terceros de n8n muestra una vía de credenciales e integración con xAI; no acredita la fiabilidad de extremo a extremo ni convierte cada fallo en un fallo del modelo Grok. Pruebe un caso mínimo e inocuo antes de ampliar el alcance. Guarde los secretos en almacenes de credenciales autorizados, no en instrucciones ni celdas, y revise todos los archivos resultantes tras exportarlos, porque una llamada de generación correcta no demuestra la integridad del archivo."
+        }
+      ],
+      "practice": {
+        "title": "Convierta un libro sintético en una nota ejecutiva",
+        "brief": "Analice un rango explícito, verifique las fórmulas y cree un informe reversible.",
+        "prompt": "Use solo el libro [nombre], la hoja [hoja] y el rango [rango]. Indique cualquier limitación observable por datos ocultos o filtrados o por celdas combinadas. Calcule [métrica] con operaciones vinculadas a celdas, cree un gráfico adecuado y redacte una nota de 200 palabras para [público]. No modifique celdas fuera del rango. Devuelva una auditoría de fórmulas, el rango de origen del gráfico, tres afirmaciones relevantes con referencias a celdas y una lista de cambios para aprobación humana.",
+        "steps": [
+          "Use un libro sintético con un error deliberado de fórmula y conserve el original.",
+          "Indique el rango y el cálculo exactos; compare el resultado de Grok con un cálculo manual.",
+          "Revise el rango de gráficos, fórmulas, prosa, accesibilidad y archivo final antes de aceptar cualquier edición."
+        ],
+        "proof": [
+          "Un libro de trabajo antes/después o una lista de cambios, cálculo manual y auditoría de fórmulas.",
+          "Una nota de 200 palabras cuyas tres afirmaciones relevantes enlacen con celdas exactas."
+        ],
+        "safety": "Utilice datos comerciales sintéticos. Mantenga fuera del ejercicio los envíos, el intercambio, la eliminación y las actualizaciones de sistemas reales."
+      },
+      "checkpoint": {
+        "question": "¿Qué debe especificarse primero en una solicitud para Excel?",
+        "answer": "El libro, la hoja, el rango y el estado exacto de los datos, seguidos del cálculo previsto y el método de validación independiente."
+      },
+      "takeaway": "El trabajo de oficina es fiable cuando cada afirmación generada se puede rastrear hasta un artefacto editable y revisable.",
+      "limit": "La disponibilidad de complementos y la política de organización varían, y la generación exitosa no prueba fórmulas, diseño o integridad de archivos."
+    },
+    "teaching-workflow": {
+      "kicker": "Lección 11 · Taller de enseñanza",
+      "title": "Diseñe el aprendizaje, no solo el contenido de la lección",
+      "summary": "Utilice Grok para prototipar explicaciones y actividades, mientras que el educador conserva la responsabilidad de los objetivos, la precisión, la accesibilidad, la validez de la evaluación y el bienestar del estudiante.",
+      "objective": "Diseñar una breve secuencia didáctica alineada con materiales públicos o sintéticos, validar el contenido y la accesibilidad, y excluir los datos personales identificables de estudiantes y las decisiones automatizadas de alto riesgo.",
+      "sections": [
+        {
+          "eyebrow": "Pruébelo",
+          "heading": "Parta de un objetivo de aprendizaje observable",
+          "body": "Indique qué deben hacer los estudiantes, en qué condiciones y cómo se observará el éxito. Pida a Grok una comprobación de requisitos previos, un ejemplo resuelto, práctica guiada, una tarea independiente y una evaluación formativa alineadas con ese objetivo. Solicite errores conceptuales frecuentes y ejemplos contrastivos. OpenMAIC, un sistema educativo de código abierto, admite Grok como proveedor dentro de un flujo de prototipado de lecciones con varios componentes. Eso establece la integración técnica, no que Grok haya creado cada demostración ni mejorado los resultados de aprendizaje."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Revise el contenido y la accesibilidad como docente",
+          "body": "Verifique cada hecho con el currículo y fuentes disciplinares fiables. Resuelva personalmente cada problema, confirme las claves de respuestas y someta los distractores a una revisión rigurosa. Examine el nivel de lectura, la carga lingüística, los supuestos culturales, la representación, la dependencia del color, el texto alternativo y el acceso mediante teclado o lector de pantalla. Pregunte si la actividad provoca el razonamiento previsto o si solo produce un artefacto pulido. Adapte la enseñanza a evidencia real del estudiante; no permita que una planificación generada sustituya su conocimiento profesional de la clase. Las funciones de voz y multimodales pueden apoyar la práctica, pero las afirmaciones oficiales de disponibilidad no demuestran la precisión de la pronunciación ni la eficacia didáctica."
+        },
+        {
+          "eyebrow": "Conozca el límite",
+          "heading": "Mantenga los datos de los estudiantes y las decisiones de alto impacto bajo gobernanza humana",
+          "body": "No suba nombres, expedientes, información sobre discapacidades, anotaciones de conducta ni trabajos identificables de estudiantes a un ejercicio con el producto para consumidores. Use perfiles inventados y ejemplos desidentificados que su institución haya autorizado. No delegue en Grok calificaciones, asignación de nivel, disciplina, admisiones ni otras decisiones educativas de alto impacto. La retroalimentación formativa debe ser revisada, impugnable y proporcionada. La política de uso aceptable es solo un límite; las normas del centro, el consentimiento, la protección del menor, la accesibilidad y la legislación local pueden ser más estrictos."
+        }
+      ],
+      "practice": {
+        "title": "Prototipe una lección formativa de 20 minutos",
+        "brief": "Alinee un objetivo, dos ejemplos, práctica guiada y una prueba de salida; después, audite el diseño.",
+        "prompt": "Diseñe una lección formativa de 20 minutos para el grupo ficticio de estudiantes descrito a continuación. Incluya: un objetivo observable; comprobación de requisitos previos; ejemplo resuelto; práctica guiada con apoyo que se retire gradualmente; tarea independiente; prueba de salida de tres preguntas; justificación de las respuestas; errores conceptuales frecuentes; adaptaciones de accesibilidad; y puntos de revisión docente. Use solo la fuente curricular proporcionada. No infiera ni solicite datos reales de estudiantes. Grupo: [grupo ficticio]. Fuente: [fragmento de currículo público].",
+        "steps": [
+          "Use un extracto del currículo público y un grupo de aprendizaje inventado.",
+          "Resuelva cada elemento y vincúlelo de nuevo con el objetivo y la fuente.",
+          "Realice una revisión de accesibilidad, sesgo, validez de evaluación y privacidad de datos antes del uso en el aula."
+        ],
+        "proof": [
+          "Una tabla de alineación objetivo-actividad-evaluación y una clave de respuesta corregida.",
+          "Un registro de revisión docente que indique al menos un cambio y una decisión reservada a personas."
+        ],
+        "safety": "No use datos personales identificables (PII) de estudiantes, expedientes reales ni decisiones educativas autónomas de alto riesgo. Respete las autorizaciones de la institución y las normas de protección."
+      },
+      "checkpoint": {
+        "question": "¿Qué demuestra el apoyo de Grok en una plataforma de enseñanza de código abierto?",
+        "answer": "Solo demuestra que el proveedor puede integrarse en ese sistema. No demuestra mejoras de aprendizaje, que Grok haya impulsado cada demostración ni que los materiales generados sean didácticamente válidos."
+      },
+      "takeaway": "Grok puede acelerar el prototipado de lecciones; el docente sigue siendo responsable del diseño del aprendizaje y de cada decisión de alto impacto.",
+      "limit": "Aquí no hay una base creíble para afirmar que mejoran las calificaciones o los resultados de aprendizaje. Evalúe la enseñanza con evidencia de los estudiantes."
+    },
+    "imagine-multimodal": {
+      "kicker": "Lección 12 · Creación",
+      "title": "Cree y edite contenidos multimedia con procedencia",
+      "summary": "Diseñe imágenes y videos a partir de una especificación visual, use solo referencias autorizadas, conserve la procedencia y revise el resultado para verificar la precisión, la identidad y la accesibilidad.",
+      "objective": "Escribir una especificación de medios lista para producción, iterar con cambios controlados y entregar un registro de recursos con permisos verificados, texto alternativo y notas de revisión.",
+      "sections": [
+        {
+          "eyebrow": "Véalo",
+          "heading": "Entienda Imagine como un entorno de producción",
+          "body": "La página activa de Imagine muestra modos de imagen, vídeo y agente, además de controles de velocidad o calidad, cantidad y proporción. La plantilla de edición de fotos añade un flujo para cargar una referencia y aplicar transformaciones guiadas. Empiece por el destino: audiencia, formato, relación de aspecto, elemento principal, composición, iluminación, color, restricciones de texto y elementos que deben evitarse. Genere variaciones con la misma especificación y cambie después una sola variable cada vez. Los anuncios vigentes de Image 2.0 y Video 1.5 describen funciones avanzadas de edición y referencias, pero la disponibilidad puede variar según la cuenta y la versión."
+        },
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Revise los derechos, la identidad y las señales factuales",
+          "body": "Use únicamente imágenes de referencia, voces y personajes que le pertenezcan o que esté autorizado a utilizar, con el consentimiento adecuado. Evite la suplantación engañosa y las inferencias sensibles sobre la identidad. Examine las manos, el texto, los logotipos, los mapas, los gráficos, los detalles históricos y cualquier elemento visual que pueda interpretarse como evidencia. Una imagen generada no es un registro documental. Conserve toda marca de agua o señal de procedencia, guarde la instrucción y los ajustes, y etiquete los medios generados o editados en el contexto donde los verá el público. Nunca elimine una atribución solo para que el resultado parezca más auténtico."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Entregue un registro accesible de recursos",
+          "body": "Registre los derechos de las fuentes y referencias, la fecha de generación, los ajustes visibles, la instrucción, el historial de edición, el resultado elegido y por qué fallaron las variaciones descartadas. Escriba un texto alternativo conciso que comunique el propósito de la imagen, no cada píxel. Compruebe el contraste y la legibilidad en el tamaño final de presentación, y ofrezca una alternativa textual para toda información transmitida por un gráfico o diagrama. Las directrices de marca exigen un uso referencial preciso y no permiten sugerir el respaldo de xAI; tampoco otorgan una licencia general sobre materiales de origen ajenos."
+        }
+      ],
+      "practice": {
+        "title": "Cree una campaña visual accesible",
+        "brief": "Use un acontecimiento ficticio, no una persona real, una marca ni un personaje protegido por derechos de autor.",
+        "prompt": "Cree una imagen original para este evento ficticio: [evento]. Público: [público]. Propósito: [propósito]. Formato y proporción: [formato]. Composición: [sujeto, jerarquía y espacio negativo]. Estilo: [descriptores propios o generales, sin citar a un artista vivo]. Texto obligatorio: [texto mínimo]. Evite personas reales, marcas, personajes protegidos por derechos de autor, datos engañosos y texto ilegible. Devuelva tres variaciones y una breve autoauditoría de derechos, señales factuales, representación y accesibilidad.",
+        "steps": [
+          "Escriba la especificación y los límites de derechos antes de generar.",
+          "Compare tres variaciones con una rúbrica fija y edite solo una variable a la vez.",
+          "Conserve la procedencia y prepare un texto alternativo y un registro de recursos."
+        ],
+        "proof": [
+          "La instrucción, los ajustes, el resultado elegido, las notas sobre variaciones descartadas y el historial de edición.",
+          "Una declaración de derechos y fuentes, una lista de control de calidad visual y un texto alternativo orientado al propósito."
+        ],
+        "safety": "No use personas identificables ni voces o referencias no autorizadas. Conserve las marcas de agua y no presente medios generados como evidencia real."
+      },
+      "checkpoint": {
+        "question": "¿Por qué conservar el registro y el historial de edición de una imagen generada?",
+        "answer": "Hacen posible la procedencia, la revisión de derechos, la reproducibilidad y las correcciones posteriores; los píxeles finales por sí solos no pueden mostrar cómo se produjo el activo."
+      },
+      "takeaway": "Trate los medios generados como un artefacto diseñado y atribuido, no como una fotografía de la realidad.",
+      "limit": "Los controles de las funciones y su disponibilidad por niveles pueden cambiar; generar contenido no resuelve cuestiones de derechos de autor, consentimiento ni uso factual."
+    },
+    "connect-automate": {
+      "kicker": "Lección 13 · Delegación",
+      "title": "Conéctese y automatice con el mínimo privilegio",
+      "summary": "Un conector cambia lo que Grok puede ver; una automatización cambia cuándo actúa. Diseñe ambos con alcances mínimos, pruebas sintéticas, aprobaciones humanas y un historial de ejecución examinable.",
+      "objective": "Auditar los alcances de los conectores, configurar una automatización de bajo riesgo, verificar el resultado de Run now y conservar el control humano sobre las acciones de envío, eliminación y escritura externa.",
+      "sections": [
+        {
+          "eyebrow": "Examínelo",
+          "heading": "Lea el alcance de OAuth como un contrato de capacidad",
+          "body": "La documentación vigente de xAI enumera conectores para correo, calendarios, archivos en la nube, código, herramientas de gestión de proyectos y otros servicios. Que estén disponibles no significa que todos sean de solo lectura. Examine la pantalla OAuth real y distinga los permisos para leer, crear, modificar, enviar, mover a la papelera y eliminar. Empiece con la cuenta, el conjunto de datos y el alcance más restringidos, preferiblemente en un entorno aislado. Documente quién lo autorizó y cómo revocarlo. La página vigente del conector de Google Drive indica que los datos de Drive se consultan en tiempo real, no se conservan después y no se usan para el entrenamiento. Trátelo como una afirmación específica de ese servicio, no como una promesa para todos los conectores, y cumpla también las obligaciones de conservación y las políticas del servicio conectado."
+        },
+        {
+          "eyebrow": "Pruébelo",
+          "heading": "Cree una primera automatización reversible",
+          "body": "Elija una tarea programada de bajo riesgo, como un informe basado en entradas públicas o sintéticas. Escriba el contrato de tarea, las fuentes permitidas, la ubicación del resultado, el comportamiento ante fallos y las condiciones de detención. Use Run now antes de activar una programación. Examine la conversación guardada y el historial de ejecución, verifique enlaces y cálculos, y pruebe después los controles de pausa, edición y eliminación. La guía oficial indica que las automatizaciones programadas están ampliamente disponibles, mientras que los activadores por correo electrónico requieren SuperGrok; trátelo como una prestación fechada y compruébelo en su cuenta. Cada ejecución produce un resultado que aún debe revisar."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Mantenga las acciones importantes tras una aprobación humana",
+          "body": "Use por defecto «redactar antes de enviar» y «proponer antes de eliminar». Exija una confirmación que muestre el destinatario exacto, el objeto y el efecto irreversible. Fije una frecuencia máxima, un límite de costes o uso y una vía de notificación. Trate el contenido conectado como datos no fiables: un correo, documento o issue puede contener texto que intente desviar al agente. Deténgase ante instrucciones contradictorias, fuentes ausentes, cambios de autenticación o un alcance inesperado. Desconecte el conector de práctica después del laboratorio y registre la revocación."
+        }
+      ],
+      "practice": {
+        "title": "Programe un informe matutino sintético",
+        "brief": "Use fuentes públicas o una cuenta aislada, sin permisos de envío ni eliminación.",
+        "prompt": "Cree un informe matutino en modo borrador a las [horario] a partir de estas fuentes públicas o sintéticas autorizadas: [fuentes]. Incluya la fecha, enlaces a las fuentes, tres hechos verificados, una incertidumbre y un aviso de fuente fallida. Nunca envíe, elimine, invite, publique ni modifique una fuente. Deténgase si cambia la autenticación, el alcance o la identidad de una fuente. Antes de programarlo, muestre el resultado de Run now y los permisos exactos del conector para que yo los apruebe.",
+        "steps": [
+          "Haga inventario de cada alcance OAuth solicitado y elimine el acceso de escritura.",
+          "Ejecute una vez, examine las citas y el historial, y active después una programación de corta duración.",
+          "Ponga en pausa la automatización, revoque el conector de práctica y registre ambas acciones."
+        ],
+        "proof": [
+          "Un inventario de alcances, el contrato de tarea, el resultado de Run now y un registro de verificación de fuentes.",
+          "Un registro del historial de ejecución y evidencia de que la programación se puso en pausa y el conector se revocó."
+        ],
+        "safety": "Use un entorno aislado o fuentes públicas. Mantenga desactivadas las acciones de enviar, eliminar, invitar, publicar y escribir en producción."
+      },
+      "checkpoint": {
+        "question": "¿Qué debe ocurrir antes de activar una programación recurrente?",
+        "answer": "Ejecute una vez el flujo de trabajo exacto, examine las fuentes y los resultados, confirme los alcances y las condiciones de detención, y active después solo una programación reversible."
+      },
+      "takeaway": "Conecte los datos mínimos, automatice la acción mínima y haga revisable cada paso de alto impacto.",
+      "limit": "Los alcances de los conectores, las prestaciones de los planes y las políticas de servicios externos cambian; examine cada vez la pantalla de autorización activa."
+    },
+    "capstone": {
+      "kicker": "Lección 14 · Integración",
+      "title": "Complete un flujo de trabajo de Grok auditable",
+      "summary": "Aplique el ciclo completo de delimitar, fundamentar, generar, verificar y actuar a una tarea profesional, y entregue un paquete de portafolio que otra persona pueda reproducir.",
+      "objective": "Entregar un flujo de trabajo seguro con un artefacto o código basado en evidencia, junto con su trazabilidad de fuentes, verificaciones, revisión de privacidad, limitaciones y registro de decisiones humanas.",
+      "sections": [
+        {
+          "eyebrow": "Pruébelo",
+          "heading": "Elija una vía acotada y registre de antemano los criterios de éxito",
+          "body": "Elija ingeniería de software, investigación, escritura, trabajo de oficina o enseñanza. Defina un resultado observable que pueda lograr con datos públicos o sintéticos en 90 minutos. Escriba el contrato de tarea de seis partes y la decisión sobre el entorno. Haga inventario de los datos, permisos y referencias antes de usarlos. Prerregistre al menos tres criterios de aceptación y las comprobaciones exactas que los pondrán a prueba. Si usa el terminal Grok Build, trabaje en un repositorio desechable. Si usa el modo Build de la web o las aplicaciones móviles, mantenga la aplicación en vista previa mientras la examina. La guía oficial vigente indica que cada aplicación publicada recibe una dirección grok.me y permite elegir entre solo usted, cualquiera que tenga el enlace o todo internet. Trate Publish y el ajuste de acceso elegido como un límite de uso compartido externo: compruebe la dirección resuelta y el público antes de finalizar. Si usa archivos o un complemento, conserve los originales. Si usa un conector, manténgalo en modo de solo lectura y revóquelo al terminar."
+        },
+        {
+          "eyebrow": "Demuéstrelo",
+          "heading": "Ensamble el paquete de evidencias",
+          "body": "Incluya el contrato inicial, la observación fechada de la interfaz o el modo, el registro de fuentes, el registro de instrucciones y revisiones, el artefacto final o el diff, las comprobaciones independientes y cualquier comprobación fallida. Para investigación o escritura, vincule cada afirmación relevante con sus fuentes. Para hojas de cálculo, muestre las fórmulas y las comprobaciones de celdas. Para enseñanza, muestre la alineación y la revisión docente. Para código, incluya el diff y la salida de pruebas nuevas. Añada una revisión de privacidad y derechos, declare la contribución sustancial de la IA e indique qué sigue siendo incierto. No embellezca la historia ocultando un intento fallido: el análisis posterior al fallo forma parte de la evidencia."
+        },
+        {
+          "eyebrow": "Consérvelo",
+          "heading": "Registre la decisión humana final",
+          "body": "Concluya con «aceptar», «revisar» o «rechazar», y explique la evidencia que sustenta esa decisión. Indique qué hizo Grok, qué comprobó la persona y qué no verificó nadie. Si una acción afectaría a otra persona o sistema, muestre el punto de aprobación y el destino concreto. Archive solo el material que esté autorizado a conservar, elimine las entradas sensibles o temporales y revoque el acceso de práctica. Fije una fecha de revisión para las afirmaciones o capturas que puedan quedar obsoletas. Un buen proyecto final demuestra un proceso auditable, no que Grok sea universalmente preciso o superior."
+        }
+      ],
+      "practice": {
+        "title": "Entregue el portafolio del flujo de trabajo con Grok",
+        "brief": "Cree un paquete compacto y reproducible y puntúelo con la rúbrica del proyecto final.",
+        "prompt": "Audite mi paquete final asistido por Grok con esta rúbrica, sin completar los vacíos de evidencia: (1) resultado observable; (2) justificación del entorno y los datos; (3) trazabilidad de fuentes; (4) verificación de afirmaciones o comportamientos relevantes; (5) revisión de privacidad, permisos y derechos; (6) limitaciones y comprobaciones fallidas; (7) decisión humana final. Para cada elemento, devuelva aprobado / revisar / ausente, cite el elemento exacto del paquete y proponga la siguiente acción mínima. No dé por realizado ningún paso basándose en una prosa pulida.",
+        "steps": [
+          "Prerregistre el resultado, el alcance, el límite de evidencia, tres criterios de aceptación y sus comprobaciones.",
+          "Complete el flujo de trabajo mientras guarda las instrucciones, las fuentes, las decisiones intermedias y los resultados fechados.",
+          "Realice comprobaciones independientes, complete la rúbrica de siete partes y tome la decisión final de aceptar, revisar o rechazar."
+        ],
+        "proof": [
+          "Contrato de tarea, registro de fuentes, registro de instrucciones y revisiones, artefacto final o diff, y evidencia de verificaciones nuevas.",
+          "Revisión de privacidad y derechos, limitaciones, análisis posterior al fallo y decisión humana firmada."
+        ],
+        "safety": "El proyecto final debe usar datos públicos o sintéticos, acciones reversibles y ninguna decisión autónoma de alto impacto."
+      },
+      "checkpoint": {
+        "question": "¿Qué hace que un resultado asistido por Grok esté listo para el portafolio?",
+        "answer": "Otra persona puede rastrear la tarea, las fuentes, los permisos, el trabajo generado, las comprobaciones, los fallos, las limitaciones y la decisión humana final sin tener que confiar en lo que afirma Grok."
+      },
+      "takeaway": "Un uso excelente no busca la generación más impresionante, sino el resultado más útil cuyas evidencias y límites sigan siendo examinables.",
+      "limit": "Completar el proceso demuestra un flujo de trabajo acotado. No valida Grok para todos los ámbitos, poblaciones ni decisiones de alto impacto."
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "Página principal de Grok en la web sin sesión iniciada, con el cuadro de redacción central, el control de adjuntos y el selector de modo.",
+      "caption": "Cuadro de redacción activo de Grok en la web, capturado el 23 de agosto de 2026. La pantalla sin sesión iniciada no contiene datos de cuentas ni conversaciones.",
+      "callouts": {
+        "composer": "Escriba aquí el contrato de la tarea",
+        "attach": "Adjunte solo el material necesario y permitido",
+        "mode": "Elija la profundidad según la tarea, no por prestigio"
+      }
+    },
+    "fig-02": {
+      "alt": "Menú de modo web Grok que muestra las opciones Fast, Auto, Expert, Heavy y Build con etiquetas de modelo fechadas.",
+      "caption": "Menú de modos activo, capturado el 23 de agosto de 2026. Las etiquetas visibles son evidencia de esta instantánea de la interfaz, no una tabla permanente de prestaciones.",
+      "callouts": {
+        "fast": "Fast y Auto para tareas habituales o dirigidas automáticamente",
+        "expert": "Los modos más profundos aún requieren verificación externa",
+        "build": "Aquí, Build es el modo para crear aplicaciones en el producto para consumidores, mostrado con Grok 4.6"
+      }
+    },
+    "fig-03": {
+      "alt": "Menú de adjuntos de Grok con las opciones Cargar un archivo, Reciente y Proyecto.",
+      "caption": "Menú de archivos adjuntos en vivo, capturado el 23 de agosto de 2026. Confirme lo que se cargó y analizó antes de confiar en una respuesta.",
+      "callouts": {
+        "upload": "Cargue el conjunto de archivos relevante más pequeño",
+        "recent": "Compruebe la identidad antes de reutilizar un archivo reciente",
+        "project": "Un proyecto modifica los límites del contexto"
+      }
+    },
+    "fig-04": {
+      "alt": "Ajustes oficiales de datos de Grok en la web, con controles para mejorar el modelo, personalizar con X, descargar datos y eliminar la cuenta.",
+      "caption": "Figura oficial de xAI sobre los ajustes de datos de la web, verificada el 23 de agosto de 2026. Los controles de X y grok.com son independientes.",
+      "callouts": {
+        "training": "Elegir si los datos del consumidor mejoran el modelo",
+        "personalise": "La personalización con datos X es un control separado",
+        "export-delete": "La descarga y la eliminación son acciones a nivel de cuenta"
+      }
+    },
+    "fig-05": {
+      "alt": "Panel oficial de uso de SuperGrok, con uso semanal y secciones de chat, Imagine, Build, voz y créditos adicionales.",
+      "caption": "Figura oficial del panel de uso para consumidores, verificada el 23 de agosto de 2026. Los cupos, límites y nombres de planes pueden cambiar.",
+      "callouts": {
+        "pool": "Una vista de uso semanal compartido",
+        "surfaces": "Varios entornos del producto consumen el cupo",
+        "credits": "Los créditos adicionales son una decisión de facturación por separado"
+      }
+    },
+    "fig-06": {
+      "alt": "Interfaz oficial del terminal Grok Build con una tarea de programación, un registro de trabajo en ejecución y una barra de estado.",
+      "caption": "Interfaz oficial de xai-org/grok-build en la revisión fijada 19d42e3, verificada el 23 de agosto de 2026. El estado always-approve visible en la demostración no es una opción predeterminada recomendada.",
+      "callouts": {
+        "task": "Una tarea de repositorio limitada",
+        "worklog": "Examine las acciones y la evidencia de los comandos mientras trabaja",
+        "status": "La demostración muestra always-approve; elija los permisos según el riesgo de la tarea"
+      }
+    },
+    "fig-07": {
+      "alt": "Demostración oficial del complemento de Grok para Excel con un libro sintético de cobros, datos seleccionados y el panel de análisis de Grok.",
+      "caption": "Fotograma de la demostración oficial del complemento de Excel, verificado el 23 de agosto de 2026. El libro sintético ofrece un ejercicio útil de auditoría: sin otro denominador, los valores visibles no respaldan la afirmación del panel de que las devoluciones representan menos del 2% de las ventas.",
+      "callouts": {
+        "range": "Indique y examine el rango exacto del libro",
+        "trace": "Lea el rastro de herramientas y cambios",
+        "analysis": "Cuestione la afirmación del 2%: las filas visibles dan 8.0%, 5.5% y 5.3% de las ventas en efectivo"
+      }
+    },
+    "fig-08": {
+      "alt": "Página principal activa de Grok Imagine con una instrucción multimedia, modos de imagen, vídeo y agente, controles de calidad y proporción, y galería de plantillas.",
+      "caption": "Interfaz activa de Grok Imagine, capturada el 23 de agosto de 2026. Los controles y la disponibilidad pueden variar según el plan o una versión posterior.",
+      "callouts": {
+        "prompt": "Escriba una especificación de producción visual",
+        "mode": "Elija un flujo de imagen, vídeo o agente",
+        "controls": "Registre los ajustes de calidad, cantidad y proporción"
+      }
+    },
+    "fig-09": {
+      "alt": "Plantilla activa de edición de fotos de Grok Imagine, con opciones para cargar y editar una referencia.",
+      "caption": "Plantilla activa de edición de fotos, capturada el 23 de agosto de 2026. Use solo referencias para las que tenga permiso y consentimiento.",
+      "callouts": {
+        "reference": "Cargar una referencia autorizada",
+        "presets": "Tratar los ajustes preestablecidos como puntos de partida",
+        "review": "Inspeccione la identidad, los derechos y las señales fácticas"
+      }
+    },
+    "fig-10": {
+      "alt": "Página de acceso Grok Build en vivo con guía de instalación de terminal.",
+      "caption": "Página activa de acceso a Grok Build, capturada el 23 de agosto de 2026. La instalación y el acceso según el plan pueden cambiar.",
+      "callouts": {
+        "access": "Confirmar el acceso actual en la página oficial",
+        "install": "Inspeccione cualquier comando de instalación antes de ejecutarlo",
+        "boundaries": "Establezca primero los límites de repositorio, permiso, secreto y acción"
+      }
+    }
+  },
+  "quiz": {
+    "q1": {
+      "question": "Necesita un agente de repositorio que pueda editar archivos y ejecutar pruebas. ¿Qué evidencia es más relevante?",
+      "options": [
+        "Una captura del chat para consumidores",
+        "La documentación vigente de Grok Build y el repositorio fijado a una versión",
+        "Una publicación de X sobre Grok",
+        "Solo una página de precios de la API"
+      ],
+      "correctIndex": 1,
+      "explanation": "Grok Build es el entorno agéntico con contexto del repositorio. La evidencia debe corresponder al entorno exacto y a su autoridad para actuar."
+    },
+    "q2": {
+      "question": "¿Cuál es la mejor manera de comparar los modos Fast y Expert?",
+      "options": [
+        "Elegir la respuesta más larga",
+        "Preguntar qué modo es más inteligente",
+        "Mantener constante una tarea pública y puntuar criterios examinables",
+        "Tratar la etiqueta del modelo como una puntuación de calidad"
+      ],
+      "correctIndex": 2,
+      "explanation": "Una tarea controlada, una rúbrica predefinida y comprobaciones externas proporcionan evidencia; la verbosidad y las etiquetas no lo hacen."
+    },
+    "q3": {
+      "question": "Ha desactivado la mejora del modelo en grok.com. ¿Qué puede concluir sobre Grok en X?",
+      "options": [
+        "X también queda excluido",
+        "Nada; X tiene controles separados que deben verificarse",
+        "Todos los datos pasados se eliminaron instantáneamente",
+        "La retroalimentación nunca puede ser utilizada"
+      ],
+      "correctIndex": 1,
+      "explanation": "Los dos entornos tienen ajustes y políticas independientes. Cambiar un control no demuestra que el otro haya cambiado."
+    },
+    "q4": {
+      "question": "¿Qué elemento pertenece a los criterios de aceptación en lugar del formato de salida?",
+      "options": [
+        "Usar una tabla de tres columnas",
+        "Escribir en inglés",
+        "Cada afirmación relevante está respaldada por una fuente primaria que se ha abierto",
+        "Usar 400 palabras"
+      ],
+      "correctIndex": 2,
+      "explanation": "El respaldo de las fuentes es una condición observable de calidad; las columnas, el idioma y la extensión describen la presentación."
+    },
+    "q5": {
+      "question": "Una respuesta de Grok incluye una cita. ¿Cuál es el siguiente paso?",
+      "options": [
+        "Aceptar la afirmación",
+        "Contar la cita como confirmación independiente",
+        "Abrirla y comprobar la identidad, el respaldo, el alcance, la fecha y el contexto",
+        "Pedir a Grok el razonamiento oculto"
+      ],
+      "correctIndex": 2,
+      "explanation": "Un marcador de cita es solo una pista. La verificación exige examinar la fuente en el nivel de cada afirmación."
+    },
+    "q6": {
+      "question": "Se adjunta un DOCX y Grok discute su texto pero no un diagrama incrustado. ¿Cuál es la mejor respuesta?",
+      "options": [
+        "Suponer que el diagrama era irrelevante",
+        "Pedir un inventario de cobertura y aportar el diagrama como imagen compatible o PDF",
+        "Cargar más archivos no relacionados",
+        "Aceptar el resumen"
+      ],
+      "correctIndex": 1,
+      "explanation": "Las imágenes insertadas en documentos que no sean PDF pueden pasarse por alto. Compruebe la cobertura del análisis y aporte la imagen explícitamente."
+    },
+    "q7": {
+      "question": "¿Qué debe revisar antes de aceptar un cambio de código Grok Build?",
+      "options": [
+        "Solo el resumen final",
+        "La etiqueta de modo",
+        "El diff real, las pruebas ejecutadas de nuevo, el comportamiento exigido por la aceptación y los riesgos restantes",
+        "El número de estrellas del repositorio"
+      ],
+      "correctIndex": 2,
+      "explanation": "El código modificado y el comportamiento comprobado de nuevo son evidencia; los resúmenes y la popularidad no lo son."
+    },
+    "q8": {
+      "question": "¿Qué establece una puntuación de SGI-Bench para una versión fechada de Grok?",
+      "options": [
+        "Grok mejora la productividad científica",
+        "El rendimiento de esa versión del modelo con los datos, las tareas y la métrica del benchmark",
+        "Validez de laboratorio",
+        "Calidad de la investigación universal actual"
+      ],
+      "correctIndex": 1,
+      "explanation": "Las conclusiones del benchmark deben limitarse a la instantánea del modelo y a la metodología evaluadas."
+    },
+    "q9": {
+      "question": "¿Por qué crear un inventario de afirmaciones antes de redactar?",
+      "options": [
+        "Garantiza originalidad",
+        "Expone las necesidades de evidencia antes de que la prosa oculte las brechas",
+        "Elimina la necesidad de un autor humano",
+        "Demuestra que la audiencia responderá"
+      ],
+      "correctIndex": 1,
+      "explanation": "El inventario hace visibles los hechos sin respaldo cuando la estructura todavía es fácil de revisar."
+    },
+    "q10": {
+      "question": "Grok crea correctamente un gráfico de Excel. ¿Qué sigue siendo necesario?",
+      "options": [
+        "Nada",
+        "Solo revisar el estilo visual",
+        "Comprobar fórmulas, filtros, rango de origen, unidades, accesibilidad e integridad del archivo exportado",
+        "Enviar el libro inmediatamente"
+      ],
+      "correctIndex": 2,
+      "explanation": "Una generación correcta no valida el análisis, la estructura del artefacto ni la calidad de la comunicación."
+    },
+    "q11": {
+      "question": "¿Qué uso de la enseñanza está fuera del límite seguro de este curso?",
+      "options": [
+        "Preparar un ejemplo resuelto a partir de un currículo público",
+        "Generar un ticket de salida sintético",
+        "Decidir de forma autónoma la asignación de nivel de un estudiante a partir de expedientes identificables",
+        "Sugerir comprobaciones de accesibilidad"
+      ],
+      "correctIndex": 2,
+      "explanation": "Los datos personales identificables de estudiantes y las decisiones educativas autónomas de alto impacto quedan fuera del flujo de trabajo."
+    },
+    "q12": {
+      "question": "¿Qué debe incluir un registro de recursos multimedia generados?",
+      "options": [
+        "Solo la imagen final",
+        "Instrucción, ajustes, referencias y derechos, ediciones, fecha, procedencia, revisión y texto alternativo",
+        "Una afirmación de que la imagen es real",
+        "Marcas de agua eliminadas"
+      ],
+      "correctIndex": 1,
+      "explanation": "Un registro completo de recursos permite revisar los derechos, la accesibilidad, las correcciones y la reproducibilidad."
+    },
+    "q13": {
+      "question": "¿Cuál es el mejor patrón para un primer conector y una primera automatización?",
+      "options": [
+        "Acceso total de escritura en la cuenta y una programación permanente",
+        "Entorno aislado de solo lectura, Run now, revisión del historial y después una programación reversible",
+        "Eliminación activada por correo electrónico",
+        "Sin condiciones de parada"
+      ],
+      "correctIndex": 1,
+      "explanation": "El privilegio mínimo, una única ejecución examinada y la reversibilidad mantienen acotada la primera delegación."
+    },
+    "q14": {
+      "question": "¿Cuál es el paquete de proyecto final más sólido?",
+      "options": [
+        "Una salida pulida sin fuentes",
+        "Una captura de pantalla de Grok diciendo que la tarea está completa",
+        "Un contrato rastreable, evidencia, artefacto, controles independientes, fallas, límites y decisión humana",
+        "La conversación más larga"
+      ],
+      "correctIndex": 2,
+      "explanation": "La calidad del portafolio procede de un proceso y una decisión auditables, no solo de la confianza o el acabado."
+    }
+  }
+}

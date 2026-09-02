@@ -1,0 +1,33 @@
+{
+  "schema": "aicourse.codex.localization-reviews.v1",
+  "courseId": "how-to-use-codex",
+  "sourceLocale": "en",
+  "sourceMessageSha256": "bcdeb2937a2d380ef804595924e10246ec7a4dce1b60021a8644652c6b4f0cdc",
+  "checklistVersion": "codex-localization-second-pass.v1",
+  "locales": {
+    "es": {
+      "status": "pending"
+    },
+    "fr": {
+      "status": "pending"
+    },
+    "de": {
+      "status": "pending"
+    },
+    "zh-Hans": {
+      "status": "pending"
+    },
+    "zh-Hant": {
+      "status": "pending"
+    },
+    "ja": {
+      "status": "pending"
+    },
+    "ko": {
+      "status": "pending"
+    },
+    "ar": {
+      "status": "pending"
+    }
+  }
+}

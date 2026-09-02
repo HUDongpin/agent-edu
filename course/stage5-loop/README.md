@@ -1,5 +1,8 @@
 # Stage 5 — let it act
 
+**Stage 5 of 10** · Previous: [Stage 4 — give it the menu](../stage4-context/README.md) ·
+[Course index](../README.md) · Next: [Stage 6 — the machine around it](../stage6-harness/README.md)
+
 **Goal:** write the agent loop yourself. Not a framework's loop — the twelve lines the frameworks wrap.
 
 ```bash
@@ -19,13 +22,27 @@ The tools in `cafe/tools.ts` are rigged, on purpose:
 - `read_sales` **fails the first time it is called.** A real API does this.
 - `place_order("cups_12oz", 500)` **is refused**, because the supplier minimum is 1000.
 
-Watch what the model does with both. It reads the error, and tries something else. Nobody wrote that recovery — it falls out of the loop having fed the failure back in as information.
+The bundled offline fixture reads both tool failures and tries a different
+action, demonstrating the recovery path deterministically. A live model may
+recover, repeat the failed action or stop. Record what it does and keep the step
+limit and tool boundary responsible for safety; the loop itself guarantees no
+particular recovery behavior.
 
-Then watch the token count per step. Every turn re-sends the entire transcript, so turn 8 costs far more than turn 1. That is stage 4's problem arriving on a schedule, and it is why long-running agents need compaction.
+Then watch the returned token count per step. Every later turn re-sends the
+accumulated transcript, so input can grow as the run continues; the exact cost
+depends on which turns occur, the Provider's usage buckets and the dated rate
+table. That is why long-running agents need a measured compaction policy.
 
 ## Why you are writing this by hand
 
-The SDK ships a tool runner (`client.beta.messages.tool_runner`) that does this loop for you, and in a real project you should probably use it — it handles retries, streaming and per-turn hooks properly.
+The locked [Anthropic TypeScript SDK
+0.117.1](https://github.com/anthropics/anthropic-sdk-typescript/tree/sdk-v0.117.1)
+includes beta `client.beta.messages.toolRunner()`. It can automate Claude's
+[assistant → tool → result loop, stream events and bound
+iterations](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner).
+A manual loop remains the clearer choice for approval gates, custom logging
+and conditional execution. Do not assume this beta helper works through
+another Provider's compatibility endpoint without a dated test.
 
 You are writing it manually once because the loop *is* the concept. After this stage, "an agent" should read as what it is: a while-loop, a list of tools, and a stopping rule.
 
@@ -33,4 +50,7 @@ You are writing it manually once because the loop *is* the concept. After this s
 
 `MAX_STEPS` is not a safety blanket, it is the design. A loop without one can run all night on your money. Set it to 3 and run again: the job comes out half-done, coffee ordered and cups forgotten. **Choosing that trade-off is the engineering.**
 
-**Next:** [stage 6 — the machine around it](../stage6-harness/README.md)
+---
+
+**Stage 5 of 10** · Previous: [Stage 4 — give it the menu](../stage4-context/README.md) ·
+[Course index](../README.md) · Next: [Stage 6 — the machine around it](../stage6-harness/README.md)

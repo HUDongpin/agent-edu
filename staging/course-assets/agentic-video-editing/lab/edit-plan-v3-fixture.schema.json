@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/agentic-video-editing/lab/edit-plan-v3-fixture.schema.json",
+  "title": "Course 20 synthetic fixture constraints for edit plan v3",
+  "description": "Apply only after the general production v3 schema. These constraints describe the 122-second source, one-input, 47-second output Course 20 synthetic lab and must never be presented as universal production semantics.",
+  "type": "object",
+  "required": ["projectSpecId", "planId", "status", "inputs", "rightsDecisions", "timeline", "operations", "compileContract", "unresolvedCriticalBlockers", "publicationDecision"],
+  "properties": {
+    "projectSpecId": { "const": "course20-verified-cut-v2" },
+    "planId": { "type": "string", "pattern": "^course20-[a-z0-9-]+-plan-v3$" },
+    "status": { "const": "frozen-for-synthetic-fixture-execution" },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["mediaId", "assetLedgerId", "path", "clock", "audio"],
+        "properties": {
+          "mediaId": { "const": "source-30-cfr" },
+          "assetLedgerId": { "const": "source-30-cfr" },
+          "path": { "const": "source/source-30-cfr.mp4" },
+          "clock": {
+            "type": "object",
+            "required": ["rationalRate", "durationFrames", "startTimecode", "dropFrame", "cadence", "ptsReceiptSha256", "conformReceiptSha256"],
+            "properties": {
+              "rationalRate": {
+                "type": "object",
+                "required": ["numerator", "denominator"],
+                "properties": {
+                  "numerator": { "const": 30 },
+                  "denominator": { "const": 1 }
+                }
+              },
+              "durationFrames": { "const": 3660 },
+              "startTimecode": { "const": "00:00:00:00" },
+              "dropFrame": { "const": false },
+              "cadence": { "const": "CFR" },
+              "ptsReceiptSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "conformReceiptSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          },
+          "audio": {
+            "type": "object",
+            "required": ["sampleRate", "durationSamples", "timeBase"],
+            "properties": {
+              "sampleRate": { "const": 48000 },
+              "durationSamples": { "const": 5856000 },
+              "timeBase": {
+                "type": "object",
+                "required": ["numerator", "denominator"],
+                "properties": {
+                  "numerator": { "const": 1 },
+                  "denominator": { "const": 48000 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "rightsDecisions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["exactUse", "destination", "territory", "term", "attribution", "transformation", "modelUploadPermission", "reviewer", "reviewedAt"],
+        "properties": {
+          "exactUse": { "const": "local Course 20 synthetic fixture rendering and verification" },
+          "destination": { "const": "ignored local lab workspace" },
+          "territory": { "const": "local workstation only" },
+          "term": { "const": "this synthetic test run only" },
+          "attribution": { "const": "Course 20 first-party synthetic fixture" },
+          "transformation": { "const": "timing conform, reviewed crop, concatenate, encode, and verify" },
+          "modelUploadPermission": { "const": false },
+          "reviewer": {
+            "type": "object",
+            "required": ["name", "role", "authorityBoundary"],
+            "properties": {
+              "name": { "const": "Course 20 fixture contract" },
+              "role": { "const": "synthetic-fixture rights reviewer" },
+              "authorityBoundary": { "const": "not a human approval for learner-owned media or publication" }
+            }
+          },
+          "reviewedAt": { "const": "1970-01-01T00:00:00.000Z" }
+        }
+      }
+    },
+    "timeline": {
+      "type": "object",
+      "required": ["editRate", "durationFrames", "startTimecode", "dropFrame"],
+      "properties": {
+        "editRate": {
+          "type": "object",
+          "required": ["numerator", "denominator"],
+          "properties": {
+            "numerator": { "const": 30 },
+            "denominator": { "const": 1 }
+          }
+        },
+        "durationFrames": { "const": 1410 },
+        "startTimecode": { "const": "00:00:00:00" },
+        "dropFrame": { "const": false }
+      }
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "allOf": [
+        { "contains": { "type": "object", "properties": { "type": { "const": "clip" } }, "required": ["type"] }, "minContains": 4, "maxContains": 4 },
+        { "contains": { "type": "object", "properties": { "type": { "const": "caption" } }, "required": ["type"] }, "minContains": 4, "maxContains": 4 },
+        { "contains": { "type": "object", "properties": { "type": { "const": "title" } }, "required": ["type"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "type": "object", "properties": { "type": { "const": "audio" } }, "required": ["type"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "type": "object", "properties": { "type": { "const": "crop" } }, "required": ["type"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "type": "object", "properties": { "type": { "const": "transition" } }, "required": ["type"] }, "minContains": 3, "maxContains": 3 },
+        {
+          "contains": {
+            "type": "object",
+            "required": ["type", "confidence"],
+            "properties": {
+              "type": { "const": "clip" },
+              "confidence": {
+                "type": "object",
+                "required": ["localization", "transcript", "semanticFit"],
+                "properties": {
+                  "localization": {
+                    "type": "object",
+                    "required": ["value", "method", "calibrationStatus"],
+                    "properties": {
+                      "value": { "const": 1 },
+                      "method": { "const": "deterministic fixture frame bounds verified against the 30/1 conformed proxy" },
+                      "calibrationStatus": { "const": "not-applicable" }
+                    }
+                  },
+                  "transcript": {
+                    "type": "object",
+                    "required": ["value", "method", "calibrationStatus"],
+                    "properties": {
+                      "value": { "const": 1 },
+                      "method": { "const": "first-party authored caption text byte-matched to the reviewed WebVTT sidecar" },
+                      "calibrationStatus": { "const": "not-applicable" }
+                    }
+                  },
+                  "semanticFit": {
+                    "type": "object",
+                    "required": ["value", "method", "calibrationStatus"],
+                    "properties": {
+                      "value": { "const": 0.99 },
+                      "method": { "const": "fixture-review rubric against the declared four-segment synthetic sequence" },
+                      "calibrationStatus": { "const": "uncalibrated" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "minContains": 4,
+          "maxContains": 4
+        },
+        {
+          "contains": {
+            "type": "object",
+            "required": ["type", "mode"],
+            "properties": {
+              "type": { "const": "audio" },
+              "mode": { "const": "replacement" }
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    },
+    "compileContract": {
+      "type": "object",
+      "required": ["requires", "hashBindingStage"],
+      "properties": {
+        "requires": { "const": ["plan", "delivery-contract", "asset-ledger", "tool-policy"] },
+        "hashBindingStage": { "const": "external-compile-receipt-after-plan-freeze" }
+      }
+    },
+    "unresolvedCriticalBlockers": { "type": "array", "maxItems": 0 },
+    "publicationDecision": { "const": "do-not-publish" }
+  }
+}

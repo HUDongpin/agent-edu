@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "如何借助 Codex 赚钱",
+    "shortTitle": "用 Codex 赚钱",
+    "languageNotice": "语言说明：仅导航、课程标题、单元标题和课时标题已本地化。经审计的课时正文、练习、评估、图示、来源清册和交互工具仍为英文；独立母语人士审校尚待完成。"
+  },
+  "availability": {
+    "contentLanguage": "en",
+    "localizedScope": "navigation-and-titles",
+    "reviewStatus": "pending-independent-native-review"
+  },
+  "ui": {
+    "course": "课程",
+    "courses": "课程",
+    "courseOutline": "课程大纲",
+    "lesson": "课时",
+    "lessons": "课时",
+    "minutes": "分钟",
+    "guidedWork": "引导式实践",
+    "authenticUi": "真实的 Codex 界面或实际终端记录图示",
+    "evidenceVerified": "证据已核验",
+    "startCourse": "从证据边界开始",
+    "inspectLessons": "查看全部课时",
+    "curriculum": "课程内容",
+    "time": "时长",
+    "output": "产出",
+    "evidence": "证据",
+    "boundedSources": "有明确边界的来源",
+    "previous": "上一课",
+    "next": "下一课",
+    "courseDashboard": "课程总览",
+    "reviewEvidencePath": "检查你的证据路径",
+    "backToCatalog": "课程",
+    "resetConfirm": "是否仅重置此浏览器中的第 11 门课程进度？"
+  },
+  "units": {
+    "value": {
+      "title": "先确认价值，再写代码"
+    },
+    "pilot": {
+      "title": "构建付费试点"
+    },
+    "sell": {
+      "title": "定价、销售与交付"
+    },
+    "scale": {
+      "title": "在不失去控制的前提下产品化"
+    }
+  },
+  "lessons": {
+    "money-not-magic": {
+      "title": "Codex 是杠杆，不是赚钱按钮"
+    },
+    "choose-market-wedge": {
+      "title": "选择一个聚焦的市场切入点"
+    },
+    "validate-before-building": {
+      "title": "构建前先验证"
+    },
+    "write-commercial-spec": {
+      "title": "编写商业任务契约"
+    },
+    "protect-client-work": {
+      "title": "保护客户工作"
+    },
+    "build-verified-pilot": {
+      "title": "构建经验证的试点"
+    },
+    "price-for-margin": {
+      "title": "为利润空间与风险定价"
+    },
+    "sell-with-proof": {
+      "title": "用证据销售，而非承诺"
+    },
+    "deliver-with-control": {
+      "title": "以可控方式交付"
+    },
+    "productize-reuse": {
+      "title": "将经受住交付检验的内容产品化"
+    },
+    "retain-and-automate": {
+      "title": "以负责任的方式创造持续价值"
+    },
+    "launch-capstone": {
+      "title": "启动以证据为基础的营收试点"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { PLAYWRIGHT_TEST_ORIGIN } from "../tests/playwright-test-url";
 import { expect, test } from "./fixtures";
 
 const JOURNEY_LOCALES = [
@@ -15,7 +16,7 @@ const JOURNEY_LOCALES = [
 
 const CORE_ROUTES = ["", "handbook/", "lab/", "build/"] as const;
 const CORE_ROUTE_MARKERS: Record<(typeof CORE_ROUTES)[number], string> = {
-  "": "#curriculum",
+  "": ".platform-home #home-title",
   "handbook/": "#rail",
   "lab/": ".shellwrap.lab .labhero",
   "build/": ".build-page .build-steps",
@@ -78,11 +79,40 @@ async function expectActiveTabInsideRail(page: Page, id: string) {
   expect(tabBox!.y + tabBox!.height).toBeLessThanOrEqual(viewport.height + 1);
 }
 
+async function waitForDocumentScrollToSettle(page: Page) {
+  await page.evaluate(() => new Promise<void>((resolve) => {
+    let previousX = scrollX;
+    let previousY = scrollY;
+    let stableFrames = 0;
+    let observedFrames = 0;
+
+    const observe = () => {
+      const stable = Math.abs(scrollX - previousX) < 0.01
+        && Math.abs(scrollY - previousY) < 0.01;
+      stableFrames = stable ? stableFrames + 1 : 0;
+      previousX = scrollX;
+      previousY = scrollY;
+      observedFrames += 1;
+
+      // Observe long enough for a newly scheduled smooth scroll to start,
+      // then require four consecutive stationary frames. The hard ceiling
+      // keeps a browser regression from hanging the release gate forever.
+      if ((observedFrames >= 12 && stableFrames >= 4) || observedFrames >= 120) {
+        resolve();
+        return;
+      }
+      requestAnimationFrame(observe);
+    };
+
+    requestAnimationFrame(observe);
+  }));
+}
+
 test("the unprefixed root resolves to the English home", async ({ page }) => {
   const response = await page.goto("/");
   expect(response?.status()).toBe(200);
   await expect(page).toHaveURL(/\/en\/$/);
-  await expect(page.locator("#curriculum")).toBeVisible();
+  await expect(page.locator(".platform-home #home-title")).toBeVisible();
 });
 
 for (const locale of JOURNEY_LOCALES) {
@@ -106,7 +136,7 @@ for (const locale of JOURNEY_LOCALES) {
 
     page.on("request", (request) => {
       const origin = new URL(request.url()).origin;
-      if (origin !== "http://127.0.0.1:4173" && origin !== "https://api.deepseek.com") {
+      if (origin !== PLAYWRIGHT_TEST_ORIGIN && origin !== "https://api.deepseek.com") {
         unexpectedOrigins.add(origin);
       }
     });
@@ -121,9 +151,9 @@ for (const locale of JOURNEY_LOCALES) {
     await expect(page).toHaveURL(new RegExp(`${prefix}/$`));
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
-    await expect(page.locator("#curriculum")).toBeVisible();
+    await expect(page.locator(".platform-home #home-title")).toBeVisible();
 
-    await page.locator(`main .hero a[href="${prefix}/handbook/"]`).click();
+    await page.locator(`.platform-hero a[href="${prefix}/handbook/"]`).click();
     await expect.poll(() => page.evaluate(() => location.pathname))
       .toBe(`${prefix}/handbook/`);
     await expect(page.locator("#rail")).toBeVisible();
@@ -131,7 +161,9 @@ for (const locale of JOURNEY_LOCALES) {
     await expectActiveHandbookTab(page, "#tab-play");
     await expect(page).toHaveURL(/#play$/);
 
-    await page.locator(`header.topbar a[href="${prefix}/lab/"]`).click();
+    const handbookNext = page.locator('[data-course-lesson-nav] a[rel="next"]');
+    await expect(handbookNext).toHaveAttribute("href", `${prefix}/lab/`);
+    await handbookNext.click();
     await expect(page).toHaveURL(new RegExp(`${prefix}/lab/$`));
     await expect(page.locator(".shellwrap.lab .labhero")).toBeVisible();
     await page.locator('.steps [role="tab"]').last().click();
@@ -231,6 +263,7 @@ for (const width of ARABIC_MATRIX_WIDTHS) {
 
       await page.locator("#tab-compare").click();
       await expectActiveHandbookTab(page, "#tab-compare");
+      await waitForDocumentScrollToSettle(page);
       await expectActiveTabInsideRail(page, "#tab-compare");
       await expect(page.locator("#dialSvg")).toHaveCSS("direction", "ltr");
       await expectNoPageOverflow(page);
@@ -366,6 +399,7 @@ test("Handbook core judgements stay task-complete when diagrams are hidden", asy
   await page.addStyleTag({ content: "svg { display: none !important; }" });
 
   await expect(page.locator("#dialSvg")).toHaveAttribute("role", "group");
+  await page.locator('[data-disclosure="start-practices"] > summary').click();
   await page.locator('#p-start .c4[data-goto="loop"]').click();
   await expectActiveHandbookTab(page, "#tab-loop");
 

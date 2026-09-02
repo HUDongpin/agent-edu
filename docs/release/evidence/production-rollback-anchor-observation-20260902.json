@@ -1,0 +1,53 @@
+{
+  "schema": "agent-edu.production-rollback-anchor-observation.v1",
+  "status": "canonical-anchor-observed-rollback-validation-pending",
+  "observedAtUtc": "2026-09-02T01:21:28Z",
+  "repository": "HUDongpin/agent-edu",
+  "canonicalProduction": {
+    "domains": ["aicourse.top", "www.aicourse.top"],
+    "sourceHost": "agent-2tsq0l36f-peter-dongpin-hu-s-projects.vercel.app",
+    "deploymentId": "dpl_ChfEQ6t7LSL41pPbdgNoHdNXczVz",
+    "githubDeploymentRecordId": 6080579717,
+    "commitSha": "bf1fde5bb09150bde3cba7b447f71a63dec3c160",
+    "readyState": "READY",
+    "githubDeploymentState": "success",
+    "target": "production",
+    "canonicalRootHttpStatus": 200,
+    "releaseMetadataHttpStatus": 404,
+    "cspStageObserved": "report-only"
+  },
+  "repositoryAgreement": {
+    "observedMainCommitSha": "bf1fde5bb09150bde3cba7b447f71a63dec3c160",
+    "canonicalProductionMatchesMain": true
+  },
+  "newerNonCanonicalProductionDeployment": {
+    "sourceHost": "agent-ike1qe3wa-peter-dongpin-hu-s-projects.vercel.app",
+    "deploymentId": "dpl_33rsi5mRpCiUMnxDTrrPHrPasXra",
+    "githubDeploymentRecordId": 6144429454,
+    "commitSha": "08ac6d69de0b0fec0eaa6edecd649e007d7fa74d",
+    "readyState": "READY",
+    "githubDeploymentState": "success",
+    "ownsCanonicalAliases": false
+  },
+  "independentReadOnlyAudit": {
+    "reviewerReference": "codex-read-only-production-anchor-audit",
+    "vercelInspectGithubDeploymentAndAliasListCompared": true,
+    "mutationPerformed": false,
+    "productionRequestWasReadOnly": true,
+    "sensitiveValuesRecorded": false
+  },
+  "formalReleaseEffect": {
+    "rollbackGateChanged": false,
+    "reason": "The current previous-production anchor is now identifiable, but rollback readiness still requires a frozen distinct candidate, release tag, ordinary revert pull request, fresh recovery validation, exact target bindings, and independent release review.",
+    "releaseMetadata404PreventsCurrentProductionParityClaim": true
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPromptsOrModelReplies": false,
+    "containsProviderBodies": false,
+    "containsBillingAccountDetails": false,
+    "containsScreenshotsOrTraces": false
+  }
+}

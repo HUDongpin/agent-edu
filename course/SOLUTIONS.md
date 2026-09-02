@@ -125,14 +125,26 @@ Rules:
 Do not chat. Return only the order.`;
 ```
 
-The menu removes whole classes of invented-price failures. The confirmation rule gives the
-system an explicit response to ambiguity. Both facts earn their repeated token cost because
-the Eval can show which failures they remove. Adjectives such as “be accurate” add no missing
-domain information.
+The menu supplies price provenance that Stage 2 omitted. The confirmation rule gives the
+system an explicit response to ambiguity. Their effect is an Eval result to inspect, not a
+guaranteed score movement. Adjectives such as “be accurate” add no missing domain information.
 
 ---
 
 ## Stage 5 — complete the tool-use loop
+
+Keep the response boundary already present above the TODO. Billing is recorded first; only a
+complete, internally consistent `end_turn` or `tool_use` response can then reach content
+inspection or a tool runner:
+
+```ts
+meter(response);
+assertCompleteToolTurn(response);
+```
+
+Do not catch this guard and continue. Refusals, truncated turns, unexpected stop reasons, missing
+content, malformed or duplicate tool calls, and a stop reason that disagrees with its content are
+incomplete instructions, so no tool from those responses is safe to execute.
 
 Replace the `throw new Error("TODO…")` block in `stage5-loop/run.ts` with:
 
@@ -177,6 +189,16 @@ the run.
 ---
 
 ## Stage 6 — add the harness
+
+The harness keeps the same shared boundary before its loop can call `callTool`:
+
+```ts
+meter(response);
+assertCompleteToolTurn(response);
+```
+
+The usage is still counted when a Provider returns an incomplete HTTP-success response, but the
+run fails closed before any irreversible action.
 
 ### TODO 1: cumulative approval gate
 

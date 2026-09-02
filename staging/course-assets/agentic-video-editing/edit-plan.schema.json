@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/agentic-video-editing/edit-plan.schema.json",
+  "title": "Course 20 selection-only teaching plan v2",
+  "description": "A deliberately blocked browser teaching contract. Production execution uses edit-plan-v3.schema.json plus delivery, asset-ledger, tool-policy, and external approval receipts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "planId", "projectSpecId", "projectId", "fixtureId", "planMode", "status", "inputs", "timeline"],
+  "properties": {
+    "schemaVersion": { "const": "aicourse.agentic-video-editing.selection-plan.v2" },
+    "planId": { "const": "course20-lab-selection-plan-v2" },
+    "projectSpecId": { "const": "course20-verified-cut-v2" },
+    "projectId": { "const": "course20-synthetic-practicum-v2" },
+    "fixtureId": { "const": "course20-selection-plan-lab-v2" },
+    "planMode": { "const": "teaching-fixture" },
+    "status": { "const": "blocked" },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["inputKind", "mediaId", "inputSha256", "probeReceiptSha256", "rightsDecision", "sourceTimebase", "clockMode", "expectedDurationFrames"],
+        "properties": {
+          "inputKind": { "const": "synthetic-text-fixture" },
+          "mediaId": { "const": "source-30-cfr" },
+          "inputSha256": { "type": "null" },
+          "probeReceiptSha256": { "type": "null" },
+          "rightsDecision": { "const": "not-applicable-no-source-media" },
+          "sourceTimebase": { "$ref": "#/$defs/rationalRate" },
+          "clockMode": { "const": "cfr-native-frames" },
+          "expectedDurationFrames": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "timeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trackId", "timebase", "clips", "targetDurationFrames", "durationToleranceFrames", "expectedDurationFrames"],
+      "properties": {
+        "trackId": { "const": "video-main" },
+        "timebase": { "$ref": "#/$defs/rationalRate" },
+        "clips": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "$ref": "#/$defs/selectionClip" }
+        },
+        "targetDurationFrames": { "type": "integer", "minimum": 1 },
+        "durationToleranceFrames": { "type": "integer", "minimum": 0 },
+        "expectedDurationFrames": { "type": "integer", "minimum": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "sha256OrNull": {
+      "anyOf": [
+        { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        { "type": "null" }
+      ]
+    },
+    "rationalRate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["framesPerSecondNumerator", "framesPerSecondDenominator"],
+      "properties": {
+        "framesPerSecondNumerator": { "type": "integer", "minimum": 1 },
+        "framesPerSecondDenominator": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "evidenceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "artifactId", "artifactSha256", "locator", "evidenceMode"],
+      "properties": {
+        "kind": { "enum": ["brief-requirement", "transcript-span", "shot-boundary", "visual-observation", "human-note"] },
+        "artifactId": { "type": "string", "minLength": 3 },
+        "artifactSha256": { "$ref": "#/$defs/sha256OrNull" },
+        "locator": { "type": "string", "minLength": 3 },
+        "evidenceMode": { "const": "teaching-fixture" }
+      }
+    },
+    "selectionClip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["clipId", "kind", "sourceMediaId", "sourceFrames", "timelineStartFrame", "gapBeforeFrames", "reason", "evidenceReferences", "ambiguity", "rightsState", "requiresHumanReview", "reviewState"],
+      "properties": {
+        "clipId": { "type": "string", "pattern": "^clip-keep-[a-z0-9-]+$" },
+        "kind": { "const": "select" },
+        "sourceMediaId": { "const": "source-30-cfr" },
+        "sourceFrames": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["startInclusive", "durationFrames"],
+          "properties": {
+            "startInclusive": { "type": "integer", "minimum": 0 },
+            "durationFrames": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "timelineStartFrame": { "type": "integer", "minimum": 0 },
+        "gapBeforeFrames": { "type": "integer", "minimum": 0 },
+        "reason": { "type": "string", "minLength": 20 },
+        "evidenceReferences": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/evidenceReference" }
+        },
+        "ambiguity": { "enum": ["none-declared", "timing", "speaker-attribution", "meaning", "rights", "privacy", "creative-intent"] },
+        "rightsState": { "enum": ["simulated-cleared", "unknown"] },
+        "requiresHumanReview": { "const": true },
+        "reviewState": { "enum": ["approved", "blocked"] }
+      }
+    }
+  }
+}

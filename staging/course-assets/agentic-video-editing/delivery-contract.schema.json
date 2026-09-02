@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/courses/agentic-video-editing/delivery-contract.schema.json",
+  "title": "Course 20 destination and accessibility matrix v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "projectSpecId",
+    "projectId",
+    "destination",
+    "candidate",
+    "captions",
+    "audio",
+    "crop",
+    "accessibilityApplicability",
+    "color"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "aicourse.course20.delivery-matrix.v2"
+    },
+    "projectSpecId": {
+      "const": "course20-verified-cut-v2"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 3
+    },
+    "destination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "contractObservedOn"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 3,
+          "not": { "const": "all-social-platforms" }
+        },
+        "contractObservedOn": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aspectRatio", "width", "height", "durationSeconds", "container", "videoCodec", "audioCodec", "pixelFormat", "colorBranch"],
+      "properties": {
+        "aspectRatio": { "const": "9:16" },
+        "width": { "const": 1080 },
+        "height": { "const": 1920 },
+        "durationSeconds": { "type": "number", "minimum": 45, "maximum": 60 },
+        "container": { "type": "string", "minLength": 2 },
+        "videoCodec": { "type": "string", "minLength": 2 },
+        "audioCodec": { "type": "string", "minLength": 2 },
+        "pixelFormat": { "type": "string", "minLength": 2 },
+        "colorBranch": { "enum": ["SDR", "HDR"] }
+      }
+    },
+    "captions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "language", "speakerLabels", "nonSpeechCues"],
+      "properties": {
+        "required": { "const": true },
+        "language": { "type": "string", "minLength": 2 },
+        "speakerLabels": { "const": true },
+        "nonSpeechCues": { "const": true }
+      }
+    },
+    "audio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sampleRate", "measurementStandard", "targetLufs", "toleranceLu", "truePeakLimitDbtp", "destinationEvidence"],
+      "properties": {
+        "sampleRate": { "const": 48000 },
+        "measurementStandard": { "type": "string", "minLength": 3 },
+        "targetLufs": { "type": "number" },
+        "toleranceLu": { "type": "number", "minimum": 0 },
+        "truePeakLimitDbtp": { "type": "number" },
+        "destinationEvidence": { "type": "string", "minLength": 10 }
+      }
+    },
+    "crop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "safeZoneId", "perSegmentReview"],
+      "properties": {
+        "strategy": { "type": "string", "minLength": 3 },
+        "safeZoneId": { "type": "string", "minLength": 3 },
+        "perSegmentReview": { "const": true }
+      }
+    },
+    "accessibilityApplicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["captions", "transcript", "descriptiveTranscript", "audioDescription", "contrast", "flash", "playerSupport"],
+      "properties": {
+        "captions": { "$ref": "#/$defs/applicability" },
+        "transcript": { "$ref": "#/$defs/applicability" },
+        "descriptiveTranscript": { "$ref": "#/$defs/applicability" },
+        "audioDescription": { "$ref": "#/$defs/applicability" },
+        "contrast": { "$ref": "#/$defs/applicability" },
+        "flash": { "$ref": "#/$defs/applicability" },
+        "playerSupport": { "$ref": "#/$defs/applicability" }
+      }
+    },
+    "color": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceTags", "workingTransform", "displayTransform", "scopeChecks", "shotMatching", "branch"],
+      "properties": {
+        "sourceTags": { "type": "string", "minLength": 3 },
+        "workingTransform": { "type": "string", "minLength": 3 },
+        "displayTransform": { "type": "string", "minLength": 3 },
+        "scopeChecks": { "type": "string", "minLength": 3 },
+        "shotMatching": { "type": "string", "minLength": 3 },
+        "branch": { "enum": ["SDR", "HDR"] }
+      }
+    }
+  },
+  "$defs": {
+    "applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "rationale"],
+      "properties": {
+        "status": { "enum": ["required", "not-applicable"] },
+        "rationale": { "type": "string", "minLength": 10 }
+      }
+    }
+  }
+}

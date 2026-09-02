@@ -1,0 +1,1265 @@
+{
+  "meta": {
+    "title": "How to Use GitHub",
+    "kicker": "Course 6 · GitHub",
+    "summary": "Learn GitHub as a system for safe, traceable collaboration. Build one real repository from first commit to review, release, and reuse across software, research, writing, office work, and teaching.",
+    "audience": "For complete beginners and experienced collaborators who want a reliable mental model, not a list of buttons.",
+    "duration": "11 guided hours · 12 lessons · one continuous capstone",
+    "sourceNote": "Product behaviour is grounded first in GitHub Docs and GitHub's official projects, verified on {sourceDate}. Peer-reviewed and practitioner sources are clearly marked where they document enacted work practices.",
+    "figureNote": "All 21 interface figures are authentic GitHub Docs assets stored locally with intrinsic dimensions, SHA-256 checksums, a pinned github/docs source commit, and CC BY 4.0 attribution.",
+    "startCta": "Start with account safety",
+    "resumeCta": "Continue your repository",
+    "disclaimer": "Independent educational course. GitHub and related marks are trademarks of GitHub, Inc. This course is not affiliated with or endorsed by GitHub."
+  },
+  "ui": {
+    "lessons": "Lessons",
+    "minutes": "Minutes",
+    "objectives": "Learning objective",
+    "evidence": "Evidence to keep",
+    "practice": "Practice lab",
+    "checkpoint": "Reasoning checkpoint",
+    "sources": "Sources",
+    "quiz": "Final assessment",
+    "previous": "Previous lesson",
+    "next": "Next lesson",
+    "progress": "Progress",
+    "courseProgress": "Course progress",
+    "completed": "Completed",
+    "markComplete": "Mark lesson complete",
+    "markedComplete": "Lesson complete",
+    "resetProgress": "Reset GitHub course progress",
+    "correct": "Correct",
+    "incorrect": "Review this",
+    "score": "Score",
+    "quizPassed": "Assessment passed. Your source-grounded decisions are ready for the capstone.",
+    "quizNeedsReview": "Not yet. Revisit the cited source and try a new question set.",
+    "passingScore": "Pass with 10 of 12",
+    "source": "Supporting source",
+    "storageUnavailable": "This browser is blocking local storage. Lessons still work, but progress cannot persist.",
+    "browserStorageNote": "Progress stays in this browser and is never uploaded.",
+    "backToCourse": "How to Use GitHub",
+    "allLessons": "Course map",
+    "lessonPositionTemplate": "Lesson {current} of {total}",
+    "quizDraftAvailable": "You have an unfinished assessment saved in this browser.",
+    "resumeQuizDraft": "Resume unfinished assessment",
+    "discardQuizDraft": "Discard unfinished assessment",
+    "quizDraftRestored": "Your unfinished assessment has been restored.",
+    "quizDraftDiscarded": "Your unfinished assessment was discarded.",
+    "capstoneDraftAvailable": "You have an unfinished capstone draft saved in this browser.",
+    "resumeCapstoneDraft": "Resume capstone draft",
+    "discardCapstoneDraft": "Discard capstone draft",
+    "capstoneDraftRestored": "Your capstone draft has been restored.",
+    "capstoneDraftDiscarded": "Your capstone draft was discarded.",
+    "draftInvalid": "This saved draft is outdated or damaged and cannot be resumed.",
+    "draftStorageWarning": "Drafts cannot be saved in this browser. Reloading this page or leaving it discards unfinished work.",
+    "finalQuizTitle": "Make the call, not the guess",
+    "finalQuizIntro": "Each attempt selects four questions from every unit. Explanations reveal the relevant source after you answer.",
+    "beginQuiz": "Begin 12-question assessment",
+    "checkAnswer": "Check answer",
+    "nextQuestion": "Next question",
+    "retryQuiz": "Try a new set",
+    "finishQuiz": "Finish assessment",
+    "questionProgressTemplate": "Question {current} of {total}",
+    "scoreSummaryTemplate": "You answered {score} of {total} correctly.",
+    "bestScoreTemplate": "Best score: {score}/{total}",
+    "passRequirement": "Evidence standard",
+    "resetConfirm": "Reset only your How to Use GitHub lessons, quiz, and capstone progress?",
+    "resetDone": "GitHub course progress was reset.",
+    "resetNotSaved": "Progress was cleared for this tab, but the browser could not save the reset. It may return after reload.",
+    "capstonePath": "Continuous capstone",
+    "capstoneArtifacts": "Capstone evidence",
+    "capstoneComplete": "Capstone complete",
+    "capstoneIncomplete": "Check every artifact before completing the capstone.",
+    "completeCapstone": "Complete capstone",
+    "completionSummary": "Your collaboration system is complete",
+    "exportSummary": "Export completion summary",
+    "authenticFigure": "Authentic GitHub interface",
+    "figureSource": "Open source page",
+    "openFigureFullSize": "Open full-size image in a new tab",
+    "classroomNotice": "Current teaching notice"
+  },
+  "units": {
+    "unit-1": {
+      "title": "Understand and propose change",
+      "summary": "Build the secure mental model: repository, README, branch, commit, pull request, and review."
+    },
+    "unit-2": {
+      "title": "Coordinate people and decisions",
+      "summary": "Turn conversation into accountable work with issues, Discussions, Projects, forks, permissions, and notification habits."
+    },
+    "unit-3": {
+      "title": "Apply GitHub to real work",
+      "summary": "Adapt the same traceable loop to engineering, research, publishing, office operations, and teaching without erasing their differences."
+    }
+  },
+  "lessons": {
+    "start-secure": {
+      "kicker": "Lesson 1 · Foundations",
+      "title": "Start with the right mental model and a safe account",
+      "summary": "Separate Git from GitHub, choose the lightest working surface, and secure your identity before publishing anything.",
+      "objective": "Explain what a repository records, select a browser or local workflow for a task, and complete a privacy-safe account preflight.",
+      "sections": [
+        {
+          "heading": "Git records change; GitHub coordinates people around it",
+          "body": [
+            "Git is the version-control system that records file history. GitHub hosts Git repositories and adds identity, permissions, issues, pull requests, review, Projects, releases, and automation. A repository is therefore more than a folder: it is a bounded record of files, decisions, proposals, and accepted states.",
+            "Begin in the browser. GitHub's official Hello World path requires no code, command line, or previous Git knowledge. Move to github.dev, GitHub Desktop, Codespaces, or the command line only when the work benefits from multi-file editing, local tools, builds, or automation."
+          ],
+          "bullets": [
+            "Owner: controls visibility, collaborators, settings, and policy.",
+            "Collaborator: works directly in a repository within an assigned role.",
+            "Outside contributor: usually proposes work from a fork when direct write access is unavailable."
+          ]
+        },
+        {
+          "heading": "Secure the account associated with your work",
+          "body": [
+            "Enable two-factor authentication before the course repository matters to anyone else. GitHub strongly recommends a TOTP authenticator application for initial 2FA. After TOTP or SMS setup, add a security key as a backup method instead of relying on SMS. Save recovery codes in a secure place separate from the device you normally use.",
+            "Treat your profile, commit email, public activity, repository names, and organization membership as publishable information. Reviews and browser activity are associated with your GitHub account. For command-line commits, GitHub links a commit to your account only when the commit-header email is connected to that account or is the GitHub-provided `noreply` address for it. That attribution is separate from the Verified badge produced by valid GPG, SSH, or S/MIME commit signing."
+          ],
+          "bullets": [
+            "Use a unique password and two-factor authentication.",
+            "Store recovery codes securely and test that you can find them.",
+            "Review public profile fields and commit-email privacy before the first public commit."
+          ]
+        },
+        {
+          "heading": "Run a pre-publish boundary check",
+          "body": [
+            "Public means accessible to anyone on the internet. Private limits access, but it does not make poor handling of credentials, personal data, student records, confidential research, client files, or workplace secrets acceptable. Use fictional or openly licensed material for every course exercise.",
+            "If a credential is ever committed, revoke or rotate it first. Deleting the visible line later does not remove the earlier copy from Git history, forks, caches, or clones."
+          ],
+          "bullets": [
+            "No passwords, tokens, private keys, recovery codes, or connection strings.",
+            "No human-participant, student, client, employee, patient, or proprietary data.",
+            "No copyrighted or institutionally restricted file unless reuse and access are authorised."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "Account and publication preflight",
+        "brief": "Prepare your account without exposing any security evidence. You will record only completion decisions, never credentials or recovery material.",
+        "steps": [
+          "Review your public profile while signed out or in a private browser window.",
+          "Enable two-factor authentication and store recovery codes securely. Do not screenshot or paste them.",
+          "Choose whether your course repository should be public or private and write one sentence explaining the decision.",
+          "Create a local checklist of content that must never enter the repository."
+        ],
+        "evidence": [
+          "A one-sentence visibility decision with no private account information.",
+          "A checked statement that two-factor authentication and recovery storage are complete, with no codes shown.",
+          "A four-item repository exclusion checklist."
+        ],
+        "safety": "Never submit a screenshot of a QR code, secret, recovery code, email inbox, private organization, or security settings page."
+      },
+      "checkpoint": {
+        "prompt": "Why is deleting a leaked token in a second commit not a complete response?",
+        "answer": "The token remains in earlier Git history and may already exist in clones, forks, logs, or caches. Revoke or rotate it first, then follow the repository's sensitive-data remediation process."
+      },
+      "takeaway": "A trustworthy repository starts with an explicit visibility decision, a secured identity, and a hard boundary around data that must never be committed."
+    },
+    "repository-readme": {
+      "kicker": "Lesson 2 · Repository",
+      "title": "Create a repository people can understand",
+      "summary": "Choose a meaningful boundary and visibility, then make the README answer a visitor's first questions.",
+      "objective": "Create a repository with an intentional name and visibility, and write a concise README in valid GitHub Flavored Markdown.",
+      "sections": [
+        {
+          "heading": "Give one body of work one clear home",
+          "body": [
+            "Create `github-collaboration-lab` as a clean course workspace. A useful repository name is short, descriptive, and stable enough to survive the first draft. The description should say what outcome the repository exists to produce.",
+            "Visibility is a governance choice, not a cosmetic toggle. Public repositories support open learning and review; private repositories suit drafts and restricted teams. Do not upload first and reason about visibility later."
+          ],
+          "bullets": [
+            "Initialize with a README so the project explains itself from the first commit.",
+            "Add a license only when you understand what permission you intend to grant.",
+            "Keep unrelated projects in separate repositories when their owners, audiences, or access rules differ."
+          ]
+        },
+        {
+          "heading": "Write the README as an operating contract",
+          "body": [
+            "A README should tell a new reader what the project is, why it matters, how to use or contribute to it, where to get help, and who maintains it. For office, research, and teaching work, add the authoritative source, data boundary, decision owner, and definition of done.",
+            "Use headings to reveal structure, links to reveal evidence, task lists for small visible commitments, and fenced code only for commands or literal text. Preview Markdown before committing."
+          ],
+          "code": {
+            "label": "A minimal collaboration README",
+            "language": "markdown",
+            "value": "# GitHub collaboration lab\n\n## Purpose\nBuild one privacy-safe, reviewable project from issue to release.\n\n## Working agreement\n- Propose changes on a branch.\n- Link each pull request to an issue.\n- Never commit credentials or personal data.\n\n## Definition of done\nA reviewed pull request is merged and a release records the accepted result."
+          }
+        },
+        {
+          "heading": "Treat every first commit as a decision",
+          "body": [
+            "Initializing a README creates history. Before you press Commit changes, read the diff, make the message describe the outcome, and confirm the target branch. A useful message is `Add repository purpose and working agreement`, not `Update README`.",
+            "The browser is ideal for this small, single-file change. You are learning the model before adding the operational cost of local Git."
+          ],
+          "bullets": [
+            "Preview the rendered Markdown.",
+            "Inspect the changed lines.",
+            "Confirm that the commit contains one coherent change."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "Create the collaboration lab",
+        "brief": "Create the repository and make its first page useful to someone who did not attend this course.",
+        "steps": [
+          "Create `github-collaboration-lab` with the visibility chosen in Lesson 1.",
+          "Initialize it with a README.",
+          "Add purpose, audience, working agreement, privacy boundary, and definition of done.",
+          "Preview the Markdown, inspect the diff, and commit with an outcome-focused message."
+        ],
+        "evidence": [
+          "A repository URL that reveals no confidential organization or project name.",
+          "A README with five named sections and a visible privacy boundary.",
+          "A first commit message that explains the outcome."
+        ],
+        "safety": "Use only fictional, synthetic, or openly licensed content. A private repository does not authorise uploading restricted material."
+      },
+      "checkpoint": {
+        "prompt": "When should two bodies of work use separate repositories?",
+        "answer": "Separate them when their owners, access permissions, lifecycle, audience, or source of truth differ. A repository should make one work boundary easier to understand, not hide several incompatible boundaries."
+      },
+      "takeaway": "A repository becomes collaborative when its boundary, audience, working agreement, and completion standard are legible on arrival."
+    },
+    "branches-commits": {
+      "kicker": "Lesson 3 · History",
+      "title": "Use branches and commits to make change explainable",
+      "summary": "Isolate one proposal, save meaningful checkpoints, and read the diff before asking anyone to review it.",
+      "objective": "Create a focused branch, produce two atomic commits, and explain the relationship among branch, commit, diff, and `main`.",
+      "sections": [
+        {
+          "heading": "A branch is an isolated proposal, not a backup folder",
+          "body": [
+            "Create a branch for one related change. Work there without changing the accepted state on the repository's default branch, called `main` throughout this lab. Another repository may use a different configured default-branch name. GitHub flow recommends separate branches for unrelated work so review, testing, rollback, and ownership remain understandable.",
+            "Name the branch for the intended outcome, such as `docs/add-audience`, rather than for a person or a vague phase such as `peter-work` or `updates`."
+          ],
+          "bullets": [
+            "`main`: the current accepted state.",
+            "Working branch: the proposed state under construction.",
+            "Pull request: the reviewable comparison between them."
+          ]
+        },
+        {
+          "heading": "Check the branch before every edit",
+          "body": [
+            "The branch selector tells you which version you are editing. Confirm it before changing a file, particularly after following a link or returning to a repository later.",
+            "If a change belongs to a different purpose, stop and create another branch. One branch that mixes policy, copy-editing, dependency updates, and a feature forces reviewers to reason about several risks at once."
+          ],
+          "bullets": [
+            "Branch from the latest intended base.",
+            "Keep unrelated changes out.",
+            "Delete the branch after its work is safely merged."
+          ]
+        },
+        {
+          "heading": "Commits are meaningful checkpoints; diffs are the evidence",
+          "body": [
+            "A commit saves a snapshot and a message. Make a commit when one coherent outcome is complete and inspect the diff to verify that only the intended lines changed. Small does not mean arbitrary: a typo and its correction belong together, while a new section and an unrelated reformat often do not.",
+            "A readable history helps a reviewer understand why the repository changed and helps a future maintainer locate the point where behaviour changed."
+          ],
+          "code": {
+            "label": "Optional local inspection commands",
+            "language": "shell",
+            "value": "git status\ngit diff\ngit add README.md\ngit commit -m \"Add audience and success criteria\""
+          }
+        }
+      ],
+      "practice": {
+        "title": "Two changes, two coherent commits",
+        "brief": "Add an audience statement and a completion checklist without touching `main` directly.",
+        "steps": [
+          "Create `docs/add-audience` from `main`.",
+          "Add an Audience section and commit it with an outcome-focused message.",
+          "Add a three-item completion checklist and make a second commit.",
+          "Open the branch's commit history and inspect both diffs."
+        ],
+        "evidence": [
+          "A branch whose name describes the work.",
+          "Two commits, each with one coherent outcome.",
+          "A short note explaining why `main` has not changed yet."
+        ],
+        "safety": "If you use local Git, confirm the remote repository and current branch before pushing. Never paste authentication tokens into commands, files, or screenshots."
+      },
+      "checkpoint": {
+        "prompt": "Why is a branch not the same thing as a copy of a folder?",
+        "answer": "A branch is a named line of repository history that shares earlier commits with other branches. Git can compare, merge, and trace its commits; a copied folder has no such relationship unless it is itself a Git repository."
+      },
+      "takeaway": "Make one proposal per branch, one coherent outcome per commit, and let the diff prove what changed."
+    },
+    "pull-requests-reviews": {
+      "kicker": "Lesson 4 · Review",
+      "title": "Turn a branch into a reviewable decision",
+      "summary": "Open a pull request early, inspect every changed file, and separate useful review signals from enforced repository policy.",
+      "objective": "Open an evidence-rich pull request, conduct a line-level review, respond to feedback, and explain when approval is socially requested versus technically required.",
+      "sections": [
+        {
+          "heading": "A pull request is a proposal with a trace",
+          "body": [
+            "A pull request connects the reason for work, the commits that implement it, automated checks, review conversation, the exact changed files, and the eventual merge. Open it before the change feels perfect when early feedback can prevent wasted work; mark it draft if it is not ready to merge.",
+            "Write the description for a reviewer: problem, intended outcome, what changed, how you checked it, what remains uncertain, and the issue it closes. Confirm the base branch and compare branch before creating the request."
+          ],
+          "bullets": [
+            "Problem: why this change exists.",
+            "Evidence: what you inspected, rendered, tested, or verified.",
+            "Risk: what a reviewer should pressure-test."
+          ]
+        },
+        {
+          "heading": "Review the diff, then make feedback actionable",
+          "body": [
+            "Start with Files changed. Review each file, leave line comments where context matters, ask questions when intent is unclear, and use a suggested change when you can propose exact replacement text. Review is not a hunt for fault; it is a structured attempt to improve the accepted state.",
+            "The author should respond to the substance, apply or decline suggestions with a reason, push an additional commit when needed, and confirm that the new diff resolves the concern."
+          ],
+          "bullets": [
+            "Comment communicates without an approval decision.",
+            "Approve records that the proposal is acceptable to the reviewer.",
+            "Request changes records blocking concerns from the reviewer's perspective."
+          ]
+        },
+        {
+          "heading": "Know the difference between a signal and a gate",
+          "body": [
+            "Selecting Request changes is ordinarily informational. It blocks merging when the target branch has a ruleset or classic branch-protection rule with Require a pull request enabled and a collaborator with write, admin, or owner access submits the review. It remains blocking until that collaborator approves, unless configured dismissal or bypass authority applies. Required checks and resolved-conversation rules are separate gates.",
+            "Green checks also prove only what the configured checks tested. Human review still evaluates fit, evidence, privacy, reasoning, and context-specific quality."
+          ],
+          "bullets": [
+            "Social norm: the team agrees not to merge before review.",
+            "Technical gate: repository rules prevent merging until conditions pass.",
+            "Judgement: neither a check nor an approval proves the work is universally correct."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "Review the audience change",
+        "brief": "Open the branch from Lesson 3 as a pull request and complete one full author-reviewer feedback loop.",
+        "steps": [
+          "Open a pull request to `main` with problem, change summary, validation, risk, and an issue-closing placeholder.",
+          "Inspect every changed file before reviewing.",
+          "Ask one substantive question and add one applicable suggested change, using a peer or a second practice repository if needed.",
+          "Respond to the feedback, push an improvement, and record an approve or request-changes decision."
+        ],
+        "evidence": [
+          "A pull request description containing all five review fields.",
+          "One line comment or question and one suggested change.",
+          "An author response that explains what changed or why a suggestion was declined."
+        ],
+        "safety": "Do not invite unknown users to a private repository for practice. Use a trusted peer, a disposable organization, or an official GitHub Skills repository."
+      },
+      "checkpoint": {
+        "prompt": "A reviewer selected Request changes. Is merging now impossible?",
+        "answer": "Not necessarily. A Request changes review blocks merging when Require a pull request applies and a collaborator with write, admin, or owner access submitted it, unless configured dismissal or bypass authority applies. Required status checks and required conversation resolution are separate merge gates. The team should still honour its review agreement even when no technical block applies."
+      },
+      "takeaway": "A strong pull request makes purpose, change, evidence, risk, and decision visible in one place."
+    },
+    "issues-discussions": {
+      "kicker": "Lesson 5 · Coordination",
+      "title": "Choose the right place for work and conversation",
+      "summary": "Use issues for actionable outcomes, Discussions for open-ended community conversation, and pull-request comments for a specific proposed change.",
+      "objective": "Classify a conversation correctly, write an outcome-oriented issue, and preserve the link from decision to implementation.",
+      "sections": [
+        {
+          "heading": "An issue answers: what outcome must happen?",
+          "body": [
+            "Issues can track tasks, bugs, ideas, feedback, and decisions. A useful issue contains context, the desired outcome, acceptance criteria, an owner when known, and enough metadata to find and prioritise it. Sub-issues and dependencies help represent work that is larger than one action.",
+            "Do not use an issue as an unstructured chat transcript. Summarise the decision and update the description when the accepted scope changes."
+          ],
+          "bullets": [
+            "Context: why the work matters now.",
+            "Outcome: what will be observably different.",
+            "Acceptance criteria: how completion will be judged."
+          ]
+        },
+        {
+          "heading": "A Discussion answers: what should we learn or decide together?",
+          "body": [
+            "Use Discussions for open-ended questions, proposals, announcements, polls, and community direction. Discussions may need to be enabled by someone with repository admin access. Once a conversation produces a committed action, create or link an issue so responsibility and completion do not disappear inside the thread.",
+            "Use pull-request comments when the conversation is about the exact lines or merge readiness of one proposal. The tool should match the decision boundary."
+          ],
+          "bullets": [
+            "Issue: actionable work with an owner and completion condition.",
+            "Discussion: exploration, Q&A, announcement, or community direction.",
+            "Pull-request comment: feedback on one proposed change."
+          ]
+        },
+        {
+          "heading": "Link intent to implementation",
+          "body": [
+            "Create the branch from the issue when that fits your workflow and link the pull request. Put a supported closing keyword such as `Closes #12` in the pull-request description and target the default branch: GitHub links the pull request to the issue and closes the issue when the pull request merges into that default branch. A supported keyword in a commit message instead closes the issue when that commit reaches the default branch, but GitHub does not show the pull request as linked to the issue.",
+            "This chain makes a future reader able to travel from why the work existed, through what changed and how it was reviewed, to the accepted result."
+          ],
+          "code": {
+            "label": "A concise pull-request description excerpt",
+            "language": "markdown",
+            "value": "## Why\nNew contributors cannot tell who this repository is for.\n\n## Acceptance criteria\n- README names the audience.\n- A reviewer confirms the wording is clear.\n\nCloses #12"
+          }
+        }
+      ],
+      "practice": {
+        "title": "Plan before changing",
+        "brief": "Create one actionable issue for the README improvement and classify five other conversations.",
+        "steps": [
+          "Open an issue with context, outcome, acceptance criteria, and an appropriate label.",
+          "In the pull-request description, link the issue with a supported closing keyword and confirm that the pull request targets the default branch.",
+          "Classify a bug, a brainstorming proposal, a line-level wording concern, an announcement, and a scheduled task as issue, Discussion, or pull-request comment.",
+          "Explain one classification that initially felt ambiguous."
+        ],
+        "evidence": [
+          "An issue whose title describes an outcome rather than a file.",
+          "A visible issue-to-pull-request link.",
+          "Five classifications with one-sentence reasons."
+        ],
+        "safety": "Issue and Discussion content may be public and searchable. Remove personal contact details, private workplace context, student records, and confidential incident information."
+      },
+      "checkpoint": {
+        "prompt": "A Discussion reaches agreement that a new guide must be written. What happens next?",
+        "answer": "Record the accepted outcome, then create or link an issue with an owner and completion criteria. Keep the Discussion as the decision context and the issue as the accountable work record."
+      },
+      "takeaway": "Put exploration in Discussions, accountable outcomes in issues, and proposal-specific review in pull requests."
+    },
+    "projects-office-work": {
+      "kicker": "Lesson 6 · Office and project work",
+      "title": "Run a project without turning GitHub into a file dump",
+      "summary": "Build a project charter, issue-based work system, and audience-specific views for a launch, campaign, submission, or team initiative.",
+      "objective": "Design a GitHub Project with one authoritative status model, least-privilege access, and distinct views for working team and leadership.",
+      "sections": [
+        {
+          "heading": "Start with a charter and an information boundary",
+          "body": [
+            "GitHub's planning guidance explicitly supports product, project, team, and personal work. Use the README as a project charter: purpose, scope, owner, decision authority, communication norm, source of truth, file convention, and definition of done.",
+            "Do not treat the repository as a replacement for a governed document-management system. Opaque binary office files, contracts, personnel records, grades, client data, and retention-controlled records may require another authorised system. Link to the authoritative record rather than duplicating it."
+          ],
+          "bullets": [
+            "Repository: durable charter, reviewable text, templates, decisions, and links.",
+            "Issues: owned work, risks, approvals, and dependencies.",
+            "External record system: confidential, signed, regulated, or retention-controlled originals."
+          ]
+        },
+        {
+          "heading": "Use one work model and several views",
+          "body": [
+            "A Project connects issues and pull requests with custom fields. A table supports detailed triage, a board makes work state visible, and a roadmap can communicate timing. Create views from the same items instead of maintaining a second status spreadsheet.",
+            "Keep statuses decision-relevant: for example Backlog, Ready, In progress, In review, Blocked, and Done. Too many columns hide stalled work instead of clarifying it."
+          ],
+          "bullets": [
+            "Working table: owner, workstream, priority, status, target date, and risk.",
+            "Team board: grouped by status and filtered to active work.",
+            "Leadership view: milestones, blockers, and target dates without implementation noise."
+          ]
+        },
+        {
+          "heading": "Make authority and access explicit",
+          "body": [
+            "Organization membership does not mean identical access. Assign the least role that lets each person perform their job, and separate repositories when information boundaries differ. A reviewer can recommend a change; the designated decision owner remains accountable for approval.",
+            "The GitHub Docs team provides a real practitioner example: linked content work, review, publishing, labels, automation, and different Project views support both writers and managers."
+          ],
+          "bullets": [
+            "Record who may propose, review, approve, and publish.",
+            "Review collaborator access when the project or team changes.",
+            "Publish a closeout note and archive completed work when appropriate."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "Build a four-person launch command centre",
+        "brief": "Model a fictional event or product launch with one source of truth and no sensitive records.",
+        "steps": [
+          "Add a one-page project charter to the README.",
+          "Create three issues, one sub-issue, and one dependency.",
+          "Create a Project with status, owner, priority, workstream, target date, and risk fields.",
+          "Build a working table, status board, and filtered at-risk view.",
+          "Submit one policy or public-copy change through a pull request and move the linked item after merge."
+        ],
+        "evidence": [
+          "A charter naming scope, owner, authority, source of truth, and definition of done.",
+          "Three linked Project views built from the same items.",
+          "A note identifying one document that belongs outside GitHub and why."
+        ],
+        "safety": "Use fictional names and data. Never practise with real contracts, client details, employee data, grades, locations, credentials, or unreleased business information."
+      },
+      "checkpoint": {
+        "prompt": "Why is copying Project status into a separate weekly spreadsheet risky?",
+        "answer": "Two editable status sources drift. If leadership needs another presentation, create a filtered view or generated report from the authoritative items rather than manually maintaining a competing truth."
+      },
+      "takeaway": "GitHub helps office work when it makes decisions, ownership, review, and status traceable, not when it becomes an uncontrolled storage drive."
+    },
+    "forks-conflicts": {
+      "kicker": "Lesson 7 · Contribution",
+      "title": "Contribute across boundaries and resolve conflicts deliberately",
+      "summary": "Know when to branch, when to fork, and how to resolve competing changes without discarding either author's intent.",
+      "objective": "Select branch or fork based on permissions, interpret a merge conflict, and produce a reviewed final state that preserves intended meaning.",
+      "sections": [
+        {
+          "heading": "Branch inside a shared repository; fork across an ownership boundary",
+          "body": [
+            "Use a branch when you have appropriate access to collaborate directly in the repository. A fork is a separate repository connected to an upstream repository and is common when an outside contributor cannot or should not write branches in the original.",
+            "Fork visibility and permissions follow GitHub rules and organization policy. Never assume that forking a private or internal repository makes its content yours to redistribute."
+          ],
+          "bullets": [
+            "Branch: same repository, shared settings and permissions.",
+            "Fork: separate repository with an upstream relationship.",
+            "Clone: a local copy used to work from your computer."
+          ]
+        },
+        {
+          "heading": "A conflict is a decision Git cannot make safely",
+          "body": [
+            "A merge conflict occurs when Git cannot automatically combine competing changes, often because both branches changed the same lines or one changed a file the other deleted. It is not an error to suppress; it is a prompt for human intent.",
+            "GitHub can resolve simple competing-line conflicts in the web editor. More complex conflicts must be resolved locally. Read both versions, remove conflict markers, write the intended combined result, test or preview it, and only then mark it resolved."
+          ],
+          "bullets": [
+            "Do not choose ours or theirs without understanding both.",
+            "Ask the authors when the desired meaning is unclear.",
+            "Review the complete resolved diff, not only the conflict block."
+          ]
+        },
+        {
+          "heading": "Choose a merge history that serves future readers",
+          "body": [
+            "A merge commit preserves the branch's commit structure, squash merge condenses the proposal into one commit, and rebase merge replays commits into a linear history when enabled. The team should choose a consistent strategy that matches how it needs to inspect and revert work.",
+            "After merge, confirm the linked issue state, delete the working branch when safe, and update a fork before beginning unrelated work."
+          ],
+          "code": {
+            "label": "Conflict markers you must replace with final content",
+            "language": "text",
+            "value": "<<<<<<< current branch\nAudience: project managers\n=======\nAudience: first-time GitHub collaborators\n>>>>>>> incoming branch"
+          }
+        }
+      ],
+      "practice": {
+        "title": "Resolve an intentional README conflict",
+        "brief": "Create two competing edits to the audience line and resolve them as an editorial decision, not a mechanical button press.",
+        "steps": [
+          "Create two branches from the same base and edit the same README sentence differently.",
+          "Merge the first proposal, then open the second pull request and identify the conflict.",
+          "Read both intended meanings and write a final sentence that satisfies the chosen audience.",
+          "Remove every conflict marker, preview the README, commit the resolution, and re-review the diff."
+        ],
+        "evidence": [
+          "A pull request that visibly encountered a conflict.",
+          "A final sentence accompanied by a one-sentence editorial rationale.",
+          "A clean resolved diff with no conflict markers."
+        ],
+        "safety": "Use only the disposable course README. Do not practise history rewriting, forced pushes, or conflict resolution in a repository containing other people's active work."
+      },
+      "checkpoint": {
+        "prompt": "Why should you not automatically select one whole side of a conflict?",
+        "answer": "Each side may contain valid intent. Conflict resolution creates the intended final state, which may combine, rewrite, or deliberately choose between both versions after understanding their purpose."
+      },
+      "takeaway": "A fork manages an ownership boundary; a conflict exposes an intent boundary. Both require explicit reasoning about people and permissions."
+    },
+    "notifications-governance": {
+      "kicker": "Lesson 8 · Stewardship",
+      "title": "Control attention, access, and incident response",
+      "summary": "Build a notification habit, assign least-privilege roles, and know the first response when sensitive material reaches history.",
+      "objective": "Configure scoped subscriptions, explain organization repository roles, and execute a safe first-response plan for a fictional leaked credential.",
+      "sections": [
+        {
+          "heading": "Subscribe to work, not noise",
+          "body": [
+            "Notifications arise from participation, mentions, assignments, reviews, and repository subscriptions. Watching everything makes urgent work indistinguishable from ambient activity. Configure custom watching for the events you own and unsubscribe from conversations where you no longer need updates.",
+            "Triage the inbox: act, save for later, mark done, or unsubscribe. A blue indicator is an attention signal, not a productivity score."
+          ],
+          "bullets": [
+            "Participating: you were involved or mentioned in a thread.",
+            "Watching: you elected to receive selected repository activity.",
+            "Saved: you intentionally deferred a notification for later action."
+          ]
+        },
+        {
+          "heading": "Give each person the least access their role needs",
+          "body": [
+            "Organization repositories can assign roles with different abilities. Write, maintain, triage, and admin are not interchangeable. Separate proposal, review, approval, and administration where the project risk justifies it.",
+            "Review access when a learner, contractor, employee, collaborator, or project leaves scope. Private visibility without access review accumulates silent exposure."
+          ],
+          "bullets": [
+            "Grant access for a current task and accountable role.",
+            "Use repository rules for required review and checks.",
+            "Remove stale access and document exceptional privileges."
+          ]
+        },
+        {
+          "heading": "Respond to exposed secrets in the correct order",
+          "body": [
+            "If a password, token, or key is committed, assume it may have been copied. Revoke or rotate the credential first, then assess exposure, notify the responsible owner, remove the data from current content, and follow GitHub's history-remediation guidance when justified.",
+            "History rewriting is disruptive and cannot erase copies already fetched elsewhere. Prevention through secret scanning, `.gitignore`, minimal permissions, and pre-commit review is safer than cleanup."
+          ],
+          "code": {
+            "label": "Fictional incident order",
+            "language": "text",
+            "value": "1. Revoke or rotate the credential\n2. Notify the accountable owner\n3. Assess logs, forks, clones, and downstream systems\n4. Remove the visible secret and follow remediation guidance\n5. Record cause and prevention without reproducing the secret"
+          }
+        }
+      ],
+      "practice": {
+        "title": "Attention and access audit",
+        "brief": "Configure the lab repository so notifications and permissions match your actual responsibilities.",
+        "steps": [
+          "Set a custom watch level for issues and pull requests in the lab repository.",
+          "Save one practice notification, mark one done, and unsubscribe from one disposable thread.",
+          "Write a role matrix for owner, contributor, reviewer, and project viewer.",
+          "Order the response steps for a fictional exposed token and explain why rotation comes first."
+        ],
+        "evidence": [
+          "A written notification rule that names what you watch and why.",
+          "A four-role least-privilege matrix.",
+          "A secret-response sequence containing no real credential."
+        ],
+        "safety": "Never create or commit a real token for an exercise. Use the literal placeholder `EXAMPLE_REVOKED_TOKEN` only in a private local note if an example is needed."
+      },
+      "checkpoint": {
+        "prompt": "Why rotate a committed credential before rewriting history?",
+        "answer": "The credential may already have been copied, so only revocation or rotation stops its future use. Rewriting history is slower, disruptive, and cannot reach every clone, fork, log, or cache."
+      },
+      "takeaway": "Healthy collaboration protects both scarce attention and powerful access. Subscribe deliberately, grant minimally, and revoke exposed secrets immediately."
+    },
+    "software-automation": {
+      "kicker": "Lesson 9 · Software engineering",
+      "title": "Move from reviewed change to tested release",
+      "summary": "Choose the right working surface, make automation check a defined claim, and package an accepted software state as a release.",
+      "objective": "Select browser, Desktop, Codespaces, or CLI for an engineering task, read a workflow, and distinguish automated evidence from human judgement.",
+      "sections": [
+        {
+          "heading": "Choose an interface by task cost",
+          "body": [
+            "Use GitHub.com for small single-file changes. Press `.` in a repository for github.dev when several files need a lightweight browser editor. Use GitHub Desktop for visual local Git, Codespaces for a hosted development environment with terminal and dependencies, or CLI and an editor when you need maximum control and automation.",
+            "The tool changes, but the collaboration contract does not: issue, focused branch, meaningful commits, pull request, checks, review, merge, and release."
+          ],
+          "bullets": [
+            "Browser: quick, simple, no local setup.",
+            "Desktop or editor: local files, previews, tests, and offline work.",
+            "Codespaces or CLI: reproducible environments, complex tooling, and automation."
+          ]
+        },
+        {
+          "heading": "A green check proves only the configured check",
+          "body": [
+            "GitHub Actions runs workflows stored under `.github/workflows`. A software pull request might install dependencies, lint, test, build, and report a status. If no accessibility, security, or browser test exists, a green workflow says nothing about those properties.",
+            "Treat pull-request code as untrusted. Keep `GITHUB_TOKEN` permissions minimal and do not expose secrets to untrusted code. Pin third-party actions to a verified full-length commit SHA, review their source and publisher, and use a controlled process such as Dependabot to propose and review SHA updates. Recheck current official workflow examples rather than copying stale YAML."
+          ],
+          "code": {
+            "label": "Minimal read-only Node.js check",
+            "language": "yaml",
+            "value": "name: checks\non: [push, pull_request]\npermissions:\n  contents: read\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n      - run: npm ci\n      - run: npm test"
+          }
+        },
+        {
+          "heading": "Release an accepted state for users",
+          "body": [
+            "A release packages a named point in history around a Git tag. Write release notes for the user: what changed, why it matters, how to obtain it, known limitations, and any migration step. Do not turn raw commit messages into the only explanation.",
+            "The Sotheby's practitioner story shows the value of immediate CI feedback in a real workflow, but current syntax and security decisions must still come from live GitHub documentation."
+          ],
+          "bullets": [
+            "Issue defines the observable bug or feature outcome.",
+            "Checks test explicit conditions; review tests reasoning and fit.",
+            "Release communicates the accepted change to downstream users."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "One defect, one pull request, one release plan",
+        "brief": "Use a tiny disposable code repository or analyse the provided workflow without running untrusted code.",
+        "steps": [
+          "Write an issue with reproduction, expected behaviour, and acceptance criteria for a small fictional defect.",
+          "Choose GitHub.com, Desktop, Codespaces, or CLI and justify the interface.",
+          "Add or inspect a workflow that tests one explicit condition with minimal permissions.",
+          "Open a pull request that links the issue and identify what the green check does not prove.",
+          "Draft release notes for `v0.1.0` after the accepted merge."
+        ],
+        "evidence": [
+          "An interface decision tied to task requirements.",
+          "A workflow explanation naming trigger, permissions, runner, steps, and evidence limit.",
+          "User-facing release notes with a known limitation."
+        ],
+        "safety": "Do not run an unknown fork's workflow with secrets or write permissions. Use a disposable repository and current official action versions."
+      },
+      "checkpoint": {
+        "prompt": "The test workflow is green. Has the pull request been proven correct?",
+        "answer": "No. It passed the checks that were configured. Reviewers still assess requirement fit, missing tests, security, accessibility, maintainability, and unintended effects."
+      },
+      "takeaway": "Automation is repeatable evidence, not outsourced judgement. Name what each check proves and what still requires review."
+    },
+    "research-reproducibility": {
+      "kicker": "Lesson 10 · Research",
+      "title": "Make a study traceable and citable",
+      "summary": "Connect research question, data boundary, method, environment, output, claim, citation metadata, and released version without mistaking version control for validity.",
+      "objective": "Design a privacy-safe research repository, trace one analysis from issue to release, and create valid citation metadata for an exact version.",
+      "sections": [
+        {
+          "heading": "Treat the issue as an experiment record, not a laboratory notebook replacement",
+          "body": [
+            "A research issue can record rationale, question, planned inputs, method, expected outputs, decisions, troubleshooting, and completion criteria. The 2025 PLOS Biology laboratory case documents this enacted use of GitHub Issues and plain-text project structure across real research work.",
+            "GitHub is not an appropriate home for sensitive participant, clinical, proprietary, identifiable, or embargoed data. Keep raw inputs immutable, store only public, synthetic, or authorised small data, and link to a governed data repository where required."
+          ],
+          "bullets": [
+            "Question: what claim will the analysis inform?",
+            "Trace: which data, script, environment, output, and commit produced it?",
+            "Boundary: what data or metadata must remain outside GitHub?"
+          ]
+        },
+        {
+          "heading": "Make the environment and citation machine-readable",
+          "body": [
+            "Commit scripts, documentation, a dependency or lock file, and a small reproducibility check. A passing re-run does not validate the research design or statistical inference; it shows that the configured procedure executed as expected.",
+            "Add `CITATION.cff` at the repository root on the default branch. GitHub can then show Cite this repository and expose APA and BibTeX formats. Use `preferred-citation` when the repository should direct users to a related article."
+          ],
+          "code": {
+            "label": "Minimal fictional CITATION.cff",
+            "language": "yaml",
+            "value": "cff-version: 1.2.0\nmessage: \"If you use this teaching example, cite the release.\"\ntitle: \"Reproducible mini-study\"\ntype: software\nauthors:\n  - family-names: \"Learner\"\n    given-names: \"Alex\"\nversion: 0.1.0\ndate-released: 2026-08-23"
+          }
+        },
+        {
+          "heading": "Release the exact state; archive for the right purpose",
+          "body": [
+            "Create a tagged release for the exact code and documentation used in the reported result. For a public repository, Zenodo can archive releases and issue a DOI. Each service has its own account, metadata, licensing, and deposit requirements, so verify them before publication.",
+            "A default-branch URL can change. A full commit SHA identifies an exact Git state. When immutable releases are enabled, publishing locks the release tag and assets, but the release title and notes remain editable and the release itself can be deleted. After the release is deleted, its tag can be deleted, but the tag name cannot be reused. A version DOI can identify an externally archived release. GitHub archive mode makes a finished repository read-only, but it does not replace institutional backup, data-governance, or domain-archive obligations."
+          ],
+          "bullets": [
+            "Cite the exact release used for a result.",
+            "Document license, data provenance, environment, and limitations.",
+            "Keep sensitive and large governed data in an appropriate external system."
+          ]
+        }
+      ],
+      "practice": {
+        "title": "From question to citable mini-study",
+        "brief": "Use a tiny openly licensed or synthetic dataset and make one result traceable without claiming that reproducibility proves validity.",
+        "steps": [
+          "Open an issue with question, data policy, planned method, output, and completion criteria.",
+          "Add a small analysis script or notebook, dependency file, and generated table or figure on a branch.",
+          "Add a smoke test or render check and explain exactly what it verifies.",
+          "Review the correspondence among question, input, method, output, and written claim.",
+          "Add license and `CITATION.cff`, then create a versioned release. Treat Zenodo deposit as an optional public-repository extension."
+        ],
+        "evidence": [
+          "An issue-to-commit-to-output trace for one result.",
+          "A data-boundary statement naming what is not stored in GitHub.",
+          "A rendered Cite this repository panel or validated CFF file with fictional or consented public metadata."
+        ],
+        "safety": "Use only synthetic, de-identified with proper authority, or openly licensed data. Never upload participant, patient, student, location, credential, embargoed, or proprietary data for this lab."
+      },
+      "checkpoint": {
+        "prompt": "A released analysis reruns successfully. Does that establish that its conclusion is scientifically valid?",
+        "answer": "No. It supports computational reproducibility of the configured procedure. Research design, measurement, assumptions, analysis choices, uncertainty, and inference still require domain and methodological evaluation."
+      },
+      "takeaway": "GitHub can make a research process inspectable and versioned; it cannot turn an invalid design into valid evidence."
+    },
+    "writing-publishing": {
+      "kicker": "Lesson 11 · Writing and publishing",
+      "title": "Review prose as carefully as code",
+      "summary": "Make plain-text source authoritative, use pull requests for editorial reasoning, and publish a stable artifact from a reviewed version.",
+      "objective": "Structure a collaborative writing repository, conduct an editorial pull-request review, and connect the reviewed source to a released output.",
+      "sections": [
+        {
+          "heading": "Keep the editable source diff-friendly",
+          "body": [
+            "Use Markdown, Quarto, or another plain-text format as the authoritative source when the publication workflow supports it. Generated HTML, PDF, or DOCX is an output, not a second master to hand-edit after rendering.",
+            "The peer-reviewed Manubot case documents 36 authors across 20 institutions using GitHub, themed pull requests, review, and continuous integration. The associated Manubot usage guide recommends one sentence per source line so prose diffs reveal sentence changes instead of marking an entire paragraph."
+          ],
+          "bullets": [
+            "Issue: audience, thesis, outline, evidence standard, owners, and word limit.",
+            "Branch: one editorial purpose such as evidence, methods, or copy-editing.",
+            "Pull request: intended reader effect, claims changed, citations changed, and rendered preview."
+          ]
+        },
+        {
+          "heading": "Review claims, evidence, wording, and attribution separately",
+          "body": [
+            "Line comments and suggestions make exact prose revision visible. A reviewer should distinguish factual accuracy, evidence support, argument structure, reader clarity, style, citation, and authorship. A successful render proves only that the publishing system built the artifact.",
+            "Apply one suggested edit and decline another with a reason. The conversation becomes part of the decision trace instead of disappearing into an email attachment."
+          ],
+          "bullets": [
+            "Substantive review: is the claim accurate and supported?",
+            "Editorial review: is the argument coherent for the intended reader?",
+            "Production review: does the generated artifact render and meet format requirements?"
+          ]
+        },
+        {
+          "heading": "Publish a stable, attributable result",
+          "body": [
+            "After review and merge, generate the web or document artifact through a repeatable process. GitHub Pages can publish a repository-backed site, while a release can package a stable PDF, teaching pack, report, or other approved output around an exact tag.",
+            "Before publication, audit confidential drafts, reviewer comments, copyrighted figures, personal information, and secret configuration. Public Pages and release assets are distribution channels, not private previews."
+          ],
+          "code": {
+            "label": "Editorial pull-request evidence",
+            "language": "markdown",
+            "value": "## Reader outcome\nClarify why the recommendation follows from the evidence.\n\n## Claims changed\n- Narrowed the conclusion to the measured population.\n- Added the missing source for the baseline.\n\n## Validation\nRendered HTML and PDF; checked citations and links."
+          }
+        }
+      ],
+      "practice": {
+        "title": "Two authors, one reviewed brief",
+        "brief": "Write and review a short fictional policy or project brief with the source and published artifact connected.",
+        "steps": [
+          "Open an issue with audience, thesis, two-section outline, evidence standard, and owners.",
+          "Write each section on a focused branch, using one sentence per source line.",
+          "Open a pull request with reader outcome, claims changed, citations changed, and preview evidence.",
+          "Leave two substantive comments and one suggestion; apply one suggestion and decline one comment with a reason.",
+          "Render the brief and draft a release containing the stable output."
+        ],
+        "evidence": [
+          "A prose diff that a reviewer can interpret sentence by sentence.",
+          "Separate comments on claim support, reader clarity, and production quality.",
+          "A release draft that points back to the reviewed source version."
+        ],
+        "safety": "Use fictional content or your own publishable material. Do not upload confidential review, unpublished client work, copyrighted figures without permission, or personal information."
+      },
+      "checkpoint": {
+        "prompt": "The PDF rendered without errors. What has not yet been established?",
+        "answer": "Rendering does not establish that claims are accurate, evidence is sufficient, citations are correct, wording is clear, attribution is fair, or publication is authorised. Those require explicit review."
+      },
+      "takeaway": "A writing pull request reviews the relationship among evidence, claim, wording, reader, and artifact, not merely whether a document builds."
+    },
+    "teaching-capstone": {
+      "kicker": "Lesson 12 · Teaching and synthesis",
+      "title": "Teach a durable workflow, then prove it in the capstone",
+      "summary": "Use GitHub Skills and template-based assignments, account for the August 2026 Classroom retirement, protect learners, and integrate the whole course into one collaboration system.",
+      "objective": "Design a current, privacy-safe teaching pathway and complete a repository whose issue, branch, commits, pull request, project, automation, context artifact, and release form one auditable chain.",
+      "sections": [
+        {
+          "heading": "Teach the durable primitives before platform administration",
+          "body": [
+            "Start novices in the browser with GitHub Skills: repository, branch, commit, pull request, review, merge, Markdown, and conflict resolution. A template repository can distribute the same starter structure while allowing each learner to work in a separate repository with unrelated history.",
+            "Keep the first exercise short and outcome-driven. Do not require a terminal before learners understand the objects they are manipulating. Automated checks should provide fast feedback while human review assesses reasoning, communication, and learning."
+          ],
+          "bullets": [
+            "Individual practice: official GitHub Skills repositories.",
+            "Reusable starter: template repository with README, rubric, files, and minimal checks.",
+            "Instructor workflow: current supported or actively maintained tooling, verified immediately before teaching."
+          ]
+        },
+        {
+          "heading": "Do not onboard a new class to the retiring GitHub Classroom application",
+          "body": [
+            "GitHub stopped new Classroom sign-ups on 26 May 2026 and will decommission the application on 28 August 2026. Export required Classroom-only data before 28 August; GitHub says some data becomes inaccessible then and is scheduled for final deletion on 4 September 2026. Existing GitHub accounts, organizations, and repositories remain.",
+            "GitHub named Codio and the open-source Classroom 50 project as transition options. Classroom 50 documents templates, assignment distribution, GitHub Actions autograding, feedback pull requests, rosters, and score export, but it is a separate actively developed project. At this source snapshot its Quickstart requires a GitHub organization on Team or Enterprise. Verify its current release, security status, organization requirements, education eligibility, and institutional approval before adoption."
+          ],
+          "bullets": [
+            "Export required Classroom-only data before 28 August 2026; do not wait for the 4 September final-deletion date.",
+            "Pilot assignment automation with a tiny fictional roster and minimal permissions.",
+            "Keep official grade and student records in the institution's authorised system."
+          ]
+        },
+        {
+          "heading": "Complete one chain that another person can audit",
+          "body": [
+            "The capstone is not twelve disconnected screenshots. It is one repository where a reader can travel from charter and safety boundary to issue, branch, commits, pull request, review, Project state, context-specific evidence, automation, merge, and release.",
+            "Choose one context: software, research, writing, office work, or teaching. Apply the common GitHub loop while keeping that context's definition of valid review. A research reviewer asks about data-to-claim trace; an office approver asks about authority and feasibility; a teacher combines automated evidence with human learning criteria."
+          ],
+          "code": {
+            "label": "Capstone audit chain",
+            "language": "text",
+            "value": "Charter and safety boundary\n  -> actionable issue\n  -> focused branch and commits\n  -> pull request and contextual review\n  -> checks with stated limits\n  -> accepted merge\n  -> project closeout\n  -> tagged release"
+          }
+        }
+      ],
+      "practice": {
+        "title": "Pilot a safe assignment workflow",
+        "brief": "Create a template-based mini-assignment or inspect the current tools without enrolling real students or exposing records.",
+        "steps": [
+          "Complete the official Introduction to GitHub skill or map its repository-branch-commit-pull-request-merge sequence.",
+          "Convert a disposable repository into a template with clear instructions, rubric, starter file, and one harmless check.",
+          "Read GitHub's Classroom retirement notice and current transition discussion.",
+          "If evaluating Classroom 50, use only its current Quickstart and a fictional pilot roster; do not deploy it for real students as part of this course.",
+          "Write a human-feedback criterion that the automated check cannot assess."
+        ],
+        "evidence": [
+          "A template repository containing no student or institutional data.",
+          "A dated migration note that does not recommend new GitHub Classroom onboarding.",
+          "One automated criterion and one distinct human-learning criterion."
+        ],
+        "safety": "Never publish student names, submissions, grades, feedback, tokens, or organization secrets. Obtain institutional approval before adopting an external assignment platform."
+      },
+      "checkpoint": {
+        "prompt": "Why can an autograding score not be the entire learning judgement?",
+        "answer": "Automated checks measure only observable conditions encoded in the workflow. They usually do not capture reasoning, design judgement, attribution, collaboration, explanation, reflection, or context-specific quality."
+      },
+      "takeaway": "Teach durable GitHub primitives, verify volatile teaching tools at delivery time, and make human judgement visible alongside automation."
+    }
+  },
+  "quiz": {
+    "q01": {
+      "question": "Which statement best distinguishes Git from GitHub?",
+      "options": [
+        "GitHub records file history; Git only hosts issue conversations.",
+        "Git records version history; GitHub hosts repositories and adds collaboration services.",
+        "Git and GitHub are two names for the same browser application.",
+        "Git is required only for public repositories, while GitHub is required only for private ones."
+      ],
+      "explanation": "Git is the version-control system. GitHub hosts Git repositories and adds identity, permissions, issues, pull requests, review, Projects, releases, and automation."
+    },
+    "q02": {
+      "question": "A real access token was accidentally committed. What is the correct first response?",
+      "options": [
+        "Rename the repository.",
+        "Delete the line in a later commit and take no other action.",
+        "Revoke or rotate the token, then assess exposure and remediate history.",
+        "Make the repository private and assume every prior copy is gone."
+      ],
+      "explanation": "The credential may already exist in history, clones, forks, logs, or caches. Revocation or rotation stops future use; cleanup follows."
+    },
+    "q03": {
+      "question": "When should repository visibility be chosen?",
+      "options": [
+        "Before uploading, based on audience, permissions, and information risk.",
+        "After the project is complete, because visibility does not affect exposure.",
+        "Only when the first pull request is opened.",
+        "Automatically as public whenever no source code is present."
+      ],
+      "explanation": "Visibility is a governance decision made before content enters the repository. Non-code files can be just as sensitive as code."
+    },
+    "q04": {
+      "question": "What is the strongest reason to use Markdown Preview before committing a README?",
+      "options": [
+        "Preview encrypts the README.",
+        "Preview creates a new branch automatically.",
+        "Preview proves that every factual claim is accurate.",
+        "Preview reveals how the structure, links, lists, tables, and code blocks will render."
+      ],
+      "explanation": "Preview catches rendering problems. It does not validate claims, permissions, or privacy."
+    },
+    "q05": {
+      "question": "Why should unrelated work use separate branches?",
+      "options": [
+        "GitHub limits every branch to one file type.",
+        "Separate branches keep review, testing, ownership, and rollback focused.",
+        "A repository can merge only one branch in its lifetime.",
+        "Branches are private even in public repositories."
+      ],
+      "explanation": "Focused branches make each proposal coherent and reduce the number of risks a reviewer must reason about at once."
+    },
+    "q06": {
+      "question": "Which commit message best describes an outcome?",
+      "options": [
+        "changes",
+        "Update README",
+        "Add audience and success criteria",
+        "final final v2"
+      ],
+      "explanation": "A useful message explains the coherent result of the commit, making history understandable without opening every diff."
+    },
+    "q07": {
+      "question": "What should a pull-request description make visible?",
+      "options": [
+        "Problem, intended change, validation, risk, and linked work.",
+        "Only the author's preferred merge button.",
+        "Every Git command the author has ever run.",
+        "Only the names of changed files."
+      ],
+      "explanation": "The reviewer needs purpose, scope, evidence, uncertainty, and traceability, not a restatement of the file list."
+    },
+    "q08": {
+      "question": "A reviewer selects Request changes. When is merging technically blocked?",
+      "options": [
+        "Always, on every repository and plan.",
+        "Only if the reviewer also opens an issue.",
+        "Only for documentation pull requests.",
+        "When Require a pull request applies and an eligible collaborator submits the request, subject to configured dismissal or bypass authority."
+      ],
+      "explanation": "Request changes is otherwise informational. With Require a pull request enabled, a request from a collaborator with write, admin, or owner access blocks merge until that collaborator approves, unless an authorised dismissal or bypass applies."
+    },
+    "q09": {
+      "question": "Where should an open-ended proposal about future community direction begin?",
+      "options": [
+        "Inside an unrelated commit message.",
+        "As a release asset.",
+        "In a Discussion, then in an issue if it becomes actionable work.",
+        "In a repository secret."
+      ],
+      "explanation": "Discussions support exploration and community conversation. A committed action should be recorded as accountable work in an issue."
+    },
+    "q10": {
+      "question": "Which issue description is most actionable?",
+      "options": [
+        "README bad",
+        "Context, desired outcome, acceptance criteria, and an owner when known.",
+        "A transcript of every meeting with no summary.",
+        "A list of unrelated feature ideas and personal notes."
+      ],
+      "explanation": "An issue should make the work and completion condition legible, while comments preserve discussion and updates."
+    },
+    "q11": {
+      "question": "What is the best relationship among Project table, board, and roadmap views?",
+      "options": [
+        "They are views over one Project's shared items and fields; filters can show different subsets.",
+        "Each should be maintained as a separate manual copy of status.",
+        "Only the board may contain issues.",
+        "A roadmap is always public even when the project is private."
+      ],
+      "explanation": "A Project provides shared items and fields. Each view can use a layout, filters, grouping, and sorting for its audience without creating a parallel status copy."
+    },
+    "q12": {
+      "question": "Which office document most clearly belongs outside a normal working repository?",
+      "options": [
+        "A fictional README project charter.",
+        "A Markdown issue template.",
+        "A public communication checklist.",
+        "The signed original of a confidential client contract under a records-retention policy."
+      ],
+      "explanation": "The scenario's named records-retention policy determines that the authorised records system is the source of truth; that conclusion comes from the scenario, not from GitHub documentation. GitHub's sensitive-data guidance separately supports keeping confidential material out of repository history. A working repository may link to the governed record only if the policy permits."
+    },
+    "q13": {
+      "question": "When is a fork commonly appropriate?",
+      "options": [
+        "Whenever a collaborator wants to rename one branch.",
+        "When contributing across a repository ownership or write-permission boundary.",
+        "Only when the original repository has no commits.",
+        "To make private content automatically public."
+      ],
+      "explanation": "A fork is a separate repository related to an upstream repository and supports contribution without direct branch access to the original."
+    },
+    "q14": {
+      "question": "GitHub shows conflict markers around two audience sentences. What should you do?",
+      "options": [
+        "Commit the markers so the reviewer can choose later.",
+        "Delete the entire file.",
+        "Understand both intents, write the intended final text, remove markers, preview, and review the resolved diff.",
+        "Always select the newest sentence without reading it."
+      ],
+      "explanation": "A conflict is an intent decision Git cannot make safely. Resolve the meaning, not merely the syntax."
+    },
+    "q15": {
+      "question": "Which notification habit best protects attention?",
+      "options": [
+        "Watch only relevant event types, triage intentionally, and unsubscribe when responsibility ends.",
+        "Watch every repository for every event forever.",
+        "Disable all notifications, including direct review requests.",
+        "Use unread count as the sole measure of performance."
+      ],
+      "explanation": "Scoped subscriptions and deliberate triage keep owned work visible without converting every event into equal urgency."
+    },
+    "q16": {
+      "question": "Why can history rewriting not guarantee that sensitive data is gone everywhere?",
+      "options": [
+        "Git does not store earlier versions.",
+        "Only repository owners can read current files.",
+        "Private repositories never have clones.",
+        "Copies may already exist in clones, forks, caches, logs, or downstream systems."
+      ],
+      "explanation": "Rewriting changes reachable repository history but cannot recall copies already distributed elsewhere."
+    },
+    "q17": {
+      "question": "Which surface is best for a quick, single-file README correction with no local tools?",
+      "options": [
+        "A full self-hosted runner.",
+        "A custom GitHub App.",
+        "GitHub.com in the browser.",
+        "A database migration tool."
+      ],
+      "explanation": "The browser has the lowest setup cost for small, simple changes. Move to other surfaces when task needs justify them."
+    },
+    "q18": {
+      "question": "What does a green GitHub Actions check establish?",
+      "options": [
+        "The software has no defect of any kind.",
+        "GitHub reported success for the run under the workflow's configured logic.",
+        "Every reviewer approved the pull request.",
+        "No secret can exist anywhere in history."
+      ],
+      "explanation": "The result is evidence only about the configured run outcome. Skipped or missing checks, continue-on-error behavior, and human judgement remain outside it."
+    },
+    "q19": {
+      "question": "What happens when a valid `CITATION.cff` is placed at the repository root on the default branch?",
+      "options": [
+        "GitHub can display Cite this repository and offer formatted citation information.",
+        "GitHub automatically proves the research valid.",
+        "Every repository file receives a new copyright owner.",
+        "The repository becomes private."
+      ],
+      "explanation": "Citation metadata helps users cite the work. It does not validate methodology, grant a license, or change visibility."
+    },
+    "q20": {
+      "question": "Which reference most precisely identifies the analysis state used for a result?",
+      "options": [
+        "The repository owner's profile page.",
+        "The latest default-branch page with no date.",
+        "A screenshot of the file list.",
+        "A full commit SHA, an immutable GitHub release, or a DOI-backed archive of the exact release."
+      ],
+      "explanation": "A full commit SHA identifies exact Git state; an immutable release locks its tag and assets; a version DOI can identify a preserved deposit. A branch name or ordinary editable release is weaker."
+    },
+    "q21": {
+      "question": "Why might a writing project keep one sentence per source line?",
+      "options": [
+        "It prevents every grammar error.",
+        "It makes prose diffs and sentence-level review easier to interpret.",
+        "It encrypts unpublished text.",
+        "It guarantees that a PDF will meet a journal's rules."
+      ],
+      "explanation": "The documented Manubot workflow uses this convention to make textual changes clearer in Git diffs and review."
+    },
+    "q22": {
+      "question": "What should a writing release identify?",
+      "options": [
+        "Only the number of commits in the repository.",
+        "The private emails used during drafting.",
+        "The stable output, source version, audience-facing changes, and known limitations.",
+        "Every rejected sentence from every draft."
+      ],
+      "explanation": "A release connects an approved source state to the output readers can use and explains what that version represents."
+    },
+    "q23": {
+      "question": "What should a new course do about the GitHub Classroom application in late August 2026?",
+      "options": [
+        "Do not onboard a new class; teach durable primitives and follow GitHub's current transition guidance.",
+        "Require every learner to create a new Classroom account after 28 August.",
+        "Ignore the retirement notice because existing repositories will be deleted.",
+        "Publish student grades in a public template repository."
+      ],
+      "explanation": "New sign-ups ended in May 2026. Export Classroom-only data before decommissioning on 28 August 2026; some of that data is scheduled for final deletion on 4 September. GitHub accounts, organizations, and repositories remain."
+    },
+    "q24": {
+      "question": "Which teaching assessment design is strongest?",
+      "options": [
+        "Use only an autograding score for every learning outcome.",
+        "Give student workflows broad write permissions and production secrets.",
+        "Publish all feedback so peers can compare grades.",
+        "Combine minimal-permission automated checks with human criteria for reasoning, design, attribution, and reflection."
+      ],
+      "explanation": "Automation can test encoded observable conditions; educators still need human judgement for learning qualities it does not represent."
+    }
+  },
+  "figures": {
+    "fig-01": {
+      "alt": "GitHub global Create menu with the New repository action outlined.",
+      "caption": "Start a repository from the global Create menu."
+    },
+    "fig-02": {
+      "alt": "New repository form with hello entered in the Repository name field.",
+      "caption": "Use a short, descriptive, URL-safe repository name."
+    },
+    "fig-03": {
+      "alt": "GitHub file editor for .github/CODEOWNERS with the Preview tab outlined.",
+      "caption": "Open Preview before committing; GitHub can render supported content in that tab."
+    },
+    "fig-04": {
+      "alt": "Diagram showing a feature branch diverging from main, passing through commit, pull request, and discussion, then merging back.",
+      "caption": "A branch isolates a proposal until review and merge."
+    },
+    "fig-05": {
+      "alt": "Repository branch selector showing main as the current branch.",
+      "caption": "Confirm the current branch before editing."
+    },
+    "fig-06": {
+      "alt": "README diff with removed lines in red and added lines in green.",
+      "caption": "The diff is the evidence of what a commit actually changes."
+    },
+    "fig-07": {
+      "alt": "Pull request navigation with the Files changed tab outlined.",
+      "caption": "Review every changed file before approving a proposal."
+    },
+    "fig-08": {
+      "alt": "Empty pull-request review comment editor with the Add a suggestion button outlined.",
+      "caption": "A suggestion gives the author a directly applicable patch."
+    },
+    "fig-09": {
+      "alt": "Pull request Files changed view with the closed Review changes button outlined.",
+      "caption": "The review decision communicates readiness; repository rules determine whether it is enforced as a gate."
+    },
+    "fig-10": {
+      "alt": "Repository navigation with the Issues tab outlined.",
+      "caption": "Issues make actionable work and its status visible."
+    },
+    "fig-11": {
+      "alt": "A real GitHub repository Discussions page listing open-ended project conversations.",
+      "caption": "Discussions support community questions, proposals, announcements, and direction."
+    },
+    "fig-12": {
+      "alt": "GitHub Project table showing issues as rows with Assignees, Status, Labels, and Notes columns.",
+      "caption": "A table view supports detailed planning and triage."
+    },
+    "fig-13": {
+      "alt": "GitHub Project board with work arranged in No status, Todo, In progress, and Done columns.",
+      "caption": "A board makes the flow of linked issues and pull requests visible."
+    },
+    "fig-14": {
+      "alt": "GitHub notifications inbox icon with a blue unread indicator.",
+      "caption": "An unread indicator means subscribed activity needs deliberate triage."
+    },
+    "fig-15": {
+      "alt": "GitHub two-factor authentication setup showing the option to enter an authenticator setup key.",
+      "caption": "Configure two-factor authentication and store recovery codes securely outside the repository."
+    },
+    "fig-16": {
+      "alt": "Pull request warning that the branch has conflicts, with the Resolve merge conflicts button visible.",
+      "caption": "GitHub blocks automatic merging until competing changes are resolved."
+    },
+    "fig-17": {
+      "alt": "Repository page with the Releases link highlighted beside the file list.",
+      "caption": "A release packages a named point in repository history for an audience."
+    },
+    "fig-18": {
+      "alt": "Repository sidebar with Cite this repository expanded to show APA and BibTeX citation options.",
+      "caption": "A valid CITATION.cff at the repository root on the default branch lets users export the requested citation."
+    },
+    "fig-19": {
+      "alt": "Repository navigation with the Actions tab outlined.",
+      "caption": "Actions is the entry point for workflow runs and their evidence."
+    },
+    "fig-20": {
+      "alt": "GitHub Actions page with a workflow selected in the sidebar and recent runs listed.",
+      "caption": "Read which workflow ran, for which event and commit, before trusting a status."
+    },
+    "fig-21": {
+      "alt": "Repository Settings tab highlighted above the repository navigation.",
+      "caption": "Repository administrators can mark a prepared repository as a reusable template from Settings."
+    }
+  },
+  "capstone": {
+    "title": "Build a collaboration-ready repository",
+    "summary": "Create one auditable chain from purpose and safety boundary to accepted, released work. Choose software, research, writing, office, or teaching as the context.",
+    "scenario": "A new collaborator should be able to understand why the work exists, what may enter the repository, what is currently proposed, how it was checked and reviewed, who accepted it, and which released version they should use.",
+    "steps": [
+      "Choose one context and define what valid review means in that context.",
+      "Complete the eight evidence artifacts in the same repository.",
+      "Follow every link from issue to pull request to merge and release as if you were an external auditor.",
+      "Remove or fictionalise any personal, confidential, proprietary, student, participant, or credential material.",
+      "Check every artifact below, then record capstone completion in this browser."
+    ],
+    "artifacts": [
+      {
+        "id": "boundary",
+        "title": "Charter and safety boundary",
+        "description": "README names purpose, audience, authority, definition of done, visibility decision, and excluded data."
+      },
+      {
+        "id": "issue",
+        "title": "Actionable issue",
+        "description": "Issue records context, outcome, acceptance criteria, owner or role, and the context-specific review standard."
+      },
+      {
+        "id": "history",
+        "title": "Focused branch and commits",
+        "description": "One branch contains at least two coherent commits whose diffs match their messages."
+      },
+      {
+        "id": "review",
+        "title": "Pull request and review",
+        "description": "Pull request links the issue, states evidence and risk, and contains substantive contextual feedback plus an author response."
+      },
+      {
+        "id": "project",
+        "title": "Project record",
+        "description": "The linked work appears in a useful Project view with an accountable status and no competing manual status source."
+      },
+      {
+        "id": "checks",
+        "title": "Checks with limits",
+        "description": "A manual or automated check is repeatable, and the pull request states what it does and does not establish."
+      },
+      {
+        "id": "context",
+        "title": "Context artifact",
+        "description": "Software, research, writing, office, or teaching output follows that context's privacy, evidence, and review boundary."
+      },
+      {
+        "id": "release",
+        "title": "Accepted merge and release",
+        "description": "Merged state closes or updates the issue, Project status is current, and a tagged release explains the stable result and limitations."
+      }
+    ],
+    "completion": "Completion is a local self-audit, not a GitHub credential or external certification. Export the summary only after you can open each repository artifact."
+  }
+}

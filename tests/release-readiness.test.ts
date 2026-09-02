@@ -15,6 +15,7 @@ import {
   validateMessageCatalogs,
   validateReleaseReadiness,
 } from "../scripts/check-release-readiness.mjs";
+import { NATIVE_REVIEW_INVENTORY_PATH } from "../scripts/native-review-inventory.mjs";
 
 type Evidence = {
   status: "pending" | "pass" | "fail";
@@ -141,6 +142,9 @@ function passingConfig(): LooseConfig {
   required.rulesetId = "ruleset-fixture";
   required.qualityRequired = true;
   required.smokeChromiumRequired = true;
+  required.compatibilityRequired = true;
+  required.publishedCoursesRequired = true;
+  required.vercelPreviewRequired = true;
   passEvidence(required, "github-ruleset:ruleset-fixture");
   for (const [index, run] of (config.gates.githubReadiness.stableRuns as LooseConfig[]).entries()) {
     const runId = String(1001 + index);
@@ -152,6 +156,9 @@ function passingConfig(): LooseConfig {
     run.workflowSha = WORKFLOW_SHA;
     run.qualityConclusion = "success";
     run.smokeChromiumConclusion = "success";
+    run.compatibilityConclusion = "success";
+    run.publishedCoursesConclusion = "success";
+    run.vercelPreviewConclusion = "success";
     run.completedAt = completedAt;
     passEvidence(run.result, `github-run:${runId}`, completedAt);
   }
@@ -221,10 +228,14 @@ test("the committed release config is schema-valid and honestly pending", () => 
   assert.equal(result.ready, false);
   assert.equal(result.configIssues.length, 0);
   assert.deepEqual(result.messageIssues, []);
+  assert.ok(result.nativeReviewInventoryIssues.some((issue) =>
+    issue.code === "native-inventory-file"
+    && issue.path === NATIVE_REVIEW_INVENTORY_PATH));
   assert.match(
     formatReadinessReport(result),
     /all locale catalogs have complete keys, placeholders, plurals, and explained identical terms/,
   );
+  assert.match(formatReadinessReport(result), /final-candidate native-review inventory is missing/);
   assert.equal(result.evidence.every((group) => group.status === "pending"), true);
 });
 
@@ -233,6 +244,7 @@ test("fully signed fixture evidence and complete locale fixtures pass", () => {
     config: passingConfig(),
     catalogs: passingCatalogs(),
     projectRoot: process.cwd(),
+    nativeReviewInventoryIssues: [],
   });
 
   assert.equal(result.ready, true);
@@ -248,11 +260,29 @@ test("valid pending evidence blocks release without becoming a schema error", ()
     config,
     catalogs: passingCatalogs(),
     projectRoot: process.cwd(),
+    nativeReviewInventoryIssues: [],
   });
 
   assert.equal(result.ready, false);
   assert.deepEqual(result.configIssues, []);
   assert.match(formatReadinessReport(result), /8 pending, 0 failed, 8 required/);
+});
+
+test("a stale native-review inventory blocks an otherwise passing release fixture", () => {
+  const result = evaluateReleaseReadiness({
+    config: passingConfig(),
+    catalogs: passingCatalogs(),
+    projectRoot: process.cwd(),
+    nativeReviewInventoryIssues: [{
+      code: "native-inventory-candidate-digest",
+      path: "$.files[0].sha256",
+      message: "digest does not match the frozen candidate file",
+    }],
+  });
+
+  assert.equal(result.ready, false);
+  assert.equal(result.nativeReviewInventoryIssues.length, 1);
+  assert.match(formatReadinessReport(result), /Native-review inventory blockers/);
 });
 
 test("dates, evidence references, and aggregate statuses fail closed", () => {
@@ -541,6 +571,7 @@ test("stale or overbroad identical-text exceptions are rejected", () => {
     config: passingConfig(),
     catalogs,
     projectRoot: process.cwd(),
+    nativeReviewInventoryIssues: [],
   });
   assert.ok(evaluation.messageIssues.some((issue) => issue.code === "catalog-allowlist-stale"));
   const report = formatReadinessReport(evaluation);

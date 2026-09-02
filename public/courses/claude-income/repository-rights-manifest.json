@@ -1,0 +1,85 @@
+{
+  "course": "Course 12: How to Make Money with Claude",
+  "manifestVersion": "2026-08-23.v1",
+  "auditedOn": "2026-08-23",
+  "reusePolicy": "Repositories are linked and described in original course prose. No repository file, screenshot, media asset, dependency, or code sample is bundled or redistributed by Course 12.",
+  "redistributedRepositoryAssets": [],
+  "repositories": [
+    {
+      "sourceId": "github-anthropic-skills",
+      "repository": "https://github.com/anthropics/skills",
+      "immutableCommit": "3b3fad96af16a10759d930941b4520ba0c40edae",
+      "inspectedPath": "/",
+      "licenseFinding": "Mixed by directory: many examples are Apache-2.0; document skills are source-available and not open source.",
+      "courseUse": "Link-only inspection and original description of the Skill packaging pattern.",
+      "noticeAndModification": "No repository material copied or modified; no redistribution notice is triggered by this course use.",
+      "thirdPartyReview": "Required before any future file-level reuse."
+    },
+    {
+      "sourceId": "github-marketingskills",
+      "repository": "https://github.com/coreyhaines31/marketingskills",
+      "immutableCommit": "3df87f97621e18fbed7f6aa684edba54f49779a7",
+      "inspectedPath": "/",
+      "licenseFinding": "MIT displayed at the audited repository revision.",
+      "courseUse": "Link-only inspection and original description of a reusable operational-knowledge pattern.",
+      "noticeAndModification": "No repository material copied or modified; no redistribution notice is triggered by this course use.",
+      "thirdPartyReview": "Required before any future file-level reuse."
+    },
+    {
+      "sourceId": "github-claude-marketing",
+      "repository": "https://github.com/thatrebeccarae/claude-marketing",
+      "immutableCommit": "a8a63ec1341f05ec9c1e9cb52b4edeb14e3bdcba",
+      "inspectedPath": "/",
+      "licenseFinding": "MIT displayed at the audited repository revision.",
+      "courseUse": "Link-only inspection and original description of a marketing Skill collection.",
+      "noticeAndModification": "No repository material copied or modified; no redistribution notice is triggered by this course use.",
+      "thirdPartyReview": "Required before any future file-level reuse."
+    },
+    {
+      "sourceId": "github-seo-audit",
+      "repository": "https://github.com/houtini-ai/seo-audit",
+      "immutableCommit": "dbacd51934da0bfa0dc62ebaae69d231a057d146",
+      "inspectedPath": "/",
+      "licenseFinding": "Apache-2.0 displayed at the audited repository revision.",
+      "courseUse": "Link-only inspection and original description of a structured audit workflow.",
+      "noticeAndModification": "No repository material copied or modified; no redistribution notice is triggered by this course use.",
+      "thirdPartyReview": "Required before any future file-level reuse."
+    },
+    {
+      "sourceId": "github-open-saas",
+      "repository": "https://github.com/wasp-lang/open-saas",
+      "immutableCommit": "cbd30162b05d798b3a3f955ab5781940b67bec89",
+      "inspectedPath": "/",
+      "licenseFinding": "MIT displayed at the audited repository revision.",
+      "courseUse": "Link-only inspection and original description of a SaaS scaffold; no production or demand inference.",
+      "noticeAndModification": "No repository material copied or modified; no redistribution notice is triggered by this course use.",
+      "thirdPartyReview": "Required before any future file-level reuse."
+    },
+    {
+      "sourceId": "github-lastsaas",
+      "repository": "https://github.com/jonradoff/lastsaas",
+      "immutableCommit": "c692923ed98ee503f2de61180ff530a5b05f71a6",
+      "inspectedPath": "/",
+      "licenseFinding": "MIT displayed at the audited repository revision.",
+      "courseUse": "Link-only inspection and original description of an inspectable product artifact.",
+      "noticeAndModification": "No repository material copied or modified; no redistribution notice is triggered by this course use.",
+      "thirdPartyReview": "Required before any future file-level reuse."
+    },
+    {
+      "sourceId": "github-shotgun-case",
+      "repository": "https://github.com/shotgun-sh/shotgun",
+      "immutableCommit": "4d344d5a46aafc815de441ff670d4131187f33e6",
+      "inspectedPath": "/docs/CASE_STUDY.md",
+      "licenseFinding": "MIT displayed at repository root; exact document scope must be rechecked before any reuse.",
+      "courseUse": "Link-only inspection; vendor-authored numbers remain Grade C self-report and are not copied as outcome evidence.",
+      "noticeAndModification": "No repository material copied or modified; no redistribution notice is triggered by this course use.",
+      "thirdPartyReview": "Required before any future file-level reuse."
+    }
+  ],
+  "excluded": [
+    {
+      "repository": "https://github.com/remotion-dev/skills",
+      "reason": "No clear repository license was observed during the audit, so it is excluded from Course 12 sources, assets, and instruction."
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.frozen-media-receipt.v1",
+  "projectSpecId": "course20-verified-cut-v2",
+  "projectId": "course20-synthetic-practicum-v2",
+  "courseVersion": "1.2.0",
+  "frozenOn": "2026-08-28",
+  "generatorSha256": "b69a1f7b224d977b18b6bb2734c1119399a6e8fe625beed469ff43c4b71e3f54",
+  "rendererSha256": "e6cec67cb4a9307ba5308992789ba341fc37c2087180f684d8e011de69eb4c7a",
+  "sourceRecipeSha256": "96c18fa621cd12112c6a4736a5fa09afd57d5f26e0c60a589f0c99317708b59e",
+  "ffmpegVersion": [
+    "ffmpeg version 8.1.1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "built with Apple clang version 17.0.0 (clang-1700.6.4.2)",
+    "configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.1.1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gpl --enable-libsvtav1 --enable-libopus --enable-libx264 --enable-libmp3lame --enable-libdav1d --enable-libvmaf --enable-libvpx --enable-libx265 --enable-openssl --enable-videotoolbox --enable-audiotoolbox --enable-neon"
+  ],
+  "sourceRunId": "course20-freeze-20260827230840-327268b5",
+  "media": [
+    {
+      "id": "original-fixture",
+      "path": "lab/frozen/course20-original-fixture.mp4",
+      "sha256": "a845aba34466d5ab6749c27b044c172f4829bc5ce8b559109d508ce4b7dbeab1",
+      "byteLength": 2315189,
+      "probeReceiptSha256": "485b49efd39b163833481e9052c0d5cd97454f41dc1dc17db483cbbe9b0daf4b",
+      "observations": {
+        "durationSeconds": 122,
+        "width": 320,
+        "height": 180,
+        "frameRate": "30/1",
+        "averageFrameRate": "30/1",
+        "audioSampleRateHz": "48000",
+        "videoCodec": "h264",
+        "audioCodec": "aac"
+      }
+    },
+    {
+      "id": "fault-reel",
+      "path": "lab/frozen/course20-fault-reel.mp4",
+      "sha256": "4199e2602e96739a58dcfadcb80f6a55021af9c8cbbfed4e984f586fc3bf8b7c",
+      "byteLength": 65286,
+      "probeReceiptSha256": "a4d0d1c6982c1251d08583ccf62eef31b3e19cccc7205344a0e580ebbcbec4f5",
+      "observations": {
+        "durationSeconds": 6,
+        "width": 320,
+        "height": 180,
+        "frameRate": "30/1",
+        "averageFrameRate": "30/1",
+        "audioSampleRateHz": "48000",
+        "videoCodec": "h264",
+        "audioCodec": "aac"
+      }
+    }
+  ],
+  "canonicalRevalidation": {
+    "courseVersion": "1.2.0",
+    "sourceDurationSeconds": 122,
+    "sourceFrameRate": "30/1",
+    "timelineDurationFrames": 1410,
+    "conformedInputCount": 1,
+    "schemaGateOrder": [
+      "general-production-v3",
+      "course20-synthetic-fixture-v3",
+      "cross-field-semantic-compiler"
+    ],
+    "status": "pass"
+  },
+  "reproducibilityBoundary": "Hashes bind these exact committed bytes and this build. Rebuilds on other FFmpeg versions must match structural expectations; cross-build byte identity is not promised.",
+  "rightsBoundary": "Both files are first-party synthetic controls with no people, personal data, third-party footage, voice performance, or music.",
+  "publicationDecision": "do-not-publish"
+}

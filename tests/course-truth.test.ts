@@ -4,6 +4,7 @@ import test from "node:test";
 
 const LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
 const BUILD_TRUTH_KEYS = ["track.3.desc", "c.build.blurb", "build.lede", "build.beforeTime"];
+const GUIDED_TO_TRANSFER_SEQUENCE = /0\s*(?:[-–~〜～]|à|إلى)\s*8[\s\S]*9/u;
 
 const VARIABLE_COST_TRUTH: Record<string, { lab: string; build: string }> = {
   en: { lab: "Provider charges vary", build: "offline or usage-based Provider calls" },
@@ -17,16 +18,16 @@ const VARIABLE_COST_TRUTH: Record<string, { lab: string; build: string }> = {
   ar: { lab: "تختلف رسوم المزوّد حسب الاستخدام الفعلي", build: "دون اتصال أو استدعاءات للمزوّد محسوبة حسب الاستخدام" },
 };
 
-const HANDBOOK_COST_TRUTH: Record<string, string> = {
-  en: "Provider charges vary with model, time, cache and usage",
-  es: "los cargos del proveedor varían según el modelo, la hora, la caché y el uso",
-  fr: "les frais du fournisseur varient selon le modèle, l’heure, le cache et l’usage",
-  de: "die Provider-Kosten variieren je nach Modell, Zeitfenster, Cache und Nutzung",
-  "zh-Hans": "供应商费用会随模型、时段、缓存和实际用量变化",
-  "zh-Hant": "供應商費用會隨模型、時段、快取和實際用量變化",
-  ja: "プロバイダー料金はモデル、時間帯、キャッシュ、使用量によって変わります",
-  ko: "공급자 요금은 모델, 시간대, 캐시, 실제 사용량에 따라 달라집니다",
-  ar: "تختلف رسوم المزوّد باختلاف النموذج والوقت والتخزين المؤقت والاستخدام",
+const HANDOFF_COST_TRUTH: Record<string, string> = {
+  en: "charges vary with model, time, cache and usage",
+  es: "los cargos varían según el modelo, el tiempo, la caché y el uso",
+  fr: "les frais varient selon le modèle, la durée, le cache et l’utilisation",
+  de: "die Kosten variieren je nach Modell, Zeit, Cache und Nutzung",
+  "zh-Hans": "费用会随模型、时间、缓存和用量而变化",
+  "zh-Hant": "費用會隨模型、時間、快取和用量而變化",
+  ja: "料金はモデル、時間、キャッシュ、使用量によって変動します",
+  ko: "요금은 모델, 시간, 캐시 및 사용량에 따라 달라집니다",
+  ar: "تختلف الرسوم باختلاف النموذج والوقت والتخزين المؤقت والاستخدام",
 };
 
 test("Part 3 names nine guided stages 0–8 and a distinct Stage 9 transfer project", () => {
@@ -52,7 +53,11 @@ test("Part 3 names nine guided stages 0–8 and a distinct Stage 9 transfer proj
     for (const key of BUILD_TRUTH_KEYS) {
       const value = catalog[key];
       assert.equal(typeof value, "string", `${locale}:${key} must exist`);
-      assert.match(value, /0[^\d]{0,3}8[\s\S]*9/, `${locale}:${key} must distinguish 0–8 from 9`);
+      assert.match(
+        value,
+        GUIDED_TO_TRANSFER_SEQUENCE,
+        `${locale}:${key} must distinguish guided Stages 0–8 from transfer Stage 9`,
+      );
     }
   }
 
@@ -63,22 +68,45 @@ test("Part 3 names nine guided stages 0–8 and a distinct Stage 9 transfer proj
   assert.match(courseReadme, /## The nine guided stages \(0–8\)/);
 });
 
-test("homepage metadata describes variable Provider cost instead of promising a fixed price", () => {
+test("Course 1 catalog facts expose real labels and require both route exploration and assessment submission", () => {
+  const factKeys = [
+    "cat.fact.prerequisite",
+    "cat.fact.outcome",
+    "cat.fact.artifact",
+    "cat.fact.evidence",
+  ];
+  for (const locale of LOCALES) {
+    const catalog = JSON.parse(readFileSync(`messages/${locale}.json`, "utf8")) as Record<string, string>;
+    for (const key of factKeys) {
+      assert.equal(typeof catalog[key], "string", `${locale}:${key} must render a label`);
+      assert.notEqual(catalog[key], key, `${locale}:${key} must not leak its message id`);
+    }
+    assert.match(catalog["c.handbook.artifact"], /10/u, `${locale}:artifact must describe the submitted run`);
+    assert.match(catalog["c.handbook.evidence"], /11/u, `${locale}:evidence must require all sections`);
+    assert.match(catalog["c.handbook.evidence"], /10/u, `${locale}:evidence must require assessment submission`);
+  }
+
+  const en = JSON.parse(readFileSync("messages/en.json", "utf8")) as Record<string, string>;
+  assert.doesNotMatch(en["c.handbook.artifact"], /completed|master/i);
+  assert.match(en["c.handbook.evidence"], /score does not determine completion/i);
+});
+
+test("public course and result-handoff copy describe variable Provider cost instead of a fixed price", () => {
   const fixedPriceUnit = /[¢$€£¥₩]|\b(?:cent|cents)\b|美分|分钱|分錢|セント|سنت/u;
 
   for (const locale of LOCALES) {
     const catalog = JSON.parse(readFileSync(`messages/${locale}.json`, "utf8")) as Record<string, string>;
-    const handbook = JSON.parse(readFileSync(`messages/handbook/${locale}.json`, "utf8")) as Record<string, string>;
+    const widgets = JSON.parse(readFileSync(`messages/widgets/${locale}.json`, "utf8")) as Record<string, string>;
     const labMeta = catalog["track.2.meta"];
     const buildMeta = catalog["track.3.meta"];
-    const handbookCost = handbook["hb.body.p-compare.82"];
+    const handbookCost = widgets["w.progress.continueLab.cost"];
     assert.equal(typeof labMeta, "string", `${locale}:track.2.meta must exist`);
     assert.equal(typeof buildMeta, "string", `${locale}:track.3.meta must exist`);
-    assert.equal(typeof handbookCost, "string", `${locale}:hb.body.p-compare.82 must exist`);
+    assert.equal(typeof handbookCost, "string", `${locale}:w.progress.continueLab.cost must exist`);
     assert.match(labMeta, /DeepSeek/u, `${locale}:track.2.meta must identify the browser Lab Provider`);
     assert.match(labMeta, new RegExp(VARIABLE_COST_TRUTH[locale].lab.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));
     assert.match(buildMeta, new RegExp(VARIABLE_COST_TRUTH[locale].build.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));
-    assert.match(handbookCost, new RegExp(HANDBOOK_COST_TRUTH[locale].replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));
+    assert.match(handbookCost, new RegExp(HANDOFF_COST_TRUTH[locale].replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));
     assert.doesNotMatch(`${labMeta}\n${buildMeta}\n${handbookCost}`, fixedPriceUnit, `${locale} must not advertise a fixed sample price`);
   }
 });

@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Course 11 first-party figure fixture</title>
+  <style>
+    :root {
+      --ink: #171817;
+      --muted: #646761;
+      --line: #d9dbd5;
+      --paper: #f3f2ed;
+      --panel: #fbfaf6;
+      --accent: #c84f2c;
+      --accent-soft: #f4dfd6;
+      --success: #365c45;
+      --success-soft: #dce9df;
+      --warning: #76511d;
+      --warning-soft: #f2e6c9;
+      --danger: #7b3430;
+      --danger-soft: #f0d9d6;
+      --radius: 18px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      width: 1600px;
+      height: 900px;
+      overflow: hidden;
+    }
+
+    body {
+      background:
+        linear-gradient(90deg, transparent 0 79px, rgba(23, 24, 23, .045) 80px, transparent 81px),
+        linear-gradient(transparent 0 79px, rgba(23, 24, 23, .045) 80px, transparent 81px),
+        var(--paper);
+      background-size: 80px 80px;
+    }
+
+    .figure {
+      display: none;
+      width: 1600px;
+      height: 900px;
+      padding: 54px 64px 58px;
+    }
+
+    body[data-figure="4"] .figure-4,
+    body[data-figure="5"] .figure-5,
+    body[data-figure="6"] .figure-6,
+    body[data-figure="7"] .figure-7,
+    body[data-figure="8"] .figure-8,
+    body[data-figure="9"] .figure-9 { display: block; }
+
+    .capture-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .capture-label strong { color: var(--accent); }
+
+    .surface {
+      width: 100%;
+      height: 754px;
+      overflow: hidden;
+      border: 1px solid rgba(23, 24, 23, .14);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 24px 70px rgba(49, 43, 34, .12);
+    }
+
+    .surface-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 78px;
+      padding: 0 30px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .surface-title {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .surface-title h1,
+    .surface-title h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -.035em;
+    }
+
+    .surface-title span,
+    .meta {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 11px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #71301c;
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .055em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge.success { background: var(--success-soft); color: var(--success); }
+    .badge.warning { background: var(--warning-soft); color: var(--warning); }
+    .badge.danger { background: var(--danger-soft); color: var(--danger); }
+
+    .metric {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .figure-4 { background: #151716; }
+    .figure-4 .capture-label { color: #9da39f; }
+    .figure-4 .surface {
+      border-color: #343936;
+      background: #1c1f1d;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .34);
+    }
+
+    .terminal-bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+      padding: 24px 30px;
+      border-bottom: 1px solid #373c39;
+      color: #d9dedb;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 14px;
+    }
+
+    .terminal-bar strong { color: #f1f3f2; }
+    .terminal-bar span { color: #9ba39e; }
+
+    .terminal-grid {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      height: 675px;
+    }
+
+    .terminal-meta {
+      padding: 34px 30px;
+      border-right: 1px solid #373c39;
+      color: #aeb6b1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.9;
+    }
+
+    .terminal-meta b { color: #f0f2f1; font-weight: 650; }
+    .terminal-meta .safe { color: #d98664; }
+
+    .terminal-output {
+      padding: 34px 40px;
+      color: #e8ece9;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .terminal-output h2 {
+      margin: 0 0 8px;
+      color: #f7f9f8;
+      font-size: 16px;
+    }
+
+    .terminal-output p { margin: 0 0 19px; color: #c5cbc7; }
+    .terminal-output ul { margin: 0 0 20px; padding-left: 21px; color: #c5cbc7; }
+    .terminal-output .decision {
+      padding: 18px 20px;
+      border-left: 3px solid #d86f49;
+      background: #252a27;
+    }
+
+    .dashboard-body {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      height: 675px;
+    }
+
+    .dashboard-main { padding: 34px 36px; }
+    .dashboard-side {
+      padding: 34px;
+      border-left: 1px solid var(--line);
+      background: #f7f6f1;
+    }
+
+    .lead-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 28px;
+    }
+
+    .lead-row h2 {
+      margin: 0;
+      max-width: 620px;
+      font-size: 42px;
+      line-height: 1.05;
+      letter-spacing: -.055em;
+    }
+
+    .decision-block {
+      min-width: 190px;
+      padding-left: 20px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .decision-block span { color: var(--muted); font-size: 13px; }
+    .decision-block strong { display: block; margin-top: 4px; font-size: 26px; }
+
+    .milestone-list { border-top: 1px solid var(--line); }
+    .milestone {
+      display: grid;
+      grid-template-columns: 132px 1fr 132px;
+      gap: 24px;
+      align-items: center;
+      min-height: 94px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .milestone .owner { color: var(--muted); font-size: 13px; }
+    .milestone h3 { margin: 3px 0 0; font-size: 18px; }
+    .milestone p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+    .milestone .state { justify-self: end; }
+
+    .side-heading {
+      margin: 0 0 18px;
+      font-size: 15px;
+      letter-spacing: .01em;
+    }
+
+    .check-list { margin: 0 0 30px; padding: 0; list-style: none; }
+    .check-list li {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 12px;
+      align-items: start;
+      margin: 0 0 14px;
+      color: #3d403c;
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .check-list li::before {
+      content: "";
+      width: 15px;
+      height: 15px;
+      margin-top: 2px;
+      border: 2px solid #839088;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .check-list li.done::before {
+      border-color: var(--success);
+      background: var(--success);
+      box-shadow: inset 0 0 0 3px var(--success-soft);
+    }
+
+    .risk-note {
+      padding: 18px;
+      border: 1px solid #decfae;
+      border-radius: var(--radius);
+      background: var(--warning-soft);
+    }
+
+    .risk-note strong { display: block; margin-bottom: 7px; }
+    .risk-note p { margin: 0; color: #5f4b2b; font-size: 14px; line-height: 1.45; }
+
+    .prototype-body {
+      display: grid;
+      grid-template-columns: 40% 60%;
+      height: 675px;
+    }
+
+    .prototype-brief {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 42px 38px;
+      border-right: 1px solid var(--line);
+      background: #1c201e;
+      color: #f0f3f1;
+    }
+
+    .prototype-brief h2 {
+      margin: 18px 0 16px;
+      font-size: 44px;
+      line-height: 1.05;
+      letter-spacing: -.055em;
+    }
+
+    .prototype-brief p { margin: 0; color: #bac2bd; font-size: 17px; line-height: 1.55; }
+    .prototype-brief .badge { align-self: flex-start; }
+
+    .hypothesis {
+      padding-top: 22px;
+      border-top: 1px solid #3f4541;
+      color: #d7ddd9;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .prototype-canvas { padding: 38px 42px; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .flow-step {
+      min-height: 124px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .flow-step b {
+      display: block;
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+
+    .flow-step strong { display: block; margin-top: 25px; font-size: 16px; }
+    .flow-step span { display: block; margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+
+    .test-panel {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      min-height: 334px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .test-panel > div { padding: 27px; }
+    .test-panel > div + div { border-left: 1px solid var(--line); background: #f7f6f1; }
+    .test-panel h3 { margin: 0 0 20px; font-size: 20px; }
+    .finding {
+      display: grid;
+      grid-template-columns: 115px 1fr;
+      gap: 18px;
+      padding: 16px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .finding b { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+    .finding p { margin: 0; font-size: 14px; line-height: 1.45; }
+
+    .reader-body {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      height: 675px;
+    }
+
+    .reader-nav {
+      padding: 34px 28px;
+      border-right: 1px solid var(--line);
+      background: #f7f6f1;
+    }
+
+    .reader-nav h2 { margin: 0 0 30px; font-size: 21px; }
+    .reader-nav ol { margin: 0; padding: 0; list-style: none; counter-reset: chapter; }
+    .reader-nav li {
+      counter-increment: chapter;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      padding: 13px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .reader-nav li::before { content: counter(chapter, decimal-leading-zero); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .reader-nav li.active { color: var(--ink); font-weight: 700; }
+
+    .reader-page {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 290px;
+      gap: 46px;
+      padding: 46px 54px;
+    }
+
+    .reader-page h2 {
+      margin: 0 0 24px;
+      max-width: 690px;
+      font-size: 46px;
+      line-height: 1.04;
+      letter-spacing: -.055em;
+    }
+
+    .reader-page p { margin: 0 0 20px; max-width: 660px; color: #444742; font-size: 16px; line-height: 1.62; }
+    .scenario-grid { margin-top: 24px; border-top: 1px solid var(--line); }
+    .scenario {
+      display: grid;
+      grid-template-columns: 110px 1fr 120px;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    .scenario b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .scenario span { color: var(--muted); }
+    .scenario strong { justify-self: end; }
+
+    .reader-note {
+      align-self: start;
+      padding: 20px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+    }
+
+    .reader-note strong { display: block; margin-bottom: 10px; }
+    .reader-note p { margin: 0; color: #663522; font-size: 14px; line-height: 1.5; }
+
+    .review-body,
+    .delivery-body {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      height: 675px;
+    }
+
+    .review-main,
+    .delivery-main { padding: 32px 36px; }
+    .review-aside,
+    .delivery-aside {
+      padding: 32px;
+      border-left: 1px solid var(--line);
+      background: #f7f6f1;
+    }
+
+    .review-summary,
+    .delivery-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .review-summary h2,
+    .delivery-summary h2 { margin: 0; font-size: 31px; letter-spacing: -.04em; }
+    .review-summary p,
+    .delivery-summary p { margin: 7px 0 0; color: var(--muted); font-size: 14px; }
+
+    .review-item {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 22px;
+      padding: 22px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .review-item:first-of-type { border-top: 2px solid var(--ink); }
+    .review-item .file { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.45; }
+    .review-item h3 { margin: 0 0 8px; font-size: 18px; }
+    .review-item p { margin: 0 0 12px; color: #4d514c; font-size: 14px; line-height: 1.48; }
+    .review-item .verification { color: var(--success); font-weight: 700; }
+
+    .aside-stat {
+      padding: 18px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .aside-stat:first-of-type { border-top: 0; }
+    .aside-stat span { color: var(--muted); font-size: 13px; }
+    .aside-stat strong { display: block; margin-top: 5px; font-size: 20px; }
+
+    .human-note {
+      margin-top: 24px;
+      padding: 18px;
+      border-left: 3px solid var(--success);
+      background: var(--success-soft);
+      color: #2f513d;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .commit-list { border-top: 2px solid var(--ink); }
+    .commit {
+      display: grid;
+      grid-template-columns: 105px 1fr 112px;
+      gap: 22px;
+      align-items: center;
+      min-height: 86px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .commit code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--accent); }
+    .commit strong { display: block; margin-bottom: 5px; font-size: 16px; }
+    .commit span { color: var(--muted); font-size: 13px; }
+    .commit .check { justify-self: end; color: var(--success); font-weight: 750; }
+
+    .handoff {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .handoff section {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .handoff h3 { margin: 0 0 9px; font-size: 15px; }
+    .handoff p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
+  </style>
+</head>
+<body data-figure="4">
+  <main>
+    <section class="figure figure-4" aria-label="Codex CLI delivery preflight">
+      <div class="capture-label"><strong>Actual Codex CLI transcript</strong><span>Disposable workspace, read-only, 2026-08-23</span></div>
+      <div class="surface">
+        <div class="terminal-bar"><strong>OpenAI Codex v0.149.0-alpha.4</strong><span>Delivery preflight</span></div>
+        <div class="terminal-grid">
+          <aside class="terminal-meta">
+            workdir<br><b>/tmp/course11-codex-demo</b><br><br>
+            model<br><b>gpt-5.6-sol</b><br><br>
+            approval<br><b>never</b><br><br>
+            sandbox<br><b>read-only</b><br><br>
+            result<br><b class="safe">revise</b>
+          </aside>
+          <article class="terminal-output">
+            <h2>Scope</h2>
+            <p>README defines a synthetic delivery-status dashboard with three milestones, explicit acceptance checks, and no customer data, credentials, or external services.</p>
+            <h2>Risks</h2>
+            <p>All five acceptance checkboxes remain unchecked. The inspected files provide no evidence of a completed dashboard, required empty/loading/error states, full keyboard accessibility, passing automated checks, or a handoff covering risks, rollback, and next review.</p>
+            <h2>Verification</h2>
+            <p>Provide evidence for each checkbox:</p>
+            <ul>
+              <li>Dashboard contents traced to the written brief.</li>
+              <li>Screenshots or tests for empty, loading, and error states.</li>
+              <li>Keyboard-only navigation results for every control.</li>
+              <li>Automated check output with passing status.</li>
+              <li>Handoff documentation naming risks, rollback steps, and next review.</li>
+            </ul>
+            <div class="decision"><h2>Decision</h2><p>Revise until every acceptance checkbox has explicit, reviewable evidence.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="figure figure-5" aria-label="Synthetic client delivery dashboard">
+      <div class="capture-label"><strong>Synthetic client dashboard</strong><span>First-party course fixture, not customer data</span></div>
+      <div class="surface">
+        <header class="surface-header">
+          <div class="surface-title"><h1>Northstar Ops</h1><span>Delivery control room</span></div>
+          <span class="badge warning">Pilot review</span>
+        </header>
+        <div class="dashboard-body">
+          <section class="dashboard-main">
+            <div class="lead-row">
+              <h2>Evidence before expansion.</h2>
+              <div class="decision-block"><span>Current decision</span><strong>Revise</strong></div>
+            </div>
+            <div class="milestone-list">
+              <article class="milestone"><div class="owner">Research<h3>Problem ledger</h3></div><p>Five interviews mapped to one paid workflow and named buyer.</p><span class="badge success state">Accepted</span></article>
+              <article class="milestone"><div class="owner">Build<h3>Pilot artefact</h3></div><p>Happy path works. Empty and error states still need evidence.</p><span class="badge warning state">In review</span></article>
+              <article class="milestone"><div class="owner">Handoff<h3>Delivery receipt</h3></div><p>Rollback owner and next review date remain unassigned.</p><span class="badge danger state">Blocked</span></article>
+            </div>
+          </section>
+          <aside class="dashboard-side">
+            <h2 class="side-heading">Acceptance evidence</h2>
+            <ul class="check-list">
+              <li class="done">Scope matches the written brief.</li>
+              <li>Empty, loading, and error states are recorded.</li>
+              <li>Keyboard navigation reaches every control.</li>
+              <li class="done">Automated checks pass in the demo fixture.</li>
+              <li>Handoff names risks, rollback, and next review.</li>
+            </ul>
+            <div class="risk-note"><strong>Stop rule</strong><p>Do not widen access or schedule unattended work until the three missing receipts are reviewed.</p></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="figure figure-6" aria-label="Synthetic proof-of-value prototype">
+      <div class="capture-label"><strong>Synthetic proof-of-value prototype</strong><span>Illustrative workflow, no sales claim</span></div>
+      <div class="surface">
+        <header class="surface-header">
+          <div class="surface-title"><h1>Signal Triage</h1><span>Demand-test prototype</span></div>
+          <span class="badge">Sample data</span>
+        </header>
+        <div class="prototype-body">
+          <aside class="prototype-brief">
+            <div><span class="badge">Buyer hypothesis</span><h2>Turn a messy queue into one reviewable decision.</h2><p>This first version tests whether an operations lead values a sourced, prioritised handoff before anyone builds an integration.</p></div>
+            <div class="hypothesis"><strong>Success condition:</strong> the buyer can explain why the top item is first and name what evidence is missing.</div>
+          </aside>
+          <section class="prototype-canvas">
+            <div class="flow">
+              <article class="flow-step"><b>INPUT</b><strong>Approved export</strong><span>Fictional records with source labels.</span></article>
+              <article class="flow-step"><b>TRIAGE</b><strong>Rule-based pass</strong><span>Urgency, upside, risk, missing evidence.</span></article>
+              <article class="flow-step"><b>REVIEW</b><strong>Human decision</strong><span>Accept, revise, defer, or stop.</span></article>
+              <article class="flow-step"><b>RECEIPT</b><strong>Named handoff</strong><span>Owner, reason, evidence, next check.</span></article>
+            </div>
+            <div class="test-panel">
+              <div>
+                <h3>Prototype findings</h3>
+                <div class="finding"><b>Observed</b><p>Reviewers understood the ranked queue without opening the source export.</p></div>
+                <div class="finding"><b>Unresolved</b><p>Two source labels were too vague to support an external action.</p></div>
+                <div class="finding"><b>Next test</b><p>Ask the named buyer to reject one recommendation and explain why.</p></div>
+              </div>
+              <div>
+                <h3>Decision boundary</h3>
+                <p class="meta">This fixture proves that a concrete prototype and test plan exist. It does not prove demand, correctness, time saved, or income.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="figure figure-7" aria-label="Synthetic digital product reader">
+      <div class="capture-label"><strong>Synthetic digital product</strong><span>First-party reader fixture, illustrative economics</span></div>
+      <div class="surface">
+        <header class="surface-header">
+          <div class="surface-title"><h1>Delivery Economics Playbook</h1><span>Reader preview</span></div>
+          <span class="badge">Illustrative</span>
+        </header>
+        <div class="reader-body">
+          <nav class="reader-nav" aria-label="Table of contents">
+            <h2>Contents</h2>
+            <ol>
+              <li>Choose a named payer</li>
+              <li>Write the commercial task contract</li>
+              <li class="active">Model three scenarios</li>
+              <li>Price risk and review</li>
+              <li>Package the delivery receipt</li>
+              <li>Run a go, revise, or stop review</li>
+            </ol>
+          </nav>
+          <article class="reader-page">
+            <div>
+              <h2>Model the work before quoting it.</h2>
+              <p>Start with labour, direct costs, overhead, reserve, and a risk buffer. Compute a floor for each scenario, then compare it with the buyer's evidence of value.</p>
+              <div class="scenario-grid">
+                <div class="scenario"><b>BASE</b><span>40 hours, moderate review, one revision round</span><strong class="metric">$8,062</strong></div>
+                <div class="scenario"><b>UPSIDE</b><span>32 hours, clean inputs, narrow acceptance</span><strong class="metric">$6,534</strong></div>
+                <div class="scenario"><b>DOWNSIDE</b><span>56 hours, weak inputs, two review rounds</span><strong class="metric">$11,714</strong></div>
+              </div>
+            </div>
+            <aside class="reader-note"><strong>Evidence ceiling</strong><p>These amounts are worked examples, not market rates or income forecasts. Replace every input with your own evidence.</p></aside>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="figure figure-8" aria-label="Synthetic code review receipt">
+      <div class="capture-label"><strong>Synthetic review receipt</strong><span>First-party fixture, no external repository</span></div>
+      <div class="surface">
+        <header class="surface-header">
+          <div class="surface-title"><h1>Review receipt</h1><span>demo/quote-hardening</span></div>
+          <span class="badge success">Human checked</span>
+        </header>
+        <div class="review-body">
+          <section class="review-main">
+            <div class="review-summary"><div><h2>Two findings. Both reproduced.</h2><p>Automated analysis proposed the leads; the reviewer verified behaviour against synthetic fixtures.</p></div></div>
+            <article class="review-item"><div class="file">demo/quote.ts<br><span class="badge danger">High</span></div><div><h3>Reserve can exceed the quoted total</h3><p>A percentage entered as 35 was treated as 35.0 instead of 0.35, producing a negative denominator.</p><p class="verification">Verified with boundary cases at 0%, 35%, and 100%.</p></div></article>
+            <article class="review-item"><div class="file">demo/ledger.ts<br><span class="badge warning">Medium</span></div><div><h3>Stale evidence can return after version change</h3><p>Unversioned local state revived an old acceptance item after the course contract changed.</p><p class="verification">Verified by seeding stale storage, upgrading, and confirming an empty state.</p></div></article>
+          </section>
+          <aside class="review-aside">
+            <div class="aside-stat"><span>Review scope</span><strong>2 files, 6 cases</strong></div>
+            <div class="aside-stat"><span>Unverified findings</span><strong>0</strong></div>
+            <div class="aside-stat"><span>Production claim</span><strong>None</strong></div>
+            <div class="human-note"><strong>Reviewer decision:</strong> accept the findings, require regression tests, and keep deployment out of scope.</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="figure figure-9" aria-label="Synthetic pull request delivery receipt">
+      <div class="capture-label"><strong>Synthetic delivery receipt</strong><span>First-party fixture, repository handoff pattern</span></div>
+      <div class="surface">
+        <header class="surface-header">
+          <div class="surface-title"><h1>Delivery handoff</h1><span>demo/acceptance-first</span></div>
+          <span class="badge warning">Client review</span>
+        </header>
+        <div class="delivery-body">
+          <section class="delivery-main">
+            <div class="delivery-summary"><div><h2>Small commits. One decision trail.</h2><p>The handoff separates behaviour, tests, and documentation so each part can be reviewed or reverted independently.</p></div></div>
+            <div class="commit-list">
+              <article class="commit"><code>a31f6c2</code><div><strong>Guard invalid economics inputs</strong><span>Behaviour change with explicit error messages.</span></div><span class="check">Checks pass</span></article>
+              <article class="commit"><code>c84a19e</code><div><strong>Add boundary and stale-state tests</strong><span>Regression evidence for the two verified findings.</span></div><span class="check">Checks pass</span></article>
+              <article class="commit"><code>f16d5b0</code><div><strong>Document rollback and review owner</strong><span>Handoff scope, risk, and next review.</span></div><span class="check">Checks pass</span></article>
+            </div>
+            <div class="handoff">
+              <section><h3>Rollback</h3><p>Revert the behaviour commit, retain tests, and restore the prior calculation path.</p></section>
+              <section><h3>Next review</h3><p>Named client reviewer confirms the three scenarios before any deployment decision.</p></section>
+            </div>
+          </section>
+          <aside class="delivery-aside">
+            <div class="aside-stat"><span>Commits</span><strong>3 separated</strong></div>
+            <div class="aside-stat"><span>Required checks</span><strong>4 passed</strong></div>
+            <div class="aside-stat"><span>External actions</span><strong>0</strong></div>
+            <div class="human-note"><strong>Status:</strong> ready for client review, not merged and not deployed.</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const figure = new URLSearchParams(location.search).get("figure") || "4";
+    document.body.dataset.figure = figure;
+    document.title = `Course 11 first-party figure ${figure}`;
+  </script>
+</body>
+</html>

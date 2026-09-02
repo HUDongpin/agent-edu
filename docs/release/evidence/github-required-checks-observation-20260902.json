@@ -1,0 +1,45 @@
+{
+  "schema": "agent-edu.github-required-checks-observation.v1",
+  "status": "observed-current-protection-formal-target-binding-pending",
+  "observedAtUtc": "2026-09-02T01:14:04Z",
+  "repository": "HUDongpin/agent-edu",
+  "protectedBranch": "main",
+  "observedMainCommitSha": "bf1fde5bb09150bde3cba7b447f71a63dec3c160",
+  "branchProtectionRule": {
+    "id": "BPR_kwDOT7fvJ84E5_PT",
+    "pattern": "main",
+    "requiresStatusChecks": true,
+    "requiresStrictStatusChecks": true,
+    "isAdminEnforced": true,
+    "allowsForcePushes": false,
+    "allowsDeletions": false,
+    "requiresApprovingReviews": true,
+    "requiredApprovingReviewCount": 0
+  },
+  "requiredChecks": [
+    { "context": "quality", "githubAppId": 15368, "required": true },
+    { "context": "smoke-chromium", "githubAppId": 15368, "required": true },
+    { "context": "compatibility", "githubAppId": 15368, "required": true },
+    { "context": "published-courses", "githubAppId": 15368, "required": true },
+    { "context": "Vercel Preview", "githubAppId": 15368, "required": true }
+  ],
+  "independentReadOnlyAudit": {
+    "reviewerReference": "codex-read-only-branch-protection-audit",
+    "restAndGraphqlAgree": true,
+    "mutationPerformed": false,
+    "sensitiveValuesRecorded": false
+  },
+  "formalReleaseEffect": {
+    "requiredChecksGateChanged": false,
+    "reason": "The observation is substantive evidence, but config/release-readiness.json must remain pending until the complete final release target is frozen and the record can carry every exact target-binding reference.",
+    "futureOpaqueReference": "github-ruleset:BPR_kwDOT7fvJ84E5_PT"
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPromptsOrModelReplies": false,
+    "containsProviderBodies": false,
+    "containsScreenshotsOrTraces": false
+  }
+}

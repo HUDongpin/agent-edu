@@ -1,0 +1,170 @@
+.root {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.root.agentic,
+.root.codex,
+.root.claude,
+.root.grok,
+.root.codexIncome,
+.root.claudeIncome,
+.root.engineering,
+.root.cursor,
+.root.research,
+.root.teaching,
+.root.mathAnimation,
+.root.responsible {
+  --course-cover-accent-ink: #fffaf3;
+}
+
+.root.agentic,
+.root.claude,
+.root.grok,
+.root.engineering,
+.root.cursor,
+.root.research,
+.root.teaching,
+.root.mathAnimation,
+.root.responsible {
+  --course-cover-surface: color-mix(in srgb, var(--card) 94%, #f7efe4);
+  --course-cover-panel: color-mix(in srgb, var(--bg-2) 78%, #ddd1c1);
+  --course-cover-editor: var(--course-cover-surface);
+  --course-cover-ink: var(--ink);
+  --course-cover-muted: var(--ink-3);
+  --course-cover-line: color-mix(in srgb, var(--line) 72%, #9f9385);
+  background: var(--course-cover-bg);
+}
+
+.root.agentic {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 74%, #eadfce);
+  --course-cover-accent: #c56b4d;
+}
+
+.root.codex {
+  --course-cover-bg: #171715;
+  --course-cover-surface: #f8f5ee;
+  --course-cover-panel: #e7e1d6;
+  --course-cover-editor: #fdfbf7;
+  --course-cover-ink: #1d1c19;
+  --course-cover-muted: #777269;
+  --course-cover-line: #cfc7bb;
+  --course-cover-accent: #c56b4d;
+  background: var(--course-cover-bg);
+}
+
+.root.claude {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 72%, #f0ded3);
+  --course-cover-surface: color-mix(in srgb, var(--card) 94%, #fff5ee);
+  --course-cover-panel: color-mix(in srgb, var(--bg-2) 74%, #ead7cb);
+  --course-cover-editor: color-mix(in srgb, var(--card) 97%, #fff8f3);
+  --course-cover-ink: var(--ink);
+  --course-cover-muted: var(--ink-3);
+  --course-cover-line: color-mix(in srgb, var(--line) 70%, #ad8c7d);
+  --course-cover-accent: #c76449;
+  background: var(--course-cover-bg);
+}
+
+.root.grok {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 72%, #dbe9f8);
+  --course-cover-surface: color-mix(in srgb, var(--card) 95%, #f3f8ff);
+  --course-cover-panel: color-mix(in srgb, var(--bg-2) 74%, #d6e6f7);
+  --course-cover-editor: color-mix(in srgb, var(--card) 97%, #f7fbff);
+  --course-cover-ink: var(--ink);
+  --course-cover-muted: var(--ink-3);
+  --course-cover-line: color-mix(in srgb, var(--line) 70%, #7395bc);
+  --course-cover-accent: #1668c4;
+  background: var(--course-cover-bg);
+}
+
+.root.codexIncome {
+  --course-cover-bg: #242119;
+  --course-cover-surface: #fbf6ea;
+  --course-cover-panel: #e9dfc9;
+  --course-cover-editor: #fffaf0;
+  --course-cover-ink: #252117;
+  --course-cover-muted: #756b58;
+  --course-cover-line: #cdbd9e;
+  --course-cover-accent: #ad6d0b;
+  background: var(--course-cover-bg);
+}
+
+.root.claudeIncome {
+  --course-cover-bg: #231d1a;
+  --course-cover-surface: #fff7ef;
+  --course-cover-panel: #eee0d5;
+  --course-cover-editor: #fffdf8;
+  --course-cover-ink: #28201d;
+  --course-cover-muted: #78665f;
+  --course-cover-line: #d4bdb1;
+  --course-cover-accent: #c15d45;
+  background: var(--course-cover-bg);
+}
+
+.root.engineering {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 74%, #d5e8e3);
+  --course-cover-accent: #16766f;
+}
+
+.root.cursor {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 76%, #e8dce8);
+  --course-cover-accent: #80627a;
+}
+
+.root.research {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 74%, #dbe6e9);
+  --course-cover-accent: #607f91;
+}
+
+.root.teaching {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 74%, #e3e2cf);
+  --course-cover-accent: #6f7f5f;
+}
+
+.root.mathAnimation {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 72%, #e2e9e8);
+  --course-cover-surface: color-mix(in srgb, var(--card) 95%, #f8f4ed);
+  --course-cover-panel: color-mix(in srgb, var(--bg-2) 76%, #d8dfdc);
+  --course-cover-editor: color-mix(in srgb, var(--card) 97%, #fbf8f2);
+  --course-cover-line: color-mix(in srgb, var(--line) 70%, #859a96);
+  --course-cover-accent: #b95d48;
+}
+
+.root.responsible {
+  --course-cover-bg: color-mix(in srgb, var(--bg-2) 74%, #eadbd4);
+  --course-cover-accent: #b85f49;
+}
+
+.legacy {
+  background: var(--bg-2);
+}
+
+@media (prefers-contrast: more) {
+  .root.agentic,
+  .root.claude,
+  .root.grok,
+  .root.engineering,
+  .root.cursor,
+  .root.research,
+  .root.teaching,
+  .root.mathAnimation,
+  .root.responsible {
+    --course-cover-line: var(--ink-3);
+  }
+
+  .root.codex {
+    --course-cover-line: #6f695f;
+    --course-cover-muted: #565149;
+  }
+
+
+  .root.codexIncome {
+    --course-cover-line: #71654e;
+    --course-cover-muted: #5e5546;
+  }
+
+  .root.claudeIncome {
+    --course-cover-line: #755e55;
+    --course-cover-muted: #5f4f49;
+  }
+}

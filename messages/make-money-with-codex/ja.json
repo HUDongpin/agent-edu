@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "Codexで収益を得る方法",
+    "shortTitle": "Codexで収益化",
+    "languageNotice": "言語について：ローカライズされているのは、ナビゲーション、コース名、ユニット名、レッスン名のみです。監査済みのレッスン本文、演習、評価、図版、出典台帳、インタラクティブツールは英語のままであり、独立したネイティブ話者によるレビューは未完了です。"
+  },
+  "availability": {
+    "contentLanguage": "en",
+    "localizedScope": "navigation-and-titles",
+    "reviewStatus": "pending-independent-native-review"
+  },
+  "ui": {
+    "course": "コース",
+    "courses": "コース",
+    "courseOutline": "コース概要",
+    "lesson": "レッスン",
+    "lessons": "レッスン",
+    "minutes": "分",
+    "guidedWork": "ガイド付き実習",
+    "authenticUi": "実際の Codex UIまたは実行記録を示す図版",
+    "evidenceVerified": "検証済みの証拠",
+    "startCourse": "証拠の適用範囲から始める",
+    "inspectLessons": "全レッスンを見る",
+    "curriculum": "カリキュラム",
+    "time": "時間",
+    "output": "成果物",
+    "evidence": "証拠",
+    "boundedSources": "適用範囲を限定した出典",
+    "previous": "前へ",
+    "next": "次へ",
+    "courseDashboard": "コースダッシュボード",
+    "reviewEvidencePath": "証拠の流れを確認する",
+    "backToCatalog": "コース",
+    "resetConfirm": "このブラウザーに保存されたコース11の進捗だけをリセットしますか？"
+  },
+  "units": {
+    "value": {
+      "title": "コードより先に価値を確かめる"
+    },
+    "pilot": {
+      "title": "有料パイロットを構築する"
+    },
+    "sell": {
+      "title": "価格を決め、販売し、納品する"
+    },
+    "scale": {
+      "title": "統制を失わずにプロダクト化する"
+    }
+  },
+  "lessons": {
+    "money-not-magic": {
+      "title": "Codexは力を増幅する道具であり、押すだけで稼げるボタンではない"
+    },
+    "choose-market-wedge": {
+      "title": "狭い市場の切り口を選ぶ"
+    },
+    "validate-before-building": {
+      "title": "構築前に検証する"
+    },
+    "write-commercial-spec": {
+      "title": "商用タスク契約を作る"
+    },
+    "protect-client-work": {
+      "title": "顧客の業務を保護する"
+    },
+    "build-verified-pilot": {
+      "title": "検証済みのパイロットを構築する"
+    },
+    "price-for-margin": {
+      "title": "利益幅とリスクを織り込んで価格を決める"
+    },
+    "sell-with-proof": {
+      "title": "約束ではなく証拠で売る"
+    },
+    "deliver-with-control": {
+      "title": "統制を保って納品する"
+    },
+    "productize-reuse": {
+      "title": "納品を経ても有効だったものをプロダクト化する"
+    },
+    "retain-and-automate": {
+      "title": "責任ある形で継続的な価値を生む"
+    },
+    "launch-capstone": {
+      "title": "証拠に基づく収益パイロットを開始する"
+    }
+  }
+}

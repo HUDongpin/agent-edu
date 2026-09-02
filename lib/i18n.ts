@@ -14,19 +14,19 @@ export interface LocaleMeta {
   name: string;    // English name, for the menu's secondary label
   native: string;  // what speakers call it
   dir: Dir;
-  flag: string;
+  mark: string;    // compact language mark; avoids tying a language to a country flag
 }
 
 export const LOCALES: LocaleMeta[] = [
-  { code: "en",      name: "English",               native: "English",  dir: "ltr", flag: "🇬🇧" },
-  { code: "es",      name: "Spanish",               native: "Español",  dir: "ltr", flag: "🇪🇸" },
-  { code: "fr",      name: "French",                native: "Français", dir: "ltr", flag: "🇫🇷" },
-  { code: "de",      name: "German",                native: "Deutsch",  dir: "ltr", flag: "🇩🇪" },
-  { code: "zh-Hans", name: "Chinese (Simplified)",  native: "简体中文",  dir: "ltr", flag: "🇨🇳" },
-  { code: "zh-Hant", name: "Chinese (Traditional)", native: "繁體中文",  dir: "ltr", flag: "🇭🇰" },
-  { code: "ja",      name: "Japanese",              native: "日本語",    dir: "ltr", flag: "🇯🇵" },
-  { code: "ko",      name: "Korean",                native: "한국어",    dir: "ltr", flag: "🇰🇷" },
-  { code: "ar",      name: "Arabic",                native: "العربية",   dir: "rtl", flag: "🇸🇦" },
+  { code: "en",      name: "English",               native: "English",  dir: "ltr", mark: "EN" },
+  { code: "es",      name: "Spanish",               native: "Español",  dir: "ltr", mark: "ES" },
+  { code: "fr",      name: "French",                native: "Français", dir: "ltr", mark: "FR" },
+  { code: "de",      name: "German",                native: "Deutsch",  dir: "ltr", mark: "DE" },
+  { code: "zh-Hans", name: "Chinese (Simplified)",  native: "简体中文",  dir: "ltr", mark: "简" },
+  { code: "zh-Hant", name: "Chinese (Traditional)", native: "繁體中文",  dir: "ltr", mark: "繁" },
+  { code: "ja",      name: "Japanese",              native: "日本語",    dir: "ltr", mark: "日" },
+  { code: "ko",      name: "Korean",                native: "한국어",    dir: "ltr", mark: "한" },
+  { code: "ar",      name: "Arabic",                native: "العربية",   dir: "rtl", mark: "ع" },
 ];
 
 export const LOCALE_CODES = LOCALES.map((l) => l.code);
@@ -42,6 +42,23 @@ export function isLocale(code: string): boolean {
 
 export type Messages = Record<string, string>;
 
+type MessagesModule = { default: Messages };
+
+// Keep this mapping explicit. A template-string import rooted at `messages/`
+// makes Turbopack conservatively enumerate nested course dictionaries too,
+// which can ship blocked course copy in otherwise public client chunks.
+const MESSAGE_LOADERS: Record<string, () => Promise<MessagesModule>> = {
+  en: () => import("@/messages/en.json") as Promise<MessagesModule>,
+  es: () => import("@/messages/es.json") as Promise<MessagesModule>,
+  fr: () => import("@/messages/fr.json") as Promise<MessagesModule>,
+  de: () => import("@/messages/de.json") as Promise<MessagesModule>,
+  "zh-Hans": () => import("@/messages/zh-Hans.json") as Promise<MessagesModule>,
+  "zh-Hant": () => import("@/messages/zh-Hant.json") as Promise<MessagesModule>,
+  ja: () => import("@/messages/ja.json") as Promise<MessagesModule>,
+  ko: () => import("@/messages/ko.json") as Promise<MessagesModule>,
+  ar: () => import("@/messages/ar.json") as Promise<MessagesModule>,
+};
+
 /**
  * Load one locale's strings, merged over English.
  *
@@ -49,9 +66,9 @@ export type Messages = Record<string, string>;
  * blank element. A half-translated page is usable; an empty one is not.
  */
 export async function getMessages(locale: string): Promise<Messages> {
-  const en = (await import("@/messages/en.json")).default as Messages;
+  const en = (await MESSAGE_LOADERS.en()).default;
   if (locale === DEFAULT_LOCALE || !isLocale(locale)) return en;
-  const own = (await import(`@/messages/${locale}.json`)).default as Messages;
+  const own = (await MESSAGE_LOADERS[locale]()).default;
   return { ...en, ...own };
 }
 

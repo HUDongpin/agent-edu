@@ -1,0 +1,659 @@
+{
+  "schema": "aicourse.codex.figure-audits.v1",
+  "audits": [
+    {
+      "id": "codex-figure-audit.fig-13.2026-08-23-v1",
+      "figureId": "fig-13",
+      "status": "approved",
+      "binding": {
+        "lessonSlug": "cli",
+        "surface": "cli"
+      },
+      "rawSource": {
+        "kind": "course-authored-capture",
+        "archivalRef": "tmp/capture/codex-course-media-vault/2026-08-23/fig-13/raw-capture.png",
+        "mediaType": "image/png",
+        "width": 2240,
+        "height": 323,
+        "sha256": "8a5aa4b72e5b2100fddbdaf06f3d9e73328e02a804aeaff208c9da396e61af2a",
+        "retainedOutsidePublic": true
+      },
+      "servedAssets": {
+        "png2240": {
+          "path": "/courses/codex/figures/fig-13-master.png",
+          "mediaType": "image/png",
+          "width": 2240,
+          "height": 323,
+          "sha256": "1367966b7af0bb68dfd02582e78ac871d9777eb1043404b25c8032c8793095b5"
+        },
+        "webp2240": {
+          "path": "/courses/codex/figures/fig-13-2240.webp",
+          "mediaType": "image/webp",
+          "width": 2240,
+          "height": 323,
+          "sha256": "dfc43ad6475d3599b7bd2fe3070950835053bd4ea28eb26569b074bec427ee4c"
+        },
+        "webp1120": {
+          "path": "/courses/codex/figures/fig-13-1120.webp",
+          "mediaType": "image/webp",
+          "width": 1120,
+          "height": 162,
+          "sha256": "562944c13344c23bc010708c13ea6635b6c88153d8a45d08ad19376607f5920d"
+        }
+      },
+      "product": {
+        "capturedOn": "2026-08-23",
+        "codexVersion": "0.149.0-alpha.4",
+        "operatingSystem": "macOS 26.5.2 (25F84)"
+      },
+      "officialSupportingSourceId": "openai-developer-commands",
+      "reviews": {
+        "ocr": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-ocr.v1",
+          "engine": "Tesseract OCR",
+          "engineVersion": "5.5.2",
+          "transcriptSha256": "255b07518671dba1cb5e0eef488c83e15f71c8a123848891dfe6fcaabe397f7f",
+          "checks": {
+            "noPersonalPaths": true,
+            "noEmailAddresses": true,
+            "noSecretsOrTokens": true,
+            "noRemoteRepositoryUrls": true,
+            "noRealNamesOrAccountIdentifiers": true,
+            "noCustomerOrPrivateRepositoryData": true,
+            "visibleTextMatchesSyntheticScenario": true
+          }
+        },
+        "metadata": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-metadata.v1",
+          "tool": "ImageMagick and cwebp",
+          "toolVersion": "ImageMagick 7.1.2-24; cwebp 1.6.0",
+          "checks": {
+            "metadataStripped": true,
+            "noExifOrXmp": true,
+            "noGpsCoordinates": true,
+            "noAuthorOrDeviceIdentifiers": true,
+            "noEmbeddedThumbnail": true,
+            "finalDerivativeReinspected": true
+          }
+        },
+        "privacy": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-privacy.v2",
+          "checks": {
+            "applicationWindowOnly": true,
+            "syntheticRepositoryOnly": true,
+            "noAccountIdentifiers": true,
+            "noCredentialsOrSecrets": true,
+            "noPersonalPaths": true,
+            "noPrivateRemotes": true,
+            "visibleHistoryAndNotificationsReviewedNoPrivateContent": true,
+            "noCustomerOrPersonalData": true,
+            "allPublishedDerivativesReviewed": true,
+            "altAndCaptionMatchFinalPixels": true
+          }
+        }
+      },
+      "provenance": {
+        "kind": "course-authored-editorial-capture",
+        "capturedBy": "codex-course-authoring-session",
+        "rightsHolder": "aicourse.top course project",
+        "editorialPurpose": "Teach learners to inspect Codex CLI session, model, directory, and permission state using synthetic-only UI evidence.",
+        "rightsReviewer": "project-owner",
+        "rightsReviewedOn": "2026-08-23",
+        "originalCaptureConfirmed": true,
+        "syntheticDataConfirmed": true,
+        "publicationApproved": true
+      }
+    },
+    {
+      "id": "codex-figure-audit.fig-14.2026-08-23-v5",
+      "figureId": "fig-14",
+      "status": "approved",
+      "binding": {
+        "lessonSlug": "cli",
+        "surface": "cli"
+      },
+      "rawSource": {
+        "kind": "course-authored-capture",
+      "archivalRef": "tmp/capture/codex-course-media-vault/2026-08-23/fig-14/raw-capture.png",
+        "mediaType": "image/png",
+        "width": 2624,
+        "height": 1796,
+        "sha256": "3e8c8dbba2cfa7e8d946742ee66864484bef4b3b472ae69d71f3b4ec67466dd4",
+        "retainedOutsidePublic": true
+      },
+      "servedAssets": {
+        "png2240": {
+          "path": "/courses/codex/figures/fig-14-master.png",
+          "mediaType": "image/png",
+          "width": 2240,
+          "height": 1533,
+          "sha256": "106632237f2f6f8c3411e44f4ca5e30fce0694f785d9aeb1d125ff90453c61ae"
+        },
+        "webp2240": {
+          "path": "/courses/codex/figures/fig-14-2240.webp",
+          "mediaType": "image/webp",
+          "width": 2240,
+          "height": 1533,
+          "sha256": "ee2a74f479f6f3f0c71db4bd18bc8b0e0ef74b70d08b63447b761c19190f2efb"
+        },
+        "webp1120": {
+          "path": "/courses/codex/figures/fig-14-1120.webp",
+          "mediaType": "image/webp",
+          "width": 1120,
+          "height": 767,
+          "sha256": "3575a10c2f9447a7602573e48e1a360de4671afc73cd5e12d64651b66d32f3ba"
+        }
+      },
+      "product": {
+        "capturedOn": "2026-08-23",
+        "codexVersion": "0.149.0-alpha.4",
+        "operatingSystem": "macOS 26.5.2 (25F84)"
+      },
+    "officialSupportingSourceId": "openai-developer-commands",
+      "reviews": {
+        "ocr": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-ocr.v1",
+          "engine": "Tesseract OCR",
+          "engineVersion": "5.5.2",
+          "transcriptSha256": "f217e72dc7e27823675bb172625bd24299396858dd500a93c15c0daa9da8ef9f",
+          "checks": {
+            "noPersonalPaths": true,
+            "noEmailAddresses": true,
+            "noSecretsOrTokens": true,
+            "noRemoteRepositoryUrls": true,
+            "noRealNamesOrAccountIdentifiers": true,
+            "noCustomerOrPrivateRepositoryData": true,
+            "visibleTextMatchesSyntheticScenario": true
+          }
+        },
+        "metadata": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-metadata.v1",
+          "tool": "ImageMagick and cwebp",
+          "toolVersion": "ImageMagick 7.1.2-24; cwebp 1.6.0",
+          "checks": {
+            "metadataStripped": true,
+            "noExifOrXmp": true,
+            "noGpsCoordinates": true,
+            "noAuthorOrDeviceIdentifiers": true,
+            "noEmbeddedThumbnail": true,
+            "finalDerivativeReinspected": true
+          }
+        },
+        "privacy": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-privacy.v2",
+          "checks": {
+            "applicationWindowOnly": true,
+            "syntheticRepositoryOnly": true,
+            "noAccountIdentifiers": true,
+            "noCredentialsOrSecrets": true,
+            "noPersonalPaths": true,
+            "noPrivateRemotes": true,
+            "visibleHistoryAndNotificationsReviewedNoPrivateContent": true,
+            "noCustomerOrPersonalData": true,
+            "allPublishedDerivativesReviewed": true,
+            "altAndCaptionMatchFinalPixels": true
+          }
+        }
+      },
+      "provenance": {
+        "kind": "course-authored-editorial-capture",
+        "capturedBy": "codex-course-authoring-session",
+        "rightsHolder": "aicourse.top course project",
+        "editorialPurpose": "Teach explicit Codex CLI model and approval controls with synthetic-only UI evidence.",
+        "rightsReviewer": "project-owner",
+        "rightsReviewedOn": "2026-08-23",
+        "originalCaptureConfirmed": true,
+        "syntheticDataConfirmed": true,
+        "publicationApproved": true
+      }
+    },
+    {
+      "id": "codex-figure-audit.fig-15.2026-08-23-v1",
+      "figureId": "fig-15",
+      "status": "approved",
+      "binding": {
+        "lessonSlug": "cli",
+        "surface": "cli"
+      },
+      "rawSource": {
+        "kind": "course-authored-capture",
+        "archivalRef": "tmp/capture/codex-course-media-vault/2026-08-23/fig-15/raw-capture.png",
+        "mediaType": "image/png",
+        "width": 2500,
+        "height": 720,
+        "sha256": "a84d5d9b66b6be304f3c1e10c1109132116ad25cf132989b6060df7c356ccd83",
+        "retainedOutsidePublic": true
+      },
+      "servedAssets": {
+        "png2240": {
+          "path": "/courses/codex/figures/fig-15-master.png",
+          "mediaType": "image/png",
+          "width": 2240,
+          "height": 645,
+          "sha256": "3e78a32bf505a33148703fc9a7583dc4c85c7e40de86833aaec72b129dfd6ea0"
+        },
+        "webp2240": {
+          "path": "/courses/codex/figures/fig-15-2240.webp",
+          "mediaType": "image/webp",
+          "width": 2240,
+          "height": 645,
+          "sha256": "38e094a2c49d98092c91f3480b5ebfec12dd5a517c5e09222b7b06e98c422ab5"
+        },
+        "webp1120": {
+          "path": "/courses/codex/figures/fig-15-1120.webp",
+          "mediaType": "image/webp",
+          "width": 1120,
+          "height": 323,
+          "sha256": "fbe220a6d62dcc57253e7f0128ae775111e25ce09f3732e5bae3b2828528d700"
+        }
+      },
+      "product": {
+        "capturedOn": "2026-08-23",
+        "codexVersion": "0.149.0-alpha.4",
+        "operatingSystem": "macOS 26.5.2 (25F84)"
+      },
+      "officialSupportingSourceId": "openai-developer-commands",
+      "reviews": {
+        "ocr": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-ocr.v1",
+          "engine": "Tesseract OCR",
+          "engineVersion": "5.5.2",
+          "transcriptSha256": "54ee8ac0f03931aaae952823b076a3dd2d4fa6434b2b3865e58d46fdea1f3f55",
+          "checks": {
+            "noPersonalPaths": true,
+            "noEmailAddresses": true,
+            "noSecretsOrTokens": true,
+            "noRemoteRepositoryUrls": true,
+            "noRealNamesOrAccountIdentifiers": true,
+            "noCustomerOrPrivateRepositoryData": true,
+            "visibleTextMatchesSyntheticScenario": true
+          }
+        },
+        "metadata": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-metadata.v1",
+          "tool": "ImageMagick and cwebp",
+          "toolVersion": "ImageMagick 7.1.2-24; cwebp 1.6.0",
+          "checks": {
+            "metadataStripped": true,
+            "noExifOrXmp": true,
+            "noGpsCoordinates": true,
+            "noAuthorOrDeviceIdentifiers": true,
+            "noEmbeddedThumbnail": true,
+            "finalDerivativeReinspected": true
+          }
+        },
+        "privacy": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-privacy.v2",
+          "checks": {
+            "applicationWindowOnly": true,
+            "syntheticRepositoryOnly": true,
+            "noAccountIdentifiers": true,
+            "noCredentialsOrSecrets": true,
+            "noPersonalPaths": true,
+            "noPrivateRemotes": true,
+            "visibleHistoryAndNotificationsReviewedNoPrivateContent": true,
+            "noCustomerOrPersonalData": true,
+            "allPublishedDerivativesReviewed": true,
+            "altAndCaptionMatchFinalPixels": true
+          }
+        }
+      },
+      "provenance": {
+        "kind": "course-authored-editorial-capture",
+        "capturedBy": "codex-course-authoring-session",
+        "rightsHolder": "aicourse.top course project",
+        "editorialPurpose": "Teach learners to select a bounded Codex CLI review scope before running a review, using synthetic-only UI evidence.",
+        "rightsReviewer": "project-owner",
+        "rightsReviewedOn": "2026-08-23",
+        "originalCaptureConfirmed": true,
+        "syntheticDataConfirmed": true,
+        "publicationApproved": true
+      }
+    },
+    {
+      "id": "codex-figure-audit.fig-16.2026-08-23-v1",
+      "figureId": "fig-16",
+      "status": "approved",
+      "binding": {
+        "lessonSlug": "ide",
+        "surface": "ide"
+      },
+      "rawSource": {
+        "kind": "course-authored-capture",
+      "archivalRef": "tmp/capture/codex-course-media-vault/2026-08-23/fig-16/raw-capture.png",
+        "mediaType": "image/png",
+        "width": 2624,
+        "height": 1796,
+        "sha256": "b24f27843d178ff561bd7502c3fa377c0918af74a00e8b9523596e335e2462b0",
+        "retainedOutsidePublic": true
+      },
+      "servedAssets": {
+        "png2240": {
+          "path": "/courses/codex/figures/fig-16-master.png",
+          "mediaType": "image/png",
+          "width": 2240,
+          "height": 1533,
+          "sha256": "8252a38df634f508f80c21df81e8ce22c9c19bac8d4797d0470478c9db2bc55f"
+        },
+        "webp2240": {
+          "path": "/courses/codex/figures/fig-16-2240.webp",
+          "mediaType": "image/webp",
+          "width": 2240,
+          "height": 1533,
+          "sha256": "30271921a553c48e911ed1670f18979d9d4808cd3f4e78441964bc9cce76b3b0"
+        },
+        "webp1120": {
+          "path": "/courses/codex/figures/fig-16-1120.webp",
+          "mediaType": "image/webp",
+          "width": 1120,
+          "height": 767,
+          "sha256": "5408c3fc08f080a2130b429d8c40912f95cb7a3a37f4a419cf2406ca83ebc2d1"
+        }
+      },
+      "product": {
+        "capturedOn": "2026-08-23",
+        "codexVersion": "26.818.41705",
+        "operatingSystem": "macOS 26.5.2 (25F84)"
+      },
+      "officialSupportingSourceId": "openai-ide",
+      "reviews": {
+        "ocr": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-ocr.v1",
+          "engine": "Tesseract OCR",
+          "engineVersion": "5.5.2",
+          "transcriptSha256": "521b1f420d5374e462a7af97f19a1c27c189f03d57964c3532a49a11e1ddac29",
+          "checks": {
+            "noPersonalPaths": true,
+            "noEmailAddresses": true,
+            "noSecretsOrTokens": true,
+            "noRemoteRepositoryUrls": true,
+            "noRealNamesOrAccountIdentifiers": true,
+            "noCustomerOrPrivateRepositoryData": true,
+            "visibleTextMatchesSyntheticScenario": true
+          }
+        },
+        "metadata": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-metadata.v1",
+          "tool": "ImageMagick and cwebp",
+          "toolVersion": "ImageMagick 7.1.2-24; cwebp 1.6.0",
+          "checks": {
+            "metadataStripped": true,
+            "noExifOrXmp": true,
+            "noGpsCoordinates": true,
+            "noAuthorOrDeviceIdentifiers": true,
+            "noEmbeddedThumbnail": true,
+            "finalDerivativeReinspected": true
+          }
+        },
+        "privacy": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-privacy.v2",
+          "checks": {
+            "applicationWindowOnly": true,
+            "syntheticRepositoryOnly": true,
+            "noAccountIdentifiers": true,
+            "noCredentialsOrSecrets": true,
+            "noPersonalPaths": true,
+            "noPrivateRemotes": true,
+            "visibleHistoryAndNotificationsReviewedNoPrivateContent": true,
+            "noCustomerOrPersonalData": true,
+            "allPublishedDerivativesReviewed": true,
+            "altAndCaptionMatchFinalPixels": true
+          }
+        }
+      },
+      "provenance": {
+        "kind": "course-authored-editorial-capture",
+        "capturedBy": "codex-course-authoring-session",
+        "rightsHolder": "aicourse.top course project",
+        "editorialPurpose": "Teach how selected code provides explicit context to the Codex IDE extension in a synthetic repository.",
+        "rightsReviewer": "project-owner",
+        "rightsReviewedOn": "2026-08-23",
+        "originalCaptureConfirmed": true,
+        "syntheticDataConfirmed": true,
+        "publicationApproved": true
+      }
+    },
+    {
+      "id": "codex-figure-audit.fig-17.2026-08-23-v1",
+      "figureId": "fig-17",
+      "status": "approved",
+      "binding": {
+        "lessonSlug": "ide",
+        "surface": "ide"
+      },
+      "rawSource": {
+        "kind": "course-authored-capture",
+      "archivalRef": "tmp/capture/codex-course-media-vault/2026-08-23/fig-17/raw-capture.png",
+        "mediaType": "image/png",
+        "width": 2624,
+        "height": 1796,
+        "sha256": "e0a9e123650bf0513317a59967cea849bbb1836dc153a194e8f42b06cbde6f7f",
+        "retainedOutsidePublic": true
+      },
+      "servedAssets": {
+        "png2240": {
+          "path": "/courses/codex/figures/fig-17-master.png",
+          "mediaType": "image/png",
+          "width": 2240,
+          "height": 1533,
+          "sha256": "317eda5912236d9b2970849d524f921c8f7dbf52d0ea9e918c7df2093768e2ff"
+        },
+        "webp2240": {
+          "path": "/courses/codex/figures/fig-17-2240.webp",
+          "mediaType": "image/webp",
+          "width": 2240,
+          "height": 1533,
+          "sha256": "3d40ec95a0afeaeef53429add60fcf89365e9a21dec7552db2f9109663d38a26"
+        },
+        "webp1120": {
+          "path": "/courses/codex/figures/fig-17-1120.webp",
+          "mediaType": "image/webp",
+          "width": 1120,
+          "height": 767,
+          "sha256": "615e57d0e151da075095cbacdc5ad06e489cb462c47b7f6bf3a0f0cdda36dd52"
+        }
+      },
+      "product": {
+        "capturedOn": "2026-08-23",
+        "codexVersion": "26.818.41705",
+        "operatingSystem": "macOS 26.5.2 (25F84)"
+      },
+      "officialSupportingSourceId": "openai-ide",
+      "reviews": {
+        "ocr": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-ocr.v1",
+          "engine": "Tesseract OCR",
+          "engineVersion": "5.5.2",
+          "transcriptSha256": "f7b153ffbaa315dffb4620e93671f9b0ea2e154745a4879b6768b1573f69d5a5",
+          "checks": {
+            "noPersonalPaths": true,
+            "noEmailAddresses": true,
+            "noSecretsOrTokens": true,
+            "noRemoteRepositoryUrls": true,
+            "noRealNamesOrAccountIdentifiers": true,
+            "noCustomerOrPrivateRepositoryData": true,
+            "visibleTextMatchesSyntheticScenario": true
+          }
+        },
+        "metadata": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-metadata.v1",
+          "tool": "ImageMagick and cwebp",
+          "toolVersion": "ImageMagick 7.1.2-24; cwebp 1.6.0",
+          "checks": {
+            "metadataStripped": true,
+            "noExifOrXmp": true,
+            "noGpsCoordinates": true,
+            "noAuthorOrDeviceIdentifiers": true,
+            "noEmbeddedThumbnail": true,
+            "finalDerivativeReinspected": true
+          }
+        },
+        "privacy": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-privacy.v2",
+          "checks": {
+            "applicationWindowOnly": true,
+            "syntheticRepositoryOnly": true,
+            "noAccountIdentifiers": true,
+            "noCredentialsOrSecrets": true,
+            "noPersonalPaths": true,
+            "noPrivateRemotes": true,
+            "visibleHistoryAndNotificationsReviewedNoPrivateContent": true,
+            "noCustomerOrPersonalData": true,
+            "allPublishedDerivativesReviewed": true,
+            "altAndCaptionMatchFinalPixels": true
+          }
+        }
+      },
+      "provenance": {
+        "kind": "course-authored-editorial-capture",
+        "capturedBy": "codex-course-authoring-session",
+        "rightsHolder": "aicourse.top course project",
+        "editorialPurpose": "Teach bounded IDE diff review and checkpoint controls using a synthetic repository change.",
+        "rightsReviewer": "project-owner",
+        "rightsReviewedOn": "2026-08-23",
+        "originalCaptureConfirmed": true,
+        "syntheticDataConfirmed": true,
+        "publicationApproved": true
+      }
+    },
+    {
+      "id": "codex-figure-audit.fig-22.2026-08-23-v1",
+      "figureId": "fig-22",
+      "status": "approved",
+      "binding": {
+        "lessonSlug": "agents-skills",
+        "surface": "cli"
+      },
+      "rawSource": {
+        "kind": "course-authored-capture",
+        "archivalRef": "tmp/capture/codex-course-media-vault/2026-08-23/fig-22/raw-capture.png",
+        "mediaType": "image/png",
+        "width": 2700,
+        "height": 650,
+        "sha256": "05edc62b2c6f1e5846e18d49c3539e0cd41334356d307d2c9ca3831750dbfe45",
+        "retainedOutsidePublic": true
+      },
+      "servedAssets": {
+        "png2240": {
+          "path": "/courses/codex/figures/fig-22-master.png",
+          "mediaType": "image/png",
+          "width": 2240,
+          "height": 539,
+          "sha256": "b11de0df0cfcadc0c20ab7497fd32e7dbc6e9a8c021f3687e31cfa4d2f0b4ebf"
+        },
+        "webp2240": {
+          "path": "/courses/codex/figures/fig-22-2240.webp",
+          "mediaType": "image/webp",
+          "width": 2240,
+          "height": 539,
+          "sha256": "a67a0d9561464d2e9354502fe57afcec81e4e5d1172c90e4e00f7c5af4fae071"
+        },
+        "webp1120": {
+          "path": "/courses/codex/figures/fig-22-1120.webp",
+          "mediaType": "image/webp",
+          "width": 1120,
+          "height": 270,
+          "sha256": "f7a944bba675f18a8a8dda8ab7e3600edde99019e7af18ad42e999179b305468"
+        }
+      },
+      "product": {
+        "capturedOn": "2026-08-23",
+        "codexVersion": "0.149.0-alpha.4",
+        "operatingSystem": "macOS 26.5.2 (25F84)"
+      },
+      "officialSupportingSourceId": "openai-build-skills",
+      "reviews": {
+        "ocr": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-ocr.v1",
+          "engine": "Tesseract OCR",
+          "engineVersion": "5.5.2",
+          "transcriptSha256": "97b74dd6907edf0ba6f89574904ce0d1b617fc30bdeb39ae77aa2f6b29ab493b",
+          "checks": {
+            "noPersonalPaths": true,
+            "noEmailAddresses": true,
+            "noSecretsOrTokens": true,
+            "noRemoteRepositoryUrls": true,
+            "noRealNamesOrAccountIdentifiers": true,
+            "noCustomerOrPrivateRepositoryData": true,
+            "visibleTextMatchesSyntheticScenario": true
+          }
+        },
+        "metadata": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-metadata.v1",
+          "tool": "ImageMagick and cwebp",
+          "toolVersion": "ImageMagick 7.1.2-24; cwebp 1.6.0",
+          "checks": {
+            "metadataStripped": true,
+            "noExifOrXmp": true,
+            "noGpsCoordinates": true,
+            "noAuthorOrDeviceIdentifiers": true,
+            "noEmbeddedThumbnail": true,
+            "finalDerivativeReinspected": true
+          }
+        },
+        "privacy": {
+          "reviewer": "project-owner",
+          "reviewedOn": "2026-08-23",
+          "checklistVersion": "codex-figure-privacy.v2",
+          "checks": {
+            "applicationWindowOnly": true,
+            "syntheticRepositoryOnly": true,
+            "noAccountIdentifiers": true,
+            "noCredentialsOrSecrets": true,
+            "noPersonalPaths": true,
+            "noPrivateRemotes": true,
+            "visibleHistoryAndNotificationsReviewedNoPrivateContent": true,
+            "noCustomerOrPersonalData": true,
+            "allPublishedDerivativesReviewed": true,
+            "altAndCaptionMatchFinalPixels": true
+          }
+        }
+      },
+      "provenance": {
+        "kind": "course-authored-editorial-capture",
+        "capturedBy": "codex-course-authoring-session",
+        "rightsHolder": "aicourse.top course project",
+        "editorialPurpose": "Teach learners to inspect a Skill and its provenance in the Codex CLI before allowing it to guide a reusable workflow.",
+        "rightsReviewer": "project-owner",
+        "rightsReviewedOn": "2026-08-23",
+        "originalCaptureConfirmed": true,
+        "syntheticDataConfirmed": true,
+        "publicationApproved": true
+      }
+    }
+  ]
+}

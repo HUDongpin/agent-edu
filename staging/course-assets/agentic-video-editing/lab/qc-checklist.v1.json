@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.synthetic-qc-checklist.v1",
+  "projectSpecId": "course20-verified-cut-v2",
+  "checklistId": "course20-synthetic-five-layer-qc-v1",
+  "layers": [
+    {
+      "id": "technical",
+      "requiredChecks": ["duration", "portrait-canvas", "frame-rate", "audio-48khz"]
+    },
+    {
+      "id": "provenance-and-compile",
+      "requiredChecks": ["project-identity", "candidate-hash", "compile-plan-hash", "source-unchanged-*", "source-read-only-*"]
+    },
+    {
+      "id": "captions-and-accessibility",
+      "requiredChecks": ["caption-count", "caption-non-overlap", "caption-bounds", "caption-untrusted-data"]
+    },
+    {
+      "id": "rights-and-authority",
+      "requiredChecks": ["network-boundary", "publication-boundary", "unknown-rights-segment-quarantined"]
+    },
+    {
+      "id": "known-bad-controls",
+      "requiredChecks": ["fault-freeze-control", "fault-silence-control", "fault-flash-control", "fault-sync-control", "fault-loudness-control", "fault-ledger-coverage"]
+    },
+    {
+      "id": "rollback",
+      "requiredChecks": ["unapproved-canary-quarantined", "verified-candidate-preserved", "source-hashes-preserved"]
+    }
+  ],
+  "requiredDecision": "do-not-publish",
+  "boundary": "Machine checks do not establish narrative quality, complete accessibility, legal clearance, editorial approval, or publication authority."
+}

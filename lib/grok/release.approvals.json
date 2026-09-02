@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "courseId": "grok",
+  "sourceLocale": "en",
+  "reviewedOn": "2026-08-30",
+  "englishSourceSha256": "55069da60433aafbb4b48fb09843770783452ffbb27e40302d6c398b954e0944",
+  "reviewBoundary": "AI-assisted structural, semantic and source-scope review; not a native-speaker certification.",
+  "reviewScope": "Delta review of 23 changed Course 5 UI keys across all 9 locales, including semantic, numeric-token, placeholder, privacy and recovery-state checks.",
+  "locales": {
+    "en": {
+      "status": "approved",
+      "sha256": "55069da60433aafbb4b48fb09843770783452ffbb27e40302d6c398b954e0944",
+      "review": "English source, product-fact and provenance audit against current official xAI evidence."
+    },
+    "es": {
+      "status": "approved",
+      "sha256": "b8634df169dc6a48682e92790956bf45c4659f23035f1a411e3f17a2b9ac5e7a",
+      "review": "AI semantic audit of full learner copy, practice placeholders, localized duration wording and high-risk scope boundaries."
+    },
+    "fr": {
+      "status": "approved",
+      "sha256": "ceb34c792001fa78f2f5cde1b2fec6a6fcab1107163c15b4d7aaf67e98fac10a",
+      "review": "AI semantic audit of full learner copy, practice placeholders, localized quiz labels and high-risk scope boundaries."
+    },
+    "de": {
+      "status": "approved",
+      "sha256": "a8853ebeaafb0ed04e73be9a67e79b3e06c67f7f66250abad44ff8178aa1acd0",
+      "review": "AI semantic audit of full learner copy, practice placeholders and high-risk scope boundaries."
+    },
+    "zh-Hans": {
+      "status": "approved",
+      "sha256": "fe64b435409ac84f60ea858a02215483bb78d18841e81a92e7bbf397cf335882",
+      "review": "AI semantic audit of complete Simplified Chinese copy, localized prompts and factual boundaries."
+    },
+    "zh-Hant": {
+      "status": "approved",
+      "sha256": "9100b87423861c0037f69a2f463c33841fbc20fd0283f65e374b9f2d6a45c380",
+      "review": "AI semantic audit of complete Traditional Chinese copy, localized prompts and factual boundaries."
+    },
+    "ja": {
+      "status": "approved",
+      "sha256": "63af5a9d66d4982b4664ab2c183c80d4141c19a10eb2a9aeafa52db4a87a80c2",
+      "review": "AI semantic audit of full learner copy, practice placeholders and high-risk scope boundaries."
+    },
+    "ko": {
+      "status": "approved",
+      "sha256": "e029e84c0ae5992f634896e81a9bd23b13a3697e15249c8c88b83342d0bd2a0c",
+      "review": "AI semantic audit of full learner copy, practice placeholders and high-risk scope boundaries."
+    },
+    "ar": {
+      "status": "approved",
+      "sha256": "0b67da39184a4030b759392bbfd87f9a4ac69328731a100edb24578b6b5606b0",
+      "review": "AI semantic audit of full RTL learner copy, practice placeholders and high-risk scope boundaries."
+    }
+  }
+}

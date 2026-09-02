@@ -1,5 +1,8 @@
 # Stage 6 — the machine around it
 
+**Stage 6 of 10** · Previous: [Stage 5 — let it act](../stage5-loop/README.md) ·
+[Course index](../README.md) · Next: [Stage 7 — guarantee the check happens](../stage7-graph/README.md)
+
 **Goal:** turn stage 5's demo into something you would leave running overnight. No prompt changes. No model changes.
 
 ```bash
@@ -18,10 +21,14 @@ npx tsx course/check.ts 6
 
 | Part off | What the morning looks like |
 |---|---|
-| retry | the error leaves the harness; recovery now depends on whether the model chooses to retry |
-| useful errors | the model sees `Error`, guesses wrong, and retries the same mistake |
-| permission gate | it spends real money with nobody asked |
-| run log | something went wrong and you cannot tell what |
+| retry | the first thrown tool error leaves the harness in this fixture |
+| useful errors | the model receives only `Error`; any later action is run-dependent |
+| permission gate | the code no longer blocks an over-threshold order before execution |
+| run log | the run leaves no local event trail for later inspection |
+
+The bundled offline fixture makes the contrasts reproducible. A live model's
+drafts and follow-up actions can differ. Run the checker once and read the
+actual output; **do not rerun it to force a preferred model behavior**.
 
 When someone says "the model failed", it is very often this file that failed.
 
@@ -35,4 +42,7 @@ Note where it lives: in the code that *executes* the tool, not in the prompt. "N
 
 None of this is interesting code. A retry is four lines. A timeout is one argument. That is the point: reliability comes from unglamorous plumbing that nobody demos, which is exactly why it is the first thing skipped and the first thing missed.
 
-**Next:** [stage 7 — guarantee the check happens](../stage7-graph/README.md)
+---
+
+**Stage 6 of 10** · Previous: [Stage 5 — let it act](../stage5-loop/README.md) ·
+[Course index](../README.md) · Next: [Stage 7 — guarantee the check happens](../stage7-graph/README.md)

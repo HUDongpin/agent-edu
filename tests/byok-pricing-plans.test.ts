@@ -55,13 +55,33 @@ test("pricing snapshot is dated, sourced and complete for Flash and Pro", () => 
   });
 });
 
-test("peak windows use UTC boundaries from the approved snapshot", () => {
+test("peak windows use weekday-aware UTC boundaries from the approved snapshot", () => {
   assert.equal(priceBandAt(new Date("2026-08-21T00:59:59Z")), "off-peak");
   assert.equal(priceBandAt(new Date("2026-08-21T01:00:00Z")), "peak");
   assert.equal(priceBandAt(new Date("2026-08-21T03:59:59Z")), "peak");
   assert.equal(priceBandAt(new Date("2026-08-21T04:00:00Z")), "off-peak");
+  assert.equal(priceBandAt(new Date("2026-08-21T05:59:59Z")), "off-peak");
   assert.equal(priceBandAt(new Date("2026-08-21T06:00:00Z")), "peak");
+  assert.equal(priceBandAt(new Date("2026-08-21T09:59:59Z")), "peak");
   assert.equal(priceBandAt(new Date("2026-08-21T10:00:00Z")), "off-peak");
+  assert.equal(priceBandAt(new Date("2026-08-22T01:00:00Z")), "off-peak");
+  assert.equal(priceBandAt(new Date("2026-08-22T06:00:00Z")), "off-peak");
+  assert.equal(priceBandAt(new Date("2026-08-23T01:00:00Z")), "off-peak");
+  assert.equal(priceBandAt(new Date("2026-08-23T06:00:00Z")), "off-peak");
+  assert.equal(priceBandAt(new Date("2026-08-24T01:00:00Z")), "peak");
+  assert.equal(priceBandAt(new Date("2026-08-24T06:00:00Z")), "peak");
+});
+
+test("weekend usage is priced through the off-peak table", () => {
+  const result = priceUsage(
+    "deepseek-v4-pro",
+    USAGE,
+    new Date("2026-08-22T06:00:00Z"),
+  );
+  assert.equal(result.known, true);
+  assert.ok(result.known);
+  assert.equal(result.band, "off-peak");
+  assert.equal(result.usd, 0.25 * 0.022 + 0.75 * 0.66 + 0.5 * 1.98);
 });
 
 test("actual cost uses cache hit, miss and output for the selected model and band", () => {

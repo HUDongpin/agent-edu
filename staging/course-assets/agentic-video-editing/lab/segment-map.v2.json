@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.segment-map.v2",
+  "projectSpecId": "course20-verified-cut-v2",
+  "timebase": "30/1",
+  "segments": [
+    {
+      "id": "hook",
+      "sourceMediaId": "source-30-cfr",
+      "inFrame": 372,
+      "outFrameExclusive": 612,
+      "durationFrames": 240,
+      "scenarioRightsState": "first-party-synthetic-cleared",
+      "reviewState": "fixture-reviewed",
+      "expectedObservation": "Eight-second hook with visible timecode, geometry, motion marker, and 48 kHz tone."
+    },
+    {
+      "id": "context",
+      "sourceMediaId": "source-30-cfr",
+      "inFrame": 1026,
+      "outFrameExclusive": 1386,
+      "durationFrames": 360,
+      "scenarioRightsState": "first-party-synthetic-cleared",
+      "reviewState": "fixture-reviewed",
+      "expectedObservation": "Twelve-second context beat retaining visible lineage and safe-zone evidence."
+    },
+    {
+      "id": "method",
+      "sourceMediaId": "source-30-cfr",
+      "inFrame": 2223,
+      "outFrameExclusive": 2643,
+      "durationFrames": 420,
+      "scenarioRightsState": "first-party-synthetic-cleared",
+      "reviewState": "fixture-reviewed",
+      "expectedObservation": "Fourteen-second method beat on the canonical 30/1 source and editing clock."
+    },
+    {
+      "id": "close",
+      "sourceMediaId": "source-30-cfr",
+      "inFrame": 3270,
+      "outFrameExclusive": 3660,
+      "durationFrames": 390,
+      "scenarioRightsState": "first-party-synthetic-cleared",
+      "reviewState": "fixture-reviewed",
+      "expectedObservation": "Thirteen-second close ending exactly at the 122-second source boundary."
+    },
+    {
+      "id": "external-archive-unknown-rights",
+      "sourceMediaId": "external-archive-not-present",
+      "inFrame": 1500,
+      "outFrameExclusive": 1845,
+      "durationFrames": 345,
+      "scenarioRightsState": "unknown",
+      "reviewState": "blocked-before-analysis",
+      "expectedObservation": "Scenario-only negative; no corresponding media file exists and it must never enter the plan."
+    }
+  ],
+  "canonicalSelectedSegmentIds": ["hook", "context", "method", "close"],
+  "quarantinedSegmentIds": ["external-archive-unknown-rights"]
+}

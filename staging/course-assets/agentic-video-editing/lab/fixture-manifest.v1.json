@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "aicourse.agentic-video-editing.fixture-manifest.v1",
+  "projectSpecId": "course20-verified-cut-v2",
+  "generatedOn": "2026-08-28",
+  "selfHashExcluded": true,
+  "files": [
+    {
+      "path": "edit-plan-v3.schema.json",
+      "sha256": "d80228a1f370bf9564a69836d6cf8d52ef643e7124e2ee15c700a73004d7b576",
+      "byteLength": 13882
+    },
+    {
+      "path": "lab/course20-fault-reel.en.vtt",
+      "sha256": "0c3b00e00ed4130531a75ccc18b88e40fe0b8a951eb0823faf0afcf1ae93b8a5",
+      "byteLength": 279
+    },
+    {
+      "path": "lab/course20-review-candidate.en.vtt",
+      "sha256": "0f501410bff2edc0111551711eb2722e68c7e66c65eee241206bf495cbe0e790",
+      "byteLength": 378
+    },
+    {
+      "path": "lab/delivery-contract.v1.json",
+      "sha256": "48cd90aaaadebfe6212414b189f50fb3e54a053fffe7ad8437f394372fe8edb3",
+      "byteLength": 1307
+    },
+    {
+      "path": "lab/edit-plan-v3-fixture.schema.json",
+      "sha256": "48a133882834c044dda841680893e481cf41875bb2f0fcf8d5b5f3dbc04cff9e",
+      "byteLength": 8379
+    },
+    {
+      "path": "lab/expected-artifact-graph.v1.json",
+      "sha256": "c54577d2506386d683afd5daf1de57acf7ca8cb32fc754ae2b960c7dae8fca6c",
+      "byteLength": 1366
+    },
+    {
+      "path": "lab/failure-ledger.v1.json",
+      "sha256": "fb7f55912e3fa36f16eebcb97dde7fbd8695e19838deaae77f929eb961735025",
+      "byteLength": 1825
+    },
+    {
+      "path": "lab/frozen-media-receipt.v1.json",
+      "sha256": "48dc0ee652b2e5bdb92bd21b2950f38058b926e8e508047f98c31f91e851a307",
+      "byteLength": 3044
+    },
+    {
+      "path": "lab/frozen/course20-fault-reel.mp4",
+      "sha256": "4199e2602e96739a58dcfadcb80f6a55021af9c8cbbfed4e984f586fc3bf8b7c",
+      "byteLength": 65286
+    },
+    {
+      "path": "lab/frozen/course20-original-fixture.mp4",
+      "sha256": "a845aba34466d5ab6749c27b044c172f4829bc5ce8b559109d508ce4b7dbeab1",
+      "byteLength": 2315189
+    },
+    {
+      "path": "lab/golden-structural-expectations.v1.json",
+      "sha256": "daf0c57c3ed3a55349d7e5f0f4ca569ab5a25eee534cd84d98705015b4ba54b0",
+      "byteLength": 1137
+    },
+    {
+      "path": "lab/negative-fixtures.v1.json",
+      "sha256": "003f84cc4a712aff42e086d080b49c9279a81e281f59768a1cb6896d00323baa",
+      "byteLength": 3281
+    },
+    {
+      "path": "lab/NOTICE.md",
+      "sha256": "bb8939a43ad091c4b9c5dd537836017575e0a53b55ae27da62113457f58308fc",
+      "byteLength": 2166
+    },
+    {
+      "path": "lab/project-spec.v2.json",
+      "sha256": "69c52088eb35874cd729136d2f273ab77cc1530f502d614a73139019facc7c32",
+      "byteLength": 2382
+    },
+    {
+      "path": "lab/qc-checklist.v1.json",
+      "sha256": "83617d56b8550098c3df47d77ae3f2ba5acc490982000576d577a1324267b62c",
+      "byteLength": 1391
+    },
+    {
+      "path": "lab/README.md",
+      "sha256": "fb0386f92a03ad511a05e558890ef612537b7358192d64cd48254fa55ca777a8",
+      "byteLength": 4579
+    },
+    {
+      "path": "lab/segment-map.v2.json",
+      "sha256": "83cc51899d4b85911b42792f32b37caac1fd15926e19dea511d339ffb5223eeb",
+      "byteLength": 2189
+    },
+    {
+      "path": "lab/synthetic-source-recipe.v1.json",
+      "sha256": "96c18fa621cd12112c6a4736a5fa09afd57d5f26e0c60a589f0c99317708b59e",
+      "byteLength": 2459
+    },
+    {
+      "path": "lab/tool-policy.v1.json",
+      "sha256": "39fde11db4afebf40699d0975bf8a6c8076af6570b6f81680c4cf55cc4b9dd37",
+      "byteLength": 1680
+    },
+    {
+      "path": "lab/untrusted-content-fixtures.v1.json",
+      "sha256": "f731a614af6c765f40f239c83701672fbe1962973d5aeef15cb70e55420557be",
+      "byteLength": 846
+    }
+  ],
+  "boundary": "This manifest binds the production-generic v3 schema, the separate Course 20 fixture schema, all public lab contracts, and frozen synthetic media. It excludes only itself to avoid a self-hash cycle."
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicourse.top/schemas/i18n-reviews.schema.json",
+  "type": "object",
+  "required": ["locales"],
+  "properties": {
+    "policy": { "type": "string" },
+    "locales": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "reviewer", "reviewedAt", "snapshotId"],
+        "properties": {
+          "status": { "enum": ["pending", "approved", "rejected"] },
+          "reviewer": { "type": "string" },
+          "reviewedAt": { "type": "string" },
+          "snapshotId": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": true
+}

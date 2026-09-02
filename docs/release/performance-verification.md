@@ -11,10 +11,11 @@ Run against a clean, freshly built release commit:
 ```bash
 npm ci
 npm run build
-npm run --silent assets:check > static-assets.json
+npm run assets:check
 ```
 
-`assets:check` emits a sorted JSON inventory of every file below `out/`. It
+`assets:check` writes a sorted JSON inventory of every file below `out/` to
+`tmp/release/static-asset-inventory.json`. It
 separates Next chunks, byte-for-byte copies of `public/`, and generated route
 HTML/RSC/text payloads; it also verifies that every public source asset was
 actually emitted unchanged. The inventory contains no clock time or
@@ -23,26 +24,34 @@ repeated builds of the same source are auditable and diffable. This closes the
 blind spot where large Open Graph images or duplicated localized route payloads
 could grow while an `_next/static`-only total stayed green.
 
-The initial limits are based on release candidate `60f7edc` with
-30.9–47.5% headroom. Values are uncompressed bytes in the exported files, not
-HTTP transfer sizes after content encoding:
+The current baselines were reviewed from two clean, byte-identical Node 24 /
+Next 16.3.1 exports of content candidate `342ab475` on 2026-08-31. Fixed-size
+aggregate budgets retain 10% headroom; public media and individual route files
+retain their 500 KiB safety caps. Route and whole-export limits scale with the
+generated route count. Values are uncompressed bytes in the exported files,
+not HTTP transfer sizes after content encoding:
 
 | Measure | Baseline bytes | Limit bytes |
 |---|---:|---:|
-| All `_next/static` assets | 2,055,566 | 2,750,000 |
-| JavaScript | 1,985,800 | 2,650,000 |
-| CSS | 69,766 | 100,000 |
-| Largest `_next/static` asset | 229,156 | 300,000 |
-| Emitted `public/` assets | 1,136,379 | 1,600,000 |
-| Largest emitted public asset | 373,193 | 500,000 |
-| Generated route payloads | 20,978,583 | 30,000,000 |
-| Largest route payload | 338,889 | 500,000 |
-| Complete exported site | 24,141,664 | 34,000,000 |
+| All `_next/static` assets | 5,318,714 | 5,850,586 |
+| JavaScript | 4,627,427 | 5,090,170 |
+| CSS | 691,287 | 760,416 |
+| Largest `_next/static` asset | 234,172 | 257,590 |
+| Emitted `public/` assets | 14,814,031 | 16,295,435 |
+| Largest emitted public media asset | 495,549 | 512,000 |
+| Generated route payloads | 402,827,884 | 417,331,200 at 741 routes |
+| Largest HTML/RSC payload | 414,577 | 512,000 |
+| Largest sitemap shard | 21,785 | 512,000 |
+| Complete exported site | 422,960,629 | 522,379,264 at 741 routes |
 
 These are regression budgets, not claims that the current payload is optimal.
 Change a limit only in a review that records the before/after inventory and why
 the additional bytes are proportionate. Never raise a limit merely to make CI
 green.
+
+The 2026-08-31 review, duplicate/orphan analysis, exact CSS chunk hashes, route
+load distributions, optimization delta, and remaining work are recorded in
+`docs/release/evidence/static-asset-baseline-review-342ab475.md`.
 
 ## 2. Local lab compatibility and Web Vitals
 

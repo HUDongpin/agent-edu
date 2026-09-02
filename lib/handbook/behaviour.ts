@@ -6,19 +6,98 @@ import FC from "@/lib/flowchart";
 import { trustedMarkup, type Copy } from "@/lib/handbook/copy";
 import { HANDBOOK_WIDE_QUERY, tabTargetIndex } from "@/lib/tab-navigation";
 import {
+  HANDBOOK_SECTION_IDS,
   readLearningState,
   recordHandbookControlRoomFinish,
   recordHandbookVisit,
   selectHandbookProgress,
-  selectLabProgress,
 } from "@/lib/progress";
 
 /* `C` carries the widgets' own strings — see copy.ts. It is a parameter
    rather than an import because the table is chosen per locale on the
    server, and this module runs in the browser after mount. */
-export default function initHandbook(C: Copy): void {
+export default function initHandbook(C: Copy): () => void {
 
 "use strict";
+/* This file intentionally remains one imperative initializer, but React owns
+   its lifetime. Keep every resource that can outlive the Handbook subtree in
+   this small registry so an unmount or locale change has one complete,
+   idempotent teardown path. Element listeners disappear with the subtree;
+   document/window/media listeners and scheduled work do not. */
+let disposed=false;
+const listenerCleanups=[];
+const timeoutIds=new Set();
+const intervalIds=new Set();
+const frameIds=new Set();
+let ownedShow=null, ownedPaintProgress=null;
+
+const nativeSetTimeout=window.setTimeout.bind(window);
+const nativeClearTimeout=window.clearTimeout.bind(window);
+const nativeSetInterval=window.setInterval.bind(window);
+const nativeClearInterval=window.clearInterval.bind(window);
+const nativeRequestAnimationFrame=window.requestAnimationFrame.bind(window);
+const nativeCancelAnimationFrame=window.cancelAnimationFrame.bind(window);
+
+const setTimeout=(callback,delay,...args)=>{
+  let id;
+  id=nativeSetTimeout(()=>{
+    timeoutIds.delete(id);
+    if (!disposed) callback(...args);
+  },delay);
+  timeoutIds.add(id);
+  return id;
+};
+const clearTimeout=id=>{
+  timeoutIds.delete(id);
+  nativeClearTimeout(id);
+};
+const setInterval=(callback,delay,...args)=>{
+  const id=nativeSetInterval(()=>{ if (!disposed) callback(...args); },delay);
+  intervalIds.add(id);
+  return id;
+};
+const clearInterval=id=>{
+  intervalIds.delete(id);
+  nativeClearInterval(id);
+};
+const requestAnimationFrame=callback=>{
+  let id;
+  id=nativeRequestAnimationFrame(time=>{
+    frameIds.delete(id);
+    if (!disposed) callback(time);
+  });
+  frameIds.add(id);
+  return id;
+};
+const cancelAnimationFrame=id=>{
+  frameIds.delete(id);
+  nativeCancelAnimationFrame(id);
+};
+
+function listen(target,type,listener,options){
+  target.addEventListener(type,listener,options);
+  listenerCleanups.push(()=>target.removeEventListener(type,listener,options));
+}
+function listenMediaChange(media,listener){
+  if (media.addEventListener){
+    listen(media,'change',listener);
+  } else if (media.addListener){
+    media.addListener(listener);
+    listenerCleanups.push(()=>media.removeListener&&media.removeListener(listener));
+  }
+}
+function cleanup(){
+  if (disposed) return;
+  disposed=true;
+  timeoutIds.forEach(id=>nativeClearTimeout(id)); timeoutIds.clear();
+  intervalIds.forEach(id=>nativeClearInterval(id)); intervalIds.clear();
+  frameIds.forEach(id=>nativeCancelAnimationFrame(id)); frameIds.clear();
+  listenerCleanups.splice(0).reverse().forEach(remove=>{ try{ remove(); }catch{} });
+  if (window.__show===ownedShow) delete window.__show;
+  if (window.__paintProgress===ownedPaintProgress) delete window.__paintProgress;
+}
+
+try {
 const RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $  = (s,r) => (r||document).querySelector(s);
 const $$ = (s,r) => Array.from((r||document).querySelectorAll(s));
@@ -61,23 +140,110 @@ function txt(s){ return document.createTextNode(s); }
     if (c) c.textContent = seen.size ? C.t('w.rail.seen',{seen:seen.size,total:tabs.length}) : '';
   }
 
-  // a wide diagram that scrolls needs to say so, or on a phone you never find the rest of it
+  let scrollHintSequence=0;
+  function scrollTitle(w){
+    const caption=w.querySelector('caption');
+    const cardTitle=w.closest('.card')?.querySelector('.card-h span');
+    const svg=w.querySelector('svg[aria-label]');
+    const panelTitle=w.closest('.panel')?.querySelector('.sec-head h2');
+    return (caption?.textContent||cardTitle?.textContent||svg?.getAttribute('aria-label')||panelTitle?.textContent||'')
+      .trim();
+  }
+  function paintScrollProgress(w,h){
+    const fill=h?.querySelector('.scrollmeter > span');
+    if (!fill) return;
+    const max=Math.max(0,w.scrollWidth-w.clientWidth);
+    const progress=max?Math.min(100,Math.abs(w.scrollLeft)/max*100):0;
+    fill.style.width=progress.toFixed(1)+'%';
+  }
+  function revealFocusedScrollerChild(w,target){
+    if (!(target instanceof Element)||target===w) return;
+    target.scrollIntoView({block:'nearest',inline:'nearest',behavior:'auto'});
+    requestAnimationFrame(()=>{
+      const frame=w.getBoundingClientRect();
+      const item=target.getBoundingClientRect();
+      const inset=12;
+      let delta=0;
+      if (item.left<frame.left+inset) delta=item.left-(frame.left+inset);
+      else if (item.right>frame.right-inset) delta=item.right-(frame.right-inset);
+      if (Math.abs(delta)>1) w.scrollBy({left:delta,behavior:'auto'});
+    });
+  }
+  function keyboardPan(w,e){
+    if (e.target!==w||(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')) return;
+    e.preventDefault();
+    const distance=Math.max(48,Math.round(w.clientWidth*.24));
+    w.scrollBy({left:e.key==='ArrowRight'?distance:-distance,behavior:'auto'});
+  }
+
+  // A wide diagram that scrolls must advertise both touch and keyboard paths.
+  // Explicit focusability is essential in WebKit, which does not make an
+  // ordinary overflow container keyboard reachable by itself.
   function scrollHints(){
     $$('.fcwrap,.graphscroll,.tablewrap').forEach(w=>{
       const needs = w.scrollWidth > w.clientWidth + 4;
       let hint = w.nextElementSibling;
       const isHint = hint && hint.classList && hint.classList.contains('scrollhint');
       if (needs && !isHint){
-        const h=document.createElement('div');
+        const h=document.createElement('p');
         h.className='scrollhint';
-        h.textContent=C.t('w.theme.scrollHint');
+        const copy=document.createElement('span');
+        copy.className='scrollhint-copy';
+        copy.textContent=C.t('w.theme.scrollHint');
+        const meter=document.createElement('span');
+        meter.className='scrollmeter';
+        meter.setAttribute('aria-hidden','true');
+        meter.appendChild(document.createElement('span'));
+        h.append(copy,meter);
         w.parentNode.insertBefore(h, w.nextSibling);
-      } else if (!needs && isHint){ hint.remove(); }
+        hint=h;
+      }
+      if (needs && hint){
+        const child=w.querySelector('svg[id],table[id]');
+        const token=child?.id||String(++scrollHintSequence);
+        hint.id='scrollhint-'+token;
+        w.setAttribute('tabindex','0');
+        w.setAttribute('role','region');
+        w.setAttribute('aria-label',C.t('w.theme.scrollRegion',{title:scrollTitle(w)}));
+        w.setAttribute('aria-describedby',hint.id);
+        if (!w.dataset.scrollManaged){
+          w.dataset.scrollManaged='true';
+          w.addEventListener('scroll',()=>paintScrollProgress(w,w.nextElementSibling),{passive:true});
+          w.addEventListener('focusin',e=>revealFocusedScrollerChild(w,e.target));
+          w.addEventListener('keydown',e=>keyboardPan(w,e));
+        }
+        paintScrollProgress(w,hint);
+      } else {
+        w.removeAttribute('tabindex');
+        w.removeAttribute('role');
+        w.removeAttribute('aria-label');
+        w.removeAttribute('aria-describedby');
+        if (isHint) hint.remove();
+      }
     });
   }
 
+  function updateRailOverflow(){
+    const nav=rail.closest('.rail');
+    if (!nav) return;
+    if (wide.matches||rail.scrollWidth<=rail.clientWidth+1){
+      nav.removeAttribute('data-overflow-start');
+      nav.removeAttribute('data-overflow-end');
+      return;
+    }
+    const frame=rail.getBoundingClientRect();
+    const first=tabs[0].getBoundingClientRect();
+    const last=tabs[tabs.length-1].getBoundingClientRect();
+    const rtl=getComputedStyle(rail).direction==='rtl';
+    nav.toggleAttribute('data-overflow-start',rtl?first.right>frame.right+1:first.left<frame.left-1);
+    nav.toggleAttribute('data-overflow-end',rtl?last.left<frame.left-1:last.right>frame.right+1);
+  }
+
   function revealTab(tab){
-    if (tab && tab.scrollIntoView) tab.scrollIntoView({block:'nearest',inline:'nearest'});
+    // Keyboard focus must be visible synchronously; inheriting the document's
+    // smooth-scroll policy can leave the newly focused tab off-screen.
+    if (tab && tab.scrollIntoView) tab.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+    requestAnimationFrame(updateRailOverflow);
   }
 
   function syncOrientation(){
@@ -98,7 +264,7 @@ function txt(s){ return document.createTextNode(s); }
       if (p) p.classList.toggle('on',on);
     });
     revealTab(activeTab);
-    const learning=recordHandbookVisit(name);
+    const learning=opts.record===false?readLearningState():recordHandbookVisit(name);
     seen=new Set(learning.handbook.visitedSections);
     paintSeen();
     if (window.__paintProgress) window.__paintProgress();
@@ -112,12 +278,22 @@ function txt(s){ return document.createTextNode(s); }
       const panel=document.getElementById('p-'+name);
       if (panel) panel.focus({preventScroll:true});
     }
-    if (!opts.silent && window.scrollY>120) window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+    if (!opts.silent && !opts.preserveTabViewport && window.scrollY>120) {
+      // Avoid retargeting a rapid second pointer activation while retaining
+      // the embedded Handbook's mobile tab viewport.
+      window.scrollTo({top:0,behavior:'instant'});
+    }
     requestAnimationFrame(scrollHints);
   }
 
   tabs.forEach((t,idx)=>{
-    t.addEventListener('click',()=>{ t.focus(); show(t.dataset.p,{focus:false}); });
+    t.addEventListener('click',()=>{
+      t.focus();
+      // The handbook now lives below the course introduction. Its legacy
+      // scroll-to-document-top behaviour would therefore move a clicked
+      // mobile tab out of view instead of revealing the selected section.
+      show(t.dataset.p,{focus:false,preserveTabViewport:true});
+    });
     t.addEventListener('keydown',e=>{
       const vertical=rail.getAttribute('aria-orientation')==='vertical';
       const rtl=getComputedStyle(rail).direction==='rtl';
@@ -125,33 +301,46 @@ function txt(s){ return document.createTextNode(s); }
       if (next===null) return;
       e.preventDefault();
       const n=tabs[next];
-      n.focus(); show(n.dataset.p,{focus:false});
+      n.focus(); show(n.dataset.p,{focus:false,preserveTabViewport:true});
     });
   });
-  document.addEventListener('click',e=>{
+  listen(document,'click',e=>{
     const b=e.target.closest('[data-goto]');
     if (b) show(b.dataset.goto);
   });
   const restoreLocation=()=>{
     const h=decodeURIComponent(location.hash.slice(1));
-    show(NAMES.has(h)?h:'start',{replace:true,focus:false,silent:true});
+    show(NAMES.has(h)?h:'start',{replace:true,focus:false,silent:true,record:false});
   };
-  window.addEventListener('popstate',restoreLocation);
-  window.addEventListener('hashchange',restoreLocation);
-  let rt; window.addEventListener('resize',()=>{syncOrientation();clearTimeout(rt);rt=setTimeout(scrollHints,180);});
-  if (wide.addEventListener) wide.addEventListener('change',syncOrientation);
-  else if (wide.addListener) wide.addListener(syncOrientation);
+  listen(window,'popstate',restoreLocation);
+  listen(window,'hashchange',restoreLocation);
+  let rt; listen(window,'resize',()=>{syncOrientation();clearTimeout(rt);rt=setTimeout(()=>{scrollHints();updateRailOverflow();},180);});
+  listen(rail,'scroll',updateRailOverflow,{passive:true});
+  listenMediaChange(wide,syncOrientation);
   syncOrientation();
+
+  $$('.course-disclosure').forEach(disclosure=>{
+    disclosure.addEventListener('toggle',()=>requestAnimationFrame(scrollHints));
+  });
 
   // a link to #loop wins; otherwise pick up where they left off
   const fromHash=decodeURIComponent(location.hash.slice(1));
   const initial = NAMES.has(fromHash) ? fromHash : readLearningState().handbook.lastSection;
-  show(initial,{replace:true,focus:false,silent:true});
+  show(initial,{replace:true,focus:false,silent:true,record:false});
 
   $('#glossBtn').addEventListener('click',()=>{
     show('compare');
     const g=$('#glossary');
-    if (g) setTimeout(()=>g.scrollIntoView({block:'center',behavior:RM?'auto':'smooth'}),60);
+    if (!g) return;
+    const disclosure=g.closest('details');
+    if (disclosure) disclosure.open=true;
+    g.tabIndex=-1;
+    g.setAttribute('role','region');
+    g.setAttribute('aria-label',$('#glossBtn').textContent.trim());
+    setTimeout(()=>{
+      g.scrollIntoView({block:'center',behavior:RM?'auto':'smooth'});
+      g.focus({preventScroll:true});
+    },60);
   });
 
   // results that change without a click should be announced, not silently swapped
@@ -165,6 +354,7 @@ function txt(s){ return document.createTextNode(s); }
     graphLog.setAttribute('aria-relevant','additions');
   }
 
+  ownedShow=show;
   window.__show=show;
 })();
 
@@ -608,29 +798,34 @@ const RECALL={
   function syncToggles(){ $$('.tg',tgBox).forEach(b=>b.setAttribute('aria-pressed',on[b.dataset.id]?'true':'false')); }
   $('#pAll').addEventListener('click',()=>{PARTS.forEach(p=>on[p.id]=true);syncToggles();seen=new Set();runs=0;render(true);});
   $('#pNone').addEventListener('click',()=>{PARTS.forEach(p=>on[p.id]=false);syncToggles();seen=new Set();runs=0;render(true);});
-  /* ---- shared progress: Handbook + browser Lab -------------------------
-     The v2 store is the only learning truth. Part 3 is deliberately absent:
-     its progress lives in course/progress.json and this page cannot read it. */
+  /* ---- Course 1 progress ------------------------------------------------
+     Exploration and assessment submission are separate facts. A score is a
+     result from one run, never a claim of mastery; the Lab handoff belongs in
+     that run's result rather than in this overview. */
   (function(){
     function paint(){
       const learning=readLearningState();
       const handbook=selectHandbookProgress(learning);
-      const lab=selectLabProgress(learning);
-      const steps=new Set(lab.completedSteps);
+      const nextSection=HANDBOOK_SECTION_IDS.find(section=>
+        !learning.handbook.visitedSections.includes(section));
+      const nextSectionLabel=nextSection
+        ? document.getElementById('tab-'+nextSection)?.textContent?.trim()
+        : '';
       const ITEMS=[
-        {label:C.t('w.progress.item.read'),done:handbook.exploredSections>=6,
-         note:C.t('w.progress.sections',{n:handbook.exploredSections})},
-        {label:C.t('w.progress.item.play0'),done:steps.has('first-call'),note:''},
-        {label:C.t('w.progress.item.play1'),done:steps.has('rules'),note:''},
-        {label:C.t('w.progress.item.play2'),done:steps.has('prompt-trial'),note:''},
-        {label:C.t('w.progress.item.play3'),done:steps.has('full-eval'),
-         note:lab.evalBest===undefined?'':C.t('w.progress.evalBest',{n:lab.evalBest})}
+        {label:C.t('w.progress.item.sections'),
+         done:handbook.exploredSections===handbook.totalSections,
+         note:C.t('w.progress.sectionsExplored',{n:handbook.exploredSections})},
+        {label:C.t('w.progress.item.assessment'),done:handbook.assessmentSubmitted,
+         note:handbook.assessmentSubmitted
+           ? (handbook.bestScore===undefined
+             ? C.t('w.quiz.assessmentSubmitted')
+             : C.t('w.progress.assessment.submitted',{n:handbook.bestScore}))
+           : C.t('w.progress.assessment.notSubmitted')}
       ];
       const card=$('#progCard'), ul=$('#progList');
       const states=ITEMS;
-      const n=states.filter(s=>s.done).length;
-      if(!n){ card.hidden=true; return; }      // nothing to brag about yet
-      card.hidden=false;
+      card.hidden=handbook.exploredSections===0&&!handbook.assessmentSubmitted;
+      if(card.hidden) return;
       ul.innerHTML='';
       states.forEach(st=>{
         const li=document.createElement('li');
@@ -639,16 +834,17 @@ const RECALL={
           esc(st.label)+(st.note?' <span class="mono-note">'+esc(st.note)+'</span>':'')+'</span>';
         ul.appendChild(li);
       });
-      $('#progPct').textContent=C.t('w.progress.count',{done:n,total:ITEMS.length});
-      const nextUp=states.findIndex(s=>!s.done);
-      $('#progNext').innerHTML = nextUp<0
-        ? C.h('w.progress.done',{link:trustedMarkup`<a href="../build/">${C.t('w.progress.done.link')}</a>`})
-        : C.h('w.progress.next',{label:states[nextUp].label})+
-          (nextUp>0&&nextUp<5?C.h('w.progress.next.lab',{link:trustedMarkup`<a href="../lab/">${C.t('w.progress.next.lab.link')}</a>`}):'');
+      $('#progPct').textContent=C.t('w.progress.sectionsExplored',{n:handbook.exploredSections});
+      $('#progNext').textContent=nextSection
+        ? C.t('w.progress.next',{label:nextSectionLabel||states[0].label})
+        : !handbook.assessmentSubmitted
+          ? C.t('w.progress.next',{label:states[1].label})
+          : C.t('w.quiz.assessmentSubmitted');
     }
     paint();
-    window.addEventListener('storage',paint);
-    window.addEventListener('focus',paint);
+    listen(window,'storage',paint);
+    listen(window,'focus',paint);
+    ownedPaintProgress=paint;
     window.__paintProgress=paint;
   })();
 
@@ -1699,12 +1895,23 @@ const RECALL={
 
   function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-  function start(){
+  function focusRegion(selector,block='nearest'){
+    requestAnimationFrame(()=>{
+      const target=$(selector);
+      if (!target) return;
+      target.tabIndex=-1;
+      target.focus({preventScroll:true});
+      // Focus visibility is functional feedback, so settle it before the next action.
+      target.scrollIntoView({block,inline:'nearest',behavior:'instant'});
+    });
+  }
+
+  function start(focusBrief=false){
     deck=shuffle(BRIEFS.slice()).slice(0,10); at=0; score=0; streak=0; best=0; answered=false;
     Object.keys(missedBy).forEach(k=>delete missedBy[k]);
     $('#gEnd').hidden=true; $('#gStage').hidden=false;
     $('#gScore').textContent='0'; $('#gStreak').textContent='0';
-    render();
+    render(focusBrief);
   }
   function progress(){
     const p=$('#gProg'); p.innerHTML='';
@@ -1715,13 +1922,19 @@ const RECALL={
       p.appendChild(sp);
     });
   }
-  function render(){
+  function render(moveFocus=false){
     answered=false;
     const b=deck[at];
     $('#gRound').textContent=at+1;
     progress();
-    $('#gBrief').innerHTML='<span class="who">'+C.h('w.quiz.says',{who:b.who})+'</span>'+esc(b.brief);
-    $('#gFeedback').innerHTML='';
+    const brief=$('#gBrief');
+    brief.tabIndex=-1;
+    brief.innerHTML='<span class="who">'+C.h('w.quiz.says',{who:b.who})+'</span>'+esc(b.brief);
+    const feedback=$('#gFeedback');
+    feedback.tabIndex=-1;
+    feedback.setAttribute('role','status');
+    feedback.setAttribute('aria-live','polite');
+    feedback.innerHTML='';
     $('#gNext').hidden=true;
     const o=$('#gOpts'); o.innerHTML='';
     ORDER.forEach(k=>{
@@ -1730,6 +1943,7 @@ const RECALL={
       btn.addEventListener('click',()=>answer(k,btn));
       o.appendChild(btn);
     });
+    if (moveFocus) focusRegion('#gBrief','center');
   }
   function answer(pick,btn){
     if (answered) return;
@@ -1755,15 +1969,16 @@ const RECALL={
       '<p>'+esc(b.why)+'</p><p>'+C.h('w.quiz.tempts',{trap:b.trap})+'</p></div>';
     $('#gNext').hidden=false;
     $('#gNext').textContent = (at===deck.length-1) ? C.t('w.quiz.seeScore') : C.t('w.quiz.nextBrief');
+    focusRegion('#gFeedback');
   }
   $('#gNext').addEventListener('click',()=>{
-    if (at<deck.length-1){ at++; render(); }
+    if (at<deck.length-1){ at++; render(true); }
     else finish();
   });
-  $('#gRestart').addEventListener('click',start);
+  $('#gRestart').addEventListener('click',()=>start(true));
 
   function finish(){
-    recordHandbookControlRoomFinish(score);
+    const handbook=selectHandbookProgress(recordHandbookControlRoomFinish(score));
     if (window.__paintProgress) window.__paintProgress();
     $('#gStage').hidden=true;
     const e=$('#gEnd'); e.hidden=false;
@@ -1773,9 +1988,17 @@ const RECALL={
                   pct>=60 ?C.h('w.quiz.grade.solid'):
                   pct>=40 ?C.h('w.quiz.grade.getting'):
                            C.h('w.quiz.grade.early');
-    let h='<div class="gscore"><div class="big">'+score+'<span style="font-size:26px;color:var(--ink-3)">/'+deck.length+'</span></div>'+
+    let h='<div class="gscore"><h3 id="gResultHeading" tabindex="-1" role="status" aria-live="polite">'+
+          C.h('w.quiz.assessmentSubmitted')+'</h3>'+
+          '<p class="mono-note" style="margin-top:8px">'+
+          C.h('w.progress.sectionsExplored',{n:handbook.exploredSections})+'</p>'+
+          '<div class="big">'+score+'<span style="font-size:26px;color:var(--ink-3)">/'+deck.length+'</span></div>'+
           '<div class="grade">'+grade+'</div>'+
           '<p class="mono-note" style="margin-top:8px">'+C.h('w.quiz.streak',{n:best})+'</p></div>';
+    h+='<div class="result-next">'+C.h('w.progress.continueLab',{
+      link:trustedMarkup`<a href="../lab/">${C.t('w.progress.continueLab.link')}</a>`
+    })+'</div>'+
+    '<div class="result-note">'+C.h('w.progress.continueLab.cost')+'</div>';
     const weak=Object.keys(missedBy).sort((a,b)=>missedBy[b]-missedBy[a]);
     if (weak.length){
       h+='<p style="margin-top:18px;font-size:17px">'+C.h('w.quiz.weak')+'</p><div class="gweak">';
@@ -1790,9 +2013,17 @@ const RECALL={
     e.innerHTML=h;
     $('#gNext').hidden=true;
     progress();
+    focusRegion('#gResultHeading','center');
   }
   start();
 })();
 //END
+
+} catch (error) {
+  cleanup();
+  throw error;
+}
+
+return cleanup;
 
 }

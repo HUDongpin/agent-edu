@@ -1,71 +1,166 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import {
-  readLearningState,
-  readLearningStateOnServer,
-  resetLearningState,
-  selectHandbookProgress,
-  selectLabProgress,
-  subscribeLearningState,
-} from "@/lib/progress";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useI18n } from "./I18nProvider";
+import {
+  PUBLISHED_CATALOG_COURSES,
+} from "@/lib/public-courses";
+import { withPublicCourseReturnLocale } from "@/lib/public-release-surface";
+import type {
+  PublishedProgressCourseId,
+  ProgressSummaryState,
+} from "@/lib/public-progress-contract";
 
-type Item = { label: string; done: boolean; note: string };
+type CourseProgress = {
+  id: PublishedProgressCourseId;
+  state: ProgressSummaryState;
+  percent: number;
+  nextHref: string | null;
+};
+
+type ProgressView = {
+  courses: CourseProgress[];
+  persistent: boolean;
+};
+
+export interface ProgressFeedbackCopy {
+  readonly resetConfirm?: string;
+  readonly storageUnavailable?: string;
+  readonly resetComplete?: string;
+  readonly resetSessionOnly?: string;
+}
+
+export interface ProgressProps {
+  readonly locale: string;
+  /**
+   * Optional until the root locale bundles expose the four progress feedback
+   * messages. English fallbacks keep storage failure and reset outcomes honest.
+   */
+  readonly feedbackCopy?: ProgressFeedbackCopy;
+}
+
+const FALLBACK_FEEDBACK = {
+  storageUnavailable:
+    "Browser storage is unavailable. Learning still works, but progress will last only for this session.",
+} as const;
+
+const titleKeyById = new Map(
+  PUBLISHED_CATALOG_COURSES.map(({ course }) => [course.id, course.titleKey] as const),
+);
 
 /**
- * Progress lives in localStorage and nowhere else — no account, nothing sent
- * anywhere. Rendered client-side because a static export has no per-reader
- * server state, which is exactly the property we wanted to keep.
+ * A private, course-level return state. Progress is read from this browser and
+ * never sent to the site, so the statically exported page remains account-free.
  */
-export default function Progress({ locale }: { locale: string }) {
+export default function Progress({ locale, feedbackCopy }: ProgressProps) {
   const { t } = useI18n();
-  const state = useSyncExternalStore(
-    subscribeLearningState,
-    readLearningState,
-    readLearningStateOnServer,
-  );
-  const handbook = selectHandbookProgress(state);
-  const lab = selectLabProgress(state);
-  const items: Item[] = [
-    {
-      label: t("track.1.title"),
-      done: handbook.completed,
-      note: `${handbook.exploredSections} ${t("ui.of")} ${handbook.totalSections}`,
-    },
-    {
-      label: t("track.2.title"),
-      done: lab.completed,
-      note: `${lab.completedCount} ${t("ui.of")} ${lab.totalSteps}`,
-    },
-  ];
-  const started = handbook.status !== "not-started" || lab.status !== "not-started";
+  const [view, setView] = useState<ProgressView | null>(null);
 
-  if (!started) return <div className="progwrap"><div className="muted">{t("home.progNone")}</div></div>;
+  useEffect(() => {
+    let cancelled = false;
+    let removeListeners = () => {};
+    void import("./progress-adapters").then(({ createPublishedProgressAdapters }) => {
+      if (cancelled) return;
+      const adapters = createPublishedProgressAdapters(locale);
+      const refresh = () => {
+        const courses = adapters.map((adapter) => ({
+          id: adapter.courseId,
+          ...adapter.readSummary(),
+        }));
+        if (!cancelled) {
+          setView({
+            courses,
+            persistent: courses.every((course) => course.state !== "unavailable"),
+          });
+        }
+      };
+      refresh();
+      const progressEvents = new Set(adapters.map((adapter) => adapter.progressEvent));
+      window.addEventListener("focus", refresh);
+      window.addEventListener("storage", refresh);
+      for (const event of progressEvents) window.addEventListener(event, refresh);
+      removeListeners = () => {
+        window.removeEventListener("focus", refresh);
+        window.removeEventListener("storage", refresh);
+        for (const event of progressEvents) window.removeEventListener(event, refresh);
+      };
+    });
+    return () => {
+      cancelled = true;
+      removeListeners();
+    };
+  }, [locale]);
 
-  const done = items.filter((i) => i.done).length;
+  const active = view?.courses.filter(
+    (course) => course.state === "in-progress" || course.state === "completed",
+  ) ?? [];
+  const statusMessage = view && !view.persistent
+    ? feedbackCopy?.storageUnavailable ?? FALLBACK_FEEDBACK.storageUnavailable
+    : null;
+
+  if (!view) {
+    return <div className="progwrap progress-empty" aria-hidden="true" />;
+  }
+
+  if (!active.length) {
+    return (
+      <div className="progwrap progress-empty">
+        <div>
+          <strong>{t("home.progNoneTitle")}</strong>
+          <p>{t("home.progNone")}</p>
+          {statusMessage ? <p role="status" aria-live="polite">{statusMessage}</p> : null}
+        </div>
+        <Link className="btn primary" href={`/${locale}/courses/`}>
+          {t("home.progBrowse")}<span className="arrow" aria-hidden="true">→</span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="progwrap" data-locale={locale}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <strong>{done} {t("ui.of")} {items.length}</strong>
-        <button
-          className="iconbtn"
-          type="button"
-          onClick={() => resetLearningState("all")}
-        >
-          {t("home.progReset")}
-        </button>
+    <div className="progwrap">
+      <div className="progress-course-list">
+        {active.slice(0, 2).map((course) => {
+          const title = t(titleKeyById.get(course.id) ?? `c.${course.id}.title`);
+          const label = course.state === "completed"
+            ? t("cat.review")
+            : course.percent >= 100
+              ? t("cat.finish")
+              : t("cat.resume");
+
+          return (
+            <article className="progress-course" key={course.id}>
+              <div className="progress-course-heading">
+                <strong>{title}</strong>
+                <span>{course.percent}%</span>
+              </div>
+              <div
+                className="progbar"
+                role="progressbar"
+                aria-label={`${title}: ${t("cat.progress")}`}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={course.percent}
+              >
+                <span style={{ width: `${course.percent}%` }} />
+              </div>
+              {course.nextHref ? (
+                <Link
+                  className="text-link"
+                  href={withPublicCourseReturnLocale(course.nextHref, locale)}
+                >
+                  {label}<span aria-hidden="true">→</span>
+                </Link>
+              ) : null}
+            </article>
+          );
+        })}
       </div>
-      <div className="progbar"><span style={{ width: `${(done / items.length) * 100}%` }} /></div>
-      <ul className="proglist">
-        {items.map((i) => (
-          <li key={i.label} className={i.done ? "done" : ""}>
-            <span className="tick">{i.done ? "✓" : "○"}</span>
-            <span>{i.label}{i.note ? `  ${i.note}` : ""}</span>
-          </li>
-        ))}
-      </ul>
+      {statusMessage ? <p role="status" aria-live="polite">{statusMessage}</p> : null}
+      <Link className="btn progress-manage" href={`/${locale}/learning/`}>
+        {t("nav.learning")}<span className="arrow" aria-hidden="true">→</span>
+      </Link>
     </div>
   );
 }
