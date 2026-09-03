@@ -323,7 +323,8 @@
         "usage": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting aggregate usage-field reconciliation." },
         "billing": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting sanitized Provider-console billing reconciliation." },
         "cors": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting real-browser CORS result on the preview origin." },
-        "credentialLifecycle": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting proof that the isolated low-limit credential was revoked and never recorded." }
+        "credentialLifecycle": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting proof that the isolated low-limit credential was revoked and never recorded." },
+        "jsonSchemaIgnored": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting one live schema-honouring probe: send output_config.format and record whether the reply parses. Stage 2 teaches that DeepSeek accepts it and silently ignores it." }
       }
     },
     "vercelPreviewCsp": {

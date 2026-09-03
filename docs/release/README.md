@@ -141,13 +141,21 @@ headers. A green run cannot prove that GitHub made the jobs required.
 - `implementation-matrix.md` — approved roadmap requirements mapped to
   repository evidence, deterministic gates, external work, and explicit non-goals.
 - `roadmap-completion-audit.md` — authoritative DOCX closeout, immutable target
-  bindings, PR-topology deviation, the 33 P0 blockers, and separate P1/P2 field
-  evidence.
+  bindings, PR-topology deviation, the P0 blocker table as it currently stands,
+  and separate P1/P2 field evidence. It tracks the live gate set, so its total
+  moves; its dated machine companion below does not.
 - `evidence/roadmap-completion-audit-20260821.json` — machine-readable companion
   for the authoritative closeout.
 - `evidence/implementation-round-acceptance-20260823.json` — direct-user scope
   decision separating a complete implementation round from deferred formal
-  release acceptance; all 33 release records remain pending.
+  release acceptance; its tally of 33 release records, all pending.
+- `evidence/gate-set-revision-20260902.json` — the gate set grew by one
+  reconciliation, `jsonSchemaIgnored`, so 34 records are now pending rather
+  than 33. The two records above are dated attestations and are left unedited;
+  this one carries the tally that describes the gate set from 2026-09-02, and
+  it is what `tests/roadmap-completion.test.ts` cross-checks against the live
+  `config/release-readiness.json`. Growing the gate set again means adding the
+  next dated record, not revising this one.
 - `evidence/authenticated-provider-memory-precheck-20260823.json` — one
   authenticated model-list request and one eight-output-token Flash generation
   in ephemeral memory; no secret or content retained, and no formal browser

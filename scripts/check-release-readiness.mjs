@@ -56,7 +56,14 @@ const MATRIX_CHECKS = [
   "code-url-model-identifiers-remain-ltr",
 ];
 const PROVIDER_STEPS = ["models", "stage1", "preview3", "flashEval28"];
-const PROVIDER_RECONCILIATIONS = ["pricing", "modelId", "usage", "billing", "cors", "credentialLifecycle"];
+/* `jsonSchemaIgnored` is the course's own claim, not the vendor's contract:
+   DeepSeek accepts `output_config.format` and silently ignores it, and the
+   whole of stage 2's second lesson rests on that. If it ever starts honouring
+   schemas, the course does not merely go stale — `schemaFallback` begins
+   degrading answers for no reason. One live call settles it: send a schema,
+   see whether the reply parses. Adding it here is fail-closed by design, so a
+   release cannot ship until someone has actually made that call. */
+const PROVIDER_RECONCILIATIONS = ["pricing", "modelId", "usage", "billing", "cors", "credentialLifecycle", "jsonSchemaIgnored"];
 const REQUIRED_CHECK_NAMES = ["quality", "smoke-chromium"];
 const SAFE_SCHEMA_SEGMENTS = new Set([
   ...LOCALES,

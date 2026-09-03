@@ -1,0 +1,69 @@
+{
+  "schema": "agent-edu.gate-set-revision.v1",
+  "status": "gate-set-grown-external-evidence-still-pending",
+  "revisedAt": "2026-09-02",
+  "source": "config/release-readiness.json",
+  "change": {
+    "gate": "providerCanary",
+    "addedReconciliation": "jsonSchemaIgnored",
+    "reconciliationsBefore": 6,
+    "reconciliationsAfter": 7,
+    "reason": "DeepSeek accepts output_config.format and silently ignores it. course/cafe/llm.ts records that as quirks.jsonSchema false, and stage 2's second lesson rests on it. If the provider starts honouring schemas, schemaFallback degrades answers that were already correctly shaped, so the claim needs re-checking before every release rather than never.",
+    "verifiedBy": "one bounded generation carrying a schema; retain only whether the reply parsed",
+    "probeRun": false,
+    "probeRunNote": "The gate was added without running the probe. Nobody has yet sent a schema to DeepSeek for this record, so the row is pending rather than passing, and the release stays blocked until someone does.",
+    "failureMeansDoNotShip": true
+  },
+  "supersededForLiveCrossCheck": {
+    "note": "The two records below are dated attestations bound to the same plan document by SHA-256 and are left byte-for-byte unchanged. Their tallies remain true statements about their own dates; this record carries the tally that describes the gate set from 2026-09-02 onward.",
+    "records": [
+      "docs/release/evidence/roadmap-completion-audit-20260821.json",
+      "docs/release/evidence/implementation-round-acceptance-20260823.json"
+    ],
+    "priorExpectedTotal": 33
+  },
+  "p0ExternalBlockers": {
+    "source": "config/release-readiness.json",
+    "expectedTotal": 34,
+    "items": [
+      {
+        "id": "native-reviews",
+        "count": 8,
+        "status": "pending"
+      },
+      {
+        "id": "arabic-rtl-matrix",
+        "count": 8,
+        "status": "pending"
+      },
+      {
+        "id": "provider-canary-and-reconciliation",
+        "count": 11,
+        "status": "pending"
+      },
+      {
+        "id": "vercel-csp-stages",
+        "count": 2,
+        "status": "pending"
+      },
+      {
+        "id": "github-required-checks-and-stable-runs",
+        "count": 4,
+        "status": "pending"
+      },
+      {
+        "id": "rollback-readiness",
+        "count": 1,
+        "status": "pending"
+      }
+    ],
+    "releaseDecision": "blocked"
+  },
+  "actionsNotAuthorizedOrNotPerformed": {
+    "jsonSchemaResultFabricated": true,
+    "priorAttestationEdited": true,
+    "releaseGateWaived": true,
+    "releaseGatePassed": true,
+    "productionDeployment": true
+  }
+}

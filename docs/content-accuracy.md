@@ -40,7 +40,7 @@ line of the course. The finding worth internalising before you plan any work:
 | Handbook glossary, 15 terms | **none wrong** | Every definition is mechanism-level. "An agent is a model running in a loop with tools" will outlive every model named in this repo |
 | Site strings, `messages/en.json` | **none wrong** | Already hedged on purpose — *"All model behaviour shown is as of the model you run it on"*, *"Treat any course estimate as dated"* |
 | Browser Lab | volatile, **defended** | Dated pricing snapshot plus a release-gated provider canary |
-| **Local course, `course/`** | **volatile, undefended** | Model ids, prices, SDK shapes and vendor quirks, none of them dated or checked |
+| **Local course, `course/`** | volatile, **partly defended** | The vendor quirk stage 2 rests on is now a canary row; DeepSeek ids and prices were already. The Anthropic snapshot is still undated and unchecked — Gap 1 |
 | **Course prose, `course/**/README.md`** | volatile, **now gated** | Names real functions in real files; `prose:check` verifies the names still exist. Five wrong identifiers found so far |
 
 The handbook is the biggest surface and carries the least risk. The course is
@@ -77,9 +77,10 @@ Credit where it is due — reuse these rather than inventing parallel machinery.
   `cache-creation-price-unknown` rather than a plausible guess. Copy this
   instinct: **an honest "unknown" beats an invented number**, and it is the
   single most transferable habit in this repo.
-- **The release provider canary** (`scripts/check-release-readiness.mjs:58-59`)
-  — reconciles `pricing`, `modelId`, `usage`, `billing`, `cors` and
-  `credentialLifecycle` against the live provider before a release ships.
+- **The release provider canary** (`scripts/check-release-readiness.mjs:58`
+  and `:66`) — reconciles `pricing`, `modelId`, `usage`, `billing`, `cors`,
+  `credentialLifecycle` and `jsonSchemaIgnored` against the live provider
+  before a release ships.
 - **`course/cafe/offline.ts`** — the offline stand-in is *synthesised*, not
   recorded model output, and says so in its header. Recorded fixtures rot;
   this cannot. Do not "improve" it by recording real replies.
@@ -106,6 +107,12 @@ problem is that their being correct is currently an accident.
 `checkedAt`, `sourceUrl`, and the model id beside them — then have
 `priceAnthropicCourseUsage` return them the way `priceDeepSeekCourseUsage`
 already returns DeepSeek's. One small struct, and the asymmetry is gone.
+
+That last sentence is left standing because Priority 2 below answers it by
+name, and it was wrong about the cost. The struct really is small; doing it
+alone is what is not. The canary that would re-read the number is hard-coded to
+one provider, so a lone `checkedAt` here buys the appearance of provenance and
+nothing else. Read Priority 2 before starting this.
 
 ### Gap 2 — course prose names code that nothing verifies — **closed**
 
@@ -158,12 +165,12 @@ only part that narrows it.
 to catch, against a copy of the real course tree. A gate nobody has seen fail
 is indistinguishable from one that returns zero.
 
-### Gap 3 — vendor behavioural claims have no expiry
+### Gap 3 — vendor behavioural claims have no expiry — **schema quirk closed**
 
 The course asserts things about vendors that were true when written and are
 nobody's contract:
 
-- `llm.ts:37` — DeepSeek serves an Anthropic-compatible endpoint at
+- `llm.ts:65` — DeepSeek serves an Anthropic-compatible endpoint at
   `https://api.deepseek.com/anthropic`, so the official SDK drives it with
   only a `baseURL` change.
 - `llm.ts:70` — DeepSeek **accepts `output_config.format` and silently
@@ -175,10 +182,31 @@ teaches a fallback the learner no longer needs, and `schemaFallback` starts
 degrading answers for no reason. This is the highest-consequence staleness in
 the repo.
 
-**Close it:** these already have a natural home. Add `jsonSchemaIgnored` to
-the canary's `reconciliations` list beside `modelId` and `pricing`, and the
-existing release gate will carry it. It is one live call: send a schema, see
-whether the reply parses.
+**The schema quirk is closed.** `jsonSchemaIgnored` now sits in the canary's
+`reconciliations` beside `modelId` and `pricing`, and `release:check` is
+fail-closed, so a release cannot ship until someone has sent a schema and
+recorded whether the reply parsed. `docs/release/provider-canary.md` carries
+the procedure and what a `fail` obliges: `quirks.jsonSchema`, `schemaFallback`'s
+reason for existing and stage 2's second lesson all change together, and
+`prose:check` then holds the README to whatever the code ends up saying.
+
+Adding it cost more than the one line this section predicted, and the reason is
+worth recording. The gate set is tallied in two *dated attestations* bound to
+`20260821_Codex Priority Implementation Plan on Agent Edu.docx` by SHA-256, and
+`tests/roadmap-completion.test.ts` asserted those frozen tallies against the
+live config — so growing the gate set from 33 records to 34 could only be
+answered by falsifying an attestation or going red. Neither is acceptable, so
+the tally moved: `docs/release/evidence/gate-set-revision-20260902.json` is a
+new dated record carrying 34, the two older ones are unedited at 33, and the
+living cross-check now runs against the new one. A test asserts the frozen
+records still say 33, which is what would catch someone "fixing" them.
+
+**Still open:** the endpoint claim at `llm.ts:65` — that DeepSeek serves an
+Anthropic-compatible API at `/anthropic` — has no row of its own. The model-id
+claim at `llm.ts:66` does: `modelId` reconciles requested against returned, and
+the `models` step lists what the provider actually offers. Both are
+lower-consequence anyway — a wrong endpoint or model id fails loudly on the
+next call, where a silently-honoured schema fails quietly forever.
 
 ### Gap 4 — the course stops before the thing they will actually use
 
@@ -245,7 +273,7 @@ waste; re-checking DeepSeek's schema behaviour annually is negligence.
 |---|---|---|---|
 | DeepSeek prices | every release | `api-docs.deepseek.com/quick_start/pricing/` | canary `pricing` |
 | DeepSeek model ids | every release | live `GET /models` | canary `modelId` |
-| DeepSeek ignores `output_config.format` | every release | one live call with a schema | canary — **to add** |
+| DeepSeek ignores `output_config.format` | every release | one live call with a schema | canary `jsonSchemaIgnored` |
 | Anthropic model id and prices | every release | Anthropic's pricing page | **to add** (Gap 1) |
 | Identifiers named in course prose | every commit | the tree and the SDK types | `prose:check` (Gap 2) |
 | SDK call shapes | on `@anthropic-ai/sdk` major bump | the SDK's own docs | course runs live |
@@ -265,11 +293,17 @@ feel current is how a good course decays.
    script it found three defects, and as a gate it found two more the audit had
    read past, one of them in the very paragraph the audit was quoting. It is
    the only item here that pays off on every future commit rather than once.
-2. **Gap 1, dating the Anthropic snapshot.** Small, mechanical, and it removes
-   an inconsistency a careful reader can already see between the two halves of
-   one file.
-3. **Gap 3, the schema-quirk canary.** Highest consequence if it breaks, but
-   it breaks rarely, and the machinery to carry it already exists.
+2. **Gap 1, dating the Anthropic snapshot** — and it is *not* the small,
+   mechanical job this document first called it. `check-release-readiness.mjs`
+   hard-codes the canary to one provider:
+   `officialPricingUrl !== "https://api-docs.deepseek.com/quick_start/pricing/"`,
+   and `PROVIDER_STEPS` is DeepSeek-shaped down to `flashEval28`. So nothing
+   can re-check an Anthropic number today. Dating the snapshot on its own would
+   give it the *appearance* of the DeepSeek entry's provenance with nothing
+   reading it — exactly the "looks verified" trap this document forbids below.
+   Do it together with a second provider dimension in the canary, or not yet.
+3. ~~**Gap 3, the schema-quirk canary.**~~ **Done** — `jsonSchemaIgnored`, in
+   the release canary, fail-closed. Taken before Gap 1 on the reasoning below.
 4. **Gap 4, tool runner and MCP.** Real, but it is an omission a learner
    survives. Do it when you next touch stage 5 for another reason; note the
    nine-language cost of the glossary entry.

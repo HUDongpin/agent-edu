@@ -77,22 +77,12 @@ test("the authoritative-roadmap audit separates repository work, external P0 gat
   assert.equal(new Set(ids).size, ids.length);
   assert.equal(ids.every((id) => /^(W0|P0|P1|P2)-[A-Z0-9-]+$/.test(id)), true);
 
-  const expectedCounts = {
-    "native-reviews": Object.keys(readiness.gates.nativeReviews.reviews).length,
-    "arabic-rtl-matrix": readiness.gates.arabicRtlMatrix.cases.length,
-    "provider-canary-and-reconciliation":
-      Object.keys(readiness.gates.providerCanary.steps).length
-      + Object.keys(readiness.gates.providerCanary.reconciliations).length,
-    "vercel-csp-stages": Object.keys(readiness.gates.vercelPreviewCsp.stages).length,
-    "github-required-checks-and-stable-runs": 1 + readiness.gates.githubReadiness.stableRuns.length,
-    "rollback-readiness": readiness.gates.rollbackReadiness.result ? 1 : 0,
-  };
-  assert.deepEqual(
-    Object.fromEntries(evidence.p0ExternalBlockers.items.map(
-      (item: { id: string; count: number }) => [item.id, item.count],
-    )),
-    expectedCounts,
-  );
+  // Frozen. This record is a dated attestation bound to a plan document by
+  // SHA-256, so its tally describes its own date and is deliberately NOT
+  // re-derived from the live config: the gate set has grown since, and editing
+  // a signed record to keep a test green would be falsifying what it found.
+  // The living cross-check moved to gate-set-revision-20260902.json; what
+  // remains here is the record's internal consistency.
   assert.equal(
     evidence.p0ExternalBlockers.items.reduce(
       (sum: number, item: { count: number }) => sum + item.count,
@@ -577,22 +567,12 @@ test("the user-adjusted scope accepts this implementation round without waiving 
   assert.equal(evidence.authenticatedProviderPrecheck.formalBrowserCanaryPassed, false);
   assert.equal(evidence.authenticatedProviderPrecheck.formalProviderGateChanged, false);
 
-  const expectedCounts = {
-    "native-reviews": Object.keys(readiness.gates.nativeReviews.reviews).length,
-    "arabic-rtl-matrix": readiness.gates.arabicRtlMatrix.cases.length,
-    "provider-canary-and-reconciliation":
-      Object.keys(readiness.gates.providerCanary.steps).length
-      + Object.keys(readiness.gates.providerCanary.reconciliations).length,
-    "vercel-csp-stages": Object.keys(readiness.gates.vercelPreviewCsp.stages).length,
-    "github-required-checks-and-stable-runs": 1 + readiness.gates.githubReadiness.stableRuns.length,
-    "rollback-readiness": readiness.gates.rollbackReadiness.result ? 1 : 0,
-  };
-  assert.deepEqual(
-    Object.fromEntries(evidence.releaseOnlyDeferred.items.map(
-      (item: { id: string; count: number }) => [item.id, item.count],
-    )),
-    expectedCounts,
-  );
+  // Frozen. This record is a dated attestation bound to a plan document by
+  // SHA-256, so its tally describes its own date and is deliberately NOT
+  // re-derived from the live config: the gate set has grown since, and editing
+  // a signed record to keep a test green would be falsifying what it found.
+  // The living cross-check moved to gate-set-revision-20260902.json; what
+  // remains here is the record's internal consistency.
   assert.equal(evidence.releaseOnlyDeferred.expectedTotal, 33);
   assert.equal(evidence.releaseOnlyDeferred.items.reduce(
     (total: number, item: { count: number }) => total + item.count,
@@ -615,4 +595,86 @@ test("the user-adjusted scope accepts this implementation round without waiving 
   assert.equal(readiness.gates.rollbackReadiness.status, "pending");
   assert.match(evidence.decision, /implementation round is complete/i);
   assert.match(evidence.decision, /does not waive or pass any of the 33 formal release records/i);
+});
+
+test("the gate-set revision carries the tally the live release config actually has", () => {
+  const evidencePath = "docs/release/evidence/gate-set-revision-20260902.json";
+  const evidenceText = readFileSync(evidencePath, "utf8");
+  const evidence = JSON.parse(evidenceText);
+  const readiness = readJson("config/release-readiness.json") as Readiness;
+
+  assert.equal(evidence.schema, "agent-edu.gate-set-revision.v1");
+  assert.equal(evidence.revisedAt, "2026-09-02");
+  assert.equal(evidence.source, "config/release-readiness.json");
+
+  // Why the record exists. The schema quirk is the one release claim whose
+  // failure would make the course teach something harmful rather than merely
+  // stale: if DeepSeek starts honouring output_config.format, schemaFallback
+  // begins rewriting replies that were already correctly shaped.
+  assert.equal(evidence.change.gate, "providerCanary");
+  assert.equal(evidence.change.addedReconciliation, "jsonSchemaIgnored");
+  assert.equal(evidence.change.failureMeansDoNotShip, true);
+  const reconciliations = Object.keys(readiness.gates.providerCanary.reconciliations);
+  assert.equal(reconciliations.includes("jsonSchemaIgnored"), true);
+  assert.equal(reconciliations.length, evidence.change.reconciliationsAfter);
+
+  // The living cross-check. Unlike the two attestations this record names, it
+  // must keep describing the gate set as it currently stands — so growing the
+  // gate set again means writing the next dated record, not editing an old one.
+  assert.deepEqual(
+    Object.fromEntries(evidence.p0ExternalBlockers.items.map(
+      (item: { id: string; count: number }) => [item.id, item.count],
+    )),
+    {
+      "native-reviews": Object.keys(readiness.gates.nativeReviews.reviews).length,
+      "arabic-rtl-matrix": readiness.gates.arabicRtlMatrix.cases.length,
+      "provider-canary-and-reconciliation":
+        Object.keys(readiness.gates.providerCanary.steps).length
+        + Object.keys(readiness.gates.providerCanary.reconciliations).length,
+      "vercel-csp-stages": Object.keys(readiness.gates.vercelPreviewCsp.stages).length,
+      "github-required-checks-and-stable-runs": 1 + readiness.gates.githubReadiness.stableRuns.length,
+      "rollback-readiness": readiness.gates.rollbackReadiness.result ? 1 : 0,
+    },
+  );
+  assert.equal(
+    evidence.p0ExternalBlockers.items.reduce(
+      (sum: number, item: { count: number }) => sum + item.count,
+      0,
+    ),
+    evidence.p0ExternalBlockers.expectedTotal,
+  );
+  assert.equal(evidence.p0ExternalBlockers.expectedTotal, 34);
+  assert.equal(evidence.p0ExternalBlockers.items.every(
+    (item: { status: string }) => item.status === "pending",
+  ), true);
+  assert.equal(evidence.p0ExternalBlockers.releaseDecision, "blocked");
+
+  // The attestations it supersedes must still be on disk, and still say 33.
+  // This is the assertion that would catch someone "fixing" a frozen record.
+  assert.equal(evidence.supersededForLiveCrossCheck.priorExpectedTotal, 33);
+  for (const ref of evidence.supersededForLiveCrossCheck.records as string[]) {
+    const prior = readJson(ref);
+    const tally = prior.p0ExternalBlockers ?? prior.releaseOnlyDeferred;
+    assert.equal(tally.expectedTotal, 33, `${ref} was edited`);
+    assert.equal(
+      tally.items.find((item: { id: string }) => item.id === "provider-canary-and-reconciliation").count,
+      10,
+      `${ref} was edited`,
+    );
+  }
+
+  // The gate was added without anyone probing the provider, and the record has
+  // to say so in a way that cannot be read backwards. `probeRun: false` states
+  // it positively; the prohibited-action block names *fabricating* a result,
+  // the way every sibling record names an action nobody should take. A key
+  // meaning "no live call was made" would sit in that block reading, alone,
+  // as though the call had been made.
+  assert.equal(evidence.change.probeRun, false);
+  assert.equal(
+    Object.hasOwn(evidence.actionsNotAuthorizedOrNotPerformed, "jsonSchemaResultFabricated"),
+    true,
+  );
+  assert.equal(Object.values(evidence.actionsNotAuthorizedOrNotPerformed).every(Boolean), true);
+  assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
+  assert.deepEqual(findSensitiveEvidence(evidence), []);
 });
