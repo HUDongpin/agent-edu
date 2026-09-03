@@ -64,6 +64,26 @@ const PROVIDER_STEPS = ["models", "stage1", "preview3", "flashEval28"];
    see whether the reply parses. Adding it here is fail-closed by design, so a
    release cannot ship until someone has actually made that call. */
 const PROVIDER_RECONCILIATIONS = ["pricing", "modelId", "usage", "billing", "cors", "credentialLifecycle", "jsonSchemaIgnored"];
+/* The course prints an Anthropic cost from a hard-coded table. That table is
+   now a dated snapshot, and a date nobody re-reads is worse than no date at
+   all — it looks verified. `providerCanary` cannot carry this: it is bound to
+   DeepSeek's pricing page and its steps are Flash-shaped, because it also
+   covers the browser Lab. This is the narrow second dimension — two rows, the
+   only two things the course actually asserts about Anthropic. */
+const ANTHROPIC_PRICING_URL = "https://platform.claude.com/docs/en/about-claude/pricing";
+const ANTHROPIC_SNAPSHOT_SOURCE = "course/cafe/pricing.ts";
+const ANTHROPIC_RECONCILIATIONS = ["modelId", "pricing"];
+
+/* The external gates, in the order the blocker report prints them. One name
+   per summary group, which is what lets `externalReady` below check that the
+   summary is complete rather than trusting a literal count — a short summary
+   would otherwise satisfy `every(pass)` vacuously. Adding a gate means adding
+   it here, and both the schema check and the completeness check move together. */
+const GATE_IDS = [
+  "nativeReviews", "arabicRtlMatrix", "providerCanary", "anthropicCourseSnapshot",
+  "vercelPreviewCsp", "githubReadiness", "rollbackReadiness",
+];
+
 const REQUIRED_CHECK_NAMES = ["quality", "smoke-chromium"];
 const SAFE_SCHEMA_SEGMENTS = new Set([
   ...LOCALES,
@@ -75,6 +95,7 @@ const SAFE_SCHEMA_SEGMENTS = new Set([
   "nativeReviews", "reviews", "arabicRtlMatrix", "keyboardChecks", "cases",
   "id", "width", "theme", "expectedOrientation", "result",
   "providerCanary", "credentialPolicy", "officialPricingUrl", "steps", "reconciliations",
+  "anthropicCourseSnapshot", "snapshotSource",
   ...PROVIDER_STEPS,
   ...PROVIDER_RECONCILIATIONS,
   "vercelPreviewCsp", "requiredHeaders", "reportOnlyTarget", "reportOnly", "enforced", "stages",
@@ -594,7 +615,7 @@ export function validateReleaseReadiness(config, options = {}) {
   }
   validateExactKeys(
     gates,
-    ["nativeReviews", "arabicRtlMatrix", "providerCanary", "vercelPreviewCsp", "githubReadiness", "rollbackReadiness"],
+    GATE_IDS,
     "$.gates",
     issues,
   );
@@ -706,6 +727,35 @@ export function validateReleaseReadiness(config, options = {}) {
     ];
     validateGroupStatus(provider, records, "$.gates.providerCanary", issues);
     groupStatuses.push(provider);
+  }
+
+  const anthropic = gates.anthropicCourseSnapshot;
+  if (!isObject(anthropic)) {
+    addIssue(issues, "schema-anthropic", "$.gates.anthropicCourseSnapshot", "must be an object");
+  } else {
+    validateExactKeys(
+      anthropic,
+      ["status", "officialPricingUrl", "snapshotSource", "reconciliations"],
+      "$.gates.anthropicCourseSnapshot",
+      issues,
+    );
+    if (anthropic.officialPricingUrl !== ANTHROPIC_PRICING_URL) {
+      addIssue(issues, "schema-anthropic", "$.gates.anthropicCourseSnapshot.officialPricingUrl",
+        "must be the canonical public pricing page without a query");
+    }
+    if (anthropic.snapshotSource !== ANTHROPIC_SNAPSHOT_SOURCE) {
+      addIssue(issues, "schema-anthropic", "$.gates.anthropicCourseSnapshot.snapshotSource",
+        "must name the module that holds the dated snapshot");
+    }
+    const records = validateRecordMap(
+      anthropic.reconciliations,
+      ANTHROPIC_RECONCILIATIONS,
+      "$.gates.anthropicCourseSnapshot.reconciliations",
+      issues,
+      evidenceOptions,
+    );
+    validateGroupStatus(anthropic, records, "$.gates.anthropicCourseSnapshot", issues);
+    groupStatuses.push(anthropic);
   }
 
   const csp = gates.vercelPreviewCsp;
@@ -1245,6 +1295,12 @@ function evidenceSummary(config) {
         : [],
     },
     {
+      label: "Anthropic course snapshot: model id and published prices",
+      records: isObject(gates.anthropicCourseSnapshot?.reconciliations)
+        ? Object.values(gates.anthropicCourseSnapshot.reconciliations)
+        : [],
+    },
+    {
       label: "Vercel preview CSP report-only then enforced response headers",
       records: isObject(csp) ? Object.values(csp) : [],
     },
@@ -1275,7 +1331,8 @@ export function evaluateReleaseReadiness({ config, catalogs, projectRoot }) {
     isObject(config?.localization) ? config.localization.sameAsEnglishAllowlist : [],
   );
   const evidence = evidenceSummary(config);
-  const externalReady = evidence.length === 6 && evidence.every((group) => group.status === "pass");
+  const externalReady = evidence.length === GATE_IDS.length
+    && evidence.every((group) => group.status === "pass");
   return {
     ready: configIssues.length === 0
       && messages.issues.length === 0

@@ -1,0 +1,60 @@
+{
+  "schema": "agent-edu.gate-set-revision.v1",
+  "status": "gate-set-grown-external-evidence-still-pending",
+  "revisedAt": "2026-09-03",
+  "source": "config/release-readiness.json",
+  "change": {
+    "kind": "gate-added",
+    "gate": "anthropicCourseSnapshot",
+    "addedReconciliations": ["modelId", "pricing"],
+    "gatesBefore": 6,
+    "gatesAfter": 7,
+    "reason": "course/cafe/pricing.ts now carries ANTHROPIC_COURSE_PRICING as a dated snapshot, so the course no longer prints an Anthropic cost with no provenance. A checkedAt that nothing re-reads is worse than no date at all, because it looks verified - this gate is what re-reads it. providerCanary could not carry these rows: it is bound to DeepSeek's pricing page, and its steps are Flash-shaped because it also covers the browser Lab.",
+    "verifiedBy": "one reading of the published pricing page per release: the model id is still listed, and base input, output and cache-read rates still match the snapshot",
+    "probeRun": false,
+    "probeRunNote": "No release-process canary run has recorded evidence for these rows, so both stay pending and the release stays blocked. See snapshotVerifiedAtAuthoring for what was and was not checked.",
+    "failureMeansDoNotShip": true
+  },
+  "snapshotVerifiedAtAuthoring": {
+    "checkedOn": "2026-09-03",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "confirmed": [
+      "claude-opus-5 is listed as a current model id",
+      "base input is $5 per MTok",
+      "output is $25 per MTok",
+      "cache hits and refreshes are $0.50 per MTok, the standard 0.1x multiplier"
+    ],
+    "notPricedOnPurpose": "5-minute cache writes were $6.25 per MTok on the same page. The course does not carry that rate, so priceAnthropicCourseUsage refuses a cache-creation call rather than guessing.",
+    "note": "This is why the snapshot's checkedAt is honest. It is not why the gate passes: a release row needs the release process's own recorded evidence, not the author's reading of a page."
+  },
+  "supersededForLiveCrossCheck": {
+    "note": "Each record below described the gate set on its own date and is left byte-for-byte unchanged. Their tallies remain true statements about those dates; this record carries the tally that describes the gate set from 2026-09-03 onward.",
+    "records": [
+      "docs/release/evidence/roadmap-completion-audit-20260821.json",
+      "docs/release/evidence/implementation-round-acceptance-20260823.json",
+      "docs/release/evidence/gate-set-revision-20260902.json"
+    ],
+    "priorExpectedTotal": 34
+  },
+  "p0ExternalBlockers": {
+    "source": "config/release-readiness.json",
+    "expectedTotal": 36,
+    "items": [
+      { "id": "native-reviews", "count": 8, "status": "pending" },
+      { "id": "arabic-rtl-matrix", "count": 8, "status": "pending" },
+      { "id": "provider-canary-and-reconciliation", "count": 11, "status": "pending" },
+      { "id": "anthropic-course-snapshot", "count": 2, "status": "pending" },
+      { "id": "vercel-csp-stages", "count": 2, "status": "pending" },
+      { "id": "github-required-checks-and-stable-runs", "count": 4, "status": "pending" },
+      { "id": "rollback-readiness", "count": 1, "status": "pending" }
+    ],
+    "releaseDecision": "blocked"
+  },
+  "actionsNotAuthorizedOrNotPerformed": {
+    "anthropicPricingFabricated": true,
+    "priorAttestationEdited": true,
+    "releaseGateWaived": true,
+    "releaseGatePassed": true,
+    "productionDeployment": true
+  }
+}

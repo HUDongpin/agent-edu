@@ -40,7 +40,7 @@ line of the course. The finding worth internalising before you plan any work:
 | Handbook glossary, 15 terms | **none wrong** | Every definition is mechanism-level. "An agent is a model running in a loop with tools" will outlive every model named in this repo |
 | Site strings, `messages/en.json` | **none wrong** | Already hedged on purpose — *"All model behaviour shown is as of the model you run it on"*, *"Treat any course estimate as dated"* |
 | Browser Lab | volatile, **defended** | Dated pricing snapshot plus a release-gated provider canary |
-| **Local course, `course/`** | volatile, **partly defended** | The vendor quirk stage 2 rests on is now a canary row; DeepSeek ids and prices were already. The Anthropic snapshot is still undated and unchecked — Gap 1 |
+| **Local course, `course/`** | volatile, **defended** | Every volatile claim now has a dated snapshot and a release row: DeepSeek ids and prices, the schema quirk stage 2 rests on, and the Anthropic model id and prices. What is left is judgement, not machinery |
 | **Course prose, `course/**/README.md`** | volatile, **now gated** | Names real functions in real files; `prose:check` verifies the names still exist. Five wrong identifiers found so far |
 
 The handbook is the biggest surface and carries the least risk. The course is
@@ -92,7 +92,7 @@ Credit where it is due — reuse these rather than inventing parallel machinery.
 Each gap below names the check that closes it. A gap without a check is a
 to-do that will be true again in six months.
 
-### Gap 1 — the course's Anthropic snapshot is undated
+### Gap 1 — the course's Anthropic snapshot is undated — **closed**
 
 `course/cafe/llm.ts:57-58` hard-codes `claude-opus-5` at `{ in: 5.0, out:
 25.0, cachedIn: 0.5 }` with **no `checkedAt` and no `sourceUrl`**, while the
@@ -103,16 +103,33 @@ provenance, and nothing anywhere will notice when that price moves.
 *Both numbers are correct as of 2026-09-02.* That is not the problem. The
 problem is that their being correct is currently an accident.
 
-**Close it:** give the Anthropic entry the same shape the DeepSeek one has —
-`checkedAt`, `sourceUrl`, and the model id beside them — then have
-`priceAnthropicCourseUsage` return them the way `priceDeepSeekCourseUsage`
-already returns DeepSeek's. One small struct, and the asymmetry is gone.
+**Closed by `ANTHROPIC_COURSE_PRICING` in `course/cafe/pricing.ts`** — a dated
+snapshot with `checkedAt`, `sourceUrl` and the model id, the same shape
+`DEEPSEEK_PRICING` has. `llm.ts` now defers to it instead of holding its own
+literal, `priceAnthropicCourseUsage` carries the date and source out of every
+return path the way `priceDeepSeekCourseUsage` does, and the cost line the
+learner sees ends `prices checked 2026-09-03` on both providers rather than
+only one.
 
-That last sentence is left standing because Priority 2 below answers it by
-name, and it was wrong about the cost. The struct really is small; doing it
-alone is what is not. The canary that would re-read the number is hard-coded to
-one provider, so a lone `checkedAt` here buys the appearance of provenance and
-nothing else. Read Priority 2 before starting this.
+The struct really was small. Doing it alone was the part that was not, and the
+priority list below was right to say so: a `checkedAt` nothing re-reads is
+worse than no date, because it looks verified. So the second half shipped with
+it — `anthropicCourseSnapshot`, a seventh release gate with a `modelId` row and
+a `pricing` row, bound to the same published page the snapshot cites. It could
+not be a row on `providerCanary`: that gate is bound to DeepSeek's pricing URL
+and its steps are Flash-shaped, because it also covers the browser Lab.
+
+The figures were checked against the published page on 2026-09-03 — model id
+`claude-opus-5`, $5 and $25 per MTok, cache reads $0.50 at the standard 0.1×
+multiplier. That is why the date is honest; it is **not** why the gate passes.
+Both rows are `pending`, because a release row needs the release process's own
+recorded evidence rather than an author's reading, and
+`evidence/gate-set-revision-20260903.json` says so in as many words.
+
+Cache writes stay unpriced on purpose. They were $6.25/MTok on the same page,
+so the number is now knowable — but the course does not meter them, and
+`priceAnthropicCourseUsage` refusing with `cache-creation-price-unknown` is the
+habit this document calls the most transferable in the repo.
 
 ### Gap 2 — course prose names code that nothing verifies — **closed**
 
@@ -170,12 +187,12 @@ is indistinguishable from one that returns zero.
 The course asserts things about vendors that were true when written and are
 nobody's contract:
 
-- `llm.ts:65` — DeepSeek serves an Anthropic-compatible endpoint at
+- `llm.ts:73` — DeepSeek serves an Anthropic-compatible endpoint at
   `https://api.deepseek.com/anthropic`, so the official SDK drives it with
   only a `baseURL` change.
-- `llm.ts:70` — DeepSeek **accepts `output_config.format` and silently
+- `llm.ts:78` — DeepSeek **accepts `output_config.format` and silently
   ignores it**. The whole of stage 2's second lesson rests on this.
-- `llm.ts:66` — `deepseek-v4-flash` and `deepseek-v4-pro` are the current ids.
+- `llm.ts:74` — `deepseek-v4-flash` and `deepseek-v4-pro` are the current ids.
 
 If DeepSeek starts honouring schemas, stage 2 does not merely go stale — it
 teaches a fallback the learner no longer needs, and `schemaFallback` starts
@@ -201,9 +218,9 @@ new dated record carrying 34, the two older ones are unedited at 33, and the
 living cross-check now runs against the new one. A test asserts the frozen
 records still say 33, which is what would catch someone "fixing" them.
 
-**Still open:** the endpoint claim at `llm.ts:65` — that DeepSeek serves an
+**Still open:** the endpoint claim at `llm.ts:73` — that DeepSeek serves an
 Anthropic-compatible API at `/anthropic` — has no row of its own. The model-id
-claim at `llm.ts:66` does: `modelId` reconciles requested against returned, and
+claim at `llm.ts:74` does: `modelId` reconciles requested against returned, and
 the `models` step lists what the provider actually offers. Both are
 lower-consequence anyway — a wrong endpoint or model id fails loudly on the
 next call, where a silently-honoured schema fails quietly forever.
@@ -303,7 +320,7 @@ waste; re-checking DeepSeek's schema behaviour annually is negligence.
 | DeepSeek prices | every release | `api-docs.deepseek.com/quick_start/pricing/` | canary `pricing` |
 | DeepSeek model ids | every release | live `GET /models` | canary `modelId` |
 | DeepSeek ignores `output_config.format` | every release | one live call with a schema | canary `jsonSchemaIgnored` |
-| Anthropic model id and prices | every release | Anthropic's pricing page | **to add** (Gap 1) |
+| Anthropic model id and prices | every release | `platform.claude.com/docs/en/about-claude/pricing` | `anthropicCourseSnapshot` (Gap 1) |
 | Identifiers named in course prose | every commit | the tree and the SDK types | `prose:check` (Gap 2) |
 | SDK call shapes | on `@anthropic-ai/sdk` major bump | the SDK's own docs | course runs live |
 | Handbook prose | **only when the mechanism changes** | judgement | nothing, correctly |
@@ -322,15 +339,13 @@ feel current is how a good course decays.
    script it found three defects, and as a gate it found two more the audit had
    read past, one of them in the very paragraph the audit was quoting. It is
    the only item here that pays off on every future commit rather than once.
-2. **Gap 1, dating the Anthropic snapshot** — and it is *not* the small,
-   mechanical job this document first called it. `check-release-readiness.mjs`
-   hard-codes the canary to one provider:
-   `officialPricingUrl !== "https://api-docs.deepseek.com/quick_start/pricing/"`,
-   and `PROVIDER_STEPS` is DeepSeek-shaped down to `flashEval28`. So nothing
-   can re-check an Anthropic number today. Dating the snapshot on its own would
-   give it the *appearance* of the DeepSeek entry's provenance with nothing
-   reading it — exactly the "looks verified" trap this document forbids below.
-   Do it together with a second provider dimension in the canary, or not yet.
+2. ~~**Gap 1, dating the Anthropic snapshot.**~~ **Done**, and done as one
+   change with the second provider dimension it needed. Taken last because it
+   was the item this document had most misjudged: `check-release-readiness.mjs`
+   hard-codes `providerCanary` to DeepSeek's pricing URL and shapes its steps
+   around Flash, so nothing could have re-read an Anthropic number. Dating the
+   snapshot alone would have bought the appearance of provenance and nothing
+   else. The gate came with it.
 3. ~~**Gap 3, the schema-quirk canary.**~~ **Done** — `jsonSchemaIgnored`, in
    the release canary, fail-closed. Taken before Gap 1 on the reasoning below.
 4. ~~**Gap 4, tool runner and MCP.**~~ **Done** — stage 5's closing paragraph

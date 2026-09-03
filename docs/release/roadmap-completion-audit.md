@@ -9,11 +9,14 @@ audit to the authoritative plan, immutable commits, the current Draft PR, the
 33-item P0 release schema, later P1/P2 evidence, and the explicit non-goals.
 
 That machine record is a dated attestation and stays at 33. This companion
-tracks the gate set as it currently stands, and the two diverged on 2026-09-02
-when `jsonSchemaIgnored` was added to the Provider canary's reconciliations:
-34 records now, not 33. The revision is recorded in
-`evidence/gate-set-revision-20260902.json`, which is what
-`tests/roadmap-completion.test.ts` cross-checks against the live config.
+tracks the gate set as it currently stands, and the two have diverged twice:
+on 2026-09-02 `jsonSchemaIgnored` joined the Provider canary's reconciliations,
+and on 2026-09-03 a seventh gate, `anthropicCourseSnapshot`, added a model-id
+row and a pricing row for the course's dated Anthropic snapshot. 36 records
+now, not 33. Each revision has its own dated record; the newest,
+`evidence/gate-set-revision-20260903.json`, is what
+`tests/roadmap-completion.test.ts` cross-checks against the live config, and
+the older ones keep the tallies that were true on their own dates.
 
 ## Current-round implementation acceptance (2026-08-23)
 
@@ -25,7 +28,7 @@ are deferred. The machine decision is recorded in
 
 This is a scope change for the current implementation round, not a waiver or a
 fabricated pass. `config/release-readiness.json` remains the formal release
-decision, all 34 release records below remain pending, and Draft PR #3 must not
+decision, all 36 release records below remain pending, and Draft PR #3 must not
 be marked Ready, merged, or deployed to production on the strength of this
 implementation acceptance.
 
@@ -84,7 +87,7 @@ and is not permission to publish that phase.
 
 ## P0 release decision
 
-`npm run release:check` remains deliberately non-zero. The 34 external records
+`npm run release:check` remains deliberately non-zero. The 36 external records
 are:
 
 | Gate | Pending records |
@@ -92,10 +95,11 @@ are:
 | Native reviews | 8 |
 | Arabic RTL/device/keyboard matrix | 8 |
 | Real Provider canary and reconciliation | 11 |
+| Anthropic course snapshot: model id and published prices | 2 |
 | Vercel report-only then enforced CSP stages | 2 |
 | GitHub required checks plus three first-attempt stable runs | 4 |
 | Rollback target, ordinary revert PR, and recovery validation | 1 |
-| **Total** | **34** |
+| **Total** | **36** |
 
 The frozen Stage A Preview now has an actual Chrome 200-response observation in
 `evidence/stage-a-browser-header-observation-20260821.json`: the expected
@@ -125,12 +129,12 @@ Three unique attempt-1 GitHub workflows also completed green on the same
 report-only integration head and workflow definition. They are retained as a
 repeatability precheck, not inserted into the formal stable-run records:
 `main` remains unprotected, Stage A has not passed, and an enforced-CSP final
-candidate does not exist. Consequently all 34 formal external P0 records above
+candidate does not exist. Consequently all 36 formal external P0 records above
 remain pending.
 
 ## Later field evidence is not hidden inside the P0 count
 
-The 34-record schema is the P0 release gate. It does not pretend to complete the
+The 36-record schema is the P0 release gate. It does not pretend to complete the
 later requirements below:
 
 - P1 acceptance after P0 stabilization;

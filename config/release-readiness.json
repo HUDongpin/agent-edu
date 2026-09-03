@@ -333,6 +333,15 @@
         "jsonSchemaIgnored": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting one live schema-honouring probe: send output_config.format and record whether the reply parses. Stage 2 teaches that DeepSeek accepts it and silently ignores it." }
       }
     },
+    "anthropicCourseSnapshot": {
+      "status": "pending",
+      "officialPricingUrl": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "snapshotSource": "course/cafe/pricing.ts",
+      "reconciliations": {
+        "modelId": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting confirmation that claude-opus-5 is still a current model id on the published page." },
+        "pricing": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting confirmation that base input, output and cache-read rates still match ANTHROPIC_COURSE_PRICING." }
+      }
+    },
     "vercelPreviewCsp": {
       "status": "pending",
       "requiredHeaders": {

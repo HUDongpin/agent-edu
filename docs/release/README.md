@@ -156,6 +156,12 @@ headers. A green run cannot prove that GitHub made the jobs required.
   it is what `tests/roadmap-completion.test.ts` cross-checks against the live
   `config/release-readiness.json`. Growing the gate set again means adding the
   next dated record, not revising this one.
+- `evidence/gate-set-revision-20260903.json` — the gate set grew again, by a
+  seventh gate: `anthropicCourseSnapshot`, a model-id row and a pricing row for
+  the dated Anthropic snapshot in `course/cafe/pricing.ts`. 36 records now
+  rather than 34. This is the record `tests/roadmap-completion.test.ts`
+  cross-checks against the live config; every record above it, including the
+  2026-09-02 one, now keeps only the tally that was true on its own date.
 - `evidence/authenticated-provider-memory-precheck-20260823.json` — one
   authenticated model-list request and one eight-output-token Flash generation
   in ephemeral memory; no secret or content retained, and no formal browser

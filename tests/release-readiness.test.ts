@@ -123,6 +123,11 @@ function passingConfig(): LooseConfig {
   }
   config.gates.providerCanary.status = "pass";
 
+  for (const record of Object.values(config.gates.anthropicCourseSnapshot.reconciliations) as Evidence[]) {
+    passEvidence(record, "canary-record:anthropic-snapshot-fixture");
+  }
+  config.gates.anthropicCourseSnapshot.status = "pass";
+
   config.gates.vercelPreviewCsp.reportOnlyTarget = reportOnlyTarget();
   passEvidence(
     config.gates.vercelPreviewCsp.stages.reportOnly,

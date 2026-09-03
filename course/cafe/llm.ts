@@ -25,6 +25,7 @@ import { DEEPSEEK_PRICING, priceBandAt } from "../../lib/byok/pricing";
 import { createOfflineClient, offlineText } from "./offline";
 import {
   EMPTY_COURSE_USAGE_LEDGER,
+  ANTHROPIC_COURSE_PRICING,
   priceAnthropicCourseUsage,
   priceDeepSeekCourseUsage,
   recordCourseUsage,
@@ -54,8 +55,15 @@ export const PROVIDERS: Record<string, Provider> = {
   anthropic: {
     label: "Anthropic",
     env: "ANTHROPIC_API_KEY",
-    model: "claude-opus-5",
-    prices: { in: 5.0, out: 25.0, cachedIn: 0.5 },
+    // Model id and prices come from the dated snapshot in cafe/pricing.ts, the
+    // same way the DeepSeek half below defers to lib/byok/pricing.ts. One place
+    // to re-check, and a release canary row that re-checks it.
+    model: ANTHROPIC_COURSE_PRICING.model,
+    prices: {
+      in: ANTHROPIC_COURSE_PRICING.rates.input,
+      out: ANTHROPIC_COURSE_PRICING.rates.output,
+      cachedIn: ANTHROPIC_COURSE_PRICING.rates.cachedInput,
+    },
     quirks: { jsonSchema: true },
     help: "https://console.anthropic.com/settings/keys",
   },
@@ -337,7 +345,8 @@ export function spend(): string {
         : "usage is not safely priceable";
     return `${usage} · cost unknown on ${MODEL} (${detail})`;
   }
-  return `${usage} · $${priced.usd.toFixed(4)} on ${MODEL}`;
+  return `${usage} · $${priced.usd.toFixed(4)} on ${MODEL} · ` +
+    `prices checked ${priced.checkedAt}`;
 }
 
 /** Fail early and clearly, instead of deep inside a stack trace. */
