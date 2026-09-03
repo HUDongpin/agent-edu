@@ -33,4 +33,8 @@ You are writing it manually once because the loop *is* the concept. After this s
 
 `MAX_STEPS` is not a safety blanket, it is the design. A loop without one can run all night on your money. Set it to 3 and run again: the job comes out half-done, coffee ordered and cups forgotten. **Choosing that trade-off is the engineering.**
 
+## What you can read now
+
+Go back to `client.beta.messages.toolRunner`. It is not a black box any more: it is the loop you just wrote, with retries, streaming and per-turn hooks handled properly, and in a real project you should reach for it. What it cannot do is answer the two questions this stage made you feel. Someone still chooses `MAX_STEPS`, and something still has to decide what happens when `read_sales` fails on the first call. A runner saves you the while-loop. The judgement was never in the while-loop.
+
 **Next:** [stage 6 — the machine around it](../stage6-harness/README.md)

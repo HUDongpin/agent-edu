@@ -32,11 +32,18 @@ must be able to fix a line without knowing React.
 The handbook's article prose is the exception, and lives in `messages/handbook/`.
 `en.json` there is **generated** — never hand-edit it. Change the wording in
 `lib/handbook/markup.ts` and re-run `npm run handbook:extract`; `npm run
-handbook:check` fails when the two have drifted. The other eight are a
-translation queue rather than a regression: a locale with no file keeps the
-English prose, and dropping one in turns that language on at the next build.
+handbook:check` fails when the two have drifted. A locale with *no* file keeps
+the English prose, and dropping one in turns that language on at the next
+build. All eight exist today, though, and that changes the arithmetic: an
+existing file missing even one key sets `localised` false in
+`lib/handbook/localise.ts`, which shows the English-only note and forces
+`dir="ltr"` — so two untranslated strings would take Arabic out of RTL
+entirely. Adding a handbook string is nine translations or none, never one.
+
 Keys carry an ordinal, so inserting a paragraph mid-section renumbers the text
-nodes after it — re-extract and re-check every table when you do.
+nodes after it and silently re-points every translation of them. Append to the
+end of a container where the content allows it; when it does not, re-extract,
+re-map all eight files by hand, and re-check every table.
 
 The text the widgets write at run time — verdicts, banners, counters, the step
 log — is the second exception, and lives in `messages/widgets/`. Same queue

@@ -208,7 +208,7 @@ the `models` step lists what the provider actually offers. Both are
 lower-consequence anyway — a wrong endpoint or model id fails loudly on the
 next call, where a silently-honoured schema fails quietly forever.
 
-### Gap 4 — the course stops before the thing they will actually use
+### Gap 4 — the course stops before the thing they will actually use — **closed**
 
 Not an error; an omission that reads as one to a learner who goes looking.
 
@@ -225,12 +225,41 @@ Likewise the glossary defines harness, agent, tool, eval and compaction — and
 not **MCP**. In 2026 that is a hole in a beginner's vocabulary, not a
 sophistication they can defer.
 
-**Close it:** two additions, both small, neither disturbing the pedagogy.
-A closing paragraph in stage 5's README — *you wrote the loop, here is the one
-you would use, and now you know what it is doing* — and one glossary entry.
-The runner's name is now gated, so the closing paragraph cannot reintroduce a
-wrong one.
-The glossary entry costs nine translations; budget for that before starting.
+**Closed by two additions**, neither disturbing the pedagogy. Stage 5 ends on
+*What you can read now*: the runner is the loop you just wrote, reach for it —
+and the two things it cannot decide for you are the two the stage made you
+feel, `MAX_STEPS` and what happens when `read_sales` fails. `prose:check` gates
+all three names, so the paragraph cannot drift back to `tool_runner`.
+
+The glossary gains `🔌 MCP (Model Context Protocol)`, in all nine languages.
+
+Two mechanics worth knowing before adding any handbook string, because the
+"budget nine translations" note above understated the cost:
+
+- **Append, never insert.** Keys are bare ordinals — `hb.body.glossary.31`. A
+  mid-list insert renumbers everything after it and silently re-points every
+  translation of those keys in all eight files. Appending to the end of the
+  container leaves the other thirty untouched, which was verified by diffing
+  `en.json` against `HEAD`: two keys added, none changed, none removed.
+- **Nine or none.** `localiseHandbook` sets `localised` false when a locale's
+  file is missing *any* key, and `Handbook.tsx` reads that to show the
+  English-only note and force `dir="ltr"`. Two untranslated strings would
+  therefore take the entire Arabic handbook out of RTL. The "translation queue"
+  framing in `CLAUDE.md` was about a locale with no file at all; it has been
+  corrected to say so. Verified by building the half-finished state and
+  reading `out/ar/handbook/index.html`: `class="hb en-content"` with
+  `dir="ltr"`, and back to `class="hb"` once the ninth file landed.
+- **A locale value identical to English needs a reason.** German keeps
+  `Model Context Protocol`, because `de.json` keeps this field's vocabulary in
+  English throughout — `Retrieval (RAG)`, `Harness`, `LLM-as-judge`. That trips
+  the release config's `catalog-unexplained-english` check, whose designed
+  answer is a narrow entry in `sameAsEnglishAllowlist` saying why. One was
+  added; it is the 42nd, beside `Format` and `Optional`.
+
+Two gates enforce this and neither is an npm script, which is worth knowing
+before assuming a translation is unguarded: `tests/handbook-p0.test.ts` fails
+when a locale's key set diverges from English, and `tests/release-readiness.test.ts`
+fails on an English-identical value with no allowlist entry.
 
 ---
 
@@ -304,9 +333,10 @@ feel current is how a good course decays.
    Do it together with a second provider dimension in the canary, or not yet.
 3. ~~**Gap 3, the schema-quirk canary.**~~ **Done** — `jsonSchemaIgnored`, in
    the release canary, fail-closed. Taken before Gap 1 on the reasoning below.
-4. **Gap 4, tool runner and MCP.** Real, but it is an omission a learner
-   survives. Do it when you next touch stage 5 for another reason; note the
-   nine-language cost of the glossary entry.
+4. ~~**Gap 4, tool runner and MCP.**~~ **Done** — stage 5's closing paragraph
+   and one glossary entry in nine languages. The nine-language cost was real
+   and slightly worse than budgeted: not translating all eight would have
+   dropped Arabic out of RTL, so there was no partial version to ship.
 
 ---
 

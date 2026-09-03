@@ -268,6 +268,12 @@
         "key": "w.progress.sections",
         "locales": ["fr"],
         "reason": "sections is the same correctly spelled French plural noun."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.glossary.31",
+        "locales": ["de"],
+        "reason": "Model Context Protocol is the protocol's own name, and de.json keeps this field's vocabulary in English throughout - Retrieval (RAG), Harness, LLM-as-judge."
       }
     ]
   },
