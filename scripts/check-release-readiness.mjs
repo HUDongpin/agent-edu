@@ -79,7 +79,7 @@ const ANTHROPIC_RECONCILIATIONS = ["modelId", "pricing"];
    summary is complete rather than trusting a literal count — a short summary
    would otherwise satisfy `every(pass)` vacuously. Adding a gate means adding
    it here, and both the schema check and the completeness check move together. */
-const GATE_IDS = [
+export const GATE_IDS = [
   "nativeReviews", "arabicRtlMatrix", "providerCanary", "anthropicCourseSnapshot",
   "vercelPreviewCsp", "githubReadiness", "rollbackReadiness",
 ];
@@ -1278,14 +1278,17 @@ function evidenceSummary(config) {
   const rollback = gates.rollbackReadiness;
   return [
     {
+      id: "nativeReviews",
       label: "Native reviews (8 non-English locales)",
       records: isObject(native) ? Object.values(native) : [],
     },
     {
+      id: "arabicRtlMatrix",
       label: "Arabic RTL matrix (390/979/980/1440 × light/dark × keyboard)",
       records: Array.isArray(arabic) ? arabic.map((item) => item?.result) : [],
     },
     {
+      id: "providerCanary",
       label: "Provider canary, reconciliation, and credential lifecycle",
       records: isObject(provider)
         ? [
@@ -1295,26 +1298,31 @@ function evidenceSummary(config) {
         : [],
     },
     {
+      id: "anthropicCourseSnapshot",
       label: "Anthropic course snapshot: model id and published prices",
       records: isObject(gates.anthropicCourseSnapshot?.reconciliations)
         ? Object.values(gates.anthropicCourseSnapshot.reconciliations)
         : [],
     },
     {
+      id: "vercelPreviewCsp",
       label: "Vercel preview CSP report-only then enforced response headers",
       records: isObject(csp) ? Object.values(csp) : [],
     },
     {
+      id: "githubReadiness",
       label: "GitHub required checks and three consecutive green runs",
       records: isObject(github)
         ? [github.requiredChecks, ...(Array.isArray(github.stableRuns) ? github.stableRuns.map((run) => run?.result) : [])]
         : [],
     },
     {
+      id: "rollbackReadiness",
       label: "Rollback target, ordinary revert PR, and recovery validation",
       records: isObject(rollback) ? [rollback.result] : [],
     },
   ].map((group) => ({
+    id: group.id,
     label: group.label,
     status: statusOf(group.records),
     pending: group.records.filter((record) => record?.status === "pending").length,
@@ -1331,7 +1339,17 @@ export function evaluateReleaseReadiness({ config, catalogs, projectRoot }) {
     isObject(config?.localization) ? config.localization.sameAsEnglishAllowlist : [],
   );
   const evidence = evidenceSummary(config);
-  const externalReady = evidence.length === GATE_IDS.length
+  /* The blocker summary must speak for every gate, in order. When it does not,
+     `ready` would otherwise go false with nothing reported — which is how a
+     hard-coded count once made a fully signed fixture unready and silent. A
+     drifted summary is a defect in this file, so it is raised as one. */
+  const covered = evidence.map((group) => group.id);
+  if (covered.join("\u0000") !== GATE_IDS.join("\u0000")) {
+    addIssue(configIssues, "schema-keys", "$.gates",
+      `the blocker summary speaks for ${covered.length} gate(s) and GATE_IDS lists ` +
+      `${GATE_IDS.length}; evidenceSummary and GATE_IDS have drifted apart`);
+  }
+  const externalReady = covered.length === GATE_IDS.length
     && evidence.every((group) => group.status === "pass");
   return {
     ready: configIssues.length === 0
