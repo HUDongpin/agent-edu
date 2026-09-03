@@ -14,8 +14,10 @@
  *
  * A rename is silent here in a way it is nowhere else in this repo: the
  * compiler never opens a README, and prose that has gone wrong still reads
- * perfectly well. So this asserts, on every commit, the four things a
- * reviewer would otherwise have to take on trust:
+ * perfectly well. So this asserts, on every commit, the things a reviewer
+ * would otherwise have to take on trust. Rules 1-4 are scoped to `course/`,
+ * where the prose is teaching material and the bar is highest. Rule 5 runs
+ * over every document in the repository:
  *
  *   1  every path the prose names resolves — inline spans, link targets, the
  *      commands in ```bash fences, and the imports in ```ts fences
@@ -27,22 +29,31 @@
  *   4  no Python leaks through — `_leading_underscore` names and `name=value`
  *      keyword arguments are both wrong in a TypeScript course, and both are
  *      exactly what a paragraph left over from the Python original looks like
+ *   5  every `file.ts:57` citation, anywhere in the repository, lands on its
+ *      subject — the line exists, and what the sentence names in backticks is
+ *      actually near it
  *
  * What it cannot do, said plainly so nobody over-trusts it: rule 2 is
  * word-presence, not semantics. It proves a name is not *invented*. It cannot
  * prove the name still means what the sentence claims — that stays a reading
  * job. Rule 3 is the part that catches renames, and it only reaches prose that
- * names the file it is talking about.
+ * names the file it is talking about. Rule 5 needs the paragraph to name
+ * something the cited file contains; a citation floating in prose that quotes
+ * nothing is left alone rather than guessed at, and this repository also
+ * writes line numbers as bare `(606)`, which nothing here can see.
  *
- * The walk starts at `course/` and stops there, which keeps
- * `docs/course-briefs/` out by construction rather than by exemption. Leave it
- * that way: those briefs specify courses that do not exist yet, so their
- * identifiers are *supposed* to be unresolvable, and a checker that drowns in
- * false positives is one somebody switches off.
+ * Rules 1-4 walk `course/` and stop there, which keeps `docs/course-briefs/`
+ * out of them by construction rather than by exemption. Leave that alone:
+ * those briefs specify courses that do not exist yet, so their identifiers are
+ * *supposed* to be unresolvable, and a checker that drowns in false positives
+ * is one somebody switches off. Rule 5 does read them, and should — their
+ * citations point into `lib/`, `app/` and `tests/`, which exist and move. The
+ * exemption was about a subject that is not written, never about a number.
  *
  * Run by `npm run prose:check`, alongside `handbook:check` and `widgets:check`.
  */
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve, relative } from "node:path";
 
@@ -389,11 +400,192 @@ for (const doc of docs) {
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * 5 — `file.ts:57` citations, repository-wide
+ *
+ * A citation is a claim with a number in it, and the number is the part that
+ * rots silently: insert eight lines above it and the prose now points at
+ * something else while still reading perfectly. Three of these turned up in
+ * `docs/` in a single day — a `check-release-readiness.mjs:58-59` that the
+ * change's own comment had pushed to `:66`, and an `llm.ts:37` pointing at a
+ * comment rather than the literal at `:65`.
+ *
+ * Rule 1 and rule 2 cannot catch that: the file resolves and the identifier
+ * exists. What is wrong is only the line. So this corroborates instead —
+ * whatever the surrounding paragraph names in backticks, at least one of those
+ * things has to actually be near the line the citation points at. When none of
+ * them is, the message says where the tree really has it.
+ *
+ * The scope is wider than the rules above on purpose. `docs/course-briefs/`
+ * stays exempt from identifier resolution, because those briefs specify courses
+ * that do not exist yet — but their *citations* point into `lib/`, `app/` and
+ * `tests/`, which exist and move. The exemption was about a subject that is not
+ * written; it was never about the line numbers.
+ * ------------------------------------------------------------------ */
+const CITE_WINDOW = 4;
+
+/* An anchor scattered over dozens of lines locates nothing, and would
+   corroborate almost any number by luck. The cap is generous on purpose: too
+   tight and a citation with only one broad anchor gets skipped rather than
+   checked, which loses real defects silently — the worst way for a gate to
+   fail. Readability of the message is handled by truncating the line list, not
+   by discarding the anchor. */
+const MAX_ANCHOR_LINES = 24;
+
+/* Frozen or dated by nature: the Python original the course was ported from,
+   and review snapshots that describe a tree as it stood on their own date. */
+const CITE_SKIP = /^(?:legacy|course_review_|node_modules|out|output|outputs|tmp)\b/;
+
+const CITATION = new RegExp(
+  "(?<![\\w/.-])((?:[A-Za-z0-9_@][\\w@.-]*\\/)*[A-Za-z0-9_@][\\w@.-]*" +
+  // Prose ranges use an en dash as often as a hyphen; miss that and the end of
+  // the range is silently dropped, narrowing the window without saying so.
+  "\\.(?:tsx?|m?js|json|css|ya?ml)):(\\d+)(?:[-\u2013\u2014](\\d+))?(?![\\d.])",
+  "g",
+);
+
+const norm = (s) => s.replace(/\s+/g, " ").trim();
+
+/** The list item containing `at`, or the whole block when this is not a list. */
+function itemScope(text, [lo, hi], at) {
+  const bullet = /^[ \t]*(?:[-*+]|\d+[.)])[ \t]/;
+  let start = lo, end = hi, cursor = lo;
+  for (const line of text.slice(lo, hi).split("\n")) {
+    const next = cursor + line.length + 1;
+    if (bullet.test(line)) {
+      if (cursor <= at) start = cursor;
+      else if (cursor > at) { end = cursor; break; }
+    }
+    cursor = next;
+  }
+  return [start, end];
+}
+
+/* What may serve as a paragraph's subject. `plan` is a word; `callStructure`,
+   `.hb .rail-list::before` and `selectCourseProgress` are things in a file. A
+   bare short lowercase word matches too much to locate anything, and treating
+   one as an anchor is how a citation checker starts crying wolf. */
+function isDistinctive(v) {
+  if (v.length < 4 || /^\d+$/.test(v)) return false;
+  if (CITATION.test(v)) { CITATION.lastIndex = 0; return false; }
+  CITATION.lastIndex = 0;
+  return v.length >= 8 || /[.:(){}\[\]/=#_-]/.test(v) || /[a-z][A-Z]/.test(v) || /^[A-Z0-9_]+$/.test(v);
+}
+const fileLines = new Map();
+function linesOf(path) {
+  if (!fileLines.has(path)) fileLines.set(path, readFileSync(path, "utf8").split("\n"));
+  return fileLines.get(path);
+}
+
+/* Tracked *and* untracked-but-not-ignored. A gate that reads only what is
+   committed goes green on a document added in the same change that breaks it,
+   which is exactly when it needs to speak. `--exclude-standard` means
+   `.gitignore` decides what is noise, so there is no second denylist here to
+   drift out of step with the first. */
+const trackedFiles = execFileSync(
+  "git", ["ls-files", "--cached", "--others", "--exclude-standard"],
+  { cwd: ROOT, encoding: "utf8" },
+).split("\n").filter(Boolean);
+const tracked = trackedFiles.filter((f) => f.endsWith(".md") && !CITE_SKIP.test(f)).sort();
+
+/* A citation may name a file by its basename alone — `Catalog.tsx:150`. Accept
+   that only when the tracked tree holds exactly one file with that name; two
+   candidates mean the prose has not actually said which, and guessing would be
+   worse than the citation it is checking. */
+const uniqueByBasename = new Map();
+for (const f of trackedFiles) {
+  const base = f.split("/").pop();
+  uniqueByBasename.set(base, uniqueByBasename.has(base) ? null : f);
+}
+
+function citedPath(target, mdDir) {
+  const hit = resolvePath(target, mdDir);
+  if (hit) return hit;
+  if (target.includes("/")) return null;
+  const only = uniqueByBasename.get(target);
+  return only ? join(ROOT, only) : null;
+}
+
+let citeN = 0, corroboratedN = 0;
+
+for (const rel of tracked) {
+  const doc = join(ROOT, rel);
+  const mdDir = dirname(doc);
+  const { masked } = parse(readFileSync(doc, "utf8"));
+  const text = masked.join("\n");
+  const inline = spans(masked);
+  const blocks = paragraphs(masked);
+  const at = (line) => `${rel}:${line}`;
+
+  for (const m of text.matchAll(CITATION)) {
+    const [whole, target, from, to] = m;
+    const line = text.slice(0, m.index).split("\n").length;
+
+    const path = citedPath(target, mdDir);
+    if (!path) { fail(at(line), `citation \`${whole}\` names a file that resolves to nothing.`); continue; }
+    citeN++;
+
+    const body = linesOf(path);
+    const start = Number(from), end = to ? Number(to) : Number(from);
+    if (end > body.length) {
+      fail(at(line), `citation \`${whole}\` points past the end of ` +
+        `${relative(ROOT, path)}, which has ${body.length} lines.`);
+      continue;
+    }
+
+    /* Corroborate against what the paragraph names. An anchor is any inline
+       span in the same block that the cited file actually contains; if none
+       does, the paragraph offers nothing to check the number against and the
+       citation is left alone rather than guessed at. */
+    /* Narrow to the list item, not the whole block. A dense brief writes eight
+       bullets with no blank line between them, and the neighbouring bullet's
+       subject is not this citation's — reading one as the other reports a real
+       defect against the wrong evidence, which is how a checker teaches people
+       to distrust it. */
+    const block = blocks.find(([lo, hi]) => m.index >= lo && m.index < hi);
+    if (!block) continue;
+    const collect = ([lo0, hi0]) => inline
+      .filter((s) => s.offset >= lo0 && s.offset < hi0)
+      .filter((s) => isDistinctive(s.value))
+      .map(({ value: v, offset: at }) => ({ v, at, lines: body.reduce((acc, l, i) =>
+        (norm(l).includes(norm(v)) ? (acc.push(i + 1), acc) : acc), []) }))
+      .filter((a) => a.lines.length && a.lines.length <= MAX_ANCHOR_LINES);
+
+    // The item is the right scope; the block is the fallback when a citation
+    // sits in a bullet that names nothing the cited file contains.
+    const anchors = ((inItem) => inItem.length ? inItem : collect(block))(
+      collect(itemScope(text, block, m.index)));
+    if (!anchors.length) continue;
+
+    corroboratedN++;
+    const lo = start - CITE_WINDOW, hi = end + CITE_WINDOW;
+    if (anchors.some((a) => a.lines.some((l) => l >= lo && l <= hi))) continue;
+
+    /* Same line first — a span beside the citation is the sentence's own
+       subject, and beats a rarer one from three sentences up. Then fewest
+       occurrences, then nearest. */
+    const lineOf = (off) => text.slice(0, off).split("\n").length;
+    const here = lineOf(m.index);
+    const best = anchors.slice().sort((a, b) =>
+      (lineOf(a.at) === here ? 0 : 1) - (lineOf(b.at) === here ? 0 : 1)
+      || a.lines.length - b.lines.length
+      || Math.abs(a.at - m.index) - Math.abs(b.at - m.index))[0];
+    const where = best.lines.length > 6
+      ? `${best.lines.slice(0, 6).join(", ")} and ${best.lines.length - 6} more`
+      : best.lines.join(", ");
+    fail(at(line), `citation \`${whole}\` is not where the paragraph's subject ` +
+      `lives: \`${best.v.length > 60 ? best.v.slice(0, 57) + "..." : best.v}\` is at ` +
+      `${relative(ROOT, path)}:${where}.`);
+  }
+}
+
 /* ------------------------------------------------------------------ */
 notes.push(`${docs.length} course documents, ${sources.size} source files, ` +
   `${sdkWords.size} SDK names`);
 notes.push(`${pathN} paths (${looseN} by bare name or written at run time), ` +
   `${identN} identifiers, ${scopedN} of them checked against the file named beside them`);
+notes.push(`${tracked.length} documents carry ${citeN} file:line citations, ` +
+  `${corroboratedN} of them corroborated against the paragraph's own subject`);
 
 for (const n of notes) console.log(`prose: ${n}`);
 if (problems.length) {
@@ -402,4 +594,4 @@ if (problems.length) {
   console.error("");
   process.exit(1);
 }
-console.log("prose: every path and identifier the course names resolves");
+console.log("prose: every path, identifier and citation resolves");

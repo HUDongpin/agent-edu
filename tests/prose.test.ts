@@ -15,7 +15,7 @@ import test from "node:test";
  * was written to catch. A checker nobody has watched fail is indistinguishable
  * from one that returns zero.
  */
-const CHECKER = "scripts/check-course-prose.mjs";
+const CHECKER = "scripts/check-prose.mjs";
 
 function run(courseDir?: string) {
   return spawnSync(
@@ -57,7 +57,7 @@ function onlyProblems(stderr: string, n: number) {
 test("every path and identifier the course prose names resolves against the tree", () => {
   const result = run();
   assert.equal(result.status, 0, result.stderr || result.stdout);
-  assert.match(result.stdout, /every path and identifier the course names resolves/);
+  assert.match(result.stdout, /every path, identifier and citation resolves/);
 });
 
 test("an identifier that exists nowhere fails, and the message names the near miss", () => {
@@ -135,6 +135,104 @@ test("an identifier named beside a file must be in that file, not merely somewhe
       assert.match(result.stderr, /`menuText` is named in a paragraph about .*llm\.ts, but it is not in that file/);
     },
   );
+});
+
+/**
+ * The citation rule runs repo-wide rather than over a fixture, because what it
+ * checks is the relationship between a document and the tree it cites. These
+ * drive it through a temporary document instead — written into docs/, removed
+ * afterwards — so the assertions are about real files at real line numbers.
+ */
+function withDoc(body: string, assertOn: () => void) {
+  const path = join("docs", "prose-check-fixture.md");
+  writeFileSync(path, body);
+  try {
+    assertOn();
+  } finally {
+    rmSync(path, { force: true });
+  }
+}
+
+test("a citation whose line has drifted fails, and the message says where it went", () => {
+  // `.hb .rail-list::before` really is in globals.css, just not at line 100.
+  withDoc(
+    "# fixture\n\n`.hb .rail-list::before` at `app/globals.css:100` draws the rail.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /citation `app\/globals\.css:100` is not where/);
+      assert.match(result.stderr, /`\.hb \.rail-list::before` is at app\/globals\.css:602/);
+    },
+  );
+});
+
+test("a citation that lands on its subject passes", () => {
+  withDoc(
+    "# fixture\n\n`.hb .rail-list::before` at `app/globals.css:602` draws the rail.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+    },
+  );
+});
+
+test("a citation past the end of a file is named as such, not as a drift", () => {
+  withDoc(
+    "# fixture\n\n`.hb .rail-list::before` at `app/globals.css:99999` draws the rail.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /points past the end of app\/globals\.css, which has \d+ lines/);
+    },
+  );
+});
+
+test("a paragraph naming nothing the file contains is left alone, not guessed at", () => {
+  // No anchor means no evidence either way. Reporting here would be inventing.
+  withDoc(
+    "# fixture\n\nSomething unrelated is discussed at `app/globals.css:100`.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+    },
+  );
+});
+
+test("a neighbouring bullet's subject is not read as this bullet's", () => {
+  // The first bullet's citation is correct. Without per-item scoping the
+  // second bullet's selector would be borrowed to judge it, and it would fail.
+  withDoc(
+    "# fixture\n\n"
+    + "- `.hb .rail-list::before` at `app/globals.css:602` draws the rail.\n"
+    + "- `.hb .t-model` is a different rule entirely.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+    },
+  );
+});
+
+test("an en-dash range is read as a range, not truncated to its first number", () => {
+  // `.hb .slider-row` is at 807 and the range input at 808. Citing 807–808 is
+  // correct; a reader of only "807" would still pass, so the proof is the
+  // reverse — a range whose *end* carries the subject.
+  withDoc(
+    "# fixture\n\n`.hb input[type=range]` at `app/globals.css:800\u2013808` styles it.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+    },
+  );
+});
+
+test("the briefs are exempt from identifier resolution but not from citations", () => {
+  // The house rule exempts docs/course-briefs/ because those courses do not
+  // exist yet. Their citations point into lib/ and app/, which do.
+  const src = readFileSync(CHECKER, "utf8");
+  assert.match(src, /course-briefs/);
+  const result = run();
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /file:line citations/);
 });
 
 test("the gate is wired into CI beside the other prose checkers", () => {

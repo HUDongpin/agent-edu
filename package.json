@@ -42,7 +42,7 @@
     "handbook:extract": "node scripts/extract-handbook.mjs",
     "handbook:check": "node scripts/extract-handbook.mjs --check",
     "widgets:check": "node scripts/check-widgets.mjs",
-    "prose:check": "node scripts/check-course-prose.mjs",
+    "prose:check": "node scripts/check-prose.mjs",
     "review:packet": "node scripts/make-review-packet.mjs"
   },
   "dependencies": {

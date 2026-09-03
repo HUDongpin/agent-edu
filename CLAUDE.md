@@ -58,7 +58,7 @@ a time without the half-finished state rotting. They have all moved: the
 ratchet is at zero, so it is now a floor rather than an allowance — put a
 reader-facing literal in `behaviour.ts` and the check fails.
 
-## Course prose
+## Prose that names code
 `course/**/*.md` names real files and real functions, and the compiler never
 opens a README — a rename is silent here in a way it is nowhere else in this
 repo, because prose that has gone wrong still reads perfectly well. `npm run
@@ -69,13 +69,22 @@ the same paragraph as one of the course's own files is *in* that file, and
 as leftovers from the Python original. It found `tool_runner` for
 `toolRunner` and `handleOrder` for `takeOrder` on its first run.
 
-Rename a course export and the gate tells you which paragraph now lies. Do not
-answer it by loosening the checker: `docs/course-briefs/` is out of scope on
-purpose — those specify courses that do not exist yet — and that exemption is
-the only one, because a checker that drowns in false positives gets switched
-off. `tests/course-prose.test.ts` watches each of its four rules fail on the
-prose it was written to catch, so weakening one is a red test rather than a
-quiet regression.
+A fifth rule runs repository-wide: every `file:line` citation in every
+document git tracks or would track must land on its subject. The file has to
+resolve, the line has to exist, and whatever the surrounding bullet names in
+backticks has to actually be within a few lines of the number. That is the rule
+that catches drift — insert nine lines above a CSS block and every citation
+below it lies while still reading perfectly. It found fourteen on its first run.
+
+The scoping is deliberate and worth not undoing. `docs/course-briefs/` stays
+exempt from identifier resolution, because those briefs specify courses that do
+not exist yet, so their identifiers are *supposed* to be unresolvable. Their
+citations are a different matter: they point into `lib/`, `app/` and `tests/`,
+which exist and move. The exemption was always about a subject that is not
+written, never about line numbers. Beyond that, do not answer a failure by
+loosening the checker — one that drowns in false positives gets switched off.
+`tests/prose.test.ts` watches all five rules fail on the prose each was written
+to catch, so weakening one is a red test rather than a quiet regression.
 
 ## Static export
 `output: "export"`. No server, no middleware, no route handlers, no server
