@@ -31,7 +31,8 @@
  *      exactly what a paragraph left over from the Python original looks like
  *   5  every `file.ts:57` citation, anywhere in the repository, lands on its
  *      subject — the line exists, and what the sentence names in backticks is
- *      actually near it
+ *      actually near it — and so does the bare `(606)` form, where a bullet
+ *      names the file once and then the selectors it holds
  *
  * What it cannot do, said plainly so nobody over-trusts it: rule 2 is
  * word-presence, not semantics. It proves a name is not *invented*. It cannot
@@ -39,8 +40,9 @@
  * job. Rule 3 is the part that catches renames, and it only reaches prose that
  * names the file it is talking about. Rule 5 needs the paragraph to name
  * something the cited file contains; a citation floating in prose that quotes
- * nothing is left alone rather than guessed at, and this repository also
- * writes line numbers as bare `(606)`, which nothing here can see.
+ * nothing is left alone rather than guessed at, and a bare `(606)` is only
+ * read when its bullet names exactly one file — two, and which one it meant is
+ * the prose's ambiguity, not something to resolve by guessing.
  *
  * Rules 1-4 walk `course/` and stop there, which keeps `docs/course-briefs/`
  * out of them by construction rather than by exemption. Leave that alone:
@@ -576,6 +578,58 @@ for (const rel of tracked) {
     fail(at(line), `citation \`${whole}\` is not where the paragraph's subject ` +
       `lives: \`${best.v.length > 60 ? best.v.slice(0, 57) + "..." : best.v}\` is at ` +
       `${relative(ROOT, path)}:${where}.`);
+  }
+
+  /* --- 5b  the bare `(606)` convention ------------------------------ *
+   * One brief writes a run of selectors with the line number in bare
+   * parentheses — "`.hb .panel` (615), `.hb .rule` (624)" — naming the file
+   * once for the whole bullet. Six of the fourteen defects found by rule 5
+   * were in that form and had to be fixed by hand, which is a poor argument
+   * for leaving it unreadable.
+   *
+   * A parenthesised number in prose is almost always something else — a year,
+   * a count, a footnote — so this fires only on the full shape: a number that
+   * directly follows an inline span, in a bullet naming exactly one file, and
+   * only when that span is actually somewhere in that file. Anything short of
+   * all three is left alone.
+   * ------------------------------------------------------------------ */
+  for (const [lo, hi] of blocks) {
+    const scope = text.slice(lo, hi);
+    // At most one line break between the span and its number, so the match
+    // cannot reach across a paragraph to borrow an unrelated figure.
+    const PAREN = /`([^`\n]+)`(?:[ \t]*(?:\/|…|\.\.\.)[ \t]*`([^`\n]+)`)?[ \t]*\n?[ \t]*\((\d+)(?:[-–—](\d+))?\)/g;
+    for (const m of scope.matchAll(PAREN)) {
+      const abs = lo + m.index;
+      const [, first, second, from, to] = m;
+      const line = text.slice(0, abs).split("\n").length;
+
+      // The file is whatever this bullet names — and only if it names one.
+      const [ilo, ihi] = itemScope(text, [lo, hi], abs);
+      const named = [...new Set(inline
+        .filter((sp) => sp.offset >= ilo && sp.offset < ihi)
+        .map((sp) => sp.value.replace(/:\d+(?:[-–—]\d+)?$/, ""))
+        .filter((v) => isPathish(v))
+        .map((v) => resolvePath(v, mdDir))
+        .filter(Boolean))];
+      if (named.length !== 1) continue;
+
+      const body = linesOf(named[0]);
+      const start = Number(from), end = to ? Number(to) : Number(from);
+      const subjects = [first, second].filter(Boolean).filter(isDistinctive);
+      if (!subjects.length) continue;
+
+      for (const v of subjects) {
+        const lines = body.reduce((acc, l, i) =>
+          (norm(l).includes(norm(v)) ? (acc.push(i + 1), acc) : acc), []);
+        if (!lines.length || lines.length > MAX_ANCHOR_LINES) continue;
+        citeN++;
+        corroboratedN++;
+        if (lines.some((l) => l >= start - CITE_WINDOW && l <= end + CITE_WINDOW)) continue;
+        fail(at(line), `bare citation \`(${from}${to ? `-${to}` : ""})\` after ` +
+          `\`${v}\` is not where it lives: ${relative(ROOT, named[0])}:` +
+          `${lines.length > 6 ? `${lines.slice(0, 6).join(", ")} and ${lines.length - 6} more` : lines.join(", ")}.`);
+      }
+    }
   }
 }
 

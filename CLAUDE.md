@@ -72,9 +72,11 @@ as leftovers from the Python original. It found `tool_runner` for
 A fifth rule runs repository-wide: every `file:line` citation in every
 document git tracks or would track must land on its subject. The file has to
 resolve, the line has to exist, and whatever the surrounding bullet names in
-backticks has to actually be within a few lines of the number. That is the rule
-that catches drift — insert nine lines above a CSS block and every citation
-below it lies while still reading perfectly. It found fourteen on its first run.
+backticks has to actually be within a few lines of the number. The bare
+`(606)` form counts too, where a bullet names its file once and then lists the
+selectors it holds. That is the rule that catches drift — insert nine lines
+above a CSS block and every citation below it lies while still reading
+perfectly. It found fourteen on its first run.
 
 The scoping is deliberate and worth not undoing. `docs/course-briefs/` stays
 exempt from identifier resolution, because those briefs specify courses that do

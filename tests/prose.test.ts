@@ -225,6 +225,64 @@ test("an en-dash range is read as a range, not truncated to its first number", (
   );
 });
 
+test("a bare `(606)` after a selector is read as a citation into the bullet's file", () => {
+  withDoc(
+    "# fixture\n\n- The stylesheet. `.hb .rail-list::before` (100) is in `app/globals.css`.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /bare citation `\(100\)` after `\.hb \.rail-list::before`/);
+      assert.match(result.stderr, /app\/globals\.css:602, 999/);
+    },
+  );
+});
+
+test("a bare citation that lands on its selector passes", () => {
+  withDoc(
+    "# fixture\n\n- The stylesheet. `.hb .rail-list::before` (602) is in `app/globals.css`.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+    },
+  );
+});
+
+test("a parenthesised number that follows no code span is left alone", () => {
+  // Years, counts and footnotes are what parentheses are usually for.
+  withDoc(
+    "# fixture\n\n- There are 414 scoped declarations (606) across `app/globals.css`.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+    },
+  );
+});
+
+test("a bare citation in a bullet naming two files is ambiguous, so it is skipped", () => {
+  // Which file the number meant is the prose's ambiguity. Guessing would be
+  // worse than the drift this rule exists to catch.
+  withDoc(
+    "# fixture\n\n- `.hb .rail-list::before` (100) spans `app/globals.css` and `lib/progress.ts`.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+    },
+  );
+});
+
+test("a range covering a pair of selectors is checked against both", () => {
+  // `.hb .t-start` is at 672 and `.hb .t-idle` at 679; 700-707 is neither.
+  withDoc(
+    "# fixture\n\n- Palette: `.hb .t-start` … `.hb .t-idle` (700–707) in `app/globals.css`.\n",
+    () => {
+      const result = run();
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /after `\.hb \.t-start` is not where it lives: app\/globals\.css:672/);
+      assert.match(result.stderr, /after `\.hb \.t-idle` is not where it lives: app\/globals\.css:679/);
+    },
+  );
+});
+
 test("the briefs are exempt from identifier resolution but not from citations", () => {
   // The house rule exempts docs/course-briefs/ because those courses do not
   // exist yet. Their citations point into lib/ and app/, which do.
