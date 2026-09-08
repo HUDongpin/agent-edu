@@ -376,7 +376,7 @@ flagging to a translator: it means the length of the output, not a page of the w
   crawler and a no-JavaScript reader see the prose, widgets started once per body of markup,
   and a widget failure caught so the articles survive it.
 - **The slider.** `.hb .slider-row` and `.hb input[type=range]{accent-color:var(--sec);width:150px}`
-  at `app/globals.css:807–808` already ship the pattern §03 needs — slider, live value readout,
+  at `app/globals.css:815–816` already ship the pattern §03 needs — slider, live value readout,
   one line of prose saying what dragging it costs — and they are theme-correct. The one
   constraint is that they are scoped under `.hb`; see the stylesheet decision below.
 - `--brand-2`, and the eleven Handbook section hues (`--green`, `--blue`, `--teal`,
@@ -385,7 +385,7 @@ flagging to a translator: it means the length of the output, not a page of the w
   no new colour.** The seven panels take seven of the existing eleven, and the person mark
   reuses the Handbook masthead's existing human-swatch colour rather than introducing a hue —
   so the three-block rule is satisfied without a new token. One `.t-person` rule beside
-  `.hb .t-model` at `app/globals.css:674` is the whole of it.
+  `.hb .t-model` at `app/globals.css:682` is the whole of it.
 - `components/courses/Cover.tsx`. A `hitl` motif already ships: two horizontal strokes at
   different opacities with an upright barrier between them, carrying a dot at head height. The
   design committed to the gate metaphor before the course did, and the outline above is written
@@ -397,9 +397,9 @@ flagging to a translator: it means the length of the output, not a page of the w
   `lib/handbook/behaviour.ts` are under the do-not-rewrite rule and are the Handbook's, not a
   shared engine. A second course needs its own pair. Neither exists.
 - **The stylesheet, and a scope decision — the largest single item.** Every rule the adopted
-  panel shape needs is scoped under `.hb`: `.hb .panel` (615), `.hb .rule` (624), `.hb .plain`
-  (626), `.hb .takes` / `.take` (724–726), the whole flowchart palette `.hb .fc-n` (668) and
-  `.hb .t-start` … `.hb .t-idle` (672–679) — 414 `.hb`-scoped declarations in all.
+  panel shape needs is scoped under `.hb`: `.hb .panel` (615), `.hb .rule` (632), `.hb .plain`
+  (634), `.hb .takes` / `.take` (732–734), the whole flowchart palette `.hb .fc-n` (676) and
+  `.hb .t-start` … `.hb .t-idle` (680–687) — 414 `.hb`-scoped declarations in all.
   **Decision: the wrapper carries `class="hb hitl"`**, inheriting all of it, with one override.
   `.hb .rail-list::before` at `app/globals.css:602` hard-codes an eleven-stop gradient for
   eleven sections; `.hitl .rail-list::before` restates it with seven. Make this decision in the
@@ -462,7 +462,7 @@ remains is genuinely open.
    change shape.
 
 3. **Where does the seven-stop rail gradient stop being worth it?** `.hb .rail-list::before` is
-   hidden below the mobile breakpoint at `app/globals.css:999`. If the override is only visible
+   hidden below the mobile breakpoint at `app/globals.css:1007`. If the override is only visible
    on wide screens, it may be cheaper to accept the eleven-stop gradient truncated at seven than
    to carry a second rule.
 

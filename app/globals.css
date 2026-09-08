@@ -614,7 +614,15 @@ td.mono{font-family:var(--mono);font-size:12px}
 .hb main{padding:28px 0 76px;min-width:0}
 .hb .panel{display:none}
 .hb .panel.on{display:block;animation:fade .24s ease-out}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* The opening value is deliberately not 0.
+   Ten of the eleven panels are display:none at load, so this animation is a
+   tab-switch transition — but the panel that is already open runs it too, on
+   first paint, and a browser does not count an element at opacity 0 as
+   painted. That put the handbook's largest paint at the end of a decorative
+   240ms fade: LCP 412ms against a first paint of 164ms, on the largest page
+   on the site. Starting at .35 still reads as a fade, and the measured LCP
+   is 168ms. Do not tidy this back to 0. */
+@keyframes fade{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* ========================= SECTION HEAD ======================= */
 .hb .sec-head{margin-bottom:22px;max-width:66ch}
