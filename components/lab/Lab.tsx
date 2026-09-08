@@ -180,6 +180,17 @@ export default function Lab() {
   const [prev, setPrev] = useState<number | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   /**
+   * The previous run's twenty rows, kept so the two can be read against
+   * each other.
+   *
+   * `setRows` replaced the table outright, so after the second run the first
+   * run's rows were gone and the payoff survived as two integers in one
+   * sentence. The lesson is not "11 became 18", it is that `large-flat-white`
+   * and `two-teas` stopped inventing a price — and that was the part the reader
+   * had to take on faith.
+   */
+  const [prevRows, setPrevRows] = useState<Row[]>([]);
+  /**
    * Cases that finished before a run stopped, kept apart from `rows`.
    *
    * Deliberately not written into `rows`: lab.err.cancelled promises the reader
@@ -573,6 +584,7 @@ export default function Lab() {
     const res = outcome.results;
     const n = res.filter((r) => r.ok).length;
     const completedBillingCost = formatBillingCost(billingSnapshot());
+    setPrevRows(rows);
     setRows(res);
     setPrev(score); setScore(n);
     setEvalAnnouncement(
@@ -992,6 +1004,42 @@ export default function Lab() {
                     </tr>
                   ))}</tbody>
                 </table></div>
+
+                {/* The run before this one, so the two can be read against each
+                    other. The whole point of step 4 is which cases stopped
+                    inventing a price; a single sentence carrying two integers
+                    asks the reader to take that on faith. Its own meter carries
+                    its own score, which is what tells the two tables apart. */}
+                {prev !== null && prevRows.length > 0 && (
+                  <details style={{ marginTop: 16 }}>
+                    <summary className="mono-note">
+                      <Rich k="lab.s4.comparePrev" vars={{ prev }} />
+                    </summary>
+                    <div className="meter" style={{ marginTop: 10 }}>
+                      <div><span className="big">{prev}</span><span className="mono-note"> / 20</span></div>
+                      <div style={{ flex: 1, minWidth: 150 }}>
+                        <div className="progbar"><span style={{
+                          width: `${(prev / 20) * 100}%`,
+                          background: prev >= 16 ? "var(--green)" : prev >= 10 ? "var(--gold-mark)" : "var(--red)",
+                        }} /></div>
+                      </div>
+                    </div>
+                    <div className="scroll"><table style={{ marginTop: 10 }}>
+                      <thead><tr>
+                        <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th>
+                        <th>{t("lab.s4.thHow")}</th><th>{t("lab.s4.thWhy")}</th>
+                      </tr></thead>
+                      <tbody>{prevRows.map((r) => (
+                        <tr key={r.id}>
+                          <td className="mono"><bdi>{r.id}</bdi></td>
+                          <td className="mono"><bdi>{r.said}</bdi></td>
+                          <td><span className={"pill " + (r.ok ? "ok" : "bad")}>{t(`lab.kind.${r.kind}`)}</span></td>
+                          <td className="small"><bdi>{r.ok ? "" : r.why.slice(0, 110)}</bdi></td>
+                        </tr>
+                      ))}</tbody>
+                    </table></div>
+                  </details>
+                )}
               </>
             )}
 

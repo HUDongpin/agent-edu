@@ -244,3 +244,42 @@ test("the journey has an ending, and says what is not translated", () => {
     assert.ok(siteMessages(locale)["teach.packLang"]?.trim(), `${locale}: packLang missing`);
   }
 });
+
+test("the previous run survives so the two can be read against each other", () => {
+  /* setRows replaced the table outright, so after the second run the first
+     run's twenty rows were gone and the payoff survived as two integers in one
+     sentence. The lesson is not "11 became 18" — it is which cases stopped
+     inventing a price, and that was the part the reader had to take on faith. */
+  assert.match(source, /const \[prevRows, setPrevRows\] = useState<Row\[\]>\(\[\]\);/);
+  /* Captured before the overwrite, or it captures the run that just finished. */
+  const flow = source.slice(source.indexOf("async function runEval"), source.indexOf("function clearDraft"));
+  const captured = flow.indexOf("setPrevRows(rows)");
+  const replaced = flow.indexOf("setRows(res)");
+  assert.ok(captured !== -1 && replaced !== -1 && captured < replaced,
+    "the previous rows must be captured before setRows replaces them");
+
+  /* Rendered only once there is a previous run to show, and behind its own
+     score so the two tables cannot be confused. */
+  assert.match(source, /prev !== null && prevRows\.length > 0 && \(/);
+  assert.match(source, /t\("lab\.s4\.comparePrev"\)|k="lab\.s4\.comparePrev"/);
+
+  for (const locale of LOCALES) {
+    const label = siteMessages(locale)["lab.s4.comparePrev"];
+    assert.ok(label?.includes("{prev}"), `${locale}: comparePrev must carry {prev}`);
+  }
+});
+
+test("the handbook's time claim matches what the page asks for, in every locale", () => {
+  /* Forty-five minutes was the reading. The page's method is pressing things,
+     and a reader who budgeted by it ran out around §05. Split rather than
+     inflated, so a session length can be chosen instead of abandoned. */
+  const courses = readFileSync("lib/courses.ts", "utf8");
+  assert.match(courses, /topic: "foundations", minutes: 60/);
+  for (const locale of LOCALES) {
+    const meta = siteMessages(locale)["track.1.meta"];
+    assert.doesNotMatch(meta, /\b45\b|٤٥/, `${locale}: track.1.meta still claims 45`);
+  }
+  /* The teacher pack really does offer 45-, 90- and 180-minute plans; that
+     claim is about lesson lengths and is left alone. */
+  assert.match(siteMessages("en")["teach.lede"], /45, 90 or 180 minutes/);
+});
