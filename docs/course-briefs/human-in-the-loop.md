@@ -17,7 +17,7 @@ the author cannot re-verify at implementation time should be treated as drifted.
 
 The reader arrives having been told, correctly and repeatedly, that a gate must exist. The
 Handbook's harness section weights the permission gate heaviest of six parts — 30 of 100, in
-`PARTS` at `lib/handbook/behaviour.ts:1246` — and attaches the failure story:
+`PARTS` at `lib/handbook/behaviour.ts:1256` — and attaches the failure story:
 `w.harness.part.gate.fail` reads "It read the unit as kilograms and ordered 1,000 kg of
 beans — $41,200 — and nobody was asked." Build's stage 6 makes the reader write that gate as
 an `if` in the tool runner, and supplies the sentence the whole site rests on: "A model can be
@@ -50,7 +50,7 @@ have been no.
 |---|---|---|
 | A gate must exist, and belongs in code rather than in the prompt | Handbook §06 harness (`w.harness.part.gate.*`, `w.harness.strip.s3` "🚦 Gate the dangerous bits"); Build stage 6 TODO 1 | Cite in one clause in §01. Never re-derive. |
 | "A prompt is a request; a node or an `if` is a guarantee" | Handbook §05 thesis, `w.decide.rec.promptGraph.body`; Build stages 6 and 7 | Assume known. Do not restate. |
-| The mandatory, unskippable review step, and why a loop's self-check is not one | Handbook §05 in full, including `w.graph.note.bad` | Assume known. The only new fact is that §05's reviewer is a model: `kind:'m'` at `lib/handbook/behaviour.ts:1034`. |
+| The mandatory, unskippable review step, and why a loop's self-check is not one | Handbook §05 in full, including `w.graph.note.bad` | Assume known. The only new fact is that §05's reviewer is a model: `kind:'m'` at `lib/handbook/behaviour.ts:1044`. |
 | The step limit as a cost/completion trade-off, and that a limit buys you a half-finished job | Handbook §04 `w.loop.stopped` ("The coffee was ordered but the cups weren't, and nobody was told"); Build stage 5 `MAX_STEPS` | Out of scope. §04 may cite `w.loop.stopped` in one clause and must not re-derive it. |
 | Approval as blast-radius reduction against prompt injection | Handbook §08 `w.security.def.confirm.*`, `w.security.act.held`; Build stage 8 | Out of scope. Note only that the `confirm` defence fires as the fallback when least privilege is off, so approval is taught there as one of four interchangeable caps. |
 | Trust follows the source, not the sentence | Handbook §08 entire; `course/stage8-security/README.md` | Out of scope entirely. Do not restate it as "who is allowed to approve". |
@@ -467,10 +467,10 @@ remains is genuinely open.
    to carry a second rule.
 
 **Closed, and recorded here so it is not reopened:** this course does **not** get a brief in the
-Control Room. `lib/handbook/behaviour.ts:1703` reads `deck=shuffle(BRIEFS.slice()).slice(0,10)`
+Control Room. `lib/handbook/behaviour.ts:1713` reads `deck=shuffle(BRIEFS.slice()).slice(0,10)`
 — ten of fourteen, sampled at random — so a fifteenth brief would lower every brief's appearance
 rate from 10/14 to 10/15 while leaving the round counter correct. That alone would be tolerable.
-The decisive fact is one line earlier: `ORDER` at `lib/handbook/behaviour.ts:1651` is
+The decisive fact is one line earlier: `ORDER` at `lib/handbook/behaviour.ts:1661` is
 `['code','prompt','context','loop','graph','harness','evals','security']` — the answer set has
 eight entries, so a brief whose correct answer is "human in the loop" cannot exist without a
 ninth Handbook discipline. That would be a twelfth section, which moves `HANDBOOK_SECTION_IDS`

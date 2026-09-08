@@ -82,3 +82,54 @@ test("homepage metadata describes variable Provider cost instead of promising a 
     assert.doesNotMatch(`${labMeta}\n${buildMeta}\n${handbookCost}`, fixedPriceUnit, `${locale} must not advertise a fixed sample price`);
   }
 });
+
+test("the report card keeps the best and still reports the run that happened", async () => {
+  /* Keeping only the maximum made the instrument disagree with the course. The
+     worksheet asks the learner to record one improvement and one regression and
+     not to hide inconvenient cases, while the report quietly held the
+     high-water mark — so a learner who changed a prompt, lost two cases and
+     re-ran saw their old number stand. */
+  const { currentScore } = await import("../course/report");
+
+  // A regression is reported as the regression it is.
+  assert.equal(currentScore({ score: 20, latest: 17 }), 17);
+  // An improvement moves both.
+  assert.equal(currentScore({ score: 20, latest: 20 }), 20);
+  // A record written before `latest` existed still reads correctly.
+  assert.equal(currentScore({ score: 19 }), 19);
+  assert.equal(currentScore(undefined), undefined);
+});
+
+test("every eval failure carries the reason the runner already computed", async () => {
+  /* `why` names the wrong price against the menu price. It was built for every
+     case and then dropped unless the caller asked for verbose output, so a
+     learner who failed stage 4 read twelve case ids and no reasons — and stage
+     3's README told them to read failures stage 3 never printed. */
+  const { run } = await import("../course/cafe/evalset");
+  const guessing = async () => ({
+    items: [{ name: "flat white", size: "L" as const, price: 9.99 }],
+    total: 9.99,
+    needs_confirmation: false,
+  });
+
+  const [, failures] = await run(guessing as never, { verbose: false });
+  assert.ok(failures.length > 0, "a guessing till must fail cases");
+  for (const failure of failures) {
+    assert.ok(failure.id, "each failure names its case");
+    assert.ok(failure.why.trim().length > 0, `${failure.id} came back with no reason`);
+  }
+  const priced = failures.find((f) => f.id === "large-flat-white");
+  assert.match(priced?.why ?? "", /9\.99.*5\.1/, "a price failure names both prices");
+});
+
+test("a failing check points somewhere short of the whole answer", () => {
+  /* Between FAIL and SOLUTIONS.md — which is the complete answer, and ends the
+     learner's own course — there was nothing at all. */
+  const check = readFileSync("course/check.ts", "utf8");
+  assert.match(check, /function bad\(m: string, hint\?: string\): never/);
+  assert.match(check, /re-read course\/\$\{STAGES\[checking\]\}\/README\.md/);
+  assert.match(check, /checking = stage;/);
+  // The cost warning must read the same seam as the client, or it warns about
+  // spending on a run that npm has already switched offline.
+  assert.match(check, /COSTS_MONEY\.has\(stage\) && !OFFLINE/);
+});

@@ -39,12 +39,22 @@ function txt(s){ return document.createTextNode(s); }
    ============================================================ */
 /* FC is imported from lib/flowchart */
 /* ===================== THEME + TABS ===================== */
+/* Seed from the theme actually in force, persist under the site's own key, and
+   tell the site's toggle. The cycle used to start at 'auto' whatever the reader
+   had chosen, so a dark-mode reader met a button claiming "auto", pressed it
+   once to get light, and found the site's own control unchanged beside it — then
+   reloaded and lost the choice, because this handler only ever touched the
+   attribute and never the key the layout re-applies before paint. */
 (function(){
-  const btn=$('#themeBtn'), modes=['auto','light','dark']; let i=0;
+  const btn=$('#themeBtn'), modes=['auto','light','dark'];
+  let i=Math.max(0,modes.indexOf(document.documentElement.getAttribute('data-theme')||'auto'));
+  btn.textContent=C.t('w.theme.btn',{mode:C.t('w.theme.mode.'+modes[i])});
   btn.addEventListener('click',()=>{
     i=(i+1)%3; const m=modes[i];
     if (m==='auto') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme',m);
+    try{ if(m==='auto') localStorage.removeItem('ae.theme'); else localStorage.setItem('ae.theme',m); }catch(e){}
+    window.dispatchEvent(new Event('ae-theme'));
     btn.textContent=C.t('w.theme.btn',{mode:C.t('w.theme.mode.'+m)});
   });
 })();
