@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Progress from "@/components/Progress";
+import TrackCta from "@/components/home/TrackCta";
 import { FixedSteps, ModelStep } from "@/components/home/Decide";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
 import { SITE, urlFor } from "@/lib/seo";
@@ -22,9 +23,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
      request for an API key — the page said "start at the top" and then sent
      you to the middle. */
   const tracks = [
-    { n: 1, colour: "var(--brand)",  k: "1", href: p("/handbook/"), primary: true,  first: true },
-    { n: 2, colour: "var(--green)",  k: "2", href: p("/lab/"),      primary: false, first: false },
-    { n: 3, colour: "var(--violet)", k: "3", first: false, primary: false,
+    { n: 1, colour: "var(--brand)",  k: "1", course: "handbook", href: p("/handbook/"), primary: true,  first: true },
+    { n: 2, colour: "var(--green)",  k: "2", course: "lab",      href: p("/lab/"),      primary: false, first: false },
+    { n: 3, colour: "var(--violet)", k: "3", course: "build", first: false, primary: false,
       href: p("/build/"), note: "track.3.note" },
   ];
 
@@ -99,9 +100,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               <p>{t(`track.${tr.k}.desc`)}</p>
               <div className="meta">{t(`track.${tr.k}.meta`)}</div>
               {tr.note && <p className="tracknote">↗ {t(tr.note)}</p>}
-              <Link className={"btn" + (tr.primary ? " primary" : "")} href={tr.href}>
-                {t(`track.${tr.k}.cta`)}<span className="arrow">→</span>
-              </Link>
+              {/* The word depends on the reader's record, and falls back to
+                  this card's own cta on the server and for a first visit. */}
+              <TrackCta courseId={tr.course} href={tr.href} fallback={`track.${tr.k}.cta`} />
             </article>
           ))}
         </div>

@@ -67,6 +67,12 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         <div className="langnote">
           <h2>{t("build.boundaryTitle")}</h2>
           <p>{t("build.boundaryBody")}</p>
+          {/* Said, rather than discovered. The site is in nine languages and the
+              course is not; that is a defensible decision, and the same one
+              already taken and explained for the café's menu and the twenty
+              cases — but this one was left for the reader to find out by
+              arriving. */}
+          <p>{t("build.boundary")}</p>
         </div>
       </section>
 

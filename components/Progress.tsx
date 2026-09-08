@@ -57,16 +57,30 @@ export default function Progress({ locale }: { locale: string }) {
       done: handbook.completed,
       href: `/${locale}/handbook/`,
       action: action("handbook"),
-      note: <Rich k="cat.count.sections"
-        vars={{ current: handbook.exploredSections, total: handbook.totalSections }} />,
+      /* Show the number they earned, not only the one they attended. The store
+         keeps a Control Room best and a best Eval score and the interface
+         reported neither, so the only thing on screen was how many tabs were
+         opened. Attendance plus one earned number is a far more honest claim. */
+      note: <>
+        <Rich k="cat.count.sections"
+          vars={{ current: handbook.exploredSections, total: handbook.totalSections }} />
+        {handbook.bestScore === undefined ? null : <>
+          {" · "}<Rich k="home.progRoomBest" vars={{ n: handbook.bestScore }} />
+        </>}
+      </>,
     },
     {
       label: t("track.2.title"),
       done: lab.completed,
       href: `/${locale}/lab/`,
       action: action("lab"),
-      note: <Rich k="cat.count.steps"
-        vars={{ current: lab.completedCount, total: lab.totalSteps }} />,
+      note: <>
+        <Rich k="cat.count.steps"
+          vars={{ current: lab.completedCount, total: lab.totalSteps }} />
+        {lab.evalBest === undefined ? null : <>
+          {" · "}<Rich k="home.progEvalBest" vars={{ n: lab.evalBest }} />
+        </>}
+      </>,
     },
     {
       label: t("track.3.title"),
