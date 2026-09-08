@@ -107,7 +107,7 @@ Pick a domain you actually know: a library's returns desk, a lab booking system,
 
 Nobody will grade it. The point is that you now know what the twenty cases *are* for your own domain — which is the part a café cannot teach.
 
-The [`stage9-project/`](stage9-project/) folder provides a Markdown artifact template, JSON eval template and evidence-based rubric. It asks for a problem boundary, failure input, minimal eval, irreversible gate, trust boundaries and candid retrospective; it does not prescribe one Provider, framework or prompt.
+The [`stage9-project/`](stage9-project/) folder provides a Markdown artifact template, JSON eval template, evidence-based rubric and a [worked example](stage9-project/worked-example.md) — one finished project on a library's returns desk, scored honestly at 11 of 12. It asks for a problem boundary, failure input, minimal eval, irreversible gate, trust boundaries and candid retrospective; it does not prescribe one Provider, framework or prompt.
 
 ## Honest limits
 

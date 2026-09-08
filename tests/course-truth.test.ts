@@ -133,3 +133,39 @@ test("a failing check points somewhere short of the whole answer", () => {
   // spending on a run that npm has already switched offline.
   assert.match(check, /COSTS_MONEY\.has\(stage\) && !OFFLINE/);
 });
+
+test("the transfer stage ships a worked example, scored honestly", () => {
+  /* Everything up to Stage 8 hands the learner a worked example — the café —
+     and Stage 8 is where it stops. Removing the scaffolding is the point of
+     Stage 9, but the finished thing had never been shown, which is the standard
+     way a transfer task fails to transfer. */
+  const example = readFileSync("course/stage9-project/worked-example.md", "utf8");
+  const template = readFileSync("course/stage9-project/artifact-template.md", "utf8");
+
+  /* It answers the template it is an example of. Every numbered section of the
+     template has to appear, or the example teaches a shape the rubric does not
+     ask for. */
+  const sections = [...template.matchAll(/^## (\d+\. .+)$/gm)].map((m) => m[1]);
+  assert.ok(sections.length >= 8, "the template should have its eight sections");
+  for (const section of sections) {
+    assert.ok(example.includes(section), `the worked example skips "${section}"`);
+  }
+
+  /* Not perfect on purpose. An exemplar that scores full marks teaches that the
+     rubric is a formality; one that loses a row and says why teaches what a 1
+     looks like. */
+  assert.match(example, /\|\s*\*\*1\*\*\s*\|/, "one rubric row must score 1");
+  assert.match(example, /11 of 12/);
+
+  /* The two things the rubric's review prompts hunt for: a gate that is code
+     rather than a request, and a regression that was not hidden. */
+  assert.match(example, /REFUSED/);
+  assert.match(example, /regress/i);
+
+  /* And it must not be the café, which is the scaffolding being removed. */
+  assert.doesNotMatch(example.split("## 1.")[1] ?? "", /\bcafé menu\b|\bflat white\b|\blatte\b/i);
+
+  // Reachable from both places a learner would look for it.
+  assert.match(readFileSync("course/stage9-project/README.md", "utf8"), /worked-example\.md/);
+  assert.match(readFileSync("course/README.md", "utf8"), /worked-example\.md/);
+});
