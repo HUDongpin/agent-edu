@@ -1,7 +1,8 @@
 # Course briefs
 
-Specifications for the three courses `lib/courses.ts` lists as `status: "soon"`. Each brief is the
-document a contributor builds from.
+Specifications for three courses the catalogue does not offer yet — one `lib/courses.ts` lists as
+`status: "soon"`, two it retired in `b5dd322b` rather than keep advertising unbuilt. Each brief is
+the document a contributor builds from.
 
 These exist because the scope of those three courses used to be circular. `lib/courses.ts`
 described its own `soon` entries as "the gaps the README already names"; `README.md` described them
@@ -30,9 +31,12 @@ review — and none of those is waived by an approved specification.
 
 Two pieces of work sit underneath all three and should be done once, before any course content:
 
-- **Widen the `CourseProgress` union in `lib/progress.ts`.** It hard-codes three literal course ids
-  and cannot express a fourth. The same change fixes the standing defect that Build an Agent — an
-  available 150-minute course — can never be marked complete.
+- **Give a fourth course a progress branch.** `fdd9743f` did half of this: `CourseProgress.courseId`
+  is now `string` rather than three literals, `DECLARABLE_COURSE_IDS` exists, and the standing defect
+  that Build an Agent — an available 150-minute course — could never be marked complete is fixed.
+  What remains is the body of `selectCourseProgress`, which still dispatches on string literals
+  (`lib/progress.ts:505`, `:520`): an off-site course is now a one-line addition, but a fourth
+  *tracked* course still needs a branch, a state shape and a normaliser.
 - **Decide the string-checker question.** `scripts/check-widgets.mjs` reads exactly one behaviour
   file and one table, so run-time copy outside the Handbook has no placeholder, plural or DOM-id
   proof. The Human in the Loop brief decides to widen it to a list of (behaviour, markup, table)

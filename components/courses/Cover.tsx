@@ -1,7 +1,10 @@
 /**
  * Course covers, generated rather than drawn.
  *
- * Six SVG motifs keyed to the course id, tinted with that course's hue. No
+ * Six SVG motifs keyed to the course id, tinted with that course's hue. Two of
+ * them — `tools` and `cost` — belong to courses that are specified in
+ * `docs/course-briefs/` but not yet built, and are kept so their catalogue rows
+ * can return without anyone opening a drawing tool. No
  * image files: they stay crisp at any size, weigh nothing, follow the theme,
  * and a new course gets a cover without anyone opening a design tool. Each
  * motif echoes what the course is actually about, so they are distinguishable

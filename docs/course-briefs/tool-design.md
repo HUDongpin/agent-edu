@@ -440,8 +440,8 @@ too. The `evidence` value now matches the section above rather than dropping the
 3. **Does `selectCourseProgress` get a `"tools"` branch?** With none, it returns `untracked` and
    `Catalog.tsx` renders `cat.start` with no arrow on a card that is nonetheless a link. Giving it
    the `external` shape means widening that variant's `courseId` from the literal `"build"` to
-   `"build" | "tools"` and rewriting the assertion at `tests/progress.test.ts:478`, which currently
-   names `"tools"` by hand as the example of an untracked entry. Shipping `untracked` first is
+   `"build" | "tools"` and rewriting the assertion at `tests/progress.test.ts:686`, which deliberately
+   uses a generic `"no-such-course"` rather than naming any real id. Shipping `untracked` first is
    defensible; the arrow-less CTA is the visible cost.
 
 4. **One progress file or two?** Reusing `course/progress.json` under stage keys 10 to 13 needs no

@@ -349,7 +349,7 @@ score.
 
 At ship, this course is **untracked**. `selectCourseProgress` in `lib/progress.ts` returns
 `{ kind: "untracked", action: "unavailable", percent: null }` for any id that is not `handbook`,
-`lab` or `build`, and `tests/progress.test.ts:478` pins that behaviour by name. `Catalog.tsx` will
+`lab` or `build`, and `tests/progress.test.ts:683` pins that behaviour by name. `Catalog.tsx` will
 therefore render no progress bar and a plain `cat.start` label — and, in that branch, no arrow
 beside it. That is the correct first state and this brief recommends shipping in it: the reader's
 own record is the evidence, and the site claims nothing about them. Adding tracking later is a

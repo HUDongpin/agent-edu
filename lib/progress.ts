@@ -25,8 +25,20 @@ export type HandbookSectionId = (typeof HANDBOOK_SECTION_IDS)[number];
 export const LAB_STEPS = ["first-call", "rules", "prompt-trial", "full-eval"] as const;
 
 export type LabStep = (typeof LAB_STEPS)[number];
+/**
+ * Courses the site cannot observe, and so cannot measure.
+ *
+ * `build` runs on the reader's own machine against their own key; nothing here
+ * can see `course/progress.json`. The reader saying "I finished this" is the
+ * only honest signal available, so it is the one we record — as a declaration,
+ * never as a measurement. Adding an id here is all it takes to make another
+ * off-site course completable.
+ */
+export const DECLARABLE_COURSE_IDS = ["build"] as const;
+
+export type DeclarableCourseId = (typeof DECLARABLE_COURSE_IDS)[number];
 export type LearningStatus = "not-started" | "in-progress" | "completed";
-export type ResetScope = "handbook" | "lab" | "all";
+export type ResetScope = "handbook" | "lab" | "declared" | "all";
 
 export interface LearningStateV2 {
   readonly version: 2;
@@ -44,6 +56,19 @@ export interface LearningStateV2 {
     readonly rulesBest?: number;
     readonly evalRunsCompleted: number;
     readonly evalBest?: number;
+  };
+  /**
+   * Off-site courses the reader has marked finished themselves.
+   *
+   * Deliberately added without bumping `version`. `normaliseLearningState`
+   * rebuilds every field from unknown input, so a stored v2 payload written
+   * before this field existed decodes to an empty declaration rather than
+   * being discarded — which is what a version bump would have done to every
+   * reader's handbook and Lab progress.
+   */
+  readonly declared: {
+    readonly completed: readonly DeclarableCourseId[];
+    readonly lastDeclaredAt?: string;
   };
 }
 
@@ -72,17 +97,43 @@ export interface LabProgress {
 export type CourseProgress =
   | {
       readonly kind: "tracked";
-      readonly courseId: "handbook" | "lab";
+      readonly courseId: string;
       readonly status: LearningStatus;
       /** A display measure, not a claim of mastery. */
       readonly current: number;
       readonly total: number;
       readonly percent: number;
+      /**
+       * What `current` and `total` count, so the card can name the unit.
+       *
+       * The Handbook's bar and its verdict measure different things on
+       * purpose: sections opened, and the ten briefs `c.handbook.evidence`
+       * defines completion as. Eleven is the only Handbook denominator the
+       * product names — `c.handbook.blurb` says "Eleven illustrated sections"
+       * and the in-handbook readout `w.progress.sections` is "{n}/11 sections"
+       * in all nine languages — so the bar keeps that denominator and names its
+       * unit, rather than borrowing the verdict's meaning from its own shape.
+       */
+      readonly measure: "sections" | "steps";
+      /**
+       * What the call to action should say. A full bar that is not yet a
+       * completed course reads "finish", never "resume" — which is the
+       * contradiction this field exists to make unreachable.
+       */
+      readonly action: "start" | "resume" | "finish" | "review";
     }
   | {
+      /**
+       * A course that runs off-site. `status` is the reader's own declaration,
+       * so it is only ever "not-started" or "completed" — there is no half of
+       * an unobservable thing. `percent` stays null for the same reason: a bar
+       * would imply a measurement nobody took.
+       */
       readonly kind: "external";
-      readonly courseId: "build";
-      readonly action: "open";
+      readonly courseId: string;
+      readonly status: Extract<LearningStatus, "not-started" | "completed">;
+      readonly action: "open" | "review";
+      readonly declaredComplete: boolean;
       readonly percent: null;
     }
   | {
@@ -123,11 +174,13 @@ export interface LearningStore {
   recordHandbookVisit(section: HandbookSectionId): LearningStateV2;
   recordHandbookControlRoomFinish(score: number): LearningStateV2;
   recordLabStep(step: LabStep, evidence?: LabStepEvidence): LearningStateV2;
+  declareCourseComplete(courseId: DeclarableCourseId, complete: boolean): LearningStateV2;
   resetLearningState(scope: ResetScope): LearningStateV2;
 }
 
 const SECTION_SET = new Set<string>(HANDBOOK_SECTION_IDS);
 const STEP_SET = new Set<string>(LAB_STEPS);
+const DECLARABLE_SET = new Set<string>(DECLARABLE_COURSE_IDS);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -139,6 +192,18 @@ function isIntegerIn(value: unknown, min: number, max: number): value is number 
 
 function isSection(value: unknown): value is HandbookSectionId {
   return typeof value === "string" && SECTION_SET.has(value);
+}
+
+function isDeclarableCourseId(value: unknown): value is DeclarableCourseId {
+  return typeof value === "string" && DECLARABLE_SET.has(value);
+}
+
+/** Same shape as uniqueSections: dedupe, drop anything unknown, fix the order. */
+function uniqueDeclared(value: unknown): DeclarableCourseId[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<DeclarableCourseId>();
+  for (const entry of value) if (isDeclarableCourseId(entry)) seen.add(entry);
+  return DECLARABLE_COURSE_IDS.filter((id) => seen.has(id));
 }
 
 function isLabStep(value: unknown): value is LabStep {
@@ -186,6 +251,8 @@ function freezeState(state: LearningStateV2): LearningStateV2 {
   Object.freeze(state.handbook);
   Object.freeze(state.lab.completedSteps);
   Object.freeze(state.lab);
+  Object.freeze(state.declared.completed);
+  Object.freeze(state.declared);
   return Object.freeze(state);
 }
 
@@ -201,6 +268,7 @@ function makeDefaultState(): LearningStateV2 {
       completedSteps: [],
       evalRunsCompleted: 0,
     },
+    declared: { completed: [] },
   });
 }
 
@@ -215,8 +283,12 @@ function normaliseLearningState(value: unknown): LearningStateV2 {
 
   const bestScore = optionalInteger(controlRoom, "bestScore", 0, 10);
   const lastFinishedAt = optionalDate(controlRoom, "lastFinishedAt");
+  const declared = isRecord(value.declared) ? value.declared : {};
   const rulesBest = optionalInteger(lab, "rulesBest", 0, 10);
   const evalBest = optionalInteger(lab, "evalBest", 0, 20);
+  const declaredCompleted = uniqueDeclared(declared.completed);
+  const lastDeclaredAt = declaredCompleted.length === 0
+    ? undefined : optionalDate(declared, "lastDeclaredAt");
 
   return freezeState({
     version: 2,
@@ -236,6 +308,10 @@ function normaliseLearningState(value: unknown): LearningStateV2 {
       evalRunsCompleted: isIntegerIn(lab.evalRunsCompleted, 0, Number.MAX_SAFE_INTEGER)
         ? lab.evalRunsCompleted : 0,
       ...(evalBest === undefined ? {} : { evalBest }),
+    },
+    declared: {
+      completed: declaredCompleted,
+      ...(lastDeclaredAt === undefined ? {} : { lastDeclaredAt }),
     },
   });
 }
@@ -295,6 +371,9 @@ export function migrateLegacyLearningState(input: LegacyLearningInput): Learning
       evalRunsCompleted: hasCompletedEval ? 1 : 0,
       ...(evalBest === undefined ? {} : { evalBest }),
     },
+    // Empty for the same reason `part2` is absent above: the legacy keys never
+    // held a declaration, and inventing one would be a claim nobody made.
+    declared: { completed: [] },
   });
 }
 
@@ -360,6 +439,13 @@ function stateWithLabReset(state: LearningStateV2): LearningStateV2 {
   });
 }
 
+function stateWithDeclaredReset(state: LearningStateV2): LearningStateV2 {
+  return freezeState({
+    ...state,
+    declared: EMPTY_LEARNING_STATE.declared,
+  });
+}
+
 export function selectHandbookProgress(state: LearningStateV2): HandbookProgress {
   const completed = state.handbook.controlRoom.completedRuns > 0;
   const exploredSections = state.handbook.visitedSections.length;
@@ -398,16 +484,37 @@ export function selectLabProgress(state: LearningStateV2): LabProgress {
   };
 }
 
+/**
+ * The word on a tracked course's button.
+ *
+ * "resume" is unreachable once the bar is full, which is the whole point: a
+ * reader who has opened every section but not submitted the briefs is not
+ * resuming, they are finishing.
+ */
+function trackedAction(
+  status: LearningStatus,
+  current: number,
+  total: number,
+): "start" | "resume" | "finish" | "review" {
+  if (status === "completed") return "review";
+  if (status !== "in-progress") return "start";
+  return current >= total ? "finish" : "resume";
+}
+
 export function selectCourseProgress(state: LearningStateV2, courseId: string): CourseProgress {
   if (courseId === "handbook") {
     const progress = selectHandbookProgress(state);
+    const current = progress.exploredSections;
+    const total = progress.totalSections;
     return {
       kind: "tracked",
       courseId,
       status: progress.status,
-      current: progress.exploredSections,
-      total: progress.totalSections,
-      percent: Math.round((progress.exploredSections / progress.totalSections) * 100),
+      current,
+      total,
+      percent: Math.round((current / total) * 100),
+      measure: "sections",
+      action: trackedAction(progress.status, current, total),
     };
   }
   if (courseId === "lab") {
@@ -419,10 +526,21 @@ export function selectCourseProgress(state: LearningStateV2, courseId: string): 
       current: progress.completedCount,
       total: progress.totalSteps,
       percent: Math.round((progress.completedCount / progress.totalSteps) * 100),
+      measure: "steps",
+      // "finish" is unreachable here: the Lab's last step is its completion.
+      action: trackedAction(progress.status, progress.completedCount, progress.totalSteps),
     };
   }
-  if (courseId === "build") {
-    return { kind: "external", courseId, action: "open", percent: null };
+  if (isDeclarableCourseId(courseId)) {
+    const declaredComplete = state.declared.completed.includes(courseId);
+    return {
+      kind: "external",
+      courseId,
+      status: declaredComplete ? "completed" : "not-started",
+      action: declaredComplete ? "review" : "open",
+      declaredComplete,
+      percent: null,
+    };
   }
   return { kind: "untracked", courseId, action: "unavailable", percent: null };
 }
@@ -570,6 +688,35 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     });
   }
 
+  /**
+   * The reader's own claim that an off-site course is finished, and the way
+   * back out of it. Reversible on purpose: a declaration nobody can retract is
+   * a worse instrument than no declaration, and this one is not evidence of
+   * anything except that the reader pressed a button.
+   */
+  function declareCourseComplete(
+    courseId: DeclarableCourseId,
+    complete: boolean,
+  ): LearningStateV2 {
+    if (!isDeclarableCourseId(courseId)) return readLearningState();
+    return commit((state) => {
+      const already = state.declared.completed.includes(courseId);
+      if (already === complete) return state;
+      const completed = complete
+        ? DECLARABLE_COURSE_IDS.filter((id) =>
+            state.declared.completed.includes(id) || id === courseId)
+        : state.declared.completed.filter((id) => id !== courseId);
+      if (completed.length === 0) return stateWithDeclaredReset(state);
+      let declaredAt: string;
+      try {
+        declaredAt = now().toISOString();
+      } catch {
+        declaredAt = new Date().toISOString();
+      }
+      return freezeState({ ...state, declared: { completed, lastDeclaredAt: declaredAt } });
+    });
+  }
+
   function recordLabStep(step: LabStep, evidence: LabStepEvidence = {}): LearningStateV2 {
     if (!isLabStep(step)) return readLearningState();
     const scoreLimit = step === "rules" ? 10 : step === "full-eval" ? 20 : null;
@@ -605,10 +752,13 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
   }
 
   function resetLearningState(scope: ResetScope): LearningStateV2 {
-    if (scope !== "handbook" && scope !== "lab" && scope !== "all") return readLearningState();
+    if (scope !== "handbook" && scope !== "lab" && scope !== "declared" && scope !== "all") {
+      return readLearningState();
+    }
     const result = commit((state) => {
       if (scope === "handbook") return stateWithHandbookReset(state);
       if (scope === "lab") return stateWithLabReset(state);
+      if (scope === "declared") return stateWithDeclaredReset(state);
       return EMPTY_LEARNING_STATE;
     });
 
@@ -659,6 +809,7 @@ export function createLearningStore(options: LearningStoreOptions = {}): Learnin
     recordHandbookVisit,
     recordHandbookControlRoomFinish,
     recordLabStep,
+    declareCourseComplete,
     resetLearningState,
   };
 }
@@ -688,6 +839,13 @@ export function recordHandbookControlRoomFinish(score: number): LearningStateV2 
 
 export function recordLabStep(step: LabStep, evidence?: LabStepEvidence): LearningStateV2 {
   return learningStore.recordLabStep(step, evidence);
+}
+
+export function declareCourseComplete(
+  courseId: DeclarableCourseId,
+  complete: boolean,
+): LearningStateV2 {
+  return learningStore.declareCourseComplete(courseId, complete);
 }
 
 export function resetLearningState(scope: ResetScope): LearningStateV2 {

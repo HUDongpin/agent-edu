@@ -508,6 +508,8 @@
   "hb.body.glossary.28": "Same input, same output, every single time. Plain code is; models aren't.",
   "hb.body.glossary.29": "🛡️ guardrail",
   "hb.body.glossary.30": "A check the system cannot skip — a step limit, a permission list, a mandatory reviewer node.",
+  "hb.body.glossary.31": "🔌 MCP (Model Context Protocol)",
+  "hb.body.glossary.32": "A standard way to hand an agent a set of tools, so the same file reader or database works in any harness that speaks it. Without one, every tool is wired to one program by hand.",
   "hb.body.p-compare.75": "🎁 The one-sentence version",
   "hb.body.p-compare.76": "Hand over as little control as the problem actually requires — and whatever you hand over, put a fence around it.",
   "hb.body.p-compare.77": "🛠️ Ready to build one?",
