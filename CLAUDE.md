@@ -119,8 +119,13 @@ British spelling. Sentence case in headings. Prefer deleting a widget over addin
 one. Do not rewrite existing copy to satisfy a linter.
 
 ## Before you say you're done
-`npm run build` must pass, `npm run prose:check` must pass if you touched
-`course/`, and `npm run routes:check` must agree with
+`npm run build` must pass — it runs `scripts/prune-export.mjs` afterwards,
+which drops the byte-identical copy Next writes of every route payload and
+stops without deleting anything if a copy ever stops being one. `npm run
+i18n:check` must pass, and wants an `out/` to scan, so run it after the build
+as CI does. `npm run prose:check` must pass if you touched `course/` — or
+anything a citation counts lines against: inserting a comment into
+`app/globals.css` moved nine of them. `npm run routes:check` must agree with
 `config/route-manifest.json` — that checker is the gate, not a number written
 down here. It currently reports 66 public + 2 internal = 68. The count moves by
 nine every time a localised path is added, so check it rather than trusting this
