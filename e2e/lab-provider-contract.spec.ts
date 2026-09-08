@@ -188,6 +188,13 @@ async function firstCallCompleted(page: Page): Promise<boolean> {
 
 async function runStageOne(page: Page) {
   await expect.poll(() => firstCallCompleted(page)).toBe(false);
+  /* Select step 1 rather than assuming it is showing. verifyKey loads the Lab
+     before a key exists, and a first visit with no key now opens on the free
+     rules wall instead — so the step this helper is named for has to be asked
+     for. Selecting it makes the suite independent of whichever step the Lab
+     chooses to open on, which is not what these tests are about. */
+  await page.locator('.steps [role="tab"]').nth(0).click();
+  await expect(page.locator("#q0")).toBeVisible();
   await page.locator("#q0").fill("Give one short café greeting.");
   await page.getByRole("button", { name: /^Run/ }).click();
 }
