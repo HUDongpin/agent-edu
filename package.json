@@ -42,6 +42,8 @@
     "handbook:extract": "node scripts/extract-handbook.mjs",
     "handbook:check": "node scripts/extract-handbook.mjs --check",
     "widgets:check": "node scripts/check-widgets.mjs",
+    "i18n:extract": "node scripts/extract-i18n-scopes.mjs",
+    "i18n:check": "node scripts/extract-i18n-scopes.mjs --check",
     "prose:check": "node scripts/check-prose.mjs",
     "review:packet": "node scripts/make-review-packet.mjs"
   },

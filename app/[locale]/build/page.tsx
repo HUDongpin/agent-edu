@@ -1,7 +1,9 @@
 import Link from "next/link";
 import Declare from "@/components/build/Declare";
+import { I18nScope } from "@/components/I18nProvider";
 import JsonLd from "@/components/JsonLd";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
+import { scopeMessages } from "@/lib/i18n-scope";
 import { SITE, seoFor, urlFor } from "@/lib/seo";
 import type { Metadata } from "next";
 
@@ -25,7 +27,8 @@ export async function generateMetadata(
 
 export default async function BuildPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const t = translator(await getMessages(locale));
+  const messages = await getMessages(locale);
+  const t = translator(messages);
   const p = (path: string) => `/${locale}${path}`;
   const courseUrl = "https://github.com/HUDongpin/agent-edu/tree/main/course";
 
@@ -155,7 +158,9 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         <h2>{t("build.progressTitle")}</h2>
         <p>{t("build.progressBody")}</p>
         <pre dir="ltr"><code>{`npx tsx course/report.ts\n# reads course/progress.json in this clone`}</code></pre>
-        <Declare />
+        <I18nScope messages={scopeMessages(messages, "build")}>
+          <Declare />
+        </I18nScope>
       </section>
 
       <section className="sect">

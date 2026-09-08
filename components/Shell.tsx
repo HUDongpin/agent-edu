@@ -6,6 +6,7 @@ import MobileNav from "./MobileNav";
 import NavLinks from "./NavLinks";
 import { I18nProvider } from "./I18nProvider";
 import { LOCALES, coverage, translator, type Messages } from "@/lib/i18n";
+import { scopeMessages } from "@/lib/i18n-scope";
 import type { ReactNode } from "react";
 
 async function coverageMap(): Promise<Record<string, number>> {
@@ -31,10 +32,28 @@ export default async function Shell({
   const cov = await coverageMap();
   const p = (path: string) => `/${locale}${path}`;
 
+  /* One route in this nav is not like the others.
+
+     A <Link> prefetches the full static route the moment it enters the
+     viewport, so a nav link costs every reader the payload of the page it
+     points at whether or not they go there. For five of these that is a few
+     kilobytes and worth it. The handbook is 41 kB brotli — four times the
+     next largest, because it is eleven sections and twenty-one inline
+     diagrams in one document — and it is in the nav on every page. So the
+     whole site was paying for the handbook on first paint to save a click
+     that most readers make once.
+
+     Prefetch is off for that one link only. Readers who do click still get
+     the page; they get it on click instead of in advance.
+
+     The home page's hero button and track card point at the handbook too and
+     deliberately keep prefetching: that is the click the whole page is built
+     to produce, so fetching it in advance is the cost being paid for
+     something, which is the distinction this is drawing. */
   const nav = [
     { href: p("/"), key: "nav.home" },
     { href: p("/courses/"), key: "nav.courses" },
-    { href: p("/handbook/"), key: "nav.handbook" },
+    { href: p("/handbook/"), key: "nav.handbook", prefetch: false },
     { href: p("/lab/"), key: "nav.lab" },
     /* Part 3 was reachable from the footer and nowhere else, so the page
        holding the box that closes the whole curriculum was one the learner
@@ -46,7 +65,11 @@ export default async function Shell({
   ];
 
   return (
-    <I18nProvider locale={locale} messages={messages}>
+    /* Only the chrome's own strings cross into the browser. Everything Shell
+       renders below is resolved here, on the server, by `t`; the six keys the
+       theme toggle and the language menu read at run time are the six the
+       provider carries. Each route adds its own on top — see I18nScope. */
+    <I18nProvider locale={locale} messages={scopeMessages(messages, "chrome")}>
       <a className="skip" href="#main">{t("ui.skip")}</a>
 
       <header className="topbar">
@@ -60,7 +83,9 @@ export default async function Shell({
           </Link>
 
           <MobileNav label={t("nav.menu")}>
-            <NavLinks items={nav.map((n) => ({ href: n.href, label: t(n.key) }))} />
+            <NavLinks
+              items={nav.map((n) => ({ href: n.href, label: t(n.key), prefetch: n.prefetch }))}
+            />
             <Link href={p("/teach/")}>
               {t("nav.teach")}
             </Link>
@@ -88,7 +113,8 @@ export default async function Shell({
               <li><Link href={p("/courses/")}>{t("nav.courses")}</Link></li>
               <li><Link href={p("/about/")}>{t("nav.about")}</Link></li>
               <li><Link href={p("/teach/")}>{t("nav.teach")}</Link></li>
-              <li><Link href={p("/handbook/")}>{t("track.1.title")}</Link></li>
+              {/* Same reasoning as the nav link above. */}
+              <li><Link href={p("/handbook/")} prefetch={false}>{t("track.1.title")}</Link></li>
               <li><Link href={p("/lab/")}>{t("track.2.title")}</Link></li>
               <li>
                 <Link href={p("/build/")}>

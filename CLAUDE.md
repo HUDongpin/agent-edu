@@ -29,6 +29,19 @@ language, nine languages, currently 100% covered. Adding a string to English
 without adding it to the other eight is a regression, not a to-do. A translator
 must be able to fix a line without knowing React.
 
+A server component reads the whole table for free; a *client* one reads through
+React context, and everything in that context is serialised into the page twice
+— into the flight payload inlined in the HTML, and into the `.txt` a `<Link>`
+prefetches. So the table is scoped: `Shell` provides the chrome's six keys and
+each route adds its own with `<I18nScope>`. `config/i18n-scopes.json` is
+**generated** from the import graph by `npm run i18n:extract` — never hand-edit
+it — and `npm run i18n:check` fails on drift, on a route that has a scope and
+does not apply it, and on any key rendered as its own name in `out/`. That last
+rule is the point: a key outside its scope does not throw, it renders as
+`nav.theme`, and every other gate stays green. Add a `t()` call to a client
+component and re-extract; `tests/i18n-scopes.test.ts` watches all three rules
+fail on the shape each was written to catch.
+
 The handbook's article prose is the exception, and lives in `messages/handbook/`.
 `en.json` there is **generated** — never hand-edit it. Change the wording in
 `lib/handbook/markup.ts` and re-run `npm run handbook:extract`; `npm run
