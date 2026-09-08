@@ -36,6 +36,12 @@ export default async function Shell({
     { href: p("/courses/"), key: "nav.courses" },
     { href: p("/handbook/"), key: "nav.handbook" },
     { href: p("/lab/"), key: "nav.lab" },
+    /* Part 3 was reachable from the footer and nowhere else, so the page
+       holding the box that closes the whole curriculum was one the learner
+       passed through days earlier and could no longer navigate to. The footer
+       already labels this link with track.3.title, which exists in all nine
+       locales, so naming it here adds no string. */
+    { href: p("/build/"), key: "track.3.title" },
     { href: p("/about/"), key: "nav.about" },
   ];
 

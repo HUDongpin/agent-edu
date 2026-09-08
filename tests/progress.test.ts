@@ -714,8 +714,17 @@ test("resetting progress clears the Lab draft too, so \"all\" means all", () => 
      reopening mid-journey while this widget reported nothing had happened. */
   const progressComponent = readFileSync("components/Progress.tsx", "utf8");
   assert.match(progressComponent, /import \{ clearLabDraft \} from "@\/lib\/lab\/draft"/);
-  assert.match(
-    progressComponent,
-    /onClick=\{\(\) => \{ resetLearningState\("all"\); clearLabDraft\(\); \}\}/,
+  /* The handler gained a confirmation, so assert the invariant rather than the
+     one-liner it used to be: the reset is guarded, and the draft goes with the
+     record. */
+  const handler = progressComponent.slice(
+    progressComponent.indexOf("onClick={"),
+    progressComponent.indexOf("home.progReset\")}"),
   );
+  assert.match(handler, /home\.progResetConfirm/);
+  assert.match(handler, /resetLearningState\("all"\)/);
+  assert.match(handler, /clearLabDraft\(\)/);
+  const guard = handler.indexOf("progResetConfirm");
+  assert.ok(guard !== -1 && guard < handler.indexOf("resetLearningState"),
+    "the confirmation must come before anything is erased");
 });

@@ -52,6 +52,7 @@
   "home.progTitle": "Tu posición actual",
   "home.progNone": "Todavía nada. Tu progreso se guarda únicamente en este navegador: sin cuenta y sin enviar nada a ningún sitio.",
   "home.progReset": "Reiniciar el progreso",
+  "home.progResetConfirm": "¿Borrar tu progreso en este navegador? Se irán el Manual, el Laboratorio y tu nota de la Parte 3, junto con cualquier borrador guardado del Laboratorio. No hay cuenta, así que esto no se puede deshacer.",
   "home.faqTitle": "Preguntas frecuentes",
   "home.q1": "¿De verdad es gratis?",
   "home.a1": "Sí. El curso tiene licencia MIT y no requiere cuenta, no recopila correos ni incluye publicidad. El sitio conserva recuentos anónimos de páginas vistas, sin cookies ni perfiles personales. La parte 1 funciona totalmente sin conexión. La parte 2 usa tu clave de DeepSeek y puede generar cargos del proveedor. La parte 3 puede ejecutarse sin conexión o con tu propia clave de DeepSeek o Claude.",

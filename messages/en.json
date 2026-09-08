@@ -52,6 +52,7 @@
   "home.progTitle": "Where you are",
   "home.progNone": "Nothing yet. Your progress is saved in this browser only — no account, nothing sent anywhere.",
   "home.progReset": "Reset progress",
+  "home.progResetConfirm": "Erase your progress on this browser? The Handbook, the Lab and your Part 3 note go, along with any saved Lab draft. There is no account, so this cannot be undone.",
   "home.faqTitle": "Common questions",
   "home.q1": "Is it really free?",
   "home.a1": "Yes. The course is MIT licensed, with no account, email capture or advertising. The site keeps anonymous page-view counts without cookies or a personal profile. Part 1 is fully offline. Part 2 uses your DeepSeek key and can incur provider charges. Part 3 can run offline or use your own DeepSeek or Claude key.",

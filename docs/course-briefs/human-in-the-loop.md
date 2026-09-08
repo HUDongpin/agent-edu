@@ -322,7 +322,7 @@ honest: `components/courses/Catalog.tsx` skips the `.cprog` bar and falls to the
 
 One visible consequence the author should accept rather than discover: that final branch
 renders the call to action **without** an arrow — `<span className="cgo" …>{cta(progress)}</span>`
-at `Catalog.tsx:162`, against `{cta(progress)} <span className="arrow">→</span>` for a tracked
+at `Catalog.tsx:171`, against `{cta(progress)} <span className="arrow">→</span>` for a tracked
 course. The `hitl` card will read "Start" with no arrow, beside three cards that have one.
 
 Tracking is not a flag. Adding it means a branch in `selectCourseProgress`, widening the

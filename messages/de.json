@@ -52,6 +52,7 @@
   "home.progTitle": "Wo Sie stehen",
   "home.progNone": "Noch nichts. Ihr Fortschritt wird nur in diesem Browser gespeichert — kein Konto, nichts wird irgendwohin gesendet.",
   "home.progReset": "Fortschritt zurücksetzen",
+  "home.progResetConfirm": "Deinen Fortschritt in diesem Browser löschen? Handbuch, Labor und deine Notiz zu Teil 3 verschwinden, samt jedem gespeicherten Labor-Entwurf. Es gibt kein Konto, das lässt sich nicht rückgängig machen.",
   "home.faqTitle": "Häufige Fragen",
   "home.q1": "Ist es wirklich kostenlos?",
   "home.a1": "Ja. Der Kurs steht unter MIT-Lizenz; es gibt kein Konto, keine E-Mail-Erfassung und keine Werbung. Die Website zählt Seitenaufrufe anonym, ohne Cookies oder persönliches Profil. Teil 1 läuft vollständig offline. Teil 2 verwendet Ihren DeepSeek-Schlüssel und kann Anbieterkosten verursachen. Teil 3 kann offline oder mit Ihrem eigenen DeepSeek- beziehungsweise Claude-Schlüssel laufen.",

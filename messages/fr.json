@@ -52,6 +52,7 @@
   "home.progTitle": "Où vous en êtes",
   "home.progNone": "Rien pour l'instant. Votre progression est enregistrée dans ce navigateur uniquement : aucun compte, rien n'est envoyé nulle part.",
   "home.progReset": "Réinitialiser la progression",
+  "home.progResetConfirm": "Effacer votre progression sur ce navigateur ? Le Manuel, le Labo et votre note de la Partie 3 disparaissent, ainsi que tout brouillon enregistré du Labo. Il n'y a pas de compte : c'est irréversible.",
   "home.faqTitle": "Questions fréquentes",
   "home.q1": "Est-ce vraiment gratuit ?",
   "home.a1": "Oui. Le cours est sous licence MIT, sans compte, collecte d'e-mail ni publicité. Le site conserve des décomptes anonymes de pages vues, sans cookies ni profil personnel. La partie 1 fonctionne entièrement hors ligne. La partie 2 utilise votre clé DeepSeek et peut entraîner des frais du fournisseur. La partie 3 peut fonctionner hors ligne ou utiliser votre propre clé DeepSeek ou Claude.",
