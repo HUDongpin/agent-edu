@@ -101,6 +101,35 @@ Schema v2 requires `transferBytes` on every sample and a non-zero one on every
 cold sample: a cold load that transferred nothing did not measure a load.
 `assertLabVitalsReport` still accepts v1 for the archived report in §2, which
 is a record of a run that happened rather than a document to be updated.
+
+### Per-route transfer budget
+
+The budgets at the top of this section are uncompressed bytes on disk. They
+did not move when the export fell from 25 MB to 14 MB — nothing gated what a
+route actually pulls. `npm run transfer:check` does, against
+`config/transfer-budget.json`, and CI runs it on the report the harness has
+already produced rather than measuring twice.
+
+It is recorded and checked per kind, not as one figure per route. Shared
+JavaScript is 135–182 kB of every route here and rarely moves, so a change
+that doubles a document is about 4% of the route total and would sit inside
+any tolerance loose enough to be usable. Against the document alone the same
+change is nearly +100%.
+
+The measurement is exact — byte-identical across five samples, across separate
+runs and across both network profiles — and the checker refuses to record a
+budget from a run whose samples disagree, because that would be a finding
+about the harness rather than a number to average. The 3% allowance exists
+only because these are compressed bytes and the compressor is not the same
+everywhere: Node's zlib and the system gzip differ by 0.19% on the same file
+at the same level, and CI runs a different Node than a laptop does. It is not
+permission to grow.
+
+Growth that is intended is not an error. Run `npm run transfer:update`, commit
+the new numbers, and the cost of the change is reviewable in the diff as bytes
+rather than as an adjective. A route that has fallen well below its budget is
+reported, not failed, with the same instruction — so the gate stays tight
+after work that makes a route smaller.
 Missing LCP, CLS or INP is an error;
 the harness never substitutes zero for unavailable INP.
 

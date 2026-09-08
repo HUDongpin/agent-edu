@@ -500,15 +500,31 @@ async function collectSample(browser, baseUrl, route, cacheMode, iteration, view
        encoding: the document plus every subresource. Read from Resource
        Timing rather than counted from CDP events so it is the browser's own
        accounting, and so a warm sample honestly reports the ~0 it served
-       from cache instead of the bytes it would have fetched. */
-    const transferBytes = await page.evaluate(() => {
+       from cache instead of the bytes it would have fetched.
+    
+       Split by kind, because the total alone is a poor gate. Shared
+       JavaScript is most of a route and rarely moves, so a change that
+       doubles the document hides inside it as a couple of percent — which is
+       exactly the size of the regression this is meant to catch. Broken out,
+       the document is its own number and doubling it is unmissable. */
+    const transfer = await page.evaluate(() => {
+      const kindOf = (url) => {
+        const path = new URL(url, location.href).pathname;
+        if (path.endsWith(".js")) return "script";
+        if (path.endsWith(".css")) return "stylesheet";
+        if (path.endsWith(".txt")) return "payload";
+        return "other";
+      };
+      const byKind = { document: 0, script: 0, stylesheet: 0, payload: 0, other: 0 };
       const navigation = performance.getEntriesByType("navigation")[0];
-      let total = Number.isFinite(navigation?.transferSize) ? navigation.transferSize : 0;
+      if (Number.isFinite(navigation?.transferSize)) byKind.document += navigation.transferSize;
       for (const entry of performance.getEntriesByType("resource")) {
-        if (Number.isFinite(entry.transferSize)) total += entry.transferSize;
+        if (Number.isFinite(entry.transferSize)) byKind[kindOf(entry.name)] += entry.transferSize;
       }
-      return total;
+      const total = Object.values(byKind).reduce((sum, value) => sum + value, 0);
+      return { total, byKind };
     });
+    const transferBytes = transfer.total;
 
     const metrics = await page.evaluate(() => window.__agentEduLabVitals);
     if (!metrics?.supported?.lcp || !metrics.supported.cls || !metrics.supported.inp) {
@@ -534,6 +550,7 @@ async function collectSample(browser, baseUrl, route, cacheMode, iteration, view
       cacheControl,
       interaction: route.interaction,
       transferBytes,
+      transferByKind: transfer.byKind,
       interactionEvents: metrics.interactionEvents,
       inpSource: metrics.inpSource,
       lcpMs: round(metrics.lcpMs, 1),

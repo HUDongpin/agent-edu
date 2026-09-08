@@ -95,7 +95,9 @@ jobs:
       - run: npm run test:compat
       - run: npm run test:resilience
       - name: Verify synthetic lab-vitals harness and schema
-        run: npm run --silent vitals:lab -- --samples=1
+        run: npm run --silent vitals:lab -- --samples=1 > "${{ runner.temp }}/lab-vitals.json"
+      - name: Check per-route transfer budget
+        run: npm run transfer:check -- --report="${{ runner.temp }}/lab-vitals.json"
       - name: Scan compatibility failure evidence for private data
         id: artifact_privacy
         if: ${{ failure() }}

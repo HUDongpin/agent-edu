@@ -125,7 +125,15 @@ stops without deleting anything if a copy ever stops being one. `npm run
 i18n:check` must pass, and wants an `out/` to scan, so run it after the build
 as CI does. `npm run prose:check` must pass if you touched `course/` — or
 anything a citation counts lines against: inserting a comment into
-`app/globals.css` moved nine of them. `npm run routes:check` must agree with
+`app/globals.css` moved nine of them. `npm run transfer:check` must pass if you
+changed what a route loads: it measures what each route actually pulls over
+the wire and compares it against `config/transfer-budget.json`, broken down by
+document, script, stylesheet and prefetch payload — because shared JavaScript
+is most of a route, and a doubled document hides inside a total that large.
+The measurement is byte-exact; the 3% allowance is for a different zlib, not
+for growth. Intended growth is not an error, it is a diff: run `npm run
+transfer:update` and commit the new numbers so the cost is reviewable as
+bytes. `npm run routes:check` must agree with
 `config/route-manifest.json` — that checker is the gate, not a number written
 down here. It currently reports 66 public + 2 internal = 68. The count moves by
 nine every time a localised path is added, so check it rather than trusting this
