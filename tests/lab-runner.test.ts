@@ -189,7 +189,7 @@ test("a rate limit mid-run keeps the results already paid for, and still is not 
     id: String(index),
     async run() {
       if (index === 8) {
-        throw new ProviderError("busy", "429 from the provider", { billing: "sent" });
+        throw new ProviderError("rate-limit", "429 from the provider", { billing: "unknown-after-send" });
       }
       return index;
     },
@@ -201,7 +201,7 @@ test("a rate limit mid-run keeps the results already paid for, and still is not 
   }).promise;
 
   assert.equal(outcome.status, "failed");
-  assert.equal(outcome.error?.code, "busy");
+  assert.equal(outcome.error?.code, "rate-limit");
   // The eight that finished before the rate limit survive, in order.
   assert.deepEqual(outcome.partialResults, [0, 1, 2, 3, 4, 5, 6, 7]);
   assert.equal(outcome.completedTasks, 8);
