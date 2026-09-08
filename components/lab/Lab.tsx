@@ -45,6 +45,7 @@ import {
   assertEvalShape,
 } from "@/lib/lab/plans";
 import { LabRunner, type LabRunTask } from "@/lib/lab/runner";
+import { RECORDED_RUN, RECORDED_BEFORE, RECORDED_AFTER } from "@/lib/lab/recorded";
 import {
   MAX_LAB_RULES,
   MAX_LAB_RULE_CONDITION_LENGTH,
@@ -188,6 +189,15 @@ export default function Lab() {
    * is a result.
    */
   const [partialRows, setPartialRows] = useState<Row[]>([]);
+  /**
+   * Whether the reader has asked to see the scripted run.
+   *
+   * Only the rules wall runs without a key, so someone with no card, on a
+   * managed laptop, or where the provider's billing does not reach felt the wall
+   * and never saw the answer behind it. Offered only when no key is stored, so
+   * it never competes with doing it yourself.
+   */
+  const [showRecorded, setShowRecorded] = useState(false);
   const [prog, setProg] = useState("");
   const [err3, setErr3] = useState<Err>(null);
   const [evalAnnouncement, setEvalAnnouncement] = useState("");
@@ -983,6 +993,42 @@ export default function Lab() {
                   ))}</tbody>
                 </table></div>
               </>
+            )}
+
+            {/* The scripted run, for a reader who cannot pay. Deliberately not a
+                meter: the mechanism it shows is true, the score is not a model's,
+                and the copy beside it says so rather than dressing it up. */}
+            {stage === 3 && !getKey() && (
+              showRecorded ? (
+                <>
+                  <div className="langnote" style={{ marginTop: 14 }}>
+                    <Rich k="lab.s4.recordedNote"
+                      vars={{ before: RECORDED_BEFORE, after: RECORDED_AFTER }} />
+                  </div>
+                  <div className="scroll"><table style={{ marginTop: 8 }}>
+                    <thead><tr>
+                      <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th>
+                      <th>{t("lab.s4.thBefore")}</th><th>{t("lab.s4.thAfter")}</th>
+                      <th>{t("lab.s4.thWhy")}</th>
+                    </tr></thead>
+                    <tbody>{RECORDED_RUN.map((c) => (
+                      <tr key={c.id}>
+                        <td className="mono"><bdi>{c.id}</bdi></td>
+                        <td className="mono"><bdi>{c.said}</bdi></td>
+                        <td><span className={"pill " + (c.before ? "ok" : "bad")}>{t(`lab.kind.${c.kind}`)}</span></td>
+                        <td><span className={"pill " + (c.after ? "ok" : "bad")}>{t(`lab.kind.${c.kind}`)}</span></td>
+                        <td className="small"><bdi>{c.why.slice(0, 110)}</bdi></td>
+                      </tr>
+                    ))}</tbody>
+                  </table></div>
+                </>
+              ) : (
+                <p style={{ marginTop: 14 }}>
+                  <button className="btn" type="button" onClick={() => setShowRecorded(true)}>
+                    {t("lab.s4.recordedCta")}
+                  </button>
+                </p>
+              )
             )}
 
             {/* What a stopped run had already bought. Unscored on purpose: no

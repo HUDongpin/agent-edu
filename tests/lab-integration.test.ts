@@ -177,3 +177,70 @@ test("a stopped eval shows what it already bought, unscored and apart from the l
       `${locale}: lab.s4.partial must carry {done} and {total}`);
   }
 });
+
+test("the scripted run is offered only without a key, and never dressed as a model", async () => {
+  /* Only the rules wall runs without a key, so a learner with no card, on a
+     managed laptop, or where the provider's billing does not reach felt the wall
+     and never saw the answer behind it. What is shown is the course's own
+     deterministic stand-in, and the copy has to keep saying so: the mechanism it
+     demonstrates is true, the score is not a model's. */
+  const { RECORDED_RUN, RECORDED_BEFORE, RECORDED_AFTER } =
+    await import("../lib/lab/recorded");
+  const { CASES } = await import("../lib/cafe/evalset");
+
+  assert.equal(RECORDED_RUN.length, CASES.length, "the recording covers every case");
+  assert.deepEqual(
+    RECORDED_RUN.map((c) => c.id),
+    CASES.map((c) => c.id),
+    "and in the same order, so a reader can follow it against the real set",
+  );
+  // The jump is the lesson, and it has to be in the data rather than the prose.
+  assert.ok(RECORDED_AFTER > RECORDED_BEFORE, "the menu must move the number");
+  assert.ok(
+    RECORDED_RUN.some((c) => !c.before && c.after),
+    "some case must visibly flip",
+  );
+  // A failing case explains itself; a passing one has nothing to explain.
+  for (const c of RECORDED_RUN) {
+    if (!c.before) assert.ok(c.why.trim(), `${c.id} failed without a reason`);
+  }
+
+  assert.match(source, /stage === 3 && !getKey\(\) && \(/);
+  assert.match(source, /t\("lab\.s4\.recordedCta"\)/);
+  // No meter and no jump banner: a scripted score must not borrow the shape of
+  // an earned one.
+  const block = source.slice(source.indexOf("stage === 3 && !getKey()"));
+  const untilNext = block.slice(0, block.indexOf("partialRows.length > 0"));
+  assert.doesNotMatch(untilNext, /className="meter"|lab\.s4\.jump/);
+
+  for (const locale of LOCALES) {
+    const note = siteMessages(locale)["lab.s4.recordedNote"];
+    assert.ok(note?.includes("{before}") && note.includes("{after}"),
+      `${locale}: the note must carry both scores`);
+    assert.ok(siteMessages(locale)["lab.s4.recordedCta"], `${locale}: cta missing`);
+  }
+});
+
+test("the journey has an ending, and says what is not translated", () => {
+  /* After roughly four hours the last thing that happened was a box the reader
+     ticked themselves, under a line saying nothing here checks your work. True,
+     and the right thing for a site that cannot observe the course to say — but
+     not a finish. And the English-only boundary was discovered rather than
+     stated, unlike the café's menu, whose reasoning the site already gives. */
+  const declare = readFileSync("components/build/Declare.tsx", "utf8");
+  assert.match(declare, /done && \(/);
+  for (const key of ["build.doneTitle", "build.doneBuilt", "build.doneNext"]) {
+    assert.ok(declare.includes(key), `Declare must render ${key}`);
+    for (const locale of LOCALES) {
+      assert.ok(siteMessages(locale)[key]?.trim(), `${locale}: ${key} missing`);
+    }
+  }
+  const build = readFileSync("app/[locale]/build/page.tsx", "utf8");
+  assert.match(build, /t\("build\.boundary"\)/);
+  const teach = readFileSync("app/[locale]/teach/page.tsx", "utf8");
+  assert.match(teach, /t\("teach\.packLang"\)/);
+  for (const locale of LOCALES) {
+    assert.ok(siteMessages(locale)["build.boundary"]?.trim(), `${locale}: boundary missing`);
+    assert.ok(siteMessages(locale)["teach.packLang"]?.trim(), `${locale}: packLang missing`);
+  }
+});
