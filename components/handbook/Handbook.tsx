@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import initHandbook from "@/lib/handbook/behaviour";
 import { makeCopy, type WidgetTable } from "@/lib/handbook/copy";
+import Next from "./Next";
 import { useI18n } from "../I18nProvider";
 
 /**
@@ -69,6 +70,11 @@ export default function Handbook(
         dir={localised ? undefined : "ltr"}
         dangerouslySetInnerHTML={{ __html: html }}
       />
+      {/* After the handbook, not inside it: the markup is byte-stable and its
+          prose is generated, so the offer that the frozen sections make exactly
+          once — and one section before the ending — is repeated here, where it
+          is reachable from every section. */}
+      <Next />
     </>
   );
 }

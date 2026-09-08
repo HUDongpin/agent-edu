@@ -129,3 +129,36 @@ test("a translated attribute cannot break the tag it sits in", async () => {
   assert.equal(escapeAttr('say "hi" & <go>'), "say &quot;hi&quot; &amp; &lt;go&gt;");
   assert.doesNotMatch(escapeAttr('a " b'), /(?<!&quot;)"/);
 });
+
+test("the Handbook hands forward from every section, without touching the frozen markup", async () => {
+  /* The frozen markup carries exactly one link to the Lab and one to Part 3
+     across all eleven sections, and both sit in §09 — one section before §10,
+     which is where the record calls the Handbook finished and which offered no
+     way forward at all. The offer arrived before the ending and was never
+     repeated. */
+  const markup = (await import("../lib/handbook/markup")).default;
+  const forward = (path: string) => (markup.match(new RegExp(path, "g")) ?? []).length;
+  assert.equal(forward("\\.\\./lab/"), 1, "the markup still hands forward exactly once");
+  assert.equal(forward("\\.\\./build/"), 1);
+
+  /* So the repeat lives in the wrapper React owns, outside every ported file. */
+  const wrapper = readFileSync("components/handbook/Handbook.tsx", "utf8");
+  assert.match(wrapper, /<Next \/>/);
+  const band = readFileSync("components/handbook/Next.tsx", "utf8");
+  assert.match(band, /\/lab\/`/);
+  assert.match(band, /\/build\/`/);
+  // Reuses the track calls rather than minting new ones.
+  assert.match(band, /t\("track\.2\.cta"\)/);
+  assert.match(band, /t\("track\.3\.cta"\)/);
+  // Server and first visit get the quieter line, so nothing depends on script.
+  assert.match(band, /readLearningStateOnServer/);
+  assert.match(band, /finished \? t\("handbook\.nextDone"\) : t\("handbook\.nextLede"\)/);
+
+  const site = (locale: string): Record<string, string> =>
+    JSON.parse(readFileSync(`messages/${locale}.json`, "utf8"));
+  for (const locale of WIDGET_LOCALES) {
+    for (const key of ["handbook.nextLabel", "handbook.nextLede", "handbook.nextDone"]) {
+      assert.ok(site(locale)[key]?.trim(), `${locale}: ${key} missing`);
+    }
+  }
+});
