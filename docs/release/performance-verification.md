@@ -23,21 +23,33 @@ repeated builds of the same source are auditable and diffable. This closes the
 blind spot where large Open Graph images or duplicated localized route payloads
 could grow while an `_next/static`-only total stayed green.
 
-The initial limits are based on release candidate `60f7edc` with
-30.9–47.5% headroom. Values are uncompressed bytes in the exported files, not
-HTTP transfer sizes after content encoding:
+Limits leave 26.7–43.3% headroom. Values are uncompressed bytes in the
+exported files, not HTTP transfer sizes after content encoding — for what a
+route actually pulls over the wire, see the per-route transfer budget below.
 
-| Measure | Baseline bytes | Limit bytes |
-|---|---:|---:|
-| All `_next/static` assets | 2,055,566 | 2,750,000 |
-| JavaScript | 1,985,800 | 2,650,000 |
-| CSS | 69,766 | 100,000 |
-| Largest `_next/static` asset | 229,156 | 300,000 |
-| Emitted `public/` assets | 1,136,379 | 1,600,000 |
-| Largest emitted public asset | 373,193 | 500,000 |
-| Generated route payloads | 20,978,583 | 30,000,000 |
-| Largest route payload | 338,889 | 500,000 |
-| Complete exported site | 24,141,664 | 34,000,000 |
+| Measure | Baseline bytes | Limit bytes | Was, at `60f7edc` |
+|---|---:|---:|---:|
+| All `_next/static` assets | 2,161,232 | 2,750,000 | 2,055,566 |
+| JavaScript | 2,091,129 | 2,650,000 | 1,985,800 |
+| CSS | 70,103 | 100,000 | 69,766 |
+| Largest `_next/static` asset | 229,156 | 300,000 | 229,156 |
+| Emitted `public/` assets | 1,136,508 | 1,600,000 | 1,136,379 |
+| Largest emitted public asset | 373,193 | 500,000 | 373,193 |
+| Generated route payloads | 10,117,399 | 14,500,000 | 20,978,583 |
+| Largest route payload | 301,813 | 430,000 | 338,889 |
+| Complete exported site | 13,415,139 | 19,000,000 | 24,141,664 |
+
+These were rebaselined from the 2026-08-21 candidate `60f7edc`. Three of them
+had stopped being able to catch anything: the export halved, and a budget
+written around 24 MB went on passing an export of 13 MB with 60% of its limit
+unused. Route payloads, the largest route payload and the complete export had
+their limits lowered to match; no limit was raised, because a pass that
+loosens one is not a tightening pass. Two baselines went *up* — the JavaScript
+bundle has grown 5.3% over the course-UX branch — and recording that is the
+point of a baseline. Every figure reproduces byte-for-byte across repeated
+builds of the same source, which is what makes them usable as a gate at all.
+The three that moved leave room for roughly three more localised routes, nine
+pages each, before the tightest of them binds.
 
 These are regression budgets, not claims that the current payload is optimal.
 Change a limit only in a review that records the before/after inventory and why
