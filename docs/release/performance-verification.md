@@ -69,15 +69,38 @@ npm run --silent vitals:lab > lab-vitals.json
 ```
 
 The default run takes three cold and three warm samples for each of Home,
-Handbook, Lab, Build, Teach and the real 404. Cold samples disable Chromium's
-cache. Warm samples use an explicit test-only `public, max-age=3600` server
-header and prime the route once before measurement. Each route has a scripted
-interaction. The report records raw and median LCP, CLS and browser-reported
-interaction latency for the single controlled interaction, using Event Timing
-and its `first-input` entry when the interaction is below the event observer's
-16 ms reporting threshold. It also records commit, dirty-tree flag,
-Node/Next/Chromium/platform, viewport, cache, no-network-throttle status and the
-explicit 4× CPU slowdown.
+Handbook, Lab, Build, Teach and the real 404, on each of two network profiles.
+Cold samples disable Chromium's cache. Warm samples use an explicit test-only
+`public, max-age=3600` server header and prime the route once before
+measurement. Each route has a scripted interaction. The report records raw and
+median LCP, CLS and browser-reported interaction latency for the single
+controlled interaction, using Event Timing and its `first-input` entry when the
+interaction is below the event observer's 16 ms reporting threshold. It also
+records commit, dirty-tree flag, Node/Next/Chromium/platform, viewport, cache,
+the network profiles emulated and the explicit 4× CPU slowdown.
+
+The two profiles exist because one of them cannot see a whole class of work:
+
+| `--network` | Conditions | What it measures |
+|---|---|---|
+| `none` | no emulation | parse and main-thread cost. This is what schema v1 reported, and transfer cost is invisible to it |
+| `slow-4g` | 1.6 Mbit/s down, 750 kbit/s up, 150 ms RTT | what a reader on a phone waits for. These are Lighthouse's mobile defaults, the other half of the 4× CPU slowdown already applied |
+
+Both run by default; `--network=none` reproduces the v1 conditions exactly. A
+route slower on one profile and not the other is slow for a different reason,
+which is the information the pair carries and neither alone does.
+
+Every sample also records `transferBytes` — the navigation plus every
+subresource, from the browser's own Resource Timing. `scripts/serve-out.mjs`
+compresses text responses, because a reader receives them compressed and a
+figure taken without that would be roughly three times what ships. It uses
+gzip where production uses brotli, so the figure is a slight over-estimate;
+that is the safe direction for a number being watched for growth.
+
+Schema v2 requires `transferBytes` on every sample and a non-zero one on every
+cold sample: a cold load that transferred nothing did not measure a load.
+`assertLabVitalsReport` still accepts v1 for the archived report in §2, which
+is a record of a run that happened rather than a document to be updated.
 Missing LCP, CLS or INP is an error;
 the harness never substitutes zero for unavailable INP.
 
@@ -129,11 +152,11 @@ fix; it does not claim to measure that later report-only predecessor or the fina
 enforced candidate. Run the default three-sample matrix again after the final
 candidate is frozen before using synthetic results in a release decision.
 
-The harness labels its output `synthetic-lab`; its 4× browser CPU throttle is
-an emulation profile, not a claim about a specific device. A delayed route or
-different browser CPU/network emulation may be useful for a separate regression
-test, but label that **emulated lab evidence**. Neither form is a classroom
-network or physical low-end-device result.
+The harness labels its output `synthetic-lab`; its 4× browser CPU throttle and
+its `slow-4g` network profile are emulation, not a claim about a specific
+device or a specific network. Both are **emulated lab evidence**, and a
+throttled profile being available here does not make it a classroom-network or
+physical low-end-device result — §3 still has to be executed for those.
 
 ## 3. Physical-device and real-network evidence
 
