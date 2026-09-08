@@ -64,6 +64,29 @@ const ACCESSIBLE_MARKUP = MARKUP
     '      <button class="btn primary" data-goto="play" type="button">Next: play the game 🎮 →</button>',
     '<button class="btn" data-goto="security" type="button">← Security engineering</button>\n' +
     '      <button class="btn primary" data-goto="play" type="button">Next: play the game 🎮 →</button>',
+  )
+  /* Ask before showing. Every widget here rewards a press and shows the result
+     at once, so the reader never finds out whether they would have been right —
+     and the Lab, which does ask, is behind a paid key. Two sentences carry the
+     whole difference.
+
+     In §07 the reader was told to pick a change and decide whether to ship it,
+     with no moment where they commit to a number, so when it moves it confirms
+     nothing and repairs no belief. In §03 the ten items arrive pre-badged
+     required / helps / noise, which means the section's own stated hard part —
+     choosing wrong — has been chosen for them, and ticking is transcription.
+
+     Reworded in place rather than added to: no node is created, so no ordinal
+     moves and no translation is silently re-pointed. */
+  .replace(
+    '. Pick a change, run the suite, and decide whether you\'d ship it.',
+    '. Pick a change and say what it will score before you run it — then run the '
+    + 'suite, and mind the gap between your guess and the number.',
+  )
+  .replace(
+    'Tick things to load them onto the desk. You have',
+    'Choose your four before you read the badges, then tick things to load them '
+    + 'onto the desk. You have',
   );
 
 export default ACCESSIBLE_MARKUP;

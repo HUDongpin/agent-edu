@@ -98,6 +98,15 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     if (!m.SYSTEM_UNDER_TEST) bad("SYSTEM_UNDER_TEST is still null");
     ok("the eval is pointed at your prompt");
     const { run, CASES } = await import("./cafe/evalset");
+    /* Ask before the number arrives, not after.
+       The Lab asks for a prediction and Part 3 did not, so a learner met their
+       first eval score with nothing to compare it against except the score
+       itself. Printed rather than read from stdin: this command is piped and run
+       in CI, and blocking it for a prompt would cost more than the prompt is
+       worth. The twenty calls take long enough that the question is still on
+       screen while they run, which is when it does its work. */
+    console.log("  ASK   before this lands: what will it score out of 20, and why?");
+    console.log("        (nothing checks your answer — the gap is the point)\n");
     const [score, failures] = await run(m.SYSTEM_UNDER_TEST, { verbose: false });
     record(3, { score });
     ok(`it ran: ${score}/${CASES.length} — write that number down`);
@@ -110,6 +119,9 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
   async 4(m) {
     if (!m.SYSTEM?.trim()) bad("SYSTEM is still empty");
     const { run } = await import("./cafe/evalset");
+    /* And again before the comparison, which is the prediction the worksheet
+       actually asks for: not the score, but which way and how far it moves. */
+    console.log("  ASK   you scored stage 3. Which way does the menu move it, and by how much?\n");
     const [score, failures] = await run(m.takeOrder, { verbose: false });
     if (score < 16) {
       printFailures(failures);

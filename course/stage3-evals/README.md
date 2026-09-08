@@ -8,13 +8,15 @@ npx tsx course/stage3-evals/run.ts
 
 There is one `TODO`: import your stage-2 prompt and point the eval at it.
 
+**Before you run the grader, write down what you think it will score out of 20, and one reason.** Ten seconds, on paper or in a comment. It is not a gate and nothing checks it — an honest wrong guess is worth more here than a right one, because the gap between what you expected and what you got is the only part of this you cannot read off the screen afterwards.
+
 ```bash
 npx tsx course/check.ts 3
 ```
 
 ## What to notice
 
-You just scored your stage-2 prompt out of 20. **Write the number down.** Every remaining stage gets compared to it.
+You just scored your stage-2 prompt out of 20. **Write the number down**, next to your guess. Every remaining stage gets compared to it.
 
 It will not be 20. Read the failures — most of them are prices, because the model has never seen your menu. You are about to fix that in stage 4 and watch the number move.
 
