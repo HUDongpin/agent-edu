@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   compare,
   coldTransferFromReport,
+  GATE_FLOOR_BYTES,
   HEADROOM,
   KINDS,
   limitFor,
@@ -78,6 +79,7 @@ test("growth small enough to hide in a total is still caught on its own kind", (
   // Deliberately below the total's tolerance, so only the per-kind figure can
   // catch it. This is the case that justifies the breakdown existing.
   const measured = asMeasured();
+  assert.ok(BUDGET.routes.lab.byKind.document >= GATE_FLOOR_BYTES);
   const bump = Math.ceil(measured.lab.byKind.document * 0.5);
   measured.lab.byKind.document += bump;
   measured.lab.total += bump;
@@ -85,6 +87,27 @@ test("growth small enough to hide in a total is still caught on its own kind", (
   const { problems } = compare(BUDGET, coldTransferFromReport(reportFrom(measured)));
   assert.equal(problems.length, 1);
   assert.match(problems[0], /lab\/document/);
+});
+
+test("a kind too small to gate is recorded, and left to the route total", () => {
+  // `other` is three prefetch requests. One more arriving is 300 bytes, which
+  // would breach a 512-byte tripwire without anything having changed — and a
+  // gate that fails for no reason gets switched off. The total still covers
+  // it: growth that matters is never 900 bytes.
+  const measured = asMeasured();
+  assert.ok(measured.home.byKind.other < GATE_FLOOR_BYTES, "other must be below the floor");
+  measured.home.byKind.other += 600;
+  measured.home.total += 600;
+  const { problems } = compare(BUDGET, coldTransferFromReport(reportFrom(measured)));
+  assert.deepEqual(problems, []);
+
+  // Below the floor is not below notice: enough of it still trips the total.
+  const large = asMeasured();
+  large.home.byKind.other += 40_000;
+  large.home.total += 40_000;
+  const breached = compare(BUDGET, coldTransferFromReport(reportFrom(large)));
+  assert.ok(breached.problems.some((p) => /home\/total/.test(p)));
+  assert.ok(!breached.problems.some((p) => /home\/other/.test(p)));
 });
 
 test("a route measured with no budget, or budgeted and not measured, fails", () => {

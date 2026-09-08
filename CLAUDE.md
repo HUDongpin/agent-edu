@@ -130,8 +130,11 @@ changed what a route loads: it measures what each route actually pulls over
 the wire and compares it against `config/transfer-budget.json`, broken down by
 document, script, stylesheet and prefetch payload — because shared JavaScript
 is most of a route, and a doubled document hides inside a total that large.
-The measurement is byte-exact; the 3% allowance is for a different zlib, not
-for growth. Intended growth is not an error, it is a diff: run `npm run
+The measurement is byte-exact because each sample waits for the page to stop
+fetching first — prefetch completion is otherwise a race that looks like
+determinism. The 3% allowance is for a different zlib, not for growth, and a
+kind under 4 kB is recorded but not gated, because at that size one more
+prefetch request would trip it. Intended growth is not an error, it is a diff: run `npm run
 transfer:update` and commit the new numbers so the cost is reviewable as
 bytes. `npm run routes:check` must agree with
 `config/route-manifest.json` — that checker is the gate, not a number written

@@ -496,6 +496,38 @@ async function collectSample(browser, baseUrl, route, cacheMode, iteration, view
     await target.click();
     await page.waitForTimeout(500);
 
+    /* Wait for the resource set to stop growing before reading it.
+     *
+     * `networkidle` and a fixed pause are enough for the timings, which is
+     * all this used to collect. They are not enough for a byte count: a
+     * <Link> prefetches when it enters the viewport, so the number of
+     * prefetches that have *finished* when Resource Timing is read is a race
+     * — and a race that usually comes out the same way is the worst kind,
+     * because it looks like determinism until a budget is built on it. Two
+     * extra prefetches is 600 bytes appearing from nowhere.
+     *
+     * So the sample is taken from the settled page: poll until the resource
+     * count has held still, and fail rather than report a figure from a page
+     * that never settled. */
+    const settled = await (async () => {
+      let previous = -1;
+      let stable = 0;
+      for (let attempt = 0; attempt < 60; attempt += 1) {
+        const count = await page.evaluate(() => performance.getEntriesByType("resource").length);
+        stable = count === previous ? stable + 1 : 0;
+        if (stable >= 4) return true;
+        previous = count;
+        await page.waitForTimeout(100);
+      }
+      return false;
+    })();
+    if (!settled) {
+      throw new Error(
+        `${route.id}/${profile.id}/${cacheMode} never stopped fetching; its transfer figure ` +
+        `would be whatever had arrived by the time it was read`,
+      );
+    }
+
     /* What this navigation actually pulled over the wire, after content
        encoding: the document plus every subresource. Read from Resource
        Timing rather than counted from CDP events so it is the browser's own

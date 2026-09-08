@@ -16,52 +16,52 @@
       }
     },
     "home": {
-      "total": 260355,
+      "total": 260359,
       "byKind": {
         "document": 10281,
         "script": 181823,
         "stylesheet": 14608,
-        "payload": 52743,
+        "payload": 52747,
         "other": 900
       }
     },
     "handbook": {
-      "total": 258751,
+      "total": 258754,
       "byKind": {
-        "document": 60104,
+        "document": 60105,
         "script": 175803,
         "stylesheet": 14608,
-        "payload": 7936,
+        "payload": 7938,
         "other": 300
       }
     },
     "lab": {
-      "total": 202960,
+      "total": 202962,
       "byKind": {
         "document": 11053,
         "script": 169063,
         "stylesheet": 14608,
-        "payload": 7936,
+        "payload": 7938,
         "other": 300
       }
     },
     "build": {
-      "total": 213666,
+      "total": 213669,
       "byKind": {
         "document": 8773,
         "script": 172943,
         "stylesheet": 14608,
-        "payload": 16742,
+        "payload": 16745,
         "other": 600
       }
     },
     "teach": {
-      "total": 180159,
+      "total": 180163,
       "byKind": {
-        "document": 7816,
+        "document": 7818,
         "script": 149499,
         "stylesheet": 14608,
-        "payload": 7936,
+        "payload": 7938,
         "other": 300
       }
     }

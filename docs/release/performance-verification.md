@@ -116,10 +116,21 @@ that doubles a document is about 4% of the route total and would sit inside
 any tolerance loose enough to be usable. Against the document alone the same
 change is nearly +100%.
 
-The measurement is exact — byte-identical across five samples, across separate
-runs and across both network profiles — and the checker refuses to record a
-budget from a run whose samples disagree, because that would be a finding
-about the harness rather than a number to average. The 3% allowance exists
+The measurement is exact, but only because it is taken from a settled page.
+A `<Link>` prefetches when it enters the viewport, so how many prefetches have
+*finished* when Resource Timing is read is a race — and one that usually comes
+out the same way, which is the worst kind, because it looks like determinism
+until a budget is built on it. Two extra prefetches is 600 bytes from nowhere.
+Each sample therefore polls until the resource count has held still, and fails
+rather than report a figure from a page that never settled. The checker also
+refuses to record a budget from a run whose samples disagree, because that
+would be a finding about the harness rather than a number to average.
+
+A kind is gated only once its baseline reaches 4 kB. Below that the figure is
+made of whole requests — `other` is three prefetches and 900 bytes — where one
+more arriving would breach a tolerance without anything having changed. Those
+kinds are still recorded, and the route total still covers them: growth that
+matters is never 900 bytes. The 3% allowance exists
 only because these are compressed bytes and the compressor is not the same
 everywhere: Node's zlib and the system gzip differ by 0.19% on the same file
 at the same level, and CI runs a different Node than a laptop does. It is not

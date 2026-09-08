@@ -51,6 +51,19 @@ export const KINDS = Object.freeze(["document", "script", "stylesheet", "payload
 /** Enough to absorb a different zlib, and nothing like enough to hide a regression. */
 export const HEADROOM = Object.freeze({ fraction: 0.03, minimumBytes: 512 });
 
+/**
+ * A kind is gated only once it is big enough for gating to mean anything.
+ *
+ * `other` is three prefetch requests and 900 bytes — 0.3% of a route. Growth
+ * that small cannot hide a regression, because the route total's own
+ * tolerance is several kilobytes and would catch anything that mattered. What
+ * a 900-byte budget does provide is a 512-byte tripwire under a figure made
+ * of whole requests, where one more arriving is 300 bytes. That is a gate
+ * that fails for reasons unrelated to anything anyone changed, and those get
+ * switched off.
+ */
+export const GATE_FLOOR_BYTES = 4096;
+
 export function limitFor(baseline) {
   return Math.max(Math.ceil(baseline * (1 + HEADROOM.fraction)), baseline + HEADROOM.minimumBytes);
 }
@@ -116,6 +129,8 @@ export function compare(budget, measured) {
         problems.push(`${id}/${label} has no recorded baseline — run with --update`);
         continue;
       }
+      /* Recorded either way; the total is what guards the small ones. */
+      if (label !== "total" && baseline < GATE_FLOOR_BYTES) continue;
       const limit = limitFor(baseline);
       if (actual > limit) {
         problems.push(
