@@ -324,6 +324,7 @@
   "lab.s4.thSaid": "dijeron",
   "lab.s4.thHow": "cómo",
   "lab.s4.thWhy": "por qué falló",
+  "lab.s4.partial": "{done} de {total} casos terminaron antes de que la ejecución se detuviera. Se enviaron y pueden facturarse, así que se muestran aquí, sin puntuación: una ejecución detenida no es un resultado.",
   "lab.kind.rule": "regla",
   "lab.kind.judge": "evaluado",
   "lab.s1.q": "Explica qué es una API a alguien que nunca ha programado. Dos frases.",

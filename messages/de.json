@@ -324,6 +324,7 @@
   "lab.s4.thSaid": "gesagt",
   "lab.s4.thHow": "wie",
   "lab.s4.thWhy": "warum es scheiterte",
+  "lab.s4.partial": "{done} von {total} Fällen wurden vor dem Abbruch fertig. Sie wurden gesendet und können abgerechnet werden, deshalb stehen sie hier — ohne Wertung, denn ein abgebrochener Lauf ist kein Ergebnis.",
   "lab.kind.rule": "Regel",
   "lab.kind.judge": "beurteilt",
   "lab.s1.q": "Erklären Sie einer Person, die noch nie programmiert hat, was eine API ist. Zwei Sätze.",

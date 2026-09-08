@@ -324,6 +324,7 @@
   "lab.s4.thSaid": "顧客說",
   "lab.s4.thHow": "怎麼判的",
   "lab.s4.thWhy": "為什麼沒過",
+  "lab.s4.partial": "執行中斷前已完成 {total} 個案例中的 {done} 個。它們已經送出，可能計費，所以列在這裡——不計分，因為中斷的執行不是結果。",
   "lab.kind.rule": "規則",
   "lab.kind.judge": "評判",
   "lab.s1.q": "請用兩句話，向一位從未寫過程式的人解釋什麼是 API。",

@@ -18,7 +18,14 @@ test("the Lab writes task evidence directly through Progress v2", () => {
     source.indexOf("async function runEval"),
     source.indexOf("function clearDraft"),
   );
-  assert.match(evalFlow, /status === "cancelled"[\s\S]*?return;[\s\S]*?status !== "completed"/);
+  /* Cancellation and fatal failure now share one exit, so that both can keep the
+     cases already billed on their way out. The shape changed; the invariant did
+     not — neither reaches recordLabStep, so no stopped run can be written as a
+     score. Assert the invariant rather than the old branch order. */
+  assert.match(
+    evalFlow,
+    /status !== "completed"[\s\S]*?lab\.err\.cancelled[\s\S]*?return;[\s\S]*?recordLabStep\("full-eval"/,
+  );
   assert.match(evalFlow, /status !== "completed"[\s\S]*?return;[\s\S]*?recordLabStep\("full-eval"/);
 });
 
@@ -141,5 +148,32 @@ test("the no-credit failure has somewhere to go, in every language", () => {
   for (const locale of LOCALES) {
     const cta = siteMessages(locale)["lab.err.noCreditCta"];
     assert.ok(cta && cta.trim().length > 0, `${locale}: lab.err.noCreditCta is missing`);
+  }
+});
+
+test("a stopped eval shows what it already bought, unscored and apart from the last result", () => {
+  /* Kept out of `rows` on purpose: lab.err.cancelled promises the previous score
+     was kept, and writing partial rows into the scored table would leave that
+     score's meter standing above a different run's cases. */
+  assert.match(source, /const \[partialRows, setPartialRows\] = useState<Row\[\]>\(\[\]\);/);
+  assert.match(source, /setPartialRows\(outcome\.partialResults \?\? \[\]\);/);
+  assert.match(source, /setPartialRows\(\[\]\);/);
+
+  /* The partial block renders on its own, with no meter and no jump banner. */
+  const partialBlock = source.slice(source.indexOf("stage === 3 && partialRows.length > 0"));
+  assert.match(partialBlock, /t\("lab\.s4\.partial"\)/);
+  assert.doesNotMatch(partialBlock.slice(0, partialBlock.indexOf("</section>")), /lab\.s4\.jump|className="meter"/);
+
+  /* A stopped run must never be recorded as a result. */
+  const evalFlow = source.slice(source.indexOf("async function runEval"), source.indexOf("function clearDraft"));
+  const record = evalFlow.indexOf('recordLabStep("full-eval"');
+  const earlyReturn = evalFlow.indexOf("setPartialRows(outcome.partialResults");
+  assert.ok(earlyReturn !== -1 && record > earlyReturn,
+    "the partial path must return before the eval is recorded");
+
+  for (const locale of LOCALES) {
+    const partial = siteMessages(locale)["lab.s4.partial"];
+    assert.ok(partial?.includes("{done}") && partial.includes("{total}"),
+      `${locale}: lab.s4.partial must carry {done} and {total}`);
   }
 });

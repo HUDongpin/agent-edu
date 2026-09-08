@@ -324,6 +324,7 @@
   "lab.s4.thSaid": "said",
   "lab.s4.thHow": "how",
   "lab.s4.thWhy": "why it failed",
+  "lab.s4.partial": "{done} of {total} cases finished before the run stopped. They were sent and may be billed, so they are shown here — unscored, because a stopped run is not a result.",
   "lab.kind.rule": "rule",
   "lab.kind.judge": "judged",
   "lab.s1.q": "Explain what an API is, to someone who has never written code. Two sentences.",
