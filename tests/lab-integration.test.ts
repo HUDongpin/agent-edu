@@ -62,3 +62,39 @@ test("Stage 1 shares the Provider client character limit while the client guards
   assert.match(source, /import \{ MAX_PROVIDER_MESSAGE_CHARACTERS \} from "@\/lib\/byok\/client"/);
   assert.match(source, /id="q0"[\s\S]*?maxLength=\{MAX_PROVIDER_MESSAGE_CHARACTERS\}/);
 });
+
+test("a first visit with no key opens on the free step, and does not persist a draft for arriving", () => {
+  /* Step 1 cannot run without a paid credential, so opening there made the
+     Lab's first screen a signup wall while the one free exercise sat unread in
+     the next tab. The no-draft branch now consults the key. */
+  const restore = source.slice(
+    source.indexOf("const draft = readLabDraft()"),
+    source.indexOf("setDraftReady(true)"),
+  );
+  assert.match(restore, /const opening = getKey\(\) \? 0 : 1;/);
+  assert.match(restore, /if \(opening !== 0\) setStage\(opening\);/);
+
+  /* The baseline fingerprint has to move with the opening stage. Left at 0,
+     merely arriving reads as an edit and writes a draft for a reader who has
+     typed nothing. */
+  assert.match(restore, /draftFingerprint\(\s*opening,/);
+  assert.doesNotMatch(restore, /draftFingerprint\(\s*0,\s*freshLabRules\(\)/);
+
+  /* A restored draft still decides its own stage. */
+  assert.match(restore, /setStage\(draft\.stage\)/);
+});
+
+test("the menu button is offered only once a baseline score exists", () => {
+  /* Enabled from the moment a prompt was, it sat beside Run reading like the
+     helpful one; pressing it first bought a good number with no baseline, so
+     the before/after banner never rendered. */
+  const evalButtons = source.slice(
+    source.indexOf('t("lab.s4.run")'),
+    source.indexOf('t("lab.stop")', source.indexOf('t("lab.s4.run")')),
+  );
+  assert.match(evalButtons, /\{score !== null && \(/);
+  const guard = evalButtons.indexOf("{score !== null && (");
+  const button = evalButtons.indexOf("lab.s4.addMenu");
+  assert.ok(guard !== -1 && button !== -1 && guard < button,
+    "the add-the-menu button must sit inside the score guard, not beside it");
+});

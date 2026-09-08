@@ -221,12 +221,25 @@ export default function Lab() {
         setCompletedPreviewIds(restoredPreviewIds);
         setDraftSavedAt(draft.savedAt);
       } else {
+        /* A first visit with no key opens on the rules wall, not on step 1.
+           Step 1 cannot run without a paid credential, so opening there makes
+           the Lab's opening screen a signup wall — while the one exercise that
+           costs nothing, and that motivates everything after it, sits unread in
+           the next tab. Step 2 depends on nothing before it and step 3 builds
+           directly on its failure, so the narrative survives the reorder, and a
+           reader who does have a key still starts where they always did.
+
+           The baseline fingerprint moves with the stage: leave it at 0 and
+           merely opening the page reads as an edit, which would persist a draft
+           for someone who has not typed anything. */
+        const opening = getKey() ? 0 : 1;
         lastPersistedDraftFingerprint.current = draftFingerprint(
-          0,
+          opening,
           freshLabRules(),
           "",
           [],
         );
+        if (opening !== 0) setStage(opening);
       }
       setDraftReady(true);
     }, 0);
@@ -849,6 +862,14 @@ export default function Lab() {
                       onClick={() => void runEval(sys)}>
                       {busy3 ? t("ui.loading") : t("lab.s4.run")} <span className="arrow">→</span>
                     </button>
+                    {/* Offered only once a score exists. Enabled from the moment
+                        a prompt did, it sat beside Run reading like the helpful
+                        one, and pressing it first bought a good number with no
+                        baseline to read it against — so the before/after never
+                        rendered and nothing said the point had just been
+                        skipped. After a run its label is also true for the first
+                        time: there is now a result to re-run against. */}
+                    {score !== null && (
                     <button className="btn" type="button" disabled={busy0 || anyBatchBusy || !sys.trim()} onClick={() => {
                       const withMenu = addMenu(sys);
                       if (!menuAdded) { setSys(withMenu); setMenuAdded(true); }
@@ -857,6 +878,7 @@ export default function Lab() {
                       <span aria-hidden="true">{menuAdded ? "✓" : "＋"}</span>{" "}
                       {menuAdded ? t("lab.s4.menuIn") : t("lab.s4.addMenu")}
                     </button>
+                    )}
                     {activeBatch && (
                       <button className="btn" type="button" onClick={stopBatch}>{t("lab.stop")}</button>
                     )}
