@@ -362,6 +362,12 @@ export default function Lab() {
     generatorPromptTokens + judgePromptTokens,
     EVAL_PLAN.maxOutputTokens,
   ).usd;
+  /* The whole recommended journey, so the key panel can name a price before the
+     reader is asked to fund an account. Summed from the three estimates above
+     rather than priced separately, which keeps it in step with the per-step
+     disclosures by construction: the same 1 + 3 + 28 + 28 that
+     RECOMMENDED_LAB_JOURNEY counts, at the same peak/cache-miss ceiling. */
+  const journeyEstimate = stage1Estimate + stage3Estimate + evalEstimate * 2;
 
   async function takeOrder(
     said: string,
@@ -607,7 +613,12 @@ export default function Lab() {
           is cheaper than letting a reader wonder whether it is a bug. */}
       {locale !== "en" && <p className="langnote">{t("lab.enData")}</p>}
 
-      <KeyBar model={model} onModel={setModel} disabled={busy0 || anyBatchBusy} />
+      <KeyBar
+        model={model}
+        onModel={setModel}
+        disabled={busy0 || anyBatchBusy}
+        journeyEstimate={journeyEstimate}
+      />
 
       <Stages
         stages={stages}

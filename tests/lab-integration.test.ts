@@ -98,3 +98,48 @@ test("the menu button is offered only once a baseline score exists", () => {
   assert.ok(guard !== -1 && button !== -1 && guard < button,
     "the add-the-menu button must sit inside the score guard, not beside it");
 });
+
+const LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"] as const;
+const siteMessages = (locale: string): Record<string, string> =>
+  JSON.parse(readFileSync(`messages/${locale}.json`, "utf8"));
+const widgetMessages = (locale: string): Record<string, string> =>
+  JSON.parse(readFileSync(`messages/widgets/${locale}.json`, "utf8"));
+
+test("the key panel names a price before the reader is asked to fund an account", () => {
+  /* Four risk paragraphs with no currency amount in any of them, at the moment
+     someone decides whether to open a billing account, read as "this could cost
+     anything". The disclosures are unchanged; the number arrives before them. */
+  for (const locale of LOCALES) {
+    const plan = siteMessages(locale)["lab.callPlan"];
+    assert.ok(plan?.includes("{cost}"), `${locale}: lab.callPlan must carry {cost}`);
+    assert.ok(plan.includes("{calls}") && plan.includes("{tokens}"),
+      `${locale}: lab.callPlan must keep its existing placeholders`);
+  }
+
+  /* Computed from the same conservativePrice path as the per-step disclosures,
+     so the figure shown before funding cannot disagree with the ones met later. */
+  assert.match(source, /const journeyEstimate = stage1Estimate \+ stage3Estimate \+ evalEstimate \* 2;/);
+  assert.match(source, /journeyEstimate=\{journeyEstimate\}/);
+  assert.match(keyBarSource, /journeyEstimate: number;/);
+  assert.match(keyBarSource, /\.replace\("\{cost\}", formatEstimate\(journeyEstimate\)\)/);
+
+  /* Cents get cents; anything under one keeps the five-decimal form, so a small
+     estimate can never round away into a free-looking "$0.00". */
+  assert.match(keyBarSource, /usd >= 0\.01 \? usd\.toFixed\(2\) : usd\.toFixed\(5\)/);
+});
+
+test("the no-credit failure has somewhere to go, in every language", () => {
+  /* Verification is a models call and says so — it proves the credential and
+     the model, never the balance — so the panel can read "verified" for an
+     account that fails on its first paid request. That failure is the one whose
+     fix lives on another website, and it was the only one with nothing to click. */
+  const failSource = readFileSync("components/lab/Fail.tsx", "utf8");
+  assert.match(failSource, /const noCredit = msgKey === "lab\.err\.noCredit";/);
+  assert.match(failSource, /t\("lab\.err\.noCreditCta"\)/);
+  assert.match(failSource, /target="_blank"[\s\S]{0,80}rel="noopener noreferrer"/);
+
+  for (const locale of LOCALES) {
+    const cta = siteMessages(locale)["lab.err.noCreditCta"];
+    assert.ok(cta && cta.trim().length > 0, `${locale}: lab.err.noCreditCta is missing`);
+  }
+});
