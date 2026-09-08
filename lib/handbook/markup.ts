@@ -87,6 +87,26 @@ const ACCESSIBLE_MARKUP = MARKUP
     'Tick things to load them onto the desk. You have',
     'Choose your four before you read the badges, then tick things to load them '
     + 'onto the desk. You have',
+  )
+  /* The meter always renders the baseline, whatever the reader tried last, so
+     "previous" was describing something else. Comparing every change against
+     the baseline is the right arithmetic — the five changes are alternatives
+     rather than cumulative — so the caption moves, not the sum. In the section
+     whose whole lesson is what a number is compared with, a mislabelled
+     comparison is the one thing that cannot stay. */
+  .replace(
+    '<div class="v" id="evPrev">15/20</div><div class="k">previous</div>',
+    '<div class="v" id="evPrev">15/20</div><div class="k">baseline</div>',
+  )
+  /* Forty-five minutes is the reading, and the page's method is pressing
+     things: eleven diagrams, six harness toggles, ten context items, a security
+     run with and without defences, and a ten-round quiz. A reader who budgets
+     by it runs out around §05 — which, before the forward chain was repaired,
+     was also where the primary button dropped them. Split rather than inflated,
+     so the reader can choose a session length instead of abandoning one. */
+  .replace(
+    '🖐️ How to use this page — about 45 minutes end to end',
+    '🖐️ How to use this page — about 30 minutes to read, about an hour if you run everything',
   );
 
 export default ACCESSIBLE_MARKUP;

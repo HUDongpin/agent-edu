@@ -12,7 +12,7 @@ Every program is a list of steps. The only question is *who picks them*. Three p
 |---|---|---|
 | **1 · [The Handbook](https://aicourse.top/en/handbook/)** | eleven illustrated sections and scripted interactive simulations | nothing · works offline · no key |
 | **2 · [The Lab](https://aicourse.top/en/lab/)** | four browser steps — a real DeepSeek call, the rules wall, your own prompt, **and twenty cases that score it** | your DeepSeek key · real Provider charges |
-| **3 · [The Course](https://aicourse.top/en/build/)** | nine guided TypeScript stages (0–8), then a Stage 9 transfer project — the agent loop, a permission gate, a mandatory reviewer, prompt injection | TypeScript · DeepSeek / Claude / offline |
+| **3 · [The Course](https://aicourse.top/en/build/)** ([`course/`](course/)) | nine guided TypeScript stages (0–8), then a Stage 9 transfer project — the agent loop, a permission gate, a mandatory reviewer, prompt injection | TypeScript · DeepSeek / Claude / offline |
 
 All three, and what is still to come, are listed on the [catalogue](https://aicourse.top/en/courses/). Teaching it? There's a **[90-minute lesson plan](TEACHING.md)**.
 

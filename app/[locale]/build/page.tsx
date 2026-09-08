@@ -56,7 +56,16 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         <h1>{t("build.title")}</h1>
         <p className="lede">{t("build.lede")}</p>
         <div className="acts">
-          <a className="btn primary" href={courseUrl} rel="noopener noreferrer">
+          {/* The page's own note on the home page promises a setup guide first
+              and the repository second. The primary button did the opposite, so
+              anyone who followed it skipped the best-sequenced first success on
+              the site — clone, one edit, run it offline, and here is the exact
+              output you should see — for a tree listing. A fragment is not a
+              route, so routes:check is unmoved. */}
+          <a className="btn primary" href="#start">
+            {t("build.startTitle")}<span className="arrow">→</span>
+          </a>
+          <a className="btn" href={courseUrl} rel="noopener noreferrer">
             {t("build.openRepo")}<span className="arrow">↗</span>
           </a>
           <Link className="btn" href={p("/lab/")}>{t("build.backLab")}</Link>
@@ -85,12 +94,17 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         </ul>
       </section>
 
-      <section className="sect">
+      <section className="sect" id="start">
         <h2>{t("build.startTitle")}</h2>
         <ol className="build-steps">
           <li>
             <h3>{t("build.cloneTitle")}</h3>
             <p>{t("build.cloneBody")}</p>
+            {/* Name the download, as the Lab now names the price. The first
+                instruction of Part 3 pulls the whole website because the course
+                shares its manifest, while the course itself imports one
+                package — and nothing said so before the wait started. */}
+            <p className="small">{t("build.cloneSize")}</p>
             <pre dir="ltr"><code>{`git clone https://github.com/HUDongpin/agent-edu.git\ncd agent-edu\nnpm ci`}</code></pre>
           </li>
           <li>
