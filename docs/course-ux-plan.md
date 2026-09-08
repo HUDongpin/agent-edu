@@ -24,7 +24,7 @@ See E1 — the first thing fixed, and three string swaps.
 
 ## 0 · What has shipped
 
-Twenty-seven of the forty findings have landed, each marked in place below with
+Thirty-three of the forty findings have landed, each marked in place below with
 the commit that carried it. This section is the short version; the markers are
 the detail.
 
@@ -43,24 +43,18 @@ state-aware calls and the scores the record was keeping in silence (D2, D3, D4,
 D6, D7, D8, D9, D10). And the seventeen diagram descriptions that were English
 in every locale are translated (F1).
 
-**Open — thirteen of them**, in the order I would still take them. None is a
+**Open — seven of them**, in the order I would still take them. None is a
 blocker; the two largest are teaching work rather than engineering.
 
 | | Finding | Why it is still worth doing |
 |---|---|---|
-| B5 | Run 1 and run 2 cannot be read against each other | The learner keeps the score and loses the mechanism — which cases flipped |
 | B4 | The prediction is discarded before it is useful | The commitment step exists and is thrown away a moment before it would pay |
 | E8 | The worksheet is behind a door marked "for teachers" | Four of its six prompts have no equivalent anywhere a solo learner goes |
-| C5 | Part 3's primary button skips the page it was built to be | The setup guide is the best first success on the site, and gets skipped |
-| C7 | The first instruction downloads 478 MB for a one-package course | Name the number, exactly as A2 now names the price |
 | E6 | The handbook's graded capstone is invisible in its own card | D10 did this for the home page; the in-handbook card still reports attendance |
-| E4 | The "45 minutes" claim is roughly 40% short | A reader who budgets by it runs out around §05 |
 | E5 | The night-shift widget promises variance it does not have | A run counter that changes without meaning anything, two sections after two that meant something |
-| E7 | The eval widget's "previous" score is frozen at the baseline | One caption, in the section whose whole lesson is what a number is compared with |
 | B6 | One message answers five problems | A timeout is told to check a connection that is demonstrably up |
 | B7 | Switching model reopens the onboarding panel | A free re-test would keep the reader where they are |
 | A3 | Policy prose arrives before the first success | Including a paragraph about a button that is not on screen |
-| C6 | The repo README sends developers back out to the website | Two link edits in an untranslated file |
 
 **Decisions rather than defects.** The portable record in Phase 5 is real work
 nobody has chosen yet. §5 lists what should not be done at all, and E8 above is
@@ -290,6 +284,8 @@ result. Clearing the visible fields can stay.
 
 #### B5 · Run 1 and run 2 cannot be read against each other — high
 
+> **Landed** (`e8f5aa32`). The previous run's rows are captured before the overwrite and rendered below behind a disclosure, with their own meter carrying their own score.
+
 `setRows(res)` at `components/lab/Lab.tsx` overwrites the whole table, so
 after the second run the first run's twenty rows are gone and only two integers
 survive. The payoff is supposed to be seeing which cases flipped from an invented
@@ -399,6 +395,8 @@ wrong. English only, no i18n cost.
 
 #### C5 · Part 3's primary button skips the page it was built to be
 
+> **Landed** (`9f4fb7a3`). The setup section gains an id and the hero's primary call points at it, using the already-translated `build.startTitle`; the repository is demoted to secondary.
+
 The home page promises that Part 3 starts with an on-site setup guide and then
 opens the course on GitHub. On the build page the first and most prominent
 control is the repo link — `className="btn primary"` at
@@ -478,6 +476,8 @@ already good.
 
 #### C7 · Part 3's first instruction downloads the entire website — 478 MB for a course that imports one package
 
+> **Landed** (`9f4fb7a3`). The build page names the download before the wait starts, and says the course itself imports one package.
+
 The setup guide's first block is a clone followed by `npm ci` at
 `app/[locale]/build/page.tsx:88`. That installs 292 packages and about 478 MB —
 Next.js, React, Playwright, ESLint, the whole site — because the course
@@ -507,6 +507,8 @@ decision, not an obvious win. Naming the size costs one string and no design
 change.
 
 #### C6 · The repo README sends developers looking for Part 3 back out to the website
+
+> **Landed** (`9f4fb7a3`). The Part 3 row links `course/` beside the site page.
 
 `README.md:15` links the Part 3 row to the site. The `course/` directory is named
 once more, as plain text in an architecture table. So the shortest path from the
@@ -746,6 +748,8 @@ section.
 
 #### E4 · The "45 minutes" claim is roughly 40% short — medium
 
+> **Landed** (`9f4fb7a3`). Split rather than inflated — about thirty minutes to read, about an hour to run everything — across the handbook line, the catalogue card in nine languages, and `lib/courses.ts`, which is what the schema.org workload asserts.
+
 The prose alone is about 4,560 words, with eleven diagrams, before a single
 button is pressed — and the page's whole method is pressing buttons, plus a
 ten-round quiz at the end. A reader who budgets 45 minutes runs out around
@@ -783,6 +787,8 @@ already reports a best score. The selector already returns both the run count an
 the best score, so nothing below changes.
 
 #### E7 · The evaluation widget's "previous" score is frozen — low
+
+> **Landed** (`9f4fb7a3`). The caption moves, not the sum: comparing every change against the baseline is the right arithmetic, so the meter now says so.
 
 The comparison meter always renders the baseline, whatever the reader tried
 last, in the section whose entire lesson is that a number means nothing except
