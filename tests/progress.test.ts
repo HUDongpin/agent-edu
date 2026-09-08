@@ -704,3 +704,18 @@ test("blocked browser storage fails closed without throwing", () => {
   assert.strictEqual(store.readLearningState(), EMPTY_LEARNING_STATE);
   assert.strictEqual(store.recordHandbookControlRoomFinish(10), EMPTY_LEARNING_STATE);
 });
+
+test("resetting progress clears the Lab draft too, so \"all\" means all", () => {
+  /* The learning record and the Lab draft are separate keys, and the reset
+     button cleared only the first — so a learner on a shared machine pressed
+     the one control that reads as "clear me off this computer" and left their
+     prompt and edited rules behind, in the store the Lab warns them not to
+     paste secrets into. It also left the site contradicting itself: the Lab
+     reopening mid-journey while this widget reported nothing had happened. */
+  const progressComponent = readFileSync("components/Progress.tsx", "utf8");
+  assert.match(progressComponent, /import \{ clearLabDraft \} from "@\/lib\/lab\/draft"/);
+  assert.match(
+    progressComponent,
+    /onClick=\{\(\) => \{ resetLearningState\("all"\); clearLabDraft\(\); \}\}/,
+  );
+});

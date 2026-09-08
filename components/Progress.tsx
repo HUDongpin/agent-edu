@@ -10,6 +10,7 @@ import {
   selectLabProgress,
   subscribeLearningState,
 } from "@/lib/progress";
+import { clearLabDraft } from "@/lib/lab/draft";
 import { useI18n } from "./I18nProvider";
 import Rich from "./Rich";
 
@@ -64,10 +65,18 @@ export default function Progress({ locale }: { locale: string }) {
     <div className="progwrap" data-locale={locale}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
         <strong>{done} {t("ui.of")} {items.length}</strong>
+        {/* "all" means all. The learning record and the Lab draft are separate
+            keys, and this button used to clear only the first — so someone on a
+            shared or classroom machine pressed the one control that reads as
+            "clear me off this computer" and walked away leaving their prompt and
+            their edited rules behind, in the store the Lab itself warns them not
+            to paste secrets into. It also left the site contradicting itself:
+            the Lab reopening mid-journey with their work intact while this
+            widget said nothing had happened yet. */}
         <button
           className="iconbtn"
           type="button"
-          onClick={() => resetLearningState("all")}
+          onClick={() => { resetLearningState("all"); clearLabDraft(); }}
         >
           {t("home.progReset")}
         </button>
