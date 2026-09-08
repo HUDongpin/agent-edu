@@ -24,7 +24,7 @@ See E1 — the first thing fixed, and three string swaps.
 
 ## 0 · What has shipped
 
-Twenty-four of the forty findings have landed, each marked in place below with
+Twenty-seven of the forty findings have landed, each marked in place below with
 the commit that carried it. This section is the short version; the markers are
 the detail.
 
@@ -43,16 +43,13 @@ state-aware calls and the scores the record was keeping in silence (D2, D3, D4,
 D6, D7, D8, D9, D10). And the seventeen diagram descriptions that were English
 in every locale are translated (F1).
 
-**Open — sixteen of them**, in the order I would still take them. None is a
+**Open — thirteen of them**, in the order I would still take them. None is a
 blocker; the two largest are teaching work rather than engineering.
 
 | | Finding | Why it is still worth doing |
 |---|---|---|
 | B5 | Run 1 and run 2 cannot be read against each other | The learner keeps the score and loses the mechanism — which cases flipped |
 | B4 | The prediction is discarded before it is useful | The commitment step exists and is thrown away a moment before it would pay |
-| E3 | Nothing in the handbook asks the reader to commit first | Two sentences reworded in place; the same move as B4, for the free part |
-| C3 | Part 3 never asks the learner to predict | The same move again, in the part that has none of it |
-| C4 | Stage 9 has no worked example | The scaffolding disappears at the moment transfer is supposed to happen |
 | E8 | The worksheet is behind a door marked "for teachers" | Four of its six prompts have no equivalent anywhere a solo learner goes |
 | C5 | Part 3's primary button skips the page it was built to be | The setup guide is the best first success on the site, and gets skipped |
 | C7 | The first instruction downloads 478 MB for a one-package course | Name the number, exactly as A2 now names the price |
@@ -379,6 +376,8 @@ next thing to look at — and thread one per check.
 
 #### C3 · Part 3 never asks the learner to predict
 
+> **Landed** (`9670c943`). Part 3 asks twice, in the two places the worksheet does: stage 3 for the score, stage 4 for which way the menu moves it and by how much. Printed rather than read from stdin, so the command stays pipeable and CI-safe.
+
 `course/stage3-evals/README.md:17` says to write the number down *after* the
 score exists. Asking first is the whole difference between a number that lands
 and a number that is read.
@@ -387,6 +386,8 @@ and a number that is read.
 the check that pauses for a predicted score — free to skip, as the Lab's is.
 
 #### C4 · Stage 9 has a template, a rubric, and no worked example
+
+> **Landed** (`b6193344`). A public library's returns desk, filled into the folder's own template and scored against its own rubric at 11 of 12 — the row it loses is marked and left unresolved rather than tidied away.
 
 At the exact moment the café scaffolding is removed, the worked example that
 carried the learner through stages 0 to 8 disappears too. That is the standard
@@ -724,6 +725,8 @@ toggles are for. The widget then reads as an honest worked example instead of a
 false general rule.
 
 #### E3 · Nothing in the handbook asks the reader to commit before showing the answer — high
+
+> **Landed** (`9670c943`). Two sentences reworded in place, so no node is created and no ordinal moves. §07 asks for the score before the run; §03 asks the reader to choose their four before reading the badges.
 
 Every widget rewards pressing and shows the result at once, so the reader never
 learns whether they would have been right. In the context section the ten items
