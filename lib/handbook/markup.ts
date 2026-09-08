@@ -31,6 +31,39 @@ const ACCESSIBLE_MARKUP = MARKUP
   .replace(
     'No install, no repo, about a penny. Start there.',
     'No install or repo; Provider charges vary with model, time, cache and usage. Start there.',
+  )
+  /* The forward chain skipped 06, 07 and 08. §00 tells the reader to work
+     straight through, and the primary button is how they do it — but graph and
+     harness both pointed at compare, so an obedient reader went 05 → 09 and
+     never met the harness, the eval or the injection. They then arrived at a
+     comparison table holding three rows for material they had not been shown.
+
+     The back links were already right: harness says "← Graph engineering",
+     evals "← Harness engineering", security "← Evaluation engineering". Only
+     the forward half had drifted, so this restores the order the file already
+     described rather than choosing a new one. Compare's back link pointed at
+     graph for the same reason and now points at what really precedes it.
+
+     Each needle carries its sibling button because "Next: which one, when →"
+     appears three times; anchored this way each match is unique. Verified with
+     handbook:check, widgets:check and the chain test in tests/handbook.test.ts. */
+  .replace(
+    '<button class="btn" data-goto="loop" type="button">← Loop engineering</button>\n' +
+    '      <button class="btn primary" data-goto="compare" type="button">Next: which one, when →</button>',
+    '<button class="btn" data-goto="loop" type="button">← Loop engineering</button>\n' +
+    '      <button class="btn primary" data-goto="harness" type="button">Next: something has to run it →</button>',
+  )
+  .replace(
+    '<button class="btn" data-goto="graph" type="button">← Graph engineering</button>\n' +
+    '      <button class="btn primary" data-goto="compare" type="button">Next: which one, when →</button>',
+    '<button class="btn" data-goto="graph" type="button">← Graph engineering</button>\n' +
+    '      <button class="btn primary" data-goto="evals" type="button">Next: how do you test it? →</button>',
+  )
+  .replace(
+    '<button class="btn" data-goto="graph" type="button">← Graph engineering</button>\n' +
+    '      <button class="btn primary" data-goto="play" type="button">Next: play the game 🎮 →</button>',
+    '<button class="btn" data-goto="security" type="button">← Security engineering</button>\n' +
+    '      <button class="btn primary" data-goto="play" type="button">Next: play the game 🎮 →</button>',
   );
 
 export default ACCESSIBLE_MARKUP;
