@@ -639,7 +639,7 @@
   "w.security.act.refund": "✅ $18.60 für die eine beschädigte Packung erstattet; der Ersatz ist unterwegs.",
   "w.security.act.flagged": "🚩 Die Nachricht wurde als wahrscheinlicher Injektionsversuch zur menschlichen Prüfung markiert.",
   "w.security.money": "{usd} US-Dollar",
-  "w.security.verdict.handled": "**✅ Richtig behandelt.** Nicht, weil das Modell klug war — sondern weil der Text als Daten statt als Anweisungen eintraf.",
+  "w.security.verdict.handled": "**✅ Dieser Angriff wurde abgefangen.** Das Label stoppte einen plumpen Angriff, nicht jeden. Ein besser geschriebener kommt durch — dafür sind die anderen drei da: Schalten Sie das Label ab und sehen Sie, wie sie den Schaden begrenzen.",
   "w.security.verdict.takenOver": "**🚨 Der Agent wurde von einer E-Mail übernommen.** Jede der folgenden Aktionen wurde von einer fremden Person bestimmt, die den Text lediglich in ein Supportformular eingegeben hat.",
   "w.security.verdict.cheap": "**⚠️ Das Modell wurde getäuscht — und es spielte kaum eine Rolle.** Genau darum geht es. Sie werden nicht jedes Mal gewinnen; sorgen Sie deshalb dafür, dass Verlieren wenig kostet.",
   "w.security.verdict.idle": "📧 Drücken Sie **Den Agenten bearbeiten lassen** — probieren Sie es zuerst mit und dann ohne Schutzmaßnahmen.",

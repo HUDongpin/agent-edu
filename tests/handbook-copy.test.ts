@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   makeCopy,
@@ -63,4 +64,27 @@ test("trustedMarkup is a template-only, element-text-only escape hatch", () => {
     () => trustedMarkup`<img src=x onerror="alert(1)">`,
     /unsupported trusted markup template/,
   );
+});
+
+
+const WIDGET_LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"] as const;
+const widgetMessages = (locale: string): Record<string, string> =>
+  JSON.parse(readFileSync(`messages/widgets/${locale}.json`, "utf8"));
+
+test("the security widget stops presenting the label as a general defence", () => {
+  /* The widget decides the outcome from the label alone, so a verdict phrased as
+     an unconditional success taught that labelling untrusted text makes you
+     immune — three paragraphs below prose saying no prompt reliably prevents
+     this. The copy now credits the attack it actually stopped. */
+  const english = widgetMessages("en")["w.security.verdict.handled"];
+  assert.doesNotMatch(english, /Handled correctly/);
+  assert.match(english, /not every attack/);
+
+  for (const locale of WIDGET_LOCALES) {
+    const verdict = widgetMessages(locale)["w.security.verdict.handled"];
+    assert.ok(verdict && verdict.includes("✅"), `${locale}: verdict must still read as a pass`);
+    if (locale !== "en") {
+      assert.notEqual(verdict, english, `${locale}: verdict was left in English`);
+    }
+  }
 });

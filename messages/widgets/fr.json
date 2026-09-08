@@ -639,7 +639,7 @@
   "w.security.act.refund": "✅ A remboursé $18.60 pour le paquet endommagé et expédié son remplacement.",
   "w.security.act.flagged": "🚩 A signalé le message comme une probable tentative d'injection afin qu'une personne l'examine.",
   "w.security.money": "{usd} $US",
-  "w.security.verdict.handled": "**✅ Traitement correct.** Non parce que le modèle était intelligent — mais parce que le texte est arrivé étiqueté comme donnée plutôt que comme ordre.",
+  "w.security.verdict.handled": "**✅ Celui-ci a été contenu.** L'étiquette a arrêté une attaque maladroite, pas toutes. Une attaque mieux écrite passe, et c'est à cela que servent les trois autres : désactivez l'étiquette et voyez-les limiter les dégâts.",
   "w.security.verdict.takenOver": "**🚨 Un e-mail a pris le contrôle de l'agent.** Chaque action ci-dessous a été choisie par un inconnu qui l'a simplement saisie dans un formulaire d'assistance.",
   "w.security.verdict.cheap": "**⚠️ Il a été trompé — et les conséquences sont restées minimes.** C'est tout l'enjeu. Vous ne gagnerez pas toujours : rendez donc l'échec peu coûteux.",
   "w.security.verdict.idle": "📧 Appuyez sur **Laisser l'agent s'en charger** — essayez avec les défenses activées, puis désactivées.",
