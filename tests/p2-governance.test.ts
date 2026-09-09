@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 import {
   findSensitiveEvidence,
@@ -95,7 +96,134 @@ test("the archived synthetic lab report binds its source candidate and full samp
   assert.equal(report.artifact.export.fileCount, 448);
 });
 
-test("the Stage A automated precheck is target-bound, privacy-safe, and cannot pass an external gate", () => {
+const EVIDENCE_DIR = "docs/release/evidence";
+const CURRENT_CANDIDATE_SHA = "9e0aa0d329b5db72bf7e8e0cc06d560580a4b0e2";
+const CURRENT_PRECHECK_SOURCE_DIGESTS = {
+  ".github/workflows/ci.yml": "2bb87e093427f91753dbd2023389fb5c3c62b089abeea2193856ea4900e0bbb5",
+  "e2e/smoke.spec.ts": "ad91aa4f3ca11a9d991b5d0c50541c8c20061a90bc7cec82d0cbef77596b984f",
+  "e2e/compat.spec.ts": "b8d8c9922d53e3cc9557e05ec29d7f2269f08b04ea0bec49ad8864fd1df7bc4e",
+  "config/csp-stage.json": "f869af83519bc91304b6caacbe5a88a2394c8ab6e3e1282a9d7824b6d5347a7c",
+  "vercel.json": "10ac0161cd24d2330cca8fa95cbaba1cf7f14f66355cff6b1e8d88d4eb8b6857",
+};
+
+function stageAPrecheckFiles() {
+  return readdirSync(EVIDENCE_DIR)
+    .filter((name) => name.startsWith("stage-a-automated-precheck-") && name.endsWith(".json"))
+    .sort();
+}
+
+/**
+ * The properties every Stage A precheck must have, whichever run it describes.
+ *
+ * The per-record tests below pin one record each to its own run, and a record
+ * added later would be governed by neither. These are the claims that make a
+ * precheck a precheck rather than an authorization, so they are asserted over
+ * whatever is in the directory: a new record is covered the moment it lands,
+ * and one that quietly authorizes a release fails here.
+ */
+test("every Stage A automated precheck is bound to a green run, privacy-safe, and authorizes nothing", () => {
+  const files = stageAPrecheckFiles();
+  assert.ok(files.length >= 2, `expected at least two precheck records, found ${files.length}`);
+
+  for (const name of files) {
+    const where = `${EVIDENCE_DIR}/${name}`;
+    const evidenceText = readFileSync(join(EVIDENCE_DIR, name), "utf8");
+    const evidence = JSON.parse(evidenceText);
+
+    assert.equal(evidence.schema, "agent-edu.stage-a-automated-precheck.v1", where);
+    assert.equal(evidence.status, "automated-precheck-pass-external-gates-pending", where);
+
+    /* Bound to one run, and to the commit that run tested. */
+    assert.match(evidence.target.candidateCommitSha, /^[0-9a-f]{40}$/, where);
+    assert.equal(evidence.githubActions.headSha, evidence.target.candidateCommitSha, where);
+    assert.equal(evidence.githubActions.runAttempt, 1, where);
+    assert.equal(evidence.githubActions.conclusion, "success", where);
+    assert.deepEqual(
+      evidence.githubActions.jobs.map((job: { name: string; conclusion: string }) => [
+        job.name,
+        job.conclusion,
+      ]),
+      [
+        ["quality", "success"],
+        ["smoke-chromium", "success"],
+        ["compatibility", "success"],
+      ],
+      where,
+    );
+
+    /* The same five files, each a sha256, so a record cannot describe a tree
+       it never digested. */
+    assert.deepEqual(
+      Object.keys(evidence.sourceFiles).sort(),
+      Object.keys(CURRENT_PRECHECK_SOURCE_DIGESTS).sort(),
+      where,
+    );
+    for (const digest of Object.values(evidence.sourceFiles)) {
+      assert.match(digest as string, /^[0-9a-f]{64}$/, where);
+    }
+
+    /* Authorizes nothing, crosses no external boundary, carries no secret. */
+    assert.equal(evidence.gateEffect.releaseAuthorized, false, where);
+    assert.equal(evidence.gateEffect.stageAResultChanged, false, where);
+    assert.equal(evidence.gateEffect.stageAReportOnlyStatus, "pending", where);
+    assert.equal(
+      Object.values(evidence.externalBoundaries).every((value) => value === false),
+      true,
+      where,
+    );
+    assert.equal(Object.values(evidence.privacy).every((value) => value === false), true, where);
+    assert.deepEqual(findSensitiveEvidenceText(evidenceText), [], where);
+    assert.deepEqual(findSensitiveEvidence(evidence), [], where);
+    assert.match(evidence.decision, /automated precheck only/i, where);
+    assert.match(evidence.decision, /Stage A remains pending/, where);
+  }
+});
+
+/**
+ * The current candidate's record, pinned to its own run.
+ *
+ * It differs from the 29e1f8b predecessor in the one way that matters to a
+ * reader of release evidence: there is no preview deployment behind it, so it
+ * asserts nothing about one. These assertions are what stop that absence from
+ * being quietly filled in later.
+ */
+test("the 9e0aa0d Stage A precheck is bound to its run and asserts no deployment", () => {
+  const evidence = JSON.parse(
+    readFileSync(join(EVIDENCE_DIR, "stage-a-automated-precheck-9e0aa0d.json"), "utf8"),
+  );
+
+  assert.equal(evidence.target.candidateCommitSha, CURRENT_CANDIDATE_SHA);
+  assert.equal(evidence.githubActions.runId, 34311863958);
+  assert.equal(evidence.githubActions.event, "pull_request");
+  assert.deepEqual(evidence.sourceFiles, CURRENT_PRECHECK_SOURCE_DIGESTS);
+
+  /* No deployment was inspected, so none is described. */
+  assert.equal(evidence.vercelDeploymentMetadata, null);
+  assert.equal(evidence.target.vercelDeploymentId, null);
+  assert.equal(evidence.target.checkpointSha, null);
+  assert.match(evidence.notCarriedForward.vercelDeploymentMetadata, /No preview deployment exists/);
+
+  /* The enforced stage is now a thing this record has an opinion about, and
+     its opinion is still "pending" — csp:set moved the committed header key,
+     not the observation the gate is waiting for. */
+  assert.equal(evidence.gateEffect.stageAEnforcedStatus, "pending");
+  assert.equal(evidence.githubActions.jobs[0].observedSummary.cspCheck, "pass-enforced-baseline");
+
+  /* Counts observed in the run, not carried over from the predecessor. */
+  assert.equal(evidence.automatedBrowserCoverage.compatibility.testsPerBrowser, 4);
+  assert.equal(evidence.automatedBrowserCoverage.compatibility.totalTestsPassed, 12);
+  assert.equal(evidence.automatedBrowserCoverage.privateLabSuite.totalTestsPassed, 42);
+  assert.equal(
+    evidence.automatedBrowserCoverage.privateLabSuite.perProjectSplitObservedInCi,
+    false,
+  );
+  assert.match(
+    evidence.notCarriedForward.journeyAndMatrixFigures,
+    new RegExp(PRECHECK_SOURCE_DIGESTS["e2e/smoke.spec.ts"]),
+  );
+});
+
+test("the 29e1f8b Stage A automated precheck is target-bound, privacy-safe, and cannot pass an external gate", () => {
   const evidenceText = readFileSync(
     "docs/release/evidence/stage-a-automated-precheck-29e1f8b.json",
     "utf8",
