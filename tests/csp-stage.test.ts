@@ -37,10 +37,26 @@ test("both CSP stages validate against the same reviewed baseline policy", () =>
   assert.equal(CANONICAL_CSP_POLICY.match(/'unsafe-inline'/g)?.length, 2);
 });
 
-test("the committed configuration is valid and begins in report-only", () => {
+/* The committed stage is enforced, and falling back to report-only is a
+   regression rather than a setting. Report-only never protected anyone here:
+   a static export has no endpoint to receive reports and none was configured,
+   so the browser evaluated the policy, found violations, told nobody, and
+   blocked nothing. e2e/compat.spec.ts is what replaced the missing collector —
+   it applies this policy to eight built routes in all three engines and fails
+   on a violation, which is the evidence the report-only stage was supposed to
+   produce and never could. */
+test("the committed configuration is valid and enforces", () => {
   const stageConfig = JSON.parse(readFileSync("config/csp-stage.json", "utf8"));
   const vercelConfig = JSON.parse(readFileSync("vercel.json", "utf8"));
-  assert.equal(stageConfig.stage, "report-only");
+  assert.equal(stageConfig.stage, "enforced");
+  assert.equal(
+    vercelConfig.headers
+      .flatMap((rule: { headers: { key: string }[] }) => rule.headers)
+      .filter((header: { key: string }) => /^content-security-policy/i.test(header.key))
+      .map((header: { key: string }) => header.key)
+      .join(","),
+    CSP_HEADER_BY_STAGE.enforced,
+  );
   assert.doesNotThrow(() => assertCspConfiguration(stageConfig, vercelConfig));
 });
 

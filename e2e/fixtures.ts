@@ -11,6 +11,35 @@ function sha256(bytes: Buffer | string) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+/**
+ * The three chunks the evidence scanner accepts, and nothing else.
+ *
+ * WebKit writes `sRGB` and a 68-byte `eXIf` into every PNG it encodes; Chromium
+ * writes neither. scripts/check-artifacts.mjs refuses any ancillary chunk on
+ * purpose — its comment names eXIf as one of the things that must not carry
+ * provenance past the manifest — so WebKit evidence was rejected as
+ * png-chunk-unsupported, and the upload step is gated on that scan passing.
+ * Stripping here rather than tolerating there keeps the refusal absolute: the
+ * scanner still decodes every row and still demands every pixel be #e5e7eb, so
+ * a strip that damaged the image would fail its pixel check rather than pass
+ * quietly. Chunks are copied whole, CRC included, so nothing is re-encoded.
+ */
+function keepOnlyCriticalPngChunks(png: Buffer): Buffer {
+  const keep = new Set(["IHDR", "IDAT", "IEND"]);
+  const out: Buffer[] = [png.subarray(0, 8)];
+  let offset = 8;
+  while (offset + 12 <= png.length) {
+    const length = png.readUInt32BE(offset);
+    const type = png.subarray(offset + 4, offset + 8).toString("ascii");
+    const end = offset + 12 + length;
+    if (end > png.length) break;
+    if (keep.has(type)) out.push(png.subarray(offset, end));
+    offset = end;
+    if (type === "IEND") break;
+  }
+  return Buffer.concat(out);
+}
+
 function writeJson(path: string, value: unknown) {
   const bytes = Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8");
   writeFileSync(path, bytes, { mode: 0o600 });
@@ -98,11 +127,23 @@ export const test = base.extend<{ _curatedEvidence: void }>({
       });
       document.documentElement.appendChild(surface);
     }, REDACTION_SURFACE_ID);
-    const screenshot = await page.locator(`#${REDACTION_SURFACE_ID}`).screenshot({
-      animations: "disabled",
-      caret: "hide",
-      type: "png",
-    });
+    // `scale: "css"` so the surface is captured in CSS pixels rather than
+    // device pixels. devices["Desktop Safari"] carries deviceScaleFactor 2, so
+    // the 1440×900 case in compat.spec.ts rasterised to 2880×1800 in WebKit —
+    // past the 2048 bound in scripts/check-artifacts.mjs, which then refused to
+    // decode it as png-shape-unsupported. The scan fails closed and the upload
+    // step is gated on it passing, so a WebKit failure produced a red job and
+    // no evidence at all: the one engine whose failures nobody could look at.
+    // Bounding the raster here keeps that limit intact and makes the evidence
+    // identical whatever engine produced it, which is what a contract wants.
+    const screenshot = keepOnlyCriticalPngChunks(
+      await page.locator(`#${REDACTION_SURFACE_ID}`).screenshot({
+        animations: "disabled",
+        caret: "hide",
+        type: "png",
+        scale: "css",
+      }),
+    );
     const screenshotPath = resolve(directory, "screenshot.png");
     writeFileSync(screenshotPath, screenshot, { mode: 0o600 });
     const traceFile = writeJson(resolve(directory, "trace.json"), {

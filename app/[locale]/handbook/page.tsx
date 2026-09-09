@@ -1,7 +1,9 @@
 import Handbook from "@/components/handbook/Handbook";
+import { I18nScope } from "@/components/I18nProvider";
 import { loadWidgetCopy } from "@/lib/handbook/copy";
 import { localiseHandbook } from "@/lib/handbook/localise";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
+import { scopeMessages } from "@/lib/i18n-scope";
 import { seoFor } from "@/lib/seo";
 import type { Metadata } from "next";
 
@@ -31,5 +33,13 @@ export default async function HandbookPage(
   const { locale } = await params;
   const { html, localised } = await localiseHandbook(locale);
   const copy = await loadWidgetCopy(locale);
-  return <Handbook html={html} localised={localised} copy={copy} />;
+  /* Six keys: the English-only note, and the labels on the two links out of
+     the handbook. Everything else the reader sees here is either spliced
+     into the markup at build time or written by a widget out of `copy`. */
+  const messages = scopeMessages(await getMessages(locale), "handbook");
+  return (
+    <I18nScope messages={messages}>
+      <Handbook html={html} localised={localised} copy={copy} />
+    </I18nScope>
+  );
 }

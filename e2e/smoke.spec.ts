@@ -325,7 +325,15 @@ test("Arabic horizontal tabs mirror arrows in both Handbook and Lab", async ({ p
 
   await page.goto("/ar/lab/");
   const stages = page.locator('.steps [role="tab"]');
-  await stages.nth(0).focus();
+  /* Select the first step, do not merely focus it.
+     Roving tabindex means only the selected tab carries tabindex="0", and the
+     arrow handler moves from the selected index — so focusing a tabindex="-1"
+     tab asserts from a state no keyboard user can reach. That went unnoticed
+     while the Lab always opened on step 1; it no longer does when no key is
+     stored, which is what made the assumption visible. The mirroring below is
+     unchanged and is still the thing under test. */
+  await stages.nth(0).click();
+  await expect(stages.nth(0)).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("ArrowLeft");
   await expect(stages.nth(1)).toHaveAttribute("aria-selected", "true");
   await expect(stages.nth(1)).toBeFocused();

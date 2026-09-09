@@ -114,8 +114,23 @@ export const MODEL = process.env.CAFE_MODEL || CFG.model;
  */
 export const EFFORT = process.env.CAFE_EFFORT || "low";
 
-/** --offline anywhere on the command line uses the deterministic local stand-in. */
-export const OFFLINE = process.argv.includes("--offline");
+/**
+ * --offline anywhere on the command line uses the deterministic local stand-in.
+ *
+ * The env var is not a convenience, it is the same flag arriving by another
+ * road. `--offline` is one of npm's own config flags, so `npm run course 4
+ * --offline` — the composition the README's two spellings invite — is eaten by
+ * npm and never reaches argv. The stage then ran live and told the reader to
+ * pass the flag they had just passed, which is the worst possible failure for
+ * the one person the offline path exists to serve: someone who by definition
+ * cannot fall back to a key. npm exports every flag it consumes as npm_config_*,
+ * so reading it here makes the advertised command mean what it says.
+ *
+ * A reader with `offline=true` in their .npmrc also lands on the stand-in, which
+ * is the safe direction to be wrong in: it spends nothing and says so.
+ */
+export const OFFLINE = process.argv.includes("--offline")
+  || process.env.npm_config_offline === "true";
 
 let spent = { ...EMPTY_COURSE_USAGE_LEDGER };
 let client: Anthropic | null = null;

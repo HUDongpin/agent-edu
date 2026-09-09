@@ -17,7 +17,7 @@ the author cannot re-verify at implementation time should be treated as drifted.
 
 The reader arrives having been told, correctly and repeatedly, that a gate must exist. The
 Handbook's harness section weights the permission gate heaviest of six parts — 30 of 100, in
-`PARTS` at `lib/handbook/behaviour.ts:1246` — and attaches the failure story:
+`PARTS` at `lib/handbook/behaviour.ts:1256` — and attaches the failure story:
 `w.harness.part.gate.fail` reads "It read the unit as kilograms and ordered 1,000 kg of
 beans — $41,200 — and nobody was asked." Build's stage 6 makes the reader write that gate as
 an `if` in the tool runner, and supplies the sentence the whole site rests on: "A model can be
@@ -50,7 +50,7 @@ have been no.
 |---|---|---|
 | A gate must exist, and belongs in code rather than in the prompt | Handbook §06 harness (`w.harness.part.gate.*`, `w.harness.strip.s3` "🚦 Gate the dangerous bits"); Build stage 6 TODO 1 | Cite in one clause in §01. Never re-derive. |
 | "A prompt is a request; a node or an `if` is a guarantee" | Handbook §05 thesis, `w.decide.rec.promptGraph.body`; Build stages 6 and 7 | Assume known. Do not restate. |
-| The mandatory, unskippable review step, and why a loop's self-check is not one | Handbook §05 in full, including `w.graph.note.bad` | Assume known. The only new fact is that §05's reviewer is a model: `kind:'m'` at `lib/handbook/behaviour.ts:1034`. |
+| The mandatory, unskippable review step, and why a loop's self-check is not one | Handbook §05 in full, including `w.graph.note.bad` | Assume known. The only new fact is that §05's reviewer is a model: `kind:'m'` at `lib/handbook/behaviour.ts:1044`. |
 | The step limit as a cost/completion trade-off, and that a limit buys you a half-finished job | Handbook §04 `w.loop.stopped` ("The coffee was ordered but the cups weren't, and nobody was told"); Build stage 5 `MAX_STEPS` | Out of scope. §04 may cite `w.loop.stopped` in one clause and must not re-derive it. |
 | Approval as blast-radius reduction against prompt injection | Handbook §08 `w.security.def.confirm.*`, `w.security.act.held`; Build stage 8 | Out of scope. Note only that the `confirm` defence fires as the fallback when least privilege is off, so approval is taught there as one of four interchangeable caps. |
 | Trust follows the source, not the sentence | Handbook §08 entire; `course/stage8-security/README.md` | Out of scope entirely. Do not restate it as "who is allowed to approve". |
@@ -322,7 +322,7 @@ honest: `components/courses/Catalog.tsx` skips the `.cprog` bar and falls to the
 
 One visible consequence the author should accept rather than discover: that final branch
 renders the call to action **without** an arrow — `<span className="cgo" …>{cta(progress)}</span>`
-at `Catalog.tsx:162`, against `{cta(progress)} <span className="arrow">→</span>` for a tracked
+at `Catalog.tsx:171`, against `{cta(progress)} <span className="arrow">→</span>` for a tracked
 course. The `hitl` card will read "Start" with no arrow, beside three cards that have one.
 
 Tracking is not a flag. Adding it means a branch in `selectCourseProgress`, widening the
@@ -376,7 +376,7 @@ flagging to a translator: it means the length of the output, not a page of the w
   crawler and a no-JavaScript reader see the prose, widgets started once per body of markup,
   and a widget failure caught so the articles survive it.
 - **The slider.** `.hb .slider-row` and `.hb input[type=range]{accent-color:var(--sec);width:150px}`
-  at `app/globals.css:807–808` already ship the pattern §03 needs — slider, live value readout,
+  at `app/globals.css:815–816` already ship the pattern §03 needs — slider, live value readout,
   one line of prose saying what dragging it costs — and they are theme-correct. The one
   constraint is that they are scoped under `.hb`; see the stylesheet decision below.
 - `--brand-2`, and the eleven Handbook section hues (`--green`, `--blue`, `--teal`,
@@ -385,7 +385,7 @@ flagging to a translator: it means the length of the output, not a page of the w
   no new colour.** The seven panels take seven of the existing eleven, and the person mark
   reuses the Handbook masthead's existing human-swatch colour rather than introducing a hue —
   so the three-block rule is satisfied without a new token. One `.t-person` rule beside
-  `.hb .t-model` at `app/globals.css:674` is the whole of it.
+  `.hb .t-model` at `app/globals.css:682` is the whole of it.
 - `components/courses/Cover.tsx`. A `hitl` motif already ships: two horizontal strokes at
   different opacities with an upright barrier between them, carrying a dot at head height. The
   design committed to the gate metaphor before the course did, and the outline above is written
@@ -397,9 +397,9 @@ flagging to a translator: it means the length of the output, not a page of the w
   `lib/handbook/behaviour.ts` are under the do-not-rewrite rule and are the Handbook's, not a
   shared engine. A second course needs its own pair. Neither exists.
 - **The stylesheet, and a scope decision — the largest single item.** Every rule the adopted
-  panel shape needs is scoped under `.hb`: `.hb .panel` (615), `.hb .rule` (624), `.hb .plain`
-  (626), `.hb .takes` / `.take` (724–726), the whole flowchart palette `.hb .fc-n` (668) and
-  `.hb .t-start` … `.hb .t-idle` (672–679) — 414 `.hb`-scoped declarations in all.
+  panel shape needs is scoped under `.hb`: `.hb .panel` (615), `.hb .rule` (632), `.hb .plain`
+  (634), `.hb .takes` / `.take` (732–734), the whole flowchart palette `.hb .fc-n` (676) and
+  `.hb .t-start` … `.hb .t-idle` (680–687) — 414 `.hb`-scoped declarations in all.
   **Decision: the wrapper carries `class="hb hitl"`**, inheriting all of it, with one override.
   `.hb .rail-list::before` at `app/globals.css:602` hard-codes an eleven-stop gradient for
   eleven sections; `.hitl .rail-list::before` restates it with seven. Make this decision in the
@@ -462,15 +462,15 @@ remains is genuinely open.
    change shape.
 
 3. **Where does the seven-stop rail gradient stop being worth it?** `.hb .rail-list::before` is
-   hidden below the mobile breakpoint at `app/globals.css:999`. If the override is only visible
+   hidden below the mobile breakpoint at `app/globals.css:1007`. If the override is only visible
    on wide screens, it may be cheaper to accept the eleven-stop gradient truncated at seven than
    to carry a second rule.
 
 **Closed, and recorded here so it is not reopened:** this course does **not** get a brief in the
-Control Room. `lib/handbook/behaviour.ts:1703` reads `deck=shuffle(BRIEFS.slice()).slice(0,10)`
+Control Room. `lib/handbook/behaviour.ts:1713` reads `deck=shuffle(BRIEFS.slice()).slice(0,10)`
 — ten of fourteen, sampled at random — so a fifteenth brief would lower every brief's appearance
 rate from 10/14 to 10/15 while leaving the round counter correct. That alone would be tolerable.
-The decisive fact is one line earlier: `ORDER` at `lib/handbook/behaviour.ts:1651` is
+The decisive fact is one line earlier: `ORDER` at `lib/handbook/behaviour.ts:1661` is
 `['code','prompt','context','loop','graph','harness','evals','security']` — the answer set has
 eight entries, so a brief whose correct answer is "human in the loop" cannot exist without a
 ninth Handbook discipline. That would be a twelfth section, which moves `HANDBOOK_SECTION_IDS`

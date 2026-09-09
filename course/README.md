@@ -30,7 +30,14 @@ npm run course:offline
 
 That command uses a deterministic scripted stand-in bundled with the course. It makes no Provider request and writes no private recording. It proves the local control flow, not real model quality or variation.
 
-**No API key?** Add `--offline` to any command to use the scripted local stand-in after you fill that stage's `TODO`s. Every completed stage supports this path. Stage 2's lesson includes watching a real model answer the same question differently, which a deterministic stand-in cannot reproduce; if you later want that comparison, use a low-credit, revocable key of your own. Never borrow or share another person's credential.
+**No API key?** Add `--offline` to any command to use the scripted local stand-in after you fill that stage's `TODO`s. With `npx` it goes on the end; with `npm run` it needs `--` first, because npm treats a bare `--offline` as one of its own flags and keeps it:
+
+```bash
+npx tsx course/check.ts 4 --offline
+npm run course -- 4 --offline
+```
+
+Every completed stage supports this path. Stage 2's lesson includes watching a real model answer the same question differently, which a deterministic stand-in cannot reproduce; if you later want that comparison, use a low-credit, revocable key of your own. Never borrow or share another person's credential.
 
 **Stuck?** [`SOLUTIONS.md`](SOLUTIONS.md) has every `TODO` filled in, one section per stage.
 
@@ -100,7 +107,7 @@ Pick a domain you actually know: a library's returns desk, a lab booking system,
 
 Nobody will grade it. The point is that you now know what the twenty cases *are* for your own domain — which is the part a café cannot teach.
 
-The [`stage9-project/`](stage9-project/) folder provides a Markdown artifact template, JSON eval template and evidence-based rubric. It asks for a problem boundary, failure input, minimal eval, irreversible gate, trust boundaries and candid retrospective; it does not prescribe one Provider, framework or prompt.
+The [`stage9-project/`](stage9-project/) folder provides a Markdown artifact template, JSON eval template, evidence-based rubric and a [worked example](stage9-project/worked-example.md) — one finished project on a library's returns desk, scored honestly at 11 of 12. It asks for a problem boundary, failure input, minimal eval, irreversible gate, trust boundaries and candid retrospective; it does not prescribe one Provider, framework or prompt.
 
 ## Honest limits
 

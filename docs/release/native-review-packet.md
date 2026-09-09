@@ -4,8 +4,9 @@ A working aid for the reviewer completing `native-review-form.md`. It is not
 evidence, and it does not replace any row of that form.
 
 ```bash
-npm run review:packet          # all eight locales
-npm run review:packet -- de    # one
+npm run review:packet                        # all eight locales
+npm run review:packet -- de                  # one
+npm run review:packet -- --since=<ref>       # mark what changed since a ref
 ```
 
 Writes `review-packets/<locale>.md`, one file per locale, gitignored on purpose:
@@ -24,9 +25,25 @@ packet puts the two columns side by side, grouped one screen at a time, which is
 the same property that makes the flat catalogues translator-editable in the
 first place.
 
+## Reviewing a change rather than the whole site
+
+`--since=<ref>` compares the English catalogues against a git ref and marks
+every string added or reworded since it, listing them first in each packet. A
+reviewer facing 568 handbook strings needs to know which forty are new, and a
+full re-read is not the same piece of work as checking a change — the packet
+should not make the two look alike.
+
+The comparison is on the English side deliberately: a translation that moved
+because its source moved is what wants re-reading, while one that moved on its
+own is a correction the reviewer already asked for.
+
+Use the base of the branch under review. For a stacked branch that is the
+commit it forks from, not `main`.
+
 Each row is marked when it needs attention:
 
 - **MISSING** — the key has no value in this locale.
+- **NEW** — added or reworded since the `--since` ref; this is the review.
 - **SAME — unexplained** — the value is byte-identical to English and no entry
   in `localization.sameAsEnglishAllowlist` says why. Either correct it or add a
   reason; `tests/release-readiness.test.ts` checks the reasons stay true.

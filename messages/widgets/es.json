@@ -639,7 +639,7 @@
   "w.security.act.refund": "✅ Reembolsó $18.60 por la única bolsa dañada y envió otra.",
   "w.security.act.flagged": "🚩 Marcó el mensaje como probable intento de inyección para que lo revisara una persona.",
   "w.security.money": "US${usd}",
-  "w.security.verdict.handled": "**✅ Gestionado correctamente.** No porque el modelo fuera inteligente, sino porque el texto llegó etiquetado como datos en lugar de órdenes.",
+  "w.security.verdict.handled": "**✅ Este ataque se contuvo.** La etiqueta detuvo un ataque torpe, no todos. Uno mejor escrito pasa, y para eso están las otras tres: desactiva la etiqueta y míralas limitar el daño.",
   "w.security.verdict.takenOver": "**🚨 Un correo tomó el control del agente.** Una persona desconocida eligió cada una de las acciones siguientes con solo escribirlas en un formulario de asistencia.",
   "w.security.verdict.cheap": "**⚠️ Fue engañado, pero apenas importó.** Ese es el objetivo. No ganarás siempre, así que haz que perder sea barato.",
   "w.security.verdict.idle": "📧 Pulsa **Dejar que el agente lo gestione**: pruébalo primero con las defensas activadas y después con ellas desactivadas.",

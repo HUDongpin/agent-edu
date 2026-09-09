@@ -31,6 +31,82 @@ const ACCESSIBLE_MARKUP = MARKUP
   .replace(
     'No install, no repo, about a penny. Start there.',
     'No install or repo; Provider charges vary with model, time, cache and usage. Start there.',
+  )
+  /* The forward chain skipped 06, 07 and 08. §00 tells the reader to work
+     straight through, and the primary button is how they do it — but graph and
+     harness both pointed at compare, so an obedient reader went 05 → 09 and
+     never met the harness, the eval or the injection. They then arrived at a
+     comparison table holding three rows for material they had not been shown.
+
+     The back links were already right: harness says "← Graph engineering",
+     evals "← Harness engineering", security "← Evaluation engineering". Only
+     the forward half had drifted, so this restores the order the file already
+     described rather than choosing a new one. Compare's back link pointed at
+     graph for the same reason and now points at what really precedes it.
+
+     Each needle carries its sibling button because "Next: which one, when →"
+     appears three times; anchored this way each match is unique. Verified with
+     handbook:check, widgets:check and the chain test in tests/handbook.test.ts. */
+  .replace(
+    '<button class="btn" data-goto="loop" type="button">← Loop engineering</button>\n' +
+    '      <button class="btn primary" data-goto="compare" type="button">Next: which one, when →</button>',
+    '<button class="btn" data-goto="loop" type="button">← Loop engineering</button>\n' +
+    '      <button class="btn primary" data-goto="harness" type="button">Next: something has to run it →</button>',
+  )
+  .replace(
+    '<button class="btn" data-goto="graph" type="button">← Graph engineering</button>\n' +
+    '      <button class="btn primary" data-goto="compare" type="button">Next: which one, when →</button>',
+    '<button class="btn" data-goto="graph" type="button">← Graph engineering</button>\n' +
+    '      <button class="btn primary" data-goto="evals" type="button">Next: how do you test it? →</button>',
+  )
+  .replace(
+    '<button class="btn" data-goto="graph" type="button">← Graph engineering</button>\n' +
+    '      <button class="btn primary" data-goto="play" type="button">Next: play the game 🎮 →</button>',
+    '<button class="btn" data-goto="security" type="button">← Security engineering</button>\n' +
+    '      <button class="btn primary" data-goto="play" type="button">Next: play the game 🎮 →</button>',
+  )
+  /* Ask before showing. Every widget here rewards a press and shows the result
+     at once, so the reader never finds out whether they would have been right —
+     and the Lab, which does ask, is behind a paid key. Two sentences carry the
+     whole difference.
+
+     In §07 the reader was told to pick a change and decide whether to ship it,
+     with no moment where they commit to a number, so when it moves it confirms
+     nothing and repairs no belief. In §03 the ten items arrive pre-badged
+     required / helps / noise, which means the section's own stated hard part —
+     choosing wrong — has been chosen for them, and ticking is transcription.
+
+     Reworded in place rather than added to: no node is created, so no ordinal
+     moves and no translation is silently re-pointed. */
+  .replace(
+    '. Pick a change, run the suite, and decide whether you\'d ship it.',
+    '. Pick a change and say what it will score before you run it — then run the '
+    + 'suite, and mind the gap between your guess and the number.',
+  )
+  .replace(
+    'Tick things to load them onto the desk. You have',
+    'Choose your four before you read the badges, then tick things to load them '
+    + 'onto the desk. You have',
+  )
+  /* The meter always renders the baseline, whatever the reader tried last, so
+     "previous" was describing something else. Comparing every change against
+     the baseline is the right arithmetic — the five changes are alternatives
+     rather than cumulative — so the caption moves, not the sum. In the section
+     whose whole lesson is what a number is compared with, a mislabelled
+     comparison is the one thing that cannot stay. */
+  .replace(
+    '<div class="v" id="evPrev">15/20</div><div class="k">previous</div>',
+    '<div class="v" id="evPrev">15/20</div><div class="k">baseline</div>',
+  )
+  /* Forty-five minutes is the reading, and the page's method is pressing
+     things: eleven diagrams, six harness toggles, ten context items, a security
+     run with and without defences, and a ten-round quiz. A reader who budgets
+     by it runs out around §05 — which, before the forward chain was repaired,
+     was also where the primary button dropped them. Split rather than inflated,
+     so the reader can choose a session length instead of abandoning one. */
+  .replace(
+    '🖐️ How to use this page — about 45 minutes end to end',
+    '🖐️ How to use this page — about 30 minutes to read, about an hour if you run everything',
   );
 
 export default ACCESSIBLE_MARKUP;

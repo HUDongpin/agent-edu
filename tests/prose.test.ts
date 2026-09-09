@@ -217,7 +217,7 @@ test("an en-dash range is read as a range, not truncated to its first number", (
   // correct; a reader of only "807" would still pass, so the proof is the
   // reverse — a range whose *end* carries the subject.
   withDoc(
-    "# fixture\n\n`.hb input[type=range]` at `app/globals.css:800\u2013808` styles it.\n",
+    "# fixture\n\n`.hb input[type=range]` at `app/globals.css:808\u2013816` styles it.\n",
     () => {
       const result = run();
       assert.equal(result.status, 0, result.stderr || result.stdout);
@@ -232,7 +232,7 @@ test("a bare `(606)` after a selector is read as a citation into the bullet's fi
       const result = run();
       assert.equal(result.status, 1);
       assert.match(result.stderr, /bare citation `\(100\)` after `\.hb \.rail-list::before`/);
-      assert.match(result.stderr, /app\/globals\.css:602, 999/);
+      assert.match(result.stderr, /app\/globals\.css:602, 1007/);
     },
   );
 });
@@ -277,8 +277,8 @@ test("a range covering a pair of selectors is checked against both", () => {
     () => {
       const result = run();
       assert.equal(result.status, 1);
-      assert.match(result.stderr, /after `\.hb \.t-start` is not where it lives: app\/globals\.css:672/);
-      assert.match(result.stderr, /after `\.hb \.t-idle` is not where it lives: app\/globals\.css:679/);
+      assert.match(result.stderr, /after `\.hb \.t-start` is not where it lives: app\/globals\.css:680/);
+      assert.match(result.stderr, /after `\.hb \.t-idle` is not where it lives: app\/globals\.css:687/);
     },
   );
 });

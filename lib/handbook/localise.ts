@@ -20,7 +20,7 @@
  * no code change anywhere.
  */
 import MARKUP from "./markup";
-import { escapeText, walkHandbook } from "./segments.mjs";
+import { escapeAttr, escapeText, walkHandbook } from "./segments.mjs";
 import { getMessages, isLocale, type Messages } from "@/lib/i18n";
 
 /** One locale's article prose: the flat file `extract-handbook.mjs` writes. */
@@ -45,7 +45,17 @@ export interface LocalisedHandbook {
 /* Walked once per build process, not once per page: the markup is a constant
    and the walk returns the same source segments every time. */
 const SEGMENTS = walkHandbook(MARKUP);
+/*
+ * `localised` is gated on body keys alone, deliberately.
+ *
+ * A locale file missing one key sets localised false, which forces dir="ltr"
+ * and shows the English-only note — so folding attribute keys into this list
+ * would mean a single untranslated aria-label takes Arabic out of RTL
+ * entirely. Attribute coverage is reported instead: loud at build time and
+ * counted by handbook:check, never a cliff the whole page falls off.
+ */
 const BODY_KEYS = SEGMENTS.filter((s) => s.kind === "body").map((s) => s.key);
+const ATTR_KEYS = SEGMENTS.filter((s) => s.kind === "attr").map((s) => s.key);
 
 /** A locale's article prose, or null when nobody has translated it yet. */
 async function getTable(locale: string): Promise<HandbookTable | null> {
@@ -76,7 +86,10 @@ export function applyHandbook(
     const value = seg.kind === "i18n" ? messages[seg.key] : table?.[seg.key];
     if (value == null || value === seg.text) continue;
     if (seg.start < cursor) throw new Error(`localise: segments overlap at ${seg.key}`);
-    out.push(html.slice(cursor, seg.start), escapeText(value));
+    /* An attribute value sits inside double quotes, so a translated one needs
+       the quote escaped too — otherwise it closes the attribute and spills the
+       rest of the sentence into the tag. */
+    out.push(html.slice(cursor, seg.start), seg.kind === "attr" ? escapeAttr(value) : escapeText(value));
     cursor = seg.end;
   }
   out.push(html.slice(cursor));
@@ -96,6 +109,19 @@ export async function localiseHandbook(locale: string): Promise<LocalisedHandboo
       `handbook: messages/handbook/${locale}.json is missing ${missing} of ` +
       `${BODY_KEYS.length} strings — those paragraphs export in English, and ` +
       `the page keeps the English text direction until the file is complete.`,
+    );
+  }
+
+  /* Separate from the body warning and separate from `localised`: an
+     untranslated aria-label leaves a blind reader hearing English on an
+     otherwise translated page, which is worth shouting about, but it must not
+     be allowed to force the whole page back to LTR. */
+  const missingAttrs = table ? ATTR_KEYS.filter((k) => table[k] == null).length : 0;
+  if (table && missingAttrs) {
+    console.warn(
+      `handbook: messages/handbook/${locale}.json is missing ${missingAttrs} of ` +
+      `${ATTR_KEYS.length} attribute strings — diagram descriptions and input ` +
+      `labels stay English for readers who cannot see the diagrams.`,
     );
   }
 

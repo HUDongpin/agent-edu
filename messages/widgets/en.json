@@ -639,7 +639,7 @@
   "w.security.act.refund": "✅ Refunded $18.60 for the one damaged bag, replacement on the way.",
   "w.security.act.flagged": "🚩 Flagged the message as a probable injection attempt for a human to look at.",
   "w.security.money": "${usd}",
-  "w.security.verdict.handled": "**✅ Handled correctly.** Not because the model was clever — because the text arrived labelled as data rather than as orders.",
+  "w.security.verdict.handled": "**✅ This one was handled.** The label stopped a clumsy attack, not every attack. A better-written one gets through, and that is what the other three are for: switch the label off and watch them limit the damage instead.",
   "w.security.verdict.takenOver": "**🚨 The agent was taken over by an email.** Every action below was chosen by a stranger who simply typed it into a support form.",
   "w.security.verdict.cheap": "**⚠️ It was fooled — and it barely mattered.** That is the whole game. You will not win every time, so make losing cheap.",
   "w.security.verdict.idle": "📧 Press **Let the agent handle it** — try it with the defences on, then with them off.",

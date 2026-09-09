@@ -24,6 +24,12 @@
     "nativeReviewLocales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
     "sameAsEnglishAllowlist": [
       {
+        "catalog": "handbook",
+        "key": "hb.attr.doc.02",
+        "locales": ["fr"],
+        "reason": "Sections is the same correctly spelled French noun; it is the section rail's accessible name."
+      },
+      {
         "catalog": "site",
         "key": "brand.name",
         "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],

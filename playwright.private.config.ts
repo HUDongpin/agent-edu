@@ -27,7 +27,18 @@ export default defineConfig({
     },
     video: "off",
   },
-  projects: [{ name: "private-chromium", use: { ...devices["Desktop Chrome"] } }],
+  /* All three engines, because the thing these suites exercise is storage.
+     lib/byok/key-store.ts writes the reader's key to sessionStorage and reads
+     it straight back, treating a value that did not stick as no key at all;
+     that guard is written for Safari's private mode, and WebKit was the one
+     engine it never ran in. The draft and the progress record are the same
+     shape of bet on localStorage. Neither suite uses CDP or branches on
+     browserName, so the only thing that was missing was the projects. */
+  projects: [
+    { name: "private-chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "private-firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "private-webkit", use: { ...devices["Desktop Safari"] } },
+  ],
   webServer: {
     command: "npm run preview:test",
     url: "http://127.0.0.1:4173/en/",

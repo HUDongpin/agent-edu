@@ -116,3 +116,48 @@ test("the offline tool client completes a bounded tool-use sequence", async () =
   assert.match(transcript, /place_order/);
   assert.match(transcript, /send_email/);
 });
+
+test("npm's own --offline flag still reaches the stand-in", () => {
+  /* `--offline` is one of npm's config flags, so `npm run course 4 --offline` —
+     the composition the README's two spellings invite — is consumed by npm and
+     never reaches argv. The stage then ran live and told the reader to pass the
+     flag they had just passed: the worst possible failure for the one person
+     the offline path exists for, who by definition cannot fall back to a key.
+     npm exports what it consumes as npm_config_*, so the seam reads that too. */
+  const read = (env: NodeJS.ProcessEnv) => spawnSync(
+    process.execPath,
+    ["--import", "tsx", "-e", "import('./course/cafe/llm.ts').then((m) => console.log(m.OFFLINE))"],
+    { cwd: process.cwd(), encoding: "utf8", env: { ...process.env, ...env } },
+  ).stdout.trim();
+
+  const clean = { ...process.env };
+  delete clean.npm_config_offline;
+  assert.equal(read({ ...clean, npm_config_offline: "true" }), "true");
+  assert.equal(read({ ...clean, npm_config_offline: undefined }), "false");
+  assert.equal(read({ ...clean, npm_config_offline: "false" }), "false");
+});
+
+test("the stand-in recognises a menu the learner laid out their own way", () => {
+  /* It matched two literals, both emitted by menuText(). A learner whose stage-4
+     prompt genuinely carried the menu, written their own way, had every priced
+     case fail — landing on exactly 8/20, below the stage floor, with twelve case
+     ids and no reason. A menu is item names beside prices, however it is set out. */
+  const asked = 'Customer said: "large flat white please"';
+  const ownWording = [
+    "You are the till. Our drinks and prices:",
+    "- flat white: small 4.20, large 5.10",
+    "- latte: small 4.00, large 4.90",
+    "- americano: small 3.40, large 4.10",
+    "- tea: small 2.80, large 3.40",
+  ].join("\n");
+
+  assert.equal(offlineOrder(asked, ownWording, 0).items[0]?.price, 5.1);
+  // The canonical layout still takes the fast path.
+  assert.equal(offlineOrder(asked, menuText(), 0).items[0]?.price, 5.1);
+  // A prompt that merely mentions a drink is still not a menu, and is still
+  // priced as a guess — the point of stage 3 is that this number is wrong.
+  assert.notEqual(
+    offlineOrder(asked, "You are the till at a small cafe. Be brief.", 0).items[0]?.price,
+    5.1,
+  );
+});

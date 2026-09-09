@@ -39,16 +39,45 @@ export function load(): Data {
   try { return JSON.parse(readFileSync(FILE, "utf8")) as Data; } catch { return {}; }
 }
 
-/** Called by check.ts when a stage passes. Scores only ever go up. */
+/**
+ * Called by check.ts when a stage passes.
+ *
+ * `score` is the best ever and only goes up. `latest` is what actually just
+ * happened, and goes wherever the run went.
+ *
+ * Keeping only the maximum made this file disagree with the course it reports
+ * on. Stage 3 teaches that a number is worth having because it can move, and
+ * the worksheet asks the learner to record one improvement and one regression
+ * and not to hide inconvenient cases — while the instrument quietly held the
+ * high-water mark and showed nothing else. A learner who changed a prompt, lost
+ * two cases and re-ran saw their old number stand. The single habit the course
+ * says separates people who get good at this from people who keep guessing was
+ * the one habit the tool prevented.
+ *
+ * `score` keeps its meaning so an existing progress.json still reads correctly;
+ * `latest` is simply absent there, and the report falls back to the best.
+ */
 export function record(stage: number, values: Entry): void {
   const data = load();
   const entry = data[String(stage)] ?? {};
   for (const [k, v] of Object.entries(values)) {
-    entry[k] = k === "score" && typeof entry[k] === "number"
-      ? Math.max(entry[k] as number, v as number) : v;
+    if (k === "score" && typeof v === "number") {
+      entry.latest = v;
+      entry[k] = typeof entry[k] === "number" ? Math.max(entry[k] as number, v) : v;
+      continue;
+    }
+    entry[k] = v;
   }
   data[String(stage)] = entry;
   writeFileSync(FILE, JSON.stringify(data, null, 1));
+}
+
+/** What the last run scored, falling back to the best for records written before `latest` existed. */
+export function currentScore(entry: Entry | undefined): number | undefined {
+  if (!entry) return undefined;
+  const latest = entry.latest;
+  if (typeof latest === "number") return latest;
+  return typeof entry.score === "number" ? entry.score : undefined;
 }
 
 function main(): void {
@@ -61,12 +90,24 @@ function main(): void {
   for (const [stage, label, key, render] of SHAPE) {
     const entry = data[String(stage)];
     if (!entry || !(key in entry)) { console.log(`  ${stage}  ${label.padEnd(10)} ·`); continue; }
-    console.log(`  ${stage}  ${label.padEnd(10)} ${render(entry[key] as never)}`);
+    // Report the run that happened, and say so when an earlier one went better.
+    // A regression you can see is the thing stage 3 is for; a regression the
+    // report card swallows is the thing it warns you about.
+    const shown = key === "score" ? currentScore(entry) : entry[key];
+    let line = render(shown as never);
+    const best = entry.score;
+    if (key === "score" && typeof best === "number" && typeof shown === "number" && best > shown) {
+      line += `   (your best was ${best}/20)`;
+    }
+    console.log(`  ${stage}  ${label.padEnd(10)} ${line}`);
   }
   console.log("  " + "─".repeat(56));
 
-  const base = data["3"]?.score as number | undefined;
-  const withCtx = data["4"]?.score as number | undefined;
+  // Compare the runs that actually happened, not two high-water marks that may
+  // never have coexisted: a best-of-3 against a best-of-4 can show a jump the
+  // learner never got in one sitting.
+  const base = currentScore(data["3"]);
+  const withCtx = currentScore(data["4"]);
   if (base !== undefined && withCtx !== undefined) {
     const delta = withCtx - base;
     console.log(`\n  The only number that matters: ${base}/20 → ${withCtx}/20 (${delta >= 0 ? "+" : ""}${delta})`);

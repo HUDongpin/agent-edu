@@ -82,3 +82,90 @@ test("homepage metadata describes variable Provider cost instead of promising a 
     assert.doesNotMatch(`${labMeta}\n${buildMeta}\n${handbookCost}`, fixedPriceUnit, `${locale} must not advertise a fixed sample price`);
   }
 });
+
+test("the report card keeps the best and still reports the run that happened", async () => {
+  /* Keeping only the maximum made the instrument disagree with the course. The
+     worksheet asks the learner to record one improvement and one regression and
+     not to hide inconvenient cases, while the report quietly held the
+     high-water mark — so a learner who changed a prompt, lost two cases and
+     re-ran saw their old number stand. */
+  const { currentScore } = await import("../course/report");
+
+  // A regression is reported as the regression it is.
+  assert.equal(currentScore({ score: 20, latest: 17 }), 17);
+  // An improvement moves both.
+  assert.equal(currentScore({ score: 20, latest: 20 }), 20);
+  // A record written before `latest` existed still reads correctly.
+  assert.equal(currentScore({ score: 19 }), 19);
+  assert.equal(currentScore(undefined), undefined);
+});
+
+test("every eval failure carries the reason the runner already computed", async () => {
+  /* `why` names the wrong price against the menu price. It was built for every
+     case and then dropped unless the caller asked for verbose output, so a
+     learner who failed stage 4 read twelve case ids and no reasons — and stage
+     3's README told them to read failures stage 3 never printed. */
+  const { run } = await import("../course/cafe/evalset");
+  const guessing = async () => ({
+    items: [{ name: "flat white", size: "L" as const, price: 9.99 }],
+    total: 9.99,
+    needs_confirmation: false,
+  });
+
+  const [, failures] = await run(guessing as never, { verbose: false });
+  assert.ok(failures.length > 0, "a guessing till must fail cases");
+  for (const failure of failures) {
+    assert.ok(failure.id, "each failure names its case");
+    assert.ok(failure.why.trim().length > 0, `${failure.id} came back with no reason`);
+  }
+  const priced = failures.find((f) => f.id === "large-flat-white");
+  assert.match(priced?.why ?? "", /9\.99.*5\.1/, "a price failure names both prices");
+});
+
+test("a failing check points somewhere short of the whole answer", () => {
+  /* Between FAIL and SOLUTIONS.md — which is the complete answer, and ends the
+     learner's own course — there was nothing at all. */
+  const check = readFileSync("course/check.ts", "utf8");
+  assert.match(check, /function bad\(m: string, hint\?: string\): never/);
+  assert.match(check, /re-read course\/\$\{STAGES\[checking\]\}\/README\.md/);
+  assert.match(check, /checking = stage;/);
+  // The cost warning must read the same seam as the client, or it warns about
+  // spending on a run that npm has already switched offline.
+  assert.match(check, /COSTS_MONEY\.has\(stage\) && !OFFLINE/);
+});
+
+test("the transfer stage ships a worked example, scored honestly", () => {
+  /* Everything up to Stage 8 hands the learner a worked example — the café —
+     and Stage 8 is where it stops. Removing the scaffolding is the point of
+     Stage 9, but the finished thing had never been shown, which is the standard
+     way a transfer task fails to transfer. */
+  const example = readFileSync("course/stage9-project/worked-example.md", "utf8");
+  const template = readFileSync("course/stage9-project/artifact-template.md", "utf8");
+
+  /* It answers the template it is an example of. Every numbered section of the
+     template has to appear, or the example teaches a shape the rubric does not
+     ask for. */
+  const sections = [...template.matchAll(/^## (\d+\. .+)$/gm)].map((m) => m[1]);
+  assert.ok(sections.length >= 8, "the template should have its eight sections");
+  for (const section of sections) {
+    assert.ok(example.includes(section), `the worked example skips "${section}"`);
+  }
+
+  /* Not perfect on purpose. An exemplar that scores full marks teaches that the
+     rubric is a formality; one that loses a row and says why teaches what a 1
+     looks like. */
+  assert.match(example, /\|\s*\*\*1\*\*\s*\|/, "one rubric row must score 1");
+  assert.match(example, /11 of 12/);
+
+  /* The two things the rubric's review prompts hunt for: a gate that is code
+     rather than a request, and a regression that was not hidden. */
+  assert.match(example, /REFUSED/);
+  assert.match(example, /regress/i);
+
+  /* And it must not be the café, which is the scaffolding being removed. */
+  assert.doesNotMatch(example.split("## 1.")[1] ?? "", /\bcafé menu\b|\bflat white\b|\blatte\b/i);
+
+  // Reachable from both places a learner would look for it.
+  assert.match(readFileSync("course/stage9-project/README.md", "utf8"), /worked-example\.md/);
+  assert.match(readFileSync("course/README.md", "utf8"), /worked-example\.md/);
+});

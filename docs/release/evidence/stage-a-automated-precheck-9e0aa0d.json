@@ -1,0 +1,146 @@
+{
+  "schema": "agent-edu.stage-a-automated-precheck.v1",
+  "status": "automated-precheck-pass-external-gates-pending",
+  "generatedAtUtc": "2026-09-09T04:54:28Z",
+  "predecessorRecord": "docs/release/evidence/stage-a-automated-precheck-29e1f8b.json",
+  "target": {
+    "candidateCommitSha": "9e0aa0d329b5db72bf7e8e0cc06d560580a4b0e2",
+    "checkpointSha": null,
+    "integrationBranch": "feat/course-ux-plan",
+    "vercelDeploymentId": null,
+    "workflowDefinitionSha": "2e42d2b37d19bf19a32b4df603b7c8ce23c352dc"
+  },
+  "sourceFiles": {
+    ".github/workflows/ci.yml": "2bb87e093427f91753dbd2023389fb5c3c62b089abeea2193856ea4900e0bbb5",
+    "e2e/smoke.spec.ts": "ad91aa4f3ca11a9d991b5d0c50541c8c20061a90bc7cec82d0cbef77596b984f",
+    "e2e/compat.spec.ts": "b8d8c9922d53e3cc9557e05ec29d7f2269f08b04ea0bec49ad8864fd1df7bc4e",
+    "config/csp-stage.json": "f869af83519bc91304b6caacbe5a88a2394c8ab6e3e1282a9d7824b6d5347a7c",
+    "vercel.json": "10ac0161cd24d2330cca8fa95cbaba1cf7f14f66355cff6b1e8d88d4eb8b6857"
+  },
+  "githubActions": {
+    "runId": 34311863958,
+    "runAttempt": 1,
+    "workflowName": "CI",
+    "event": "pull_request",
+    "headSha": "9e0aa0d329b5db72bf7e8e0cc06d560580a4b0e2",
+    "headBranch": "feat/course-ux-plan",
+    "createdAtUtc": "2026-09-09T04:40:10Z",
+    "completedAtUtc": "2026-09-09T04:44:42Z",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "quality",
+        "jobId": 102340003778,
+        "startedAtUtc": "2026-09-09T04:40:13Z",
+        "completedAtUtc": "2026-09-09T04:41:02Z",
+        "conclusion": "success",
+        "observedSummary": {
+          "unitTests": "324/324 pass",
+          "cspCheck": "pass-enforced-baseline",
+          "staticRoutes": 68,
+          "routeArtifacts": 70,
+          "assetBudgetsPassed": 9,
+          "builtPagesScannedForRawKeys": 67,
+          "trackedFilesSecretScanned": 298
+        }
+      },
+      {
+        "name": "smoke-chromium",
+        "jobId": 102340003551,
+        "startedAtUtc": "2026-09-09T04:40:13Z",
+        "completedAtUtc": "2026-09-09T04:44:41Z",
+        "conclusion": "success",
+        "observedSummary": {
+          "publicSmokeTests": "59/59 pass",
+          "privateLabSuiteTests": "42/42 pass",
+          "failureEvidenceContract": "pass"
+        }
+      },
+      {
+        "name": "compatibility",
+        "jobId": 102340003762,
+        "startedAtUtc": "2026-09-09T04:40:13Z",
+        "completedAtUtc": "2026-09-09T04:43:56Z",
+        "conclusion": "success",
+        "observedSummary": {
+          "compatibilityTests": "12/12 pass",
+          "compatibilityPerBrowser": "4/4 pass",
+          "resilienceTests": "2/2 pass",
+          "syntheticLabVitals": "six routes; one cold and one warm sample per route",
+          "routeTransferBudget": "6 routes within budget, 1259 kB across all of them"
+        }
+      }
+    ]
+  },
+  "automatedBrowserCoverage": {
+    "executionOrigin": "CI-built localhost static export",
+    "derivationPolicy": "counts-observed-in-run-logs-only",
+    "compatibility": {
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "testsPerBrowser": 4,
+      "totalTestsPassed": 12
+    },
+    "resilience": {
+      "browsers": [
+        "chromium"
+      ],
+      "totalTestsPassed": 2,
+      "note": "CPU/network throttling and forced-colors emulation are Chromium-specific; the spec skips the other engines by declaration."
+    },
+    "publicSmoke": {
+      "browsers": [
+        "chromium"
+      ],
+      "totalTestsPassed": 59
+    },
+    "privateLabSuite": {
+      "totalTestsPassed": 42,
+      "configuredProjects": [
+        "private-chromium",
+        "private-firefox",
+        "private-webkit"
+      ],
+      "perProjectSplitObservedInCi": false,
+      "note": "e2e/private-reporter.ts discards titles, errors, steps and worker stdio, so CI prints only the total. The three projects are read from playwright.private.config.ts, not from the run output."
+    }
+  },
+  "vercelDeploymentMetadata": null,
+  "notCarriedForward": {
+    "vercelDeploymentMetadata": "No preview deployment exists for this candidate, so nothing about a deployment is asserted. The predecessor record inspected a READY immutable preview; this record cannot and does not.",
+    "checkpointSha": "Not determinable for this candidate from the run or the repository; left null rather than guessed.",
+    "journeyAndMatrixFigures": "The predecessor recorded derived figures for the nine-locale journey, a 36-case core route matrix with 144 route assertions, and an 8-case Arabic RTL keyboard matrix. Those were derived from e2e/smoke.spec.ts as it stood at 29e1f8b, whose sha256 was e8abfb76ef3c4a1c1720316a78bfda807dfbfe262f4160d29cc383f51bf9e9c5. That file has since changed, so the same arithmetic would not describe this run and is not restated. Only counts printed by the run are recorded above."
+  },
+  "gateEffect": {
+    "stageAReportOnlyStatus": "pending",
+    "stageAEnforcedStatus": "pending",
+    "stageAResultChanged": false,
+    "finalCandidateStableRunCountChanged": false,
+    "releaseAuthorized": false
+  },
+  "externalBoundaries": {
+    "actualVercelResponseHeaderObserved": false,
+    "deployedBrowserObservationWindowCompleted": false,
+    "nativeLocaleReviewPerformed": false,
+    "arabicHumanMatrixPerformed": false,
+    "realProviderCallPerformed": false,
+    "providerCorsObserved": false,
+    "githubRequiredChecksConfigurationObserved": false,
+    "productionDeploymentPerformed": false,
+    "productionRollbackPerformed": false
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsModelReplies": false,
+    "containsProviderBodies": false,
+    "containsBillingAccountDetails": false,
+    "containsScreenshotsOrTraces": false
+  },
+  "decision": "Commit 9e0aa0d3 has a successful attempt-1 CI run across all three jobs, and config/csp-stage.json is committed at the enforced stage, which npm run csp:check confirmed inside that run. This is an automated precheck only, over CI output alone: unlike the 29e1f8b predecessor there is no preview deployment to inspect, so no deployment build configuration and no response header is asserted here. Stage A remains pending, on the same evidence as before — a sanitized observation of the header a Vercel deployment actually returns. Both CSP stages in config/release-readiness.json are still pending, release:check still reports BLOCKED with exit 1, and no release is authorized by this record."
+}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import initHandbook from "@/lib/handbook/behaviour";
 import { makeCopy, type WidgetTable } from "@/lib/handbook/copy";
+import Next from "./Next";
 import { useI18n } from "../I18nProvider";
 
 /**
@@ -30,6 +31,10 @@ export default function Handbook(
 ) {
   const { t, locale } = useI18n();
   const startedFor = useRef<string | null>(null);
+  /* Which body of markup failed to start, not merely that one did: switching
+     language replaces the subtree, and a note about the markup a reader has
+     already navigated away from would outlive its subject. */
+  const [failedFor, setFailedFor] = useState<string | null>(null);
 
   /* The widgets' own strings. They arrive as a prop for the same reason the
      markup does — the table is chosen per locale on the server — but they
@@ -51,7 +56,21 @@ export default function Handbook(
     } catch (err) {
       // A broken widget must not blank the page — the articles and diagrams
       // still have value without it.
+      //
+      // initHandbook binds every widget in one pass, and behaviour.ts is a
+      // byte-for-byte port that may not be restructured to bind them
+      // separately. So a throw part-way through leaves the widgets before it
+      // working and every widget after it inert: the rail still moves, a
+      // later button does nothing, and nothing on the page says why. Logging
+      // it told the maintainer and left the reader guessing, which is the
+      // failure this repository gates everywhere else. Now it says so.
       console.error("handbook widget failed to start:", err);
+      /* The one extra render this costs is the point of the exercise: a reader
+         cannot be told by an effect that only writes to the console, and there
+         is no external store to subscribe to instead — initHandbook either
+         returned or it threw, once, at mount. */
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFailedFor(html);
     }
     // C is intentionally excluded: it and the markup are both chosen from the
     // locale on the server, so they arrive together and change together, and
@@ -63,12 +82,20 @@ export default function Handbook(
     <>
       <div className="shellwrap">
         {!localised && locale !== "en" && <p className="langnote">{t("note.englishOnly")}</p>}
+        {failedFor === html && (
+          <p className="langnote" role="status">{t("note.widgetsFailed")}</p>
+        )}
       </div>
       <div
         className={localised ? "hb" : "hb en-content"}
         dir={localised ? undefined : "ltr"}
         dangerouslySetInnerHTML={{ __html: html }}
       />
+      {/* After the handbook, not inside it: the markup is byte-stable and its
+          prose is generated, so the offer that the frozen sections make exactly
+          once — and one section before the ending — is repeated here, where it
+          is reachable from every section. */}
+      <Next />
     </>
   );
 }

@@ -2,19 +2,39 @@ import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
 import { extname, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
-// Baselines: the 2026-08-21 release candidate, built with Node 20 and
-// Next 16.3.1. Limits leave 30.9–47.5% headroom. These are uncompressed
-// static-export byte budgets, not HTTP transfer sizes or Web Vitals.
+// Baselines: measured on this branch, built with Node 20 and Next 16.3.1.
+// Limits leave 26.7-43.3% headroom. These are uncompressed static-export byte
+// budgets, not HTTP transfer sizes or Web Vitals — for what a route actually
+// pulls over the wire, see scripts/check-transfer-budget.mjs.
+//
+// Rebaselined from the 2026-08-21 candidate `60f7edc`, where three of these
+// had stopped being able to catch anything: the export halved, and a budget
+// written around 24 MB went on passing an export of 13 MB with 60% of its
+// limit unused. A gate that cannot fail is not a gate.
+//
+// Two rules held while rebaselining, and worth holding again:
+//
+//   Baselines move to what is measured. Two of these are *larger* than the
+//   2026-08-21 figures — the JavaScript bundle has grown 5.3% over the
+//   thirty-odd commits on this branch — and recording that is the point.
+//   A baseline that only ever records improvements is a scoreboard.
+//
+//   Limits fall where the measurement fell, and none is raised. A pass that
+//   loosens a limit is not a tightening pass, and the moment to argue for
+//   more room is when something needs it, in the commit that needs it.
+//
+// The three that moved leave room for roughly three more localised routes —
+// nine pages each — before the tightest of them binds.
 export const BUDGETS = {
-  nextStaticBytes: { baseline: 2_055_566, limit: 2_750_000 },
-  javascriptBytes: { baseline: 1_985_800, limit: 2_650_000 },
-  cssBytes: { baseline: 69_766, limit: 100_000 },
+  nextStaticBytes: { baseline: 2_161_232, limit: 2_750_000 },
+  javascriptBytes: { baseline: 2_091_129, limit: 2_650_000 },
+  cssBytes: { baseline: 70_103, limit: 100_000 },
   largestNextStaticBytes: { baseline: 229_156, limit: 300_000 },
-  emittedPublicBytes: { baseline: 1_136_379, limit: 1_600_000 },
+  emittedPublicBytes: { baseline: 1_136_508, limit: 1_600_000 },
   largestPublicAssetBytes: { baseline: 373_193, limit: 500_000 },
-  routePayloadBytes: { baseline: 20_978_583, limit: 30_000_000 },
-  largestRoutePayloadBytes: { baseline: 338_889, limit: 500_000 },
-  totalExportBytes: { baseline: 24_141_664, limit: 34_000_000 },
+  routePayloadBytes: { baseline: 10_117_399, limit: 14_500_000 },
+  largestRoutePayloadBytes: { baseline: 301_813, limit: 430_000 },
+  totalExportBytes: { baseline: 13_415_139, limit: 19_000_000 },
 };
 
 function kindFor(path) {

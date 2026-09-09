@@ -29,6 +29,19 @@ language, nine languages, currently 100% covered. Adding a string to English
 without adding it to the other eight is a regression, not a to-do. A translator
 must be able to fix a line without knowing React.
 
+A server component reads the whole table for free; a *client* one reads through
+React context, and everything in that context is serialised into the page twice
+— into the flight payload inlined in the HTML, and into the `.txt` a `<Link>`
+prefetches. So the table is scoped: `Shell` provides the chrome's six keys and
+each route adds its own with `<I18nScope>`. `config/i18n-scopes.json` is
+**generated** from the import graph by `npm run i18n:extract` — never hand-edit
+it — and `npm run i18n:check` fails on drift, on a route that has a scope and
+does not apply it, and on any key rendered as its own name in `out/`. That last
+rule is the point: a key outside its scope does not throw, it renders as
+`nav.theme`, and every other gate stays green. Add a `t()` call to a client
+component and re-extract; `tests/i18n-scopes.test.ts` watches all three rules
+fail on the shape each was written to catch.
+
 The handbook's article prose is the exception, and lives in `messages/handbook/`.
 `en.json` there is **generated** — never hand-edit it. Change the wording in
 `lib/handbook/markup.ts` and re-run `npm run handbook:extract`; `npm run
@@ -106,8 +119,24 @@ British spelling. Sentence case in headings. Prefer deleting a widget over addin
 one. Do not rewrite existing copy to satisfy a linter.
 
 ## Before you say you're done
-`npm run build` must pass, `npm run prose:check` must pass if you touched
-`course/`, and `npm run routes:check` must agree with
+`npm run build` must pass — it runs `scripts/prune-export.mjs` afterwards,
+which drops the byte-identical copy Next writes of every route payload and
+stops without deleting anything if a copy ever stops being one. `npm run
+i18n:check` must pass, and wants an `out/` to scan, so run it after the build
+as CI does. `npm run prose:check` must pass if you touched `course/` — or
+anything a citation counts lines against: inserting a comment into
+`app/globals.css` moved nine of them. `npm run transfer:check` must pass if you
+changed what a route loads: it measures what each route actually pulls over
+the wire and compares it against `config/transfer-budget.json`, broken down by
+document, script, stylesheet and prefetch payload — because shared JavaScript
+is most of a route, and a doubled document hides inside a total that large.
+The measurement is byte-exact because each sample waits for the page to stop
+fetching first — prefetch completion is otherwise a race that looks like
+determinism. The 3% allowance is for a different zlib, not for growth, and a
+kind under 4 kB is recorded but not gated, because at that size one more
+prefetch request would trip it. Intended growth is not an error, it is a diff: run `npm run
+transfer:update` and commit the new numbers so the cost is reviewable as
+bytes. `npm run routes:check` must agree with
 `config/route-manifest.json` — that checker is the gate, not a number written
 down here. It currently reports 66 public + 2 internal = 68. The count moves by
 nine every time a localised path is added, so check it rather than trusting this

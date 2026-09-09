@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: npm
       - name: Restore Next.js build cache
         uses: actions/cache@v5
@@ -35,15 +35,22 @@ jobs:
       - run: npm ci
       - run: npm run handbook:check
       - run: npm run widgets:check
+      - run: npm run i18n:check
       - run: npm run prose:check
       - run: npm run analytics:check
-      - run: npm test
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run secrets:check
       - run: npm run csp:check
       - run: npm run build
+      # After the build, because tests/i18n-scopes.test.ts copies out/ to watch
+      # the rule that catches a raw key printed to a reader fail on an injected
+      # defect. On a fresh runner there is no out/ until this point, and cpSync
+      # threw ENOENT; it passed on every developer machine, where a previous
+      # build had left one lying about.
+      - run: npm test
       - run: npm run routes:check
+      - run: npm run i18n:check
       - run: npm run assets:check
 
   smoke-chromium:
@@ -55,10 +62,15 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      # Three engines, not one: test:smoke runs the private Lab suites, and
+      # playwright.private.config.ts now declares firefox and webkit so the
+      # sessionStorage guard in lib/byok/key-store.ts is exercised in WebKit.
+      # The job keeps its name because the safe smoke it is named for is still
+      # chromium-only, and because it is a required check.
+      - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run build
       - name: Prove safe/private failure evidence contracts
         run: npm run test:evidence-contract
@@ -85,7 +97,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium firefox webkit
@@ -93,7 +105,9 @@ jobs:
       - run: npm run test:compat
       - run: npm run test:resilience
       - name: Verify synthetic lab-vitals harness and schema
-        run: npm run --silent vitals:lab -- --samples=1
+        run: npm run --silent vitals:lab -- --samples=1 > "${{ runner.temp }}/lab-vitals.json"
+      - name: Check per-route transfer budget
+        run: npm run transfer:check -- --report="${{ runner.temp }}/lab-vitals.json"
       - name: Scan compatibility failure evidence for private data
         id: artifact_privacy
         if: ${{ failure() }}

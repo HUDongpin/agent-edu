@@ -36,7 +36,7 @@ export interface Course {
 export const COURSES: Course[] = [
   {
     id: "handbook", href: "/handbook/", level: "beginner", format: "read",
-    topic: "foundations", minutes: 45, status: "available", hue: "var(--brand)",
+    topic: "foundations", minutes: 60, status: "available", hue: "var(--brand)",
   },
   {
     id: "lab", href: "/lab/", level: "beginner", format: "interactive",
