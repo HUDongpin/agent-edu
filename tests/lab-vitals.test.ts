@@ -152,21 +152,36 @@ test("lab-vitals schema requires six routes, cold and warm raw samples, and fini
   missingExport.artifact.export.digest = "not-a-sha256";
   assert.throws(() => assertLabVitalsReport(missingExport, 1), /export fingerprint/);
 
+  /* The three cases below feed the assertion a report that is wrong on
+     purpose: a profile deleted, a profile that does not exist, and one that
+     claims emulation without the numbers that would describe it. `report` is
+     inferred from the literal above, so TypeScript is right to refuse to
+     build any of them — refusing malformed reports is the whole job of the
+     function under test. The refusal is waived at the one statement that
+     does the damage, so the report type and assertLabVitalsReport's own
+     signature both stay as strict as they were. */
+  type RouteProfiles = (typeof report)["routes"][number]["profiles"];
+  type NetworkProfile = (typeof report)["conditions"]["networkProfiles"][number];
+
   // A profile that was declared and never measured is the failure this shape
   // makes possible, so it is the one worth naming.
   const missingProfile = structuredClone(report);
-  delete missingProfile.routes[2].profiles["slow-4g"];
+  delete (missingProfile.routes[2].profiles as Partial<RouteProfiles>)["slow-4g"];
   assert.throws(
     () => assertLabVitalsReport(missingProfile, 1),
     /lab has no results for network profile slow-4g/,
   );
 
   const unknownProfile = structuredClone(report);
-  unknownProfile.conditions.networkProfiles = [{ id: "dial-up", emulated: true }];
+  unknownProfile.conditions.networkProfiles = [
+    { id: "dial-up", emulated: true } as unknown as NetworkProfile,
+  ];
   assert.throws(() => assertLabVitalsReport(unknownProfile, 1), /unknown network profile/);
 
   const unstatedEmulation = structuredClone(report);
-  unstatedEmulation.conditions.networkProfiles = [{ id: "slow-4g", emulated: true }];
+  unstatedEmulation.conditions.networkProfiles = [
+    { id: "slow-4g", emulated: true } as unknown as NetworkProfile,
+  ];
   assert.throws(
     () => assertLabVitalsReport(unstatedEmulation, 1),
     /claims emulation without stating its conditions/,
