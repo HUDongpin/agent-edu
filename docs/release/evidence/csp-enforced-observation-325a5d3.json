@@ -15,8 +15,9 @@
     "command": "vercel promote https://agent-fxnexcm4x-peter-dongpin-hu-s-projects.vercel.app",
     "authenticatedAs": "hudongpin-7372",
     "result": "success",
-    "reason": "Before this, aicourse.top resolved to deployment agent-ike1qe3wa, created 2026-08-28. Neither the merge of #11 at 08:32Z nor of #16 at 09:38Z reached the apex: both produced Ready production deployments whose only aliases were agent-edu-*.vercel.app hostnames. The apex had been serving a twelve-day-old build, which is why the enforced header could not be observed before promotion.",
-    "notObserved": "Why the apex was pinned to that deployment. It may have been deliberate; nothing in the repository records it either way."
+    "reason": "AS ORIGINALLY WRITTEN, superseded — see corrections[0]. Before this, aicourse.top resolved to deployment agent-ike1qe3wa, created 2026-08-28. Neither the merge of #11 at 08:32Z nor of #16 at 09:38Z reached the apex: both produced Ready production deployments whose only aliases were agent-edu-*.vercel.app hostnames. The apex had been serving a twelve-day-old build, which is why the enforced header could not be observed before promotion.",
+    "notObserved": "Why the apex was pinned to that deployment. It may have been deliberate; nothing in the repository records it either way.",
+    "reasonSupersededBy": "corrections[0]"
   },
   "observation": {
     "tool": "curl over HTTPS, plus a page sweep in the Claude Code in-app browser",
@@ -72,7 +73,17 @@
     "meaning": "The policy the apex now enforces is the same 303 bytes the 2026-08-21 record observed in report-only. Only the header name changed, which is what scripts/set-csp-stage.mjs permits: transitionCspStage throws if the value moves."
   },
   "localeSweep": {
-    "locales": ["en", "es", "fr", "de", "ja", "ko", "ar", "zh-Hans", "zh-Hant"],
+    "locales": [
+      "en",
+      "es",
+      "fr",
+      "de",
+      "ja",
+      "ko",
+      "ar",
+      "zh-Hans",
+      "zh-Hant"
+    ],
     "enforcedHeaderPresent": 9,
     "totalChecked": 9,
     "allStatus200": true,
@@ -81,10 +92,41 @@
   },
   "deployedBrowserSweep": {
     "routes": [
-      { "path": "/en/", "loaded": true, "consoleErrors": 0, "cspViolations": 0 },
-      { "path": "/en/handbook/", "loaded": true, "consoleErrors": 0, "cspViolations": 0, "diagrams": 20, "diagramEdgesDrawn": 106, "railTabs": 11, "widgetStartFailureNoticeShown": false },
-      { "path": "/en/lab/", "loaded": true, "consoleErrors": 0, "cspViolations": 0, "keyPanelPresent": true, "stepTabs": 4, "liveRegions": 2 },
-      { "path": "/ar/handbook/", "loaded": true, "consoleErrors": 0, "cspViolations": 0, "dir": "rtl", "lang": "ar", "diagrams": 20, "diagramEdgesDrawn": 106 }
+      {
+        "path": "/en/",
+        "loaded": true,
+        "consoleErrors": 0,
+        "cspViolations": 0
+      },
+      {
+        "path": "/en/handbook/",
+        "loaded": true,
+        "consoleErrors": 0,
+        "cspViolations": 0,
+        "diagrams": 20,
+        "diagramEdgesDrawn": 106,
+        "railTabs": 11,
+        "widgetStartFailureNoticeShown": false
+      },
+      {
+        "path": "/en/lab/",
+        "loaded": true,
+        "consoleErrors": 0,
+        "cspViolations": 0,
+        "keyPanelPresent": true,
+        "stepTabs": 4,
+        "liveRegions": 2
+      },
+      {
+        "path": "/ar/handbook/",
+        "loaded": true,
+        "consoleErrors": 0,
+        "cspViolations": 0,
+        "dir": "rtl",
+        "lang": "ar",
+        "diagrams": 20,
+        "diagramEdgesDrawn": 106
+      }
     ],
     "totalCspViolations": 0,
     "totalConsoleErrors": 0,
@@ -111,7 +153,7 @@
     "productionRollbackPerformed": false
   },
   "notObserved": {
-    "vercelAliasMetadata": "vercel inspect still lists only agent-edu-*.vercel.app aliases for dpl_2ty47cGzx7tnbKYQy3v1Wg53bUBY, and does not show aicourse.top, though the apex demonstrably serves that deployment. This record asserts what the HTTP responses contained, not what Vercel's alias listing says.",
+    "vercelAliasMetadata": "Vercel's per-deployment alias listing is not a usable signal here and this record relies on none of it. Measured 2026-09-09T11:4xZ: `vercel inspect` reports https://aicourse.top on BOTH agent-cw4cqf00o (37m old) and agent-ike1qe3wa (12d old), and on neither for agent-fxnexcm4x — while the apex demonstrably served agent-fxnexcm4x's build at the time of the observation above. A domain cannot be held by two deployments at once, so the listing contradicts itself. Every claim in this record is grounded in HTTP responses and served content instead.",
     "providerCall": "No paid Provider request was made, so connect-src was not exercised against api.deepseek.com on the live site. It is enforced in CI by e2e/compat.spec.ts, in three engines, against a built export.",
     "observationWindow": "A single point-in-time sweep, not a window. Nothing here speaks to behaviour over hours or across the CDN's other edges; every response came via the hnd1 edge."
   },
@@ -125,5 +167,16 @@
     "containsBillingAccountDetails": false,
     "containsScreenshotsOrTraces": false
   },
-  "decision": "The production apex aicourse.top serves the enforced Content-Security-Policy header, byte-identical to the reviewed baseline, on all nine locales, and the four routes swept under it raised no CSP violation and no console error. This is an automated precheck only, taken at one moment through one edge. Stage A remains pending: the gate also wants a deployed browser observation window, and neither CSP stage in config/release-readiness.json is moved by this file. No release is authorized by this record."
+  "decision": "The production apex aicourse.top serves the enforced Content-Security-Policy header, byte-identical to the reviewed baseline, on all nine locales, and the four routes swept under it raised no CSP violation and no console error. This is an automated precheck only, taken at one moment through one edge. Stage A remains pending: the gate also wants a deployed browser observation window, and neither CSP stage in config/release-readiness.json is moved by this file. No release is authorized by this record.",
+  "corrections": [
+    {
+      "correctedAt": "2026-09-09T11:47:00Z",
+      "field": "promotion.reason",
+      "whatWasClaimed": "That aicourse.top resolved to deployment agent-ike1qe3wa, and that the deployments from the #11 and #16 merges had only agent-edu-*.vercel.app aliases.",
+      "whyItIsWithdrawn": "Both claims were read from `vercel inspect`'s per-deployment alias listing, which has since been shown to contradict itself: two deployments twelve days apart both report holding https://aicourse.top. No attribution of the domain to a particular deployment can rest on that source, in either direction.",
+      "whatRemainsVerified": "That the apex served a pre-#16 build before the promotion, established independently of the alias listing by content fingerprint: the served CSS chunk was 1-r6krpf0kmnf.css and contained neither the forced-colors block nor .errorbox, both added in #16. Repeated uncached probes (x-vercel-cache MISS, age 0) returned content-security-policy-report-only across several paths and locales. Every measured field in this record — the header name, the 303-byte policy and its sha256, the nine-locale sweep, the four-route browser sweep — was taken from HTTP responses and is unaffected.",
+      "stillUnknown": "Whether automatic production promotion is enabled for this project, and therefore why the #11 and #16 deployments did not appear to reach the apex while a later one did. The alias listing cannot answer it. The question is settled by the next merge that changes built output: if the apex serves it without anyone running `vercel promote`, promotion is automatic. The #17 merge could not settle it, being a docs-only change whose out/ is byte-identical to its predecessor.",
+      "effectOnConclusions": "None. The promotion was performed and the enforced header was observed afterwards; only the account of what the apex pointed at beforehand is withdrawn. gateEffect is unchanged: both CSP stages remain pending and releaseAuthorized remains false."
+    }
+  ]
 }
