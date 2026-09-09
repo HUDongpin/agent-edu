@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   EMPTY_LEARNING_STATE,
   HANDBOOK_SECTION_IDS,
+  LAB_STEPS,
   LEARNING_KEY,
   LEGACY_PROGRESS_KEY,
   LEGACY_SECTION_KEY,
@@ -54,6 +56,7 @@ class StorageEvents extends EventTarget {
 function v2(overrides: {
   handbook?: Partial<LearningStateV2["handbook"]>;
   lab?: Partial<LearningStateV2["lab"]>;
+  declared?: Partial<LearningStateV2["declared"]>;
 } = {}): LearningStateV2 {
   return {
     version: 2,
@@ -68,8 +71,23 @@ function v2(overrides: {
       evalRunsCompleted: 0,
       ...overrides.lab,
     },
+    declared: {
+      completed: [],
+      ...overrides.declared,
+    },
   };
 }
+
+/** The nine shipped catalogues, read from disk so a missing key fails here. */
+const LOCALE_FILES = [
+  "en", "ar", "de", "es", "fr", "ja", "ko", "zh-Hans", "zh-Hant",
+] as const;
+
+function readMessages(locale: string): Record<string, string> {
+  return JSON.parse(readFileSync(`messages/${locale}.json`, "utf8")) as Record<string, string>;
+}
+
+const EN = readMessages("en");
 
 function json(value: unknown): string {
   return JSON.stringify(value);
@@ -233,6 +251,112 @@ test("visiting all eleven Handbook sections still does not imply completion", ()
   assert.equal(progress.status, "in-progress");
   assert.equal(progress.completed, false);
   assert.equal(progress.exploredSections, 11);
+});
+
+test("a full Handbook bar never sits beside Resume", () => {
+  // Every section opened, no Control Room round. The bar is legitimately full —
+  // eleven is the denominator the product names — so the call to action is what
+  // has to change: you are not resuming, you are finishing.
+  const state = v2({ handbook: { visitedSections: [...HANDBOOK_SECTION_IDS] } });
+  const progress = selectCourseProgress(state, "handbook");
+  assert.equal(progress.kind, "tracked");
+  if (progress.kind !== "tracked") return;
+  assert.deepEqual([progress.current, progress.total], [11, 11]);
+  assert.equal(progress.percent, 100);
+  assert.equal(progress.status, "in-progress");
+  assert.equal(progress.action, "finish");
+  assert.notEqual(progress.action, "resume");
+});
+
+test("the call to action never contradicts the bar, in every reachable state", () => {
+  for (let visited = 0; visited <= HANDBOOK_SECTION_IDS.length; visited += 1) {
+    for (const runs of [0, 1, 4]) {
+      const state = v2({
+        handbook: {
+          visitedSections: HANDBOOK_SECTION_IDS.slice(0, visited),
+          controlRoom: { completedRuns: runs },
+        },
+      });
+      const progress = selectCourseProgress(state, "handbook");
+      if (progress.kind !== "tracked") continue;
+      const where = `${visited} sections, ${runs} runs`;
+      assert.equal(progress.action === "review", progress.status === "completed", where);
+      if (progress.percent === 100 && progress.status !== "completed") {
+        assert.equal(progress.action, "finish", where);
+      }
+      if (progress.action === "resume") assert.ok(progress.percent < 100, where);
+    }
+  }
+});
+
+test("finishing the briefs having read little is completed, and says so honestly", () => {
+  // c.handbook.artifact calls this state "targeted sections to revisit". The
+  // tick counts briefs, the counter counts sections, and they no longer claim
+  // to be the same measurement.
+  const state = v2({
+    handbook: { visitedSections: ["play"], controlRoom: { completedRuns: 1 } },
+  });
+  const progress = selectCourseProgress(state, "handbook");
+  assert.equal(progress.kind, "tracked");
+  if (progress.kind !== "tracked") return;
+  assert.deepEqual([progress.current, progress.total], [1, 11]);
+  assert.equal(progress.percent, 9);
+  assert.equal(progress.action, "review");
+  assert.equal(progress.measure, "sections");
+});
+
+test("the Handbook bar counts sections and the verdict counts briefs", () => {
+  const state = v2({
+    handbook: {
+      visitedSections: [...HANDBOOK_SECTION_IDS],
+      controlRoom: { completedRuns: 7 },
+    },
+  });
+  const progress = selectHandbookProgress(state);
+  assert.equal(progress.exploredSections, 11);
+  assert.equal(progress.totalSections, 11);
+  assert.equal(progress.completed, true);
+  // The twelfth-unit denominator is gone: eleven is the only number the product
+  // names, in c.handbook.blurb and in w.progress.sections in nine languages.
+  assert.equal("coveredSteps" in progress, false);
+  assert.equal("totalSteps" in progress, false);
+  const card = selectCourseProgress(state, "handbook");
+  assert.equal(card.percent, 100);
+  assert.equal(card.kind === "tracked" && card.action, "review");
+});
+
+test("every tracked course names the unit its bar counts", () => {
+  const handbook = selectCourseProgress(EMPTY_LEARNING_STATE, "handbook");
+  const lab = selectCourseProgress(EMPTY_LEARNING_STATE, "lab");
+  assert.equal(handbook.kind === "tracked" && handbook.measure, "sections");
+  assert.equal(lab.kind === "tracked" && lab.measure, "steps");
+  for (const measure of ["sections", "steps"]) {
+    assert.ok(`cat.count.${measure}` in EN, `messages/en.json needs cat.count.${measure}`);
+  }
+});
+
+test("the Lab never reaches Finish, because a full Lab bar is a completed Lab", () => {
+  const store = createLearningStore({ storage: new MemoryStorage(), events: null });
+  for (const step of LAB_STEPS) {
+    store.recordLabStep(step);
+    const progress = selectCourseProgress(store.readLearningState(), "lab");
+    if (progress.kind !== "tracked") continue;
+    assert.notEqual(progress.action, "finish");
+  }
+  const done = selectCourseProgress(store.readLearningState(), "lab");
+  assert.equal(done.kind === "tracked" && done.action, "review");
+  assert.equal(done.percent, 100);
+});
+
+test("the four call-to-action words resolve in all nine languages", () => {
+  for (const locale of LOCALE_FILES) {
+    const messages = readMessages(locale);
+    for (const action of ["start", "resume", "finish", "review"]) {
+      assert.ok(`cat.${action}` in messages, `${locale} is missing cat.${action}`);
+    }
+    // Retired with the tooltip that was its only caller.
+    assert.equal("cat.progress" in messages, false, `${locale} still carries cat.progress`);
+  }
 });
 
 test("a zero-score Control Room run is a real Handbook completion", () => {
@@ -460,7 +584,7 @@ test("all reset keeps a v2 marker but clears every legacy progress key", () => {
   assert.equal(storage.getItem(LEGACY_PROGRESS_KEY), null);
 });
 
-test("Part 3 is always external/open with no website percentage", () => {
+test("Part 3 is external with no website percentage until the reader says otherwise", () => {
   const state = migrateLegacyLearningState({
     section: null,
     seen: null,
@@ -469,15 +593,99 @@ test("Part 3 is always external/open with no website percentage", () => {
   assert.deepEqual(selectCourseProgress(state, "build"), {
     kind: "external",
     courseId: "build",
+    status: "not-started",
     action: "open",
+    declaredComplete: false,
     percent: null,
   });
 });
 
+test("a reader can declare Part 3 finished, and take it back", () => {
+  const store = createLearningStore({ storage: new MemoryStorage(), events: new EventTarget() });
+
+  const declared = store.declareCourseComplete("build", true);
+  assert.deepEqual(selectCourseProgress(declared, "build"), {
+    kind: "external",
+    courseId: "build",
+    status: "completed",
+    action: "review",
+    declaredComplete: true,
+    percent: null,
+  });
+  assert.equal(declared.declared.completed.includes("build"), true);
+  assert.equal(typeof declared.declared.lastDeclaredAt, "string");
+
+  const withdrawn = store.declareCourseComplete("build", false);
+  assert.deepEqual(withdrawn.declared, { completed: [] });
+  assert.equal(selectCourseProgress(withdrawn, "build").kind, "external");
+  assert.equal(selectCourseProgress(withdrawn, "build").percent, null);
+});
+
+test("a declaration is never a measurement: percent stays null on both sides", () => {
+  const store = createLearningStore({ storage: new MemoryStorage(), events: new EventTarget() });
+  for (const complete of [true, false]) {
+    const state = store.declareCourseComplete("build", complete);
+    const progress = selectCourseProgress(state, "build");
+    assert.equal(progress.percent, null);
+    assert.equal("current" in progress, false);
+    assert.equal("total" in progress, false);
+  }
+});
+
+test("declaring an id the site cannot declare changes nothing", () => {
+  const store = createLearningStore({ storage: new MemoryStorage(), events: new EventTarget() });
+  const before = store.readLearningState();
+  // Cast: the guard exists for untrusted callers, not just for the type system.
+  const after = store.declareCourseComplete("handbook" as "build", true);
+  assert.deepEqual(after.declared, before.declared);
+  assert.deepEqual(after.declared, { completed: [] });
+});
+
+test("a stored v2 record written before declarations existed still decodes", () => {
+  const legacyShape = {
+    version: 2,
+    handbook: { lastSection: "code", visitedSections: ["code"], controlRoom: { completedRuns: 0 } },
+    lab: { completedSteps: [], evalRunsCompleted: 0 },
+  };
+  const state = decodeLearningState(JSON.stringify(legacyShape));
+  assert.deepEqual(state.declared, { completed: [] });
+  assert.deepEqual(state.handbook.visitedSections, ["code"]);
+  const build = selectCourseProgress(state, "build");
+  assert.equal(build.kind, "external");
+  assert.equal(build.kind === "external" && build.declaredComplete, false);
+});
+
+test("a junk declaration list is dropped rather than trusted", () => {
+  const state = decodeLearningState(JSON.stringify({
+    version: 2,
+    handbook: { lastSection: "start", visitedSections: [], controlRoom: { completedRuns: 0 } },
+    lab: { completedSteps: [], evalRunsCompleted: 0 },
+    declared: { completed: ["handbook", "lab", "nonsense", 7, null, "build", "build"] },
+  }));
+  assert.deepEqual(state.declared.completed, ["build"]);
+});
+
+test("resetting declarations leaves handbook and Lab progress alone", () => {
+  const store = createLearningStore({ storage: new MemoryStorage(), events: new EventTarget() });
+  store.recordHandbookVisit("code");
+  store.recordLabStep("first-call");
+  store.declareCourseComplete("build", true);
+
+  const reset = store.resetLearningState("declared");
+  assert.deepEqual(reset.declared, { completed: [] });
+  assert.deepEqual(reset.handbook.visitedSections, ["code"]);
+  assert.deepEqual(reset.lab.completedSteps, ["first-call"]);
+
+  const all = store.resetLearningState("all");
+  assert.strictEqual(all, EMPTY_LEARNING_STATE);
+});
+
 test("unavailable catalogue entries are untracked rather than fake zero progress", () => {
-  assert.deepEqual(selectCourseProgress(EMPTY_LEARNING_STATE, "tools"), {
+  // Deliberately an id the catalogue does not carry: the assertion is about the
+  // fallback branch, not about any particular course still being unbuilt.
+  assert.deepEqual(selectCourseProgress(EMPTY_LEARNING_STATE, "no-such-course"), {
     kind: "untracked",
-    courseId: "tools",
+    courseId: "no-such-course",
     action: "unavailable",
     percent: null,
   });

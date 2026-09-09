@@ -28,9 +28,9 @@ If your numbers look different from a friend's, that is the point too. Try `CAFE
 
 ## About the JSON
 
-`llm.ask(..., schema=...)` asks for **structured outputs**: the reply is constrained to your JSON Schema, so it *cannot* come back the wrong shape. You may have seen older code that begs in the prompt — *"reply with ONLY valid JSON, no preamble"* — then regex-extracts and retries on parse failure. Where the feature exists, that whole apparatus is replaced by passing the schema.
+`ask(prompt, { schema })` asks for **structured outputs**: the reply is constrained to your JSON Schema, so it *cannot* come back the wrong shape. You may have seen older code that begs in the prompt — *"reply with ONLY valid JSON, no preamble"* — then regex-extracts and retries on parse failure. Where the feature exists, that whole apparatus is replaced by passing the schema.
 
-Where it doesn't, you write the apparatus. **DeepSeek accepts `output_config.format` and silently ignores it** — you get confident prose where you expected JSON, which is worse than an error, because an error would have told you. So `cafe/llm.ts` detects the provider, puts the schema into the prompt in words, and validates the reply itself. Open it and read `_schema_fallback` and `_extract_json`; that is the fallback you would otherwise have written from scratch, and knowing when you still need it is the actual skill.
+Where it doesn't, you write the apparatus. **DeepSeek accepts `output_config.format` and silently ignores it** — you get confident prose where you expected JSON, which is worse than an error, because an error would have told you. So `cafe/llm.ts` detects the provider, puts the schema into the prompt in words, and validates the reply itself. Open it and read `schemaFallback` and `extractJSON`; that is the fallback you would otherwise have written from scratch, and knowing when you still need it is the actual skill.
 
 ## About the prices
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Cover from "./Cover";
 import { useI18n } from "../I18nProvider";
+import Rich from "../Rich";
 import {
   COURSES, FORMATS, LEVELS, STATUSES, TOPICS,
   type Format, type Level, type Status, type Topic,
@@ -60,11 +61,14 @@ export default function Catalog({ locale }: { locale: string }) {
   const dirty = [level, format, topic, status].some((v) => v !== ALL);
 
   function cta(progress: CourseProgress): string {
-    if (progress.kind === "external") return t("track.3.cta");
+    // An off-site course the reader has marked finished reads "Review", the
+    // same word a tracked course uses — the reason differs, the state does not.
+    if (progress.kind === "external") {
+      return progress.declaredComplete ? t("cat.review") : t("track.3.cta");
+    }
     if (progress.kind !== "tracked") return t("cat.start");
-    if (progress.status === "completed") return t("cat.review");
-    if (progress.status === "in-progress") return t("cat.resume");
-    return t("cat.start");
+    // The selector decides the word, so a full bar can never say "Resume".
+    return t(`cat.${progress.action}`);
   }
 
   return (
@@ -135,12 +139,20 @@ export default function Catalog({ locale }: { locale: string }) {
                       </span>
                     ) : progress.kind === "tracked" ? (
                       <>
-                        <div className="cprog"
-                          title={`${progress.current} ${t("ui.of")} ${progress.total} · ${t("cat.progress")}`}>
+                        {/*
+                          The counter names its own unit, so a full bar cannot
+                          be read as a finished course. One key carrying both
+                          numbers, not a number with a noun appended: `t` does
+                          no interpolation and Korean puts the noun first.
+                        */}
+                        <div className="cprog">
                           <div className="cbar">
                             <span style={{ width: `${progress.percent}%`, background: c.hue }} />
                           </div>
-                          <span className="cpct">{progress.current}/{progress.total}</span>
+                          <span className="cpct">
+                            <Rich k={`cat.count.${progress.measure}`}
+                              vars={{ current: progress.current, total: progress.total }} />
+                          </span>
                         </div>
                         <span className="cgo" style={{ color: c.hue }}>
                           {cta(progress)} <span className="arrow">→</span>

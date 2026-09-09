@@ -335,6 +335,15 @@ select{width:auto;max-width:100%;flex:0 1 auto;
 .proglist .tick{font-family:var(--mono);width:1.1em;flex:0 0 auto}
 .proglist li.done .tick{color:var(--green)}
 
+/* ---- self-declared completion (Part 3) ----
+   No new tokens: --green and --ink-3 are already defined in all three theme
+   blocks. Logical properties only, so Arabic mirrors from dir="rtl" alone. */
+.declare{margin-block-start:14px;padding-block-start:14px;border-block-start:1px solid var(--line-2)}
+.declare .acts{margin-block-start:10px;align-items:center}
+.declared-note{font-size:13.5px;color:var(--green);font-weight:650}
+/* The live region is in the DOM before it has content; do not let it take space. */
+.declared-note:empty{display:none}
+
 /* ---- faq ---- */
 .faq{margin-top:24px;display:grid;gap:9px}
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:11px;
@@ -1098,7 +1107,9 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 :root[lang="ar"] .course-facts dt{font-family:var(--sans);letter-spacing:0}
 .cfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cprog{display:flex;align-items:center;gap:8px;flex:1 1 110px;min-width:0}
-.cbar{flex:1 1 auto;height:6px;background:var(--line-2);border-radius:999px;overflow:hidden}
+/* min-width: .cpct is flex:0 0 auto and now carries a word as well as digits,
+   so a long counter ("4/11 Abschnitte") would otherwise crush the bar to nothing. */
+.cbar{flex:1 1 auto;min-width:44px;height:6px;background:var(--line-2);border-radius:999px;overflow:hidden}
 .cbar span{display:block;height:100%;border-radius:999px;transition:width .4s ease}
 .cpct{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
   font-variant-numeric:tabular-nums;flex:0 0 auto}

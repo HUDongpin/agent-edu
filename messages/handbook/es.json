@@ -508,6 +508,8 @@
   "hb.body.glossary.28": "La misma entrada, la misma salida, siempre. El código corriente lo es; los modelos no.",
   "hb.body.glossary.29": "🛡️ barrera de seguridad",
   "hb.body.glossary.30": "Una comprobación que el sistema no puede saltarse: un límite de pasos, una lista de permisos, un nodo revisor obligatorio.",
+  "hb.body.glossary.31": "🔌 MCP (protocolo de contexto de modelo)",
+  "hb.body.glossary.32": "Un estándar para darle a un agente un conjunto de herramientas, de modo que el mismo lector de archivos o la misma base de datos funcione en cualquier arnés que lo hable. Sin él, cada herramienta se conecta a mano a un único programa.",
   "hb.body.p-compare.75": "🎁 La versión en una frase",
   "hb.body.p-compare.76": "Cede tan poco control como el problema exija de verdad, y a lo que cedas, ponle una valla alrededor.",
   "hb.body.p-compare.77": "🛠️ ¿Te animas a construir uno?",

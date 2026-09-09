@@ -103,7 +103,9 @@ Every string lives in [`messages/`](messages/) — one flat JSON file per langua
 
 ## Contributing a section
 
-New sections are genuinely welcome — *tool design*, *cost engineering* and *human-in-the-loop design* are already named as gaps in the catalogue. Here's the whole recipe.
+New sections are genuinely welcome. Here's the whole recipe.
+
+**Looking for the courses the catalogue does not offer yet?** *Tool design*, *cost engineering* and *human-in-the-loop design* are each specified in [`docs/course-briefs/`](docs/course-briefs/) — scope, outline, the boundary against what the site already teaches, and the four catalogue strings each one needs. They are standalone courses rather than handbook sections, so the recipe below is not the route to them; each brief names its own.
 
 **1. Claim a colour.** Three tokens in each of the **three** theme blocks in `app/globals.css` — `:root`, the `prefers-color-scheme: dark` block, **and** `:root[data-theme="dark"]`. All three, or your section goes invisible for anyone who toggled the theme by hand. The handbook's own hues are in the second set of blocks, under the `the handbook` banner comment.
 
@@ -141,7 +143,7 @@ FC.draw($('#fcYours'), {
 
 ### Before you open a PR
 
-`npm run build`, `npm run routes:check` and `npm run handbook:check` must pass. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported from the verified single-file build and contain tightly coupled DOM queries: fix a real bug in place, in the smallest diff you can, and do not rename an id, reformat, or turn the port into JSX as a side effect.
+`npm run build`, `npm run routes:check` and `npm run handbook:check` must pass. `npm run prose:check` must pass too — it reads the prose no compiler opens, failing when a course README names a file or function the tree does not have, and when any document's `file:line` citation no longer lands on what the sentence is talking about. `lib/flowchart.ts`, `lib/handbook/behaviour.ts` and `lib/handbook/markup.ts` were ported from the verified single-file build and contain tightly coupled DOM queries: fix a real bug in place, in the smallest diff you can, and do not rename an id, reformat, or turn the port into JSX as a side effect.
 
 Then the checks used on every change to the handbook. Open the page and paste them into the browser console:
 

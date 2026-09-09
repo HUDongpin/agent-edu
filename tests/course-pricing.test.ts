@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   EMPTY_COURSE_USAGE_LEDGER,
   parseCourseUsage,
+  ANTHROPIC_COURSE_PRICING,
   priceAnthropicCourseUsage,
   priceDeepSeekCourseUsage,
   recordCourseUsage,
@@ -246,11 +247,29 @@ test("Anthropic pricing refuses cache creation and custom models", () => {
     usage,
     rates,
   );
+  // The provenance travels with the price, the way the DeepSeek half already
+  // does it. Before this, the course printed an Anthropic cost with no date
+  // and no source, so a stale number was indistinguishable from a fresh one.
   assert.deepEqual(known, {
     known: true,
     model: "claude-opus-5",
     usd: (800 * 5 + 200 * 0.5 + 100 * 25) / 1_000_000,
+    checkedAt: ANTHROPIC_COURSE_PRICING.checkedAt,
+    sourceUrl: ANTHROPIC_COURSE_PRICING.sourceUrl,
   });
+  assert.match(ANTHROPIC_COURSE_PRICING.checkedAt, /^\d{4}-\d{2}-\d{2}$/);
+  assert.match(ANTHROPIC_COURSE_PRICING.sourceUrl, /^https:\/\/[^\s?]+$/);
+
+  // An unpriceable call must still say where the rates came from, or "unknown"
+  // gives the reader nothing to re-check.
+  const unpriceable = priceAnthropicCourseUsage(
+    "claude-custom",
+    "claude-opus-5",
+    usage,
+    rates,
+  );
+  assert.equal(unpriceable.checkedAt, ANTHROPIC_COURSE_PRICING.checkedAt);
+  assert.equal(unpriceable.sourceUrl, ANTHROPIC_COURSE_PRICING.sourceUrl);
 
   const cacheCreation = priceAnthropicCourseUsage(
     "claude-opus-5",

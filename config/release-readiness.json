@@ -90,6 +90,12 @@
         "reason": "Agents is the same correctly spelled French plural noun."
       },
       {
+        "catalog": "site",
+        "key": "cat.count.sections",
+        "locales": ["fr"],
+        "reason": "sections is the same correctly spelled French plural noun, as already allowed for the w.progress.sections counter it mirrors."
+      },
+      {
         "catalog": "handbook",
         "key": "hb.body.p-code.10",
         "locales": ["zh-Hans", "zh-Hant", "ar", "de", "es", "fr", "ja", "ko"],
@@ -262,6 +268,12 @@
         "key": "w.progress.sections",
         "locales": ["fr"],
         "reason": "sections is the same correctly spelled French plural noun."
+      },
+      {
+        "catalog": "handbook",
+        "key": "hb.body.glossary.31",
+        "locales": ["de"],
+        "reason": "Model Context Protocol is the protocol's own name, and de.json keeps this field's vocabulary in English throughout - Retrieval (RAG), Harness, LLM-as-judge."
       }
     ]
   },
@@ -317,7 +329,17 @@
         "usage": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting aggregate usage-field reconciliation." },
         "billing": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting sanitized Provider-console billing reconciliation." },
         "cors": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting real-browser CORS result on the preview origin." },
-        "credentialLifecycle": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting proof that the isolated low-limit credential was revoked and never recorded." }
+        "credentialLifecycle": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting proof that the isolated low-limit credential was revoked and never recorded." },
+        "jsonSchemaIgnored": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting one live schema-honouring probe: send output_config.format and record whether the reply parses. Stage 2 teaches that DeepSeek accepts it and silently ignores it." }
+      }
+    },
+    "anthropicCourseSnapshot": {
+      "status": "pending",
+      "officialPricingUrl": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "snapshotSource": "course/cafe/pricing.ts",
+      "reconciliations": {
+        "modelId": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting confirmation that claude-opus-5 is still a current model id on the published page." },
+        "pricing": { "status": "pending", "checkedAt": null, "evidenceRefs": [], "note": "Awaiting confirmation that base input, output and cache-read rates still match ANTHROPIC_COURSE_PRICING." }
       }
     },
     "vercelPreviewCsp": {

@@ -508,6 +508,8 @@
   "hb.body.glossary.28": "Gleiche Eingabe, gleiche Ausgabe, jedes einzelne Mal. Normaler Code ist das; Modelle sind es nicht.",
   "hb.body.glossary.29": "🛡️ Leitplanke",
   "hb.body.glossary.30": "Eine Prüfung, die das System nicht überspringen kann — ein Schrittlimit, eine Erlaubnisliste, ein Prüfknoten, der Pflicht ist.",
+  "hb.body.glossary.31": "🔌 MCP (Model Context Protocol)",
+  "hb.body.glossary.32": "Ein Standard dafür, einem Agenten einen Werkzeugsatz zu geben, damit dasselbe Werkzeug für Dateien oder Datenbanken in jedem Harness läuft, der MCP spricht. Ohne so einen Standard ist jedes Werkzeug von Hand mit einem einzigen Programm verdrahtet.",
   "hb.body.p-compare.75": "🎁 Die Kurzfassung in einem Satz",
   "hb.body.p-compare.76": "Gib nur so wenig Kontrolle ab, wie das Problem wirklich verlangt — und was du abgibst, das zäunst du ein.",
   "hb.body.p-compare.77": "🛠️ Bereit, selbst einen zu bauen?",

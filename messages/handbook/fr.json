@@ -508,6 +508,8 @@
   "hb.body.glossary.28": "Même entrée, même sortie, à chaque fois. Le code ordinaire l'est ; les modèles, non.",
   "hb.body.glossary.29": "🛡️ garde-fou",
   "hb.body.glossary.30": "Un contrôle que le système ne peut pas sauter — une limite d'étapes, une liste d'autorisations, un nœud relecteur obligatoire.",
+  "hb.body.glossary.31": "🔌 MCP (protocole de contexte de modèle)",
+  "hb.body.glossary.32": "Une façon standard de donner un jeu d'outils à un agent, pour que le même lecteur de fichiers ou la même base de données fonctionne dans tout harnais qui parle ce protocole. Sans cela, chaque outil est câblé à la main pour un seul programme.",
   "hb.body.p-compare.75": "🎁 La version en une phrase",
   "hb.body.p-compare.76": "Cédez aussi peu de contrôle que le problème l'exige vraiment — et quoi que vous cédiez, mettez-y une barrière.",
   "hb.body.p-compare.77": "🛠️ Prêt à en construire un ?",
