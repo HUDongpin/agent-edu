@@ -189,7 +189,7 @@ function accessedName(node) {
 }
 
 function eventEndpoint(value) {
-  let path = value;
+  let path;
   try {
     path = new URL(value).pathname;
   } catch {

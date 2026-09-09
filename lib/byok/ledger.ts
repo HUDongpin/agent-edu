@@ -26,7 +26,6 @@ export interface BillingLedger {
   record(entry: BillingEntry): void;
   recordResult(result: CallResult, occurredAt?: number): void;
   recordError(error: ProviderError, fallbackModel: Model, occurredAt?: number): void;
-  reset(): void;
 }
 
 const ZERO_USAGE: Usage = {
@@ -108,6 +107,5 @@ export function createBillingLedger(): BillingLedger {
         occurredAt: error.createdAt ?? occurredAt,
       });
     },
-    reset() { emit(EMPTY); },
   };
 }

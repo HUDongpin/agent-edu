@@ -47,10 +47,8 @@ export const EMPTY_COURSE_USAGE_LEDGER: CourseUsageLedger = Object.freeze({
 export interface KnownCoursePrice {
   known: true;
   usd: number;
-  band: PriceBand;
   model: Model;
   checkedAt: string;
-  sourceUrl: string;
 }
 
 export interface UnknownCoursePrice {
@@ -59,7 +57,6 @@ export interface UnknownCoursePrice {
   reason: "unknown-model" | "invalid-usage";
   model: string;
   checkedAt: string;
-  sourceUrl: string;
 }
 
 export type CoursePrice = KnownCoursePrice | UnknownCoursePrice;
@@ -306,7 +303,6 @@ export function priceDeepSeekCourseUsage(
   const common = {
     model,
     checkedAt: DEEPSEEK_PRICING.checkedAt,
-    sourceUrl: DEEPSEEK_PRICING.sourceUrl,
   };
   if (!isModel(model)) {
     return { ...common, known: false, usd: null, reason: "unknown-model" };
@@ -322,7 +318,6 @@ export function priceDeepSeekCourseUsage(
     ...common,
     known: true,
     model,
-    band,
     usd: (
       cachedInputTokens * rates.cacheHitInput
       + cacheMissInputTokens * rates.cacheMissInput

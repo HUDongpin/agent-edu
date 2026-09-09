@@ -17,17 +17,8 @@ import {
   type Msg,
 } from "./byok/types";
 
-export type {
-  BillingState,
-  CallOptions,
-  CallResult,
-  KeyStatus,
-  Model,
-  Msg,
-  ProviderErrorCode,
-  Usage,
-} from "./byok/types";
-export { ProviderError, isProviderError } from "./byok/types";
+export type { KeyStatus, Model } from "./byok/types";
+export { isProviderError } from "./byok/types";
 export { asJSON } from "./byok/json";
 export {
   DEEPSEEK_PRICING,
@@ -42,12 +33,9 @@ export {
   getKey,
   hasKey,
   hasKeyOnServer,
-  keySnapshot,
-  keySnapshotOnServer,
   keyStatusOnServer,
   keyStatusSnapshot,
   markKeyUnverified,
-  setKey,
   subscribeKey,
 } from "./byok/key-store";
 
@@ -94,19 +82,6 @@ export function testSavedKey(
   return verifier.testSaved(model, options);
 }
 
-/** Compatibility counters for older UI code; unknown billing is separate. */
-export const spend = {
-  get in(): number { return billingSnapshot().usage.promptTokens; },
-  get out(): number { return billingSnapshot().usage.completionTokens; },
-  get cached(): number { return billingSnapshot().usage.promptCacheHitTokens; },
-  get calls(): number { return billingSnapshot().dispatchedCalls; },
-  get unknown(): number { return billingSnapshot().unknownAfterSendCalls; },
-};
-
-/** Known subtotal only. Callers must also inspect `hasUnknown`. */
-export function usd(): number { return billingSnapshot().knownUsd; }
-export function resetSpend(): void { ledger.reset(); }
-
 export function errorKey(error: unknown): string {
   if (isProviderError(error)) {
     switch (error.code) {
@@ -125,21 +100,4 @@ export function errorKey(error: unknown): string {
     }
   }
   return "lab.err.generic";
-}
-
-/** Run non-network tasks with a cap. Paid Lab batches use `LabRunner`. */
-export async function pool<T, R>(
-  items: readonly T[],
-  concurrency: number,
-  fn: (item: T, index: number) => Promise<R>,
-): Promise<R[]> {
-  const out = new Array<R>(items.length);
-  let index = 0;
-  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, async () => {
-    while (index < items.length) {
-      const current = index++;
-      out[current] = await fn(items[current], current);
-    }
-  }));
-  return out;
 }

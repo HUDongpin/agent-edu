@@ -5,7 +5,6 @@
  * so a translator can fix a string by editing one line without knowing React
  * or installing anything. That was true of the old site and it stays true.
  */
-import type { ReactNode } from "react";
 
 export type Dir = "ltr" | "rtl";
 
@@ -72,9 +71,3 @@ export function coverage(own: Messages, en: Messages): number {
 export function translator(messages: Messages) {
   return (key: string): string => messages[key] ?? key;
 }
-
-export interface LocaleParams {
-  params: Promise<{ locale: string }>;
-}
-
-export type WithChildren = { children: ReactNode };

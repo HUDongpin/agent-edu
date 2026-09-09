@@ -17,7 +17,6 @@
     "build": "next build && node scripts/prune-export.mjs",
     "vercel-build": "npm run handbook:check && npm run widgets:check && npm run csp:check && npm run analytics:check && npm run build && npm run routes:check && npm run assets:check && npm run i18n:check",
     "typecheck": "tsc -p tsconfig.json --noEmit --incremental false",
-    "start": "next start",
     "lint": "eslint app components lib scripts --max-warnings 0",
     "test": "node --import tsx --test tests/*.test.ts",
     "evidence:prepare": "node scripts/prepare-browser-evidence.mjs",

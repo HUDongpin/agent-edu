@@ -35,7 +35,7 @@ Two pieces of work sit underneath all three and should be done once, before any 
   is now `string` rather than three literals, `DECLARABLE_COURSE_IDS` exists, and the standing defect
   that Build an Agent — an available 150-minute course — could never be marked complete is fixed.
   What remains is the body of `selectCourseProgress`, which still dispatches on string literals
-  (`lib/progress.ts:505`, `:520`): an off-site course is now a one-line addition, but a fourth
+  (`lib/progress.ts:499`, `:515`): an off-site course is now a one-line addition, but a fourth
   *tracked* course still needs a branch, a state shape and a normaliser.
 - **Decide the string-checker question.** `scripts/check-widgets.mjs` reads exactly one behaviour
   file and one table, so run-time copy outside the Handbook has no placeholder, plural or DOM-id

@@ -32,7 +32,6 @@ export const RECOMMENDED_LAB_JOURNEY = {
   maxOutputTokens: STAGE_1_PLAN.maxOutputTokens
     + STAGE_3_PLAN.maxOutputTokens
     + TWO_EVAL_PLAN.maxOutputTokens,
-  callStructure: "1 + 3 + 28 + 28",
 } as const;
 
 export function assertEvalShape(totalCases: number, judgeCases: number): void {
