@@ -72,12 +72,26 @@ export async function judge(said: string, order: Order, standard: string): Promi
 export type TakeOrder = (said: string) => Promise<Order>;
 
 /** Run every case through `takeOrder` and return [score, failures]. */
+/**
+ * A case that did not pass, and the reason it did not.
+ *
+ * The reason was always computed — `why` names the wrong price against the menu
+ * price, or the standard the judge applied — and then thrown away unless the
+ * caller asked for verbose output. So a learner who failed stage 4 read twelve
+ * case ids and not one word about why, and stage 3's README told them to read
+ * failures that stage 3 never printed. The information existed the whole time.
+ */
+export interface EvalFailure {
+  id: string;
+  why: string;
+}
+
 export async function run(
   takeOrder: TakeOrder,
   { verbose = true }: { verbose?: boolean } = {},
-): Promise<[number, string[]]> {
+): Promise<[number, EvalFailure[]]> {
   let score = 0;
-  const failures: string[] = [];
+  const failures: EvalFailure[] = [];
   for (const c of CASES) {
     let ok = false;
     let why = "";
@@ -90,7 +104,7 @@ export async function run(
     }
     if (ok) score++;
     if (verbose) console.log(`  ${ok ? "PASS" : "FAIL"}  ${c.id.padEnd(18)} ${ok ? "" : why}`);
-    if (!ok) failures.push(c.id);
+    if (!ok) failures.push({ id: c.id, why });
   }
   return [score, failures];
 }

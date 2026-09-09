@@ -8,19 +8,21 @@ npx tsx course/stage3-evals/run.ts
 
 There is one `TODO`: import your stage-2 prompt and point the eval at it.
 
+**Before you run the grader, write down what you think it will score out of 20, and one reason.** Ten seconds, on paper or in a comment. It is not a gate and nothing checks it — an honest wrong guess is worth more here than a right one, because the gap between what you expected and what you got is the only part of this you cannot read off the screen afterwards.
+
 ```bash
 npx tsx course/check.ts 3
 ```
 
 ## What to notice
 
-You just scored your stage-2 prompt out of 20. **Write the number down.** Every remaining stage gets compared to it.
+You just scored your stage-2 prompt out of 20. **Write the number down**, next to your guess. Every remaining stage gets compared to it.
 
 It will not be 20. Read the failures — most of them are prices, because the model has never seen your menu. You are about to fix that in stage 4 and watch the number move.
 
 ## Why this complements unit testing
 
-In stage 1 you could write `assert.equal(handleOrder("tea")?.price, 2.80)` and it held forever. From stage 2 on, an exact assertion against the generated reply is a coin flip, because the same input can give different wording.
+In stage 1 you could write `assert.equal(takeOrder("tea")?.price, 2.80)` and it held forever. From stage 2 on, an exact assertion against the generated reply is a coin flip, because the same input can give different wording.
 
 Keep unit tests for deterministic parsers, schemas, tools and safety gates. For the variable model output, stop asserting one exact answer and start measuring a rate over many cases. `cafe/evalset.ts` has twenty; look at it. Twelve are checked by a plain TypeScript function — exact, free, instant. Only eight need a second model call to judge, because "did it handle the vague order sensibly?" has no `===` you can write.
 

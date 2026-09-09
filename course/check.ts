@@ -6,7 +6,7 @@
  * that, and from stage 4 on it is what this leans on.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { preflight } from "./cafe/llm";
+import { OFFLINE, preflight } from "./cafe/llm";
 import { record } from "./report";
 
 const STAGES: Record<number, string> = {
@@ -17,7 +17,36 @@ const STAGES: Record<number, string> = {
 const COSTS_MONEY = new Set([2, 3, 4, 5, 6, 7, 8]);
 
 const ok = (m: string) => console.log(`  PASS  ${m}`);
-function bad(m: string): never { console.log(`  FAIL  ${m}\n`); process.exit(1); }
+
+/** Set before dispatch so a failure can name the stage's own README. */
+let checking = 0;
+
+/** The cases that did not pass, with the reason each one gives. */
+function printFailures(failures: readonly { id: string; why: string }[]): void {
+  if (!failures.length) return;
+  console.log();
+  for (const { id, why } of failures) console.log(`  ----  ${id.padEnd(18)} ${why}`);
+  console.log();
+}
+
+/**
+ * A failure, and somewhere to go next.
+ *
+ * This used to print one line and exit. The lines themselves are good — they
+ * name the thing that is wrong — but the only escalation a stuck learner had
+ * was SOLUTIONS.md, which is the complete answer. Opening that at stage 3 ends
+ * your own course, and most people know it while they do it. The gap between
+ * "wrong" and "here is the answer" is where the learning actually happens, and
+ * it was a cliff.
+ *
+ * The pointer is derived rather than passed, so no call site can forget it.
+ */
+function bad(m: string, hint?: string): never {
+  console.log(`  FAIL  ${m}`);
+  console.log(`        ${hint ?? `re-read course/${STAGES[checking]}/README.md — it describes this stage's TODOs`}`);
+  console.log();
+  process.exit(1);
+}
 
 const CHECKS: Record<number, (m: any) => Promise<void>> = {
   async 0(m) {
@@ -69,17 +98,38 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     if (!m.SYSTEM_UNDER_TEST) bad("SYSTEM_UNDER_TEST is still null");
     ok("the eval is pointed at your prompt");
     const { run, CASES } = await import("./cafe/evalset");
-    const [score] = await run(m.SYSTEM_UNDER_TEST, { verbose: false });
+    /* Ask before the number arrives, not after.
+       The Lab asks for a prediction and Part 3 did not, so a learner met their
+       first eval score with nothing to compare it against except the score
+       itself. Printed rather than read from stdin: this command is piped and run
+       in CI, and blocking it for a prompt would cost more than the prompt is
+       worth. The twenty calls take long enough that the question is still on
+       screen while they run, which is when it does its work. */
+    console.log("  ASK   before this lands: what will it score out of 20, and why?");
+    console.log("        (nothing checks your answer — the gap is the point)\n");
+    const [score, failures] = await run(m.SYSTEM_UNDER_TEST, { verbose: false });
     record(3, { score });
     ok(`it ran: ${score}/${CASES.length} — write that number down`);
+    // The README tells the reader to read the failures, and most of them are
+    // prices, because the model has never seen the menu. Stage 3 printed none.
+    printFailures(failures);
     ok("recorded. `npx tsx course/report.ts` shows it next to every later stage");
   },
 
   async 4(m) {
     if (!m.SYSTEM?.trim()) bad("SYSTEM is still empty");
     const { run } = await import("./cafe/evalset");
+    /* And again before the comparison, which is the prediction the worksheet
+       actually asks for: not the score, but which way and how far it moves. */
+    console.log("  ASK   you scored stage 3. Which way does the menu move it, and by how much?\n");
     const [score, failures] = await run(m.takeOrder, { verbose: false });
-    if (score < 16) bad(`scored ${score}/20, wanted at least 16. Still failing: ${failures.join(", ")}`);
+    if (score < 16) {
+      printFailures(failures);
+      bad(
+        `scored ${score}/20, wanted at least 16`,
+        "the reasons are above — if they are prices, the menu is not reaching the prompt",
+      );
+    }
     record(4, { score });
     ok(`scored ${score}/20 with the menu in context`);
   },
@@ -152,7 +202,10 @@ if (!args.length || !(stage in STAGES)) {
   console.log("usage: npx tsx course/check.ts <0-8> [--offline]");
   process.exit(1);
 }
-if (COSTS_MONEY.has(stage) && !process.argv.includes("--offline")) {
+checking = stage;
+// OFFLINE, not a fresh argv read: npm eats a bare `--offline`, so re-deriving it
+// here would warn about spending money on a run that is about to spend none.
+if (COSTS_MONEY.has(stage) && !OFFLINE) {
   console.log(`\n  (stage ${stage} makes real API calls — pennies, but not free)`);
 }
 // Check the key BEFORE importing the stage. Without this a learner with no

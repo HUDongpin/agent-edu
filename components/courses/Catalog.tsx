@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Cover from "./Cover";
 import { useI18n } from "../I18nProvider";
+import Rich from "../Rich";
 import {
   COURSES, FORMATS, LEVELS, STATUSES, TOPICS,
-  type Format, type Level, type Status, type Topic,
+  type Course, type Format, type Level, type Status, type Topic,
 } from "@/lib/courses";
 import {
   readLearningState,
@@ -59,12 +60,28 @@ export default function Catalog({ locale }: { locale: string }) {
 
   const dirty = [level, format, topic, status].some((v) => v !== ALL);
 
+  /* Offer only what the catalogue actually holds.
+     LEVELS still lists "advanced" and TOPICS still lists "evaluation", and no
+     course carries either — so a beginner poking at four dropdowns above a
+     four-item list could reach "no course matches those filters" in one click.
+     Deriving from COURSES keeps declaration order and shrinks the bar to the
+     truth; the constants stay exhaustive for the day a course fills them. */
+  const offered = <T,>(all: readonly T[], of: (c: Course) => T): T[] =>
+    all.filter((value) => COURSES.some((course) => of(course) === value));
+  const levels = useMemo(() => offered(LEVELS, (c) => c.level), []);
+  const formats = useMemo(() => offered(FORMATS, (c) => c.format), []);
+  const topics = useMemo(() => offered(TOPICS, (c) => c.topic), []);
+  const statuses = useMemo(() => offered(STATUSES, (c) => c.status), []);
+
   function cta(progress: CourseProgress): string {
-    if (progress.kind === "external") return t("track.3.cta");
+    // An off-site course the reader has marked finished reads "Review", the
+    // same word a tracked course uses — the reason differs, the state does not.
+    if (progress.kind === "external") {
+      return progress.declaredComplete ? t("cat.review") : t("track.3.cta");
+    }
     if (progress.kind !== "tracked") return t("cat.start");
-    if (progress.status === "completed") return t("cat.review");
-    if (progress.status === "in-progress") return t("cat.resume");
-    return t("cat.start");
+    // The selector decides the word, so a full bar can never say "Resume".
+    return t(`cat.${progress.action}`);
   }
 
   return (
@@ -76,13 +93,13 @@ export default function Catalog({ locale }: { locale: string }) {
 
       <div className="filters" role="group" aria-label={t("cat.title")}>
         <Select label={t("cat.filterLevel")} value={level} onChange={setLevel}
-          options={LEVELS} render={(o) => (o === ALL ? t("cat.all") : t(`level.${o}`))} />
+          options={levels} render={(o) => (o === ALL ? t("cat.all") : t(`level.${o}`))} />
         <Select label={t("cat.filterFormat")} value={format} onChange={setFormat}
-          options={FORMATS} render={(o) => (o === ALL ? t("cat.all") : t(`format.${o}`))} />
+          options={formats} render={(o) => (o === ALL ? t("cat.all") : t(`format.${o}`))} />
         <Select label={t("cat.filterTopic")} value={topic} onChange={setTopic}
-          options={TOPICS} render={(o) => (o === ALL ? t("cat.all") : t(`topic.${o}`))} />
+          options={topics} render={(o) => (o === ALL ? t("cat.all") : t(`topic.${o}`))} />
         <Select label={t("cat.filterStatus")} value={status} onChange={setStatus}
-          options={STATUSES} render={(o) => (o === ALL ? t("cat.all") : t(`status.${o}`))} />
+          options={statuses} render={(o) => (o === ALL ? t("cat.all") : t(`status.${o}`))} />
         <div className="filt-meta">
           <span aria-live="polite">{shown.length} {t("cat.results")}</span>
           {dirty && (
@@ -135,12 +152,20 @@ export default function Catalog({ locale }: { locale: string }) {
                       </span>
                     ) : progress.kind === "tracked" ? (
                       <>
-                        <div className="cprog"
-                          title={`${progress.current} ${t("ui.of")} ${progress.total} · ${t("cat.progress")}`}>
+                        {/*
+                          The counter names its own unit, so a full bar cannot
+                          be read as a finished course. One key carrying both
+                          numbers, not a number with a noun appended: `t` does
+                          no interpolation and Korean puts the noun first.
+                        */}
+                        <div className="cprog">
                           <div className="cbar">
                             <span style={{ width: `${progress.percent}%`, background: c.hue }} />
                           </div>
-                          <span className="cpct">{progress.current}/{progress.total}</span>
+                          <span className="cpct">
+                            <Rich k={`cat.count.${progress.measure}`}
+                              vars={{ current: progress.current, total: progress.total }} />
+                          </span>
                         </div>
                         <span className="cgo" style={{ color: c.hue }}>
                           {cta(progress)} <span className="arrow">→</span>

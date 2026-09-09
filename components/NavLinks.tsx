@@ -11,11 +11,14 @@ import { usePathname } from "next/navigation";
  * The marker is aria-current="page" — the same attribute assistive tech
  * announces — with the visual treatment hung off it, so the highlight and the
  * screen-reader label can never disagree.
+ *
+ * `prefetch` is carried per item because one route in this nav is not like the
+ * others: see the note in Shell.tsx where it is set.
  */
 export default function NavLinks({
   items,
 }: {
-  items: { href: string; label: string }[];
+  items: { href: string; label: string; prefetch?: boolean }[];
 }) {
   const pathname = usePathname() || "/";
   const here = pathname.endsWith("/") ? pathname : `${pathname}/`;
@@ -29,7 +32,12 @@ export default function NavLinks({
         const segments = target.split("/").filter(Boolean).length;
         const active = segments <= 1 ? here === target : here.startsWith(target);
         return (
-          <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}>
+          <Link
+            key={n.href}
+            href={n.href}
+            prefetch={n.prefetch}
+            aria-current={active ? "page" : undefined}
+          >
             {n.label}
           </Link>
         );

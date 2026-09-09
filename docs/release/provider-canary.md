@@ -72,10 +72,39 @@ aggregate usage and bounded Provider charge from the real canary.
 | Billing | Usage-derived range and console charge | rounded aggregate amount/range; no account details | pending |  |
 | CORS | Real browser preview origin | allowed/blocked conclusion and safe header names | pending |  |
 | Credential lifecycle | Isolation and teardown | low-limit/revocable attestation and revocation time only | pending |  |
+| JSON schema ignored | DeepSeek still accepts `output_config.format` and does not honour it | requested-schema flag, parsed/unparsed conclusion, no reply body | pending |  |
 
 Missing cache fields are treated as cache miss. Unknown cost is never recorded
 as zero. A successful request does not by itself establish price or billing
-accuracy; all six reconciliation rows must pass.
+accuracy; all seven reconciliation rows must pass.
+
+### The schema row, and why it is a release gate
+
+This one reconciles the repository against a *vendor behaviour* rather than a
+published number, and it is the only row whose failure would make the course
+teach something harmful rather than merely stale.
+
+`course/cafe/llm.ts` records `quirks: { jsonSchema: false }` for DeepSeek, and
+the whole of stage 2's second lesson rests on it: the provider accepts
+`output_config.format`, silently ignores it, and returns prose where the
+learner expected JSON. That is why `schemaFallback` exists — it asks for the
+shape in words and validates the reply itself.
+
+If DeepSeek starts honouring schemas, the fallback does not become redundant
+quietly. It keeps rewriting the prompt and re-validating replies that were
+already correctly shaped, so it degrades answers for no reason, and stage 2
+teaches an apparatus the learner no longer needs.
+
+One bounded generation settles it. Send a request carrying
+`output_config.format`, record only whether the reply parsed as the requested
+shape, and retain no reply body:
+
+- reply did **not** parse as the schema → the repository is still right; record
+  `pass` with the conclusion and the date.
+- reply **did** parse → record `fail`. Do not ship. `quirks.jsonSchema`,
+  `schemaFallback`'s reason for existing and stage 2's second lesson all need
+  rewriting together, and `npm run prose:check` will hold the README to
+  whatever the code ends up saying.
 
 ## Teardown and signature
 

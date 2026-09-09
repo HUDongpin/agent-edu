@@ -8,6 +8,8 @@ npx tsx course/stage4-context/run.ts
 
 One `TODO`: put the menu and the edge-case rules into the prompt. Then:
 
+**Before you run it: which way does the number move, and by how much?** You wrote a baseline down in stage 3. Predicting the size, not just the direction, is what makes the answer land — and being wrong about the size is the interesting case.
+
 ```bash
 npx tsx course/check.ts 4
 ```

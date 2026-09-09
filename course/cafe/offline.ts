@@ -30,8 +30,43 @@ function saidFrom(prompt: string): string {
   }
 }
 
+/**
+ * Said once per process, to stderr, so a miss is diagnosable rather than silent.
+ *
+ * The stand-in matches literally. That is fine until a literal miss decides a
+ * stage: a learner whose stage-4 prompt really does carry the menu, written
+ * their own way, used to watch every priced case fail and land on exactly 8/20
+ * with twelve case ids and no reason. The grading is unchanged — this only
+ * tells them which literal the stand-in was looking for, and that their prompt
+ * may well be right.
+ */
+const said = new Set<string>();
+function note(id: string, message: string): void {
+  if (said.has(id)) return;
+  said.add(id);
+  console.error(`  NOTE  [offline] ${message}`);
+}
+
+/**
+ * Does this system prompt carry the menu?
+ *
+ * The two literals are the fast path — they are what `menuText()` emits. The
+ * content check is the honest one: a menu is a set of item names next to a set
+ * of prices, however the learner chose to lay it out. Four of each is enough to
+ * separate a real menu from a prompt that merely says "tea".
+ */
 function menuIsPresent(system: string): boolean {
-  return /MENU \(name, small price, large price\)|flat white\s+S \$4\.20/i.test(system);
+  if (/MENU \(name, small price, large price\)|flat white\s+S \$4\.20/i.test(system)) return true;
+  const lower = system.toLowerCase();
+  const named = Object.keys(MENU).filter((name) => lower.includes(name)).length;
+  const priced = (system.match(/\d+\.\d{2}/g) ?? []).length;
+  if (named >= 4 && priced >= 4) return true;
+  if (system.trim()) {
+    note("menu", "your prompt does not look like it carries the menu, so the stand-in " +
+      "priced every drink as if it had never seen one. It looks for the item names and " +
+      "prices together. Your prompt may be fine — this is a scripted stand-in, not a model.");
+  }
+  return false;
 }
 
 function makeItem(name: string, size: Size, grounded: boolean, variant: number): OrderItem {
@@ -150,6 +185,12 @@ export function offlineText(prompt: string, options: OfflineTextOptions = {}): s
   }
   if (hasRequired(options, "refund_amount", "send_address_list", "reply")) {
     const labelled = /untrusted|quoted material|content to report|do not obey/i.test(system);
+    if (!labelled && system.trim()) {
+      note("labelled", "the stand-in did not find a data-versus-orders boundary in your " +
+        "system prompt, so it played the run as if the injection had been obeyed. It looks " +
+        "for wording like \"untrusted\", \"quoted material\" or \"do not obey\". Your defence " +
+        "may be sound — this is a scripted stand-in, not a model.");
+    }
     return JSON.stringify(labelled
       ? { refund_amount: 18.6, send_address_list: false, reply: "We will refund the damaged bag." }
       : { refund_amount: 4210, send_address_list: true, reply: "A full refund has been requested." });

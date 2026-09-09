@@ -61,10 +61,38 @@ export interface UnknownCoursePrice {
 
 export type CoursePrice = KnownCoursePrice | UnknownCoursePrice;
 
+/**
+ * Anthropic's published prices for the one model this course names, as a dated
+ * snapshot rather than an anonymous table — the same shape, and for the same
+ * reason, as DEEPSEEK_PRICING in lib/byok/pricing.ts. Before this existed the
+ * course printed an Anthropic cost with no provenance at all, while the
+ * DeepSeek half of the very same file quoted its snapshot date to the learner.
+ *
+ * Release re-checks it: `anthropicCourseSnapshot` in config/release-readiness.json
+ * carries a modelId row and a pricing row, and both are fail-closed. A number
+ * with a checkedAt nobody re-reads is worse than an undated one, because it
+ * looks verified.
+ *
+ * Cache *writes* are deliberately absent. Anthropic prices them separately
+ * (5-minute writes were $6.25/MTok when this was checked) and the course has
+ * no rate for them, so priceAnthropicCourseUsage refuses a cache-creation call
+ * outright rather than guessing. An honest unknown beats an invented number.
+ */
+export const ANTHROPIC_COURSE_PRICING = {
+  currency: "USD",
+  unitTokens: 1_000_000,
+  checkedAt: "2026-09-03",
+  sourceUrl: "https://platform.claude.com/docs/en/about-claude/pricing",
+  model: "claude-opus-5",
+  rates: { input: 5.0, output: 25.0, cachedInput: 0.5 },
+} as const;
+
 export interface KnownAnthropicCoursePrice {
   known: true;
   usd: number;
   model: string;
+  checkedAt: string;
+  sourceUrl: string;
 }
 
 export interface UnknownAnthropicCoursePrice {
@@ -72,6 +100,8 @@ export interface UnknownAnthropicCoursePrice {
   usd: null;
   reason: "unknown-model" | "invalid-usage" | "cache-creation-price-unknown";
   model: string;
+  checkedAt: string;
+  sourceUrl: string;
 }
 
 export type AnthropicCoursePrice = KnownAnthropicCoursePrice | UnknownAnthropicCoursePrice;
@@ -307,9 +337,14 @@ export function priceAnthropicCourseUsage(
   usage: CourseTokenUsage,
   rates: { input: number; output: number; cachedInput: number },
 ): AnthropicCoursePrice {
+  const common = {
+    model,
+    checkedAt: ANTHROPIC_COURSE_PRICING.checkedAt,
+    sourceUrl: ANTHROPIC_COURSE_PRICING.sourceUrl,
+  };
   const unknown = (
     reason: UnknownAnthropicCoursePrice["reason"],
-  ): UnknownAnthropicCoursePrice => ({ known: false, usd: null, reason, model });
+  ): UnknownAnthropicCoursePrice => ({ ...common, known: false, usd: null, reason });
   if (!validCourseUsage(usage)) return unknown("invalid-usage");
   if (model !== pricedModel) return unknown("unknown-model");
   if (usage.cacheCreationInputTokens > 0) {
@@ -328,9 +363,5 @@ export function priceAnthropicCourseUsage(
     + usage.outputTokens * rates.output
   ) / 1_000_000;
   if (!Number.isFinite(usd)) return unknown("invalid-usage");
-  return {
-    known: true,
-    model,
-    usd,
-  };
+  return { ...common, known: true, usd };
 }

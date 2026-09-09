@@ -52,8 +52,11 @@ export default async function TeachPage({ params }: { params: Promise<{ locale: 
         <div className="acts">
           <PrintButton label={t("teach.print")} />
           <a className="btn" href="/teacher-pack.txt" hrefLang="en" lang="en" download>
-            {t("teach.download")}
+{t("teach.download")}
           </a>
+          {/* Marked hrefLang/lang so a screen reader announces the change, which
+              a sighted reader never hears. */}
+          <span className="mono-note">{t("teach.packLang")}</span>
         </div>
       </section>
 

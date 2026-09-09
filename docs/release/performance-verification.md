@@ -23,21 +23,33 @@ repeated builds of the same source are auditable and diffable. This closes the
 blind spot where large Open Graph images or duplicated localized route payloads
 could grow while an `_next/static`-only total stayed green.
 
-The initial limits are based on release candidate `60f7edc` with
-30.9–47.5% headroom. Values are uncompressed bytes in the exported files, not
-HTTP transfer sizes after content encoding:
+Limits leave 26.7–43.3% headroom. Values are uncompressed bytes in the
+exported files, not HTTP transfer sizes after content encoding — for what a
+route actually pulls over the wire, see the per-route transfer budget below.
 
-| Measure | Baseline bytes | Limit bytes |
-|---|---:|---:|
-| All `_next/static` assets | 2,055,566 | 2,750,000 |
-| JavaScript | 1,985,800 | 2,650,000 |
-| CSS | 69,766 | 100,000 |
-| Largest `_next/static` asset | 229,156 | 300,000 |
-| Emitted `public/` assets | 1,136,379 | 1,600,000 |
-| Largest emitted public asset | 373,193 | 500,000 |
-| Generated route payloads | 20,978,583 | 30,000,000 |
-| Largest route payload | 338,889 | 500,000 |
-| Complete exported site | 24,141,664 | 34,000,000 |
+| Measure | Baseline bytes | Limit bytes | Was, at `60f7edc` |
+|---|---:|---:|---:|
+| All `_next/static` assets | 2,161,232 | 2,750,000 | 2,055,566 |
+| JavaScript | 2,091,129 | 2,650,000 | 1,985,800 |
+| CSS | 70,103 | 100,000 | 69,766 |
+| Largest `_next/static` asset | 229,156 | 300,000 | 229,156 |
+| Emitted `public/` assets | 1,136,508 | 1,600,000 | 1,136,379 |
+| Largest emitted public asset | 373,193 | 500,000 | 373,193 |
+| Generated route payloads | 10,117,399 | 14,500,000 | 20,978,583 |
+| Largest route payload | 301,813 | 430,000 | 338,889 |
+| Complete exported site | 13,415,139 | 19,000,000 | 24,141,664 |
+
+These were rebaselined from the 2026-08-21 candidate `60f7edc`. Three of them
+had stopped being able to catch anything: the export halved, and a budget
+written around 24 MB went on passing an export of 13 MB with 60% of its limit
+unused. Route payloads, the largest route payload and the complete export had
+their limits lowered to match; no limit was raised, because a pass that
+loosens one is not a tightening pass. Two baselines went *up* — the JavaScript
+bundle has grown 5.3% over the course-UX branch — and recording that is the
+point of a baseline. Every figure reproduces byte-for-byte across repeated
+builds of the same source, which is what makes them usable as a gate at all.
+The three that moved leave room for roughly three more localised routes, nine
+pages each, before the tightest of them binds.
 
 These are regression budgets, not claims that the current payload is optimal.
 Change a limit only in a review that records the before/after inventory and why
@@ -69,15 +81,78 @@ npm run --silent vitals:lab > lab-vitals.json
 ```
 
 The default run takes three cold and three warm samples for each of Home,
-Handbook, Lab, Build, Teach and the real 404. Cold samples disable Chromium's
-cache. Warm samples use an explicit test-only `public, max-age=3600` server
-header and prime the route once before measurement. Each route has a scripted
-interaction. The report records raw and median LCP, CLS and browser-reported
-interaction latency for the single controlled interaction, using Event Timing
-and its `first-input` entry when the interaction is below the event observer's
-16 ms reporting threshold. It also records commit, dirty-tree flag,
-Node/Next/Chromium/platform, viewport, cache, no-network-throttle status and the
-explicit 4× CPU slowdown.
+Handbook, Lab, Build, Teach and the real 404, on each of two network profiles.
+Cold samples disable Chromium's cache. Warm samples use an explicit test-only
+`public, max-age=3600` server header and prime the route once before
+measurement. Each route has a scripted interaction. The report records raw and
+median LCP, CLS and browser-reported interaction latency for the single
+controlled interaction, using Event Timing and its `first-input` entry when the
+interaction is below the event observer's 16 ms reporting threshold. It also
+records commit, dirty-tree flag, Node/Next/Chromium/platform, viewport, cache,
+the network profiles emulated and the explicit 4× CPU slowdown.
+
+The two profiles exist because one of them cannot see a whole class of work:
+
+| `--network` | Conditions | What it measures |
+|---|---|---|
+| `none` | no emulation | parse and main-thread cost. This is what schema v1 reported, and transfer cost is invisible to it |
+| `slow-4g` | 1.6 Mbit/s down, 750 kbit/s up, 150 ms RTT | what a reader on a phone waits for. These are Lighthouse's mobile defaults, the other half of the 4× CPU slowdown already applied |
+
+Both run by default; `--network=none` reproduces the v1 conditions exactly. A
+route slower on one profile and not the other is slow for a different reason,
+which is the information the pair carries and neither alone does.
+
+Every sample also records `transferBytes` — the navigation plus every
+subresource, from the browser's own Resource Timing. `scripts/serve-out.mjs`
+compresses text responses, because a reader receives them compressed and a
+figure taken without that would be roughly three times what ships. It uses
+gzip where production uses brotli, so the figure is a slight over-estimate;
+that is the safe direction for a number being watched for growth.
+
+Schema v2 requires `transferBytes` on every sample and a non-zero one on every
+cold sample: a cold load that transferred nothing did not measure a load.
+`assertLabVitalsReport` still accepts v1 for the archived report in §2, which
+is a record of a run that happened rather than a document to be updated.
+
+### Per-route transfer budget
+
+The budgets at the top of this section are uncompressed bytes on disk. They
+did not move when the export fell from 25 MB to 14 MB — nothing gated what a
+route actually pulls. `npm run transfer:check` does, against
+`config/transfer-budget.json`, and CI runs it on the report the harness has
+already produced rather than measuring twice.
+
+It is recorded and checked per kind, not as one figure per route. Shared
+JavaScript is 135–182 kB of every route here and rarely moves, so a change
+that doubles a document is about 4% of the route total and would sit inside
+any tolerance loose enough to be usable. Against the document alone the same
+change is nearly +100%.
+
+The measurement is exact, but only because it is taken from a settled page.
+A `<Link>` prefetches when it enters the viewport, so how many prefetches have
+*finished* when Resource Timing is read is a race — and one that usually comes
+out the same way, which is the worst kind, because it looks like determinism
+until a budget is built on it. Two extra prefetches is 600 bytes from nowhere.
+Each sample therefore polls until the resource count has held still, and fails
+rather than report a figure from a page that never settled. The checker also
+refuses to record a budget from a run whose samples disagree, because that
+would be a finding about the harness rather than a number to average.
+
+A kind is gated only once its baseline reaches 4 kB. Below that the figure is
+made of whole requests — `other` is three prefetches and 900 bytes — where one
+more arriving would breach a tolerance without anything having changed. Those
+kinds are still recorded, and the route total still covers them: growth that
+matters is never 900 bytes. The 3% allowance exists
+only because these are compressed bytes and the compressor is not the same
+everywhere: Node's zlib and the system gzip differ by 0.19% on the same file
+at the same level, and CI runs a different Node than a laptop does. It is not
+permission to grow.
+
+Growth that is intended is not an error. Run `npm run transfer:update`, commit
+the new numbers, and the cost of the change is reviewable in the diff as bytes
+rather than as an adjective. A route that has fallen well below its budget is
+reported, not failed, with the same instruction — so the gate stays tight
+after work that makes a route smaller.
 Missing LCP, CLS or INP is an error;
 the harness never substitutes zero for unavailable INP.
 
@@ -129,11 +204,11 @@ fix; it does not claim to measure that later report-only predecessor or the fina
 enforced candidate. Run the default three-sample matrix again after the final
 candidate is frozen before using synthetic results in a release decision.
 
-The harness labels its output `synthetic-lab`; its 4× browser CPU throttle is
-an emulation profile, not a claim about a specific device. A delayed route or
-different browser CPU/network emulation may be useful for a separate regression
-test, but label that **emulated lab evidence**. Neither form is a classroom
-network or physical low-end-device result.
+The harness labels its output `synthetic-lab`; its 4× browser CPU throttle and
+its `slow-4g` network profile are emulation, not a claim about a specific
+device or a specific network. Both are **emulated lab evidence**, and a
+throttled profile being available here does not make it a classroom-network or
+physical low-end-device result — §3 still has to be executed for those.
 
 ## 3. Physical-device and real-network evidence
 

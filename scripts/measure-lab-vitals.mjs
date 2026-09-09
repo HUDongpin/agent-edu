@@ -7,7 +7,52 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 
-export const LAB_VITALS_SCHEMA = "agent-edu.synthetic-lab-vitals.v1";
+export const LAB_VITALS_SCHEMA = "agent-edu.synthetic-lab-vitals.v2";
+
+/**
+ * v1 had no network dimension, and one v1 report is archived evidence
+ * (docs/release/evidence/lab-vitals-a586b44.json). It is a record of a run
+ * that happened, so it keeps validating rather than being rewritten to a
+ * shape it was never measured in.
+ */
+export const LAB_VITALS_SCHEMAS_ACCEPTED = Object.freeze([
+  "agent-edu.synthetic-lab-vitals.v1",
+  LAB_VITALS_SCHEMA,
+]);
+
+/**
+ * The network conditions each profile emulates.
+ *
+ * Until now this harness ran with no network emulation at all, which measures
+ * parse and main-thread cost honestly and transfer cost not at all — so the
+ * work that makes a document smaller was invisible to it. The two profiles
+ * separate those: `none` is what v1 measured, `slow-4g` is what a reader on a
+ * phone actually waits for.
+ *
+ * The slow-4g numbers are Lighthouse's mobile defaults, chosen because the 4x
+ * CPU slowdown this harness already applies is the other half of that same
+ * profile. Throughput is bytes per second, which is what CDP wants; the
+ * kbit/s figures are the ones the profile is normally quoted in.
+ */
+export const NETWORK_PROFILES = Object.freeze({
+  "none": Object.freeze({
+    id: "none",
+    emulated: false,
+    label: "no network emulation",
+  }),
+  "slow-4g": Object.freeze({
+    id: "slow-4g",
+    emulated: true,
+    label: "Lighthouse mobile: 1.6 Mbit/s down, 750 kbit/s up, 150 ms RTT",
+    downloadKbps: 1600,
+    uploadKbps: 750,
+    latencyMs: 150,
+    downloadBytesPerSecond: (1600 * 1000) / 8,
+    uploadBytesPerSecond: (750 * 1000) / 8,
+  }),
+});
+
+export const NETWORK_PROFILE_IDS = Object.freeze(Object.keys(NETWORK_PROFILES));
 
 export const LAB_VITALS_ROUTES = Object.freeze([
   { id: "home", path: "/en/", expectedStatus: 200, selector: ".faq summary", interaction: "open first FAQ" },
@@ -44,11 +89,18 @@ export function summarizeSamples(samples) {
       }
     }
   }
-  return {
+  const summary = {
     lcpMs: round(median(samples.map((sample) => sample.lcpMs)), 1),
     cls: round(median(samples.map((sample) => sample.cls)), 4),
     inpMs: round(median(samples.map((sample) => sample.inpMs)), 1),
   };
+  /* Transfer is summarised only when every sample carries it. A v1 sample set
+     has no transferBytes and must not be given an invented one — the same
+     reason a missing INP is an error here rather than a zero. */
+  if (samples.every((sample) => Number.isFinite(sample.transferBytes))) {
+    summary.transferBytes = Math.round(median(samples.map((sample) => sample.transferBytes)));
+  }
+  return summary;
 }
 
 export function fingerprintEntries(entries) {
@@ -119,6 +171,9 @@ export function parseCliArgs(argv) {
     port: Number(process.env.AGENT_EDU_VITALS_PORT || 4174),
     headless: true,
     help: false,
+    /* Both by default: the pair is the point. One profile alone cannot show
+       whether a slower route is slower to parse or slower to arrive. */
+    networks: [...NETWORK_PROFILE_IDS],
   };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -128,6 +183,8 @@ export function parseCliArgs(argv) {
     else if (argument.startsWith("--samples=")) options.samples = Number(argument.slice(10));
     else if (argument === "--port") options.port = Number(argv[++index]);
     else if (argument.startsWith("--port=")) options.port = Number(argument.slice(7));
+    else if (argument === "--network") options.networks = parseNetworks(argv[++index]);
+    else if (argument.startsWith("--network=")) options.networks = parseNetworks(argument.slice(10));
     else throw new Error(`unknown argument: ${argument}`);
   }
   if (!Number.isInteger(options.samples) || options.samples < 1) {
@@ -139,10 +196,31 @@ export function parseCliArgs(argv) {
   return options;
 }
 
+function parseNetworks(value) {
+  const ids = String(value ?? "").split(",").map((id) => id.trim()).filter(Boolean);
+  if (ids.length === 0) {
+    throw new Error(`--network needs at least one of: ${NETWORK_PROFILE_IDS.join(", ")}`);
+  }
+  for (const id of ids) {
+    if (!Object.hasOwn(NETWORK_PROFILES, id)) {
+      throw new Error(`unknown network profile "${id}"; known: ${NETWORK_PROFILE_IDS.join(", ")}`);
+    }
+  }
+  if (new Set(ids).size !== ids.length) throw new Error("--network lists a profile twice");
+  /* Measured in the declared order, so a report always reads none first. */
+  return NETWORK_PROFILE_IDS.filter((id) => ids.includes(id));
+}
+
 export function assertLabVitalsReport(report, expectedSamples = 3) {
-  if (report?.schema !== LAB_VITALS_SCHEMA || report?.evidenceKind !== "synthetic-lab") {
+  if (!LAB_VITALS_SCHEMAS_ACCEPTED.includes(report?.schema) || report?.evidenceKind !== "synthetic-lab") {
     throw new Error("lab-vitals report is missing its schema or synthetic-lab evidence label");
   }
+  /* v1 measured one implicit set of conditions and keyed the results `modes`;
+     v2 measures one set per network profile and keys them by profile id. The
+     per-sample checks below are identical either way — only the shape that
+     holds them differs, and only an archived v1 report still uses the old
+     one. */
+  const isV1 = report.schema === "agent-edu.synthetic-lab-vitals.v1";
   if (!/^[0-9a-f]{40}$/.test(report?.source?.commitSha ?? "")) {
     throw new Error("lab-vitals report has no full source commit SHA");
   }
@@ -169,6 +247,22 @@ export function assertLabVitalsReport(report, expectedSamples = 3) {
   if (report?.routes?.length !== LAB_VITALS_ROUTES.length) {
     throw new Error("lab-vitals report does not cover the required route matrix");
   }
+  let measuredProfiles = ["none"];
+  if (!isV1) {
+    const declared = report?.conditions?.networkProfiles;
+    if (!Array.isArray(declared) || declared.length === 0) {
+      throw new Error("lab-vitals report declares no network profiles");
+    }
+    for (const profile of declared) {
+      if (!Object.hasOwn(NETWORK_PROFILES, profile?.id ?? "")) {
+        throw new Error(`lab-vitals report declares unknown network profile ${JSON.stringify(profile?.id)}`);
+      }
+      if (profile.emulated && !(profile.downloadBytesPerSecond > 0 && profile.latencyMs >= 0)) {
+        throw new Error(`lab-vitals profile ${profile.id} claims emulation without stating its conditions`);
+      }
+    }
+    measuredProfiles = declared.map((profile) => profile.id);
+  }
   for (let routeIndex = 0; routeIndex < report.routes.length; routeIndex += 1) {
     const route = report.routes[routeIndex];
     const requiredRoute = LAB_VITALS_ROUTES[routeIndex];
@@ -179,27 +273,46 @@ export function assertLabVitalsReport(report, expectedSamples = 3) {
     ) {
       throw new Error(`lab-vitals report route ${routeIndex + 1} does not match the required matrix`);
     }
-    for (const mode of ["cold", "warm"]) {
-      const result = route.modes?.[mode];
-      if (result?.samples?.length !== expectedSamples) {
-        throw new Error(`${route.id}/${mode} has the wrong number of raw samples`);
+    for (const profileId of measuredProfiles) {
+      const holder = isV1 ? route.modes : route.profiles?.[profileId];
+      if (!holder) {
+        throw new Error(`${route.id} has no results for network profile ${profileId}`);
       }
-      for (const sample of result.samples) {
-        if (sample.status !== requiredRoute.expectedStatus || sample.cacheControl !== SERVER_CACHE_CONTROL) {
-          throw new Error(`${route.id}/${mode} has invalid response metadata`);
+      for (const mode of ["cold", "warm"]) {
+        const where = isV1 ? `${route.id}/${mode}` : `${route.id}/${profileId}/${mode}`;
+        const result = holder[mode];
+        if (result?.samples?.length !== expectedSamples) {
+          throw new Error(`${where} has the wrong number of raw samples`);
         }
-        if (sample.interactionEvents < 1 || !["event", "first-input"].includes(sample.inpSource)) {
-          throw new Error(`${route.id}/${mode} has no observed interaction timing source`);
-        }
-        for (const metric of ["lcpMs", "cls", "inpMs"]) {
-          if (!Number.isFinite(sample[metric])) {
-            throw new Error(`${route.id}/${mode} has no finite raw ${metric}`);
+        for (const sample of result.samples) {
+          if (sample.status !== requiredRoute.expectedStatus || sample.cacheControl !== SERVER_CACHE_CONTROL) {
+            throw new Error(`${where} has invalid response metadata`);
+          }
+          if (sample.interactionEvents < 1 || !["event", "first-input"].includes(sample.inpSource)) {
+            throw new Error(`${where} has no observed interaction timing source`);
+          }
+          for (const metric of ["lcpMs", "cls", "inpMs"]) {
+            if (!Number.isFinite(sample[metric])) {
+              throw new Error(`${where} has no finite raw ${metric}`);
+            }
+          }
+          /* Transfer is the metric the network profiles exist to expose, so
+             v2 requires it. A cold sample that transferred nothing did not
+             measure a load. */
+          if (!isV1) {
+            if (!Number.isFinite(sample.transferBytes)) {
+              throw new Error(`${where} has no finite raw transferBytes`);
+            }
+            if (mode === "cold" && sample.transferBytes < 1) {
+              throw new Error(`${where} transferred no bytes with the cache disabled`);
+            }
           }
         }
-      }
-      for (const metric of ["lcpMs", "cls", "inpMs"]) {
-        if (!Number.isFinite(result?.medians?.[metric])) {
-          throw new Error(`${route.id}/${mode} has no finite median ${metric}`);
+        const requiredMedians = isV1 ? ["lcpMs", "cls", "inpMs"] : ["lcpMs", "cls", "inpMs", "transferBytes"];
+        for (const metric of requiredMedians) {
+          if (!Number.isFinite(result?.medians?.[metric])) {
+            throw new Error(`${where} has no finite median ${metric}`);
+          }
         }
       }
     }
@@ -214,10 +327,24 @@ function round(value, decimals) {
 
 function usage() {
   return [
-    "Usage: npm run vitals:lab -- [--samples=N] [--port=N] [--headed]",
+    "Usage: npm run vitals:lab -- [--samples=N] [--port=N] [--network=LIST] [--headed]",
     "",
     "Requires a fresh static out/ directory. The default is 3 cold and 3 warm",
-    "samples for each required route. JSON is written to stdout; diagnostics go to stderr.",
+    "samples for each required route, on each network profile.",
+    "",
+    `  --network  comma-separated, from: ${NETWORK_PROFILE_IDS.join(", ")} (default: all)`,
+    "",
+    "  none     no emulation. Measures parse and main-thread cost, and is what",
+    "           schema v1 reported. Transfer cost is invisible to it.",
+    "  slow-4g  1.6 Mbit/s down, 750 kbit/s up, 150 ms RTT — Lighthouse's mobile",
+    "           defaults, the other half of the 4x CPU slowdown already applied.",
+    "",
+    "Both are run by default because the pair is what carries the information:",
+    "a route slower on one and not the other is slow for a different reason.",
+    "Every sample also records transferBytes, which is what makes a smaller",
+    "payload visible to this harness at all.",
+    "",
+    "JSON is written to stdout; diagnostics go to stderr.",
   ].join("\n");
 }
 
@@ -322,7 +449,7 @@ function installVitalsObserver() {
   }
 }
 
-async function collectSample(browser, baseUrl, route, cacheMode, iteration, viewport) {
+async function collectSample(browser, baseUrl, route, cacheMode, iteration, viewport, profile) {
   const context = await browser.newContext({ viewport });
   await context.addInitScript(installVitalsObserver);
   const page = await context.newPage();
@@ -330,23 +457,31 @@ async function collectSample(browser, baseUrl, route, cacheMode, iteration, view
   await cdp.send("Network.enable");
   await cdp.send("Network.setCacheDisabled", { cacheDisabled: cacheMode === "cold" });
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: CPU_SLOWDOWN_MULTIPLIER });
+  if (profile.emulated) {
+    await cdp.send("Network.emulateNetworkConditions", {
+      offline: false,
+      downloadThroughput: profile.downloadBytesPerSecond,
+      uploadThroughput: profile.uploadBytesPerSecond,
+      latency: profile.latencyMs,
+    });
+  }
 
   try {
     if (cacheMode === "warm") {
       const prime = await page.goto(`${baseUrl}${route.path}`, { waitUntil: "networkidle" });
       if (prime?.status() !== route.expectedStatus) {
-        throw new Error(`${route.id}/warm prime returned ${prime?.status() ?? "no response"}; expected ${route.expectedStatus}`);
+        throw new Error(`${route.id}/${profile.id}/warm prime returned ${prime?.status() ?? "no response"}; expected ${route.expectedStatus}`);
       }
     }
 
     const response = await page.goto(`${baseUrl}${route.path}`, { waitUntil: "networkidle" });
     const status = response?.status();
     if (status !== route.expectedStatus) {
-      throw new Error(`${route.id}/${cacheMode} returned ${status ?? "no response"}; expected ${route.expectedStatus}`);
+      throw new Error(`${route.id}/${profile.id}/${cacheMode} returned ${status ?? "no response"}; expected ${route.expectedStatus}`);
     }
     const cacheControl = await response.headerValue("cache-control");
     if (cacheControl !== SERVER_CACHE_CONTROL) {
-      throw new Error(`${route.id}/${cacheMode} returned unexpected Cache-Control ${JSON.stringify(cacheControl)}`);
+      throw new Error(`${route.id}/${profile.id}/${cacheMode} returned unexpected Cache-Control ${JSON.stringify(cacheControl)}`);
     }
 
     const target = page.locator(route.selector).first();
@@ -361,18 +496,84 @@ async function collectSample(browser, baseUrl, route, cacheMode, iteration, view
     await target.click();
     await page.waitForTimeout(500);
 
+    /* Wait for the resource set to stop growing before reading it.
+     *
+     * `networkidle` and a fixed pause are enough for the timings, which is
+     * all this used to collect. They are not enough for a byte count: a
+     * <Link> prefetches when it enters the viewport, so the number of
+     * prefetches that have *finished* when Resource Timing is read is a race
+     * — and a race that usually comes out the same way is the worst kind,
+     * because it looks like determinism until a budget is built on it. Two
+     * extra prefetches is 600 bytes appearing from nowhere.
+     *
+     * So the sample is taken from the settled page: poll until the resource
+     * count has held still, and fail rather than report a figure from a page
+     * that never settled. */
+    const settled = await (async () => {
+      let previous = -1;
+      let stable = 0;
+      for (let attempt = 0; attempt < 60; attempt += 1) {
+        const count = await page.evaluate(() => performance.getEntriesByType("resource").length);
+        stable = count === previous ? stable + 1 : 0;
+        if (stable >= 4) return true;
+        previous = count;
+        await page.waitForTimeout(100);
+      }
+      return false;
+    })();
+    if (!settled) {
+      throw new Error(
+        `${route.id}/${profile.id}/${cacheMode} never stopped fetching; its transfer figure ` +
+        `would be whatever had arrived by the time it was read`,
+      );
+    }
+
+    /* What this navigation actually pulled over the wire, after content
+       encoding: the document plus every subresource. Read from Resource
+       Timing rather than counted from CDP events so it is the browser's own
+       accounting, and so a warm sample honestly reports the ~0 it served
+       from cache instead of the bytes it would have fetched.
+    
+       Split by kind, because the total alone is a poor gate. Shared
+       JavaScript is most of a route and rarely moves, so a change that
+       doubles the document hides inside it as a couple of percent — which is
+       exactly the size of the regression this is meant to catch. Broken out,
+       the document is its own number and doubling it is unmissable. */
+    const transfer = await page.evaluate(() => {
+      const kindOf = (url) => {
+        const path = new URL(url, location.href).pathname;
+        if (path.endsWith(".js")) return "script";
+        if (path.endsWith(".css")) return "stylesheet";
+        if (path.endsWith(".txt")) return "payload";
+        return "other";
+      };
+      const byKind = { document: 0, script: 0, stylesheet: 0, payload: 0, other: 0 };
+      const navigation = performance.getEntriesByType("navigation")[0];
+      if (Number.isFinite(navigation?.transferSize)) byKind.document += navigation.transferSize;
+      for (const entry of performance.getEntriesByType("resource")) {
+        if (Number.isFinite(entry.transferSize)) byKind[kindOf(entry.name)] += entry.transferSize;
+      }
+      const total = Object.values(byKind).reduce((sum, value) => sum + value, 0);
+      return { total, byKind };
+    });
+    const transferBytes = transfer.total;
+
     const metrics = await page.evaluate(() => window.__agentEduLabVitals);
     if (!metrics?.supported?.lcp || !metrics.supported.cls || !metrics.supported.inp) {
-      throw new Error(`${route.id}/${cacheMode} browser lacks required LCP, CLS, or Event Timing support`);
+      throw new Error(`${route.id}/${profile.id}/${cacheMode} browser lacks required LCP, CLS, or Event Timing support`);
     }
     if (!Number.isFinite(metrics.lcpMs)) {
-      throw new Error(`${route.id}/${cacheMode} did not produce LCP`);
+      throw new Error(`${route.id}/${profile.id}/${cacheMode} did not produce LCP`);
     }
     if (!Number.isFinite(metrics.cls)) {
-      throw new Error(`${route.id}/${cacheMode} did not produce CLS`);
+      throw new Error(`${route.id}/${profile.id}/${cacheMode} did not produce CLS`);
     }
     if (!Number.isFinite(metrics.inpMs) || metrics.interactionEvents < 1) {
-      throw new Error(`${route.id}/${cacheMode} did not produce a trusted Event Timing interaction; INP is unavailable, not zero`);
+      throw new Error(`${route.id}/${profile.id}/${cacheMode} did not produce a trusted Event Timing interaction; INP is unavailable, not zero`);
+    }
+
+    if (!Number.isFinite(transferBytes)) {
+      throw new Error(`${route.id}/${profile.id}/${cacheMode} produced no Resource Timing transfer total`);
     }
 
     return {
@@ -380,6 +581,8 @@ async function collectSample(browser, baseUrl, route, cacheMode, iteration, view
       status,
       cacheControl,
       interaction: route.interaction,
+      transferBytes,
+      transferByKind: transfer.byKind,
       interactionEvents: metrics.interactionEvents,
       inpSource: metrics.inpSource,
       lcpMs: round(metrics.lcpMs, 1),
@@ -400,28 +603,36 @@ export async function runLabVitals(options) {
     browser = await chromium.launch({ headless: options.headless });
     const routes = [];
     for (const route of LAB_VITALS_ROUTES) {
-      const modes = {};
-      for (const cacheMode of ["cold", "warm"]) {
-        const samples = [];
-        for (let iteration = 1; iteration <= options.samples; iteration += 1) {
-          process.stderr.write(`lab-vitals: ${route.id} ${cacheMode} ${iteration}/${options.samples}\n`);
-          samples.push(await collectSample(
-            browser,
-            baseUrl,
-            route,
-            cacheMode,
-            iteration,
-            DEFAULT_VIEWPORT,
-          ));
+      const profiles = {};
+      for (const networkId of options.networks) {
+        const profile = NETWORK_PROFILES[networkId];
+        const modes = {};
+        for (const cacheMode of ["cold", "warm"]) {
+          const samples = [];
+          for (let iteration = 1; iteration <= options.samples; iteration += 1) {
+            process.stderr.write(
+              `lab-vitals: ${route.id} ${networkId} ${cacheMode} ${iteration}/${options.samples}\n`,
+            );
+            samples.push(await collectSample(
+              browser,
+              baseUrl,
+              route,
+              cacheMode,
+              iteration,
+              DEFAULT_VIEWPORT,
+              profile,
+            ));
+          }
+          modes[cacheMode] = { samples, medians: summarizeSamples(samples) };
         }
-        modes[cacheMode] = { samples, medians: summarizeSamples(samples) };
+        profiles[networkId] = modes;
       }
       routes.push({
         id: route.id,
         path: route.path,
         expectedStatus: route.expectedStatus,
         interaction: route.interaction,
-        modes,
+        profiles,
       });
     }
     const report = {
@@ -445,7 +656,10 @@ export async function runLabVitals(options) {
           cold: "Chromium cache disabled with CDP",
           warm: "Chromium cache enabled and route primed once before measurement",
         },
-        networkEmulation: "none",
+        networkProfiles: options.networks.map((id) => NETWORK_PROFILES[id]),
+        /* Kept from v1, where it was the string "none", so a reader of either
+           schema can see at a glance what was emulated. */
+        networkEmulation: options.networks.join(", "),
         cpuSlowdownMultiplier: CPU_SLOWDOWN_MULTIPLIER,
         thresholds: "none; this harness verifies measurement and schema only",
       },

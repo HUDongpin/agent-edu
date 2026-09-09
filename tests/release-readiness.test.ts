@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
+  GATE_IDS,
   LOCALES,
   NATIVE_REVIEW_LOCALES,
   checkReleaseReadiness,
@@ -123,6 +124,11 @@ function passingConfig(): LooseConfig {
   }
   config.gates.providerCanary.status = "pass";
 
+  for (const record of Object.values(config.gates.anthropicCourseSnapshot.reconciliations) as Evidence[]) {
+    passEvidence(record, "canary-record:anthropic-snapshot-fixture");
+  }
+  config.gates.anthropicCourseSnapshot.status = "pass";
+
   config.gates.vercelPreviewCsp.reportOnlyTarget = reportOnlyTarget();
   passEvidence(
     config.gates.vercelPreviewCsp.stages.reportOnly,
@@ -226,6 +232,43 @@ test("the committed release config is schema-valid and honestly pending", () => 
     /all locale catalogs have complete keys, placeholders, plurals, and explained identical terms/,
   );
   assert.equal(result.evidence.every((group) => group.status === "pending"), true);
+});
+
+test("the blocker summary speaks for every gate, so adding one cannot fail silently", () => {
+  /**
+   * The regression this pins. `externalReady` used to read
+   * `evidence.length === 6`, a literal that had to be found and edited by hand
+   * whenever the gate set grew. Adding the seventh gate made a fully signed
+   * fixture report `ready: false` with an empty `configIssues` — unready, and
+   * silent about why, which is the worst way for a release check to fail.
+   *
+   * Both the count and the schema key list now come from GATE_IDS, and the
+   * summary carries the gate id it speaks for. If someone adds an eighth gate
+   * and forgets its summary group, this goes red and the checker says so out
+   * loud rather than quietly refusing to ship.
+   */
+  const result = evaluateReleaseReadiness({
+    config: productionConfig,
+    catalogs: passingCatalogs(),
+    projectRoot: process.cwd(),
+  });
+
+  assert.deepEqual(result.evidence.map((group: { id: string }) => group.id), [...GATE_IDS]);
+  assert.equal(
+    result.evidence.every((group: { label: string; total: number }) =>
+      group.label.length > 0 && group.total > 0),
+    true,
+    "every gate must contribute at least one evidence record to the blocker report",
+  );
+  assert.deepEqual(
+    result.configIssues.filter((issue: { message: string }) => /drifted apart/.test(issue.message)),
+    [],
+  );
+
+  // And the literal must not come back.
+  const source = readFileSync("scripts/check-release-readiness.mjs", "utf8");
+  assert.doesNotMatch(source, /evidence\.length === \d/);
+  assert.match(source, /evidence\.map\(\(group\) => group\.id\)/);
 });
 
 test("fully signed fixture evidence and complete locale fixtures pass", () => {

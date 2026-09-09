@@ -10,11 +10,12 @@
     "url": "git+https://github.com/HUDongpin/agent-edu.git"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/prune-export.mjs",
+    "vercel-build": "npm run handbook:check && npm run widgets:check && npm run csp:check && npm run analytics:check && npm run build && npm run routes:check && npm run assets:check && npm run i18n:check",
     "typecheck": "tsc -p tsconfig.json --noEmit --incremental false",
     "lint": "eslint app components lib scripts --max-warnings 0",
     "test": "node --import tsx --test tests/*.test.ts",
@@ -26,6 +27,8 @@
     "test:resilience": "npm run evidence:prepare && PLAYWRIGHT_NO_COPY_PROMPT=1 playwright test e2e/resilience.spec.ts --project=chromium",
     "test:evidence-contract": "node scripts/verify-browser-evidence.mjs",
     "vitals:lab": "node scripts/measure-lab-vitals.mjs",
+    "transfer:check": "node scripts/check-transfer-budget.mjs",
+    "transfer:update": "node scripts/check-transfer-budget.mjs --update",
     "preview:test": "node scripts/serve-out.mjs",
     "routes:check": "node scripts/check-routes.mjs",
     "assets:check": "node scripts/check-static-assets.mjs",
@@ -40,7 +43,11 @@
     "report": "tsx course/report.ts",
     "handbook:extract": "node scripts/extract-handbook.mjs",
     "handbook:check": "node scripts/extract-handbook.mjs --check",
-    "widgets:check": "node scripts/check-widgets.mjs"
+    "widgets:check": "node scripts/check-widgets.mjs",
+    "i18n:extract": "node scripts/extract-i18n-scopes.mjs",
+    "i18n:check": "node scripts/extract-i18n-scopes.mjs --check",
+    "prose:check": "node scripts/check-prose.mjs",
+    "review:packet": "node scripts/make-review-packet.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",

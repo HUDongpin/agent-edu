@@ -18,13 +18,20 @@ import { useI18n } from "./I18nProvider";
 
 const watchers = new Set<() => void>();
 
+/* A third source: the Handbook's own masthead button, which sets the same
+   attribute and the same key from outside React. Without this the two controls
+   sit centimetres apart on the largest page and disagree until a reload. */
+const THEME_CHANGED = "ae-theme";
+
 function subscribe(fn: () => void): () => void {
   watchers.add(fn);
   const mq = matchMedia("(prefers-color-scheme:dark)");
   mq.addEventListener("change", fn);
+  addEventListener(THEME_CHANGED, fn);
   return () => {
     watchers.delete(fn);
     mq.removeEventListener("change", fn);
+    removeEventListener(THEME_CHANGED, fn);
   };
 }
 

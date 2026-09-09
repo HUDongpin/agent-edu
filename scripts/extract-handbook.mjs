@@ -76,7 +76,12 @@ async function volatileIds() {
 const check = process.argv.includes("--check");
 const html = await loadMarkup();
 const segments = walkHandbook(html);
-const body = segments.filter((s) => s.kind === "body");
+/* Body text and reader-facing attributes both belong to the translator. The
+   attributes were never extractable, which is how seventeen diagram
+   descriptions stayed English in all nine locales while the count said 542 of
+   542 — it was counting only the strings that had keys. */
+const body = segments.filter((s) => s.kind === "body" || s.kind === "attr");
+const attrN = segments.filter((s) => s.kind === "attr").length;
 
 /** @type {Record<string, string>} */
 const table = {};
@@ -87,7 +92,8 @@ const existing = await readFile(OUT, "utf8").catch(() => null);
 
 if (check) {
   if (existing === json) {
-    console.log(`✓ ${path.relative(ROOT, OUT)} is up to date — ${body.length} strings`);
+    console.log(`✓ ${path.relative(ROOT, OUT)} is up to date — ${body.length} strings ` +
+      `(${body.length - attrN} body, ${attrN} attributes)`);
     process.exit(0);
   }
   console.error(

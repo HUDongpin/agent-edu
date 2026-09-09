@@ -45,6 +45,7 @@ import {
   assertEvalShape,
 } from "@/lib/lab/plans";
 import { LabRunner, type LabRunTask } from "@/lib/lab/runner";
+import { RECORDED_RUN, RECORDED_BEFORE, RECORDED_AFTER } from "@/lib/lab/recorded";
 import {
   MAX_LAB_RULES,
   MAX_LAB_RULE_CONDITION_LENGTH,
@@ -178,6 +179,36 @@ export default function Lab() {
   const [score, setScore] = useState<number | null>(null);
   const [prev, setPrev] = useState<number | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
+  /**
+   * The previous run's twenty rows, kept so the two can be read against
+   * each other.
+   *
+   * `setRows` replaced the table outright, so after the second run the first
+   * run's rows were gone and the payoff survived as two integers in one
+   * sentence. The lesson is not "11 became 18", it is that `large-flat-white`
+   * and `two-teas` stopped inventing a price — and that was the part the reader
+   * had to take on faith.
+   */
+  const [prevRows, setPrevRows] = useState<Row[]>([]);
+  /**
+   * Cases that finished before a run stopped, kept apart from `rows`.
+   *
+   * Deliberately not written into `rows`: lab.err.cancelled promises the reader
+   * their previous score was kept, and overwriting the table would leave that
+   * score's meter standing above a different run's rows. These render in their
+   * own block, unscored, so what they paid for is visible without pretending it
+   * is a result.
+   */
+  const [partialRows, setPartialRows] = useState<Row[]>([]);
+  /**
+   * Whether the reader has asked to see the scripted run.
+   *
+   * Only the rules wall runs without a key, so someone with no card, on a
+   * managed laptop, or where the provider's billing does not reach felt the wall
+   * and never saw the answer behind it. Offered only when no key is stored, so
+   * it never competes with doing it yourself.
+   */
+  const [showRecorded, setShowRecorded] = useState(false);
   const [prog, setProg] = useState("");
   const [err3, setErr3] = useState<Err>(null);
   const [evalAnnouncement, setEvalAnnouncement] = useState("");
@@ -221,12 +252,25 @@ export default function Lab() {
         setCompletedPreviewIds(restoredPreviewIds);
         setDraftSavedAt(draft.savedAt);
       } else {
+        /* A first visit with no key opens on the rules wall, not on step 1.
+           Step 1 cannot run without a paid credential, so opening there makes
+           the Lab's opening screen a signup wall — while the one exercise that
+           costs nothing, and that motivates everything after it, sits unread in
+           the next tab. Step 2 depends on nothing before it and step 3 builds
+           directly on its failure, so the narrative survives the reorder, and a
+           reader who does have a key still starts where they always did.
+
+           The baseline fingerprint moves with the stage: leave it at 0 and
+           merely opening the page reads as an edit, which would persist a draft
+           for someone who has not typed anything. */
+        const opening = getKey() ? 0 : 1;
         lastPersistedDraftFingerprint.current = draftFingerprint(
-          0,
+          opening,
           freshLabRules(),
           "",
           [],
         );
+        if (opening !== 0) setStage(opening);
       }
       setDraftReady(true);
     }, 0);
@@ -349,6 +393,12 @@ export default function Lab() {
     generatorPromptTokens + judgePromptTokens,
     EVAL_PLAN.maxOutputTokens,
   ).usd;
+  /* The whole recommended journey, so the key panel can name a price before the
+     reader is asked to fund an account. Summed from the three estimates above
+     rather than priced separately, which keeps it in step with the per-step
+     disclosures by construction: the same 1 + 3 + 28 + 28 that
+     RECOMMENDED_LAB_JOURNEY counts, at the same peak/cache-miss ceiling. */
+  const journeyEstimate = stage1Estimate + stage3Estimate + evalEstimate * 2;
 
   async function takeOrder(
     said: string,
@@ -425,6 +475,9 @@ export default function Lab() {
 
   async function runEval(system: string) {
     setErr3(null);
+    // Last run's leftovers belong to last run. A new attempt starts with an
+    // empty partial block whether it goes on to complete or stop again.
+    setPartialRows([]);
     if (busy0) return;
     const keyProblem = paidKeyProblem();
     if (keyProblem) { setErr3({ key: keyProblem }); return; }
@@ -513,12 +566,16 @@ export default function Lab() {
     const outcome = await handle.promise;
     if (!runner.isCurrent(outcome.runId)) return;
     setActiveBatch(null);
-    if (outcome.status === "cancelled") {
-      setErr3({ key: "lab.err.cancelled" });
-      return;
-    }
     if (outcome.status !== "completed" || !outcome.results) {
-      if (outcome.error) {
+      /* Keep what was already paid for. A stopped or failed run is not a score
+         — it is never recorded, and the previous one still stands — but the
+         cases that came back were billed, and asking the learner to buy the
+         same twenty again because request nineteen met a 429 is the difference
+         between a course and a bad experience with a card. */
+      setPartialRows(outcome.partialResults ?? []);
+      if (outcome.status === "cancelled") {
+        setErr3({ key: "lab.err.cancelled" });
+      } else if (outcome.error) {
         setErr3({ key: errorKey(outcome.error), detail: outcome.error.message });
       }
       return;
@@ -527,6 +584,7 @@ export default function Lab() {
     const res = outcome.results;
     const n = res.filter((r) => r.ok).length;
     const completedBillingCost = formatBillingCost(billingSnapshot());
+    setPrevRows(rows);
     setRows(res);
     setPrev(score); setScore(n);
     setEvalAnnouncement(
@@ -594,7 +652,12 @@ export default function Lab() {
           is cheaper than letting a reader wonder whether it is a bug. */}
       {locale !== "en" && <p className="langnote">{t("lab.enData")}</p>}
 
-      <KeyBar model={model} onModel={setModel} disabled={busy0 || anyBatchBusy} />
+      <KeyBar
+        model={model}
+        onModel={setModel}
+        disabled={busy0 || anyBatchBusy}
+        journeyEstimate={journeyEstimate}
+      />
 
       <Stages
         stages={stages}
@@ -849,6 +912,14 @@ export default function Lab() {
                       onClick={() => void runEval(sys)}>
                       {busy3 ? t("ui.loading") : t("lab.s4.run")} <span className="arrow">→</span>
                     </button>
+                    {/* Offered only once a score exists. Enabled from the moment
+                        a prompt did, it sat beside Run reading like the helpful
+                        one, and pressing it first bought a good number with no
+                        baseline to read it against — so the before/after never
+                        rendered and nothing said the point had just been
+                        skipped. After a run its label is also true for the first
+                        time: there is now a result to re-run against. */}
+                    {score !== null && (
                     <button className="btn" type="button" disabled={busy0 || anyBatchBusy || !sys.trim()} onClick={() => {
                       const withMenu = addMenu(sys);
                       if (!menuAdded) { setSys(withMenu); setMenuAdded(true); }
@@ -857,6 +928,7 @@ export default function Lab() {
                       <span aria-hidden="true">{menuAdded ? "✓" : "＋"}</span>{" "}
                       {menuAdded ? t("lab.s4.menuIn") : t("lab.s4.addMenu")}
                     </button>
+                    )}
                     {activeBatch && (
                       <button className="btn" type="button" onClick={stopBatch}>{t("lab.stop")}</button>
                     )}
@@ -924,6 +996,105 @@ export default function Lab() {
                     <th>{t("lab.s4.thHow")}</th><th>{t("lab.s4.thWhy")}</th>
                   </tr></thead>
                   <tbody>{rows.map((r) => (
+                    <tr key={r.id}>
+                      <td className="mono"><bdi>{r.id}</bdi></td>
+                      <td className="mono"><bdi>{r.said}</bdi></td>
+                      <td><span className={"pill " + (r.ok ? "ok" : "bad")}>{t(`lab.kind.${r.kind}`)}</span></td>
+                      <td className="small"><bdi>{r.ok ? "" : r.why.slice(0, 110)}</bdi></td>
+                    </tr>
+                  ))}</tbody>
+                </table></div>
+
+                {/* The run before this one, so the two can be read against each
+                    other. The whole point of step 4 is which cases stopped
+                    inventing a price; a single sentence carrying two integers
+                    asks the reader to take that on faith. Its own meter carries
+                    its own score, which is what tells the two tables apart. */}
+                {prev !== null && prevRows.length > 0 && (
+                  <details style={{ marginTop: 16 }}>
+                    <summary className="mono-note">
+                      <Rich k="lab.s4.comparePrev" vars={{ prev }} />
+                    </summary>
+                    <div className="meter" style={{ marginTop: 10 }}>
+                      <div><span className="big">{prev}</span><span className="mono-note"> / 20</span></div>
+                      <div style={{ flex: 1, minWidth: 150 }}>
+                        <div className="progbar"><span style={{
+                          width: `${(prev / 20) * 100}%`,
+                          background: prev >= 16 ? "var(--green)" : prev >= 10 ? "var(--gold-mark)" : "var(--red)",
+                        }} /></div>
+                      </div>
+                    </div>
+                    <div className="scroll"><table style={{ marginTop: 10 }}>
+                      <thead><tr>
+                        <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th>
+                        <th>{t("lab.s4.thHow")}</th><th>{t("lab.s4.thWhy")}</th>
+                      </tr></thead>
+                      <tbody>{prevRows.map((r) => (
+                        <tr key={r.id}>
+                          <td className="mono"><bdi>{r.id}</bdi></td>
+                          <td className="mono"><bdi>{r.said}</bdi></td>
+                          <td><span className={"pill " + (r.ok ? "ok" : "bad")}>{t(`lab.kind.${r.kind}`)}</span></td>
+                          <td className="small"><bdi>{r.ok ? "" : r.why.slice(0, 110)}</bdi></td>
+                        </tr>
+                      ))}</tbody>
+                    </table></div>
+                  </details>
+                )}
+              </>
+            )}
+
+            {/* The scripted run, for a reader who cannot pay. Deliberately not a
+                meter: the mechanism it shows is true, the score is not a model's,
+                and the copy beside it says so rather than dressing it up. */}
+            {stage === 3 && !getKey() && (
+              showRecorded ? (
+                <>
+                  <div className="langnote" style={{ marginTop: 14 }}>
+                    <Rich k="lab.s4.recordedNote"
+                      vars={{ before: RECORDED_BEFORE, after: RECORDED_AFTER }} />
+                  </div>
+                  <div className="scroll"><table style={{ marginTop: 8 }}>
+                    <thead><tr>
+                      <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th>
+                      <th>{t("lab.s4.thBefore")}</th><th>{t("lab.s4.thAfter")}</th>
+                      <th>{t("lab.s4.thWhy")}</th>
+                    </tr></thead>
+                    <tbody>{RECORDED_RUN.map((c) => (
+                      <tr key={c.id}>
+                        <td className="mono"><bdi>{c.id}</bdi></td>
+                        <td className="mono"><bdi>{c.said}</bdi></td>
+                        <td><span className={"pill " + (c.before ? "ok" : "bad")}>{t(`lab.kind.${c.kind}`)}</span></td>
+                        <td><span className={"pill " + (c.after ? "ok" : "bad")}>{t(`lab.kind.${c.kind}`)}</span></td>
+                        <td className="small"><bdi>{c.why.slice(0, 110)}</bdi></td>
+                      </tr>
+                    ))}</tbody>
+                  </table></div>
+                </>
+              ) : (
+                <p style={{ marginTop: 14 }}>
+                  <button className="btn" type="button" onClick={() => setShowRecorded(true)}>
+                    {t("lab.s4.recordedCta")}
+                  </button>
+                </p>
+              )
+            )}
+
+            {/* What a stopped run had already bought. Unscored on purpose: no
+                meter, no banner, and nothing recorded — a rate limit at request
+                nineteen is not a 12/20, and must never be shown as one. */}
+            {stage === 3 && partialRows.length > 0 && (
+              <>
+                <p className="mono-note" role="status" style={{ marginTop: 14 }}>
+                  {t("lab.s4.partial")
+                    .replace("{done}", String(partialRows.length))
+                    .replace("{total}", String(CASES.length))}
+                </p>
+                <div className="scroll"><table style={{ marginTop: 8 }}>
+                  <thead><tr>
+                    <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th>
+                    <th>{t("lab.s4.thHow")}</th><th>{t("lab.s4.thWhy")}</th>
+                  </tr></thead>
+                  <tbody>{partialRows.map((r) => (
                     <tr key={r.id}>
                       <td className="mono"><bdi>{r.id}</bdi></td>
                       <td className="mono"><bdi>{r.said}</bdi></td>

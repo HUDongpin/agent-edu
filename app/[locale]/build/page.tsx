@@ -1,6 +1,9 @@
 import Link from "next/link";
+import Declare from "@/components/build/Declare";
+import { I18nScope } from "@/components/I18nProvider";
 import JsonLd from "@/components/JsonLd";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
+import { scopeMessages } from "@/lib/i18n-scope";
 import { SITE, seoFor, urlFor } from "@/lib/seo";
 import type { Metadata } from "next";
 
@@ -24,7 +27,8 @@ export async function generateMetadata(
 
 export default async function BuildPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const t = translator(await getMessages(locale));
+  const messages = await getMessages(locale);
+  const t = translator(messages);
   const p = (path: string) => `/${locale}${path}`;
   const courseUrl = "https://github.com/HUDongpin/agent-edu/tree/main/course";
 
@@ -55,7 +59,16 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         <h1>{t("build.title")}</h1>
         <p className="lede">{t("build.lede")}</p>
         <div className="acts">
-          <a className="btn primary" href={courseUrl} rel="noopener noreferrer">
+          {/* The page's own note on the home page promises a setup guide first
+              and the repository second. The primary button did the opposite, so
+              anyone who followed it skipped the best-sequenced first success on
+              the site — clone, one edit, run it offline, and here is the exact
+              output you should see — for a tree listing. A fragment is not a
+              route, so routes:check is unmoved. */}
+          <a className="btn primary" href="#start">
+            {t("build.startTitle")}<span className="arrow">→</span>
+          </a>
+          <a className="btn" href={courseUrl} rel="noopener noreferrer">
             {t("build.openRepo")}<span className="arrow">↗</span>
           </a>
           <Link className="btn" href={p("/lab/")}>{t("build.backLab")}</Link>
@@ -66,6 +79,12 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         <div className="langnote">
           <h2>{t("build.boundaryTitle")}</h2>
           <p>{t("build.boundaryBody")}</p>
+          {/* Said, rather than discovered. The site is in nine languages and the
+              course is not; that is a defensible decision, and the same one
+              already taken and explained for the café's menu and the twenty
+              cases — but this one was left for the reader to find out by
+              arriving. */}
+          <p>{t("build.boundary")}</p>
         </div>
       </section>
 
@@ -78,12 +97,17 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         </ul>
       </section>
 
-      <section className="sect">
+      <section className="sect" id="start">
         <h2>{t("build.startTitle")}</h2>
         <ol className="build-steps">
           <li>
             <h3>{t("build.cloneTitle")}</h3>
             <p>{t("build.cloneBody")}</p>
+            {/* Name the download, as the Lab now names the price. The first
+                instruction of Part 3 pulls the whole website because the course
+                shares its manifest, while the course itself imports one
+                package — and nothing said so before the wait started. */}
+            <p className="small">{t("build.cloneSize")}</p>
             <pre dir="ltr"><code>{`git clone https://github.com/HUDongpin/agent-edu.git\ncd agent-edu\nnpm ci`}</code></pre>
           </li>
           <li>
@@ -134,6 +158,9 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
         <h2>{t("build.progressTitle")}</h2>
         <p>{t("build.progressBody")}</p>
         <pre dir="ltr"><code>{`npx tsx course/report.ts\n# reads course/progress.json in this clone`}</code></pre>
+        <I18nScope messages={scopeMessages(messages, "build")}>
+          <Declare />
+        </I18nScope>
       </section>
 
       <section className="sect">

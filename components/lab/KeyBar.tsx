@@ -26,6 +26,19 @@ import { RECOMMENDED_LAB_JOURNEY } from "@/lib/lab/plans";
 const PROVIDER = "https://platform.deepseek.com/api_keys";
 
 /**
+ * Cents deserve cents, fractions of one deserve more.
+ *
+ * The per-step disclosures print five decimals because each is a fraction of a
+ * penny, where "$0.00" would be the only alternative. The journey total is the
+ * number someone weighs against opening an account, and "$0.05" is what that
+ * reader is actually asking for — but the five-decimal form comes back below a
+ * cent, so a small estimate can never round away into free.
+ */
+function formatEstimate(usd: number): string {
+  return `$${usd >= 0.01 ? usd.toFixed(2) : usd.toFixed(5)}`;
+}
+
+/**
  * Connecting a model — the first thing a reader meets in the Lab, and the
  * point at which most of them used to leave.
  *
@@ -40,12 +53,21 @@ const PROVIDER = "https://platform.deepseek.com/api_keys";
  * collapses — it has done its job and should stop taking up the page.
  */
 export default function KeyBar({
-  model, onModel, disabled = false,
+  model, onModel, disabled = false, journeyEstimate,
 }: {
   model: Model;
   onModel: (m: Model) => void;
   /** Freeze credential/model mutation while a paid action is in flight. */
   disabled?: boolean;
+  /**
+   * Peak/cache-miss ceiling for the whole recommended journey, in USD.
+   *
+   * Passed in rather than computed here because the Lab already derives it —
+   * from the same `conservativePrice` path and the same dated snapshot as the
+   * per-step disclosures — so the number a reader is shown before they fund an
+   * account cannot disagree with the ones they meet later.
+   */
+  journeyEstimate: number;
 }) {
   const { t } = useI18n();
   const has = useSyncExternalStore(subscribeKey, hasKey, hasKeyOnServer);
@@ -232,8 +254,16 @@ export default function KeyBar({
         )}
       </div>
       {verified && <p className="keysafe">✓ {t("lab.keyModelVisible")}</p>}
+      {/* The money goes first. This panel used to stack four risk paragraphs —
+          the call plan, the pricing method, the stop note, the forget note —
+          without a single currency amount anywhere in them, at the exact moment
+          a beginner decides whether to open a provider account and put money in
+          it. The honesty was what made the silence expensive: nothing told the
+          reader the careful disclosure was describing a few cents. Every word
+          below is unchanged; the number simply arrives before them. */}
       <p className="keysafe">
         {t("lab.callPlan")
+          .replace("{cost}", formatEstimate(journeyEstimate))
           .replace("{calls}", String(RECOMMENDED_LAB_JOURNEY.calls))
           .replace("{tokens}", RECOMMENDED_LAB_JOURNEY.maxOutputTokens.toLocaleString("en-US"))}
       </p>

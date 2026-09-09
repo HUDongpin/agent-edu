@@ -114,3 +114,39 @@ test("the no-key learning path remains operable under a declared constrained pro
   );
   expect(unexpectedConsoleErrors).toEqual([]);
 });
+
+test("the handbook diagrams survive the reader replacing every colour", async ({
+  browserName,
+  page,
+}) => {
+  test.skip(browserName !== "chromium", "forced-colors emulation is Chromium-specific lab evidence.");
+
+  // The user agent replaces colour, background and border in this mode but
+  // leaves SVG fill and stroke alone, so an edge drawn in --line-2 (#EBEDF3)
+  // would be painted near-white onto a white Canvas and simply vanish.
+  await page.emulateMedia({ forcedColors: "active" });
+  const response = await page.goto("/en/handbook/#start");
+  expect(response?.status()).toBe(200);
+
+  const edge = page.locator(".hb .fc-e").first();
+  await expect(edge).toBeAttached();
+
+  const painted = await page.evaluate(() => {
+    const edgeEl = document.querySelector(".hb .fc-e");
+    const labelEl = document.querySelector(".hb .fc-l");
+    return {
+      stroke: edgeEl ? getComputedStyle(edgeEl).stroke : null,
+      label: labelEl ? getComputedStyle(labelEl).fill : null,
+      canvas: getComputedStyle(document.body).backgroundColor,
+    };
+  });
+
+  expect(painted.stroke, "an edge must not keep the author's near-white --line-2")
+    .not.toBe("rgb(235, 237, 243)");
+  expect(painted.stroke, "an edge must not be painted in the page background")
+    .not.toBe(painted.canvas);
+  if (painted.label !== null) {
+    expect(painted.label, "a diagram label must not be painted in the page background")
+      .not.toBe(painted.canvas);
+  }
+});

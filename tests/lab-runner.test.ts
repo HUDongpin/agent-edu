@@ -178,3 +178,74 @@ test("a newer run supersedes the old run and blocks all late progress", async ()
   assert.equal(oldOutcome.results, undefined);
   assert.equal(oldProgress, 0);
 });
+
+test("a rate limit mid-run keeps the results already paid for, and still is not a score", async () => {
+  /* Twenty-eight requests at concurrency four. One 429 ends the run — correctly,
+     because a rate limit is not a content failure and must never be scored as
+     one — but the requests that had already returned were billed. Dropping them
+     asked the learner to buy the same twenty cases twice. */
+  const runner = new LabRunner(ids());
+  const tasks: LabRunTask<number>[] = Array.from({ length: 20 }, (_, index) => ({
+    id: String(index),
+    async run() {
+      if (index === 8) {
+        throw new ProviderError("rate-limit", "429 from the provider", { billing: "unknown-after-send" });
+      }
+      return index;
+    },
+  }));
+
+  const outcome = await runner.start(tasks, {
+    concurrency: 1,
+    onContentFailure: () => -1,
+  }).promise;
+
+  assert.equal(outcome.status, "failed");
+  assert.equal(outcome.error?.code, "rate-limit");
+  // The eight that finished before the rate limit survive, in order.
+  assert.deepEqual(outcome.partialResults, [0, 1, 2, 3, 4, 5, 6, 7]);
+  assert.equal(outcome.completedTasks, 8);
+  // Still not a completed run: `results` stays absent so no score can be read.
+  assert.equal(outcome.results, undefined);
+});
+
+test("Stop returns the cases already billed, densely and in order", async () => {
+  const runner = new LabRunner(ids());
+  const gate = deferred();
+  let started = 0;
+  const tasks: LabRunTask<number>[] = Array.from({ length: 12 }, (_, index) => ({
+    id: String(index),
+    async run({ signal }) {
+      started++;
+      if (index < 3) return index;
+      return new Promise<number>((_resolve, reject) => {
+        signal.addEventListener("abort", () => reject(
+          new ProviderError("aborted", "stopped", { billing: "not-sent" })), { once: true });
+        void gate.promise;
+      });
+    },
+  }));
+
+  const handle = runner.start(tasks, { concurrency: 1, onContentFailure: () => -1 });
+  while (started < 4) await new Promise((resolve) => setTimeout(resolve, 1));
+  runner.stop(handle.runId);
+  const outcome = await handle.promise;
+  gate.resolve();
+
+  assert.equal(outcome.status, "cancelled");
+  assert.deepEqual(outcome.partialResults, [0, 1, 2]);
+  assert.equal(outcome.results, undefined);
+});
+
+test("a completed run reports no partial set, so the two can never be confused", async () => {
+  const runner = new LabRunner(ids());
+  const tasks: LabRunTask<number>[] = Array.from({ length: 5 }, (_, index) => ({
+    id: String(index),
+    async run() { return index; },
+  }));
+
+  const outcome = await runner.start(tasks, { onContentFailure: () => -1 }).promise;
+  assert.equal(outcome.status, "completed");
+  assert.deepEqual(outcome.results, [0, 1, 2, 3, 4]);
+  assert.equal(outcome.partialResults, undefined);
+});

@@ -17,7 +17,19 @@ export type LabRunStatus = "completed" | "cancelled" | "failed" | "superseded";
 export interface LabRunOutcome<Result> {
   runId: string;
   status: LabRunStatus;
+  /** Every task's result, in task order. Present only when the run completed. */
   results?: Result[];
+  /**
+   * The results that did finish, in task order, when the run did not.
+   *
+   * A run of 28 requests that meets one 429, one 500 or one timeout stops at
+   * that point — correctly, because a rate limit is not a content failure and
+   * must never be scored as one. But the requests that had already returned
+   * were paid for, and dropping them on the floor meant the learner was asked
+   * to buy the same twenty cases twice. Dense and in order: the holes belong to
+   * the tasks that never ran, and carry no information worth surfacing.
+   */
+  partialResults?: Result[];
   error?: ProviderError;
   completedTasks: number;
   /** At most four dispatched requests can have billing that remains unknown. */
@@ -188,6 +200,10 @@ export class LabRunner {
       return {
         runId: state.runId,
         status: state.status,
+        /* `results` is a sparse array: filter drops the holes left by tasks that
+           never ran, and the runner never stores an undefined value, so what
+           comes back is exactly the set that finished. */
+        partialResults: results.filter((value) => value !== undefined) as Result[],
         error: state.fatalError,
         completedTasks,
         inFlightAtStop: state.inFlightAtStop,

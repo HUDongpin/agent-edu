@@ -1,5 +1,7 @@
 import Catalog from "@/components/courses/Catalog";
+import { I18nScope } from "@/components/I18nProvider";
 import { LOCALE_CODES, getMessages, translator } from "@/lib/i18n";
+import { scopeMessages } from "@/lib/i18n-scope";
 import { SITE, seoFor, urlFor } from "@/lib/seo";
 import { COURSES } from "@/lib/courses";
 import JsonLd from "@/components/JsonLd";
@@ -26,9 +28,8 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   const t = translator(await getMessages(locale));
 
-  /* Only the courses that exist. The three `soon` entries are greyed out on
-     the page for a reason; a crawler should be told the same thing the
-     reader is. */
+  /* Only the courses that exist. `soon` entries are greyed out on the page
+     for a reason; a crawler should be told the same thing the reader is. */
   const list = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -57,10 +58,15 @@ export default async function CoursesPage({ params }: { params: Promise<{ locale
     })),
   };
 
+  /* The catalogue filters and re-sorts in the browser, so every card's
+     title, blurb and facts have to be there — the `c.` prefix — along with
+     the filter labels. It is the second-largest scope for that reason. */
   return (
     <>
       <JsonLd data={list} />
-      <Catalog locale={locale} />
+      <I18nScope messages={scopeMessages(await getMessages(locale), "courses")}>
+        <Catalog locale={locale} />
+      </I18nScope>
     </>
   );
 }

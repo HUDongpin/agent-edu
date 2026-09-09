@@ -335,6 +335,15 @@ select{width:auto;max-width:100%;flex:0 1 auto;
 .proglist .tick{font-family:var(--mono);width:1.1em;flex:0 0 auto}
 .proglist li.done .tick{color:var(--green)}
 
+/* ---- self-declared completion (Part 3) ----
+   No new tokens: --green and --ink-3 are already defined in all three theme
+   blocks. Logical properties only, so Arabic mirrors from dir="rtl" alone. */
+.declare{margin-block-start:14px;padding-block-start:14px;border-block-start:1px solid var(--line-2)}
+.declare .acts{margin-block-start:10px;align-items:center}
+.declared-note{font-size:13.5px;color:var(--green);font-weight:650}
+/* The live region is in the DOM before it has content; do not let it take space. */
+.declared-note:empty{display:none}
+
 /* ---- faq ---- */
 .faq{margin-top:24px;display:grid;gap:9px}
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:11px;
@@ -605,7 +614,15 @@ td.mono{font-family:var(--mono);font-size:12px}
 .hb main{padding:28px 0 76px;min-width:0}
 .hb .panel{display:none}
 .hb .panel.on{display:block;animation:fade .24s ease-out}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* The opening value is deliberately not 0.
+   Ten of the eleven panels are display:none at load, so this animation is a
+   tab-switch transition — but the panel that is already open runs it too, on
+   first paint, and a browser does not count an element at opacity 0 as
+   painted. That put the handbook's largest paint at the end of a decorative
+   240ms fade: LCP 412ms against a first paint of 164ms, on the largest page
+   on the site. Starting at .35 still reads as a fade, and the measured LCP
+   is 168ms. Do not tidy this back to 0. */
+@keyframes fade{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* ========================= SECTION HEAD ======================= */
 .hb .sec-head{margin-bottom:22px;max-width:66ch}
@@ -1098,7 +1115,9 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 :root[lang="ar"] .course-facts dt{font-family:var(--sans);letter-spacing:0}
 .cfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cprog{display:flex;align-items:center;gap:8px;flex:1 1 110px;min-width:0}
-.cbar{flex:1 1 auto;height:6px;background:var(--line-2);border-radius:999px;overflow:hidden}
+/* min-width: .cpct is flex:0 0 auto and now carries a word as well as digits,
+   so a long counter ("4/11 Abschnitte") would otherwise crush the bar to nothing. */
+.cbar{flex:1 1 auto;min-width:44px;height:6px;background:var(--line-2);border-radius:999px;overflow:hidden}
 .cbar span{display:block;height:100%;border-radius:999px;transition:width .4s ease}
 .cpct{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
   font-variant-numeric:tabular-nums;flex:0 0 auto}
@@ -1323,4 +1342,39 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   .labdraftbar>.btn{align-self:flex-start}
   .labscaffoldactions{justify-content:flex-start}
   .labreflectionfields{grid-template-columns:1fr}
+}
+
+
+/* ======================= error boundary ======================= */
+
+/* app/[locale]/error.tsx renders inside the Shell, so it needs only its own
+   breathing room; everything else it uses (.eyebrow, .small, .btn) already
+   exists. No new colour, so no new tokens in the three theme blocks. */
+.errorbox{padding-block:clamp(48px,10vw,96px)}
+.errorbox h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:10px 0 12px}
+.errorbox .small{max-width:52ch}
+
+
+/* ======================= forced colours ======================= */
+
+/* Windows High Contrast and friends. The user agent replaces colour, background
+   and border with the reader's own palette, but it does NOT replace SVG fill and
+   stroke — so the diagrams keep author colours against a system background they
+   were never chosen for. --line-2 is #EBEDF3, and on a white Canvas an edge drawn
+   in it is not faint, it is gone: the twenty-one diagrams lose their arrows while
+   every box stays put.
+   These are system colour keywords, not new values, so they need no tokens in the
+   three theme blocks — the reader's palette is the theme here. */
+@media (forced-colors: active){
+  .hb .fc-e{stroke:CanvasText}
+  .hb .fc-e.live,.hb .fc-e.yes.live,.hb .fc-e.no.live{stroke:Highlight}
+  .hb .fc-n rect,.hb .fc-n polygon{fill:Canvas;stroke:CanvasText}
+  .hb .fc-n.live rect,.hb .fc-n.live polygon{stroke:Highlight}
+  .hb .fc-n text,.hb .fc-l{fill:CanvasText}
+
+  /* Selection drawn only in colour disappears when colour is replaced. The
+     handbook rail also bolds its label, so it survives on its own; these two
+     had nothing else to say which one was current. */
+  .step[aria-selected="true"]{outline:2px solid Highlight;outline-offset:-2px}
+  .hb .rail-btn[aria-selected="true"] .stn{background:Highlight;border-color:Highlight}
 }
