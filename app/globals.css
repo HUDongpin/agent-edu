@@ -1353,3 +1353,28 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .errorbox{padding-block:clamp(48px,10vw,96px)}
 .errorbox h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:10px 0 12px}
 .errorbox .small{max-width:52ch}
+
+
+/* ======================= forced colours ======================= */
+
+/* Windows High Contrast and friends. The user agent replaces colour, background
+   and border with the reader's own palette, but it does NOT replace SVG fill and
+   stroke — so the diagrams keep author colours against a system background they
+   were never chosen for. --line-2 is #EBEDF3, and on a white Canvas an edge drawn
+   in it is not faint, it is gone: the twenty-one diagrams lose their arrows while
+   every box stays put.
+   These are system colour keywords, not new values, so they need no tokens in the
+   three theme blocks — the reader's palette is the theme here. */
+@media (forced-colors: active){
+  .hb .fc-e{stroke:CanvasText}
+  .hb .fc-e.live,.hb .fc-e.yes.live,.hb .fc-e.no.live{stroke:Highlight}
+  .hb .fc-n rect,.hb .fc-n polygon{fill:Canvas;stroke:CanvasText}
+  .hb .fc-n.live rect,.hb .fc-n.live polygon{stroke:Highlight}
+  .hb .fc-n text,.hb .fc-l{fill:CanvasText}
+
+  /* Selection drawn only in colour disappears when colour is replaced. The
+     handbook rail also bolds its label, so it survives on its own; these two
+     had nothing else to say which one was current. */
+  .step[aria-selected="true"]{outline:2px solid Highlight;outline-offset:-2px}
+  .hb .rail-btn[aria-selected="true"] .stn{background:Highlight;border-color:Highlight}
+}
