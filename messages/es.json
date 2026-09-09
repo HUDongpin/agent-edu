@@ -98,6 +98,7 @@
   "hb.compare": "Cuál y cuándo",
   "hb.play": "Juega",
   "note.englishOnly": "El texto didáctico de esta sección solo está disponible en inglés por ahora. La interfaz está traducida a nueve idiomas; el siguiente trabajo es traducir los artículos extensos y se agradece mucho cualquier colaboración.",
+  "note.widgetsFailed": "Las partes interactivas de esta página no se han iniciado. Los artículos y los diagramas no están afectados: recargar la página suele solucionarlo.",
   "handbook.nextLabel": "Adónde ir ahora",
   "handbook.nextLede": "Leer es la mitad. El Laboratorio es la otra mitad: la misma cafetería, cuatro pasos en este navegador y veinte casos que le ponen un número a tu prompt.",
   "handbook.nextDone": "Esas son las once secciones. El Laboratorio es donde lo haces en vez de leerlo: la misma cafetería, cuatro pasos en este navegador y veinte casos que le ponen un número a tu prompt.",

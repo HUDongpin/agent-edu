@@ -98,6 +98,7 @@
   "hb.compare": "Was wann",
   "hb.play": "Das Spiel",
   "note.englishOnly": "Der Lehrtext in diesem Abschnitt liegt bisher nur auf Englisch vor. Die Oberfläche ist in neun Sprachen übersetzt; die langen Artikel zu übersetzen ist der nächste Schritt, und Beiträge sind sehr willkommen.",
+  "note.widgetsFailed": "Die interaktiven Teile dieser Seite konnten nicht gestartet werden. Die Artikel und Diagramme sind nicht betroffen — ein Neuladen der Seite behebt das meist.",
   "handbook.nextLabel": "Wie es weitergeht",
   "handbook.nextLede": "Lesen ist die eine Hälfte. Das Labor ist die andere: dasselbe Café, vier Schritte in diesem Browser und zwanzig Fälle, die deinem Prompt eine Zahl geben.",
   "handbook.nextDone": "Das waren alle elf Abschnitte. Im Labor tust du es, statt darüber zu lesen: dasselbe Café, vier Schritte in diesem Browser und zwanzig Fälle, die deinem Prompt eine Zahl geben.",

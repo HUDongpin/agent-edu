@@ -98,6 +98,7 @@
   "hb.compare": "Which one, when",
   "hb.play": "Play the game",
   "note.englishOnly": "The teaching text in this section is currently English only. The interface is translated into nine languages; translating the long-form articles is the next job, and contributions are very welcome.",
+  "note.widgetsFailed": "The interactive parts of this page failed to start. The articles and diagrams are unaffected — reloading the page usually fixes it.",
   "handbook.nextLabel": "Where to next",
   "handbook.nextLede": "Reading is half of it. The Lab is the other half: the same café, four steps in this browser, and twenty cases that put a number on your prompt.",
   "handbook.nextDone": "That is all eleven sections. The Lab is where you do it rather than read it — the same café, four steps in this browser, and twenty cases that put a number on your prompt.",

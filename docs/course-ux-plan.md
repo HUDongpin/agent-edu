@@ -85,7 +85,7 @@ from re-proposing them:
   static diagrams and it removes one. The place a decision is genuinely added is
   the catalogue — D4.
 - **"The worksheet is repo-only."** Wrong. `teach.work1` to `teach.work6` are on
-  `/teach/` in nine languages; `messages/en.json:408` is the prediction item.
+  `/teach/` in nine languages; `messages/en.json:418` is the prediction item.
   That is placement, not absence, and §5.3 argues against moving it.
 - **"The live eval progress and the handbook widgets are probably silent to a
   screen reader."** Wrong. The Lab carries eleven live regions, including

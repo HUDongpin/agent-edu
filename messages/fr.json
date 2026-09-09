@@ -98,6 +98,7 @@
   "hb.compare": "Lequel, quand",
   "hb.play": "Jouer",
   "note.englishOnly": "Le texte pédagogique de cette section n'existe pour l'instant qu'en anglais. L'interface est traduite en neuf langues ; traduire les articles longs est le chantier suivant et les contributions sont bienvenues.",
+  "note.widgetsFailed": "Les parties interactives de cette page n'ont pas démarré. Les articles et les schémas ne sont pas affectés : recharger la page suffit généralement.",
   "handbook.nextLabel": "Et ensuite",
   "handbook.nextLede": "Lire, c'est la moitié. Le Labo est l'autre moitié : le même café, quatre étapes dans ce navigateur, et vingt cas qui mettent un chiffre sur votre prompt.",
   "handbook.nextDone": "Voilà les onze sections. Le Labo, c'est là qu'on le fait au lieu de le lire : le même café, quatre étapes dans ce navigateur, et vingt cas qui mettent un chiffre sur votre prompt.",
