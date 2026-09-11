@@ -85,7 +85,9 @@ const MENU_GUARD = "Only ever order items on this menu, at exactly these prices.
 
 const PANEL = "labpanel";
 
-type Row = { id: string; said: string; kind: string; ok: boolean; why: string };
+/* `order` is the model's order as the Lab parsed and re-serialised it, so not
+   its literal bytes; null when the generator never returned one. */
+type Row = { id: string; said: string; order: string | null; kind: string; ok: boolean; why: string };
 type Err = { key: string; detail?: string } | null;
 type ActiveBatch = { runId: string; kind: "preview" | "eval" } | null;
 type ReflectionNote = { round: number; complete: boolean } | null;
@@ -520,6 +522,7 @@ export default function Lab() {
           return {
             id: testCase.id,
             said: testCase.said,
+            order: JSON.stringify(order),
             kind: testCase.kind,
             ok,
             why,
@@ -542,6 +545,7 @@ export default function Lab() {
         return {
           id: testCase.id,
           said: testCase.said,
+          order: JSON.stringify(order),
           kind: testCase.kind,
           ok: verdict.passes === true,
           why: verdict.why ?? "",
@@ -555,6 +559,7 @@ export default function Lab() {
       onContentFailure: (error, task) => ({
         id: task.testCase.id,
         said: task.testCase.said,
+        order: null,
         kind: task.testCase.kind,
         ok: false,
         why: errorDetail(error),
@@ -992,13 +997,14 @@ export default function Lab() {
                 )}
                 <div className="scroll"><table style={{ marginTop: 13 }}>
                   <thead><tr>
-                    <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th>
+                    <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th><th>{t("lab.s4.thOrder")}</th>
                     <th>{t("lab.s4.thHow")}</th><th>{t("lab.s4.thWhy")}</th>
                   </tr></thead>
                   <tbody>{rows.map((r) => (
                     <tr key={r.id}>
                       <td className="mono"><bdi>{r.id}</bdi></td>
                       <td className="mono"><bdi>{r.said}</bdi></td>
+                      <td className="mono" dir="ltr" style={{ overflowWrap: "anywhere", minWidth: "24ch" }}>{r.order ?? ""}</td>
                       <td><span className={"pill " + (r.ok ? "ok" : "bad")}>{t(`lab.kind.${r.kind}`)}</span></td>
                       <td className="small"><bdi>{r.ok ? "" : r.why.slice(0, 110)}</bdi></td>
                     </tr>
@@ -1026,13 +1032,14 @@ export default function Lab() {
                     </div>
                     <div className="scroll"><table style={{ marginTop: 10 }}>
                       <thead><tr>
-                        <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th>
+                        <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th><th>{t("lab.s4.thOrder")}</th>
                         <th>{t("lab.s4.thHow")}</th><th>{t("lab.s4.thWhy")}</th>
                       </tr></thead>
                       <tbody>{prevRows.map((r) => (
                         <tr key={r.id}>
                           <td className="mono"><bdi>{r.id}</bdi></td>
                           <td className="mono"><bdi>{r.said}</bdi></td>
+                          <td className="mono" dir="ltr" style={{ overflowWrap: "anywhere", minWidth: "24ch" }}>{r.order ?? ""}</td>
                           <td><span className={"pill " + (r.ok ? "ok" : "bad")}>{t(`lab.kind.${r.kind}`)}</span></td>
                           <td className="small"><bdi>{r.ok ? "" : r.why.slice(0, 110)}</bdi></td>
                         </tr>
@@ -1045,7 +1052,9 @@ export default function Lab() {
 
             {/* The scripted run, for a reader who cannot pay. Deliberately not a
                 meter: the mechanism it shows is true, the score is not a model's,
-                and the copy beside it says so rather than dressing it up. */}
+                and the copy beside it says so rather than dressing it up. It has
+                no order column because RECORDED_RUN carries no orders: add them by
+                regenerating lib/lab/recorded.ts, never by hand. */}
             {stage === 3 && !getKey() && (
               showRecorded ? (
                 <>
@@ -1091,13 +1100,14 @@ export default function Lab() {
                 </p>
                 <div className="scroll"><table style={{ marginTop: 8 }}>
                   <thead><tr>
-                    <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th>
+                    <th>{t("lab.s4.thCase")}</th><th>{t("lab.s4.thSaid")}</th><th>{t("lab.s4.thOrder")}</th>
                     <th>{t("lab.s4.thHow")}</th><th>{t("lab.s4.thWhy")}</th>
                   </tr></thead>
                   <tbody>{partialRows.map((r) => (
                     <tr key={r.id}>
                       <td className="mono"><bdi>{r.id}</bdi></td>
                       <td className="mono"><bdi>{r.said}</bdi></td>
+                      <td className="mono" dir="ltr" style={{ overflowWrap: "anywhere", minWidth: "24ch" }}>{r.order ?? ""}</td>
                       <td><span className={"pill " + (r.ok ? "ok" : "bad")}>{t(`lab.kind.${r.kind}`)}</span></td>
                       <td className="small"><bdi>{r.ok ? "" : r.why.slice(0, 110)}</bdi></td>
                     </tr>

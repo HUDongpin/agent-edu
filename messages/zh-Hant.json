@@ -329,6 +329,7 @@
   "lab.s4.resultBelow": "評測完成：{score}/20。尚未達到建議的 16/20 目標，但這次完整 Eval 仍算作已完成。顯示的費用：{billing}。",
   "lab.s4.thCase": "案例",
   "lab.s4.thSaid": "顧客說",
+  "lab.s4.thOrder": "點單",
   "lab.s4.thHow": "怎麼判的",
   "lab.s4.thWhy": "為什麼沒過",
   "lab.s4.comparePrev": "與上一次執行比較（{prev}/20）",

@@ -329,6 +329,7 @@
   "lab.s4.resultBelow": "Evaluation abgeschlossen: {score}/20. Das empfohlene Ziel von 16/20 wurde nicht erreicht, aber diese vollständige Evaluation zählt dennoch als abgeschlossen. Angezeigte Abrechnung: {billing}.",
   "lab.s4.thCase": "Fall",
   "lab.s4.thSaid": "gesagt",
+  "lab.s4.thOrder": "Bestellung",
   "lab.s4.thHow": "wie",
   "lab.s4.thWhy": "warum es scheiterte",
   "lab.s4.comparePrev": "Mit deinem vorherigen Lauf vergleichen ({prev}/20)",

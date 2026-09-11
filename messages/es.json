@@ -329,6 +329,7 @@
   "lab.s4.resultBelow": "Evaluación completada: {score}/20. No se ha alcanzado el objetivo sugerido de 16/20, pero esta evaluación completa sigue contando como completada. Facturación mostrada: {billing}.",
   "lab.s4.thCase": "caso",
   "lab.s4.thSaid": "dijeron",
+  "lab.s4.thOrder": "pedido",
   "lab.s4.thHow": "cómo",
   "lab.s4.thWhy": "por qué falló",
   "lab.s4.comparePrev": "Comparar con tu ejecución anterior ({prev}/20)",
