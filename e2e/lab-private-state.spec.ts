@@ -155,4 +155,27 @@ test("Lab cancellation, zero-score completion, privacy, and repeat announcements
     const raw = localStorage.getItem(storageKey);
     return raw ? JSON.parse(raw).lab.evalRunsCompleted as number : 0;
   }, learningKey)).toBe(1);
+
+  /* A reload brings back the last complete run, the 0/20, into the real state:
+     every cell as it was, a note that it came from this device, no announcement
+     replayed and nothing counted a second time. */
+  const tableBeforeReload = await page.locator(".scroll table").first().innerText();
+  await page.reload();
+  await expect(page.locator(".meter .big").first()).toHaveText("0");
+  expect(await page.locator(".scroll table").first().innerText() === tableBeforeReload).toBe(true);
+  await expect(page.getByText("Restored from this device")).toBeVisible();
+  await expect(page.locator('.scroll table td[dir="ltr"]')).toHaveCount(20);
+  await expectEmptyText(page, "#lab-eval-result");
+  await expect.poll(() => page.evaluate((storageKey) => {
+    const raw = localStorage.getItem(storageKey);
+    return raw ? JSON.parse(raw).lab.evalRunsCompleted as number : 0;
+  }, learningKey)).toBe(1);
+  const storedRun = await page.evaluate(() => localStorage.getItem("ae.lab.run.v1") ?? "");
+  expect(storedRun.length > 0).toBe(true);
+  expect(storedRun.includes(privateKey)).toBe(false);
+  expect(storedRun.includes(privatePrompt)).toBe(false);
+
+  /* Clear draft takes the saved run with it. */
+  await page.getByRole("button", { name: "Clear draft" }).click();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("ae.lab.run.v1"))).toBeNull();
 });

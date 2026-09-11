@@ -37,6 +37,7 @@ import {
   writeLabDraft,
   type LabDraftInput,
 } from "@/lib/lab/draft";
+import { clearLabRun, readLabRun, runSavedThisDocument, writeLabRun, type StoredRow } from "@/lib/lab/run";
 import {
   EVAL_PLAN,
   LAB_CONCURRENCY,
@@ -95,6 +96,14 @@ type DraftProblem = "unavailable" | "clear-failed" | null;
 type PendingDraft = { fingerprint: string; input: LabDraftInput };
 
 const PREVIEW_IDS: ReadonlySet<string> = new Set(PREVIEW_CASES.map(({ id }) => id));
+
+/* A stored run carries only what the model produced and what was judged. Each
+   case comes back from the live eval set, which decodeLabRun has matched id by
+   id, so a run recorded against a different set is never restored at all. */
+const CASE_IDS: readonly string[] = CASES.map(({ id }) => id);
+function fromStored(rows: readonly StoredRow[]): Row[] {
+  return rows.map((row, index) => ({ ...row, said: CASES[index].said, kind: CASES[index].kind }));
+}
 
 const REQUEST_TIMEOUT_MS = 45_000;
 
@@ -214,6 +223,13 @@ export default function Lab() {
   const [prog, setProg] = useState("");
   const [err3, setErr3] = useState<Err>(null);
   const [evalAnnouncement, setEvalAnnouncement] = useState("");
+  const [runRestored, setRunRestored] = useState(false);
+  /* Which model produced the run on screen, and the one before it. The banner
+     under the meter says "same model", and the model select resets on reload,
+     so comparing a restored run with a new one could claim a sameness nobody
+     chose. */
+  const [runModel, setRunModel] = useState<Model | null>(null);
+  const [prevRunModel, setPrevRunModel] = useState<Model | null>(null);
   const [menuAdded, setMenuAdded] = useState(false);
   const [completedPreviewIds, setCompletedPreviewIds] = useState<string[]>([]);
   const [draftReady, setDraftReady] = useState(false);
@@ -273,6 +289,20 @@ export default function Lab() {
           [],
         );
         if (opening !== 0) setStage(opening);
+      }
+      /* The last complete run comes back too, into the real state rather than a
+         copy: the next run then compares against it, and the menu button that
+         waits for a baseline score is there again. Nothing is recorded or
+         announced, because a restored run was counted when it finished. */
+      const run = readLabRun(CASE_IDS);
+      if (run) {
+        setRows(fromStored(run.rows));
+        setScore(run.score);
+        setPrevRows(fromStored(run.prevRows));
+        setPrev(run.prev);
+        setRunModel(run.model);
+        setPrevRunModel(run.prevModel);
+        setRunRestored(!runSavedThisDocument());
       }
       setDraftReady(true);
     }, 0);
@@ -548,7 +578,8 @@ export default function Lab() {
           order: JSON.stringify(order),
           kind: testCase.kind,
           ok: verdict.passes === true,
-          why: verdict.why ?? "",
+          // asJSON only checks for an object, so a model can answer "why": 1.
+          why: typeof verdict.why === "string" ? verdict.why : "",
         };
       },
     }));
@@ -592,6 +623,9 @@ export default function Lab() {
     setPrevRows(rows);
     setRows(res);
     setPrev(score); setScore(n);
+    setRunRestored(false);
+    setPrevRunModel(runModel);
+    setRunModel(selectedModel);
     setEvalAnnouncement(
       (n >= 16 ? t("lab.s4.resultMet") : t("lab.s4.resultBelow"))
         .replace("{score}", String(n))
@@ -600,11 +634,18 @@ export default function Lab() {
     // A complete low score is still completion. Cancellation and fatal
     // Provider failures return above and therefore never write a false 0/20.
     recordLabStep("full-eval", { score: n });
+    // Saved last, so a storage failure can never cost the record above. Only a
+    // complete run reaches this line; a stopped one returned earlier.
+    if (!writeLabRun({ model: selectedModel, score: n, rows: res, prevModel: runModel, prev: score, prevRows: rows }, CASE_IDS)) {
+      // Never leave an older run behind to be restored as the latest one.
+      clearLabRun();
+      setDraftProblem("unavailable");
+    }
   }
 
   function clearDraft() {
     draftWritesSuppressed.current = true;
-    if (!clearLabDraft()) {
+    if (!clearLabDraft() || !clearLabRun()) {
       draftWritesSuppressed.current = false;
       setDraftProblem("clear-failed");
       return;
@@ -629,6 +670,15 @@ export default function Lab() {
     setSamples([]);
     setDraftSavedAt(null);
     setDraftProblem(null);
+    setRows([]);
+    setScore(null);
+    setPrevRows([]);
+    setPrev(null);
+    setPartialRows([]);
+    setEvalAnnouncement("");
+    setRunRestored(false);
+    setRunModel(null);
+    setPrevRunModel(null);
   }
 
   function stopBatch() {
@@ -990,7 +1040,10 @@ export default function Lab() {
                     {billing.dispatchedCalls} {t("lab.spendCalls")} · {billingCost}
                   </span>
                 </div>
-                {prev !== null && score > prev && (
+                {runRestored && (
+                  <p className="mono-note" style={{ marginTop: 8 }}>{t("lab.s4.restored")}</p>
+                )}
+                {prev !== null && score > prev && prevRunModel === runModel && (
                   <div className="langnote" style={{ borderInlineStartColor: "var(--green)", background: "var(--green-soft)" }}>
                     <Rich k="lab.s4.jump" vars={{ prev, score }} />
                   </div>

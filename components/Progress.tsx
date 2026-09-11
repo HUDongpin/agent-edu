@@ -11,6 +11,7 @@ import {
   subscribeLearningState,
 } from "@/lib/progress";
 import { clearLabDraft } from "@/lib/lab/draft";
+import { clearLabRun } from "@/lib/lab/run";
 import Link from "next/link";
 import { useI18n } from "./I18nProvider";
 import Rich from "./Rich";
@@ -121,6 +122,7 @@ export default function Progress({ locale }: { locale: string }) {
             if (!confirm(t("home.progResetConfirm"))) return;
             resetLearningState("all");
             clearLabDraft();
+            clearLabRun();
           }}
         >
           {t("home.progReset")}
