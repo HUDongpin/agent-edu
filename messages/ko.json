@@ -329,6 +329,7 @@
   "lab.s4.resultBelow": "평가 완료: {score}/20. 권장 목표 16/20에는 미치지 못했지만, 이 완전한 Eval도 완료로 인정됩니다. 표시된 청구액: {billing}.",
   "lab.s4.thCase": "사례",
   "lab.s4.thSaid": "손님의 말",
+  "lab.s4.thOrder": "주문",
   "lab.s4.thHow": "판정 방식",
   "lab.s4.thWhy": "실패한 이유",
   "lab.s4.comparePrev": "이전 실행과 비교하기({prev}/20)",

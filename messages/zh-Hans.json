@@ -329,6 +329,7 @@
   "lab.s4.resultBelow": "评测完成：{score}/20。尚未达到建议的 16/20 目标，但这次完整 Eval 仍算作已完成。显示的费用：{billing}。",
   "lab.s4.thCase": "用例",
   "lab.s4.thSaid": "顾客说",
+  "lab.s4.thOrder": "点单",
   "lab.s4.thHow": "怎么判的",
   "lab.s4.thWhy": "为什么没过",
   "lab.s4.comparePrev": "与上一次运行比较（{prev}/20）",

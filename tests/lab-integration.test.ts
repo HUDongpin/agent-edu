@@ -269,6 +269,40 @@ test("the previous run survives so the two can be read against each other", () =
   }
 });
 
+test("every eval row keeps the order the model produced, and shows it left-to-right", () => {
+  /* The eval computed the order, handed it to the judge, then dropped it from the
+     row: a 13/20 was a verdict with no evidence, and every passing row was a
+     blank cell. Step 3 already shows the same value; step 4 now keeps it. */
+  assert.match(source, /type Row = \{[^}]*order: string \| null;/);
+
+  const start = source.indexOf("const tasks: EvalTask[]");
+  const handle = source.indexOf("const handle = runner.start(tasks", start);
+  const tasks = source.slice(start, handle);
+  assert.equal(tasks.match(/order: JSON\.stringify\(order\),/g)?.length, 2,
+    "the rule row and the judge row both keep the order");
+
+  /* A content failure never produced one: the cell is empty, never "null". */
+  const failure = source.slice(
+    source.indexOf("onContentFailure:", handle),
+    source.indexOf("setActiveBatch(", handle),
+  );
+  assert.match(failure, /order: null,/);
+
+  /* JSON is code: left-to-right inside Arabic, as step 3's outbox renders it. */
+  const cells = source.match(/<td className="mono" dir="ltr"[^>]*>\{r\.order \?\? ""\}<\/td>/g) ?? [];
+  assert.equal(cells.length, 3, "the scored, previous and stopped-run tables each show the order");
+  /* Wrapping anywhere let a 390px screen crush the column to a ribbon one
+     character wide, and the twenty rows to nearly ten thousand pixels tall. A
+     floor keeps the JSON readable and lets the table scroll inside .scroll. */
+  for (const cell of cells) assert.match(cell, /minWidth: "24ch"/);
+  assert.equal(source.match(/t\("lab\.s4\.thOrder"\)/g)?.length, 3);
+
+  for (const locale of LOCALES) {
+    const label = siteMessages(locale)["lab.s4.thOrder"];
+    assert.ok(label?.trim() && label !== "lab.s4.thOrder", `${locale}: lab.s4.thOrder missing`);
+  }
+});
+
 test("the handbook's time claim matches what the page asks for, in every locale", () => {
   /* Forty-five minutes was the reading. The page's method is pressing things,
      and a reader who budgeted by it ran out around §05. Split rather than

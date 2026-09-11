@@ -329,6 +329,7 @@
   "lab.s4.resultBelow": "評価完了：{score}/20。推奨目標の16/20には届きませんでしたが、このEvalは完走として記録されます。表示上の課金額：{billing}。",
   "lab.s4.thCase": "ケース",
   "lab.s4.thSaid": "客の言葉",
+  "lab.s4.thOrder": "注文",
   "lab.s4.thHow": "判定方法",
   "lab.s4.thWhy": "失敗の理由",
   "lab.s4.comparePrev": "前回の実行と見くらべる（{prev}/20）",

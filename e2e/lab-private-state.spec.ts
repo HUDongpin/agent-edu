@@ -127,6 +127,12 @@ test("Lab cancellation, zero-score completion, privacy, and repeat announcements
   await page.locator(".labreflection textarea").fill(reflectionReason);
   await page.getByRole("button", { name: "Run eval — up to 28 requests" }).click();
   await expectTextIncludes(page, "#lab-eval-result", "0/20");
+  /* Every case failed before an order came back, so all twenty order cells are
+     empty: a missing order must never render as the text "null". */
+  const orderCells = page.locator('.scroll table td[dir="ltr"]');
+  await expect(orderCells).toHaveCount(20);
+  const orderTexts = await orderCells.allTextContents();
+  expect(orderTexts.every((text) => text === "")).toBe(true);
   const completed = await page.evaluate((storageKey) => {
     const raw = localStorage.getItem(storageKey);
     return raw ? JSON.parse(raw).lab : null;

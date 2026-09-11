@@ -329,6 +329,7 @@
   "lab.s4.resultBelow": "Evaluation complete: {score}/20. The suggested 16/20 target was not met, but this complete Eval still counts as completed. Billing shown: {billing}.",
   "lab.s4.thCase": "case",
   "lab.s4.thSaid": "said",
+  "lab.s4.thOrder": "order",
   "lab.s4.thHow": "how",
   "lab.s4.thWhy": "why it failed",
   "lab.s4.comparePrev": "Compare with your previous run ({prev}/20)",
