@@ -42,8 +42,10 @@
       "components/Progress.tsx",
       "components/Rich.tsx",
       "components/home/TrackCta.tsx",
+      "lib/byok/types.ts",
       "lib/i18n.ts",
       "lib/lab/draft.ts",
+      "lib/lab/run.ts",
       "lib/progress.ts"
     ]
   },
@@ -230,6 +232,7 @@
       "lab.s4.partial",
       "lab.s4.recordedCta",
       "lab.s4.recordedNote",
+      "lab.s4.restored",
       "lab.s4.resultBelow",
       "lab.s4.resultMet",
       "lab.s4.run",
@@ -295,6 +298,7 @@
       "lib/lab/plans.ts",
       "lib/lab/recorded.ts",
       "lib/lab/rules.ts",
+      "lib/lab/run.ts",
       "lib/lab/runner.ts",
       "lib/progress.ts",
       "lib/tab-navigation.ts"

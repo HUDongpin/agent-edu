@@ -303,6 +303,104 @@ test("every eval row keeps the order the model produced, and shows it left-to-ri
   }
 });
 
+test("a complete run survives a reload, and a restored run is never counted again", () => {
+  /* The menu button waits for a baseline score, and the draft restore never
+     restored one: a reload between run 1 and run 2 cost another 28-request run
+     to reach the before/after that step 4 exists to teach. */
+  assert.match(source, /import \{ clearLabRun, readLabRun, runSavedThisDocument, writeLabRun, type StoredRow \} from "@\/lib\/lab\/run"/);
+
+  /* The whole timer callback, not only up to setDraftReady, so bookkeeping added
+     after it is still covered. */
+  const restoreStart = source.indexOf("const draft = readLabDraft()");
+  const restoreEnd = source.indexOf("return () => window.clearTimeout(timer)", restoreStart);
+  assert.ok(restoreStart !== -1 && restoreEnd > restoreStart, "the restore callback must be found");
+  const restore = source.slice(restoreStart, restoreEnd);
+  assert.match(restore, /const run = readLabRun\(CASE_IDS\);/);
+  for (const setter of [
+    "setRows(fromStored(run.rows))",
+    "setScore(run.score)",
+    "setPrevRows(fromStored(run.prevRows))",
+    "setPrev(run.prev)",
+    "setRunModel(run.model)",
+    "setPrevRunModel(run.prevModel)",
+    /* The ledger lives as long as the page and the Lab remounts on a client-side
+       return, so only a run from an earlier visit is introduced as restored. */
+    "setRunRestored(!runSavedThisDocument())",
+  ]) {
+    assert.ok(restore.includes(setter), `the run must come back into the real state: ${setter}`);
+  }
+  /* Counted once, when it finished; announced once, when it finished. */
+  assert.doesNotMatch(restore, /recordLabStep|setEvalAnnouncement/);
+
+  /* Written on the completed path only, and after the record, so a storage
+     failure can never cost it. A failed write never leaves an older run behind
+     to be restored as the latest. */
+  const evalFlow = source.slice(source.indexOf("async function runEval"), source.indexOf("function clearDraft"));
+  const completedAt = evalFlow.indexOf("const res = outcome.results;");
+  const recorded = evalFlow.indexOf('recordLabStep("full-eval"', completedAt);
+  const written = evalFlow.indexOf("writeLabRun(");
+  assert.ok(completedAt !== -1 && recorded > completedAt && written > recorded,
+    "only a complete run is written, and only after it is recorded");
+  assert.match(evalFlow, /writeLabRun\(\{ model: selectedModel, score: n, rows: res, prevModel: runModel, prev: score, prevRows: rows \}, CASE_IDS\)/);
+  const afterWrite = evalFlow.slice(written);
+  assert.ok(afterWrite.includes("clearLabRun()") && afterWrite.includes('setDraftProblem("unavailable")'),
+    "a failed write must clear the older run and say storage is unavailable");
+  assert.ok(evalFlow.indexOf("setRunRestored(false)", completedAt) !== -1,
+    "a run that has just completed is never introduced as restored");
+
+  /* asJSON only checks for an object; a reason that was not a string once
+     crashed the save before the run was recorded. */
+  assert.match(source, /why: typeof verdict\.why === "string" \? verdict\.why : ""/);
+
+  /* Clear removes it from the device and the screen. */
+  const clear = source.slice(source.indexOf("function clearDraft"), source.indexOf("function stopBatch"));
+  assert.match(clear, /!clearLabDraft\(\) \|\| !clearLabRun\(\)/);
+  assert.match(clear, /setScore\(null\)/);
+  assert.match(clear, /setRows\(\[\]\)/);
+  assert.match(clear, /setRunModel\(null\)/);
+
+  /* A restored score sits above this tab's billing line, which cannot include it. */
+  assert.match(source, /runRestored && \([\s\S]*?t\("lab\.s4\.restored"\)/);
+
+  /* The banner says "same model". The select resets on reload, so a restored
+     run compared with a new one must not claim a sameness nobody chose. */
+  assert.match(source, /prev !== null && score > prev && prevRunModel === runModel && \(/);
+  const completed = evalFlow.slice(evalFlow.indexOf("setRows(res)"));
+  const capturedModel = completed.indexOf("setPrevRunModel(runModel)");
+  const replacedModel = completed.indexOf("setRunModel(selectedModel)");
+  assert.ok(capturedModel !== -1 && replacedModel !== -1 && capturedModel < replacedModel,
+    "the previous run's model must be captured before the new one replaces it");
+
+  /* The privacy note sits beside the Clear button and must say what is kept, in
+     every language. These are the phrases each locale used for "model replies"
+     when the note promised replies were not saved; none may come back. */
+  const replies: Record<(typeof LOCALES)[number], string> = {
+    en: "model replies", es: "respuestas del modelo", fr: "réponses du modèle", de: "Modellantworten",
+    "zh-Hans": "模型回复", "zh-Hant": "模型回覆", ja: "モデルの応答", ko: "모델 답변", ar: "ردود النموذج",
+  };
+  /* And the reset confirmation must name the saved runs it erases. */
+  const savedRuns: Record<(typeof LOCALES)[number], string> = {
+    en: "eval runs", es: "ejecución de evaluación", fr: "exécution de l'évaluation", de: "Evaluationsläufen",
+    "zh-Hans": "Eval 运行", "zh-Hant": "Eval 執行", ja: "Eval実行", ko: "Eval 실행", ar: "تشغيلات Eval",
+  };
+  /* The key does live on this device, in the tab's session storage; the note
+     once denied it outright. */
+  assert.match(siteMessages("en")["lab.draft.note"], /API key, which stays only in this tab's session storage/);
+  assert.doesNotMatch(siteMessages("en")["lab.draft.note"], /scores or billing|does not store the API/);
+  for (const locale of LOCALES) {
+    const messages = siteMessages(locale);
+    assert.ok(messages["lab.s4.restored"]?.trim(), `${locale}: lab.s4.restored missing`);
+    for (const key of ["lab.draft.note", "lab.draft.preview"]) {
+      assert.ok(!messages[key].includes(replies[locale]), `${locale}: ${key} still says model replies are not saved`);
+    }
+    assert.ok(messages["home.progResetConfirm"].includes(savedRuns[locale]),
+      `${locale}: the reset confirmation must name the saved runs`);
+    const preview = messages["lab.draft.preview"];
+    assert.ok(preview.includes("{done}") && preview.includes("{total}"),
+      `${locale}: lab.draft.preview must carry {done} and {total}`);
+  }
+});
+
 test("the handbook's time claim matches what the page asks for, in every locale", () => {
   /* Forty-five minutes was the reading. The page's method is pressing things,
      and a reader who budgeted by it ran out around §05. Split rather than
