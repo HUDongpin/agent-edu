@@ -213,7 +213,7 @@ no new component.
 
 #### B1 · One transient error destroys a paid eval and every row already billed — blocker
 
-> **Landed** (`baedd2e2`). The runner returns what finished, densely and in order, on the cancelled and failed outcomes; `results` still appears only on completion, so a partial set can never be read as a score. Rendered in its own block with no meter, kept out of `rows` so the previous score's table stands. 429s are still **not** routed through the content handler.
+> **Landed** (`baedd2e2`). The runner returns what finished, densely and in order, on the cancelled and failed outcomes; `results` still appears only on completion, so a partial set can never be read as a score. Rendered in its own block with no meter, kept out of `rows` so the previous score's table stands. 429s are still **not** routed through the content handler. Its success signal below now runs in a browser, in `e2e/lab-private-state.spec.ts` rather than `test:resilience` because the case needs a key: a 500 after three cases have landed, and a Stop after three beside the score it did not replace.
 
 The eval fires 28 requests at concurrency 4. If one returns a 429 or a 500, or
 exceeds the 45-second cap, the run ends and every completed row is discarded.
