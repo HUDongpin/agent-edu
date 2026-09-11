@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
   assertLabVitalsReport,
+  countQuietChecks,
   fingerprintEntries,
   LAB_VITALS_ROUTES,
   LAB_VITALS_SCHEMA,
@@ -271,4 +272,25 @@ test("lab-vitals source contract covers the approved route matrix and never call
       { id: "404", path: "/missing-lab-vitals/", expectedStatus: 404 },
     ],
   );
+});
+
+test("a settle check is quiet only when the page is idle, has nothing out and started nothing", () => {
+  // Transfer figures are read from a page that has finished everything it
+  // will do without input. Each refusal below is a page that the old test —
+  // Resource Timing unchanged for four checks — would have read too early.
+  const quiet = { idle: true, inFlight: 0, started: 9 };
+  let count = 0;
+  let previous: typeof quiet | null = null;
+  for (let check = 0; check < 5; check += 1) {
+    count = countQuietChecks(count, previous, quiet);
+    previous = quiet;
+  }
+  assert.equal(count, 4, "the first check has nothing to compare with; four more settle");
+
+  // Still hydrating: fetching nothing, and nowhere near done.
+  assert.equal(countQuietChecks(3, quiet, { ...quiet, idle: false }), 0);
+  // A prefetch still on a slow network, with nothing new arriving.
+  assert.equal(countQuietChecks(3, quiet, { ...quiet, inFlight: 1 }), 0);
+  // A request that started and finished between two checks.
+  assert.equal(countQuietChecks(3, quiet, { ...quiet, started: 10 }), 0);
 });

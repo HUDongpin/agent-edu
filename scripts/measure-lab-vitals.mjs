@@ -449,11 +449,99 @@ function installVitalsObserver() {
   }
 }
 
+/* Four checks 100 ms apart, as before; what a check has to see is what changed. */
+const SETTLE_CHECKS = 4;
+const SETTLE_INTERVAL_MS = 100;
+const SETTLE_DEADLINE_MS = 30_000;
+const IDLE_PROBE_TIMEOUT_MS = 5_000;
+
+/** How many requests the page has started, and which are still on the wire. */
+function trackRequests(cdp) {
+  const requests = { started: 0, inFlight: new Set() };
+  cdp.on("Network.requestWillBeSent", ({ requestId }) => {
+    requests.started += 1;
+    requests.inFlight.add(requestId);
+  });
+  const finished = ({ requestId }) => requests.inFlight.delete(requestId);
+  cdp.on("Network.loadingFinished", finished);
+  cdp.on("Network.loadingFailed", finished);
+  return requests;
+}
+
+/**
+ * One check of the settle loop, as a running count of quiet checks.
+ *
+ * A check is quiet only when the page had nothing left to run, no request is
+ * in flight, and none has started since the check before. Each clause is
+ * there for a page the other two would call settled: one still hydrating is
+ * busy and fetching nothing, one on a slow network has a request out and
+ * nothing new arriving, and one that started and finished a request between
+ * two checks shows neither.
+ */
+export function countQuietChecks(quietSoFar, previous, check) {
+  const quiet = previous !== null
+    && check.idle
+    && check.inFlight === 0
+    && check.started === previous.started;
+  return quiet ? quietSoFar + 1 : 0;
+}
+
+/* Resolves in the page's next idle period, once everything already queued has
+   run. Sent over CDP as source text, so it must not close over anything. */
+function idleProbe(timeoutMs) {
+  return new Promise((resolve) => {
+    requestIdleCallback((deadline) => resolve(!deadline.didTimeout), { timeout: timeoutMs });
+  });
+}
+
+/**
+ * Wait until the page has finished everything it will do without input.
+ *
+ * Resource Timing holding still for 400 ms is not that on a slow CPU: a page
+ * busy hydrating is not fetching either, so it passes, and the prefetches its
+ * links schedule once mounted arrive after the figure was read. A check here
+ * waits for an idle callback first, so time the page spends working does not
+ * count as quiet. Hydration, the IntersectionObserver callback and the
+ * prefetch it issues run as unbroken main-thread work, except for the one
+ * frame between React's commit and the observer's callback, and four checks
+ * 100 ms apart cannot all fall inside one frame.
+ *
+ * The probe goes over the CDP session that reports the requests, so every
+ * request the page started before going idle has been counted by the time it
+ * returns. On another session that ordering is not guaranteed.
+ */
+async function waitForSettledPage(cdp, requests, label) {
+  const deadline = Date.now() + SETTLE_DEADLINE_MS;
+  let previous = null;
+  let check = null;
+  let quiet = 0;
+  while (Date.now() < deadline) {
+    const { result, exceptionDetails } = await cdp.send("Runtime.evaluate", {
+      expression: `(${idleProbe})(${IDLE_PROBE_TIMEOUT_MS})`,
+      awaitPromise: true,
+      returnByValue: true,
+    });
+    if (exceptionDetails) {
+      throw new Error(`${label} could not probe the page for idle time: ${exceptionDetails.exception?.description ?? exceptionDetails.text}`);
+    }
+    check = { idle: result.value === true, inFlight: requests.inFlight.size, started: requests.started };
+    quiet = countQuietChecks(quiet, previous, check);
+    if (quiet >= SETTLE_CHECKS) return;
+    previous = check;
+    await new Promise((resolvePromise) => setTimeout(resolvePromise, SETTLE_INTERVAL_MS));
+  }
+  throw new Error(
+    `${label} never stopped fetching; its transfer figure would be whatever had arrived by the time it was read ` +
+    `(last check: ${check?.inFlight ?? "no"} request(s) in flight, main thread ${check?.idle ? "idle" : "busy"})`,
+  );
+}
+
 async function collectSample(browser, baseUrl, route, cacheMode, iteration, viewport, profile) {
   const context = await browser.newContext({ viewport });
   await context.addInitScript(installVitalsObserver);
   const page = await context.newPage();
   const cdp = await context.newCDPSession(page);
+  const requests = trackRequests(cdp);
   await cdp.send("Network.enable");
   await cdp.send("Network.setCacheDisabled", { cacheDisabled: cacheMode === "cold" });
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: CPU_SLOWDOWN_MULTIPLIER });
@@ -486,47 +574,30 @@ async function collectSample(browser, baseUrl, route, cacheMode, iteration, view
 
     const target = page.locator(route.selector).first();
     await target.waitFor({ state: "visible" });
-    const tagName = await target.evaluate((element) => element.tagName);
-    if (tagName === "A") {
-      await target.evaluate((element) => {
-        element.setAttribute("target", "_blank");
-        element.setAttribute("rel", "noopener");
-      });
-    }
-    await target.click();
-    await page.waitForTimeout(500);
 
-    /* Wait for the resource set to stop growing before reading it.
+    /* The transfer figure is read here, before the interaction, from the page
+     * as it loaded.
      *
-     * `networkidle` and a fixed pause are enough for the timings, which is
-     * all this used to collect. They are not enough for a byte count: a
-     * <Link> prefetches when it enters the viewport, so the number of
-     * prefetches that have *finished* when Resource Timing is read is a race
-     * — and a race that usually comes out the same way is the worst kind,
-     * because it looks like determinism until a budget is built on it. Two
-     * extra prefetches is 600 bytes appearing from nowhere.
+     * A <Link> prefetches once React has mounted it and it is within 200 px
+     * of the viewport, so the figure is decided by which links the page has
+     * seen. Reading it after the interaction made that a race twice over,
+     * both reproduced on home with the CPU slowed 12x:
      *
-     * So the sample is taken from the settled page: poll until the resource
-     * count has held still, and fail rather than report a figure from a page
-     * that never settled. */
-    const settled = await (async () => {
-      let previous = -1;
-      let stable = 0;
-      for (let attempt = 0; attempt < 60; attempt += 1) {
-        const count = await page.evaluate(() => performance.getEntriesByType("resource").length);
-        stable = count === previous ? stable + 1 : 0;
-        if (stable >= 4) return true;
-        previous = count;
-        await page.waitForTimeout(100);
-      }
-      return false;
-    })();
-    if (!settled) {
-      throw new Error(
-        `${route.id}/${profile.id}/${cacheMode} never stopped fetching; its transfer figure ` +
-        `would be whatever had arrived by the time it was read`,
-      );
-    }
+     *  - Playwright scrolls the target into view and clicks in separate
+     *    steps. When a frame renders between them, the FAQ is in view with
+     *    its answer still closed, About and Teach are inside the margin, and
+     *    their 12.9 kB arrives in full, in part or not at all before the
+     *    opened answer pushes them out again.
+     *  - When hydration finishes after that scroll, the hero's links are
+     *    mounted out of view and never prefetch, and home transfers 8 kB of
+     *    payload instead of 53.
+     *
+     * Neither is cured by waiting longer after the click, because both change
+     * the page being measured rather than how much of it has arrived. Before
+     * the interaction nothing has scrolled: the figure is what a reader who
+     * arrives and does nothing loads, and the click, now on a page that has
+     * finished hydrating, is left to the timings it is there for. */
+    await waitForSettledPage(cdp, requests, `${route.id}/${profile.id}/${cacheMode}`);
 
     /* What this navigation actually pulled over the wire, after content
        encoding: the document plus every subresource. Read from Resource
@@ -557,6 +628,16 @@ async function collectSample(browser, baseUrl, route, cacheMode, iteration, view
       return { total, byKind };
     });
     const transferBytes = transfer.total;
+
+    const tagName = await target.evaluate((element) => element.tagName);
+    if (tagName === "A") {
+      await target.evaluate((element) => {
+        element.setAttribute("target", "_blank");
+        element.setAttribute("rel", "noopener");
+      });
+    }
+    await target.click();
+    await page.waitForTimeout(500);
 
     const metrics = await page.evaluate(() => window.__agentEduLabVitals);
     if (!metrics?.supported?.lcp || !metrics.supported.cls || !metrics.supported.inp) {

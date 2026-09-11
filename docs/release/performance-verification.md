@@ -133,10 +133,23 @@ A `<Link>` prefetches when it enters the viewport, so how many prefetches have
 *finished* when Resource Timing is read is a race — and one that usually comes
 out the same way, which is the worst kind, because it looks like determinism
 until a budget is built on it. Two extra prefetches is 600 bytes from nowhere.
-Each sample therefore polls until the resource count has held still, and fails
-rather than report a figure from a page that never settled. The checker also
-refuses to record a budget from a run whose samples disagree, because that
-would be a finding about the harness rather than a number to average.
+Each sample therefore waits for the page to settle, and fails rather than
+report a figure from a page that never did. A check counts only when the
+page's main thread reached an idle callback, no request is in flight and none
+has started since the check before; four in a row settle it. The first version
+counted Resource Timing holding still for 400 ms, which is also what a page
+still busy hydrating looks like. That was harmless while the figure was read
+long after the click, and stopped being harmless once it is read before it.
+
+The figure is read before the route's interaction, not after it. The
+interaction scrolls, and on a slow CPU a frame can render between the scroll
+and the click: on home that frame put About and Teach inside the prefetch
+margin, for up to 12.9 kB more. Before the interaction nothing has scrolled,
+so the figure is what a reader who arrives and does nothing loads, however
+fast the machine. The interaction, and so INP, now also lands on a page that
+has finished hydrating. The checker also refuses to record a budget from a
+run whose samples disagree, because that would be a finding about the harness
+rather than a number to average.
 
 A kind is gated only once its baseline reaches 4 kB. Below that the figure is
 made of whole requests — `other` is three prefetches and 900 bytes — where one
