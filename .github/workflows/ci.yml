@@ -75,9 +75,15 @@ jobs:
       - name: Prove safe/private failure evidence contracts
         run: npm run test:evidence-contract
       - run: npm run test:smoke
+      # Only when the failing step actually produced evidence. artifacts:check is
+      # asked for a curated root, so an empty browser-evidence/ is a failure by
+      # design — and a job that dies in build, vitals or transfer:check leaves
+      # exactly that. Scanning it there turned every such failure into a second,
+      # misleading error and skipped the upload. The upload still requires this
+      # scan to have passed, so nothing reaches an artifact unscanned.
       - name: Scan browser failure evidence for private data
         id: artifact_privacy
-        if: ${{ failure() }}
+        if: ${{ failure() && hashFiles('browser-evidence/**') != '' }}
         run: npm run artifacts:check
       - name: Upload browser failure evidence
         if: ${{ failure() && steps.artifact_privacy.outcome == 'success' }}
@@ -108,9 +114,10 @@ jobs:
         run: npm run --silent vitals:lab -- --samples=1 > "${{ runner.temp }}/lab-vitals.json"
       - name: Check per-route transfer budget
         run: npm run transfer:check -- --report="${{ runner.temp }}/lab-vitals.json"
+      # See the note in smoke-chromium: scan only when there is evidence to scan.
       - name: Scan compatibility failure evidence for private data
         id: artifact_privacy
-        if: ${{ failure() }}
+        if: ${{ failure() && hashFiles('browser-evidence/**') != '' }}
         run: npm run artifacts:check
       - name: Upload compatibility failure evidence
         if: ${{ failure() && steps.artifact_privacy.outcome == 'success' }}
