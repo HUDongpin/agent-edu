@@ -50,3 +50,8 @@ outputs/
 notes/
 video-pilot/
 course_review_*/
+review-packets/
+
+# Private working notes. .gitignore:61 keeps this out of the tree; the secrets
+# globs above do not catch it, because it is a .md rather than a .docx.
+2026*_claude suggestions*.md
