@@ -12,6 +12,7 @@ import {
   NETWORK_PROFILES,
   parseCliArgs,
   summarizeSamples,
+  trackRequests,
 } from "../scripts/measure-lab-vitals.mjs";
 
 test("lab-vitals median and mode summary retain zero CLS without inventing metrics", () => {
@@ -272,6 +273,50 @@ test("lab-vitals source contract covers the approved route matrix and never call
       { id: "404", path: "/missing-lab-vitals/", expectedStatus: 404 },
     ],
   );
+});
+
+test("the request ledger forgets the document a navigation replaced, and only that one", () => {
+  // A warm sample navigates twice through one ledger. Chromium sends neither
+  // loadingFinished nor loadingFailed for a request whose document is gone, so
+  // before this the prime page's post-hydration burst pinned inFlight above
+  // zero for ever and no check could be quiet again — a page that had finished
+  // failed the settle wait. handbook/none/warm did exactly that on CI run
+  // 34679579792.
+  const handlers = new Map<string, (payload: never) => void>();
+  const cdp = {
+    on(event: string, handler: (payload: never) => void) {
+      handlers.set(event, handler);
+    },
+  };
+  const emit = (event: string, payload: unknown) => {
+    (handlers.get(event) as ((payload: unknown) => void) | undefined)?.(payload);
+  };
+
+  const requests = trackRequests(cdp);
+  emit("Network.requestWillBeSent", { requestId: "prime-doc", loaderId: "L1" });
+  emit("Network.loadingFinished", { requestId: "prime-doc" });
+  // The analytics script and a <Link> prefetch, started by the prime document
+  // once hydration ended, still on the wire when the measured goto commits.
+  emit("Network.requestWillBeSent", { requestId: "insights", loaderId: "L1" });
+  emit("Network.requestWillBeSent", { requestId: "prefetch", loaderId: "L1" });
+  assert.equal(requests.inFlight.size, 2);
+
+  emit("Page.frameNavigated", { frame: { loaderId: "L2" } });
+  assert.equal(requests.inFlight.size, 0, "the replaced document's requests are gone");
+  assert.equal(requests.started, 3, "how many the page started is still the truth");
+
+  // The measured document's own requests carry the new loaderId: a page that is
+  // really still fetching must still be refused.
+  emit("Network.requestWillBeSent", { requestId: "measured-css", loaderId: "L2" });
+  emit("Page.frameNavigated", { frame: { loaderId: "L2" } });
+  assert.equal(requests.inFlight.size, 1, "a commit must not drop the document being measured");
+
+  // A subframe commit carries its own loaderId and speaks for nobody else.
+  emit("Page.frameNavigated", { frame: { loaderId: "L3", parentId: "L2" } });
+  assert.equal(requests.inFlight.size, 1, "an iframe navigation clears nothing");
+
+  emit("Network.loadingFailed", { requestId: "measured-css" });
+  assert.equal(requests.inFlight.size, 0);
 });
 
 test("a settle check is quiet only when the page is idle, has nothing out and started nothing", () => {
