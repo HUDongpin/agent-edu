@@ -455,16 +455,39 @@ const SETTLE_INTERVAL_MS = 100;
 const SETTLE_DEADLINE_MS = 30_000;
 const IDLE_PROBE_TIMEOUT_MS = 5_000;
 
-/** How many requests the page has started, and which are still on the wire. */
-function trackRequests(cdp) {
-  const requests = { started: 0, inFlight: new Set() };
-  cdp.on("Network.requestWillBeSent", ({ requestId }) => {
+/**
+ * How many requests the page has started, and which of the document being
+ * measured are still on the wire.
+ *
+ * The two terminal events below are the only way an id leaves inFlight, and
+ * Chromium sends neither for a request whose document a navigation destroys.
+ * A warm sample navigates twice through one ledger, and the prime page starts
+ * its prefetches and its analytics script when hydration ends — which on a
+ * slow or contended CPU is after Playwright's networkidle has resolved, so
+ * inside the window between the measured goto being issued and committing.
+ * One such request would then be held here for ever: no check could be quiet
+ * again, and the sample would fail a page that had in fact finished.
+ *
+ * So every id carries the loaderId that started it, and a main-frame commit
+ * drops the ids of the document it replaced. The measured document's own
+ * requests carry the new loaderId and are untouched — a page that really is
+ * still fetching is still refused.
+ */
+export function trackRequests(cdp) {
+  const requests = { started: 0, inFlight: new Map() };
+  cdp.on("Network.requestWillBeSent", ({ requestId, loaderId }) => {
     requests.started += 1;
-    requests.inFlight.add(requestId);
+    requests.inFlight.set(requestId, loaderId);
   });
   const finished = ({ requestId }) => requests.inFlight.delete(requestId);
   cdp.on("Network.loadingFinished", finished);
   cdp.on("Network.loadingFailed", finished);
+  cdp.on("Page.frameNavigated", ({ frame }) => {
+    if (frame.parentId) return;
+    for (const [requestId, loaderId] of requests.inFlight) {
+      if (loaderId !== frame.loaderId) requests.inFlight.delete(requestId);
+    }
+  });
   return requests;
 }
 
@@ -543,6 +566,8 @@ async function collectSample(browser, baseUrl, route, cacheMode, iteration, view
   const cdp = await context.newCDPSession(page);
   const requests = trackRequests(cdp);
   await cdp.send("Network.enable");
+  // for Page.frameNavigated, which is how the ledger learns a document ended
+  await cdp.send("Page.enable");
   await cdp.send("Network.setCacheDisabled", { cacheDisabled: cacheMode === "cold" });
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: CPU_SLOWDOWN_MULTIPLIER });
   if (profile.emulated) {
