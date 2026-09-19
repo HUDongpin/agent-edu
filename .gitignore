@@ -65,6 +65,20 @@ __pycache__/
 # not 250KB of strings per locale.
 review-packets/
 
+# Local scratch, captures and review bundles. Until now these were hidden only
+# by this machine's .git/info/exclude, which no clone, worktree or other
+# session shares, so a `git add -A` anywhere else would stage gigabytes into a
+# public repo. Anchored to the root, unlike the copies in .vercelignore, so a
+# future examples/ or notes/ inside course/ is not silently ignored.
+/tmp/
+/examples/
+/output/
+/outputs/
+/notes/
+/video-pilot/
+/course_review_*/
+/.playwright-cli/
+
 # Junk
 .DS_Store
 npm-debug.log*
