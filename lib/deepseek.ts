@@ -89,8 +89,10 @@ export function errorKey(error: unknown): string {
       case "auth": return "lab.err.badKey";
       case "credit": return "lab.err.noCredit";
       case "rate-limit": return "lab.err.busy";
-      case "network":
-      case "timeout": return "lab.err.network";
+      case "network": return "lab.err.network";
+      // Not the network message: that sends a beginner to debug their wifi
+      // when it was the Lab's own cap that fired. It names the cap instead.
+      case "timeout": return "lab.err.timeout";
       case "aborted": return "lab.err.cancelled";
       case "provider": return error.httpStatus && error.httpStatus >= 500
         ? "lab.err.busy"

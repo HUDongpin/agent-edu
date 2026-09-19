@@ -355,7 +355,7 @@ const scenarios: Scenario[] = [
       await releaseTimeout;
       await route.abort("timedout").catch(() => undefined);
     },
-    expectedMessage: /could not be reached/i,
+    expectedMessage: /did not reply within 45 seconds/i,
     expectedDetail: /timed out/i,
     billing: "unknown",
     sessionKey: "retained",

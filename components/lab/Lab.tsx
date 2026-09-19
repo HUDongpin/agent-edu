@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 import KeyBar from "./KeyBar";
 import Fail from "./Fail";
 import Stages, { type Stage } from "./Stages";
@@ -47,6 +48,7 @@ import {
 } from "@/lib/lab/plans";
 import { LabRunner, type LabRunTask } from "@/lib/lab/runner";
 import { RECORDED_RUN, RECORDED_BEFORE, RECORDED_AFTER } from "@/lib/lab/recorded";
+import { billingText, formatCost } from "@/lib/lab/cost";
 import {
   MAX_LAB_RULES,
   MAX_LAB_RULE_CONDITION_LENGTH,
@@ -220,6 +222,7 @@ export default function Lab() {
    * it never competes with doing it yourself.
    */
   const [showRecorded, setShowRecorded] = useState(false);
+  const recordedNote = useRef<HTMLDivElement>(null);
   const [prog, setProg] = useState("");
   const [err3, setErr3] = useState<Err>(null);
   const [evalAnnouncement, setEvalAnnouncement] = useState("");
@@ -379,16 +382,7 @@ export default function Lab() {
   const busy2 = activeBatch?.kind === "preview";
   const busy3 = activeBatch?.kind === "eval";
   const anyBatchBusy = activeBatch !== null;
-  const formatBillingCost = (snapshot: ReturnType<typeof billingSnapshot>) => (
-    `${t("lab.knownSubtotal")} $${snapshot.knownUsd.toFixed(5)}`
-    + (snapshot.providerRejectedCalls > 0
-      ? ` + ${snapshot.providerRejectedCalls} ${t("lab.billingRejected")}`
-      : "")
-    + (snapshot.hasUnknown
-      ? ` + ${snapshot.unknownAfterSendCalls} ${t("lab.billingUnknown")}`
-      : "")
-  );
-  const billingCost = formatBillingCost(billing);
+  const billingCost = billingText(billing, t, locale);
   const stage1Estimate = conservativePrice(
     model,
     conservativePromptTokenUpperBound([{ content: q }]),
@@ -619,7 +613,7 @@ export default function Lab() {
 
     const res = outcome.results;
     const n = res.filter((r) => r.ok).length;
-    const completedBillingCost = formatBillingCost(billingSnapshot());
+    const completedBillingCost = billingText(billingSnapshot(), t, locale);
     setPrevRows(rows);
     setRows(res);
     setPrev(score); setScore(n);
@@ -685,6 +679,18 @@ export default function Lab() {
     if (!activeBatch) return;
     runner.stop(activeBatch.runId);
     setProg(t("lab.stopping"));
+  }
+
+  /* The no-key failure's second way out. The button that was pressed lives in
+     a step this jump unmounts, which would drop focus onto the body, so the
+     render is flushed and focus lands on the note that introduces the run —
+     the first thing a screen reader should say after the jump. */
+  function showScriptedRun() {
+    flushSync(() => {
+      setStage(3);
+      setShowRecorded(true);
+    });
+    (recordedNote.current ?? document.getElementById(PANEL))?.focus();
   }
 
   const stages: Stage[] = [
@@ -764,7 +770,7 @@ export default function Lab() {
               <p className="keysafe">
                 {t("lab.s1.callDisclosure")
                   .replace("{model}", model)
-                  .replace("{cost}", `$${stage1Estimate.toFixed(5)}`)}
+                  .replace("{cost}", formatCost(stage1Estimate, locale))}
               </p>
               <div className="row" style={{ marginTop: 10 }}>
                 <button className="btn primary" type="button" disabled={busy0 || anyBatchBusy} onClick={async () => {
@@ -790,7 +796,8 @@ export default function Lab() {
                   </span>
                 )}
               </div>
-              {err0 && <Fail msgKey={err0.key} detail={err0.detail} />}
+              {err0 && <Fail msgKey={err0.key} detail={err0.detail}
+                timeoutMs={REQUEST_TIMEOUT_MS} onScriptedRun={showScriptedRun} />}
               {/* dir="auto" — the model answers in whatever language it was asked. */}
               <div className={"outbox" + (a0 ? "" : " empty")} dir="auto"
                 aria-live="polite" style={{ marginTop: 11 }}>
@@ -946,7 +953,7 @@ export default function Lab() {
               <p className="keysafe">
                 {(stage === 2 ? t("lab.s3.callDisclosure") : t("lab.s4.callDisclosure"))
                   .replace("{model}", model)
-                  .replace("{cost}", `$${(stage === 2 ? stage3Estimate : evalEstimate).toFixed(5)}`)}
+                  .replace("{cost}", formatCost(stage === 2 ? stage3Estimate : evalEstimate, locale))}
               </p>
               <div className="row" style={{ marginTop: 10 }}>
                 <span className="spacer" />
@@ -991,8 +998,10 @@ export default function Lab() {
                   </>
                 )}
               </div>
-              {stage === 2 && err2 && <Fail msgKey={err2.key} detail={err2.detail} />}
-              {stage === 3 && err3 && <Fail msgKey={err3.key} detail={err3.detail} />}
+              {stage === 2 && err2 && <Fail msgKey={err2.key} detail={err2.detail}
+                timeoutMs={REQUEST_TIMEOUT_MS} onScriptedRun={showScriptedRun} />}
+              {stage === 3 && err3 && <Fail msgKey={err3.key} detail={err3.detail}
+                timeoutMs={REQUEST_TIMEOUT_MS} onScriptedRun={showScriptedRun} />}
               {stage === 2 && completedPreviewIds.length > 0 && (
                 <p className="mono-note labpreviewdraft" role="status">
                   {t("lab.draft.preview")
@@ -1111,7 +1120,7 @@ export default function Lab() {
             {stage === 3 && !getKey() && (
               showRecorded ? (
                 <>
-                  <div className="langnote" style={{ marginTop: 14 }}>
+                  <div className="langnote" style={{ marginTop: 14 }} ref={recordedNote} tabIndex={-1}>
                     <Rich k="lab.s4.recordedNote"
                       vars={{ before: RECORDED_BEFORE, after: RECORDED_AFTER }} />
                   </div>

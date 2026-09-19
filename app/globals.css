@@ -1330,7 +1330,7 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   padding:12px 14px;margin-top:12px}
 .fail p{margin:0;font-size:14px;color:var(--ink)}
 .failico{font-size:16px;line-height:1.4}
-.fail .btn{margin-top:10px;font-size:13.5px;padding:8px 14px}
+.fail .btn{margin-top:10px;margin-inline-end:8px;font-size:13.5px;padding:8px 14px}
 .faildetail{margin-top:7px!important;font-size:12px;word-break:break-word;opacity:.85}
 
 @media(max-width:560px){

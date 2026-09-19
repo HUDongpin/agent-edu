@@ -128,11 +128,106 @@ test("the key panel names a price before the reader is asked to fund an account"
   assert.match(source, /const journeyEstimate = stage1Estimate \+ stage3Estimate \+ evalEstimate \* 2;/);
   assert.match(source, /journeyEstimate=\{journeyEstimate\}/);
   assert.match(keyBarSource, /journeyEstimate: number;/);
-  assert.match(keyBarSource, /\.replace\("\{cost\}", formatEstimate\(journeyEstimate\)\)/);
+  assert.match(keyBarSource, /\.replace\("\{cost\}", formatEstimate\(journeyEstimate, locale\)\)/);
 
   /* Cents get cents; anything under one keeps the five-decimal form, so a small
      estimate can never round away into a free-looking "$0.00". */
-  assert.match(keyBarSource, /usd >= 0\.01 \? usd\.toFixed\(2\) : usd\.toFixed\(5\)/);
+  assert.match(keyBarSource, /formatCost\(usd, locale, usd >= 0\.01 \? 2 : 5\)/);
+});
+
+test("costs are written in the reader's language, never assembled in English order", async () => {
+  /* The billing line glued counts to noun phrases with `+` in English order,
+     twice, and every amount was "$" plus toFixed. In Arabic the bidi algorithm,
+     not a translator, decided where the pieces landed. */
+  const { billingText, formatCost, formatCount } = await import("../lib/lab/cost");
+  /* The café menu's own prices stay as they are: the menu is exercise data and
+     stays English (lab.enData). Everything the reader pays goes through here. */
+  assert.doesNotMatch(keyBarSource, /toFixed\(|toLocaleString\(/, "money and counts go through lib/lab/cost");
+  assert.doesNotMatch(source, /Estimate\.toFixed|Usd\.toFixed|\.toFixed\(5\)/, "money goes through lib/lab/cost");
+  for (const file of [source, keyBarSource]) {
+    assert.doesNotMatch(file, /lab\.knownSubtotal|lab\.billingRejected|lab\.billingUnknown/);
+    assert.match(file, /billingText\(billing, t, locale\)/);
+  }
+
+  const shapes = {
+    "lab.billing.known": [],
+    "lab.billing.knownRejected": ["rejected"],
+    "lab.billing.knownUnknown": ["unknown"],
+    "lab.billing.knownRejectedUnknown": ["rejected", "unknown"],
+  } as const;
+  for (const locale of LOCALES) {
+    const messages = siteMessages(locale);
+    for (const [key, counts] of Object.entries(shapes)) {
+      const names = [...(messages[key] ?? "").matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
+      assert.deepEqual(names, ["cost", ...counts].sort(), `${locale}: ${key} must carry exactly its own figures`);
+    }
+    assert.equal(messages["lab.knownSubtotal"], undefined, `${locale}: the old fragment keys are gone`);
+  }
+
+  /* Each ledger shape picks its own whole message, and every figure lands. */
+  const en = siteMessages("en");
+  const t = (key: string) => en[key] ?? key;
+  const snapshot = {
+    dispatchedCalls: 4, usageConfirmedCalls: 1, providerRejectedCalls: 2, unknownAfterSendCalls: 1,
+    notSentAttempts: 0, knownUsd: 0.001234, hasUnknown: true,
+    usage: { promptTokens: 0, promptCacheHitTokens: 0, promptCacheMissTokens: 0, completionTokens: 0 },
+  };
+  assert.equal(billingText(snapshot, t, "en"),
+    "known subtotal $0.00123 + 2 provider-rejected request(s) with no usage + 1 request(s) with unknown billing");
+  assert.equal(billingText({ ...snapshot, providerRejectedCalls: 0 }, t, "en"),
+    "known subtotal $0.00123 + 1 request(s) with unknown billing");
+  assert.equal(billingText({ ...snapshot, unknownAfterSendCalls: 0, hasUnknown: false }, t, "en"),
+    "known subtotal $0.00123 + 2 provider-rejected request(s) with no usage");
+  assert.equal(billingText({ ...snapshot, providerRejectedCalls: 0, unknownAfterSendCalls: 0, hasUnknown: false }, t, "en"),
+    "known subtotal $0.00123");
+
+  /* The page's locale and the snapshot's currency, five decimals, and the Latin
+     digits the Arabic copy already writes its own figures in. */
+  assert.equal(formatCost(0.001234, "en"), "$0.00123");
+  assert.match(formatCost(0.001234, "de"), /^0,00123\s\$$/);
+  assert.match(formatCost(0.001234, "ar"), /0\.00123/);
+  assert.equal(formatCost(0.05, "en", 2), "$0.05");
+  assert.equal(formatCount(7600, "en"), "7,600");
+  assert.equal(formatCount(7600, "de"), "7.600");
+  assert.match(formatCount(7600, "ar"), /^7.600$/);
+});
+
+test("a timeout names the Lab's own cap instead of blaming the reader's connection", () => {
+  /* lab.err.network says to check the internet connection. A timeout is the
+     Lab's cap firing on a slow provider, and sent a beginner to debug their wifi. */
+  const deepseek = readFileSync("lib/deepseek.ts", "utf8");
+  assert.match(deepseek, /case "timeout": return "lab\.err\.timeout";/);
+  assert.match(deepseek, /case "network": return "lab\.err\.network";/);
+
+  /* The number shown is the constant the request actually ran under. */
+  const failSource = readFileSync("components/lab/Fail.tsx", "utf8");
+  assert.match(failSource, /t\(msgKey\)\.replace\("\{seconds\}", String\(Math\.round\(timeoutMs \/ 1000\)\)\)/);
+  assert.equal(source.match(/<Fail [^>]*timeoutMs=\{REQUEST_TIMEOUT_MS\}/g)?.length, 3,
+    "every Lab failure is told the cap its request ran under");
+  assert.match(keyBarSource, /timeoutMs: KEY_CHECK_TIMEOUT_MS/);
+  assert.match(keyBarSource, /t\(failure\.key\)\.replace\("\{seconds\}", String\(KEY_CHECK_TIMEOUT_MS \/ 1000\)\)/);
+
+  for (const locale of LOCALES) {
+    const message = siteMessages(locale)["lab.err.timeout"];
+    assert.equal(message?.match(/\{seconds\}/g)?.length, 1, `${locale}: lab.err.timeout must name the cap once`);
+    assert.notEqual(message, siteMessages(locale)["lab.err.network"]);
+  }
+});
+
+test("the no-key failure also offers the scripted run, and focus follows the jump", () => {
+  /* A reader with no card or on a managed laptop hit "needs your key" on step 1
+     with one button, to a key box they may never be able to fill. The free
+     twenty-case run was only reachable from step 4. */
+  const failSource = readFileSync("components/lab/Fail.tsx", "utf8");
+  assert.match(failSource, /noKey && onScriptedRun && \([\s\S]*?t\("lab\.s4\.recordedCta"\)/);
+  assert.equal(source.match(/onScriptedRun=\{showScriptedRun\}/g)?.length, 3);
+
+  const jump = source.slice(source.indexOf("function showScriptedRun"));
+  assert.match(jump, /flushSync\(\(\) => \{\s*setStage\(3\);\s*setShowRecorded\(true\);\s*\}\);/);
+  /* The pressed button unmounts with its step; focus goes to the note that
+     introduces the run rather than falling to the body. */
+  assert.match(jump, /\(recordedNote\.current \?\? document\.getElementById\(PANEL\)\)\?\.focus\(\)/);
+  assert.match(source, /className="langnote"[^>]*ref=\{recordedNote\} tabIndex=\{-1\}/);
 });
 
 test("the no-credit failure has somewhere to go, in every language", () => {

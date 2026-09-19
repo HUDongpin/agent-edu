@@ -22,8 +22,12 @@ import {
   type Model,
 } from "@/lib/deepseek";
 import { RECOMMENDED_LAB_JOURNEY } from "@/lib/lab/plans";
+import { billingText, formatCost, formatCount } from "@/lib/lab/cost";
 
 const PROVIDER = "https://platform.deepseek.com/api_keys";
+
+/** How long a key check waits, and what lab.err.timeout tells the reader it waited. */
+const KEY_CHECK_TIMEOUT_MS = 15_000;
 
 /**
  * Cents deserve cents, fractions of one deserve more.
@@ -34,8 +38,8 @@ const PROVIDER = "https://platform.deepseek.com/api_keys";
  * reader is actually asking for — but the five-decimal form comes back below a
  * cent, so a small estimate can never round away into free.
  */
-function formatEstimate(usd: number): string {
-  return `$${usd >= 0.01 ? usd.toFixed(2) : usd.toFixed(5)}`;
+function formatEstimate(usd: number, locale: string): string {
+  return formatCost(usd, locale, usd >= 0.01 ? 2 : 5);
 }
 
 /**
@@ -69,7 +73,7 @@ export default function KeyBar({
    */
   journeyEstimate: number;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const has = useSyncExternalStore(subscribeKey, hasKey, hasKeyOnServer);
   const status = useSyncExternalStore(subscribeKey, keyStatusSnapshot, keyStatusOnServer);
   const billing = useSyncExternalStore(
@@ -93,7 +97,7 @@ export default function KeyBar({
     if (!v) return;
     setFailure(null);
     try {
-      await saveAndTestKey(v, model, { timeoutMs: 15_000 });
+      await saveAndTestKey(v, model, { timeoutMs: KEY_CHECK_TIMEOUT_MS });
       setDraft("");
       setEditing(false);
     } catch (error) {
@@ -110,7 +114,7 @@ export default function KeyBar({
   async function testAgain() {
     setFailure(null);
     try {
-      await testSavedKey(model, { timeoutMs: 15_000 });
+      await testSavedKey(model, { timeoutMs: KEY_CHECK_TIMEOUT_MS });
       setEditing(false);
     } catch (error) {
       setFailure({
@@ -128,13 +132,7 @@ export default function KeyBar({
     rejected: "lab.keyRejected",
     unreachable: "lab.keyUnreachable",
   };
-  const billingCost = `${t("lab.knownSubtotal")} $${billing.knownUsd.toFixed(5)}`
-    + (billing.providerRejectedCalls > 0
-      ? ` + ${billing.providerRejectedCalls} ${t("lab.billingRejected")}`
-      : "")
-    + (billing.hasUnknown
-      ? ` + ${billing.unknownAfterSendCalls} ${t("lab.billingUnknown")}`
-      : "");
+  const billingCost = billingText(billing, t, locale);
 
   return (
     <section className={"keypanel" + (verified ? " ready" : "")} id="labkey" aria-labelledby={`${inputId}-h`}>
@@ -215,7 +213,7 @@ export default function KeyBar({
             <div className="fail" role="alert">
               <span className="failico" aria-hidden="true">⚠️</span>
               <div>
-                <p>{t(failure.key)}</p>
+                <p>{t(failure.key).replace("{seconds}", String(KEY_CHECK_TIMEOUT_MS / 1000))}</p>
                 {failure.detail && <p className="faildetail mono-note">{failure.detail}</p>}
               </div>
             </div>
@@ -263,9 +261,9 @@ export default function KeyBar({
           below is unchanged; the number simply arrives before them. */}
       <p className="keysafe">
         {t("lab.callPlan")
-          .replace("{cost}", formatEstimate(journeyEstimate))
+          .replace("{cost}", formatEstimate(journeyEstimate, locale))
           .replace("{calls}", String(RECOMMENDED_LAB_JOURNEY.calls))
-          .replace("{tokens}", RECOMMENDED_LAB_JOURNEY.maxOutputTokens.toLocaleString("en-US"))}
+          .replace("{tokens}", formatCount(RECOMMENDED_LAB_JOURNEY.maxOutputTokens, locale))}
       </p>
       <p className="keysafe">
         {t("lab.pricingDisclosure").replace("{date}", DEEPSEEK_PRICING.checkedAt)}{" "}
