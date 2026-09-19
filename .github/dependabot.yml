@@ -1,0 +1,37 @@
+# Dependency updates as reviewable pull requests, so an advisory arrives as a
+# diff the required checks already gate instead of sitting unseen: next@16.3.1
+# carried a critical advisory for three weeks before anyone looked.
+#
+# The framework has its own group. AGENTS.md warns that this Next.js differs
+# from the one most tooling expects, so a Next or React minor needs its docs
+# read and should never ride along inside a batch of trivial patches. A bump
+# that moves shipped bytes will fail transfer:check by design — run
+# `npm run transfer:update` and commit the numbers so the cost is reviewable.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      framework:
+        patterns:
+          - "next"
+          - "eslint-config-next"
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns:
+          - "*"
