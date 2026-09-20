@@ -1,13 +1,25 @@
 # Release evidence gates
 
-This directory is the human side of `config/release-readiness.json`. The JSON
-file is the machine-readable release decision; these forms define how a person
-may create the evidence referenced by that decision.
+This directory is the human side of `config/release-readiness.json`. That JSON
+is the dated record of the **2026-08 release gate**, frozen at candidate
+`2cdf1d68`; these forms define how a person may create the evidence it
+references.
+
+It is no longer the decision that governs shipping. The candidate it gates was
+merged to `main` on 2026-08-25 as PR #3, and the site has deployed from every
+subsequent merge since. What decides whether a change ships now is the CI
+workflow — `quality`, `smoke-chromium` and `compatibility`, and the repository
+gates they run — plus branch protection. The record stays because what it says
+about that candidate was true on its date and is worth keeping true; it is
+read as history, not as a precondition.
 
 `npm run release:check` is deliberately **not** part of the ordinary CI quality
-job. Product development must continue while native review, real Provider
-access, Vercel preview inspection, and GitHub branch protection are pending. A
-release candidate, however, remains blocked until this command exits zero.
+job, and it still reports `BLOCKED`: 36 evidence records that need a person
+were never closed, and writing `pass` over them would be the fabricated
+signature this directory exists to refuse. The command is retained to audit
+that historical record, and because the validators it exports are exercised by
+`npm test` inside the quality job — the localization, placeholder, plural and
+allowlist checks below are live product truth regardless of release status.
 
 The user accepted the current repository implementation round on 2026-08-23
 while explicitly deferring real-Provider and human release acceptance. That
