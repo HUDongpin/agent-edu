@@ -20,7 +20,20 @@ const LANGUAGES = [
 
 export default function GlobalNotFound() {
   return (
-    <html lang="und">
+    <html lang="und" suppressHydrationWarning>
+      <head>
+        <meta name="color-scheme" content="light dark" />
+        {/* This file bypasses the layout, so the reader's own choice has to be
+            applied here too — otherwise someone who set dark by hand gets a white
+            page. Before paint, as in app/[locale]/layout.tsx. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              `try{var t=localStorage.getItem("ae.theme");` +
+              `if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}`,
+          }}
+        />
+      </head>
       <body>
         <main className="recovery404">
           <p className="eyebrow">aicourse.top · 404</p>

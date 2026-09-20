@@ -45,8 +45,11 @@ export default async function LocaleLayout({
   const messages = await getMessages(locale);
   const meta = metaFor(locale);
 
+  // data-scroll-behavior asks Next to suspend globals.css's smooth scroll while it
+  // navigates, so a <Link> lands at the top of the next page at once rather than
+  // animating there. Next 16 stopped doing that by default.
   return (
-    <html lang={locale} dir={meta.dir} suppressHydrationWarning>
+    <html lang={locale} dir={meta.dir} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light dark" />
         {/* Applied before paint so a dark-mode reader never sees a white flash. */}

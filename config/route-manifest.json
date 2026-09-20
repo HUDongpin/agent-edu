@@ -39,7 +39,8 @@
     "out/404.html": [
       "lang=\"und\"",
       "Página no encontrada",
-      "/ar/courses/"
+      "/ar/courses/",
+      "ae.theme"
     ],
     "out/en/build/index.html": [
       "--offline",

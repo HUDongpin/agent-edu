@@ -43,6 +43,9 @@ test("the committed route manifest expands to the build-page route set", () => {
     'lang="und"',
     "Página no encontrada",
     "/ar/courses/",
+    // The 404 bypasses the layout, so it carries its own pre-paint theme script.
+    // Gated on the built artifact because that is where losing it would show.
+    "ae.theme",
   ]);
   assert.ok(expanded.requiredArtifactText["out/en/build/index.html"].includes("course/progress.json"));
   assert.deepEqual(expanded.requiredArtifactText["out/teacher-pack.txt"], [
