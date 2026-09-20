@@ -32,6 +32,14 @@ decision, all 36 release records below remain pending, and Draft PR #3 must not
 be marked Ready, merged, or deployed to production on the strength of this
 implementation acceptance.
 
+> **Spent on 2026-08-25.** That prohibition held until PR #3 was merged to
+> `main` on its own account — head `codex/release-202608-agent-edu`, merge
+> commit `bf1fde5b`, after which the branch was deleted. Candidate `2cdf1d68`
+> is an ancestor of `main`, so the release this record gates has happened, and
+> the site has deployed from every merge since. The 36 records below remain
+> pending and are not closed by that merge: they record what was never
+> verified about that candidate, which is still the truth about it.
+
 After that scope decision, a separate direct-user-authorized precheck used the
 specified DeepSeek access material in ephemeral process memory. One
 authenticated `GET /models` and one bounded eight-output-token Flash generation
@@ -148,7 +156,13 @@ later requirements below:
 
 No production deployment, PR merge, Ready transition, GitHub protection
 mutation, Vercel protection reduction, fabricated human signature, fabricated
-participant result, or recorded real Provider credential is claimed. The one
+participant result, or recorded real Provider credential is claimed.
+
+> **Read as of its date.** The first two of those — deployment and merge —
+> happened on 2026-08-25 by ordinary review, outside this record. The sentence
+> stays because it was an accurate statement of what this audit claimed, and
+> because the rest of it still binds: no fabricated signature, no fabricated
+> participant result, no recorded credential. The one
 direct-user-authorized authenticated precheck is recorded only as sanitized
 aggregate evidence and is not promoted into the formal release gate. A
 transient CLI-created Vercel bypass credential was revoked and was neither
