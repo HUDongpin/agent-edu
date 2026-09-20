@@ -1,6 +1,7 @@
 "use client";
 
 import { useI18n } from "../I18nProvider";
+import { formatSeconds } from "@/lib/lab/cost";
 
 /**
  * What a reader sees when a call fails.
@@ -28,8 +29,19 @@ import { useI18n } from "../I18nProvider";
  */
 const PROVIDER_CONSOLE = "https://platform.deepseek.com/";
 
-export default function Fail({ msgKey, detail }: { msgKey: string; detail?: string }) {
-  const { t } = useI18n();
+export default function Fail({ msgKey, detail, timeoutMs, onScriptedRun }: {
+  msgKey: string;
+  detail?: string;
+  /** The cap the failed request ran under: lab.err.timeout names it. */
+  timeoutMs: number;
+  /**
+   * Opens step 4's scripted run. A reader with no key may have no way to get
+   * one — no card, a managed laptop, billing that does not reach them — so the
+   * no-key failure offers the free run beside the key box, not only on step 4.
+   */
+  onScriptedRun?: () => void;
+}) {
+  const { t, locale } = useI18n();
   const noKey = msgKey === "lab.err.noKey";
   const noCredit = msgKey === "lab.err.noCredit";
 
@@ -37,11 +49,16 @@ export default function Fail({ msgKey, detail }: { msgKey: string; detail?: stri
     <div className="fail" role="alert">
       <span className="failico" aria-hidden="true">{noKey || noCredit ? "🔑" : "⚠️"}</span>
       <div>
-        <p>{t(msgKey)}</p>
+        <p>{t(msgKey).replace("{seconds}", formatSeconds(timeoutMs, locale))}</p>
         {noKey && (
           <a className="btn primary" href="#labkey">
             {t("lab.err.noKeyCta")}<span className="arrow" aria-hidden="true">↑</span>
           </a>
+        )}
+        {noKey && onScriptedRun && (
+          <button className="btn" type="button" onClick={onScriptedRun}>
+            {t("lab.s4.recordedCta")}
+          </button>
         )}
         {noCredit && (
           <a
