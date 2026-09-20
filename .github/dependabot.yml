@@ -23,6 +23,19 @@ updates:
       # checker moves to the unstable/* exports.
       - dependency-name: "typescript"
         versions: [">=7"]
+      # ESLint 10 removed context.getFilename(), deprecated since 9.
+      # eslint-config-next 16.3.5 bundles eslint-plugin-react 7.37.5, whose
+      # React-version detection still calls it (lib/util/version.js:31), and
+      # core-web-vitals sets react.version to "detect" — so every version-gated
+      # rule throws before a single file is linted: react/display-name dies on
+      # the first page.tsx and `npm run lint` lints nothing. Measured in #33,
+      # closed for that reason. 7.37.5 is the highest version that exists
+      # (published April 2025, eslint peer capped at ^9.7), so an overrides
+      # entry cannot help either. Lift this when eslint-plugin-react publishes
+      # ESLint 10 support (jsx-eslint/eslint-plugin-react#3977) or
+      # eslint-config-next bundles a fixed plugin (vercel/next.js#89764).
+      - dependency-name: "eslint"
+        versions: [">=10"]
     groups:
       framework:
         patterns:
