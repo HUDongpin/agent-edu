@@ -22,7 +22,7 @@ import {
   type Model,
 } from "@/lib/deepseek";
 import { RECOMMENDED_LAB_JOURNEY } from "@/lib/lab/plans";
-import { billingText, formatCost, formatCount } from "@/lib/lab/cost";
+import { billingText, formatCost, formatCount, formatSeconds } from "@/lib/lab/cost";
 
 const PROVIDER = "https://platform.deepseek.com/api_keys";
 
@@ -213,7 +213,7 @@ export default function KeyBar({
             <div className="fail" role="alert">
               <span className="failico" aria-hidden="true">⚠️</span>
               <div>
-                <p>{t(failure.key).replace("{seconds}", String(KEY_CHECK_TIMEOUT_MS / 1000))}</p>
+                <p>{t(failure.key).replace("{seconds}", formatSeconds(KEY_CHECK_TIMEOUT_MS, locale))}</p>
                 {failure.detail && <p className="faildetail mono-note">{failure.detail}</p>}
               </div>
             </div>

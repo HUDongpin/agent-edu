@@ -38,6 +38,11 @@ export function formatCount(value: number, locale: string): string {
   return new Intl.NumberFormat(locale, DIGITS).format(value);
 }
 
+/** A cap in whole seconds, written the way a {seconds} placeholder is read. */
+export function formatSeconds(ms: number, locale: string): string {
+  return formatCount(Math.round(ms / 1000), locale);
+}
+
 function fill(text: string, vars: Record<string, string>): string {
   return text.replace(/\{(\w+)\}/g, (whole, name: string) => vars[name] ?? whole);
 }

@@ -201,11 +201,11 @@ test("a timeout names the Lab's own cap instead of blaming the reader's connecti
 
   /* The number shown is the constant the request actually ran under. */
   const failSource = readFileSync("components/lab/Fail.tsx", "utf8");
-  assert.match(failSource, /t\(msgKey\)\.replace\("\{seconds\}", String\(Math\.round\(timeoutMs \/ 1000\)\)\)/);
+  assert.match(failSource, /t\(msgKey\)\.replace\("\{seconds\}", formatSeconds\(timeoutMs, locale\)\)/);
   assert.equal(source.match(/<Fail [^>]*timeoutMs=\{REQUEST_TIMEOUT_MS\}/g)?.length, 3,
     "every Lab failure is told the cap its request ran under");
   assert.match(keyBarSource, /timeoutMs: KEY_CHECK_TIMEOUT_MS/);
-  assert.match(keyBarSource, /t\(failure\.key\)\.replace\("\{seconds\}", String\(KEY_CHECK_TIMEOUT_MS \/ 1000\)\)/);
+  assert.match(keyBarSource, /t\(failure\.key\)\.replace\("\{seconds\}", formatSeconds\(KEY_CHECK_TIMEOUT_MS, locale\)\)/);
 
   for (const locale of LOCALES) {
     const message = siteMessages(locale)["lab.err.timeout"];

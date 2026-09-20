@@ -1,6 +1,7 @@
 "use client";
 
 import { useI18n } from "../I18nProvider";
+import { formatSeconds } from "@/lib/lab/cost";
 
 /**
  * What a reader sees when a call fails.
@@ -40,7 +41,7 @@ export default function Fail({ msgKey, detail, timeoutMs, onScriptedRun }: {
    */
   onScriptedRun?: () => void;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const noKey = msgKey === "lab.err.noKey";
   const noCredit = msgKey === "lab.err.noCredit";
 
@@ -48,7 +49,7 @@ export default function Fail({ msgKey, detail, timeoutMs, onScriptedRun }: {
     <div className="fail" role="alert">
       <span className="failico" aria-hidden="true">{noKey || noCredit ? "🔑" : "⚠️"}</span>
       <div>
-        <p>{t(msgKey).replace("{seconds}", String(Math.round(timeoutMs / 1000)))}</p>
+        <p>{t(msgKey).replace("{seconds}", formatSeconds(timeoutMs, locale))}</p>
         {noKey && (
           <a className="btn primary" href="#labkey">
             {t("lab.err.noKeyCta")}<span className="arrow" aria-hidden="true">↑</span>
