@@ -14,6 +14,15 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # TypeScript 7 is the native Go port: the JS compiler API is gone from the
+      # package root, so typescript-eslint refuses to load (it supports >=7.1
+      # only) and scripts/check-analytics.mjs, which is built on that API,
+      # crashes — taking vercel-build with it. Measured in #32, closed for that
+      # reason. Lift this once typescript-eslint ships >=7.1 support and the
+      # checker moves to the unstable/* exports.
+      - dependency-name: "typescript"
+        versions: [">=7"]
     groups:
       framework:
         patterns:
