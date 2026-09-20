@@ -2,7 +2,7 @@
   "name": "aicourse-top",
   "version": "0.1.0",
   "private": true,
-  "description": "aicourse.top — a free, open course in agentic engineering for people new to software engineering: an illustrated handbook, a browser lab and a TypeScript course, in nine languages.",
+  "description": "aicourse.top \u2014 a free, open course in agentic engineering for people new to software engineering: an illustrated handbook, a browser lab and a TypeScript course, in nine languages.",
   "license": "MIT",
   "homepage": "https://aicourse.top",
   "repository": {
@@ -64,7 +64,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tsx": "^4.23.13",
-    "typescript": "^5"
+    "typescript": "^6"
   },
   "type": "module"
 }
