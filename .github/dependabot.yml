@@ -36,6 +36,15 @@ updates:
       # eslint-config-next bundles a fixed plugin (vercel/next.js#89764).
       - dependency-name: "eslint"
         versions: [">=10"]
+      # @types/node tracks a Node release, so it must not run ahead of the one
+      # this project ships on: engines.node is 24.x and CI pins node-version
+      # 24.x. Types behind the runtime only make correct code look wrong; types
+      # ahead of it let tsc approve an API that does not exist when the code
+      # runs, which no gate here can catch. #37 bumped this to ^26 and was
+      # reverted for that reason. Lift this in the same change that moves
+      # engines.node, not before.
+      - dependency-name: "@types/node"
+        versions: [">=25"]
     groups:
       framework:
         patterns:
