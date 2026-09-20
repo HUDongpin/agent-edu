@@ -942,6 +942,36 @@ test("browser suites that handle private Lab state disable automatic artifacts",
   );
 });
 
+test("CI retries the browser suites, except the one whose attempts are the contract", () => {
+  // "page.goto: WebKit encountered an internal error" failed a docs-only PR.
+  // A crashing browser is not a product defect, and these jobs are required.
+  const safe = readFileSync(new URL("../playwright.config.ts", import.meta.url), "utf8");
+  const privateConfig = readFileSync(
+    new URL("../playwright.private.config.ts", import.meta.url),
+    "utf8",
+  );
+  const evidenceSafe = readFileSync(
+    new URL("../playwright.evidence-safe.config.ts", import.meta.url),
+    "utf8",
+  );
+  const evidencePrivate = readFileSync(
+    new URL("../playwright.evidence-private.config.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(safe, /retries: process\.env\.CI \? 2 : 0/);
+  assert.match(privateConfig, /retries: process\.env\.CI \? 2 : 0/);
+
+  // The two evidence configs drive deliberate failures, and verify-browser-
+  // evidence.mjs counts what they produce: one curated bundle, one closed
+  // status record, one assertion marker, one timeout marker. A retry would
+  // duplicate all of it and the contract would read as broken.
+  for (const [name, config] of [["evidence-safe", evidenceSafe], ["evidence-private", evidencePrivate]]) {
+    assert.doesNotMatch(config, /retries:\s*process\.env\.CI/, `${name} must not retry`);
+    assert.doesNotMatch(config, /retries:\s*[1-9]/, `${name} must not retry`);
+  }
+});
+
 test("safe failure evidence is curated without raw Playwright outputs", () => {
   const fixture = readFileSync(new URL("../e2e/fixtures.ts", import.meta.url), "utf8");
   const config = readFileSync(new URL("../playwright.config.ts", import.meta.url), "utf8");
