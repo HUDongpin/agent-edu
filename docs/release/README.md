@@ -138,6 +138,9 @@ headers. A green run cannot prove that GitHub made the jobs required.
 - `github-readiness.md` — required checks and three consecutive green runs.
 - `rollback.md` — previous production target, ordinary revert PR, and recovery validation.
 - `pilot-protocol.md` — later six-learner/three-teacher pilot and its exit metrics.
+- `pilot-dry-run.md` — a two-learner dry run that finds blockers before the
+  pilot spends its six. It produces findings, never metrics, and nothing it
+  produces is evidence under this directory's boundary.
 - `implementation-matrix.md` — approved roadmap requirements mapped to
   repository evidence, deterministic gates, external work, and explicit non-goals.
 - `roadmap-completion-audit.md` — authoritative DOCX closeout, immutable target
