@@ -47,3 +47,31 @@ test("C2 has one fixed core scenario and cannot be substituted by transfer scori
   assert.match(protocol, /both_transfer_scenarios_pass = yes/);
   assert.match(protocol, /X-A and X-B each satisfy the\s+scenario pass rule/);
 });
+
+test("the two-learner dry run cannot be mistaken for the pilot", () => {
+  const dryRun = readFileSync("docs/release/pilot-dry-run.md", "utf8");
+
+  // The pilot's release metric is sum(yes)/6 and the protocol forbids changing
+  // the denominator, so a two-learner run produces no metric at all. The danger
+  // is not that someone runs it — it is that its output is later filed as
+  // evidence, which is the one thing the release record cannot survive.
+  assert.match(dryRun, /not\*{0,2} the pilot/i);
+  assert.match(dryRun, /nothing\s+produced\s+by\s+it\s+is\s+release\s+evidence/i);
+  assert.match(dryRun, /cannot\s+satisfy\s+the\s+pilot\s+gate\s+in\s+`config\/release-readiness\.json`/);
+  assert.match(dryRun, /does\s+not\s+change\s+release\s+status/i);
+
+  // No threshold, no ratio, no pass mark: the vocabulary the full protocol owns.
+  assert.doesNotMatch(dryRun, /## Exit metrics/);
+  assert.doesNotMatch(dryRun, /at least \d\/6/);
+  assert.doesNotMatch(dryRun, /Required threshold/);
+
+  // The scenario cards live in one place. A second copy would drift, and a dry
+  // run measuring a different card teaches nothing about the pilot.
+  assert.doesNotMatch(dryRun, /campus\s+facilities\s+desk\s+receives/);
+  assert.match(dryRun, /verbatim\s+and\s+by\s+reference/);
+
+  // And the release instrument is still the six-learner protocol.
+  const protocol = readFileSync("docs/release/pilot-protocol.md", "utf8");
+  assert.match(protocol, /Protocol version: `1\.4`/);
+  assert.match(dryRun, /version 1\.4/);
+});
