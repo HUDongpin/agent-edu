@@ -10,7 +10,11 @@ export default defineConfig({
   testMatch: ["lab-private-state.spec.ts", "lab-provider-contract.spec.ts"],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: 0,
+  // A browser that dies once in CI should cost a retry, not a red main: this
+  // suite drives three engines and its whole output is suppressed, so a one-off
+  // crash is both the likeliest failure and the least diagnosable. Locally it
+  // stays at 0, where a flake is worth seeing.
+  retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: [["./e2e/private-reporter.ts"]],
   outputDir: ".playwright-private",

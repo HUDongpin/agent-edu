@@ -20,7 +20,10 @@ import {
   crc32,
   scanArtifactRoots,
 } from "../scripts/check-artifacts.mjs";
-import { validatePrivateReporterOutput } from "../scripts/run-private-playwright.mjs";
+import {
+  describePrivateFailure,
+  validatePrivateReporterOutput,
+} from "../scripts/run-private-playwright.mjs";
 
 type ZipEntry = {
   name: string;
@@ -785,9 +788,9 @@ test("private reporter output accepts only its closed status vocabulary", () => 
   const ordinary = [
     "private-suite: 2 test(s)",
     "private evidence contract: reached intentional assertion",
-    "private-suite: test 1/2 failed",
+    "private-suite: test 1/2 failed private-contract-chromium",
     "private evidence contract: reached full-test input timeout",
-    "private-suite: test 2/2 timedOut",
+    "private-suite: test 2/2 timedOut private-contract-chromium",
     "private-suite: run failed",
     "",
   ].join("\n");
@@ -795,6 +798,8 @@ test("private reporter output accepts only its closed status vocabulary", () => 
   assert.deepEqual(parsed, {
     total: 2,
     testStatuses: ["failed", "timedOut"],
+    testProjects: ["private-contract-chromium", "private-contract-chromium"],
+    retriedAttempts: [],
     runStatus: "failed",
     assertionMarkerCount: 1,
     timeoutMarkerCount: 1,
@@ -814,6 +819,71 @@ test("private reporter output accepts only its closed status vocabulary", () => 
     validatePrivateReporterOutput(ordinary, "worker stderr with a private reply", true),
     null,
   );
+});
+
+test("a retried attempt is spent, not counted, and cannot widen the vocabulary", () => {
+  // CI gives this suite two retries. An attempt that will be retried must not
+  // take an index: counting it would push the last test past the total and void
+  // a run that then passed — the gate failing a green suite.
+  const withRetry = [
+    "private-suite: 2 test(s)",
+    "private-suite: test 1/2 passed private-chromium",
+    "private-suite: retry failed private-webkit",
+    "private-suite: test 2/2 passed private-webkit",
+    "private-suite: run passed",
+    "",
+  ].join("\n");
+  const parsed = validatePrivateReporterOutput(withRetry, "", false);
+  assert.deepEqual(parsed?.testStatuses, ["passed", "passed"]);
+  assert.deepEqual(parsed?.retriedAttempts, [{ status: "failed", project: "private-webkit" }]);
+
+  // The project is the only new token in the vocabulary, and it is bounded:
+  // anything outside [a-z0-9-] voids the run rather than reaching a reader.
+  assert.equal(
+    validatePrivateReporterOutput(
+      withRetry.replace("private-webkit\nprivate-suite: test 2/2", "sk-a_secret_value\nprivate-suite: test 2/2"),
+      "",
+      false,
+    ),
+    null,
+  );
+  // A retry line still may not carry a status the reporter never emits.
+  assert.equal(
+    validatePrivateReporterOutput(withRetry.replace("retry failed", "retry passed"), "", false),
+    null,
+  );
+});
+
+test("a private failure is described in the reporter's own vocabulary, and nothing else", () => {
+  // The old message named nothing at all, so a CI failure here could not be
+  // read afterwards: the run leaves no artifact by design.
+  const described = describePrivateFailure({
+    status: 1,
+    signal: null,
+    stderrWasEmpty: true,
+    report: {
+      total: 3,
+      testStatuses: ["passed", "failed", "timedOut"],
+      testProjects: ["private-chromium", "private-webkit", "private-firefox"],
+      retriedAttempts: [{ status: "failed", project: "private-webkit" }],
+      runStatus: "failed",
+      assertionMarkerCount: 0,
+      timeoutMarkerCount: 0,
+    },
+  });
+  assert.match(described, /2 of 3 test\(s\) not passed/);
+  assert.match(described, /2\/3 failed \[private-webkit\]/);
+  assert.match(described, /3\/3 timedOut \[private-firefox\]/);
+  assert.match(described, /1 retried attempt\(s\)/);
+
+  // A run that never produced valid output says which expectation went unmet,
+  // still without quoting the child.
+  const voided = describePrivateFailure({
+    status: 1, signal: null, stderrWasEmpty: false, report: null,
+  });
+  assert.match(voided, /no valid reporter output/);
+  assert.match(voided, /the child wrote to stderr/);
+  assert.doesNotMatch(voided, /stderr:.*\w{20,}/);
 });
 
 test("browser suites that handle private Lab state disable automatic artifacts", () => {
@@ -860,7 +930,11 @@ test("browser suites that handle private Lab state disable automatic artifacts",
   assert.match(privateReporter, /printsToStdio\(\): boolean \{\s+return true/);
   assert.doesNotMatch(privateReporter, /onStdOut|onStdErr|result\.errors|test\.title/);
   assert.match(privateWrapper, /stderr\.trim\(\) !== ""/);
-  assert.match(privateWrapper, /raw browser output was suppressed/);
+  assert.match(privateWrapper, /Raw browser output stays suppressed/);
+  // The failure summary may name counts, statuses and the bounded project
+  // token, and nothing the browser produced: the wrapper never reads the
+  // child's streams beyond asking whether stderr was empty.
+  assert.match(privateWrapper, /stderrWasEmpty: \(child\.stderr \?\? ""\)\.trim\(\) === ""/);
   assert.doesNotMatch(privateWrapper, /process\.(?:stdout|stderr)\.write\([^\n]*(?:child\.stdout|child\.stderr)/);
   assert.equal(
     packageJson.scripts?.["test:smoke:private"],
