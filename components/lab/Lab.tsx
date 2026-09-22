@@ -34,6 +34,7 @@ import { CASES } from "@/lib/cafe/evalset";
 import {
   LAB_DRAFT_MAX_PROMPT_LENGTH,
   clearLabDraft,
+  labDraftDamaged,
   readLabDraft,
   writeLabDraft,
   type LabDraftInput,
@@ -94,7 +95,7 @@ type Row = { id: string; said: string; order: string | null; kind: string; ok: b
 type Err = { key: string; detail?: string } | null;
 type ActiveBatch = { runId: string; kind: "preview" | "eval" } | null;
 type ReflectionNote = { round: number; complete: boolean } | null;
-type DraftProblem = "unavailable" | "clear-failed" | null;
+type DraftProblem = "unavailable" | "clear-failed" | "damaged" | null;
 type PendingDraft = { fingerprint: string; input: LabDraftInput };
 
 const PREVIEW_IDS: ReadonlySet<string> = new Set(PREVIEW_CASES.map(({ id }) => id));
@@ -256,8 +257,8 @@ export default function Lab() {
     // the effect focused on synchronization with external storage.
     const timer = window.setTimeout(() => {
       const draft = readLabDraft();
-      if (draft) {
-        const restoredRules = decodeLabRules(draft.rules) ?? freshLabRules();
+      const restoredRules = draft ? decodeLabRules(draft.rules) : null;
+      if (draft && restoredRules) {
         const restoredPreviewIds = draft.completedPreviewIds
           .filter((id) => PREVIEW_IDS.has(id));
         lastPersistedDraftFingerprint.current = draftFingerprint(
@@ -273,6 +274,12 @@ export default function Lab() {
         setCompletedPreviewIds(restoredPreviewIds);
         setDraftSavedAt(draft.savedAt);
       } else {
+        /* A draft that is stored but cannot be read, whole or just its rules,
+           is ignored like a missing one, and said so. Opening as though
+           nothing had been saved told the reader their work never existed, and
+           nothing pointed at Clear draft; the first edit then overwrote it
+           unseen. The message goes when a save replaces it or Clear removes it. */
+        if (draft || labDraftDamaged()) setDraftProblem("damaged");
         /* A first visit with no key opens on the rules wall, not on step 1.
            Step 1 cannot run without a paid credential, so opening there makes
            the Lab's opening screen a signup wall — while the one exercise that
@@ -644,19 +651,23 @@ export default function Lab() {
       setDraftProblem("clear-failed");
       return;
     }
+    /* A cleared Lab opens where a first visit does: without a key, on the
+       free step. Stage, fingerprint and stored input move together, or the
+       cleared state reads as an edit and writes a draft straight back. */
+    const opening = getKey() ? 0 : 1;
     const defaultRules = freshLabRules();
-    const fingerprint = draftFingerprint(0, defaultRules, "", []);
+    const fingerprint = draftFingerprint(opening, defaultRules, "", []);
     lastPersistedDraftFingerprint.current = fingerprint;
     latestDraft.current = {
       fingerprint,
       input: {
-        stage: 0,
+        stage: opening,
         rules: encodeLabRules(defaultRules),
         prompt: "",
         completedPreviewIds: [],
       },
     };
-    setStage(0);
+    setStage(opening);
     setRules(defaultRules);
     setSys("");
     setMenuAdded(false);
@@ -817,10 +828,13 @@ export default function Lab() {
                   placeholder={t("lab.s2.findHint")} value={rp}
                   maxLength={MAX_LAB_RULE_CONDITION_LENGTH}
                   onChange={(e) => setRp(e.target.value)} style={{ flex: "2 1 180px" }} />
-                {/* The menu names are the exercise data, and stay English. */}
+                {/* The menu names are the exercise data, and stay English. Each
+                    option carries its name as its value, so a page translator
+                    rewriting the visible text cannot store a name the rules
+                    decoder rejects, which would now discard the whole draft. */}
                 <select aria-label={t("lab.s2.item")} value={ri}
                   onChange={(e) => setRi(e.target.value)} style={{ flex: "1 1 130px" }}>
-                  {Object.keys(MENU).map((m) => <option key={m}>{m}</option>)}
+                  {Object.keys(MENU).map((m) => <option key={m} value={m}>{m}</option>)}
                 </select>
                 <select aria-label={t("lab.s2.size")} value={rs}
                   onChange={(e) => setRs(e.target.value as "S" | "L")}>
@@ -829,7 +843,7 @@ export default function Lab() {
                 </select>
                 <button className="btn primary" type="button"
                   disabled={!rp.trim() || rules.length >= MAX_LAB_RULES} onClick={() => {
-                  if (rp.trim() && rules.length < MAX_LAB_RULES) {
+                  if (rp.trim() && rules.length < MAX_LAB_RULES && Object.prototype.hasOwnProperty.call(MENU, ri)) {
                     setRules([{ c: rp.trim(), n: ri, s: rs }, ...rules]);
                     setRp("");
                   }

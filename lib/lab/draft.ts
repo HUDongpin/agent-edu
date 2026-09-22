@@ -93,6 +93,19 @@ export function readLabDraft(storage: DraftStorage | null = browserStorage()): L
   }
 }
 
+/* Something is stored under the draft key, and readLabDraft cannot use it.
+   A missing draft and a damaged one both read as null; this is what tells them
+   apart, so the Lab can say which it found instead of greeting a reader whose
+   draft was just discarded as if they had never saved one. */
+export function labDraftDamaged(storage: DraftStorage | null = browserStorage()): boolean {
+  if (!storage) return false;
+  try {
+    return storage.getItem(LAB_DRAFT_KEY) !== null && readLabDraft(storage) === null;
+  } catch {
+    return false;
+  }
+}
+
 export function writeLabDraft(
   input: LabDraftInput,
   storage: DraftStorage | null = browserStorage(),

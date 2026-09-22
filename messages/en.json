@@ -274,6 +274,7 @@
   "lab.draft.waiting": "No local draft saved yet. Your first change will save on this device.",
   "lab.draft.unavailable": "local draft storage is unavailable",
   "lab.draft.clear-failed": "the saved draft could not be cleared",
+  "lab.draft.damaged": "the saved draft on this device could not be read and was ignored; Clear draft removes it",
   "lab.draft.note": "This device stores your current step, rules, full prompt and completed preview IDs in localStorage, and up to your last two complete eval runs as their tables show them: orders, verdicts and scores. None of that includes the API key, which stays only in this tab's session storage, or billing. Anything you paste into rules or the prompt is stored as part of them, so do not paste secrets there. Clear draft removes the draft and the saved runs. Current site code sends none of it to Analytics; same-origin Analytics remains a disclosed trust boundary.",
   "lab.draft.clear": "Clear draft",
   "lab.draft.preview": "{done} of {total} preview IDs saved locally; preview replies are not saved.",

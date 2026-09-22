@@ -4,6 +4,7 @@ import {
   LAB_DRAFT_KEY,
   clearLabDraft,
   decodeLabDraft,
+  labDraftDamaged,
   readLabDraft,
   writeLabDraft,
   type DraftStorage,
@@ -83,6 +84,37 @@ test("Lab draft rejects corrupt, wrong-version, and out-of-range data", () => {
   const storage = new MemoryStorage();
   storage.setItem(LAB_DRAFT_KEY, "{broken");
   assert.equal(readLabDraft(storage), null);
+});
+
+test("a damaged draft is told apart from a missing one", () => {
+  const storage = new MemoryStorage();
+  assert.equal(labDraftDamaged(storage), false, "nothing stored is not damage");
+  writeLabDraft(input, storage);
+  assert.equal(labDraftDamaged(storage), false, "a readable draft is not damage");
+  const readable = storage.getItem(LAB_DRAFT_KEY) ?? "";
+  const damaged = [
+    "{broken",
+    "",
+    "[1,2,3]",
+    '{"hello":"world"}',
+    JSON.stringify({ ...JSON.parse(readable), version: 2 }),
+    readable.slice(0, Math.floor(readable.length / 2)),
+  ];
+  for (const raw of damaged) {
+    storage.setItem(LAB_DRAFT_KEY, raw);
+    assert.equal(readLabDraft(storage), null, raw);
+    assert.equal(labDraftDamaged(storage), true, raw);
+  }
+  assert.equal(clearLabDraft(storage), true);
+  assert.equal(labDraftDamaged(storage), false, "cleared");
+
+  const throwing: DraftStorage = {
+    getItem() { throw new Error("blocked"); },
+    setItem() { throw new Error("blocked"); },
+    removeItem() { throw new Error("blocked"); },
+  };
+  assert.equal(labDraftDamaged(throwing), false, "unavailable storage is its own problem");
+  assert.equal(labDraftDamaged(null), false);
 });
 
 test("Lab draft de-duplicates safe preview ids and rejects unsafe ids", () => {
