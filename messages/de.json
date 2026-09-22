@@ -274,6 +274,7 @@
   "lab.draft.waiting": "Noch kein lokaler Entwurf gespeichert. Ihre erste Änderung wird auf diesem Gerät gespeichert.",
   "lab.draft.unavailable": "lokaler Entwurfsspeicher ist nicht verfügbar",
   "lab.draft.clear-failed": "der gespeicherte Entwurf konnte nicht gelöscht werden",
+  "lab.draft.damaged": "der gespeicherte Entwurf auf diesem Gerät war nicht lesbar und wurde ignoriert; „Entwurf löschen“ entfernt ihn",
   "lab.draft.note": "Dieses Gerät speichert Ihren aktuellen Schritt, Ihre Regeln, den vollständigen Prompt und die IDs abgeschlossener Vorschauen in localStorage, dazu Ihre letzten vollständigen Evaluationsläufe (höchstens zwei) so, wie ihre Tabellen sie zeigen: Bestellungen, Urteile und Punktzahlen. Nichts davon umfasst den API-Schlüssel, der nur im Sitzungsspeicher dieses Tabs bleibt, oder Abrechnungsdaten. Alles, was Sie in Regeln oder Prompt einfügen, wird als Teil davon gespeichert; fügen Sie dort daher keine Geheimnisse ein. „Entwurf löschen“ entfernt den Entwurf und die gespeicherten Läufe. Der aktuelle Website-Code sendet nichts davon an Analytics; Analytics auf demselben Ursprung bleibt eine offengelegte Vertrauensgrenze.",
   "lab.draft.clear": "Entwurf löschen",
   "lab.draft.preview": "{done} von {total} Vorschau-IDs lokal gespeichert; Vorschau-Antworten werden nicht gespeichert.",

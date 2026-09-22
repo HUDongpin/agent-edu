@@ -112,6 +112,33 @@ test("Lab drafts write only after edits, survive navigation, and stay cleared", 
     .toBeNull();
 });
 
+test("a damaged draft is reported and ignored, and Clear draft removes it without leaving the free step", async ({ page }) => {
+  const key = "ae.lab.draft.v1";
+  const draftOnDevice = () => page.evaluate((storageKey) => localStorage.getItem(storageKey), key);
+  await page.goto("/en/lab/");
+  await page.evaluate((storageKey) => localStorage.setItem(storageKey, "{broken"), key);
+  await page.reload();
+
+  const status = page.locator(".labdraftbar [role=status]");
+  await expect(status).toHaveText(
+    "the saved draft on this device could not be read and was ignored; Clear draft removes it",
+  );
+  await expect(page.locator('.steps [role="tab"]').nth(1)).toHaveAttribute("aria-selected", "true");
+  // Past the 400 ms save window: arriving wrote nothing, and the notice stayed.
+  await page.waitForTimeout(550);
+  expect(await draftOnDevice()).toBe("{broken");
+  await expect(status).toHaveText(
+    "the saved draft on this device could not be read and was ignored; Clear draft removes it",
+  );
+
+  await page.getByRole("button", { name: "Clear draft" }).click();
+  await expect.poll(draftOnDevice).toBeNull();
+  await expect(status).toHaveText("No local draft saved yet. Your first change will save on this device.");
+  await expect(page.locator('.steps [role="tab"]').nth(1)).toHaveAttribute("aria-selected", "true");
+  await page.waitForTimeout(550);
+  expect(await draftOnDevice()).toBeNull();
+});
+
 test("Lab cancellation, zero-score completion, privacy, and repeat announcements compose safely", async ({ page }) => {
   const learningKey = "ae.learning.v2";
   const reflectionPrediction = ["1", "7"].join("");

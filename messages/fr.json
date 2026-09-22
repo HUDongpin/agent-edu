@@ -274,6 +274,7 @@
   "lab.draft.waiting": "Aucun brouillon local n'est encore enregistré. Votre première modification sera sauvegardée sur cet appareil.",
   "lab.draft.unavailable": "le stockage local du brouillon est indisponible",
   "lab.draft.clear-failed": "le brouillon enregistré n'a pas pu être effacé",
+  "lab.draft.damaged": "le brouillon enregistré sur cet appareil n'a pas pu être lu et a été ignoré ; « Effacer le brouillon » le supprime",
   "lab.draft.note": "Cet appareil conserve dans localStorage votre étape actuelle, vos règles, le prompt complet et les ID des aperçus terminés, ainsi que jusqu'à vos deux dernières exécutions complètes de l'évaluation telles que leurs tableaux les affichent : commandes, verdicts et scores. Rien de cela n'inclut la clé API, qui reste uniquement dans le stockage de session de cet onglet, ni la facturation. Tout ce que vous collez dans les règles ou le prompt y est enregistré : n'y collez donc aucun secret. « Effacer le brouillon » supprime le brouillon et les exécutions enregistrées. Le code actuel du site n'envoie rien de tout cela à Analytics ; Analytics sur la même origine reste une frontière de confiance déclarée.",
   "lab.draft.clear": "Effacer le brouillon",
   "lab.draft.preview": "{done} ID d'aperçu sur {total} enregistrés localement ; les réponses des aperçus ne sont pas conservées.",

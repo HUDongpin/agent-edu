@@ -91,6 +91,44 @@ test("a first visit with no key opens on the free step, and does not persist a d
   assert.match(restore, /setStage\(draft\.stage\)/);
 });
 
+test("a stored draft the Lab cannot read is reported, and Clear opens where a first visit does", () => {
+  /* Pilot task C5 plants a malformed draft and asks the learner to notice it
+     was ignored and press Clear draft. The Lab used to greet that reader with
+     "No local draft saved yet", and unreadable rules fell back to the defaults
+     under a "saved at" status. Both now say the draft was ignored. */
+  const restore = source.slice(
+    source.indexOf("const draft = readLabDraft()"),
+    source.indexOf("setDraftReady(true)"),
+  );
+  assert.doesNotMatch(restore, /decodeLabRules\(draft\.rules\) \?\? freshLabRules\(\)/);
+  assert.match(restore, /if \(draft && restoredRules\)/);
+  assert.match(restore, /if \(draft \|\| labDraftDamaged\(\)\) setDraftProblem\("damaged"\);/);
+
+  /* Clear used to reset to step 1, the paid step, even without a key. Stage,
+     fingerprint and stored input must move together, or the cleared state
+     reads as an edit and a draft is written straight back. */
+  const clear = source.slice(source.indexOf("function clearDraft"), source.indexOf("function stopBatch"));
+  assert.match(clear, /const opening = getKey\(\) \? 0 : 1;/);
+  assert.match(clear, /draftFingerprint\(opening,/);
+  assert.match(clear, /stage: opening,/);
+  assert.match(clear, /setStage\(opening\);/);
+  assert.doesNotMatch(clear, /setStage\(0\)|stage: 0,|draftFingerprint\(0,/);
+
+  /* Unreadable rules now discard the whole draft, so the Lab must never write
+     one: an option without a value stores its visible text, which a page
+     translator can rewrite into a name the rules decoder rejects. */
+  assert.match(source, /<option key=\{m\} value=\{m\}>\{m\}<\/option>/);
+  assert.match(source, /rules\.length < MAX_LAB_RULES && Object\.prototype\.hasOwnProperty\.call\(MENU, ri\)/);
+
+  for (const locale of LOCALES) {
+    const messages = siteMessages(locale);
+    const damaged = messages["lab.draft.damaged"];
+    assert.ok(damaged?.trim(), `${locale}: lab.draft.damaged missing`);
+    assert.ok(damaged.includes(messages["lab.draft.clear"]),
+      `${locale}: lab.draft.damaged must name the button as it is labelled`);
+  }
+});
+
 test("the menu button is offered only once a baseline score exists", () => {
   /* Enabled from the moment a prompt was, it sat beside Run reading like the
      helpful one; pressing it first bought a good number with no baseline, so
