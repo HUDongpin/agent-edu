@@ -26,7 +26,7 @@ const JUDGE_PASS = JSON.stringify({ passes: true, why: "Meets the standard." });
 function chatCompletion(content: string) {
   return JSON.stringify({
     id: "mock-completion",
-    model: "deepseek-v4-flash",
+    model: "deepseek-flash",
     choices: [{ index: 0, finish_reason: "stop", message: { role: "assistant", content } }],
     usage: { prompt_tokens: 10, prompt_cache_hit_tokens: 0, prompt_cache_miss_tokens: 10, completion_tokens: 2, total_tokens: 12 },
   });
@@ -152,7 +152,7 @@ test("Lab cancellation, zero-score completion, privacy, and repeat announcements
   await page.route("https://api.deepseek.com/models", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
-    body: JSON.stringify({ data: [{ id: "deepseek-v4-flash" }] }),
+    body: JSON.stringify({ data: [{ id: "deepseek-flash" }] }),
   }));
   await page.route("https://api.deepseek.com/chat/completions", async (route) => {
     requestBodies.push(route.request().postDataJSON());
@@ -162,7 +162,7 @@ test("Lab cancellation, zero-score completion, privacy, and repeat announcements
       contentType: "application/json",
       body: JSON.stringify({
         id: "mock-completion",
-        model: "deepseek-v4-flash",
+        model: "deepseek-flash",
         choices: [{
           index: 0,
           finish_reason: "stop",
@@ -269,7 +269,7 @@ test("a failed eval keeps the cases it had already paid for, unscored and unsave
   await page.route("https://api.deepseek.com/models", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
-    body: JSON.stringify({ data: [{ id: "deepseek-v4-flash" }] }),
+    body: JSON.stringify({ data: [{ id: "deepseek-flash" }] }),
   }));
   await page.route("https://api.deepseek.com/chat/completions", async (route) => {
     const { said, judge } = caseOf(route);
@@ -340,7 +340,7 @@ test("a stopped eval keeps what it bought beside the score it did not replace", 
   await page.route("https://api.deepseek.com/models", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
-    body: JSON.stringify({ data: [{ id: "deepseek-v4-flash" }] }),
+    body: JSON.stringify({ data: [{ id: "deepseek-flash" }] }),
   }));
   await page.route("https://api.deepseek.com/chat/completions", async (route) => {
     const { said, judge } = caseOf(route);

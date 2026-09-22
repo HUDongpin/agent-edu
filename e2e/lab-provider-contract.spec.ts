@@ -47,7 +47,7 @@ function completion(
 ): Record<string, unknown> {
   return {
     id: "provider-contract-completion",
-    model: "deepseek-v4-flash",
+    model: "deepseek-flash",
     choices: [{
       index: 0,
       finish_reason: finishReason,
@@ -143,7 +143,7 @@ async function installProviderRoutes(
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ data: [{ id: "deepseek-v4-flash" }] }),
+      body: JSON.stringify({ data: [{ id: "deepseek-flash" }] }),
     });
   });
   await page.route(CHAT_ENDPOINT, async (route) => {

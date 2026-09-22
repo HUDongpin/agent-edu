@@ -13,7 +13,7 @@ import {
 } from "../lib/byok/client";
 import { ProviderError, type Msg } from "../lib/byok/types";
 
-const MODEL = "deepseek-v4-flash" as const;
+const MODEL = "deepseek-flash" as const;
 const OPTIONS = { model: MODEL, maxTokens: 250 };
 const MESSAGES = [{ role: "user" as const, content: "hello" }];
 

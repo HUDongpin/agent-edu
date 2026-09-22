@@ -57,9 +57,12 @@ observation as `fail`.
 ## Reconciliation
 
 The public-source precheck at
-`docs/release/evidence/provider-pricing-precheck-20260821.json` retrieved the
-official DeepSeek pricing page on 2026-08-21 and matched the repository's
-Flash/Pro peak/off-peak and cache hit/miss snapshot exactly. It does not pass
+`docs/release/evidence/provider-pricing-precheck-20260922.json` retrieved the
+official DeepSeek pricing page on 2026-09-22 and matched the repository's
+Flash/Pro peak/off-peak and cache hit/miss snapshot exactly, including the
+`deepseek-flash` rename and the weekday-only peak. The 2026-08-21 precheck it
+supersedes, `docs/release/evidence/provider-pricing-precheck-20260821.json`,
+is kept unedited as history. It does not pass
 the pricing row by itself: the release record must still bind the final target
 and reconcile those public rates with the actual requested/returned model IDs,
 aggregate usage and bounded Provider charge from the real canary.

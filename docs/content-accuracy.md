@@ -66,7 +66,7 @@ course where it can be dated, not in the handbook where it cannot.
 
 Credit where it is due — reuse these rather than inventing parallel machinery.
 
-- **`lib/byok/pricing.ts:16-41`** — DeepSeek prices as a *dated snapshot*, not
+- **`lib/byok/pricing.ts:16-42`** — DeepSeek prices as a *dated snapshot*, not
   an anonymous table: `checkedAt`, `sourceUrl`, and a comment saying release
   must re-check before shipping.
 - **`priceUsage` / `conservativePrice`** — every price the site quotes carries
@@ -192,7 +192,12 @@ nobody's contract:
   only a `baseURL` change.
 - `llm.ts:78` — DeepSeek **accepts `output_config.format` and silently
   ignores it**. The whole of stage 2's second lesson rests on this.
-- `llm.ts:74` — `deepseek-v4-flash` and `deepseek-v4-pro` are the current ids.
+- `llm.ts:74` — `deepseek-flash` and `deepseek-v4-pro` are the current ids.
+  Flash was renamed on 2026-09-10; `deepseek-v4-flash` is still accepted, but
+  its model is retired and the name routes to V4.1-Flash only temporarily. The
+  same announcement routed `deepseek-v4-pro` to V4.1-Flash from 2026-09-14; the
+  pricing page later kept Pro at its own rates, so which model answers it is
+  the `modelId` row's to settle.
 
 If DeepSeek starts honouring schemas, stage 2 does not merely go stale — it
 teaches a fallback the learner no longer needs, and `schemaFallback` starts
@@ -365,7 +370,7 @@ feel current is how a good course decays.
   because it now looks verified.
 - **Do not name a specific model in prose to sound current.** `llm.ts` names
   the Anthropic model in exactly one place and no document repeats it — that
-  is why the model can change in a one-line diff. `course/README.md:46` says
+  is why the model can change in a one-line diff. `course/README.md:53` says
   "or a Provider-supported model" rather than naming one. Keep it that way.
 - **Do not record live model output into fixtures.** `offline.ts` is
   synthesised on purpose. Recorded replies are stale the moment the model
