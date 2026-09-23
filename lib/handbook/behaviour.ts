@@ -47,8 +47,13 @@ function txt(s){ return document.createTextNode(s); }
    attribute and never the key the layout re-applies before paint. */
 (function(){
   const btn=$('#themeBtn'), modes=['auto','light','dark'];
-  let i=Math.max(0,modes.indexOf(document.documentElement.getAttribute('data-theme')||'auto'));
-  btn.textContent=C.t('w.theme.btn',{mode:C.t('w.theme.mode.'+modes[i])});
+  let i=0;
+  /* Re-read the attribute rather than trust the index this button last set: the
+     site's own toggle changes it from outside this file, and a remembered index
+     left the label naming a theme no longer in force and cycled on from there. */
+  const seed=()=>{ i=Math.max(0,modes.indexOf(document.documentElement.getAttribute('data-theme')||'auto'));
+    btn.textContent=C.t('w.theme.btn',{mode:C.t('w.theme.mode.'+modes[i])}); };
+  seed(); window.addEventListener('ae-theme',seed);
   btn.addEventListener('click',()=>{
     i=(i+1)%3; const m=modes[i];
     if (m==='auto') document.documentElement.removeAttribute('data-theme');
