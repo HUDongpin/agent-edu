@@ -75,3 +75,26 @@ test("the two-learner dry run cannot be mistaken for the pilot", () => {
   assert.match(protocol, /Protocol version: `1\.4`/);
   assert.match(dryRun, /version 1\.4/);
 });
+
+test("the dry run fixes its two run conditions where the facilitator will read them", () => {
+  const dryRun = readFileSync("docs/release/pilot-dry-run.md", "utf8");
+
+  /* Both conditions decide what a C3 or C6 row means, so both belong in the
+     Frozen target, which is the part the facilitator fills in before
+     recruiting. Left to the day, one learner can be given a credential or a
+     prepared machine and the other not, and the two rows then describe
+     different tasks. */
+  const frozen = dryRun.slice(dryRun.indexOf("## Frozen target"), dryRun.indexOf("## Appendix A"));
+  assert.match(frozen, /Lab key: none/);
+  assert.match(frozen, /Learner machine: facilitator-supplied/);
+  assert.match(frozen, /Install\s+time is not part of `?C6`?/);
+
+  /* Keyless C3 is narrower than the protocol's C3, so it must say what
+     completion is, and must not read as a change to the release instrument. */
+  assert.match(dryRun, /No learner is given a Provider credential/);
+  assert.match(dryRun, /for this run only/i);
+  assert.match(dryRun, /deliberately not a\s+change to the protocol/);
+
+  /* C5 cannot be observed on a build that does not carry the notice. */
+  assert.match(dryRun, /git log -S lab\.draft\.damaged/);
+});
