@@ -89,7 +89,7 @@ from re-proposing them:
   That is placement, not absence, and §5.3 argues against moving it.
 - **"The live eval progress and the handbook widgets are probably silent to a
   screen reader."** Wrong. The Lab carries eleven live regions, including
-  `aria-atomic` on the result block, and `lib/handbook/behaviour.ts:170` gives
+  `aria-atomic` on the result block, and `lib/handbook/behaviour.ts:175` gives
   thirteen output sinks `aria-live` and `aria-atomic`, with the graph log getting
   `aria-relevant` so it reads as additions rather than re-reading itself.
   Announcement of dynamic output is deliberate and thorough.
@@ -525,11 +525,13 @@ untranslated file.
 #### D1 · The handbook ships a second theme button that discards the site's saved theme — high
 
 > **Landed** (`498d0c4b`). Seeded from the theme in force, labelled from that seed, persisted under the site's own key, and dispatching an event the site's toggle subscribes to, so the two controls agree while the page is open. Fixed in place; no id renamed, nothing reformatted.
+>
+> **Second leg landed.** Only the handbook-to-site direction was wired: the site's toggle notified its own React subscribers and never dispatched the event, so pressing it left the masthead label naming the previous theme and the next press cycled on from a stale index. The seed is now a function the `ae-theme` listener re-runs, and the site's toggle dispatches the event it already defined.
 
-`lib/handbook/behaviour.ts:49` declares the mode list and starts the cycle at
-index zero, so the masthead button always reads "auto" regardless of what the
+`lib/handbook/behaviour.ts:54` read the mode list and started the cycle at
+index zero, so the masthead button always read "auto" regardless of what the
 reader chose. Its handler only sets or removes the `data-theme` attribute; it
-never writes the key that `components/ThemeToggle.tsx:62` persists and that the
+never wrote the key that `components/ThemeToggle.tsx:62` persists and that the
 layout re-applies before paint.
 
 So a reader who chose dark on the home page opens the handbook, sees a control
@@ -709,7 +711,7 @@ swaps.
 
 > **Landed** (`6ae5828e`). Copy only. The verdict now credits the attack it actually stopped rather than the technique, and points at the three defences that exist because a better-written attack gets through.
 
-`lib/handbook/behaviour.ts:1493` decides the outcome with `const fooled=!on.label;`
+`lib/handbook/behaviour.ts:1498` decides the outcome with `const fooled=!on.label;`
 — a single boolean. Labelling the untrusted text as data makes the model immune
 no matter what else is off; turn only that toggle off and it is fooled every
 time. The verdict the reader sees says the attack was handled "because the text
