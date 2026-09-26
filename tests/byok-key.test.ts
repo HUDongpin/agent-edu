@@ -4,7 +4,7 @@ import { createKeyStore, type StorageLike } from "../lib/byok/key-store";
 import { createKeyVerifier } from "../lib/byok/key-verifier";
 import { ProviderError } from "../lib/byok/types";
 
-const MODEL = "deepseek-v4-flash" as const;
+const MODEL = "deepseek-flash" as const;
 
 class MemoryStorage implements StorageLike {
   readonly values = new Map<string, string>();

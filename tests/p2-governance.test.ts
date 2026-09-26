@@ -360,7 +360,7 @@ test("the external readiness precheck records blockers without mutating GitHub, 
 
 test("the official Provider pricing precheck matches the dated snapshot without claiming a real canary", () => {
   const evidenceText = readFileSync(
-    "docs/release/evidence/provider-pricing-precheck-20260821.json",
+    "docs/release/evidence/provider-pricing-precheck-20260922.json",
     "utf8",
   );
   const evidence = JSON.parse(evidenceText);
@@ -374,8 +374,9 @@ test("the official Provider pricing precheck matches the dated snapshot without 
   assert.equal(evidence.source.currency, DEEPSEEK_PRICING.currency);
   assert.equal(evidence.source.unitTokens, DEEPSEEK_PRICING.unitTokens);
   assert.deepEqual(evidence.source.peakUtc, DEEPSEEK_PRICING.peakUtc);
-  assert.deepEqual(evidence.models["deepseek-v4-flash"].offPeak, DEEPSEEK_PRICING.models["deepseek-v4-flash"].offPeak);
-  assert.deepEqual(evidence.models["deepseek-v4-flash"].peak, DEEPSEEK_PRICING.models["deepseek-v4-flash"].peak);
+  assert.deepEqual(evidence.source.peakWeekdaysUtc, DEEPSEEK_PRICING.peakWeekdaysUtc);
+  assert.deepEqual(evidence.models["deepseek-flash"].offPeak, DEEPSEEK_PRICING.models["deepseek-flash"].offPeak);
+  assert.deepEqual(evidence.models["deepseek-flash"].peak, DEEPSEEK_PRICING.models["deepseek-flash"].peak);
   assert.deepEqual(evidence.models["deepseek-v4-pro"].offPeak, DEEPSEEK_PRICING.models["deepseek-v4-pro"].offPeak);
   assert.deepEqual(evidence.models["deepseek-v4-pro"].peak, DEEPSEEK_PRICING.models["deepseek-v4-pro"].peak);
   assert.equal(evidence.repositoryComparison.snapshotCheckedAt, DEEPSEEK_PRICING.checkedAt);
@@ -390,6 +391,40 @@ test("the official Provider pricing precheck matches the dated snapshot without 
   assert.deepEqual(findSensitiveEvidenceText(evidenceText), []);
   assert.deepEqual(findSensitiveEvidence(evidence), []);
   assert.match(evidence.decision, /does not pass the release reconciliation/i);
+});
+
+test("every dated pricing precheck stays a pending, private record, and the superseded one keeps what it saw", () => {
+  const names = readdirSync(EVIDENCE_DIR)
+    .filter((name) => name.startsWith("provider-pricing-precheck-") && name.endsWith(".json"))
+    .sort();
+  assert.deepEqual(names, [
+    "provider-pricing-precheck-20260821.json",
+    "provider-pricing-precheck-20260922.json",
+  ]);
+  for (const name of names) {
+    const evidenceText = readFileSync(join(EVIDENCE_DIR, name), "utf8");
+    const evidence = JSON.parse(evidenceText);
+    assert.equal(evidence.schema, "agent-edu.provider-pricing-precheck.v1", name);
+    assert.equal(evidence.status, "official-public-pricing-match-live-reconciliation-pending", name);
+    assert.deepEqual(evidence.gateEffect, {
+      providerPricingReconciliationStatus: "pending",
+      statusChanged: false,
+      releaseAuthorized: false,
+    }, name);
+    assert.equal(Object.values(evidence.externalBoundaries).every((value) => value === false), true, name);
+    assert.equal(Object.values(evidence.privacy).every((value) => value === false), true, name);
+    assert.deepEqual(findSensitiveEvidenceText(evidenceText), [], name);
+    assert.deepEqual(findSensitiveEvidence(evidence), [], name);
+  }
+
+  // History, not a live binding: the 2026-08-21 record says what the page said then.
+  const superseded = JSON.parse(readFileSync(join(EVIDENCE_DIR, names[0]), "utf8"));
+  assert.equal(superseded.repositoryComparison.snapshotCheckedAt, "2026-08-21");
+  assert.deepEqual(superseded.models["deepseek-v4-flash"].offPeak, {
+    cacheHitInput: 0.007,
+    cacheMissInput: 0.22,
+    output: 0.66,
+  });
 });
 
 test("the native-review catalog manifest freezes all review inputs without substituting for signatures", () => {

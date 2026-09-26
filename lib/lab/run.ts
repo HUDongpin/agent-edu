@@ -27,7 +27,7 @@ export const LAB_RUN_MAX_WHY_LENGTH = 110;
 export const LAB_RUN_MAX_ORDER_LENGTH = 1_200;
 
 // Keyed by the Model union, so a model added there does not compile until it is listed here.
-const MODELS: Record<Model, true> = { "deepseek-v4-flash": true, "deepseek-v4-pro": true };
+const MODELS: Record<Model, true> = { "deepseek-flash": true, "deepseek-v4-pro": true };
 
 /* Whether this page load has saved a run. The billing ledger in lib/deepseek.ts
    lives exactly as long, and the Lab remounts on a client-side return, so a run
@@ -41,6 +41,18 @@ export function runSavedThisDocument(): boolean {
 
 function isModel(value: unknown): value is Model {
   return typeof value === "string" && Object.prototype.hasOwnProperty.call(MODELS, value);
+}
+
+/* This record first shipped on 2026-09-11, the day after DeepSeek retired the
+   model behind `deepseek-v4-flash` and routed the name to DeepSeek-V4.1-Flash,
+   so every run stored under it came from the model now called `deepseek-flash`. */
+const RETIRED_MODELS: Readonly<Record<string, Model>> = { "deepseek-v4-flash": "deepseek-flash" };
+
+function storedModel(value: unknown): Model | null {
+  if (isModel(value)) return value;
+  return typeof value === "string" && Object.prototype.hasOwnProperty.call(RETIRED_MODELS, value)
+    ? RETIRED_MODELS[value]
+    : null;
 }
 
 export interface StoredRow {
@@ -117,12 +129,13 @@ const passing = (rows: readonly StoredRow[]) => rows.filter((row) => row.ok).len
 export function decodeLabRun(value: unknown, caseIds: readonly string[]): LabRunV1 | null {
   if (!value || typeof value !== "object" || Array.isArray(value) || caseIds.length === 0) return null;
   const run = value as Record<string, unknown>;
-  const { model, prevModel } = run;
+  const model = storedModel(run.model);
+  const { prevModel } = run;
   const rows = decodeRows(run.rows, caseIds, false);
   const prevRows = decodeRows(run.prevRows, caseIds, true);
   if (
     run.version !== 1 ||
-    !isModel(model) ||
+    model === null ||
     rows === null ||
     prevRows === null ||
     run.score !== passing(rows) ||
@@ -136,8 +149,8 @@ export function decodeLabRun(value: unknown, caseIds: readonly string[]): LabRun
   if (prevRows.length === 0) {
     if (run.prev !== null || prevModel !== null) return null;
   } else {
-    if (run.prev !== passing(prevRows) || !isModel(prevModel)) return null;
-    previousModel = prevModel;
+    previousModel = storedModel(prevModel);
+    if (run.prev !== passing(prevRows) || previousModel === null) return null;
   }
 
   return {

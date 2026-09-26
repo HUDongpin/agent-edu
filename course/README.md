@@ -62,7 +62,7 @@ The differences that *don't* vanish are the interesting part, and all of them li
 | structured outputs | native — the reply **cannot** be the wrong shape | **accepted and silently ignored.** You get prose. `llm.ts` asks in the prompt and validates the answer itself |
 | "think harder" | `output_config.effort` | `thinking: {type:"disabled"}` — and left on with a small `max_tokens`, it spends the whole budget thinking and returns an **empty string with no error** |
 | token counting | counts your text | counts the whole request, ~83 tokens of scaffolding included, so `llm.ts` subtracts the floor |
-| price | flat in this course snapshot | Flash/Pro, cache hit/miss and output use the dated shared table; peak windows are 01:00–04:00 and 06:00–10:00 UTC |
+| price | flat in this course snapshot | Flash/Pro, cache hit/miss and output use the dated shared table; peak windows are 01:00–04:00 and 06:00–10:00 UTC, Monday to Friday; weekends are off-peak |
 
 This is what a provider abstraction is actually for. Not "swap the URL" — anyone can do that. It is knowing which of your assumptions were really vendor behaviour, and the only way to find out is to run the same suite against two of them.
 

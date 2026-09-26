@@ -42,7 +42,7 @@ const rows = [
 ];
 const at = () => new Date("2026-09-11T08:00:00.000Z");
 const stored = (row: (typeof rows)[number]) => ({ id: row.id, order: row.order, ok: row.ok, why: row.ok ? "" : row.why });
-const flash = "deepseek-v4-flash" as const;
+const flash = "deepseek-flash" as const;
 const pro = "deepseek-v4-pro" as const;
 const firstRun = { model: flash, score: 1, rows, prevModel: null, prev: null, prevRows: [] };
 const storedFirstRun = {
@@ -109,6 +109,17 @@ test("a run's model must be one the Lab offers", () => {
   assert.equal(decodeLabRun({ ...storedFirstRun, model: "gpt-5" }, ids), null);
   assert.equal(decodeLabRun({ ...storedFirstRun, model: undefined }, ids), null);
   assert.equal(decodeLabRun({ ...storedTwoRuns, prevModel: "deepseek-v3" }, ids), null);
+});
+
+test("a run stored under the retired Flash name is restored as the model that produced it", () => {
+  const legacy = decodeLabRun({ ...storedTwoRuns, model: "deepseek-v4-flash", prevModel: "deepseek-v4-flash" }, ids);
+  assert.ok(legacy);
+  assert.equal(legacy.model, flash);
+  assert.equal(legacy.prevModel, flash);
+  const mixed = decodeLabRun({ ...storedTwoRuns, model: pro, prevModel: "deepseek-v4-flash" }, ids);
+  assert.ok(mixed, "a valid Pro run is not dropped for its predecessor's old name");
+  assert.equal(mixed.model, pro);
+  assert.equal(mixed.prevModel, flash);
 });
 
 test("a stored run must match the live eval set exactly, or it is not restored at all", () => {
