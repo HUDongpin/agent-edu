@@ -50,8 +50,8 @@ checking the result. Keeping the score is what costs work, and keeping the score
 both configurations and scoring both against the same saved set.
 
 So the change in thinking this course is responsible for is this. **A price is not a number; it is
-four numbers and a clock** — cache-hit input, cache-miss input, output, and the UTC hour the call
-happened in. And a saving is not a saving until an evaluation says the score survived it. A reader
+four numbers and a clock** — cache-hit input, cache-miss input, output, and the UTC weekday and
+hour the call happened in. And a saving is not a saving until an evaluation says the score survived it. A reader
 who finishes should be unable to say "we moved to the cheap model and it is fine" without
 immediately reaching for a number.
 
@@ -193,11 +193,11 @@ stacked bar of the four buckets that redraws as any input moves.
 The teaching is in the ceilings, and every one is arithmetic on the shipped table, so the reader
 can check them:
 
-- Pro over Flash is exactly 3× on cache-miss input and on output, within either band.
+- Pro over Flash is 4.4× on cache-miss input and 3.3× on output, within either band.
 - Peak over off-peak is exactly 2× on every bucket of both models.
-- A cache miss is 31.43× a cache hit on Flash, and 30× on Pro.
+- A cache miss is 50× a cache hit on Flash, and 30× on Pro.
 - The widest input spread in the table — Pro at peak, all misses, against Flash off-peak, all
-  hits — is 188.57×. The widest output spread is 6×.
+  hits — is 440×. The widest output spread is 6.6×.
 
 The conclusion is derived by the reader rather than announced: **if the bill is mostly output,
 configuration alone cannot reach ten times.** The remaining factor has to come from generating
@@ -206,9 +206,9 @@ shape of the prompt, not the choice of model. This is where the blurb's "ten tim
 honestly instead of asserted.
 
 **The clock is a lever the reader can pull, and the earlier draft was wrong to say otherwise.**
-`priceBandAt` reads the UTC hour of the call's own timestamp and the ledger prices each call at
-`result.createdAt`. Peak is 01:00–04:00 and 06:00–10:00 UTC, so **fifteen of the twenty-four hours
-are off-peak**, and a reader who runs step 3 outside those windows pays half. It is pulled with a
+`priceBandAt` reads the UTC weekday and hour of the call's timestamp and the ledger prices each call at
+`result.createdAt`. Peak is 01:00–04:00 and 06:00–10:00 UTC on weekdays, so **seventeen of a weekday's
+hours and all of a weekend are off-peak**, and a reader who runs step 3 outside the windows pays half. It is pulled with a
 clock rather than a config, which is exactly why it is worth teaching — and it is why the cost
 record must carry the band each run landed in. Two runs in different bands are not comparable, and
 a record that omits the band cannot be read six weeks later. Note also that `conservativePrice`
@@ -271,7 +271,7 @@ Because `billingSnapshot()` yields one summed figure per run with no per-role sp
 generator and judge spend separately.
 
 **Equal terms is a first-class requirement, not a footnote.** The second run's prompt prefix is
-warm, and `usageFromResponse` reads `prompt_cache_hit_tokens` into a bucket priced at 1/31.43 of a
+warm, and `usageFromResponse` reads `prompt_cache_hit_tokens` into a bucket priced at 1/50 of a
 miss on Flash. Whatever share of run B arrives as hits is a saving with no relation to the
 configuration change, and it can be the largest single term in the ratio the course exists to
 teach. The house register forbids exactly this — "Do not compare a warm after-build against a cold
@@ -297,7 +297,7 @@ Six outcomes, all of them completions:
 Journey totals: **1 + 28 + 28 = 57 calls and 15,450 capped output tokens**, against the Lab's 60
 and 16,350. The comparison worth printing in the call-plan disclosure is the model-independent
 one: **fewer calls and a lower output ceiling than the Lab, at the same model.** Keep the dollar
-claim out of it — a Pro baseline here against a Flash Lab journey costs three times more on
+claim out of it — a Pro baseline here against a Flash Lab journey costs 3.3 times more on
 output, so the absolute figure is not a fact about this course.
 
 ---
@@ -481,7 +481,7 @@ model. What remains is genuinely open.
 3. **Does the cache lever stay arithmetic, or become an observation?** Nothing in this repository
    writes `cache_control`; the hit/miss split arrives from the provider and `usageFromResponse` only
    trusts it when hit plus miss equals `prompt_tokens`. So the reader cannot be told how to *cause*
-   a cache hit. Either the 31.43× stays in step 2 as a ratio they cannot reproduce, or step 3
+   a cache hit. Either the 50× stays in step 2 as a ratio they cannot reproduce, or step 3
    reports observed cache-hit tokens across twenty-eight same-prefix calls and treats "none
    appeared" as a valid, recordable result. The second is more honest and more expensive — and note
    that step 3 now records the cache-hit share regardless, for the equal-terms rule, so the data is
@@ -496,10 +496,10 @@ ceiling or a past fact. `conservativePrice` is an upper bound built from peak ra
 and unspent output caps; `priceUsage` describes calls that have already happened. Neither is a
 prediction, and the copy must never let one read as one.
 
-Prices date, and this one is dated on purpose. `checkedAt` is `2026-08-21`, pinned by three tests
+Prices date, and this one is dated on purpose. `checkedAt` is `2026-09-22`, pinned by three tests
 and bound to a release canary row. Every absolute dollar figure written into course prose becomes a
-maintenance liability the day the snapshot moves. **Prefer ratios in the copy:** 3×, 2×, 31.43×
-survive a table that scales; a five-decimal dollar figure does not.
+maintenance liability the day the snapshot moves. **Prefer ratios in the copy:** 3.3×, 2×, 50×
+survive a table that scales evenly; a five-decimal dollar figure does not.
 
 One provider, two models, one currency, one cache-split shape. This is not a model-selection course
 and cannot be turned into one without widening the table, and the table cannot be widened without

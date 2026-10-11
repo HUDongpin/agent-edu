@@ -17,7 +17,7 @@ the author cannot re-verify at implementation time should be treated as drifted.
 
 The reader arrives having been told, correctly and repeatedly, that a gate must exist. The
 Handbook's harness section weights the permission gate heaviest of six parts — 30 of 100, in
-`PARTS` at `lib/handbook/behaviour.ts:1256` — and attaches the failure story:
+`PARTS` at `lib/handbook/behaviour.ts:1261` — and attaches the failure story:
 `w.harness.part.gate.fail` reads "It read the unit as kilograms and ordered 1,000 kg of
 beans — $41,200 — and nobody was asked." Build's stage 6 makes the reader write that gate as
 an `if` in the tool runner, and supplies the sentence the whole site rests on: "A model can be
@@ -467,10 +467,10 @@ remains is genuinely open.
    to carry a second rule.
 
 **Closed, and recorded here so it is not reopened:** this course does **not** get a brief in the
-Control Room. `lib/handbook/behaviour.ts:1713` reads `deck=shuffle(BRIEFS.slice()).slice(0,10)`
+Control Room. `lib/handbook/behaviour.ts:1718` reads `deck=shuffle(BRIEFS.slice()).slice(0,10)`
 — ten of fourteen, sampled at random — so a fifteenth brief would lower every brief's appearance
 rate from 10/14 to 10/15 while leaving the round counter correct. That alone would be tolerable.
-The decisive fact is one line earlier: `ORDER` at `lib/handbook/behaviour.ts:1661` is
+The decisive fact is one line earlier: `ORDER` at `lib/handbook/behaviour.ts:1666` is
 `['code','prompt','context','loop','graph','harness','evals','security']` — the answer set has
 eight entries, so a brief whose correct answer is "human in the loop" cannot exist without a
 ninth Handbook discipline. That would be a twelfth section, which moves `HANDBOOK_SECTION_IDS`

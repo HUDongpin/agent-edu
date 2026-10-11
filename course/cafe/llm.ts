@@ -71,7 +71,7 @@ export const PROVIDERS: Record<string, Provider> = {
     label: "DeepSeek",
     env: "DEEPSEEK_API_KEY",
     baseURL: "https://api.deepseek.com/anthropic",
-    model: "deepseek-v4-flash",
+    model: "deepseek-flash",
     // Flash and Pro pricing come from lib/byok/pricing.ts, the same dated
     // source used by the browser Lab. Keeping one snapshot prevents the CLI
     // from silently pricing a CAFE_MODEL=deepseek-v4-pro run as Flash.

@@ -142,7 +142,7 @@ function promptIncludesMenu(prompt: string): boolean {
 export default function Lab() {
   const { t, locale } = useI18n();
   const [stage, setStage] = useState(0);
-  const [model, setModel] = useState<Model>("deepseek-v4-flash");
+  const [model, setModel] = useState<Model>("deepseek-flash");
   const billing = useSyncExternalStore(
     subscribeBilling,
     billingSnapshot,

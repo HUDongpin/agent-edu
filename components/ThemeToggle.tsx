@@ -64,6 +64,10 @@ export default function ThemeToggle() {
           /* private browsing: the choice just won't persist */
         }
         for (const fn of watchers) fn();
+        /* And the event, which `watchers` does not reach: the Handbook's
+           masthead button sets the same attribute from outside React, and
+           until it hears this it keeps a label naming the previous theme. */
+        dispatchEvent(new Event(THEME_CHANGED));
       }}
     >
       <span aria-hidden="true">{dark === null ? "◐" : dark ? "☀" : "☾"}</span>
