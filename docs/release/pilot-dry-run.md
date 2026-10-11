@@ -42,7 +42,9 @@ It cannot conclude:
 - any rate, ratio, percentage, threshold or pass/fail for the release;
 - that a task is *not* a blocker, because two learners finding nothing is not
   evidence of absence;
-- anything about a build other than the frozen one named below.
+- anything about a build other than the frozen one named below;
+- anything about the Lab's paid path or about installing the toolchain, neither
+  of which this run exercises — see the fixed conditions under "Tasks".
 
 ## Participants
 
@@ -67,6 +69,42 @@ pilot.
 Run `C1`–`C6` with both learners, and the teacher path with `T1`. `X-A` and
 `X-B` are optional at this scale; run them only if `C1`–`C6` produced few
 findings.
+
+Two conditions are fixed below rather than left to the day. Both learners meet
+the same ones, or their rows describe different tasks.
+
+### C3 runs without a key
+
+No learner is given a Provider credential, and none is asked for one. The Lab's
+paid steps stay locked, so the scored journey C3 names is not on offer: what a
+keyless reader gets is the scripted run, a fixed recording that does not use
+the prompt they wrote. Record C3 as complete, **for this run only**, when the
+learner writes at least one rule on the wall, writes a prompt, opens the
+scripted run, and explains why the cases failed without the menu and what
+changed once it was there.
+
+That is a narrower task than the protocol's C3, and it is deliberately not a
+change to the protocol: version 1.4 still reads as it does, and whether the
+six-learner pilot runs C3 with a credential is still open. Informing that
+decision is one of the things this dry run is for. Keyless buys the rest of the
+journey for nothing, keeps credentials out of a session whose consent sheet
+promises none are recorded, and cannot trip the unexpected-charge stop rule.
+What it cannot do is tell anyone whether the paid path works for a real
+learner; that needs its own run, before the pilot, with a low-limit credential
+the facilitator owns and revokes.
+
+### C6 runs on a prepared machine
+
+C6 is the transfer from a website to the learner's own machine, not the
+installation of a toolchain. The facilitator supplies the machine, with Node
+24.x and Git installed, the repository cloned at the commit under test and
+`npm ci` already run. Install time is not part of C6.
+
+Left to the learner, the install is several hundred megabytes; on venue
+wireless it can pass the ten-minute Blocker rule on its own, and the row would
+then record a blocker about broadband rather than about the course. Whether a
+beginner can install Node at all is a real question, and a different one: two
+learners is not how it gets answered.
 
 ## Recording
 
@@ -93,8 +131,17 @@ Fill in before recruiting, and do not change mid-run:
 - Deployment under test:
 - Dry-run date:
 - Facilitator:
+- Lab key: none. Both learners run keyless — see "C3 runs without a key".
+- Learner machine: facilitator-supplied, Node 24.x and Git installed,
+  repository cloned at the commit under test, `npm ci` already run. Install
+  time is not part of C6.
 - Local custodian and storage location:
 - Participant-row deletion deadline:
+
+C5 stages a damaged local draft and asks the learner to notice that it was
+ignored. The Lab only says so from the commit that added `lab.draft.damaged`,
+so check the commit under test carries it — `git log -S lab.draft.damaged` —
+or C5 measures the facilitator instead of the product.
 
 ## Appendix A — consent sheet
 
@@ -140,9 +187,10 @@ runnable at all.
 | Check | Command | Covers |
 |---|---|---|
 | The offline path needs no credential | `npm run course:offline` | `C6` |
+| Stage 0 itself completes offline | fill `QUESTION` in the prepared clone, then `npx tsx course/check.ts 0 --offline` | `C6` |
 | The site builds and exports | `npm run build` | every task |
 | Routes and artifacts are present | `npm run routes:check` | `C1` |
-| The Lab's scripted run exists for a keyless reader | `npm test` (`tests/lab-integration.test.ts`) | `C3` |
+| The Lab's scripted run exists for a keyless reader | `node --import tsx --test tests/lab-integration.test.ts` | `C3` |
 
 On 2026-09-20, against commit `93e0a3d8`, `npm run course:offline` reported
 `no API key is required`, `the scripted local response is available` and
