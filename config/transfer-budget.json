@@ -36,12 +36,12 @@
       }
     },
     "lab": {
-      "total": 202962,
+      "total": 208694,
       "byKind": {
-        "document": 11053,
-        "script": 169063,
-        "stylesheet": 14608,
-        "payload": 7938,
+        "document": 11397,
+        "script": 174174,
+        "stylesheet": 14800,
+        "payload": 8023,
         "other": 300
       }
     },

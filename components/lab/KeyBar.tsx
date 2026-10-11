@@ -237,7 +237,7 @@ export default function KeyBar({
           }}
           disabled={disabled || verifying}
         >
-          <option value="deepseek-v4-flash">{t("lab.modelFast")}</option>
+          <option value="deepseek-flash">{t("lab.modelFast")}</option>
           <option value="deepseek-v4-pro">{t("lab.modelSmart")}</option>
         </select>
         {has && (

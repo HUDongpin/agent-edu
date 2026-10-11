@@ -1,0 +1,107 @@
+{
+  "schema": "agent-edu.provider-pricing-precheck.v1",
+  "status": "official-public-pricing-match-live-reconciliation-pending",
+  "retrievedAtUtc": "2026-09-22T15:41:31Z",
+  "source": {
+    "publisher": "DeepSeek",
+    "title": "Models & Pricing",
+    "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+    "pageLastModifiedUtc": "2026-09-19T05:26:05Z",
+    "announcementUrl": "https://api-docs.deepseek.com/news/news260910",
+    "currency": "USD",
+    "unitTokens": 1000000,
+    "peakUtc": [
+      {
+        "startHour": 1,
+        "endHour": 4
+      },
+      {
+        "startHour": 6,
+        "endHour": 10
+      }
+    ],
+    "peakWeekdaysUtc": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "peakExclusions": "Chinese public holidays are off-peak in full at the source; the snapshot cannot know them and prices them as peak, which only overstates."
+  },
+  "models": {
+    "deepseek-flash": {
+      "modelVersion": "DeepSeek-V4.1-Flash",
+      "legacyNames": [
+        "deepseek-v4-flash",
+        "deepseek-v4-flash-vision-exp"
+      ],
+      "offPeak": {
+        "cacheHitInput": 0.003,
+        "cacheMissInput": 0.15,
+        "output": 0.6
+      },
+      "peak": {
+        "cacheHitInput": 0.006,
+        "cacheMissInput": 0.3,
+        "output": 1.2
+      }
+    },
+    "deepseek-v4-pro": {
+      "modelVersion": "DeepSeek-V4-Pro-0813",
+      "offPeak": {
+        "cacheHitInput": 0.022,
+        "cacheMissInput": 0.66,
+        "output": 1.98
+      },
+      "peak": {
+        "cacheHitInput": 0.044,
+        "cacheMissInput": 1.32,
+        "output": 3.96
+      }
+    }
+  },
+  "changesSincePrecheck20260821": [
+    "Flash was renamed deepseek-flash and moved to DeepSeek-V4.1-Flash; the page says the legacy names are still accepted but their models are retired, and the announcement says they route there temporarily.",
+    "Flash rates fell, effective 04:00 UTC on 2026-09-10 per the announcement.",
+    "The snapshot now models the page's Monday-to-Friday peak rule; weekends and Chinese public holidays are off-peak in full. The 2026-08-21 record captured no weekday rule, and this record does not establish when the rule began.",
+    "Pro: the pricing page lists deepseek-v4-pro as DeepSeek-V4-Pro-0813 at unchanged rates. The announcement says all deepseek-v4-pro requests route to V4.1-Flash at Flash rates from 04:00 UTC on 2026-09-14 until V4.1-Pro launches. Archived copies of the pricing page from 2026-09-11 16:55 UTC to 2026-09-17 carried a note reversing that (service continues after 2026-09-14 with billing unchanged); the live page no longer carries it. The snapshot keeps the page's Pro rates, which can only overstate a Pro run."
+  ],
+  "repositoryComparison": {
+    "snapshotFile": "lib/byok/pricing.ts",
+    "snapshotCheckedAt": "2026-09-22",
+    "sourceUrlMatches": true,
+    "currencyAndUnitMatch": true,
+    "peakWindowsMatch": true,
+    "peakWeekdaysMatch": true,
+    "flashModelIdMatches": true,
+    "flashRatesMatch": true,
+    "proRatesMatch": true,
+    "allComparedFieldsMatch": true
+  },
+  "gateEffect": {
+    "providerPricingReconciliationStatus": "pending",
+    "statusChanged": false,
+    "releaseAuthorized": false
+  },
+  "externalBoundaries": {
+    "realProviderCallPerformed": false,
+    "requestedModelIdObserved": false,
+    "returnedModelIdObserved": false,
+    "usageObserved": false,
+    "billingConsoleObserved": false,
+    "previewCorsObserved": false,
+    "credentialLifecycleObserved": false
+  },
+  "privacy": {
+    "containsCredentials": false,
+    "containsAuthorizationOrCookies": false,
+    "containsSignedOrBypassUrls": false,
+    "containsPrompts": false,
+    "containsModelReplies": false,
+    "containsProviderBodies": false,
+    "containsBillingAccountDetails": false,
+    "containsScreenshotsOrTraces": false
+  },
+  "decision": "The official public page matched every Flash/Pro rate, peak window, peak weekday rule, currency, unit and the renamed Flash model id in the dated repository snapshot. This precheck does not pass the release reconciliation: no authenticated GET /models was observed, so whether deepseek-flash is visible to a real key is unconfirmed; the official sources disagree on which model serves deepseek-v4-pro, which only the returned model id of a real call can settle; and requested/returned model IDs, aggregate usage, Provider billing, preview-origin CORS and credential revocation still require the bounded real canary."
+}

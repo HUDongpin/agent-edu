@@ -1,4 +1,4 @@
-export type Model = "deepseek-v4-flash" | "deepseek-v4-pro";
+export type Model = "deepseek-flash" | "deepseek-v4-pro";
 
 export interface Msg {
   role: "system" | "user" | "assistant";

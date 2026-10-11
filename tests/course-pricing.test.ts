@@ -206,14 +206,14 @@ test("aggregate token overflow becomes an unknown call instead of a rounded tota
 });
 
 test("the local course prices Flash and Pro through the shared DeepSeek snapshot", () => {
-  const flash = priceDeepSeekCourseUsage("deepseek-v4-flash", usage, "off-peak");
+  const flash = priceDeepSeekCourseUsage("deepseek-flash", usage, "off-peak");
   const pro = priceDeepSeekCourseUsage("deepseek-v4-pro", usage, "peak");
   assert.equal(flash.known, true);
   assert.equal(pro.known, true);
   if (!flash.known || !pro.known) return;
-  assert.equal(flash.usd, (200 * 0.007 + 800 * 0.22 + 100 * 0.66) / 1_000_000);
+  assert.equal(flash.usd, (200 * 0.003 + 800 * 0.15 + 100 * 0.6) / 1_000_000);
   assert.equal(pro.usd, (200 * 0.044 + 800 * 1.32 + 100 * 3.96) / 1_000_000);
-  assert.equal(pro.checkedAt, "2026-08-21");
+  assert.equal(pro.checkedAt, "2026-09-22");
 });
 
 test("unknown DeepSeek models and invalid token buckets stay unpriceable", () => {
@@ -306,14 +306,14 @@ test("the CLI meter makes a missing-usage response explicitly unpriceable", asyn
   const previousProvider = process.env.CAFE_PROVIDER;
   const previousModel = process.env.CAFE_MODEL;
   process.env.CAFE_PROVIDER = "deepseek";
-  process.env.CAFE_MODEL = "deepseek-v4-flash";
+  process.env.CAFE_MODEL = "deepseek-flash";
   try {
     const { meter, spend } = await import("../course/cafe/llm");
     meter({ content: [], usage: undefined });
     const summary = spend();
     assert.match(summary, /^1 call\(s\)/);
     assert.match(summary, /0 confirmed in \/ 0 confirmed out/);
-    assert.match(summary, /cost unknown on deepseek-v4-flash/);
+    assert.match(summary, /cost unknown on deepseek-flash/);
     assert.match(summary, /1 call\(s\) had missing, invalid, or unrecognised usage/);
     assert.doesNotMatch(summary, /\$0(?:\.0+)?/);
   } finally {
