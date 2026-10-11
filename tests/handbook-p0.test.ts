@@ -163,6 +163,15 @@ test("Control Room completion is recorded on the tenth submitted brief, not the 
   }
 });
 
+test("the score screen paints every answered brief, including the tenth", () => {
+  /* progress() paints i < at as hit or miss and i === at as the current pip.
+     finish() used to call it while at was still the last index, and #gProg
+     sits outside the stage that finish() hides, so the tenth dot stayed
+     "now" on the score screen after that brief had already been answered. */
+  const finish = behaviour.slice(behaviour.indexOf("function finish(){"));
+  assert.match(finish, /\$\('#gNext'\)\.hidden=true;\s*at=deck\.length;\s*progress\(\)/);
+});
+
 test("removed live-mode message keys stay removed in all nine locales", () => {
   for (const namespace of ["handbook", "widgets"]) {
     const files = readdirSync(`messages/${namespace}`).filter((file) => file.endsWith(".json"));

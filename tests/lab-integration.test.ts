@@ -354,6 +354,28 @@ test("the scripted run is offered only without a key, and never dressed as a mod
   }
 });
 
+test("the scripted before and after cells say pass or fail, not only by colour", () => {
+  /* Both columns rendered lab.kind (rule or judged) — the same word — and
+     distinguished a flip only with .pill.ok versus .pill.bad. A reader who
+     cannot use that colour contrast could not see which cases the menu fixed. */
+  const block = source.slice(source.indexOf("RECORDED_RUN.map"), source.indexOf("partialRows.length > 0"));
+  assert.match(block, /c\.before \? t\("lab\.s4\.pass"\) : t\("lab\.s4\.fail"\)/);
+  assert.match(block, /c\.after \? t\("lab\.s4\.pass"\) : t\("lab\.s4\.fail"\)/);
+  assert.doesNotMatch(block, /lab\.kind\.\$\{c\.kind\}/);
+
+  const english = siteMessages("en");
+  assert.notEqual(english["lab.s4.pass"], english["lab.s4.fail"]);
+  for (const locale of LOCALES) {
+    const messages = siteMessages(locale);
+    assert.ok(messages["lab.s4.pass"]?.trim(), `${locale}: lab.s4.pass missing`);
+    assert.ok(messages["lab.s4.fail"]?.trim(), `${locale}: lab.s4.fail missing`);
+    if (locale !== "en") {
+      assert.notEqual(messages["lab.s4.pass"], english["lab.s4.pass"], `${locale}: pass is still the English word`);
+      assert.notEqual(messages["lab.s4.fail"], english["lab.s4.fail"], `${locale}: fail is still the English word`);
+    }
+  }
+});
+
 test("the journey has an ending, and says what is not translated", () => {
   /* After roughly four hours the last thing that happened was a box the reader
      ticked themselves, under a line saying nothing here checks your work. True,

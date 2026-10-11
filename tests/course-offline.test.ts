@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { CASES } from "../lib/cafe/evalset";
-import { menuText } from "../lib/cafe/menu";
+import { MENU, menuText } from "../lib/cafe/menu";
 import {
   createOfflineClient,
   offlineJudge,
@@ -160,4 +160,17 @@ test("the stand-in recognises a menu the learner laid out their own way", () => 
     offlineOrder(asked, "You are the till at a small cafe. Be brief.", 0).items[0]?.price,
     5.1,
   );
+});
+
+test("the stand-in recognises a menu written with the stored one-decimal prices", () => {
+  /* MENU stores 4.2 and 5.1. Stringifying those values does not produce the
+     two decimal places menuText() prints. A detector that only counts
+     `\d+\.\d{2}` saw the names and none of the prices, treated the prompt as
+     having no menu, and invented a price for a large flat white. */
+  const asked = 'Customer said: "large flat white please"';
+  const ownPrices = Object.entries(MENU)
+    .map(([name, p]) => `${name}: small ${p.S}, large ${p.L}`)
+    .join("\n");
+  assert.match(ownPrices, /flat white: small 4\.2, large 5\.1/);
+  assert.equal(offlineOrder(asked, ownPrices, 0).items[0]?.price, 5.1);
 });

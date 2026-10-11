@@ -1804,6 +1804,7 @@ const RECALL={
     }
     e.innerHTML=h;
     $('#gNext').hidden=true;
+    at=deck.length;
     progress();
   }
   start();

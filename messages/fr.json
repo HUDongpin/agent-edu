@@ -342,6 +342,8 @@
   "lab.s4.thBefore": "Sans le menu",
   "lab.s4.recordedNote": "**Une exécution scriptée, pas un modèle.** Ces vingt verdicts viennent du substitut hors ligne du cours — un petit analyseur — exécuté une fois sans le menu dans le prompt, puis une fois avec. Il a obtenu {before}/20 puis {after}/20. Un vrai modèle démarre plutôt vers 7/20 et finit ailleurs à chaque fois : lisez donc les bascules, pas les totaux. Ce qui a changé, c'est qu'on lui a dit ce qu'il vendait.",
   "lab.s4.recordedCta": "Pas de clé ? Voir une exécution scriptée",
+  "lab.s4.pass": "réussi",
+  "lab.s4.fail": "échoué",
   "lab.kind.rule": "règle",
   "lab.kind.judge": "jugé",
   "lab.s1.q": "Expliquez ce qu'est une API à une personne qui n'a jamais programmé. Deux phrases.",
