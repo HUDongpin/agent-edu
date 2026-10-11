@@ -28,20 +28,20 @@ const USAGE: Usage = {
 };
 
 test("pricing snapshot is dated, sourced and complete for Flash and Pro", () => {
-  assert.equal(DEEPSEEK_PRICING.checkedAt, "2026-08-21");
+  assert.equal(DEEPSEEK_PRICING.checkedAt, "2026-09-22");
   assert.equal(
     DEEPSEEK_PRICING.sourceUrl,
     "https://api-docs.deepseek.com/quick_start/pricing/",
   );
-  assert.deepEqual(ratesForModel("deepseek-v4-flash", "off-peak"), {
-    cacheHitInput: 0.007,
-    cacheMissInput: 0.22,
-    output: 0.66,
+  assert.deepEqual(ratesForModel("deepseek-flash", "off-peak"), {
+    cacheHitInput: 0.003,
+    cacheMissInput: 0.15,
+    output: 0.6,
   });
-  assert.deepEqual(ratesForModel("deepseek-v4-flash", "peak"), {
-    cacheHitInput: 0.014,
-    cacheMissInput: 0.44,
-    output: 1.32,
+  assert.deepEqual(ratesForModel("deepseek-flash", "peak"), {
+    cacheHitInput: 0.006,
+    cacheMissInput: 0.3,
+    output: 1.2,
   });
   assert.deepEqual(ratesForModel("deepseek-v4-pro", "off-peak"), {
     cacheHitInput: 0.022,
@@ -64,11 +64,20 @@ test("peak windows use UTC boundaries from the approved snapshot", () => {
   assert.equal(priceBandAt(new Date("2026-08-21T10:00:00Z")), "off-peak");
 });
 
+test("peak is Monday to Friday only; a weekend is off-peak at every hour", () => {
+  assert.equal(priceBandAt(new Date("2026-09-19T07:00:00Z")), "off-peak"); // Saturday
+  assert.equal(priceBandAt(new Date("2026-09-20T02:30:00Z")), "off-peak"); // Sunday
+  assert.equal(priceBandAt(new Date("2026-09-21T01:00:00Z")), "peak"); // Monday
+  assert.equal(priceBandAt(new Date("2026-09-25T09:59:59Z")), "peak"); // Friday
+  // Provider `created` is Unix seconds; the weekday must survive that path too.
+  assert.equal(priceBandAt(Date.parse("2026-09-19T07:00:00Z") / 1_000), "off-peak");
+});
+
 test("actual cost uses cache hit, miss and output for the selected model and band", () => {
-  const flash = priceUsage("deepseek-v4-flash", USAGE, new Date("2026-08-21T00:00:00Z"));
+  const flash = priceUsage("deepseek-flash", USAGE, new Date("2026-08-21T00:00:00Z"));
   assert.equal(flash.known, true);
   assert.ok(flash.known);
-  assert.equal(flash.usd, 0.25 * 0.007 + 0.75 * 0.22 + 0.5 * 0.66);
+  assert.equal(flash.usd, 0.25 * 0.003 + 0.75 * 0.15 + 0.5 * 0.6);
 
   const proPeak = priceUsage("deepseek-v4-pro", USAGE, new Date("2026-08-21T06:00:00Z"));
   assert.equal(proPeak.known, true);
@@ -77,12 +86,12 @@ test("actual cost uses cache hit, miss and output for the selected model and ban
 });
 
 test("missing usage is unknown with null dollars, never known zero", () => {
-  const result = priceUsage("deepseek-v4-flash", undefined);
+  const result = priceUsage("deepseek-flash", undefined);
   assert.deepEqual(result, {
     known: false,
     usd: null,
     reason: "missing-usage",
-    model: "deepseek-v4-flash",
+    model: "deepseek-flash",
     sourceUrl: DEEPSEEK_PRICING.sourceUrl,
     checkedAt: DEEPSEEK_PRICING.checkedAt,
   });
@@ -108,13 +117,13 @@ test("billing ledger keeps a known subtotal and a separate unknown count", () =>
   const ledger = createBillingLedger();
   ledger.record({
     state: "usage-confirmed",
-    requestedModel: "deepseek-v4-flash",
+    requestedModel: "deepseek-flash",
     usage: USAGE,
     occurredAt: Date.parse("2026-08-21T00:00:00Z"),
   });
-  ledger.record({ state: "unknown-after-send", requestedModel: "deepseek-v4-flash" });
-  ledger.record({ state: "provider-rejected-no-usage", requestedModel: "deepseek-v4-flash" });
-  ledger.record({ state: "not-sent", requestedModel: "deepseek-v4-flash" });
+  ledger.record({ state: "unknown-after-send", requestedModel: "deepseek-flash" });
+  ledger.record({ state: "provider-rejected-no-usage", requestedModel: "deepseek-flash" });
+  ledger.record({ state: "not-sent", requestedModel: "deepseek-flash" });
 
   const snapshot = ledger.snapshot();
   assert.equal(snapshot.dispatchedCalls, 3);
@@ -134,7 +143,7 @@ test("billing ledger preserves usage attached to a ProviderError", () => {
     usage: USAGE,
     createdAt: Date.parse("2026-08-21T00:00:00Z") / 1_000,
   });
-  ledger.recordError(error, "deepseek-v4-flash");
+  ledger.recordError(error, "deepseek-flash");
   const snapshot = ledger.snapshot();
   assert.equal(snapshot.usageConfirmedCalls, 1);
   assert.equal(snapshot.usage.promptTokens, USAGE.promptTokens);

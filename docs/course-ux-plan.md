@@ -173,7 +173,7 @@ This is the highest-leverage small change in the document.
 
 #### A2 · The learner is asked to fund an account before any price is named — blocker
 
-> **Landed** (`c3671f27`). `lab.callPlan` carries a `{cost}` filled from the same conservative-price path the per-step disclosures use, summed over the three estimates the Lab already derives, so it cannot drift from them or from the dated snapshot. Reads "about $0.05 in total". All four disclosure paragraphs unchanged.
+> **Landed** (`c3671f27`). `lab.callPlan` carries a `{cost}` filled from the same conservative-price path the per-step disclosures use, summed over the three estimates the Lab already derives, so it cannot drift from them or from the dated snapshot. Read "about $0.05 in total" on the 2026-08-21 table, "about $0.04" on the 2026-09-22 one. All four disclosure paragraphs unchanged.
 
 At the moment of deciding whether to open a provider account and put money in
 it, the panel stacks four consecutive risk paragraphs — the call plan, the
