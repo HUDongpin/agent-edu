@@ -88,7 +88,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     if (!order.items.length) bad("it ordered nothing");
     ok(`a clear order parses: ${order.items[0]?.name}`);
     const seen = new Set<string>();
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       seen.add(JSON.stringify(await m.takeOrder("something warm for my kid, no coffee", i)));
     }
     record(2, { distinct: seen.size });

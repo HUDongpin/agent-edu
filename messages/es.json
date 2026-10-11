@@ -342,6 +342,8 @@
   "lab.s4.thBefore": "Sin el menú",
   "lab.s4.recordedNote": "**Una ejecución guionizada, no un modelo.** Estos veinte veredictos vienen del sustituto sin conexión del propio curso —un pequeño analizador— ejecutado una vez sin el menú en el prompt y otra con él. Sacó {before}/20 y luego {after}/20. Un modelo real empieza más cerca de 7/20 y acaba en un sitio distinto cada vez, así que fíjate en los cambios, no en los totales: lo que cambió es que se le dijo qué vendía.",
   "lab.s4.recordedCta": "¿Sin clave? Mira una ejecución guionizada",
+  "lab.s4.pass": "pasa",
+  "lab.s4.fail": "falla",
   "lab.kind.rule": "regla",
   "lab.kind.judge": "evaluado",
   "lab.s1.q": "Explica qué es una API a alguien que nunca ha programado. Dos frases.",

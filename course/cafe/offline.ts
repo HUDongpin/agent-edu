@@ -59,7 +59,7 @@ function menuIsPresent(system: string): boolean {
   if (/MENU \(name, small price, large price\)|flat white\s+S \$4\.20/i.test(system)) return true;
   const lower = system.toLowerCase();
   const named = Object.keys(MENU).filter((name) => lower.includes(name)).length;
-  const priced = (system.match(/\d+\.\d{2}/g) ?? []).length;
+  const priced = (system.match(/\d+\.\d{1,2}(?!\d)/g) ?? []).length;
   if (named >= 4 && priced >= 4) return true;
   if (system.trim()) {
     note("menu", "your prompt does not look like it carries the menu, so the stand-in " +

@@ -1148,8 +1148,8 @@ export default function Lab() {
                       <tr key={c.id}>
                         <td className="mono"><bdi>{c.id}</bdi></td>
                         <td className="mono"><bdi>{c.said}</bdi></td>
-                        <td><span className={"pill " + (c.before ? "ok" : "bad")}>{t(`lab.kind.${c.kind}`)}</span></td>
-                        <td><span className={"pill " + (c.after ? "ok" : "bad")}>{t(`lab.kind.${c.kind}`)}</span></td>
+                        <td><span className={"pill " + (c.before ? "ok" : "bad")}>{c.before ? t("lab.s4.pass") : t("lab.s4.fail")}</span></td>
+                        <td><span className={"pill " + (c.after ? "ok" : "bad")}>{c.after ? t("lab.s4.pass") : t("lab.s4.fail")}</span></td>
                         <td className="small"><bdi>{c.why.slice(0, 110)}</bdi></td>
                       </tr>
                     ))}</tbody>

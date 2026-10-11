@@ -342,6 +342,8 @@
   "lab.s4.thBefore": "Ohne Menü",
   "lab.s4.recordedNote": "**Ein Skriptlauf, kein Modell.** Diese zwanzig Urteile stammen vom Offline-Ersatz des Kurses — einem kleinen Parser — einmal ohne Menü im Prompt ausgeführt und einmal damit. Er kam auf {before}/20 und dann {after}/20. Ein echtes Modell startet eher bei 7/20 und landet jedes Mal woanders; lies also die Wechsel, nicht die Summen. Geändert hat sich, dass ihm gesagt wurde, was es verkauft.",
   "lab.s4.recordedCta": "Kein Schlüssel? Einen Skriptlauf ansehen",
+  "lab.s4.pass": "bestanden",
+  "lab.s4.fail": "verfehlt",
   "lab.kind.rule": "Regel",
   "lab.kind.judge": "beurteilt",
   "lab.s1.q": "Erklären Sie einer Person, die noch nie programmiert hat, was eine API ist. Zwei Sätze.",

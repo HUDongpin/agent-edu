@@ -169,3 +169,17 @@ test("the transfer stage ships a worked example, scored honestly", () => {
   assert.match(readFileSync("course/stage9-project/README.md", "utf8"), /worked-example\.md/);
   assert.match(readFileSync("course/README.md", "utf8"), /worked-example\.md/);
 });
+
+test("stage 2 records distinct answers from the five probes the report names", () => {
+  /* Stage 2's own runner and its README ask the vague question five times.
+     The grader asked it three times and stored that count, while the report
+     card always printed "from 5 identical questions". Three distinct answers
+     out of three samples was reported as if five had been asked. */
+  const check = readFileSync("course/check.ts", "utf8");
+  const stage2 = check.slice(check.indexOf("async 2("), check.indexOf("async 3("));
+  const bound = /for \(let i = 0; i < (\d+); i\+\+\)/.exec(stage2);
+  assert.ok(bound, "stage 2 must probe the vague question in a counted loop");
+  assert.equal(bound[1], "5");
+  const report = readFileSync("course/report.ts", "utf8");
+  assert.match(report, new RegExp(`distinct answers from ${bound[1]} identical questions`));
+});

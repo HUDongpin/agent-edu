@@ -342,6 +342,8 @@
   "lab.s4.thBefore": "Without the menu",
   "lab.s4.recordedNote": "**A scripted run, not a model.** These twenty verdicts come from the course's own offline stand-in — a small parser, run once without the menu in the prompt and once with it. It scored {before}/20 and then {after}/20. A real model starts nearer 7/20 and lands somewhere different every time, so read the flips, not the totals: what changed is that it was told what it was selling.",
   "lab.s4.recordedCta": "No key? Show a scripted run instead",
+  "lab.s4.pass": "pass",
+  "lab.s4.fail": "fail",
   "lab.kind.rule": "rule",
   "lab.kind.judge": "judged",
   "lab.s1.q": "Explain what an API is, to someone who has never written code. Two sentences.",
