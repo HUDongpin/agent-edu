@@ -22,16 +22,17 @@ export interface ModelPrice {
 export const DEEPSEEK_PRICING = {
   currency: "USD",
   unitTokens: 1_000_000,
-  checkedAt: "2026-08-21",
+  checkedAt: "2026-09-22",
   sourceUrl: "https://api-docs.deepseek.com/quick_start/pricing/",
   peakUtc: [
     { startHour: 1, endHour: 4 },
     { startHour: 6, endHour: 10 },
   ],
+  peakWeekdaysUtc: [1, 2, 3, 4, 5], // Monday to Friday, in getUTCDay() numbering
   models: {
-    "deepseek-v4-flash": {
-      offPeak: { cacheHitInput: 0.007, cacheMissInput: 0.22, output: 0.66 },
-      peak: { cacheHitInput: 0.014, cacheMissInput: 0.44, output: 1.32 },
+    "deepseek-flash": {
+      offPeak: { cacheHitInput: 0.003, cacheMissInput: 0.15, output: 0.6 },
+      peak: { cacheHitInput: 0.006, cacheMissInput: 0.3, output: 1.2 },
     },
     "deepseek-v4-pro": {
       offPeak: { cacheHitInput: 0.022, cacheMissInput: 0.66, output: 1.98 },
@@ -67,7 +68,16 @@ function dateFrom(value: Date | number): Date {
 }
 
 export function priceBandAt(value: Date | number = Date.now()): PriceBand {
-  const hour = dateFrom(value).getUTCHours();
+  const at = dateFrom(value);
+  // Both windows fall on the same calendar day in Beijing, so the UTC weekday
+  // is DeepSeek's weekday. Chinese public holidays are off-peak as well, but
+  // nothing here can know them; they stay priced as peak, which can only
+  // overstate a cost, never hide one.
+  const day = at.getUTCDay();
+  if (!DEEPSEEK_PRICING.peakWeekdaysUtc.some((weekday) => weekday === day)) {
+    return "off-peak";
+  }
+  const hour = at.getUTCHours();
   return DEEPSEEK_PRICING.peakUtc.some(({ startHour, endHour }) => (
     hour >= startHour && hour < endHour
   )) ? "peak" : "off-peak";
