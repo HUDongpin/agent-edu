@@ -922,7 +922,7 @@ td.mono{font-family:var(--mono);font-size:12px}
 .hb .emailcard{font-family:var(--mono);font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;
   border:1.5px solid var(--line-2);border-radius:var(--r);padding:14px 16px;background:var(--surface-2);color:var(--ink)}
 .hb .emailcard .inj{display:block;background:var(--red-soft);border-inline-start:4px solid var(--red);
-  color:var(--red);padding:8px 12px;margin-top:10px;border-radius:0 4px 4px 0}
+  color:var(--red);padding:8px 12px;margin-top:10px;border-start-start-radius:0;border-start-end-radius:4px;border-end-end-radius:4px;border-end-start-radius:0}
 .hb .incident.safe{border-color:var(--green-line);background:var(--green-soft)}
 .hb .incident.safe strong{color:var(--green)}
 
@@ -1020,7 +1020,7 @@ td.mono{font-family:var(--mono);font-size:12px}
 /* ===================== PUBLISHING CHROME ====================== */
 .hb .skip{position:absolute;top:0;inset-inline-start:0;z-index:100;width:1px;height:1px;overflow:hidden;
   clip-path:inset(50%);white-space:nowrap;background:var(--surface);color:var(--ink);
-  border:2px solid var(--focus);border-radius:0 0 var(--r) 0;padding:0;font-size:15px;font-weight:600}
+  border:2px solid var(--focus);border-start-start-radius:0;border-start-end-radius:0;border-end-end-radius:var(--r);border-end-start-radius:0;padding:0;font-size:15px;font-weight:600}
 .hb .skip:focus{width:auto;height:auto;clip-path:none;padding:11px 18px}
 .hb .rail-btn[data-seen="1"] .num::after{content:' ✓';color:var(--green);font-weight:700}
 .hb .railcount{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-weight:400;letter-spacing:.04em}
@@ -1034,7 +1034,7 @@ td.mono{font-family:var(--mono);font-size:12px}
 .hb .sitefoot p{font-size:14.5px;line-height:1.6}
 .hb .sitefoot a{color:var(--blue)}
 .hb .sitefoot .note{border-inline-start:4px solid var(--amber);background:var(--amber-soft);
-  padding:11px 14px;border-radius:0 var(--r) var(--r) 0}
+  padding:11px 14px;border-start-start-radius:0;border-start-end-radius:var(--r);border-end-end-radius:var(--r);border-end-start-radius:0}
 .hb .sitefoot .note p{color:var(--ink)}
 
 @media print{

@@ -5,9 +5,10 @@ import type { NextConfig } from "next";
  *
  * Nothing on this site needs a server: the handbook is scripted, and the lab
  * talks to the model provider straight from the browser with the reader's own
- * key. Exporting to plain files keeps hosting free, keeps GitHub Pages working
- * as a mirror. Browser, hosting, analytics and provider trust boundaries still
- * exist and are documented; static export only removes an application backend.
+ * key. Exporting to plain files keeps hosting free; the site is served from
+ * Vercel at aicourse.top. Browser, hosting, analytics and provider trust
+ * boundaries still exist and are documented; static export only removes an
+ * application backend.
  *
  * `output: "export"` is applied to builds only. In `next dev` it makes the
  * router eagerly pre-generate every dynamic path and log a spurious
