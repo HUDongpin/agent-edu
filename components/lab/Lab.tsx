@@ -49,7 +49,7 @@ import {
 } from "@/lib/lab/plans";
 import { LabRunner, type LabRunTask } from "@/lib/lab/runner";
 import { RECORDED_RUN, RECORDED_BEFORE, RECORDED_AFTER } from "@/lib/lab/recorded";
-import { billingText, formatCost } from "@/lib/lab/cost";
+import { billingText, formatCost, spendText } from "@/lib/lab/cost";
 import {
   MAX_LAB_RULES,
   MAX_LAB_RULE_CONDITION_LENGTH,
@@ -389,7 +389,7 @@ export default function Lab() {
   const busy2 = activeBatch?.kind === "preview";
   const busy3 = activeBatch?.kind === "eval";
   const anyBatchBusy = activeBatch !== null;
-  const billingCost = billingText(billing, t, locale);
+  const spend = spendText(billing, t, locale);
   const stage1Estimate = conservativePrice(
     model,
     conservativePromptTokenUpperBound([{ content: q }]),
@@ -803,7 +803,7 @@ export default function Lab() {
                 }}>{busy0 ? t("ui.loading") : t("ui.run")} <span className="arrow">→</span></button>
                 {billing.dispatchedCalls > 0 && (
                   <span className="mono-note">
-                    {billing.dispatchedCalls} {t("lab.spendCalls")} · {billingCost}
+                    {spend}
                   </span>
                 )}
               </div>
@@ -1060,7 +1060,7 @@ export default function Lab() {
                     }} /></div>
                   </div>
                   <span className="mono-note">
-                    {billing.dispatchedCalls} {t("lab.spendCalls")} · {billingCost}
+                    {spend}
                   </span>
                 </div>
                 {runRestored && (

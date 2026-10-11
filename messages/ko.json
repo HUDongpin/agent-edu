@@ -234,7 +234,7 @@
   "lab.model": "모델",
   "lab.modelFast": "더 빠르고 저렴",
   "lab.modelSmart": "더 느리지만 유능",
-  "lab.spendCalls": "회 호출",
+  "lab.spend.other": "{calls}회 호출 · {billing}",
   "lab.billing.known": "확인된 소계 {cost}",
   "lab.billing.knownRejected": "확인된 소계 {cost} + 사용량 없이 제공사가 거부한 요청 {rejected}건",
   "lab.billing.knownUnknown": "확인된 소계 {cost} + 청구액을 알 수 없는 요청 {unknown}건",

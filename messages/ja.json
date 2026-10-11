@@ -234,7 +234,7 @@
   "lab.model": "モデル",
   "lab.modelFast": "速くて安い",
   "lab.modelSmart": "遅いが賢い",
-  "lab.spendCalls": "回",
+  "lab.spend.other": "{calls} 回の呼び出し · {billing}",
   "lab.billing.known": "確認済み小計 {cost}",
   "lab.billing.knownRejected": "確認済み小計 {cost} + 使用量なしで提供元に拒否されたリクエスト {rejected} 件",
   "lab.billing.knownUnknown": "確認済み小計 {cost} + 課金状況が不明なリクエスト {unknown} 件",

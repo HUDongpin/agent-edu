@@ -234,7 +234,7 @@
   "lab.model": "模型",
   "lab.modelFast": "較快、較便宜",
   "lab.modelSmart": "較慢、能力較強",
-  "lab.spendCalls": "次呼叫",
+  "lab.spend.other": "{calls} 次呼叫 · {billing}",
   "lab.billing.known": "已知小計 {cost}",
   "lab.billing.knownRejected": "已知小計 {cost} + {rejected} 次被供應商拒絕且沒有用量的請求",
   "lab.billing.knownUnknown": "已知小計 {cost} + {unknown} 次計費情況不明的請求",

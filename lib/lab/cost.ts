@@ -74,3 +74,35 @@ export function billingText(
     unknown: formatCount(snapshot.unknownAfterSendCalls, locale),
   });
 }
+
+function pluralCategory(count: number, locale: string): Intl.LDMLPluralRule {
+  try {
+    return new Intl.PluralRules(locale).select(count);
+  } catch {
+    return new Intl.PluralRules("en").select(count);
+  }
+}
+
+/**
+ * The spend line: how many requests this tab dispatched, then the billing
+ * sentence above.
+ *
+ * It was `{n} {lab.spendCalls}` — a bare noun after a raw number, so English
+ * read "1 calls" and every language took the count in English position. Now
+ * it is one message per CLDR plural category (`lab.spend.one`,
+ * `lab.spend.other`, and Arabic's six), chosen with Intl.PluralRules exactly
+ * as the handbook widgets choose theirs; a table that only has `.other` is
+ * complete for Chinese, Japanese and Korean.
+ */
+export function spendText(
+  snapshot: BillingSnapshot,
+  t: (key: string) => string,
+  locale: string,
+): string {
+  const key = `lab.spend.${pluralCategory(snapshot.dispatchedCalls, locale)}`;
+  const own = t(key);
+  return fill(own === key ? t("lab.spend.other") : own, {
+    calls: formatCount(snapshot.dispatchedCalls, locale),
+    billing: billingText(snapshot, t, locale),
+  });
+}

@@ -193,11 +193,14 @@ nobody's contract:
 - `llm.ts:78` — DeepSeek **accepts `output_config.format` and silently
   ignores it**. The whole of stage 2's second lesson rests on this.
 - `llm.ts:74` — `deepseek-flash` and `deepseek-v4-pro` are the current ids.
-  Flash was renamed on 2026-09-10; `deepseek-v4-flash` is still accepted, but
-  its model is retired and the name routes to V4.1-Flash only temporarily. The
-  same announcement routed `deepseek-v4-pro` to V4.1-Flash from 2026-09-14; the
-  pricing page later kept Pro at its own rates, so which model answers it is
-  the `modelId` row's to settle.
+  Flash was renamed on 2026-09-10 and its old model retired. On 2026-10-12 an
+  authenticated `GET /models` listed only `deepseek-flash` and
+  `deepseek-v4-pro`: `deepseek-v4-flash` is gone from the list, so the Lab's
+  Save & test would refuse it, and whether chat requests still accept the old
+  name was not tested (that needs a paid request). The same announcement
+  routed `deepseek-v4-pro` to V4.1-Flash from 2026-09-14; the pricing page
+  later kept Pro at its own rates, so which model answers it is the `modelId`
+  row's to settle.
 
 If DeepSeek starts honouring schemas, stage 2 does not merely go stale — it
 teaches a fallback the learner no longer needs, and `schemaFallback` starts
