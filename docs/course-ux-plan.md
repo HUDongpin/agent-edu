@@ -319,7 +319,7 @@ automatically. No new strings.
 
 #### B8 · The no-key path stops immediately before the payoff — high, and a genuine trade-off
 
-> **Landed** (`02b05fb4`). Shipped as a scripted demonstration, framed as one. Every verdict comes from the course's own `offlineOrder` and `offlineJudge`; the note leads with "A scripted run, not a model", gives the stand-in's 0/20 → 12/20 and says a real run starts nearer 7/20. No meter, no jump banner. Offered only when no key is stored.
+> **Landed** (`02b05fb4`). Shipped as a scripted demonstration, framed as one. Every verdict comes from the course's own `offlineOrder` and `offlineJudge`; the note leads with "A scripted run, not a model", gives the stand-in's 8/20 → 20/20 and says a real run starts nearer 7/20. No meter, no jump banner. Offered only when no key is stored.
 
 Only the rules wall works without a key. The other three steps render their full
 controls and bounce at the Run click. Someone with no card, on a managed laptop,

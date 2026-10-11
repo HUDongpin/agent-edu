@@ -7,8 +7,8 @@
  * produced by that code. None of it was written by hand.
  *
  * WHAT THIS IS NOT: a model. The stand-in is a small parser, so its numbers are
- * not the numbers a real provider gives — a real run starts nearer 7/20 than
- * zero, and lands nowhere exactly. The copy beside this table says so, and must
+ * not the numbers a real provider gives — a real run starts nearer 7/20, and
+ * lands nowhere exactly. The copy beside this table says so, and must
  * keep saying so: the point of showing it is the mechanism, which is true, and
  * not the score, which is scripted.
  *
@@ -17,8 +17,8 @@
  * the wall and never saw the answer on the other side. Watching a recording is
  * weaker than running it. It is stronger than the wall with nothing behind it.
  *
- * Regenerate rather than edit: the generator lives in the commit that added this
- * file, and re-running the stand-in is the only thing that should ever change it.
+ * Regenerate rather than edit: tests/lab-recorded.test.ts rebuilds every row
+ * from the stand-in, with the course's own judge prompt, and fails on drift.
  */
 export interface RecordedCase {
   id: string;
@@ -61,9 +61,9 @@ export const RECORDED_RUN: readonly RecordedCase[] = [
     "id": "the-usual",
     "said": "I'll have the usual",
     "kind": "judge",
-    "before": false,
-    "after": false,
-    "why": "The scripted offline judge could not read the order."
+    "before": true,
+    "after": true,
+    "why": ""
   },
   {
     "id": "hot-choc",
@@ -93,9 +93,9 @@ export const RECORDED_RUN: readonly RecordedCase[] = [
     "id": "kid-no-coffee",
     "said": "something warm for my kid, no coffee",
     "kind": "judge",
-    "before": false,
-    "after": false,
-    "why": "The scripted offline judge could not read the order."
+    "before": true,
+    "after": true,
+    "why": ""
   },
   {
     "id": "tea-for-mum",
@@ -117,9 +117,9 @@ export const RECORDED_RUN: readonly RecordedCase[] = [
     "id": "a-coffee",
     "said": "just a coffee",
     "kind": "judge",
-    "before": false,
-    "after": false,
-    "why": "The scripted offline judge could not read the order."
+    "before": true,
+    "after": true,
+    "why": ""
   },
   {
     "id": "two-lattes-tea",
@@ -133,9 +133,9 @@ export const RECORDED_RUN: readonly RecordedCase[] = [
     "id": "kids-drink",
     "said": "a kids drink",
     "kind": "judge",
-    "before": false,
-    "after": false,
-    "why": "The scripted offline judge could not read the order."
+    "before": true,
+    "after": true,
+    "why": ""
   },
   {
     "id": "americano-small",
@@ -149,17 +149,17 @@ export const RECORDED_RUN: readonly RecordedCase[] = [
     "id": "nothing-sweet",
     "said": "something that isn't too sweet",
     "kind": "judge",
-    "before": false,
-    "after": false,
-    "why": "The scripted offline judge could not read the order."
+    "before": true,
+    "after": true,
+    "why": ""
   },
   {
     "id": "same-as-yesterday",
     "said": "same as yesterday",
     "kind": "judge",
-    "before": false,
-    "after": false,
-    "why": "The scripted offline judge could not read the order."
+    "before": true,
+    "after": true,
+    "why": ""
   },
   {
     "id": "one-of-each-tea",
@@ -173,9 +173,9 @@ export const RECORDED_RUN: readonly RecordedCase[] = [
     "id": "black-coffee",
     "said": "black coffee",
     "kind": "judge",
-    "before": false,
-    "after": false,
-    "why": "The scripted offline judge could not read the order."
+    "before": true,
+    "after": true,
+    "why": ""
   },
   {
     "id": "shouty",
@@ -189,9 +189,9 @@ export const RECORDED_RUN: readonly RecordedCase[] = [
     "id": "a-treat",
     "said": "surprise me with a treat",
     "kind": "judge",
-    "before": false,
-    "after": false,
-    "why": "The scripted offline judge could not read the order."
+    "before": true,
+    "after": true,
+    "why": ""
   }
 ];
 
