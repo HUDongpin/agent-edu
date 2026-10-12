@@ -19,6 +19,9 @@
  */
 import type { BillingSnapshot } from "../byok/ledger";
 import { DEEPSEEK_PRICING } from "../byok/pricing";
+import { formatCount, pluralKey } from "../plural";
+
+export { formatCount };
 
 const DIGITS = { numberingSystem: "latn" } as const;
 
@@ -33,11 +36,6 @@ export function formatCost(amount: number, locale: string, fractionDigits = 5): 
   }).format(amount);
 }
 
-/** A whole number, grouped the way the page's language groups it. */
-export function formatCount(value: number, locale: string): string {
-  return new Intl.NumberFormat(locale, DIGITS).format(value);
-}
-
 /** A cap in whole seconds, written the way a {seconds} placeholder is read. */
 export function formatSeconds(ms: number, locale: string): string {
   return formatCount(Math.round(ms / 1000), locale);
@@ -48,12 +46,28 @@ function fill(text: string, vars: Record<string, string>): string {
 }
 
 /**
+ * The message for this count. `lookup` is the call site's own template, so
+ * the scope extractor sees the stem as a template head in that file.
+ */
+function pluralMessage(
+  stem: string,
+  count: number,
+  locale: string,
+  t: (key: string) => string,
+  lookup: (category: string) => string,
+): string {
+  const key = pluralKey(stem, count, locale, t);
+  return lookup(key.slice(stem.length + 1));
+}
+
+/**
  * What this tab has spent, as one message.
  *
  * Four shapes rather than three fragments: the result is also interpolated as
  * `{billing}` into the Eval's live announcement, so it has to stay one string,
  * and only a whole sentence lets each language choose its own order, counter
- * words and connective.
+ * words and connective. `{rejected}` and `{unknown}` are themselves whole
+ * plural clauses, not a bare count glued to a noun.
  */
 export function billingText(
   snapshot: BillingSnapshot,
@@ -70,17 +84,21 @@ export function billingText(
     : "lab.billing.known";
   return fill(t(key), {
     cost: formatCost(snapshot.knownUsd, locale),
-    rejected: formatCount(snapshot.providerRejectedCalls, locale),
-    unknown: formatCount(snapshot.unknownAfterSendCalls, locale),
+    rejected: fill(pluralMessage(
+      "lab.billing.rejectedCount",
+      snapshot.providerRejectedCalls,
+      locale,
+      t,
+      (category) => t(`lab.billing.rejectedCount.${category}`),
+    ), { n: formatCount(snapshot.providerRejectedCalls, locale) }),
+    unknown: fill(pluralMessage(
+      "lab.billing.unknownCount",
+      snapshot.unknownAfterSendCalls,
+      locale,
+      t,
+      (category) => t(`lab.billing.unknownCount.${category}`),
+    ), { n: formatCount(snapshot.unknownAfterSendCalls, locale) }),
   });
-}
-
-function pluralCategory(count: number, locale: string): Intl.LDMLPluralRule {
-  try {
-    return new Intl.PluralRules(locale).select(count);
-  } catch {
-    return new Intl.PluralRules("en").select(count);
-  }
 }
 
 /**
@@ -90,19 +108,18 @@ function pluralCategory(count: number, locale: string): Intl.LDMLPluralRule {
  * It was `{n} {lab.spendCalls}` — a bare noun after a raw number, so English
  * read "1 calls" and every language took the count in English position. Now
  * it is one message per CLDR plural category (`lab.spend.one`,
- * `lab.spend.other`, and Arabic's six), chosen with Intl.PluralRules exactly
- * as the handbook widgets choose theirs; a table that only has `.other` is
- * complete for Chinese, Japanese and Korean.
+ * `lab.spend.other`, and Arabic's six), chosen with Intl.PluralRules via
+ * `pluralKey`, the same way the handbook widgets choose theirs; a table that
+ * only has `.other` is complete for Chinese, Japanese and Korean.
  */
 export function spendText(
   snapshot: BillingSnapshot,
   t: (key: string) => string,
   locale: string,
 ): string {
-  const key = `lab.spend.${pluralCategory(snapshot.dispatchedCalls, locale)}`;
-  const own = t(key);
-  return fill(own === key ? t("lab.spend.other") : own, {
-    calls: formatCount(snapshot.dispatchedCalls, locale),
+  const calls = snapshot.dispatchedCalls;
+  return fill(pluralMessage("lab.spend", calls, locale, t, (category) => t(`lab.spend.${category}`)), {
+    calls: formatCount(calls, locale),
     billing: billingText(snapshot, t, locale),
   });
 }
