@@ -892,11 +892,12 @@ const RECALL={
     // a queued tick must never restart the animation after the run has ended,
     // or it repaints the flowchart over the final "stopped" state
     if (finished){ cb&&cb(true); return; }
+    const token=runToken;
     if (RM){ const d=pushStep(); if(d) finished=true; cb&&cb(d); return; }
     inFlight=true;
     fcOn(['think'],[]);
-    setTimeout(()=>{ fcOn(['think','act'],['think>act']);
-      setTimeout(()=>{ const d=pushStep(); if(d) finished=true; inFlight=false; cb&&cb(d); },300);
+    setTimeout(()=>{ if (token!==runToken) return; fcOn(['think','act'],['think>act']);
+      setTimeout(()=>{ if (token!==runToken) return; const d=pushStep(); if(d) finished=true; inFlight=false; cb&&cb(d); },300);
     },300);
   }
   $('#lStep').addEventListener('click',()=>{ if(!running&&!inFlight&&!finished) stepAnimated(); });
@@ -1113,7 +1114,7 @@ const RECALL={
       result:{text:C.t('w.graph.case.complaint.result')},
       resultNoReview:{text:C.t('w.graph.case.complaint.resultNoReview')}}
   };
-  let parallel=true, reviewer=true, playing=false, clock=0;
+  let parallel=true, reviewer=true, playing=false, clock=0, playToken=0;
   const gb=$('#gButtons');
   Object.keys(CASES).forEach(k=>{
     const c=CASES[k], b=document.createElement('button');
@@ -1133,7 +1134,7 @@ const RECALL={
     this.textContent=C.t('w.graph.reviewer',{state:C.t(reviewer?'w.graph.reviewer.on':'w.graph.reviewer.off')});
     this.classList.toggle('sel',reviewer); this.classList.toggle('ghost',!reviewer);
   });
-  $('#gReset').addEventListener('click',clearGraph);
+  $('#gReset').addEventListener('click',()=>{ playToken++; playing=false; clearGraph(); });
 
   function logLine(kind,name,text){
     const box=$('#gLog');
@@ -1166,7 +1167,7 @@ const RECALL={
   }
   function play(key){
     if (playing) return;
-    playing=true; clearGraph(); clock=0;
+    playing=true; const token=playToken; clearGraph(); clock=0;
     const c=CASES[key], gap=RM?0:640, seq=[];
     seq.push(()=>fire(['intake'],0.1));
     seq.push(()=>{ lightEdge('intake','router');
@@ -1212,7 +1213,7 @@ const RECALL={
       });
     }
     let i=0;
-    (function next(){ if(i>=seq.length){playing=false;return;} seq[i++](); setTimeout(next,gap); })();
+    (function next(){ if(token!==playToken){return;} if(i>=seq.length){playing=false;return;} seq[i++](); setTimeout(next,gap); })();
   }
 })();
 
