@@ -252,14 +252,14 @@ async function assertBilling(page: Page, billing: Scenario["billing"]) {
   const keyPanel = page.locator("#labkey");
   await expectText(keyPanel, /1 call · /);
   if (billing === "provider-rejected") {
-    await expectText(keyPanel, "provider-rejected request(s) with no usage");
-    await expectNoText(keyPanel, "request(s) with unknown billing");
+    await expectText(keyPanel, "1 provider-rejected request with no usage");
+    await expectNoText(keyPanel, "with unknown billing");
   } else if (billing === "unknown") {
-    await expectText(keyPanel, "request(s) with unknown billing");
+    await expectText(keyPanel, "1 request with unknown billing");
   } else {
     await expectText(keyPanel, /known subtotal \$0\.\d{5}/);
-    await expectNoText(keyPanel, "request(s) with unknown billing");
-    await expectNoText(keyPanel, "provider-rejected request(s) with no usage");
+    await expectNoText(keyPanel, "with unknown billing");
+    await expectNoText(keyPanel, "provider-rejected");
   }
 }
 

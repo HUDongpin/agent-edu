@@ -16,6 +16,7 @@ import {
   subscribeLearningState,
   type CourseProgress,
 } from "@/lib/progress";
+import { formatCount, pluralKey } from "@/lib/plural";
 
 const ALL = "__all__";
 
@@ -101,7 +102,7 @@ export default function Catalog({ locale }: { locale: string }) {
         <Select label={t("cat.filterStatus")} value={status} onChange={setStatus}
           options={statuses} render={(o) => (o === ALL ? t("cat.all") : t(`status.${o}`))} />
         <div className="filt-meta">
-          <span aria-live="polite">{shown.length} {t("cat.results")}</span>
+          <span aria-live="polite">{resultsCount(shown.length, locale, t)}</span>
           {dirty && (
             <button type="button" className="iconbtn" onClick={() => {
               setLevel(ALL); setFormat(ALL); setTopic(ALL); setStatus(ALL);
@@ -191,4 +192,13 @@ export default function Catalog({ locale }: { locale: string }) {
       )}
     </div>
   );
+}
+
+/** One pluralised catalogue count. The template head is what the scope extractor records. */
+function resultsCount(count: number, locale: string, t: (key: string) => string): string {
+  const key = pluralKey("cat.resultsCount", count, locale, t);
+  const category = key.slice("cat.resultsCount.".length);
+  const n = formatCount(count, locale);
+  return t(`cat.resultsCount.${category}`).replace(/\{(\w+)\}/g, (whole, name: string) =>
+    name === "n" ? n : whole);
 }

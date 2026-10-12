@@ -211,11 +211,11 @@ test("costs are written in the reader's language, never assembled in English ord
     usage: { promptTokens: 0, promptCacheHitTokens: 0, promptCacheMissTokens: 0, completionTokens: 0 },
   };
   assert.equal(billingText(snapshot, t, "en"),
-    "known subtotal $0.00123 + 2 provider-rejected request(s) with no usage + 1 request(s) with unknown billing");
+    "known subtotal $0.00123 + 2 provider-rejected requests with no usage + 1 request with unknown billing");
   assert.equal(billingText({ ...snapshot, providerRejectedCalls: 0 }, t, "en"),
-    "known subtotal $0.00123 + 1 request(s) with unknown billing");
+    "known subtotal $0.00123 + 1 request with unknown billing");
   assert.equal(billingText({ ...snapshot, unknownAfterSendCalls: 0, hasUnknown: false }, t, "en"),
-    "known subtotal $0.00123 + 2 provider-rejected request(s) with no usage");
+    "known subtotal $0.00123 + 2 provider-rejected requests with no usage");
   assert.equal(billingText({ ...snapshot, providerRejectedCalls: 0, unknownAfterSendCalls: 0, hasUnknown: false }, t, "en"),
     "known subtotal $0.00123");
 

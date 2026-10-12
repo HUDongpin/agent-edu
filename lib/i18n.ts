@@ -54,13 +54,22 @@ export async function getMessages(locale: string): Promise<Messages> {
   return { ...en, ...own };
 }
 
-/** Percentage of English keys this locale actually translates. */
+/**
+ * Percentage of English keys this locale actually translates.
+ *
+ * A plural message (`stem.one` + `stem.other` in English) counts once, by its
+ * `.other` form: Chinese, Japanese and Korean have no `.one` category at all,
+ * and counting English's `.one` against them read as a missing string.
+ */
 export function coverage(own: Messages, en: Messages): number {
   const SKIP = new Set(["brand.name"]); // proper nouns are not translated
   let total = 0;
   let have = 0;
   for (const k of Object.keys(en)) {
     if (SKIP.has(k)) continue;
+    const dot = k.lastIndexOf(".");
+    const stem = k.slice(0, dot);
+    if (dot > 0 && k.slice(dot + 1) !== "other" && `${stem}.one` in en && `${stem}.other` in en) continue;
     total++;
     if (own[k] != null) have++;
   }

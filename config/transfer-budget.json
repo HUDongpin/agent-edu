@@ -6,62 +6,62 @@
   },
   "routes": {
     "404": {
-      "total": 153243,
+      "total": 155255,
       "byKind": {
-        "document": 3012,
-        "script": 135623,
-        "stylesheet": 14608,
+        "document": 3240,
+        "script": 137205,
+        "stylesheet": 14810,
         "payload": 0,
         "other": 0
       }
     },
     "home": {
-      "total": 260359,
+      "total": 265103,
       "byKind": {
-        "document": 10281,
-        "script": 181823,
-        "stylesheet": 14608,
-        "payload": 52747,
+        "document": 10384,
+        "script": 185972,
+        "stylesheet": 14810,
+        "payload": 53037,
         "other": 900
       }
     },
     "handbook": {
-      "total": 258754,
+      "total": 263217,
       "byKind": {
-        "document": 60105,
-        "script": 175803,
-        "stylesheet": 14608,
-        "payload": 7938,
+        "document": 60307,
+        "script": 179768,
+        "stylesheet": 14810,
+        "payload": 8032,
         "other": 300
       }
     },
     "lab": {
-      "total": 208694,
+      "total": 208972,
       "byKind": {
-        "document": 11397,
-        "script": 174174,
-        "stylesheet": 14800,
-        "payload": 8023,
+        "document": 11454,
+        "script": 174376,
+        "stylesheet": 14810,
+        "payload": 8032,
         "other": 300
       }
     },
     "build": {
-      "total": 213669,
+      "total": 219691,
       "byKind": {
-        "document": 8773,
-        "script": 172943,
-        "stylesheet": 14608,
-        "payload": 16745,
+        "document": 8833,
+        "script": 178248,
+        "stylesheet": 14810,
+        "payload": 17200,
         "other": 600
       }
     },
     "teach": {
-      "total": 180163,
+      "total": 184428,
       "byKind": {
-        "document": 7818,
-        "script": 149499,
-        "stylesheet": 14608,
-        "payload": 7938,
+        "document": 7881,
+        "script": 153405,
+        "stylesheet": 14810,
+        "payload": 8032,
         "other": 300
       }
     }
