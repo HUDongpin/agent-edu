@@ -72,7 +72,10 @@ test("a document that grows back is caught, where the total alone would hide it"
   measured.home.byKind.document += 10_000;
   measured.home.total += 10_000;
   const { problems } = compare(BUDGET, coldTransferFromReport(reportFrom(measured)));
-  assert.ok(problems.some((p) => /home\/document .*\+97\.\d%/.test(p)), problems.join("\n"));
+  // ~97% of the recorded document; derived so a rebaselined budget does not re-pin it.
+  const pct = ((10_000 / BUDGET.routes.home.byKind.document) * 100).toFixed(1).replace(".", "\\.");
+  assert.ok(Number(pct.replace("\\", "")) > 90, "the bump must dwarf the home document");
+  assert.ok(problems.some((p) => new RegExp(`home/document .*\\+${pct}%`).test(p)), problems.join("\n"));
 });
 
 test("growth small enough to hide in a total is still caught on its own kind", () => {
