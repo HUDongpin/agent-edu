@@ -190,6 +190,26 @@ for (const locale of JOURNEY_LOCALES) {
   }
 }
 
+/* The release matrix stops at 390px, and only covers the four core routes.
+   /about/ laid its people out in minmax(330px, 1fr) columns, so at 320px each
+   card was 330px wide inside a 280px column and the whole page scrolled
+   sideways (and in Arabic, off the start edge). */
+for (const locale of ["en", "ar"] as const) {
+  test(`${locale}: 320px secondary routes do not overflow`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.route("**/_vercel/insights/script.js", (route) =>
+      route.fulfill({ status: 200, contentType: "text/javascript", body: "" }),
+    );
+    for (const route of ["about/", "courses/", "teach/"]) {
+      await test.step(`/${locale}/${route}`, async () => {
+        const response = await page.goto(`/${locale}/${route}`);
+        expect(response!.status()).toBe(200);
+        await expectNoPageOverflow(page);
+      });
+    }
+  });
+}
+
 for (const width of ARABIC_MATRIX_WIDTHS) {
   for (const theme of RELEASE_THEMES) {
     test(`ar: ${width}px ${theme} automated RTL keyboard baseline`, async ({ page }) => {
