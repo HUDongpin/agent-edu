@@ -210,6 +210,33 @@ for (const locale of ["en", "ar"] as const) {
   });
 }
 
+test("keyboard: the language menu closes when Tab leaves it", async ({ page }) => {
+  await page.goto("/en/");
+  await page.locator(".langwrap .iconbtn").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".langmenu")).toBeVisible();
+  for (let i = 0; i < 10; i++) await page.keyboard.press("Tab");
+  await expect.poll(() => page.evaluate(() => !!document.activeElement?.closest(".langwrap")))
+    .toBe(false);
+  // Left open, the list sat on top of whatever had focus next.
+  await expect(page.locator(".langmenu")).toHaveCount(0);
+});
+
+test("keyboard: Tab from the open mobile menu toggle enters the menu", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto("/en/");
+  await page.locator(".navtoggle").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".mainnav.open")).toBeVisible();
+  await page.keyboard.press("Tab");
+  // The links used to come before the toggle, so Tab skipped the menu it opened.
+  await expect.poll(() => page.evaluate(() => !!document.activeElement?.closest(".mainnav")))
+    .toBe(true);
+  const links = await page.locator(".mainnav a").count();
+  for (let i = 0; i < links; i++) await page.keyboard.press("Tab");
+  await expect(page.locator(".mainnav.open")).toHaveCount(0);
+});
+
 for (const width of ARABIC_MATRIX_WIDTHS) {
   for (const theme of RELEASE_THEMES) {
     test(`ar: ${width}px ${theme} automated RTL keyboard baseline`, async ({ page }) => {

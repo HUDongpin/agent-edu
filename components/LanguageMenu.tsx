@@ -74,7 +74,14 @@ export default function LanguageMenu({ coverage }: { coverage: Record<string, nu
   }
 
   return (
-    <div className="langwrap" ref={wrap}>
+    <div
+      className="langwrap"
+      ref={wrap}
+      onBlur={(e) => {
+        // Tabbing out must not leave the list open on top of the page.
+        if (open && !wrap.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
+      }}
+    >
       <button
         ref={trigger}
         className="iconbtn"
