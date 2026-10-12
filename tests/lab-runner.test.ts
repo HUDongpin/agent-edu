@@ -249,3 +249,46 @@ test("a completed run reports no partial set, so the two can never be confused",
   assert.deepEqual(outcome.results, [0, 1, 2, 3, 4]);
   assert.equal(outcome.partialResults, undefined);
 });
+
+test("Stop after a fatal error keeps the failure rather than reporting cancelled", async () => {
+  /* A 429 fails the run and aborts the other in-flight requests. Stop stays
+     on screen until that promise settles, and if abort is slow the learner
+     presses it. Overwriting status to cancelled hid the rate-limit message
+     behind "this run was stopped" — the thing they already knew. */
+  const runner = new LabRunner(ids());
+  const started = deferred();
+  const tasks: LabRunTask<number>[] = [
+    {
+      id: "fatal",
+      async run() {
+        started.resolve();
+        throw new ProviderError("rate-limit", "429 from the provider", {
+          billing: "unknown-after-send",
+        });
+      },
+    },
+    {
+      id: "hanging",
+      async run({ signal }) {
+        return new Promise<number>((_resolve, reject) => {
+          /* Delay the abort so Stop can still fire while the run is failed
+             but not yet settled — the window the Stop button occupies. */
+          signal.addEventListener("abort", () => {
+            setTimeout(() => reject(new ProviderError("aborted", "stopped", {
+              billing: "unknown-after-send",
+            })), 15);
+          }, { once: true });
+        });
+      },
+    },
+  ];
+
+  const handle = runner.start(tasks, { concurrency: 2, onContentFailure: () => -1 });
+  await started.promise;
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(runner.stop(handle.runId), true);
+  const outcome = await handle.promise;
+  assert.equal(outcome.status, "failed");
+  assert.equal(outcome.error?.code, "rate-limit");
+  assert.equal(outcome.results, undefined);
+});

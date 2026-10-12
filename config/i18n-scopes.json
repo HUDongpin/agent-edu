@@ -257,7 +257,7 @@
       "lab.setup.title",
       "lab.setup.whatIs",
       "lab.setup.whatIsBody",
-      "lab.spendCalls",
+      "lab.spend.other",
       "lab.step",
       "lab.stepsLabel",
       "lab.stop",
@@ -278,7 +278,8 @@
     "prefixes": [
       "lab.draft.",
       "lab.kind.",
-      "lab.setup.s"
+      "lab.setup.s",
+      "lab.spend."
     ],
     "from": [
       "components/I18nProvider.tsx",

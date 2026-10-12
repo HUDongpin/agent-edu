@@ -250,7 +250,7 @@ async function assertNoSentinelLeak(page: Page, audit: BrowserAudit) {
 
 async function assertBilling(page: Page, billing: Scenario["billing"]) {
   const keyPanel = page.locator("#labkey");
-  await expectText(keyPanel, /1 calls/);
+  await expectText(keyPanel, /1 call · /);
   if (billing === "provider-rejected") {
     await expectText(keyPanel, "provider-rejected request(s) with no usage");
     await expectNoText(keyPanel, "request(s) with unknown billing");

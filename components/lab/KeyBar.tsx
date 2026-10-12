@@ -22,7 +22,7 @@ import {
   type Model,
 } from "@/lib/deepseek";
 import { RECOMMENDED_LAB_JOURNEY } from "@/lib/lab/plans";
-import { billingText, formatCost, formatCount, formatSeconds } from "@/lib/lab/cost";
+import { formatCost, formatCount, formatSeconds, spendText } from "@/lib/lab/cost";
 
 const PROVIDER = "https://platform.deepseek.com/api_keys";
 
@@ -132,7 +132,7 @@ export default function KeyBar({
     rejected: "lab.keyRejected",
     unreachable: "lab.keyUnreachable",
   };
-  const billingCost = billingText(billing, t, locale);
+  const spend = spendText(billing, t, locale);
 
   return (
     <section className={"keypanel" + (verified ? " ready" : "")} id="labkey" aria-labelledby={`${inputId}-h`}>
@@ -144,7 +144,7 @@ export default function KeyBar({
         <span className="spacer" />
         {billing.dispatchedCalls > 0 && (
           <span className="mono-note keyspend">
-            {billing.dispatchedCalls} {t("lab.spendCalls")} · {billingCost}
+            {spend}
           </span>
         )}
         {verified && !editing && (

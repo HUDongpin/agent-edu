@@ -184,7 +184,7 @@ test("costs are written in the reader's language, never assembled in English ord
   assert.doesNotMatch(source, /Estimate\.toFixed|Usd\.toFixed|\.toFixed\(5\)/, "money goes through lib/lab/cost");
   for (const file of [source, keyBarSource]) {
     assert.doesNotMatch(file, /lab\.knownSubtotal|lab\.billingRejected|lab\.billingUnknown/);
-    assert.match(file, /billingText\(billing, t, locale\)/);
+    assert.match(file, /spendText\(billing, t, locale\)/);
   }
 
   const shapes = {

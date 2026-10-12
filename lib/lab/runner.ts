@@ -84,8 +84,12 @@ export class LabRunner {
   stop(runId = this.active?.runId): boolean {
     const state = this.active;
     if (!state || state.settled || !runId || state.runId !== runId) return false;
-    state.status = "cancelled";
-    state.inFlightAtStop = Math.min(state.activeTasks, LAB_CONCURRENCY);
+    // A run that already failed keeps its error: Stop is still on screen while
+    // the other in-flight requests abort, and must not relabel a 429 "stopped".
+    if (!state.status) {
+      state.status = "cancelled";
+      state.inFlightAtStop = Math.min(state.activeTasks, LAB_CONCURRENCY);
+    }
     state.controller.abort(new DOMException("Stopped by the learner", "AbortError"));
     return true;
   }
