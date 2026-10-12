@@ -711,7 +711,7 @@ swaps.
 
 > **Landed** (`6ae5828e`). Copy only. The verdict now credits the attack it actually stopped rather than the technique, and points at the three defences that exist because a better-written attack gets through.
 
-`lib/handbook/behaviour.ts:1498` decides the outcome with `const fooled=!on.label;`
+`lib/handbook/behaviour.ts:1499` decides the outcome with `const fooled=!on.label;`
 — a single boolean. Labelling the untrusted text as data makes the model immune
 no matter what else is off; turn only that toggle off and it is fooled every
 time. The verdict the reader sees says the attack was handled "because the text
