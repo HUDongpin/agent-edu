@@ -1152,7 +1152,7 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .plinks{font-size:13px;margin:0;color:var(--ink-3)}
 .plinks a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
 .people{display:grid;gap:16px;margin-top:16px;
-  grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+  grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr))}
 @media(max-width:520px){
   .person{flex-direction:column;gap:13px}
 }

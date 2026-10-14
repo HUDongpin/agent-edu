@@ -32,15 +32,18 @@ export default function MobileNav({ label, children }: { label: string; children
     };
   }, [open]);
 
+  // The toggle comes before the links so Tab goes from it straight into the
+  // open menu (the menu is positioned absolutely, and the toggle is hidden on
+  // wide screens, so the order moves nothing on screen). Focus leaving the
+  // wrapper closes it.
   return (
-    <div className="navwrap" ref={wrap}>
-      <nav
-        className={"mainnav" + (open ? " open" : "")}
-        aria-label={label}
-        onClick={() => setOpen(false)}
-      >
-        {children}
-      </nav>
+    <div
+      className="navwrap"
+      ref={wrap}
+      onBlur={(e) => {
+        if (open && !wrap.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
+      }}
+    >
       <button
         ref={toggle}
         className="iconbtn navtoggle"
@@ -51,6 +54,13 @@ export default function MobileNav({ label, children }: { label: string; children
       >
         <span aria-hidden="true">{open ? "✕" : "☰"}</span>
       </button>
+      <nav
+        className={"mainnav" + (open ? " open" : "")}
+        aria-label={label}
+        onClick={() => setOpen(false)}
+      >
+        {children}
+      </nav>
     </div>
   );
 }
