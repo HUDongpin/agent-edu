@@ -97,6 +97,7 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
           <li>{t("build.beforeTools")}</li>
           <li>{t("build.beforeTime")}</li>
         </ul>
+        <p>{t("build.labReview")}</p>
       </section>
 
       <section className="sect" id="start">

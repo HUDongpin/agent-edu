@@ -359,6 +359,7 @@
   "build.beforeTs": "你能够读写基础 TypeScript，包括函数、对象、循环和 await。",
   "build.beforeTools": "你已安装 Git、Node.js 24，并备有终端和代码编辑器。",
   "build.beforeTime": "九个引导关卡（第 0–8 关）预计需要两到三小时；第 9 关迁移项目为开放式任务，你可以随时停下，以后再继续。",
+  "build.labReview": "实验室做完了？第 1–4 关会是复习——这一次由你自己写代码。",
   "build.startTitle": "先运行离线的第 0 关",
   "build.cloneTitle": "1. 克隆并安装",
   "build.cloneBody": "克隆公开仓库，进入该目录，并安装锁定版本的依赖项。",

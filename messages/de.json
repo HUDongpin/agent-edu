@@ -363,6 +363,7 @@
   "build.beforeTs": "Sie können einfaches TypeScript lesen und bearbeiten: Funktionen, Objekte, Schleifen und await.",
   "build.beforeTools": "Sie haben Git, Node.js 24, ein Terminal und einen Code-Editor.",
   "build.beforeTime": "Planen Sie für die neun geführten Stufen (0–8) zwei bis drei Stunden ein; das Transferprojekt in Stufe 9 ist offen angelegt, und Sie können später zurückkehren.",
+  "build.labReview": "Sie haben das Labor schon abgeschlossen? Die Stufen 1–4 sind eine Wiederholung — diesmal schreiben Sie den Code selbst.",
   "build.startTitle": "Zuerst Stufe 0 offline ausführen",
   "build.cloneTitle": "1. Klonen und installieren",
   "build.cloneBody": "Klonen Sie das öffentliche Repository, wechseln Sie hinein und installieren Sie exakt die gesperrten Abhängigkeiten.",
