@@ -208,6 +208,7 @@ test("stage 5 is two graded steps and the stage table stops claiming one or two 
   assert.match(check, /await check5a\(m\)/);
   assert.match(check, /await check5loop\(m, true\)/);
   assert.match(check, /part === "5b"\) await check5loop\(mod, true\)/);
+});
 
 test("every stage ships a Simplified Chinese README and English READMEs link to it", () => {
   const stageFolders = readdirSync("course", { withFileTypes: true })
