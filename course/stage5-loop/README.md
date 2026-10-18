@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 5 — let it act
 
 **Goal:** write the agent loop yourself. Not a framework's loop — the twelve lines the frameworks wrap.

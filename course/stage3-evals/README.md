@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 3 — how do you test this?
 
 **Goal:** turn "it seems better" into a number. This is the stage that makes every later stage measurable, which is why it comes third and not last.

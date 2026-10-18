@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Part 3 — build the thing
 
 The [handbook](https://aicourse.top/en/handbook/) gives you the mental model and the [Lab](https://aicourse.top/en/lab/) gets your hands on it. This is the other half: **one café, nine guided stages (0–8), then a Stage 9 transfer project, with real API calls on your own machine.** At the end you have an agent you built, an eval suite that scores it, a harness you would leave running overnight, and a scaffold for transferring those controls to a domain you know.

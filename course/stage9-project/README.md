@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 9 — transfer project
 
 The café was shared practice. This stage asks you to make the control boundary explicit in a domain you actually know.
