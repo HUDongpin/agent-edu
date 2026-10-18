@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 7 — guarantee the check happens
 
 **Goal:** stop hoping the model reviews its work, and make the review structurally unavoidable.

@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 0 — one call
 
 **Goal:** prove your TypeScript entry point, Provider configuration and network work before anything else can confuse you. With `--offline`, the same preflight proves the local code path without a key or network call.

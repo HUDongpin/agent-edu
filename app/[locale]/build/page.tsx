@@ -30,7 +30,9 @@ export default async function BuildPage({ params }: { params: Promise<{ locale: 
   const messages = await getMessages(locale);
   const t = translator(messages);
   const p = (path: string) => `/${locale}${path}`;
-  const courseUrl = "https://github.com/HUDongpin/agent-edu/tree/main/course";
+  const courseUrl = locale === "zh-Hans"
+    ? "https://github.com/HUDongpin/agent-edu/blob/main/course/README.zh-Hans.md"
+    : "https://github.com/HUDongpin/agent-edu/tree/main/course";
 
   const course = {
     "@context": "https://schema.org",

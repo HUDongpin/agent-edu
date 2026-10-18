@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 4 — give it the menu
 
 **Goal:** fix the failures from stage 3 by changing what the model can *see*, not how you ask.
