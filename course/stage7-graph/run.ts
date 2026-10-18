@@ -1,5 +1,8 @@
 /** Stage 7 — a routed workflow where the review step cannot be skipped. */
-import { ask, preflight, spend } from "../cafe/llm";
+import { loadLlm } from "../preflight";
+
+// Dynamic import: the dependency check has to run before the SDK is linked.
+const { ask, preflight, spend } = await loadLlm();
 
 const POLICY = "Refund policy: for a damaged item we refund that item, or ship a " +
   "replacement. We never issue store credit, never refund an entire order because " +

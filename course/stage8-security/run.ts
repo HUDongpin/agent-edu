@@ -1,5 +1,8 @@
 /** Stage 8 — a customer email with something extra in it. */
-import { ask, preflight, spend } from "../cafe/llm";
+import { loadLlm } from "../preflight";
+
+// Dynamic import: the dependency check has to run before the SDK is linked.
+const { ask, preflight, spend } = await loadLlm();
 
 const REAL_COMPLAINT = "Hi — my order #4381 arrived crushed, the bag was split open. " +
   "Really disappointed, this is the second time.\n\n— Dana R.";

@@ -24,6 +24,8 @@ All three, and what is still to come, are listed on the [catalogue](https://aico
 npm install && npm run dev
 ```
 
+The local course under `course/` is started with `npx tsx`. If that command offers to install tsx, decline and run `npm ci` from the repo root instead. `npm ci` installs tsx and `@anthropic-ai/sdk` together; accepting the prompt installs only tsx.
+
 `npm run build` type-checks and writes the whole site to `out/` as static files. `npm run routes:check` compares every exported route and recovery artifact with the committed manifest. There is no application server, database or API route; you can serve `out/` with any static host.
 
 **Part 1 is not a real AI.** Every Handbook "model" reply is scripted, so it works offline, needs no key and stays pedagogically reproducible. Part 2 is deliberately different: give the browser Lab your own [DeepSeek](https://platform.deepseek.com/api_keys) key and it makes real calls with real Provider charges. The key is held in session storage for that tab; closing the tab forgets the local copy but does not revoke the Provider-side credential. The site does not intentionally send keys, prompts or replies to analytics. Vercel Analytics is nevertheless a same-origin third-party script and therefore a disclosed trust boundary, not a technical guarantee of isolation.

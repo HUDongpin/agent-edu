@@ -1,5 +1,8 @@
 /** Stage 1 — a kiosk built out of rules. No model involved. */
+import { assertDependencies } from "../preflight";
 import { MENU } from "../cafe/menu";
+
+assertDependencies();
 
 export interface Ticket { name: string; size: "S" | "L"; price: number }
 

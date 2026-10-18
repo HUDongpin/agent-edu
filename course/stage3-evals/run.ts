@@ -1,7 +1,10 @@
 /** Stage 3 — stop arguing about the prompt and start measuring it. */
-import { preflight, spend } from "../cafe/llm";
-import { CASES, run } from "../cafe/evalset";
+import { loadEvalset, loadLlm } from "../preflight";
 import type { TakeOrder } from "../cafe/evalset";
+
+// Dynamic import: the dependency check has to run before the SDK is linked.
+const { preflight, spend } = await loadLlm();
+const { CASES, run } = await loadEvalset();
 
 // ---------------------------------------------------------------------------
 // TODO: point the eval at your stage-2 prompt.

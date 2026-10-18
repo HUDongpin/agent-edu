@@ -14,6 +14,8 @@ npx tsx course/stage6-harness/run.ts
 npx tsx course/check.ts 6
 ```
 
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
+
 ## 要注意什么
 
 `run.ts` 会把同一份工作跑五次：一次全部打开，然后分别关掉四个部分各跑一次。每一次运行里，模型、提示词和工具都 **完全相同**。变的只是围在它们外面的代码。

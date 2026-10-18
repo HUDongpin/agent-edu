@@ -14,6 +14,8 @@ There is one `TODO`: write the prompt. Then:
 npx tsx course/check.ts 2
 ```
 
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md), then [SOLUTIONS.md](../SOLUTIONS.md).
+
 ## What to notice
 
 **`"could I grab a large flat white when you get a sec"` now works**, and you never wrote a rule for it. That is the whole reason anyone puts a model in a program. Then the script runs three probes, and each one takes something away from you.

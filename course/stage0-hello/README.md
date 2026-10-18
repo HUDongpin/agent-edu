@@ -18,6 +18,8 @@ There is one `TODO` in `run.ts`. Fill it in and run it again.
 npx tsx course/check.ts 0
 ```
 
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md), then [SOLUTIONS.md](../SOLUTIONS.md).
+
 ## What to notice
 
 The last line prints what the call cost. It will be a fraction of a cent. Keep an eye on it as the stages get bigger — by stage 3 you are making 20+ calls per run, and that is the point at which people who never look at the number get a surprise.

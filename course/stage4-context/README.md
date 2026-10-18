@@ -18,6 +18,8 @@ npx tsx course/check.ts 4
 
 `check.ts` asks for **at least 16/20** — a real improvement over the stage-2 baseline, not a one-case wobble.
 
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md), then [SOLUTIONS.md](../SOLUTIONS.md).
+
 ## What to notice
 
 You did not write a better instruction. You gave the model a fact it could not have known. Most "the model is bad at this" turns out to be "the model was never told."

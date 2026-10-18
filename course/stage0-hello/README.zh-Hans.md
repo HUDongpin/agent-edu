@@ -18,6 +18,8 @@ npx tsx course/stage0-hello/run.ts
 npx tsx course/check.ts 0
 ```
 
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
+
 ## 要注意什么
 
 最后一行会打印这次调用花了多少钱。通常是几分钱的零头。阶段变大时盯着它——到第 3 阶段，每次运行就要打 20 多次调用，正是那些从不看这个数字的人会吃一惊的地方。

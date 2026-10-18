@@ -1,5 +1,7 @@
 /** Clean-clone proof that offline mode needs no key, network, or private fixture. */
-import { OFFLINE, ask, preflight, spend } from "./cafe/llm";
+import { loadLlm } from "./preflight";
+
+const { OFFLINE, ask, preflight, spend } = await loadLlm();
 
 if (!OFFLINE) {
   throw new Error("Run this preflight with --offline; the package script does that for you.");

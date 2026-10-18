@@ -18,6 +18,8 @@ export ANTHROPIC_API_KEY=your_key_here     # console.anthropic.com
 npx tsx course/stage0-hello/run.ts
 ```
 
+If `npx tsx` stops and asks to install the package, decline. That prompt means dependencies are not installed, and installing that one package still leaves `@anthropic-ai/sdk` missing. From the repo root run `npm ci`, then run the command again. When the SDK is missing but the script does start, it prints two lines — one English, one Chinese — telling you to run `npm ci`, and exits.
+
 Each stage is a folder with a `README.md` and a `run.ts`. Stages 0–4 have one `TODO`; stage 5 has two graded steps (5a, then 5b); stage 6 has four; stages 7 and 8 have two. Fill them in, run it, then grade yourself:
 
 ```bash
@@ -41,7 +43,7 @@ npm run course -- 4 --offline
 
 Every completed stage supports this path. Stage 2's lesson includes watching a real model answer the same question differently, which a deterministic stand-in cannot reproduce; if you later want that comparison, use a low-credit, revocable key of your own. Never borrow or share another person's credential.
 
-**Stuck?** [`SOLUTIONS.md`](SOLUTIONS.md) has every `TODO` filled in, one section per stage.
+**Stuck?** Hint 1 and 2 in [HINTS.md](HINTS.md), then [SOLUTIONS.md](SOLUTIONS.md). [`SOLUTIONS.md`](SOLUTIONS.md) has every `TODO` filled in, one section per stage.
 
 **Cost:** the offline stand-in makes no Provider request. Live stages print measured usage and an estimate based on the model and the dated price table in the code. The total varies with Provider, model, cache, peak window and how often you re-run; an old sample total is not a promise. Check the estimate before a run and treat the Provider dashboard as the billing record. Claude can cost materially more than DeepSeek for the same exercise.
 

@@ -13,9 +13,12 @@
  * questions need different instruments; pretending otherwise is how
  * dashboards start lying.
  */
+import { assertDependencies } from "./preflight";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+assertDependencies();
 
 const FILE = join(dirname(fileURLToPath(import.meta.url)), "progress.json");
 

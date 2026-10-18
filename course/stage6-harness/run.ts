@@ -1,7 +1,10 @@
 /** Stage 6 — the same agent, wrapped in the boring code that makes it safe. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getClient, meter, MODEL, preflight, spend, tuning } from "../cafe/llm";
+import { loadLlm } from "../preflight";
 import * as tools from "../cafe/tools";
+
+// Dynamic import: the dependency check has to run before the SDK is linked.
+const { getClient, meter, MODEL, preflight, spend, tuning } = await loadLlm();
 
 /** Anything above this needs a human. Money is the classic irreversible action. */
 export const APPROVAL_THRESHOLD = 100.0;

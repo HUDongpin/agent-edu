@@ -1,7 +1,10 @@
 /** Stage 4 — the same prompt, plus the one thing it was missing. */
-import { ask, preflight, spend, tokens } from "../cafe/llm";
-import { ORDER_SCHEMA, run } from "../cafe/evalset";
+import { loadEvalset, loadLlm } from "../preflight";
 import { menuText, type Order } from "../cafe/menu";
+
+// Dynamic import: the dependency check has to run before the SDK is linked.
+const { ask, preflight, spend, tokens } = await loadLlm();
+const { ORDER_SCHEMA, run } = await loadEvalset();
 
 // ---------------------------------------------------------------------------
 // TODO: build the briefed prompt.

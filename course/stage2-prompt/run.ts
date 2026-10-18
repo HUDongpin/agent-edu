@@ -1,7 +1,10 @@
 /** Stage 2 — the same job as stage 1, but with a model. */
-import { ask, preflight, spend } from "../cafe/llm";
-import { ORDER_SCHEMA } from "../cafe/evalset";
+import { loadEvalset, loadLlm } from "../preflight";
 import { priceOf, type Order } from "../cafe/menu";
+
+// Dynamic import: the dependency check has to run before the SDK is linked.
+const { ask, preflight, spend } = await loadLlm();
+const { ORDER_SCHEMA } = await loadEvalset();
 
 /** Five ways a real customer asks for one thing. Real people do not repeat
  *  themselves verbatim, so this is the variation that actually reaches you. */
