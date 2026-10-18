@@ -6,11 +6,24 @@
 npx tsx course/stage5-loop/run.ts
 ```
 
-The job: **"restock the café."** Nobody tells the model how, and nobody can say up front how many steps it takes. There is one `TODO`: the body of the loop.
+The job: **"restock the café."** Nobody tells the model how, and nobody can say up front how many steps it takes. The work is two graded steps. Do them in order.
+
+**Step 5a — look, then answer one call.** `describeToolUse` in `run.ts` receives the response and nothing else, so the message format has to wait. `console.log` the `response.content` first. A `tool_use` block carries `type`, `id`, `name` and `input`; `JSON.stringify` makes the log readable. Return those four fields from the first `tool_use` block. `answerOneTool` runs after that: append `response.content` unchanged as the assistant turn, call `tools.RUNNERS` for that one block, and push one user message with a single `tool_result` whose `tool_use_id` is the block's `id`. Leave every other block for the next step.
 
 ```bash
-npx tsx course/check.ts 5
+npx tsx course/check.ts 5a
 ```
+
+On the offline stand-in the first block is `read_inventory`, which returns. `read_sales` fails on its first call, and that failure belongs to step 5b.
+
+**Step 5b — the loop.** Run every `tool_use` block. When the tool throws, put the error on the `tool_result` and set `is_error` to true. One user message carries every result from that turn. The loop stays bounded by `MAX_STEPS`.
+
+```bash
+npx tsx course/check.ts 5b
+```
+
+`npx tsx course/check.ts 5` grades both steps. Passing the stage still means two orders placed and an email sent to the manager.
+
 
 ## What to notice
 

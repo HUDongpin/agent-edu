@@ -298,7 +298,7 @@ on its first run, before it had been wired into CI. All five are fixed.
 | 1 | `course/stage2-prompt/README.md:31` | `llm.ask(..., schema=...)` — Python keyword-argument syntax in a TypeScript course | `ask(prompt, { schema })` | **fixed** |
 | 2 | `course/stage2-prompt/README.md:33` | `_schema_fallback`, `_extract_json` — neither has ever existed in `cafe/llm.ts` | `schemaFallback`, `extractJSON` | **fixed** |
 | 3 | `course/cafe/llm.ts` | On exhausting `max_tokens`, told **every** learner to `pass effort:"low" to turn thinking off` | Remedy now branches on provider | **fixed** |
-| 4 | `course/stage5-loop/README.md:28` | `client.beta.messages.tool_runner` — the SDK spells it `toolRunner`; wrong since the Python port | `client.beta.messages.toolRunner` | **fixed**, found by `prose:check` |
+| 4 | `course/stage5-loop/README.md:41` | `client.beta.messages.tool_runner` — the SDK spells it `toolRunner`; wrong since the Python port | `client.beta.messages.toolRunner` | **fixed**, found by `prose:check` |
 | 5 | `course/stage3-evals/README.md:23` | `handleOrder("tea")` — said "in stage 1 you could write", but stage 1's function is `takeOrder` | `takeOrder("tea")` | **fixed**, found by `prose:check` |
 
 Defect 3 is worth understanding, because it is the shape most of the remaining

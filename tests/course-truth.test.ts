@@ -170,6 +170,46 @@ test("the transfer stage ships a worked example, scored honestly", () => {
   assert.match(readFileSync("course/README.md", "utf8"), /worked-example\.md/);
 });
 
+test("stage 5 is two graded steps and the stage table stops claiming one or two TODOs", () => {
+  const readme = readFileSync("course/README.md", "utf8");
+  const stage5 = readFileSync("course/stage5-loop/README.md", "utf8");
+  const run = readFileSync("course/stage5-loop/run.ts", "utf8");
+  const check = readFileSync("course/check.ts", "utf8");
+
+  assert.doesNotMatch(readme, /one or two `TODO`s/);
+  assert.match(readme, /stage 5 has two graded steps \(5a, then 5b\)/);
+  assert.match(readme, /stage 6 has four/);
+  assert.match(readme, /stages 7 and 8 have two/);
+  assert.match(readme, /\| Difficulty \| Rough time \|/);
+  assert.match(readme, /★{4}/);
+  for (const stage of ["0", "1", "2", "3", "4", "5", "6", "7", "8"]) {
+    assert.match(readme, new RegExp(`^\\| ${stage} \\|`, "m"));
+  }
+
+  assert.match(stage5, /describeToolUse/);
+  assert.match(stage5, /answerOneTool/);
+  assert.match(stage5, /course\/check\.ts 5a/);
+  assert.match(stage5, /course\/check\.ts 5b/);
+  assert.match(stage5, /course\/check\.ts 5` grades both steps/);
+  assert.doesNotMatch(stage5, /one `TODO`: the body of the loop/);
+
+  const describeAt = run.indexOf("describeToolUse(response)");
+  const answerAt = run.indexOf("answerOneTool(messages, response)");
+  assert.ok(describeAt >= 0 && answerAt > describeAt, "5a looks at the block before it builds a tool_result");
+  assert.match(run, /TODO 5a: print response\.content/);
+  assert.match(run, /TODO 5b: feed every tool result back/);
+
+  assert.match(check, /raw === "5a" \|\| raw === "5b"/);
+  assert.match(check, /course\/check\.ts <0-8>/);
+  assert.match(check, /placed \$\{placed\} order\(s\); the café is short on two things/);
+  assert.match(check, /the manager was never emailed/);
+  assert.match(check, /is_error: true/);
+  assert.match(check, /async 5\(m\) \{\s*console\.log\("  step 5a/);
+  assert.match(check, /await check5a\(m\)/);
+  assert.match(check, /await check5loop\(m, true\)/);
+  assert.match(check, /part === "5b"\) await check5loop\(mod, true\)/);
+});
+
 test("stage 2 records distinct answers from the five probes the report names", () => {
   /* Stage 2's own runner and its README ask the vague question five times.
      The grader asked it three times and stored that count, while the report

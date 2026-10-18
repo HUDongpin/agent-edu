@@ -59,7 +59,7 @@ have been no.
 | Evals belong on your bench, not in production | Handbook §07 | Out of scope. |
 | The vocabulary: guardrail, least privilege, harness, prompt injection, LLM-as-judge | Handbook §09 glossary — "🛡️ **guardrail** — A check the system cannot skip", "🔩 **harness** — … retries failures, **asks permission** and writes the log" | Reuse the words. Do not redefine them. |
 | An irreversible action labelled as such in a tool description | `course/cafe/tools.ts:77` — `place_order` is described to the model as "This spends real money and cannot be undone" | §05 cites this as the place the distinction already surfaces, then supplies the missing middle class. Do not re-derive. |
-| Escalation, in one sentence | `course/SOLUTIONS.md:324` | §06 grows from it. Cite in one clause; do not treat the topic as taught. |
+| Escalation, in one sentence | `course/SOLUTIONS.md:373` | §06 grows from it. Cite in one clause; do not treat the topic as taught. |
 | The gate as a transfer-project requirement | `course/stage9-project/artifact-template.md` §6 "Irreversible gate" (three fields) and the `RUBRIC.md` row | Extend those three fields. Do not restate them. |
 
 ### What this course covers, because nothing else does
