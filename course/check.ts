@@ -66,20 +66,20 @@ async function check5a(m: any): Promise<void> {
   if (!first) {
     bad(
       "the response had no tool_use block to inspect",
-      "in describeToolUse, console.log response.content and take the first block whose type is tool_use",
+      "in describeToolUse, print response.content and look at each block's type — one of them is the tool call",
     );
   }
   const seen = out.seen ?? {};
   if (seen.type !== "tool_use" || seen.id !== first.id || seen.name !== first.name) {
     bad(
       "describeToolUse did not report the first tool_use block",
-      "return { type, id, name, input } copied off the first tool_use block in response.content",
+      "return the four fields the checker names, read off the tool call block rather than typed by hand",
     );
   }
   if (JSON.stringify(seen.input) !== JSON.stringify(first.input)) {
     bad(
       "describeToolUse did not copy the tool_use input",
-      "copy input off that same block — the checker compares JSON.stringify of both",
+      "the input you return has to be the block's own input, unchanged",
     );
   }
   const noted = Array.isArray(out.noted) ? out.noted.join("\n") : "";
@@ -95,7 +95,7 @@ async function check5a(m: any): Promise<void> {
   if (assistantAt < 0 || JSON.stringify(messages[assistantAt].content) !== JSON.stringify(out.response.content)) {
     bad(
       "append response.content unchanged as the assistant turn",
-      "in answerOneTool, push { role: \"assistant\", content: response.content } and do not rebuild the blocks",
+      "in answerOneTool, the assistant turn is the model's reply exactly as it arrived — do not rebuild or filter its blocks",
     );
   }
   if (resultAt < 0 || assistantAt > resultAt) {
@@ -129,13 +129,13 @@ async function check5a(m: any): Promise<void> {
   if (!runner) {
     bad(
       `no runner for ${first.name}`,
-      "look the function up with tools.RUNNERS[name], using the name on the tool_use block",
+      "the tool call names the tool to run — find the matching function among the café tools",
     );
   }
   if (result.content !== String(runner(first.input))) {
     bad(
       "tool_result content should be the tool's return value, as a string",
-      "set content to String(tools.RUNNERS[name](input)) — the tool's return value, not a summary you wrote",
+      "the tool_result content should be what the tool itself returned, as text — not a summary you wrote",
     );
   }
   ok("you printed a real tool_use block and answered it with one tool_result");
@@ -284,13 +284,13 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     if (!got) {
       bad(
         "'large flat white' still returns null",
-        "add a rule for that exact phrase: name flat white, size L, price MENU[\"flat white\"].L",
+        "add a rule for that exact phrase, shaped like the tea rules already in takeOrder",
       );
     }
     if (Math.abs(got.price - 5.1) > 0.005) {
       bad(
         `'large flat white' priced ${got.price}, menu says 5.10`,
-        "use the menu price MENU[\"flat white\"].L (5.10), not a number you invent",
+        "take the price from MENU, the large size of that drink, not a number you type in",
       );
     }
     ok("'large flat white' works");
@@ -349,7 +349,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     if (!m.SYSTEM_UNDER_TEST) {
       bad(
         "SYSTEM_UNDER_TEST is still null",
-        "import takeOrder from stage2-prompt/run and set SYSTEM_UNDER_TEST = takeOrder — this stage measures that function, it does not want a new prompt",
+        "point SYSTEM_UNDER_TEST at the function you already wrote in stage 2 — this stage measures it, it does not want a new prompt",
       );
     }
     ok("the eval is pointed at your prompt");
@@ -376,7 +376,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     if (!m.SYSTEM?.trim()) {
       bad(
         "SYSTEM is still empty",
-        "start from your stage-2 prompt and paste the menu in with menuText() so SYSTEM contains real prices",
+        "start from your stage-2 prompt and add the café's real menu — cafe/menu.ts has a helper that prints it",
       );
     }
     const { run } = await import("./cafe/evalset");
@@ -388,7 +388,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
       printFailures(failures);
       bad(
         `scored ${score}/20, wanted at least 16`,
-        "if the reasons above are prices, SYSTEM never mentions a menu price — put menuText() into SYSTEM so the model knows what it sells",
+        "if the reasons above are prices, SYSTEM never tells the model what the café sells or charges — read the failing cases and add the facts they lack",
       );
     }
     record(4, { score });
@@ -457,7 +457,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
       bad(
         `capped run still refunded $${capped.refund_amount.toFixed(2)}; the cap must hold ` +
         "even when the model is fooled",
-        "when capTools is true, clamp refund_amount between 0 and ORDER_TOTAL in code after ask returns — the limit has to hold even if the model was fooled",
+        "when capTools is true, limit the refund in code after the model decides — think about what the largest honest refund could be",
       );
     }
     ok(`fooled but capped: $${capped.refund_amount.toFixed(2)}`);

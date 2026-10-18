@@ -222,7 +222,7 @@ test("hints do not paste a solution code block from SOLUTIONS.md", () => {
 test("a failing check names the next edit and points at Hint 1", () => {
   const check = readFileSync("course/check.ts", "utf8");
   assert.match(check, /see course\/HINTS\.md, Stage \$\{hintStage\}, Hint 1/);
-  assert.match(check, /SYSTEM never mentions a menu price — put menuText\(\) into SYSTEM so the model knows what it sells/);
+  assert.match(check, /SYSTEM never tells the model what the café sells or charges/);
   assert.match(check, /re-read course\/\$\{STAGES\[checking\]\}\/README\.md/);
   assert.match(check, /function bad\(m: string, hint\?: string\): never/);
 });
