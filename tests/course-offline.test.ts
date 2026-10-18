@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import { CASES } from "../lib/cafe/evalset";
 import { MENU, menuText } from "../lib/cafe/menu";
@@ -80,6 +83,100 @@ test("the offline text contracts cover arbitrary, router, review and security ca
     })),
     { refund_amount: 18.6, send_address_list: false, reply: "We will refund the damaged bag." },
   );
+});
+
+test("the offline stand-in can refuse to end so stage 5 can grade the step limit", () => {
+  const script = `
+    import { createOfflineClient } from "./course/cafe/offline.ts";
+    const client = createOfflineClient();
+    const first = await client.messages.create({ messages: [{ role: "user", content: "Restock the café." }] });
+    if (first.stop_reason !== "tool_use") throw new Error("expected tool_use, got " + first.stop_reason);
+    if (first.content[0].name !== "read_inventory") throw new Error("expected read_inventory");
+    const second = await client.messages.create({
+      messages: [
+        { role: "user", content: "Restock the café." },
+        { role: "user", content: [{ type: "tool_result", tool_use_id: first.content[0].id, content: "coffee_beans 2" }] },
+      ],
+    });
+    if (second.stop_reason !== "tool_use") throw new Error("spin ended");
+    if (second.content[0].id === first.content[0].id) throw new Error("id reused");
+    console.log("spin-ok");
+  `;
+  const result = spawnSync(
+    process.execPath,
+    ["--import", "tsx", "--input-type=module", "-e", script],
+    {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      env: { ...process.env, CAFE_OFFLINE_SPIN: "1", DEEPSEEK_API_KEY: "", ANTHROPIC_API_KEY: "" },
+    },
+  );
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /spin-ok/);
+});
+
+test("an unfinished stage 5 stops on its own TODO and does not record progress", () => {
+  const progress = "course/progress.json";
+  const snapshot = () => (existsSync(progress) ? readFileSync(progress, "utf8") : null);
+  const before = snapshot();
+  const env = { ...process.env, DEEPSEEK_API_KEY: "", ANTHROPIC_API_KEY: "" };
+  for (const [step, needle] of [
+    ["5a", "TODO 5a"],
+    ["5b", "TODO 5b"],
+    ["5", "TODO 5a"],
+  ] as const) {
+    const result = spawnSync(
+      process.execPath,
+      ["--import", "tsx", "course/check.ts", step, "--offline"],
+      { cwd: process.cwd(), encoding: "utf8", env },
+    );
+    assert.equal(result.status, 1, `${step}\n${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, new RegExp(needle), result.stdout);
+  }
+  assert.equal(snapshot(), before);
+});
+
+test("the stage 5 reference solution passes 5a, 5b and 5 offline", () => {
+  const dir = mkdtempSync(join(tmpdir(), "stage5-solution-"));
+  try {
+    for (const entry of readdirSync(".")) {
+      if (entry === "course" || entry.startsWith(".")) continue;
+      symlinkSync(join(process.cwd(), entry), join(dir, entry));
+    }
+    cpSync("course", join(dir, "course"), { recursive: true });
+    const runPath = join(dir, "course", "stage5-loop", "run.ts");
+    let src = readFileSync(runPath, "utf8");
+    const solutions = readFileSync(join(dir, "course", "SOLUTIONS.md"), "utf8");
+    const stage5 = solutions.split("## Stage 5")[1]?.split("## Stage 6")[0] ?? "";
+    const fences = [...stage5.matchAll(/```ts\r?\n([\s\S]*?)```/g)].map((match) => match[1]);
+    const body = (id: string) => {
+      const hit = fences.find((fence) => fence.includes(`solution:${id}`));
+      assert.ok(hit, `missing solution fence ${id}`);
+      return hit.replace(/^\/\/ solution:\w+\n/, "").trim();
+    };
+    const replaceThrow = (source: string, message: string, replacement: string) => {
+      const needle = `throw new Error(${JSON.stringify(message)});`;
+      assert.equal(source.includes(needle), true, needle);
+      return source.replace(needle, replacement);
+    };
+    src = replaceThrow(src, "TODO 5a: print response.content, then return the first tool_use block.", body("describeToolUse"));
+    src = replaceThrow(src, "TODO 5a: append the assistant turn and one tool_result.", body("answerOneTool"));
+    src = replaceThrow(src, "TODO 5b: feed every tool result back, including errors, in one user message.", body("runAgent"));
+    assert.doesNotMatch(src, /throw new Error\("TODO 5/);
+    writeFileSync(runPath, src);
+
+    const env = { ...process.env, DEEPSEEK_API_KEY: "", ANTHROPIC_API_KEY: "" };
+    for (const step of ["5a", "5b", "5"]) {
+      const result = spawnSync(
+        process.execPath,
+        ["--import", "tsx", "course/check.ts", step, "--offline"],
+        { cwd: dir, encoding: "utf8", env, timeout: 30_000 },
+      );
+      assert.equal(result.status, 0, `${step}\n${result.stdout}\n${result.stderr}`);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("the offline tool client completes a bounded tool-use sequence", async () => {

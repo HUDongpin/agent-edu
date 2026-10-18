@@ -170,6 +170,95 @@ test("the transfer stage ships a worked example, scored honestly", () => {
   assert.match(readFileSync("course/README.md", "utf8"), /worked-example\.md/);
 });
 
+test("stage 5 is two graded steps and the stage table stops claiming one or two TODOs", () => {
+  const readme = readFileSync("course/README.md", "utf8");
+  const stage5 = readFileSync("course/stage5-loop/README.md", "utf8");
+  const run = readFileSync("course/stage5-loop/run.ts", "utf8");
+  const check = readFileSync("course/check.ts", "utf8");
+
+  assert.doesNotMatch(readme, /one or two `TODO`s/);
+  assert.match(readme, /stage 5 has two graded steps \(5a, then 5b\)/);
+  assert.match(readme, /stage 6 has four/);
+  assert.match(readme, /stages 7 and 8 have two/);
+  assert.match(readme, /\| Difficulty \| Rough time \|/);
+  assert.match(readme, /★{4}/);
+  for (const stage of ["0", "1", "2", "3", "4", "5", "6", "7", "8"]) {
+    assert.match(readme, new RegExp(`^\\| ${stage} \\|`, "m"));
+  }
+
+  assert.match(stage5, /describeToolUse/);
+  assert.match(stage5, /answerOneTool/);
+  assert.match(stage5, /course\/check\.ts 5a/);
+  assert.match(stage5, /course\/check\.ts 5b/);
+  assert.match(stage5, /course\/check\.ts 5` grades both steps/);
+  assert.doesNotMatch(stage5, /one `TODO`: the body of the loop/);
+
+  const describeAt = run.indexOf("describeToolUse(response)");
+  const answerAt = run.indexOf("answerOneTool(messages, response)");
+  assert.ok(describeAt >= 0 && answerAt > describeAt, "5a looks at the block before it builds a tool_result");
+  assert.match(run, /TODO 5a: print response\.content/);
+  assert.match(run, /TODO 5b: feed every tool result back/);
+
+  assert.match(check, /raw === "5a" \|\| raw === "5b"/);
+  assert.match(check, /course\/check\.ts <0-8>/);
+  assert.match(check, /placed \$\{placed\} order\(s\); the café is short on two things/);
+  assert.match(check, /the manager was never emailed/);
+  assert.match(check, /is_error: true/);
+  assert.match(check, /async 5\(m\) \{\s*console\.log\("  step 5a/);
+  assert.match(check, /await check5a\(m\)/);
+  assert.match(check, /await check5loop\(m, true\)/);
+  assert.match(check, /part === "5b"\) await check5loop\(mod, true\)/);
+
+  /* The Simplified Chinese course docs mirror the same split. The English
+     assertions above stay as they are; these only add the zh pages. */
+  const zhReadme = readFileSync("course/README.zh-Hans.md", "utf8");
+  const zhStage5 = readFileSync("course/stage5-loop/README.zh-Hans.md", "utf8");
+
+  assert.doesNotMatch(zhReadme, /一两个 `TODO`/);
+  assert.doesNotMatch(zhReadme, /智能体循环本身/);
+  assert.match(zhReadme, /第 0–4 阶段各有一个 `TODO`/);
+  assert.match(zhReadme, /第 5 阶段有两个计分步骤（先 5a，再 5b）/);
+  assert.match(zhReadme, /第 6 阶段有四个/);
+  assert.match(zhReadme, /第 7 和第 8 阶段各有两个/);
+  assert.match(zhReadme, /\| 难度 \| 大致用时 \|/);
+  assert.match(zhReadme, /★ 是一处小改动/);
+  assert.match(zhReadme, /★★★★ 是第 6 阶段：四个 `TODO`，其中包括累计审批闸门/);
+  const zhRows: Array<[string, string, string]> = [
+    ["0", "★", "10 分钟"],
+    ["1", "★", "15 分钟"],
+    ["2", "★★", "20 分钟"],
+    ["3", "★", "15 分钟"],
+    ["4", "★★", "25 分钟"],
+    ["5", "★★★", "40 分钟"],
+    ["6", "★★★★", "60 分钟"],
+    ["7", "★★★", "30 分钟"],
+    ["8", "★★", "25 分钟"],
+  ];
+  for (const [stage, stars, time] of zhRows) {
+    assert.match(
+      zhReadme,
+      new RegExp(`^\\| ${stage} \\|.*\\| ${stars} \\| ${time} \\|`, "m"),
+      `Simplified Chinese stage ${stage} row should show ${stars} and ${time}`,
+    );
+  }
+
+  assert.match(zhStage5, /describeToolUse/);
+  assert.match(zhStage5, /answerOneTool/);
+  assert.match(zhStage5, /runAgent/);
+  assert.match(zhStage5, /course\/check\.ts 5a/);
+  assert.match(zhStage5, /course\/check\.ts 5b/);
+  assert.match(zhStage5, /course\/check\.ts 5` 给两个步骤一起打分/);
+  assert.match(zhStage5, /## 逐条讲解 TODO/);
+  assert.match(zhStage5, /TODO 5a，第一处/);
+  assert.match(zhStage5, /TODO 5a，第二处/);
+  assert.match(zhStage5, /TODO 5b/);
+  assert.doesNotMatch(zhStage5, /只有一个 `TODO`/);
+  assert.doesNotMatch(zhStage5, /循环的主体/);
+  const zhA = zhStage5.indexOf("步骤 5a");
+  const zhB = zhStage5.indexOf("步骤 5b");
+  assert.ok(zhA >= 0 && zhB > zhA, "the Chinese stage 5 README does 5a before 5b");
+});
+
 test("every stage ships a Simplified Chinese README and English READMEs link to it", () => {
   const stageFolders = readdirSync("course", { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && /^stage\d+-/.test(entry.name))

@@ -230,8 +230,20 @@ export function createOfflineClient() {
     messages: {
       async create(request: { messages?: Message[] }) {
         const messages = request.messages ?? [];
-        const transcript = messages.map((message) => textOf(message.content)).join("\n");
         const index = messages.length;
+        // Stage 5's checker sets this so a loop that ignores MAX_STEPS cannot
+        // pass by waiting for end_turn. Unset, the scripted restock below is
+        // what stages 5 and 6 actually run.
+        if (process.env.CAFE_OFFLINE_SPIN === "1") {
+          return {
+            id: `offline-response-${index}`,
+            model: "scripted-offline",
+            stop_reason: "tool_use",
+            content: [toolUse("read_inventory", {}, index)],
+            usage: { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0 },
+          };
+        }
+        const transcript = messages.map((message) => textOf(message.content)).join("\n");
         const content: Record<string, unknown>[] = [];
 
         if (!/offline-read_inventory-/i.test(transcript)) {

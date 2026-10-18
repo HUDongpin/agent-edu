@@ -18,7 +18,7 @@ export ANTHROPIC_API_KEY=your_key_here     # console.anthropic.com
 npx tsx course/stage0-hello/run.ts
 ```
 
-Each stage is a folder with a `README.md` and a `run.ts` containing one or two `TODO`s. Fill them in, run it, then grade yourself:
+Each stage is a folder with a `README.md` and a `run.ts`. Stages 0–4 have one `TODO`; stage 5 has two graded steps (5a, then 5b); stage 6 has four; stages 7 and 8 have two. Fill them in, run it, then grade yourself:
 
 ```bash
 npx tsx course/check.ts 0      # or: npm run course 0
@@ -70,17 +70,19 @@ This is what a provider abstraction is actually for. Not "swap the URL" — anyo
 
 ## The nine guided stages (0–8)
 
-| | Stage | You write | What it teaches |
-|---|---|---|---|
-| 0 | [hello](stage0-hello/) | one API call | your key works |
-| 1 | [kiosk](stage1-kiosk/) | if/else rules | the wall that starts all of this |
-| 2 | [prompt](stage2-prompt/) | a system prompt | **the same question, five different answers** |
-| 3 | [evals](stage3-evals/) | wire up 20 cases | variable model output needs evals; deterministic code still needs unit tests |
-| 4 | [context](stage4-context/) | the menu, in the prompt | most "bad model" is "never told" |
-| 5 | [loop](stage5-loop/) | the agent loop itself | tools, failure, recovery, a step limit |
-| 6 | [harness](stage6-harness/) | retry, gate, log | same model, five controlled runs |
-| 7 | [graph](stage7-graph/) | a router and a reviewer | request vs guarantee |
-| 8 | [security](stage8-security/) | two defences | input that tries to give orders |
+| | Stage | You write | What it teaches | Difficulty | Rough time |
+|---|---|---|---|---|---|
+| 0 | [hello](stage0-hello/) | one API call | your key works | ★ | 10 min |
+| 1 | [kiosk](stage1-kiosk/) | if/else rules | the wall that starts all of this | ★ | 15 min |
+| 2 | [prompt](stage2-prompt/) | a system prompt | **the same question, five different answers** | ★★ | 20 min |
+| 3 | [evals](stage3-evals/) | wire up 20 cases | variable model output needs evals; deterministic code still needs unit tests | ★ | 15 min |
+| 4 | [context](stage4-context/) | the menu, in the prompt | most "bad model" is "never told" | ★★ | 25 min |
+| 5 | [loop](stage5-loop/) | one tool call, then the loop | tools, failure, recovery, a step limit | ★★★ | 40 min |
+| 6 | [harness](stage6-harness/) | retry, gate, log | same model, five controlled runs | ★★★★ | 60 min |
+| 7 | [graph](stage7-graph/) | a router and a reviewer | request vs guarantee | ★★★ | 30 min |
+| 8 | [security](stage8-security/) | two defences | input that tries to give orders | ★★ | 25 min |
+
+Difficulty follows the `TODO`s in that stage's `run.ts`: how many there are, and how much code each one asks for. ★ is a single small edit. ★★★★ is stage 6: four `TODO`s, including the cumulative spend gate. The times are a rough first pass on the offline path, reading included.
 
 **Evals come third on purpose.** Once you have a number, every later change is a measurement instead of an argument.
 

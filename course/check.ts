@@ -48,6 +48,164 @@ function bad(m: string, hint?: string): never {
   process.exit(1);
 }
 
+/** Step 5a: the learner has seen one tool_use block and answered only that one. */
+async function check5a(m: any): Promise<void> {
+  const tools = await import("./cafe/tools");
+  tools.reset();
+  const out = await m.inspectOneCall(false);
+  const blocks = Array.isArray(out?.response?.content) ? out.response.content : [];
+  const first = blocks.find((b: any) => b?.type === "tool_use");
+  if (!first) bad("the response had no tool_use block to inspect");
+  const seen = out.seen ?? {};
+  if (seen.type !== "tool_use" || seen.id !== first.id || seen.name !== first.name) {
+    bad(
+      "describeToolUse did not report the first tool_use block",
+      "return { type, id, name, input } copied off the first tool_use block in response.content",
+    );
+  }
+  if (JSON.stringify(seen.input) !== JSON.stringify(first.input)) {
+    bad("describeToolUse did not copy the tool_use input");
+  }
+  const noted = Array.isArray(out.noted) ? out.noted.join("\n") : "";
+  if (!noted.includes(String(first.id)) || !noted.includes(String(first.name)) || !noted.includes("tool_use")) {
+    bad(
+      "response.content was not printed before the tool_result was built",
+      "in describeToolUse, console.log the content first — the id, the name and tool_use should all appear",
+    );
+  }
+  const messages = Array.isArray(out.messages) ? out.messages : [];
+  const assistantAt = messages.findIndex((msg: any) => msg?.role === "assistant");
+  const resultAt = messages.findIndex((msg: any) => msg?.role === "user" && Array.isArray(msg.content));
+  if (assistantAt < 0 || JSON.stringify(messages[assistantAt].content) !== JSON.stringify(out.response.content)) {
+    bad("append response.content unchanged as the assistant turn");
+  }
+  if (resultAt < 0 || assistantAt > resultAt) {
+    bad("the assistant turn has to come before its tool_result");
+  }
+  const replies = messages.filter((msg: any) => msg?.role === "user" && Array.isArray(msg.content));
+  if (replies.length !== 1) bad("push exactly one user message for the tool result");
+  const results = replies[0].content.filter((b: any) => b?.type === "tool_result");
+  if (results.length !== 1) {
+    bad(
+      "step 5a answers one tool_use block",
+      "take the first tool_use only — parallel calls and errors are step 5b",
+    );
+  }
+  const result = results[0];
+  if (result.tool_use_id !== first.id) bad("tool_use_id must be that block's id");
+  const runner = tools.RUNNERS[first.name];
+  if (!runner) bad(`no runner for ${first.name}`);
+  if (result.content !== String(runner(first.input))) {
+    bad("tool_result content should be the tool's return value, as a string");
+  }
+  ok("you printed a real tool_use block and answered it with one tool_result");
+}
+
+/**
+ * Step 5b, and the full stage-5 bar.
+ *
+ * The outcome checks are the ones stage 5 has always had: two orders, and an
+ * email to the manager. The structural checks are what the loop body is for:
+ * a failure comes back with is_error, parallel results share one user message,
+ * and MAX_STEPS is what stops a run that would not stop itself. The spin probe
+ * is offline only — a live model that never ends would be a bill, not a test.
+ */
+async function check5loop(m: any, writeRecord: boolean): Promise<void> {
+  const tools = await import("./cafe/tools");
+  tools.reset();
+  const orders = await m.runAgent(false);
+  const placed = orders.length;
+  if (placed < 2) bad(`placed ${placed} order(s); the café is short on two things`);
+  ok(`placed ${placed} orders, recovering from a failed tool on the way`);
+  if (!tools.LOG.length) bad("the manager was never emailed");
+  ok("the manager was told");
+
+  const transcript = Array.isArray(m.transcript) ? m.transcript : [];
+  const results = transcript.flatMap((msg: any) =>
+    msg?.role === "user" && Array.isArray(msg.content)
+      ? msg.content.filter((b: any) => b?.type === "tool_result")
+      : []);
+  const flagged = results.some((b: any) => b.is_error === true);
+  const unmarked = results.some((b: any) =>
+    b.is_error !== true && /Error:|temporary network failure|supplier minimum/i.test(String(b.content ?? "")));
+  if (unmarked || (OFFLINE && !flagged)) {
+    bad(
+      "a failed tool was not fed back with is_error: true",
+      "when a tool throws, send the error as a tool_result with is_error: true — do not let it crash the loop",
+    );
+  }
+  ok("a failed tool was fed back with is_error: true");
+
+  let batched = false;
+  for (let i = 0; i < transcript.length; i++) {
+    const msg = transcript[i];
+    if (msg?.role !== "assistant" || !Array.isArray(msg.content)) continue;
+    const uses = msg.content.filter((b: any) => b?.type === "tool_use");
+    if (uses.length < 2) continue;
+    const next = transcript[i + 1];
+    const got = next?.role === "user" && Array.isArray(next.content)
+      ? next.content.filter((b: any) => b?.type === "tool_result")
+      : [];
+    const ids = new Set(got.map((b: any) => b.tool_use_id));
+    if (got.length < uses.length || uses.some((b: any) => !ids.has(b.id))) {
+      bad(
+        "tool results were not combined into one user message",
+        "append response.content unchanged, then push every tool_result from that turn in a single user message",
+      );
+    }
+    batched = true;
+  }
+  if (OFFLINE && !batched) {
+    bad(
+      "the stand-in asked for two tools at once, and the results were not one user message",
+      "append response.content unchanged, then push every tool_result from that turn in a single user message",
+    );
+  }
+  ok("parallel results travelled in one user message");
+
+  const turns = transcript.filter((msg: any) => msg?.role === "assistant").length;
+  if (typeof m.MAX_STEPS !== "number" || !(m.MAX_STEPS >= 1) || turns < 1 || turns > m.MAX_STEPS) {
+    bad(`the loop took ${turns} model turns; MAX_STEPS is ${m.MAX_STEPS}`);
+  }
+
+  if (OFFLINE) {
+    const previous = process.env.CAFE_OFFLINE_SPIN;
+    process.env.CAFE_OFFLINE_SPIN = "1";
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      tools.reset();
+      const timed = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("STEP_LIMIT")), 5000);
+      });
+      await Promise.race([m.runAgent(false), timed]);
+    } catch (err) {
+      if ((err as Error).message === "STEP_LIMIT") {
+        bad(
+          "the step limit did not stop the loop",
+          "keep the for-loop bound to MAX_STEPS — a run that never ends is a bill that never ends",
+        );
+      }
+      throw err;
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
+      if (previous === undefined) delete process.env.CAFE_OFFLINE_SPIN;
+      else process.env.CAFE_OFFLINE_SPIN = previous;
+    }
+    const spun = Array.isArray(m.transcript)
+      ? m.transcript.filter((msg: any) => msg?.role === "assistant").length
+      : 0;
+    if (spun !== m.MAX_STEPS) {
+      bad(
+        `a run that never stops on its own ended after ${spun} steps, not MAX_STEPS (${m.MAX_STEPS})`,
+        "the loop should stop because of MAX_STEPS, not because of an earlier break",
+      );
+    }
+    ok(`the step limit held at ${m.MAX_STEPS}`);
+  }
+
+  if (writeRecord) record(5, { orders: placed });
+}
+
 const CHECKS: Record<number, (m: any) => Promise<void>> = {
   async 0(m) {
     if (!m.QUESTION?.trim()) bad("QUESTION is still empty");
@@ -135,14 +293,10 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
   },
 
   async 5(m) {
-    const tools = await import("./cafe/tools");
-    tools.reset();
-    const orders = await m.runAgent(false);
-    if (orders.length < 2) bad(`placed ${orders.length} order(s); the café is short on two things`);
-    ok(`placed ${orders.length} orders, recovering from a failed tool on the way`);
-    if (!tools.LOG.length) bad("the manager was never emailed");
-    ok("the manager was told");
-    record(5, { orders: orders.length });
+    console.log("  step 5a — one tool call\n");
+    await check5a(m);
+    console.log("\n  step 5b — the loop\n");
+    await check5loop(m, true);
   },
 
   async 6(m) {
@@ -197,9 +351,12 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
 };
 
 const args = process.argv.slice(2).filter((a) => !a.startsWith("-"));
-const stage = Number(args[0]);
+const raw = args[0];
+const part = raw === "5a" || raw === "5b" ? raw : null;
+const stage = part ? 5 : Number(raw);
 if (!args.length || !(stage in STAGES)) {
   console.log("usage: npx tsx course/check.ts <0-8> [--offline]");
+  console.log("       npx tsx course/check.ts 5a|5b [--offline]");
   process.exit(1);
 }
 checking = stage;
@@ -214,9 +371,12 @@ if (COSTS_MONEY.has(stage) && !OFFLINE) {
 if (COSTS_MONEY.has(stage) || stage === 0) {
   try { preflight(); } catch (err) { console.log((err as Error).message); process.exit(1); }
 }
-console.log(`\nchecking stage ${stage}\n`);
+console.log(`\nchecking stage ${part ?? stage}\n`);
 try {
-  await CHECKS[stage](await import(`./${STAGES[stage]}/run`));
+  const mod = await import(`./${STAGES[stage]}/run`);
+  if (part === "5a") await check5a(mod);
+  else if (part === "5b") await check5loop(mod, true);
+  else await CHECKS[stage](mod);
 } catch (err) {
   const msg = (err as Error).message;
   if (/TODO/.test(msg)) {
@@ -225,5 +385,5 @@ try {
   }
   throw err;
 }
-console.log(`\n  stage ${stage} complete.\n`);
+console.log(`\n  stage ${part ?? stage} complete.\n`);
 if ([3, 4, 8].includes(stage)) console.log("  (run `npx tsx course/report.ts` to see the whole picture)\n");

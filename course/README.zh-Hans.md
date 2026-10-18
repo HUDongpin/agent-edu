@@ -18,7 +18,7 @@ export ANTHROPIC_API_KEY=your_key_here     # console.anthropic.com
 npx tsx course/stage0-hello/run.ts
 ```
 
-每个阶段都是一个文件夹，里面有 `README.md`（以及这份 `README.zh-Hans.md`）和一份带一两个 `TODO` 的 `run.ts`。把 `TODO` 填上，跑起来，然后给自己打分：
+每个阶段都是一个文件夹，里面有 `README.md`（以及这份 `README.zh-Hans.md`）和一份 `run.ts`。第 0–4 阶段各有一个 `TODO`；第 5 阶段有两个计分步骤（先 5a，再 5b）；第 6 阶段有四个；第 7 和第 8 阶段各有两个。把它们填上，跑起来，然后给自己打分：
 
 ```bash
 npx tsx course/check.ts 0      # or: npm run course 0
@@ -70,17 +70,19 @@ export CAFE_MODEL=deepseek-v4-pro   # or a Provider-supported model
 
 ## 九个引导阶段（0–8）
 
-| | 阶段 | 你要写的 | 它教什么 |
-|---|---|---|---|
-| 0 | [hello](stage0-hello/README.zh-Hans.md) | 一次 API 调用 | 你的密钥能用 |
-| 1 | [kiosk](stage1-kiosk/README.zh-Hans.md) | if/else 规则 | 把这一切逼出来的那堵墙 |
-| 2 | [prompt](stage2-prompt/README.zh-Hans.md) | 一条系统提示词 | **同一个问题，五种不同的回答** |
-| 3 | [evals](stage3-evals/README.zh-Hans.md) | 接上 20 个用例 | 会变的模型输出需要评测；确定的代码仍然需要单元测试 |
-| 4 | [context](stage4-context/README.zh-Hans.md) | 把菜单放进提示词 | 多数「模型很差」其实是「从没告诉它」 |
-| 5 | [loop](stage5-loop/README.zh-Hans.md) | 智能体循环本身 | 工具、失败、恢复、步数上限 |
-| 6 | [harness](stage6-harness/README.zh-Hans.md) | 重试、闸门、日志 | 同一个模型，五次受控运行 |
-| 7 | [graph](stage7-graph/README.zh-Hans.md) | 一个路由器和一个审阅节点 | 请求 vs 保证 |
-| 8 | [security](stage8-security/README.zh-Hans.md) | 两道防线 | 试图发号施令的输入 |
+| | 阶段 | 你要写的 | 它教什么 | 难度 | 大致用时 |
+|---|---|---|---|---|---|
+| 0 | [hello](stage0-hello/README.zh-Hans.md) | 一次 API 调用 | 你的密钥能用 | ★ | 10 分钟 |
+| 1 | [kiosk](stage1-kiosk/README.zh-Hans.md) | if/else 规则 | 把这一切逼出来的那堵墙 | ★ | 15 分钟 |
+| 2 | [prompt](stage2-prompt/README.zh-Hans.md) | 一条系统提示词 | **同一个问题，五种不同的回答** | ★★ | 20 分钟 |
+| 3 | [evals](stage3-evals/README.zh-Hans.md) | 接上 20 个用例 | 会变的模型输出需要评测；确定的代码仍然需要单元测试 | ★ | 15 分钟 |
+| 4 | [context](stage4-context/README.zh-Hans.md) | 把菜单放进提示词 | 多数「模型很差」其实是「从没告诉它」 | ★★ | 25 分钟 |
+| 5 | [loop](stage5-loop/README.zh-Hans.md) | 一次工具调用，然后是循环 | 工具、失败、恢复、步数上限 | ★★★ | 40 分钟 |
+| 6 | [harness](stage6-harness/README.zh-Hans.md) | 重试、闸门、日志 | 同一个模型，五次受控运行 | ★★★★ | 60 分钟 |
+| 7 | [graph](stage7-graph/README.zh-Hans.md) | 一个路由器和一个审阅节点 | 请求 vs 保证 | ★★★ | 30 分钟 |
+| 8 | [security](stage8-security/README.zh-Hans.md) | 两道防线 | 试图发号施令的输入 | ★★ | 25 分钟 |
+
+难度看的是该阶段 `run.ts` 里的 `TODO`：有多少个，以及每一处要你写多少代码。★ 是一处小改动。★★★★ 是第 6 阶段：四个 `TODO`，其中包括累计审批闸门。表里的时间是离线路径上大致的第一遍，阅读也算在内。
 
 **评测故意放在第三。** 一旦你有了一个数字，后面每一次改动都是一次测量，而不是一场争论。
 

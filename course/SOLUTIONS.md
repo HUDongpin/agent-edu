@@ -132,11 +132,59 @@ domain information.
 
 ---
 
-## Stage 5 — complete the tool-use loop
+## Stage 5 — look at one tool call, then close the loop
 
-Replace the `throw new Error("TODO…")` block in `stage5-loop/run.ts` with:
+Do step 5a before step 5b. `course/check.ts` grades them as `5a` and `5b`. Plain `5` runs both, and still requires the two orders and the manager's email.
+
+### Step 5a — describe the block
+
+Replace the throw in `describeToolUse` in `stage5-loop/run.ts` with:
 
 ```ts
+// solution:describeToolUse
+console.log(JSON.stringify(response.content, null, 2));
+const block = (response.content ?? []).find((item: any) => item.type === "tool_use");
+if (!block) throw new Error("response.content has no tool_use block");
+return {
+  type: block.type,
+  id: block.id,
+  name: block.name,
+  input: block.input,
+};
+```
+
+The log is the point of the function. Copy `type`, `id`, `name` and `input` off the first `tool_use` block. This function does not receive `messages`, so it cannot build the reply.
+
+### Step 5a — answer that one call
+
+Replace the throw in `answerOneTool` with:
+
+```ts
+// solution:answerOneTool
+messages.push({ role: "assistant", content: response.content });
+const block = (response.content ?? []).find((item: any) => item.type === "tool_use");
+if (!block) throw new Error("response.content has no tool_use block");
+const runner = tools.RUNNERS[block.name];
+if (!runner) throw new Error(`unknown tool: ${block.name}`);
+const output = String(runner(block.input));
+messages.push({
+  role: "user",
+  content: [{
+    type: "tool_result",
+    tool_use_id: block.id,
+    content: output,
+  }],
+});
+```
+
+One block, one `tool_result`, no error handling yet. The assistant content goes through unchanged.
+
+### Step 5b — the full loop
+
+Replace the throw in `runAgent` with:
+
+```ts
+// solution:runAgent
 messages.push({ role: "assistant", content: response.content });
 
 const results: any[] = [];
@@ -169,10 +217,11 @@ for (const block of response.content) {
 messages.push({ role: "user", content: results });
 ```
 
-Keep the assistant’s entire content array unchanged: the next turn must see the exact
+Keep the assistant's entire content array unchanged: the next turn must see the exact
 `tool_use` blocks it is answering. Send all results together in one user message so parallel
-tool calls stay parallel. A tool failure is data for the next model turn, not a reason to lose
-the run.
+tool calls stay parallel. A tool failure is data for the next model turn, with `is_error`
+set, and it is not a reason to lose the run. Leave the loop's own bound in charge of
+how many steps a run may take.
 
 ---
 
@@ -374,7 +423,9 @@ boundary is the stable thing the program can enforce.
 Run the stage you completed:
 
 ```bash
-npx tsx course/check.ts 0 --offline  # replace 0 with the stage number
+npx tsx course/check.ts 0 --offline   # replace 0 with the stage number
+npx tsx course/check.ts 5a --offline  # stage 5, the look, then one tool call
+npx tsx course/check.ts 5b --offline  # stage 5, the full loop
 ```
 
 The checker writes only local course progress to `course/progress.json`. The static website
