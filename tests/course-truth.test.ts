@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 
 const LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
@@ -303,4 +304,157 @@ test("stage 2 records distinct answers from the five probes the report names", (
   assert.equal(bound[1], "5");
   const report = readFileSync("course/report.ts", "utf8");
   assert.match(report, new RegExp(`distinct answers from ${bound[1]} identical questions`));
+});
+
+test("course READMEs map handbook chapters and Lab steps onto every stage", () => {
+  /* The three parts teach one café. The handbook numbers the ideas in its own
+     order (evaluation is §07, after the harness). The Lab has four steps and
+     stops once the menu is in the prompt. The course writes the same ideas,
+     then keeps going. A row that invents a Lab step for the loop, or points
+     §03 at the eval stage, would send a reader to the wrong page. */
+  const FAST_EN = "If you have already finished the Lab, move quickly through stages 1–4 and treat them as review. The new part is writing the code yourself.";
+  const FAST_ZH = "如果已经做完实验室，第 1–4 阶段可以走得快一些，把它们当作复习。新的部分是你自己把代码写出来。";
+  const NONE = "—";
+
+  const en = readFileSync("course/README.md", "utf8");
+  const zh = readFileSync("course/README.zh-Hans.md", "utf8");
+  const enMsg = JSON.parse(readFileSync("messages/en.json", "utf8")) as Record<string, string>;
+  const zhMsg = JSON.parse(readFileSync("messages/zh-Hans.json", "utf8")) as Record<string, string>;
+  const markup = readFileSync("lib/handbook/markup.ts", "utf8");
+  const behaviour = readFileSync("lib/handbook/behaviour.ts", "utf8");
+
+  assert.ok(en.includes(FAST_EN), "English fast-track sentence");
+  assert.ok(zh.includes(FAST_ZH), "Chinese fast-track sentence");
+  assert.match(en, /do the \*\*\[Lab\]\(https:\/\/aicourse\.top\/en\/lab\/\)\*\* first: the same ground as stages 0 to 4/);
+  assert.match(zh, /先去做 \*\*\[实验室\]\(https:\/\/aicourse\.top\/zh-Hans\/lab\/\)\*\*：和第 0 到第 4 阶段同一块地/);
+
+  /* The hash the handbook writes is the rail's data-p, and the panel id is p-<name>. */
+  assert.match(behaviour, /const target='#'\+name/);
+
+  type Row = {
+    stage: number;
+    dir: string;
+    anchor: string | null;
+    hbKey: string | null;
+    chapter: string | null;
+    labStep: number | null;
+    labKey: string | null;
+    glossKey: string | null;
+  };
+  const rows: Row[] = [
+    { stage: 0, dir: "stage0-hello", anchor: null, hbKey: null, chapter: null, labStep: 1, labKey: "lab.s1.name", glossKey: null },
+    { stage: 1, dir: "stage1-kiosk", anchor: "code", hbKey: "hb.code", chapter: "01", labStep: 2, labKey: "lab.s2.name", glossKey: null },
+    { stage: 2, dir: "stage2-prompt", anchor: "prompt", hbKey: "hb.prompt", chapter: "02", labStep: 3, labKey: "lab.s3.name", glossKey: null },
+    { stage: 3, dir: "stage3-evals", anchor: "evals", hbKey: "hb.evals", chapter: "07", labStep: 4, labKey: "lab.s4.name", glossKey: "lab.s4.h" },
+    { stage: 4, dir: "stage4-context", anchor: "context", hbKey: "hb.context", chapter: "03", labStep: 4, labKey: "lab.s4.name", glossKey: "lab.s4.addMenu" },
+    { stage: 5, dir: "stage5-loop", anchor: "loop", hbKey: "hb.loop", chapter: "04", labStep: null, labKey: null, glossKey: null },
+    { stage: 6, dir: "stage6-harness", anchor: "harness", hbKey: "hb.harness", chapter: "06", labStep: null, labKey: null, glossKey: null },
+    { stage: 7, dir: "stage7-graph", anchor: "graph", hbKey: "hb.graph", chapter: "05", labStep: null, labKey: null, glossKey: null },
+    { stage: 8, dir: "stage8-security", anchor: "security", hbKey: "hb.security", chapter: "08", labStep: null, labKey: null, glossKey: null },
+    { stage: 9, dir: "stage9-project", anchor: null, hbKey: null, chapter: null, labStep: null, labKey: null, glossKey: null },
+  ];
+
+  function section(md: string, heading: string): string {
+    const at = md.indexOf(heading);
+    assert.ok(at >= 0, `missing ${heading}`);
+    const rest = md.slice(at);
+    const next = rest.indexOf("\n## ", heading.length);
+    return next === -1 ? rest : rest.slice(0, next);
+  }
+
+  function cells(line: string): string[] {
+    const parts = line.split("|").map((part) => part.trim());
+    return parts.slice(1, -1);
+  }
+
+  function checkCopy(
+    md: string,
+    heading: string,
+    messages: Record<string, string>,
+    siteLocale: string,
+    stepWord: string,
+    stageFile: (dir: string) => string,
+  ) {
+    const block = section(md, heading);
+    assert.ok(block.includes(siteLocale === "en" ? FAST_EN : FAST_ZH), `${siteLocale} fast-track sits with the table`);
+    assert.ok(existsSync("app/[locale]/lab/page.tsx"));
+    assert.ok(existsSync("app/[locale]/handbook/page.tsx"));
+
+    for (const anchor of [...block.matchAll(/handbook\/#([a-z]+)/g)].map((match) => match[1])) {
+      assert.ok(markup.includes(`data-p=\\"${anchor}\\"`), `#${anchor} is not a handbook rail id`);
+      assert.ok(markup.includes(`id=\\"p-${anchor}\\"`), `panel p-${anchor} is missing`);
+    }
+    const labUrls = [...block.matchAll(/\]\((https:\/\/aicourse\.top\/[^)]+)\)/g)]
+      .map((match) => match[1])
+      .filter((url) => url.includes("/lab"));
+    assert.ok(labUrls.length >= 5, `${siteLocale} Lab column should link the steps that exist`);
+    for (const url of labUrls) {
+      assert.equal(url, `https://aicourse.top/${siteLocale}/lab/`, `${siteLocale} Lab link`);
+    }
+
+    for (const spec of rows) {
+      const line = block.split("\n").find((item) => item.startsWith(`| ${spec.stage} |`));
+      assert.ok(line, `${siteLocale} stage ${spec.stage} row`);
+      const [number, stageCell, handbookCell, labCell] = cells(line);
+      assert.equal(number, String(spec.stage));
+      assert.ok(stageCell.includes(`(${stageFile(spec.dir)})`), `${siteLocale} stage ${spec.stage} link`);
+      assert.equal(existsSync(join("course", stageFile(spec.dir).replace(/\/$/, ""))), true, spec.dir);
+
+      if (spec.anchor === null) {
+        assert.equal(handbookCell, NONE, `${siteLocale} stage ${spec.stage} handbook`);
+      } else {
+        assert.ok(handbookCell.includes(`§${spec.chapter} ${messages[spec.hbKey ?? ""]}`), handbookCell);
+        assert.ok(handbookCell.includes(`https://aicourse.top/${siteLocale}/handbook/#${spec.anchor}`), handbookCell);
+      }
+
+      if (spec.labStep === null) {
+        assert.equal(labCell, NONE, `${siteLocale} stage ${spec.stage} Lab`);
+      } else {
+        assert.ok(labCell.includes(`${stepWord} ${spec.labStep}`), labCell);
+        assert.ok(labCell.includes(messages[spec.labKey ?? ""]), labCell);
+        assert.ok(labCell.includes(`https://aicourse.top/${siteLocale}/lab/`), labCell);
+        if (spec.glossKey) assert.ok(labCell.includes(messages[spec.glossKey]), labCell);
+      }
+    }
+
+    for (const orphan of [
+      { anchor: "start", key: "hb.start", chapter: "00" },
+      { anchor: "compare", key: "hb.compare", chapter: "09" },
+      { anchor: "play", key: "hb.play", chapter: "10" },
+    ]) {
+      assert.ok(block.includes(`https://aicourse.top/${siteLocale}/handbook/#${orphan.anchor}`), orphan.anchor);
+      assert.ok(block.includes(`§${orphan.chapter} ${messages[orphan.key]}`), `${siteLocale} ${orphan.key}`);
+    }
+  }
+
+  const enTable = en.indexOf("## The nine guided stages (0–8)");
+  const enMap = en.indexOf("## Handbook, Lab and these stages");
+  const enReport = en.indexOf("## Your report card");
+  assert.ok(enTable >= 0 && enMap > enTable && enReport > enMap, "English table sits with the stages");
+  const zhTable = zh.indexOf("## 九个引导阶段（0–8）");
+  const zhMap = zh.indexOf("## 手册、实验室与这些阶段");
+  const zhReport = zh.indexOf("## 你的成绩单");
+  assert.ok(zhTable >= 0 && zhMap > zhTable && zhReport > zhMap, "Chinese table sits with the stages");
+
+  checkCopy(en, "## Handbook, Lab and these stages", enMsg, "en", "Step", (dir) => `${dir}/`);
+  checkCopy(zh, "## 手册、实验室与这些阶段", zhMsg, "zh-Hans", "步骤", (dir) => `${dir}/README.zh-Hans.md`);
+});
+
+test("the build page tells Lab graduates that stages 1–4 are review", () => {
+  assert.match(readFileSync("app/[locale]/build/page.tsx", "utf8"), /\{t\("build\.labReview"\)\}/);
+  const expected: Record<string, string> = {
+    en: "Done the Lab? Stages 1–4 will be review — this time you write the code.",
+    "zh-Hans": "实验室做完了？第 1–4 关会是复习——这一次由你自己写代码。",
+    "zh-Hant": "實驗室做完了？第 1–4 階段會是複習——這一次由你自己寫程式。",
+    ja: "ラボを終えたなら、ステージ1〜4は復習です。今度は自分でコードを書きます。",
+    ko: "실습실을 마쳤다면 1~4단계는 복습입니다. 이번에는 코드를 직접 작성합니다.",
+    es: "¿Ya terminaste el Laboratorio? Las etapas 1–4 serán un repaso: esta vez el código lo escribes tú.",
+    fr: "L'Atelier est déjà fait ? Les étapes 1 à 4 seront une révision — cette fois, c'est vous qui écrivez le code.",
+    de: "Sie haben das Labor schon abgeschlossen? Die Stufen 1–4 sind eine Wiederholung — diesmal schreiben Sie den Code selbst.",
+    ar: "أنهيت المختبر؟ ستكون المراحل 1–4 مراجعة — هذه المرة تكتب الشيفرة بنفسك.",
+  };
+  for (const locale of LOCALES) {
+    const catalog = JSON.parse(readFileSync(`messages/${locale}.json`, "utf8")) as Record<string, string>;
+    assert.equal(catalog["build.labReview"], expected[locale], locale);
+  }
 });

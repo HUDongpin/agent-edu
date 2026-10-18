@@ -359,6 +359,7 @@
   "build.beforeTs": "함수, 객체, 루프, await 같은 기본 TypeScript를 읽고 수정할 수 있습니다.",
   "build.beforeTools": "Git, Node.js 24, 터미널, 코드 편집기가 준비되어 있습니다.",
   "build.beforeTime": "9개의 안내형 단계(0~8)에 2~3시간을 잡으세요. 9단계 전이 프로젝트는 열린 과제이며, 필요할 때 멈췄다가 나중에 돌아와도 됩니다.",
+  "build.labReview": "실습실을 마쳤다면 1~4단계는 복습입니다. 이번에는 코드를 직접 작성합니다.",
   "build.startTitle": "먼저 오프라인 0단계를 실행하세요",
   "build.cloneTitle": "1. 복제하고 설치하기",
   "build.cloneBody": "공개 저장소를 복제하고 그 안으로 이동한 뒤 정확히 잠긴 의존성을 설치합니다.",

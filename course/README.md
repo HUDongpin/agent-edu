@@ -90,6 +90,27 @@ Difficulty follows the `TODO`s in that stage's `run.ts`: how many there are, and
 
 **If you only do two stages: do 3 and 4.** Watching one number move from 7/20 to 19/20 because you told the model what it was selling is the single most useful thing here.
 
+## Handbook, Lab and these stages
+
+The [handbook](https://aicourse.top/en/handbook/) names the ideas, the [Lab](https://aicourse.top/en/lab/) lets you try the first four, and these stages are where you write them. Chapter numbers belong to the handbook. Evaluation is stage 3 in this course and §07 in the handbook: this course wants a number before the loop, and the handbook teaches evaluation after the harness.
+
+The Lab is the same ground as stages 0 to 4. Step 1 is the one call, step 2 is the rules wall, step 3 is the prompt, and step 4 scores twenty orders and then adds the menu. Stages 5 to 8 have no Lab step. If you have already finished the Lab, move quickly through stages 1–4 and treat them as review. The new part is writing the code yourself. Stage 0 stays the local preflight: the same first call, this time from your own `run.ts`.
+
+| | Stage | Handbook | Lab |
+|---|---|---|---|
+| 0 | [hello](stage0-hello/) | — | [Step 1 · Your first call](https://aicourse.top/en/lab/) |
+| 1 | [kiosk](stage1-kiosk/) | [§01 Writing code](https://aicourse.top/en/handbook/#code) | [Step 2 · The wall](https://aicourse.top/en/lab/) |
+| 2 | [prompt](stage2-prompt/) | [§02 Prompt engineering](https://aicourse.top/en/handbook/#prompt) | [Step 3 · Write the prompt](https://aicourse.top/en/lab/) |
+| 3 | [evals](stage3-evals/) | [§07 Evaluation engineering](https://aicourse.top/en/handbook/#evals) | [Step 4 · Measure it](https://aicourse.top/en/lab/) — Score it against twenty orders |
+| 4 | [context](stage4-context/) | [§03 Context engineering](https://aicourse.top/en/handbook/#context) | [Step 4 · Measure it](https://aicourse.top/en/lab/) — Add the menu, then re-run |
+| 5 | [loop](stage5-loop/) | [§04 Loop engineering](https://aicourse.top/en/handbook/#loop) | — |
+| 6 | [harness](stage6-harness/) | [§06 Harness engineering](https://aicourse.top/en/handbook/#harness) | — |
+| 7 | [graph](stage7-graph/) | [§05 Graph engineering](https://aicourse.top/en/handbook/#graph) | — |
+| 8 | [security](stage8-security/) | [§08 Security engineering](https://aicourse.top/en/handbook/#security) | — |
+| 9 | [build your own](stage9-project/) | — | — |
+
+Three handbook chapters have no stage. [§00 Start here](https://aicourse.top/en/handbook/#start) is the map, [§09 Which one, when](https://aicourse.top/en/handbook/#compare) is the choice, and [§10 Play the game](https://aicourse.top/en/handbook/#play) is ten briefs to practise on. Stage 9 is the transfer project in a domain you know. It has no Lab step.
+
 ## Your report card
 
 ```bash
