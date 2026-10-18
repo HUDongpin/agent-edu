@@ -368,6 +368,7 @@
   "build.beforeTs": "You can read and edit basic TypeScript: functions, objects, loops and await.",
   "build.beforeTools": "You have Git, Node.js 24, a terminal and a code editor.",
   "build.beforeTime": "Allow about four hours for the nine guided stages (0–8); the Stage 9 transfer project is open-ended, and you can stop and return later.",
+  "build.labReview": "Done the Lab? Stages 1–4 will be review — this time you write the code.",
   "build.startTitle": "Run offline Stage 0 first",
   "build.cloneTitle": "1. Clone and install",
   "build.cloneBody": "Clone the public repository, enter it, and install the exact locked dependencies.",

@@ -368,6 +368,7 @@
   "build.beforeTs": "Vous savez lire et modifier du TypeScript simple : fonctions, objets, boucles et await.",
   "build.beforeTools": "Vous disposez de Git, de Node.js 24, d'un terminal et d'un éditeur de code.",
   "build.beforeTime": "Prévoyez environ quatre heures pour les neuf étapes guidées (0 à 8) ; le projet de transfert de l'étape 9 est ouvert, et vous pouvez revenir plus tard.",
+  "build.labReview": "L'Atelier est déjà fait ? Les étapes 1 à 4 seront une révision — cette fois, c'est vous qui écrivez le code.",
   "build.startTitle": "Commencez par exécuter l'étape 0 hors ligne",
   "build.cloneTitle": "1. Cloner et installer",
   "build.cloneBody": "Clonez le dépôt public, ouvrez-le et installez exactement les dépendances verrouillées.",

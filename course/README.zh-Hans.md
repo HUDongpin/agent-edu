@@ -90,6 +90,27 @@ export CAFE_MODEL=deepseek-v4-pro   # or a Provider-supported model
 
 **如果只做两个阶段：做 3 和 4。** 看着一个数字从 7/20 变成 19/20，原因只是你告诉了模型它在卖什么——这是这里最有用的一件事。
 
+## 手册、实验室与这些阶段
+
+[手册](https://aicourse.top/zh-Hans/handbook/)给这些想法起名字，[实验室](https://aicourse.top/zh-Hans/lab/)让你试前四步，这些阶段则是你自己把它们写出来。章节号是手册的。评测在这门课里是第 3 阶段，在手册里是 §07：这门课要在循环之前先有一个数字，手册把评测放在运行框架之后。
+
+实验室和第 0 到第 4 阶段是同一块地。步骤 1 是一次调用，步骤 2 是规则撞上的那堵墙，步骤 3 是提示词，步骤 4 先给二十笔点单打分，再把菜单加进去。第 5 到第 8 阶段在实验室里没有对应步骤。如果已经做完实验室，第 1–4 阶段可以走得快一些，把它们当作复习。新的部分是你自己把代码写出来。第 0 阶段仍然是本地预检：同一次调用，这一次从你自己的 `run.ts` 发出。
+
+| | 阶段 | 手册 | 实验室 |
+|---|---|---|---|
+| 0 | [hello](stage0-hello/README.zh-Hans.md) | — | [步骤 1 · 你的第一次调用](https://aicourse.top/zh-Hans/lab/) |
+| 1 | [kiosk](stage1-kiosk/README.zh-Hans.md) | [§01 写代码](https://aicourse.top/zh-Hans/handbook/#code) | [步骤 2 · 那堵墙](https://aicourse.top/zh-Hans/lab/) |
+| 2 | [prompt](stage2-prompt/README.zh-Hans.md) | [§02 提示词工程](https://aicourse.top/zh-Hans/handbook/#prompt) | [步骤 3 · 写提示词](https://aicourse.top/zh-Hans/lab/) |
+| 3 | [evals](stage3-evals/README.zh-Hans.md) | [§07 评测工程](https://aicourse.top/zh-Hans/handbook/#evals) | [步骤 4 · 量一量](https://aicourse.top/zh-Hans/lab/) — 拿二十笔点单给它打分 |
+| 4 | [context](stage4-context/README.zh-Hans.md) | [§03 上下文工程](https://aicourse.top/zh-Hans/handbook/#context) | [步骤 4 · 量一量](https://aicourse.top/zh-Hans/lab/) — 加上菜单，再跑一次 |
+| 5 | [loop](stage5-loop/README.zh-Hans.md) | [§04 循环工程](https://aicourse.top/zh-Hans/handbook/#loop) | — |
+| 6 | [harness](stage6-harness/README.zh-Hans.md) | [§06 运行框架工程](https://aicourse.top/zh-Hans/handbook/#harness) | — |
+| 7 | [graph](stage7-graph/README.zh-Hans.md) | [§05 图工程](https://aicourse.top/zh-Hans/handbook/#graph) | — |
+| 8 | [security](stage8-security/README.zh-Hans.md) | [§08 安全工程](https://aicourse.top/zh-Hans/handbook/#security) | — |
+| 9 | [迁移项目](stage9-project/README.zh-Hans.md) | — | — |
+
+手册里有三章没有对应的阶段。[§00 从这里开始](https://aicourse.top/zh-Hans/handbook/#start)是整张地图，[§09 什么时候用哪个](https://aicourse.top/zh-Hans/handbook/#compare)是怎么选，[§10 来玩一局](https://aicourse.top/zh-Hans/handbook/#play)是拿十份简报练手。第 9 阶段是在你自己的领域里做的迁移项目，实验室里没有对应步骤。
+
 ## 你的成绩单
 
 ```bash

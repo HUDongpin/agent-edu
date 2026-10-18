@@ -364,6 +364,7 @@
   "build.beforeTs": "你能夠讀寫基礎 TypeScript，包括函式、物件、迴圈和 await。",
   "build.beforeTools": "你已安裝 Git、Node.js 24，並備有終端機和程式碼編輯器。",
   "build.beforeTime": "九個引導階段（第 0–8 階段）大約需要四小時；第 9 階段遷移作品是開放式任務，你可以隨時停下，以後再繼續。",
+  "build.labReview": "實驗室做完了？第 1–4 階段會是複習——這一次由你自己寫程式。",
   "build.startTitle": "先執行離線的第 0 階段",
   "build.cloneTitle": "1. 複製並安裝",
   "build.cloneBody": "複製公開儲存庫，進入該目錄，並安裝已鎖定確切版本的相依套件。",
