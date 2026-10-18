@@ -8,10 +8,10 @@ The [handbook](https://aicourse.top/en/handbook/) gives you the mental model and
 
 ## Before you start
 
-Everything below runs from the **repo root** — the course shares the site's `package.json`, so there is nothing to install in this folder.
+You need Node.js 24.x (check with `node -v`), Git, and a shell at the repo root. Every command below runs from there. The course shares the site's `package.json`, so there is nothing to install in this folder.
 
 ```bash
-npm install
+npm ci
 export DEEPSEEK_API_KEY=your_key_here      # platform.deepseek.com/api_keys
 # ...or, if you'd rather run it on Claude:
 export ANTHROPIC_API_KEY=your_key_here     # console.anthropic.com
@@ -66,7 +66,7 @@ The differences that *don't* vanish are the interesting part, and all of them li
 | structured outputs | native — the reply **cannot** be the wrong shape | **accepted and silently ignored.** You get prose. `llm.ts` asks in the prompt and validates the answer itself |
 | "think harder" | `output_config.effort` | `thinking: {type:"disabled"}` — and left on with a small `max_tokens`, it spends the whole budget thinking and returns an **empty string with no error** |
 | token counting | counts your text | counts the whole request, ~83 tokens of scaffolding included, so `llm.ts` subtracts the floor |
-| price | flat in this course snapshot | Flash/Pro, cache hit/miss and output use the dated shared table; peak windows are 01:00–04:00 and 06:00–10:00 UTC, Monday to Friday; weekends are off-peak |
+| price | flat in this course snapshot | Flash/Pro, cache hit/miss and output use the dated shared table. Peak and off-peak hours are the snapshot `DEEPSEEK_PRICING` in `lib/byok/pricing.ts` (checked 2026-09-22; [source](https://api-docs.deepseek.com/quick_start/pricing/)). Chinese public holidays are priced as peak there, which can only overstate a cost |
 
 This is what a provider abstraction is actually for. Not "swap the URL" — anyone can do that. It is knowing which of your assumptions were really vendor behaviour, and the only way to find out is to run the same suite against two of them.
 

@@ -7,7 +7,7 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { assertDependencies, loadLlm } from "./preflight";
-import { record } from "./report";
+import { parsePrediction, record } from "./report";
 
 // Linked before any module body runs, so the SDK import has to stay dynamic.
 assertDependencies();
@@ -25,6 +25,8 @@ const ok = (m: string) => console.log(`  PASS  ${m}`);
 /** Set before dispatch so a failure can name the stage's own README. */
 let checking = 0;
 let hintStage = "0";
+/** Set from `--predict` before a stage 3 or 4 run. Absent means "do not keep an old guess". */
+let stagePrediction: number | undefined;
 
 /** The cases that did not pass, with the reason each one gives. */
 function printFailures(failures: readonly { id: string; why: string }[]): void {
@@ -364,7 +366,8 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     console.log("  ASK   before this lands: what will it score out of 20, and why?");
     console.log("        (nothing checks your answer — the gap is the point)\n");
     const [score, failures] = await run(m.SYSTEM_UNDER_TEST, { verbose: false });
-    record(3, { score });
+    record(3, stagePrediction === undefined ? { score } : { score, prediction: stagePrediction },
+      stagePrediction === undefined ? ["prediction"] : []);
     ok(`it ran: ${score}/${CASES.length} — write that number down`);
     // The README tells the reader to read the failures, and most of them are
     // prices, because the model has never seen the menu. Stage 3 printed none.
@@ -391,7 +394,8 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
         "if the reasons above are prices, SYSTEM never tells the model what the café sells or charges — read the failing cases and add the facts they lack",
       );
     }
-    record(4, { score });
+    record(4, stagePrediction === undefined ? { score } : { score, prediction: stagePrediction },
+      stagePrediction === undefined ? ["prediction"] : []);
     ok(`scored ${score}/20 with the menu in context`);
   },
 
@@ -474,14 +478,25 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
   },
 };
 
-const args = process.argv.slice(2).filter((a) => !a.startsWith("-"));
+const argv = process.argv.slice(2);
+const predicted = parsePrediction(argv);
+if (predicted.status === "bad") {
+  console.log(`\n  ${predicted.message}\n`);
+  process.exit(1);
+}
+const args = argv.filter((token, index) => !token.startsWith("-") && argv[index - 1] !== "--predict");
 const raw = args[0];
 const part = raw === "5a" || raw === "5b" ? raw : null;
 const stage = part ? 5 : Number(raw);
 if (!args.length || !(stage in STAGES)) {
-  console.log("usage: npx tsx course/check.ts <0-8> [--offline]");
+  console.log("usage: npx tsx course/check.ts <0-8> [--offline] [--predict N]");
   console.log("       npx tsx course/check.ts 5a|5b [--offline]");
+  console.log("       --predict is optional, stages 3 and 4 only, and never reads the keyboard");
   process.exit(1);
+}
+if (predicted.status === "ok") {
+  if (stage === 3 || stage === 4) stagePrediction = predicted.value;
+  else console.log("  NOTE  --predict is stored only for stages 3 and 4.\n");
 }
 checking = stage;
 hintStage = String(part ?? stage);

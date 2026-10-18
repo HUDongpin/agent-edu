@@ -441,5 +441,16 @@
   "teach.rubricReview": "反思：失敗、退步、成本、取捨和下一項測試。",
   "teach.evidenceTitle": "接受證據，而不是唯一的標準答案",
   "teach.evidenceBody": "不含機密的主控台輸出、小型 JSON 或 Markdown 結果、程式碼連結、一個失敗案例的追蹤紀錄，或一份本機成績單，都可以作為有效證據。評分規準不限定特定框架、供應商或提示詞。",
-  "teach.privacyBody": "試教觀察表應只保存在本機。絕不要把學習者金鑰、提示詞、供應商原始回應內容、回覆或可識別個人的作業放進本站、螢幕截圖或 CI 紀錄。"
+  "teach.privacyBody": "試教觀察表應只保存在本機。絕不要把學習者金鑰、提示詞、供應商原始回應內容、回覆或可識別個人的作業放進本站、螢幕截圖或 CI 紀錄。",
+  "home.progCheck": "完成清單",
+  "home.progNext": "下一步",
+  "home.progNextHandbook": "從手冊開始",
+  "home.progNextContinue": "繼續讀手冊",
+  "home.progNextRoom": "做完控制室",
+  "home.progNextLab": "實驗室第 {n} 步：{name}",
+  "home.progNextBuild": "在你自己的電腦上打開第三部分",
+  "home.progNextDone": "三個部分在這個瀏覽器裡都已記下。",
+  "home.progBuildNote": "這是你自己的標記。本網站看不到你電腦上的課程。",
+  "home.progLabSteps": "實驗室的步驟",
+  "lab.s3.langNote": "這些訂單故意用英文。你可以用自己的語言寫提示詞。"
 }

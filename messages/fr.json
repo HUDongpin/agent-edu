@@ -445,5 +445,16 @@
   "teach.rubricReview": "Réflexion : échecs, régressions, coût, compromis et prochain test.",
   "teach.evidenceTitle": "Accepter des preuves, pas une seule réponse approuvée",
   "teach.evidenceBody": "Une sortie de console sans secret, un petit résultat JSON ou Markdown, un lien vers le code, la trace d'un cas d'échec ou un bulletin local peuvent tous être valables. La grille n'impose ni framework, ni fournisseur, ni prompt particulier.",
-  "teach.privacyBody": "Conservez localement les fiches d'observation du pilote. Ne placez jamais de clés d'apprenants, prompts, corps bruts du fournisseur, réponses ou travaux identifiables dans ce site, des captures d'écran ou les journaux de CI."
+  "teach.privacyBody": "Conservez localement les fiches d'observation du pilote. Ne placez jamais de clés d'apprenants, prompts, corps bruts du fournisseur, réponses ou travaux identifiables dans ce site, des captures d'écran ou les journaux de CI.",
+  "home.progCheck": "Liste",
+  "home.progNext": "Étape suivante",
+  "home.progNextHandbook": "Commencer par le Manuel",
+  "home.progNextContinue": "Continuer le Manuel",
+  "home.progNextRoom": "Terminer la Salle de contrôle",
+  "home.progNextLab": "Étape {n} de l'atelier : {name}",
+  "home.progNextBuild": "Ouvrir la partie 3 sur votre machine",
+  "home.progNextDone": "Les trois parties sont notées dans ce navigateur.",
+  "home.progBuildNote": "C'est votre propre coche. Ce site ne voit pas le cours sur votre machine.",
+  "home.progLabSteps": "Étapes de l'atelier",
+  "lab.s3.langNote": "Les commandes sont en anglais exprès. Vous pouvez écrire le prompt dans votre langue."
 }

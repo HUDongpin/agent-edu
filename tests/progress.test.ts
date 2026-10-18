@@ -15,6 +15,7 @@ import {
   selectCourseProgress,
   selectHandbookProgress,
   selectLabProgress,
+  selectNextLearningStep,
   type LearningStateV2,
   type StorageLike,
 } from "../lib/progress";
@@ -732,5 +733,108 @@ test("resetting progress clears the Lab draft too, so \"all\" means all", () => 
     "the confirmation must come before anything is erased");
   for (const erase of ["clearLabDraft()", "clearLabRun()"]) {
     assert.ok(guard < handler.indexOf(erase), `the confirmation must come before ${erase}`);
+  }
+});
+
+test("the next step follows the handbook, then the lab, then the Part 3 declaration", () => {
+  assert.deepEqual(selectNextLearningStep(EMPTY_LEARNING_STATE, "en"), {
+    kind: "handbook-start",
+    href: "/en/handbook/",
+  });
+  /* A lab already underway does not jump the queue: the handbook is still first. */
+  const labFirst = v2({ lab: { completedSteps: ["first-call"] } });
+  assert.equal(selectNextLearningStep(labFirst, "ko").kind, "handbook-start");
+
+  const reading = v2({
+    handbook: { lastSection: "code", visitedSections: ["start", "code"], controlRoom: { completedRuns: 0 } },
+  });
+  assert.deepEqual(selectNextLearningStep(reading, "zh-Hans"), {
+    kind: "handbook-continue",
+    href: "/zh-Hans/handbook/#code",
+  });
+
+  const allSeen = v2({
+    handbook: {
+      lastSection: "play",
+      visitedSections: [...HANDBOOK_SECTION_IDS],
+      controlRoom: { completedRuns: 0 },
+    },
+  });
+  assert.deepEqual(selectNextLearningStep(allSeen, "ar"), {
+    kind: "handbook-room",
+    href: "/ar/handbook/#play",
+  });
+
+  const handbookDone = v2({
+    handbook: {
+      lastSection: "start",
+      visitedSections: ["start"],
+      controlRoom: { completedRuns: 1 },
+    },
+  });
+  assert.deepEqual(selectNextLearningStep(handbookDone, "en"), {
+    kind: "lab",
+    href: "/en/lab/",
+    step: 1,
+  });
+
+  const gapped = v2({
+    handbook: { lastSection: "start", visitedSections: ["start"], controlRoom: { completedRuns: 1 } },
+    lab: { completedSteps: ["first-call", "prompt-trial"] },
+  });
+  assert.deepEqual(selectNextLearningStep(gapped, "fr"), {
+    kind: "lab",
+    href: "/fr/lab/",
+    step: 2,
+  });
+
+  const labDone = v2({
+    handbook: { lastSection: "start", visitedSections: ["start"], controlRoom: { completedRuns: 1 } },
+    lab: { completedSteps: [...LAB_STEPS] },
+  });
+  assert.deepEqual(selectNextLearningStep(labDone, "de"), {
+    kind: "build",
+    href: "/de/build/",
+  });
+
+  const all = v2({
+    handbook: { lastSection: "start", visitedSections: ["start"], controlRoom: { completedRuns: 1 } },
+    lab: { completedSteps: [...LAB_STEPS] },
+    declared: { completed: ["build"] },
+  });
+  assert.deepEqual(selectNextLearningStep(all, "ja"), { kind: "done" });
+});
+
+test("the home checklist is drawn from stored progress and keeps one reset handler", () => {
+  const src = readFileSync("components/Progress.tsx", "utf8");
+  assert.match(src, /home\.progCheck/);
+  assert.match(src, /home\.progNextLab/);
+  assert.match(src, /home\.progBuildNote/);
+  assert.match(src, /selectNextLearningStep/);
+  assert.doesNotMatch(src, /course\/progress\.json/);
+  assert.equal(src.indexOf("onClick={"), src.lastIndexOf("onClick={"));
+  const keys = [
+    "home.progCheck", "home.progNext", "home.progNextHandbook", "home.progNextContinue",
+    "home.progNextRoom", "home.progNextLab", "home.progNextBuild", "home.progNextDone",
+    "home.progBuildNote", "home.progLabSteps",
+  ];
+  for (const locale of LOCALE_FILES) {
+    const table = readMessages(locale);
+    for (const key of keys) assert.equal(typeof table[key], "string", `${locale} ${key}`);
+    assert.match(table["home.progNextLab"] ?? "", /\{n\}/);
+    assert.match(table["home.progNextLab"] ?? "", /\{name\}/);
+  }
+});
+
+test("zh-Hans site strings use 评测, with Eval only as the first-use gloss", () => {
+  const table = readMessages("zh-Hans");
+  assert.match(table["home.progResetConfirm"] ?? "", /评测（Eval）/);
+  for (const [key, value] of Object.entries(table)) {
+    assert.equal(value.replaceAll("评测（Eval）", "").includes("Eval"), false, key);
+  }
+  const handbook = JSON.parse(readFileSync("messages/handbook/zh-Hans.json", "utf8")) as Record<string, string>;
+  for (const [key, value] of Object.entries(handbook)) {
+    if (typeof value !== "string") continue;
+    assert.equal(value.includes("Eval"), false, `handbook ${key}`);
   }
 });

@@ -16,6 +16,8 @@ There is one `TODO`: import your stage-2 prompt and point the eval at it.
 npx tsx course/check.ts 3
 ```
 
+You can also keep the guess beside the score. Nothing reads the keyboard, so a piped run cannot hang on the question. `npx tsx course/check.ts 3 --predict 12` stores `prediction` in `progress.json` when the check passes. `npx tsx course/report.ts` then prints you predicted 12, got the score of that run. Leave `--predict` off and a later passing run clears an old guess, so the two are not paired by accident. A failed check stores nothing. The note on paper still counts.
+
 **Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-3), then [SOLUTIONS.md](../SOLUTIONS.md).
 
 ## What to notice

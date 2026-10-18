@@ -16,6 +16,8 @@ npx tsx course/stage4-context/run.ts
 npx tsx course/check.ts 4
 ```
 
+和第 3 阶段同一个可选旗标，同样不读键盘：`npx tsx course/check.ts 4 --predict 16` 在检查通过时把 `prediction` 写进 `progress.json`。`npx tsx course/report.ts` 会印出你预测 16、这次实际得了多少。这一阶段要 16 分及以上才算通过，没通过的检查什么都不记，所以低于这条线的猜测不会被写在这里。不带 `--predict` 再跑过一次，会清掉旧的猜测。
+
 `check.ts` 要求 **至少 16/20** —— 相对第 2 阶段基线一次真正的提升，而不是差一个用例的晃动。
 
 **卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md#第-4-阶段)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
