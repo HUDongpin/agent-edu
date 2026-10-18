@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 1 — the kiosk that can't
 
 **Goal:** feel the wall that makes all of this necessary. No model in this stage at all.

@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 8 — when the input fights back
 
 **Goal:** watch your own agent take orders from a stranger, then make that not matter.

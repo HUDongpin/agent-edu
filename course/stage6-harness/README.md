@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 6 — the machine around it
 
 **Goal:** turn stage 5's demo into something you would leave running overnight. No prompt changes. No model changes.

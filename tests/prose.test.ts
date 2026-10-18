@@ -110,6 +110,27 @@ test("an arrow function is not mistaken for a Python keyword argument", () => {
   );
 });
 
+test("a broken identifier in README.zh-Hans.md fails the same way", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prose-zh-"));
+  try {
+    for (const entry of readdirSync(".")) {
+      if (entry === "course" || entry.startsWith(".")) continue;
+      symlinkSync(join(process.cwd(), entry), join(dir, entry));
+    }
+    cpSync("course", join(dir, "course"), { recursive: true });
+    const readme = join(dir, "course", "stage2-prompt", "README.zh-Hans.md");
+    writeFileSync(readme, readFileSync(readme, "utf8").replace("`extractJSON`", "`extract_json`"));
+    const result = run(join(dir, "course"));
+    assert.equal(result.status, 1);
+    onlyProblems(result.stderr, 1);
+    assert.match(result.stderr, /README\.zh-Hans\.md/);
+    assert.match(result.stderr, /`extract_json`, which exists nowhere/);
+    assert.match(result.stderr, /`extractJSON` is spelled that way in the tree/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("a path the prose tells the reader to open must exist", () => {
   withBrokenProse(
     (src) => src.replace("`cafe/llm.ts`", "`cafe/llm_client.ts`"),

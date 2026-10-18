@@ -1,3 +1,5 @@
+> 简体中文：[README.zh-Hans.md](README.zh-Hans.md)
+
 # Stage 2 — the first real model call
 
 **Goal:** replace stage 1's rules with a prompt, and meet the thing that makes the next six stages necessary.

@@ -170,6 +170,38 @@ test("the transfer stage ships a worked example, scored honestly", () => {
   assert.match(readFileSync("course/README.md", "utf8"), /worked-example\.md/);
 });
 
+test("every stage ships a Simplified Chinese README and English READMEs link to it", () => {
+  const stageFolders = readdirSync("course", { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && /^stage\d+-/.test(entry.name))
+    .map((entry) => entry.name)
+    .sort();
+
+  const zhLink = /> 简体中文：\[README\.zh-Hans\.md\]\(README\.zh-Hans\.md\)/;
+  const courseReadme = readFileSync("course/README.md", "utf8");
+  const courseZh = readFileSync("course/README.zh-Hans.md", "utf8");
+  assert.match(courseReadme, zhLink);
+  assert.match(courseZh, /九个引导阶段（0–8）/);
+  assert.match(courseZh, /worked-example\.md/);
+
+  for (const stage of stageFolders) {
+    const files = readdirSync(`course/${stage}`);
+    assert.equal(files.includes("README.zh-Hans.md"), true, `${stage} missing README.zh-Hans.md`);
+    assert.match(readFileSync(`course/${stage}/README.md`, "utf8"), zhLink);
+    assert.match(courseZh, new RegExp(`${stage}/README\\.zh-Hans\\.md`));
+    const zh = readFileSync(`course/${stage}/README.zh-Hans.md`, "utf8");
+    if (stage === "stage9-project") {
+      assert.match(zh, /worked-example\.md/);
+      assert.match(zh, /目前仍是英文/);
+    } else {
+      assert.match(zh, /## 逐条讲解 TODO/);
+    }
+  }
+
+  const buildPage = readFileSync("app/[locale]/build/page.tsx", "utf8");
+  assert.match(buildPage, /locale === "zh-Hans"/);
+  assert.match(buildPage, /course\/README\.zh-Hans\.md/);
+});
+
 test("stage 2 records distinct answers from the five probes the report names", () => {
   /* Stage 2's own runner and its README ask the vague question five times.
      The grader asked it three times and stored that count, while the report
