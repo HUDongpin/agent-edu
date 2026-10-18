@@ -2,7 +2,7 @@
  * The whole subject, in two pictures.
  *
  * The home page states the idea — "every program is a list of steps, the only
- * question is who picks them" — and then asks the reader to take four hours on
+ * question is who picks them" — and then asks the reader to take 5–6 hours on
  * the strength of it. Someone who has never written code has no image to hang
  * that sentence on, so the diagrams supply one: the same run of steps, decided
  * two different ways.

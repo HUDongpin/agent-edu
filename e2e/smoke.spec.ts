@@ -85,6 +85,36 @@ test("the unprefixed root resolves to the English home", async ({ page }) => {
   await expect(page.locator("#curriculum")).toBeVisible();
 });
 
+test("the home page points at the keyless paths", async ({ page }) => {
+  await page.goto("/en/");
+  const entry = page.locator("[data-no-key]");
+  await expect(entry).toBeVisible();
+  await expect(entry).toContainText("Most of the course needs no API key");
+  await expect(entry.locator("code")).toHaveText("npm run course:offline");
+  await entry.locator('a[href="/en/handbook/"]').click();
+  await expect(page).toHaveURL(/\/en\/handbook\/$/);
+
+  await page.goto("/en/");
+  await page.locator('[data-no-key] a[href="/en/lab/"]').click();
+  await expect(page).toHaveURL(/\/en\/lab\/$/);
+
+  await page.goto("/en/");
+  await page.locator('[data-no-key] a[href="/en/build/"]').click();
+  await expect(page).toHaveURL(/\/en\/build\/$/);
+  await expect(page.locator("pre").filter({ hasText: "npm run course:offline" })).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto("/ar/");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  const arabic = page.locator("[data-no-key]");
+  await expect(arabic).toBeVisible();
+  await expect(arabic.locator('a[href="/ar/handbook/"]')).toBeVisible();
+  await expect(arabic.locator('a[href="/ar/lab/"]')).toBeVisible();
+  await expect(arabic.locator('a[href="/ar/build/"]')).toBeVisible();
+  await expect(arabic.locator("code")).toHaveAttribute("dir", "ltr");
+  await expectNoPageOverflow(page);
+});
+
 for (const locale of JOURNEY_LOCALES) {
   test(`${locale}: home → Handbook → Lab → Part 3 stays local`, async ({ page }) => {
     const providerRequests: string[] = [];
