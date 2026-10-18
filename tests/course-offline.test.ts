@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -116,7 +116,9 @@ test("the offline stand-in can refuse to end so stage 5 can grade the step limit
 });
 
 test("an unfinished stage 5 stops on its own TODO and does not record progress", () => {
-  const before = readFileSync("course/progress.json", "utf8");
+  const progress = "course/progress.json";
+  const snapshot = () => (existsSync(progress) ? readFileSync(progress, "utf8") : null);
+  const before = snapshot();
   const env = { ...process.env, DEEPSEEK_API_KEY: "", ANTHROPIC_API_KEY: "" };
   for (const [step, needle] of [
     ["5a", "TODO 5a"],
@@ -131,7 +133,7 @@ test("an unfinished stage 5 stops on its own TODO and does not record progress",
     assert.equal(result.status, 1, `${step}\n${result.stdout}\n${result.stderr}`);
     assert.match(result.stdout, new RegExp(needle), result.stdout);
   }
-  assert.equal(readFileSync("course/progress.json", "utf8"), before);
+  assert.equal(snapshot(), before);
 });
 
 test("the stage 5 reference solution passes 5a, 5b and 5 offline", () => {
