@@ -14,7 +14,7 @@ Two `TODO`s: label untrusted text as data, and cap what the tools can reach. The
 npx tsx course/check.ts 8
 ```
 
-**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md), then [SOLUTIONS.md](../SOLUTIONS.md).
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-8), then [SOLUTIONS.md](../SOLUTIONS.md).
 
 ## What to notice
 

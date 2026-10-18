@@ -198,9 +198,12 @@ test("stage READMEs and the course README link the hint files", () => {
     const readme = readFileSync(`course/${stage}/README.md`, "utf8");
     const zh = readFileSync(`course/${stage}/README.zh-Hans.md`, "utf8");
     assert.match(readme, /Stuck\?/, stage);
-    assert.match(readme, /\]\(\.\.\/HINTS\.md\)/, stage);
+    const n = /^stage(\d+)-/.exec(stage)![1];
+    const guided = Number(n) <= 8;
+    // Guided stages link straight to their own section; the transfer stage to the file.
+    assert.ok(readme.includes(guided ? `](../HINTS.md#stage-${n})` : "](../HINTS.md)"), stage);
     assert.match(readme, /\]\(\.\.\/SOLUTIONS\.md\)/, stage);
-    assert.match(zh, /\]\(\.\.\/HINTS\.zh-Hans\.md\)/, stage);
+    assert.ok(zh.includes(guided ? `](../HINTS.zh-Hans.md#第-${n}-阶段)` : "](../HINTS.zh-Hans.md)"), stage);
     assert.match(zh, /\]\(\.\.\/SOLUTIONS\.md\)/, stage);
   }
 });
@@ -218,8 +221,8 @@ test("hints do not paste a solution code block from SOLUTIONS.md", () => {
 
 test("a failing check names the next edit and points at Hint 1", () => {
   const check = readFileSync("course/check.ts", "utf8");
-  assert.match(check, /see HINTS\.md, Hint 1/);
-  assert.match(check, /SYSTEM never mentions a menu price — paste MENU into SYSTEM so the model knows what it sells/);
+  assert.match(check, /see course\/HINTS\.md, Stage \$\{hintStage\}, Hint 1/);
+  assert.match(check, /SYSTEM never mentions a menu price — put menuText\(\) into SYSTEM so the model knows what it sells/);
   assert.match(check, /re-read course\/\$\{STAGES\[checking\]\}\/README\.md/);
   assert.match(check, /function bad\(m: string, hint\?: string\): never/);
 });

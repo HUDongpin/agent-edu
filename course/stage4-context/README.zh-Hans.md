@@ -18,7 +18,7 @@ npx tsx course/check.ts 4
 
 `check.ts` 要求 **至少 16/20** —— 相对第 2 阶段基线一次真正的提升，而不是差一个用例的晃动。
 
-**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md#第-4-阶段)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
 
 ## 要注意什么
 

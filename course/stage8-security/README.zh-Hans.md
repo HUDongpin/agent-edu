@@ -14,7 +14,7 @@ npx tsx course/stage8-security/run.ts
 npx tsx course/check.ts 8
 ```
 
-**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md#第-8-阶段)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
 
 ## 要注意什么
 

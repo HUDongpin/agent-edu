@@ -18,7 +18,7 @@ There is one `TODO` in `run.ts`. Fill it in and run it again.
 npx tsx course/check.ts 0
 ```
 
-**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md), then [SOLUTIONS.md](../SOLUTIONS.md).
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-0), then [SOLUTIONS.md](../SOLUTIONS.md).
 
 ## What to notice
 

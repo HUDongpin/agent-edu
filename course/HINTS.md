@@ -1,6 +1,6 @@
 # Hints
 
-Two hints for each guided stage. Open Hint 1 first. Open Hint 2 only if you are still stuck. The code that passes is in [SOLUTIONS.md](SOLUTIONS.md), and reading it ends the attempt.
+Two hints for each guided stage. Open Hint 1 first. Open Hint 2 only if you are still stuck. The code that passes is in [SOLUTIONS.md](SOLUTIONS.md), so open it only once you are ready to stop working it out yourself.
 
 Stages 5a and 5b are graded apart. The stage 5 section only tells you which of those to open. Stage 9 is the transfer project and has no hints here.
 
@@ -162,7 +162,7 @@ The five runs share one model, one prompt and one set of tools. The only thing y
 <details>
 <summary>Hint 2</summary>
 
-In `callTool` in `stage6-harness/run.ts`, before the tool runs: when `parts.gate` is on, a `place_order` must not push committed spend past `APPROVAL_THRESHOLD`. Committed spend is what is already in `tools.ORDERS`, priced with `UNIT_COST`. Unknown prices, and quantities that are not positive and finite, fail closed. Call `approve`. A refusal comes back as an error result the model can read.
+In `callTool` in `stage6-harness/run.ts`, before the tool runs: when `parts.gate` is on, a `place_order` must not push committed spend past `APPROVAL_THRESHOLD`. Committed spend is what is already in `tools.ORDERS`, priced with `UNIT_COST`. Unknown prices, and quantities that are not positive and finite, fail closed. When an order would go over the threshold, ask `approve`; a refusal comes back as an error result the model can read.
 
 The `try` should call `tools.RUNNERS`. When `parts.errors` is on, the final failure text is the real reason. When it is off, that text is the bare word Error. After `callTool` returns, append a line to `RUN_LOG` when `parts.log` is on.
 
@@ -200,9 +200,9 @@ The model reads the whole email as sentences it should follow. One defence tells
 <details>
 <summary>Hint 2</summary>
 
-In `stage8-security/run.ts`, when `labelAsData` is true, add a line to `system` saying the email is quoted material from an untrusted source and that only the café's operators can give instructions. Then wrap the email so the boundary is visible in the text passed to `ask`.
+In `stage8-security/run.ts`, when `labelAsData` is true, add a sentence to `system` that tells the model the email is untrusted material and says who is allowed to give it instructions. Then wrap the email so the boundary is visible in the text passed to `ask`.
 
-When `capTools` is true, after `ask` returns, keep `refund_amount` from exceeding `ORDER_TOTAL`, and set `send_address_list` to false. Do that in code, not in the prompt.
+When `capTools` is true, after `ask` returns, keep `refund_amount` between 0 and `ORDER_TOTAL`, and set `send_address_list` to false. Do that in code, not in the prompt.
 
 </details>
 

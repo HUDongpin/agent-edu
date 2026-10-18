@@ -27,7 +27,7 @@ npx tsx course/check.ts 5b
 `npx tsx course/check.ts 5` grades both steps. Passing the stage still means two orders placed and an email sent to the manager.
 
 
-**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md), then [SOLUTIONS.md](../SOLUTIONS.md).
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-5), then [SOLUTIONS.md](../SOLUTIONS.md).
 
 ## What to notice
 

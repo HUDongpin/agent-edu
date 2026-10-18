@@ -24,6 +24,7 @@ const ok = (m: string) => console.log(`  PASS  ${m}`);
 
 /** Set before dispatch so a failure can name the stage's own README. */
 let checking = 0;
+let hintStage = "0";
 
 /** The cases that did not pass, with the reason each one gives. */
 function printFailures(failures: readonly { id: string; why: string }[]): void {
@@ -50,7 +51,7 @@ function printFailures(failures: readonly { id: string; why: string }[]): void {
 function bad(m: string, hint?: string): never {
   console.log(`  FAIL  ${m}`);
   console.log(`        ${hint ?? `re-read course/${STAGES[checking]}/README.md — it describes this stage's TODOs`}`);
-  console.log("        see HINTS.md, Hint 1");
+  console.log(`        see course/HINTS.md, Stage ${hintStage}, Hint 1`);
   console.log();
   process.exit(1);
 }
@@ -387,7 +388,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
       printFailures(failures);
       bad(
         `scored ${score}/20, wanted at least 16`,
-        "if the reasons above are prices, SYSTEM never mentions a menu price — paste MENU into SYSTEM so the model knows what it sells",
+        "if the reasons above are prices, SYSTEM never mentions a menu price — put menuText() into SYSTEM so the model knows what it sells",
       );
     }
     record(4, { score });
@@ -456,7 +457,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
       bad(
         `capped run still refunded $${capped.refund_amount.toFixed(2)}; the cap must hold ` +
         "even when the model is fooled",
-        "when capTools is true, clamp refund_amount to ORDER_TOTAL in code after ask returns — the limit has to hold even if the model was fooled",
+        "when capTools is true, clamp refund_amount between 0 and ORDER_TOTAL in code after ask returns — the limit has to hold even if the model was fooled",
       );
     }
     ok(`fooled but capped: $${capped.refund_amount.toFixed(2)}`);
@@ -483,6 +484,7 @@ if (!args.length || !(stage in STAGES)) {
   process.exit(1);
 }
 checking = stage;
+hintStage = String(part ?? stage);
 // OFFLINE, not a fresh argv read: npm eats a bare `--offline`, so re-deriving it
 // here would warn about spending money on a run that is about to spend none.
 if (COSTS_MONEY.has(stage) && !OFFLINE) {
@@ -503,7 +505,7 @@ try {
 } catch (err) {
   const msg = (err as Error).message;
   if (/TODO/.test(msg)) {
-    console.log(`  TODO  ${msg}\n\n  Finish that one and run this again.\n  see HINTS.md, Hint 1\n`);
+    console.log(`  TODO  ${msg}\n\n  Finish that one and run this again.\n  see course/HINTS.md, Stage ${hintStage}, Hint 1\n`);
     process.exit(1);
   }
   throw err;

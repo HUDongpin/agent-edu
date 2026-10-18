@@ -16,7 +16,7 @@ npx tsx course/stage3-evals/run.ts
 npx tsx course/check.ts 3
 ```
 
-**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md#第-3-阶段)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
 
 ## 要注意什么
 

@@ -14,7 +14,7 @@ There is one `TODO`: write the prompt. Then:
 npx tsx course/check.ts 2
 ```
 
-**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md), then [SOLUTIONS.md](../SOLUTIONS.md).
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-2), then [SOLUTIONS.md](../SOLUTIONS.md).
 
 ## What to notice
 

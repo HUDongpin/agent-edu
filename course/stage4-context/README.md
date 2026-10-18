@@ -18,7 +18,7 @@ npx tsx course/check.ts 4
 
 `check.ts` asks for **at least 16/20** — a real improvement over the stage-2 baseline, not a one-case wobble.
 
-**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md), then [SOLUTIONS.md](../SOLUTIONS.md).
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-4), then [SOLUTIONS.md](../SOLUTIONS.md).
 
 ## What to notice
 
