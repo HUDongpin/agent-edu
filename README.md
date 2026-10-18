@@ -2,7 +2,7 @@
 
 **Learn to build with AI, from first principles — written for people who are new to software engineering.**
 
-Every program is a list of steps. The only question is *who picks them*. Three parts, about four hours, and you finish having built a working agent and an eval suite that scores it.
+Every program is a list of steps. The only question is *who picks them*. Three parts, about 5–6 hours for the guided work, plus an open-ended Stage 9, and you finish having built a working agent and an eval suite that scores it.
 
 **▶ [aicourse.top](https://aicourse.top)** · free · no account · no ads · anonymous page counts only · nine languages
 
@@ -61,7 +61,7 @@ Plus **09 Which one, when** — a comparison table and a decision tree — and *
 - **Every section opens by asking you to recall the last one** — from something you did with your hands, not something you read. The card is tinted in the colour of the section it reaches back to.
 - **Every section closes with what it builds on and what it unlocks**, because the rail is a straight line but the subject isn't.
 - **Shape *and* colour carry meaning** in all 19 flowcharts — ⬭ start/stop, ▭ fixed step, ▭ model decides, ▱ tool call, ◇ decision, ▭ failure — so the charts still read in greyscale or print.
-- Runs about **45 minutes** end to end, or dip into any single section.
+- About **30 minutes** to read, or about **an hour** to run everything, or dip into any single section.
 
 ---
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
+import { COURSES } from "../lib/courses";
 
 const LOCALES = ["en", "es", "fr", "de", "zh-Hans", "zh-Hant", "ja", "ko", "ar"];
 const BUILD_TRUTH_KEYS = ["track.3.desc", "c.build.blurb", "build.lede", "build.beforeTime"];
@@ -303,4 +304,103 @@ test("stage 2 records distinct answers from the five probes the report names", (
   assert.equal(bound[1], "5");
   const report = readFileSync("course/report.ts", "utf8");
   assert.match(report, new RegExp(`distinct answers from ${bound[1]} identical questions`));
+});
+
+test("guided time, the DeepSeek signup note and the keyless entry agree", () => {
+  /* Stages 0–8 in the course table are the Part 3 duration. The catalogue,
+     the home page and both course READMEs have to name that sum, and the
+     whole guided course is handbook + Lab + those stages. Stage 9 is outside it. */
+  const courseReadme = readFileSync("course/README.md", "utf8");
+  const stageMinutes = [...courseReadme.matchAll(/^\| ([0-8]) \|.*\| (\d+) min \|$/gm)]
+    .map((row) => Number(row[2]));
+  assert.deepEqual(stageMinutes, [10, 15, 20, 15, 25, 40, 60, 30, 25]);
+  const part3 = stageMinutes.reduce((sum, minutes) => sum + minutes, 0);
+  assert.equal(part3, 240);
+
+  const minutes = Object.fromEntries(COURSES.map((course) => [course.id, course.minutes]));
+  assert.equal(minutes.handbook, 60);
+  assert.equal(minutes.lab, 40);
+  assert.equal(minutes.build, part3);
+  assert.equal(minutes.handbook + minutes.lab + minutes.build, 340);
+
+  assert.match(courseReadme, /stages 0–8 are about four hours/);
+  assert.match(courseReadme, /Stage 9 is open-ended and is not in that total/);
+  assert.match(
+    readFileSync("course/README.zh-Hans.md", "utf8"),
+    /第 0–8 阶段大约四小时。第 9 阶段是开放式的/,
+  );
+  assert.match(readFileSync("README.md", "utf8"), /about 5–6 hours for the guided work, plus an open-ended Stage 9/);
+
+  const phone: Record<string, string> = {
+    en: "phone number",
+    es: "número de teléfono",
+    fr: "numéro de téléphone",
+    de: "Telefonnummer",
+    "zh-Hans": "手机号",
+    "zh-Hant": "手機號碼",
+    ja: "電話番号",
+    ko: "전화번호",
+    ar: "رقم هاتف",
+  };
+  const topUp: Record<string, string> = {
+    en: "top-up",
+    es: "recarga",
+    fr: "recharge",
+    de: "Aufladung",
+    "zh-Hans": "充值",
+    "zh-Hant": "儲值",
+    ja: "入金",
+    ko: "충전",
+    ar: "رصيد",
+  };
+  const retiredLede: Record<string, string> = {
+    en: "about four hours",
+    es: "unas cuatro horas",
+    fr: "environ quatre heures",
+    de: "etwa vier Stunden",
+    "zh-Hans": "约四小时",
+    "zh-Hant": "約四小時",
+    ja: "約4時間",
+    ko: "약 네 시간",
+    ar: "نحو أربع ساعات",
+  };
+  const retiredAfternoon = /afternoon|après-midi|Nachmittag|una tarde|下午就能|午後|오후|بعد الظهر/;
+
+  const home = readFileSync("app/[locale]/page.tsx", "utf8");
+  assert.match(home, /data-no-key/);
+  assert.match(home, /href=\{p\("\/handbook\/"\)\}/);
+  assert.match(home, /href=\{p\("\/lab\/"\)\}/);
+  assert.match(home, /href=\{p\("\/build\/"\)\}/);
+  assert.match(home, /npm run course:offline/);
+
+  for (const locale of LOCALES) {
+    const catalog = JSON.parse(readFileSync(`messages/${locale}.json`, "utf8")) as Record<string, string>;
+    assert.doesNotMatch(catalog["home.lede"], new RegExp(retiredLede[locale]));
+    assert.match(catalog["home.lede"], /9/);
+    assert.match(catalog["home.for2d"], /9/);
+    assert.doesNotMatch(catalog["home.for2d"], retiredAfternoon);
+    assert.doesNotMatch(catalog["track.3.meta"], /2[–〜~-]3|٢–٣/);
+    assert.doesNotMatch(catalog["build.beforeTime"], /two to three|dos y tres|deux à trois|zwei bis drei|两到三|兩到三|2〜3時間|2~3시간|ساعتين إلى ثلاث/);
+    assert.match(catalog["build.beforeTime"], /0[^\d]{0,3}8[\s\S]*9/);
+    for (const key of ["home.noKeyTitle", "home.noKeyBody", "home.noKeyHandbook", "home.noKeyLab", "home.noKeyCourse"]) {
+      assert.equal(typeof catalog[key], "string", `${locale}:${key}`);
+      assert.ok(catalog[key].trim().length > 0, `${locale}:${key} empty`);
+    }
+    for (const key of ["lab.setup.s1d", "track.2.meta", "home.a1"]) {
+      assert.ok(catalog[key].includes(phone[locale]), `${locale}:${key} must name the phone requirement`);
+      assert.ok(catalog[key].includes(topUp[locale]), `${locale}:${key} must name the top-up`);
+    }
+    assert.ok(
+      catalog["lab.setup.s1d"].includes(catalog["lab.s4.recordedCta"]),
+      `${locale}: the signup step must name the scripted-run button`,
+    );
+    assert.doesNotMatch(catalog["lab.setup.lede"], /two minutes|dos minutos|deux minutes|zwei Minuten|大约两分钟|大約兩分鐘|2分ほど|2분이면|دقيقتين/);
+  }
+
+  const en = JSON.parse(readFileSync("messages/en.json", "utf8")) as Record<string, string>;
+  assert.match(en["home.lede"], /about 5–6 hours for the guided work, plus an open-ended Stage 9/);
+  assert.match(en["home.for2d"], /about 5–6 hours/);
+  assert.match(en["track.3.meta"], /^about 4 hours · /);
+  assert.match(en["build.beforeTime"], /about four hours/);
+  assert.match(en["build.beforeTime"], /open-ended/);
 });

@@ -84,7 +84,7 @@ This is what a provider abstraction is actually for. Not "swap the URL" — anyo
 | 7 | [graph](stage7-graph/) | a router and a reviewer | request vs guarantee | ★★★ | 30 min |
 | 8 | [security](stage8-security/) | two defences | input that tries to give orders | ★★ | 25 min |
 
-Difficulty follows the `TODO`s in that stage's `run.ts`: how many there are, and how much code each one asks for. ★ is a single small edit. ★★★★ is stage 6: four `TODO`s, including the cumulative spend gate. The times are a rough first pass on the offline path, reading included.
+Difficulty follows the `TODO`s in that stage's `run.ts`: how many there are, and how much code each one asks for. ★ is a single small edit. ★★★★ is stage 6: four `TODO`s, including the cumulative spend gate. The times are a rough first pass on the offline path, reading included. Added up, stages 0–8 are about four hours. Stage 9 is open-ended and is not in that total.
 
 **Evals come third on purpose.** Once you have a number, every later change is a measurement instead of an argument.
 

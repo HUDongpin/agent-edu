@@ -34,7 +34,7 @@ It can conclude:
 - **Ambiguity in the materials.** A task card two learners read differently is a
   card to rewrite before six learners meet it.
 - **An order-of-magnitude check on duration.** Whether a part takes ten minutes
-  or ninety, against the "about four hours" in `README.md`.
+  or ninety, against the "about 5–6 hours" in `README.md`.
 - **Whether the facilitator kit works** — consent, recording, custody.
 
 It cannot conclude:

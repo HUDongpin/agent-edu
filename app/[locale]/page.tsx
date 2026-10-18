@@ -74,7 +74,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           <p className="free">{t("home.free")}</p>
         </section>
 
-        {/* The idea itself, before the reader is asked to commit four hours to it. */}
+        {/* The idea itself, before the reader is asked to commit 5–6 hours to it. */}
         <section className="sect idea">
           <h2>{t("home.ideaTitle")}</h2>
           <p className="sub">{t("home.ideaLede")}</p>
@@ -96,6 +96,25 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <section className="sect" id="curriculum">
           <h2>{t("home.pathTitle")}</h2>
           <p className="sub">{t("home.pathLede")}</p>
+          {/* Most of the course already runs without a key: the Handbook, the
+              Lab's rules exercise and recorded eval, and the local --offline
+              course. Said here, before the Lab card asks for a DeepSeek key. */}
+          <aside className="keyless" data-no-key>
+            <h3>{t("home.noKeyTitle")}</h3>
+            <p>{t("home.noKeyBody")}</p>
+            <div className="acts">
+              <Link className="btn" href={p("/handbook/")}>
+                {t("home.noKeyHandbook")}<span className="arrow">→</span>
+              </Link>
+              <Link className="btn" href={p("/lab/")}>
+                {t("home.noKeyLab")}<span className="arrow">→</span>
+              </Link>
+              <Link className="btn" href={p("/build/")}>
+                {t("home.noKeyCourse")}<span className="arrow">→</span>
+              </Link>
+            </div>
+            <p className="keyless-cmd"><code dir="ltr">npm run course:offline</code></p>
+          </aside>
           <div className="tracks">
             {tracks.map((tr) => (
               <article className={"track" + (tr.first ? " first" : "")} key={tr.k}

@@ -33,7 +33,7 @@ Two pieces of work sit underneath all three and should be done once, before any 
 
 - **Give a fourth course a progress branch.** `fdd9743f` did half of this: `CourseProgress.courseId`
   is now `string` rather than three literals, `DECLARABLE_COURSE_IDS` exists, and the standing defect
-  that Build an Agent — an available 150-minute course — could never be marked complete is fixed.
+  that Build an Agent — an available 240-minute course for stages 0–8 — could never be marked complete is fixed.
   What remains is the body of `selectCourseProgress`, which still dispatches on string literals
   (`lib/progress.ts:499`, `:515`): an off-site course is now a one-line addition, but a fourth
   *tracked* course still needs a branch, a state shape and a normaliser.

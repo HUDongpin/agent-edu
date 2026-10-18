@@ -145,7 +145,7 @@ contributor:
 1. **Four graded stages, not five.** The baseline run folds into stage 0 rather than standing as
    its own stage — it is one export line and a run, and stage 0 immediately re-runs the same set.
 2. **The transfer artefact sits outside the sixty minutes**, as an artefact the reader completes
-   afterwards. Part 3 budgets its own transfer project inside 150 minutes for nine stages; sixty
+   afterwards. Part 3 budgets about four hours for stages 0–8 and keeps Stage 9 outside that total; sixty
    minutes buys four rewrite-and-rescore cycles or a transfer artefact, not both. Say so in
    `course/tools/README.md`.
 

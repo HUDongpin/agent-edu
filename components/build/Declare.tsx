@@ -52,7 +52,7 @@ export default function Declare() {
           {done ? <><span aria-hidden="true">✓ </span>{t("build.declaredNote")}</> : null}
         </span>
       </div>
-      {/* An ending, which the course did not have. After roughly four hours the
+      {/* An ending, which the course did not have. After the guided hours the
           last thing that happened was a box the reader ticked themselves, under
           a line saying nothing here checks your work — true, and the right thing
           for a site that cannot observe the course to say, but it is not a

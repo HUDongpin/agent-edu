@@ -1378,3 +1378,14 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   .step[aria-selected="true"]{outline:2px solid Highlight;outline-offset:-2px}
   .hb .rail-btn[aria-selected="true"] .stn{background:Highlight;border-color:Highlight}
 }
+
+/* The no-key route, on the home learning path. Logical properties only, so
+   Arabic mirrors from dir="rtl". The command stays in its own LTR line. */
+.keyless{margin-top:22px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding-block:18px;padding-inline:20px;
+  border-inline-start:4px solid var(--green);min-width:0;max-width:100%}
+.keyless h3{margin:0 0 8px;font-size:18px}
+.keyless p{margin:0;color:var(--ink-2);max-width:68ch}
+.keyless .acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.keyless .keyless-cmd{margin-top:12px}
+.keyless code{direction:ltr;unicode-bidi:isolate;font-family:var(--mono);font-size:12.5px}

@@ -45,7 +45,9 @@ export const COURSES: Course[] = [
   {
     id: "build", href: "/build/",
     level: "intermediate", format: "code", topic: "agents",
-    minutes: 150, status: "available", hue: "var(--violet)",
+    /* Sum of the rough times for stages 0–8 in course/README.md (240 min).
+       Stage 9 is open-ended and is not included. */
+    minutes: 240, status: "available", hue: "var(--violet)",
   },
   {
     id: "hitl", href: "#", level: "intermediate", format: "read",
