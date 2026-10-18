@@ -1,7 +1,10 @@
 /** Stage 5 — the agent loop, written by hand, in two graded steps. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getClient, meter, MODEL, preflight, spend, tuning } from "../cafe/llm";
+import { loadLlm } from "../preflight";
 import * as tools from "../cafe/tools";
+
+// Dynamic import: the dependency check has to run before the SDK is linked.
+const { getClient, meter, MODEL, preflight, spend, tuning } = await loadLlm();
 
 const GOAL = "Restock the café. Work out what is running short and order enough of " +
   "it, then email the manager a one-line summary of what you ordered.";

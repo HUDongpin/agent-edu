@@ -16,6 +16,8 @@ There is one `TODO`: make `"large flat white"` work. Then try the inputs at the 
 npx tsx course/check.ts 1
 ```
 
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-1), then [SOLUTIONS.md](../SOLUTIONS.md).
+
 ## What to notice
 
 `check.ts` deliberately holds you to **two** things:

@@ -14,6 +14,8 @@ npx tsx course/stage2-prompt/run.ts
 npx tsx course/check.ts 2
 ```
 
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md#第-2-阶段)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
+
 ## 要注意什么
 
 **`"could I grab a large flat white when you get a sec"` 现在能用了**，而你从没为它写过规则。这就是任何人把模型放进程序里的全部理由。接着脚本会跑三组探测，每一组都会从你手里拿走一点东西。

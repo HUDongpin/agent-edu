@@ -18,6 +18,8 @@ export ANTHROPIC_API_KEY=your_key_here     # console.anthropic.com
 npx tsx course/stage0-hello/run.ts
 ```
 
+如果 `npx tsx` 停下来问要不要安装这个包，请拒绝。这表示依赖还没安装，只装这一个包仍然缺 `@anthropic-ai/sdk`。请在仓库根目录运行 `npm ci`，然后再执行刚才的命令。依赖缺失但脚本已经启动时，它会打印两行（一行英文、一行中文），让你运行 `npm ci`，然后退出。
+
 每个阶段都是一个文件夹，里面有 `README.md`（以及这份 `README.zh-Hans.md`）和一份 `run.ts`。第 0–4 阶段各有一个 `TODO`；第 5 阶段有两个计分步骤（先 5a，再 5b）；第 6 阶段有四个；第 7 和第 8 阶段各有两个。把它们填上，跑起来，然后给自己打分：
 
 ```bash
@@ -41,7 +43,7 @@ npm run course -- 4 --offline
 
 每个已完成的阶段都支持这条路径。第 2 阶段的课包含：看一个真实模型对同一问题给出不同回答，而结果确定的替身做不到这一点；如果你之后想看这种对比，请用一把你自己的、额度低、可撤销的密钥。绝不要借用或分享别人的凭证。
 
-**卡住了？** [`SOLUTIONS.md`](SOLUTIONS.md) 里每个 `TODO` 都填好了，一个阶段一节。这份参考解答目前只有英文。
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](HINTS.zh-Hans.md)，然后看 [SOLUTIONS.md](SOLUTIONS.md)。[`SOLUTIONS.md`](SOLUTIONS.md) 里每个 `TODO` 都填好了，一个阶段一节。这份参考解答目前只有英文。
 
 **费用：** 离线替身不会向服务商发请求。实时阶段会打印实测用量，以及按代码里的模型和带日期的价格表估算的费用。总额会随服务商、模型、缓存、高峰时段和你重跑的次数变化；一份旧的样例总额不是承诺。跑之前先看估算，把服务商控制台当作账单记录。同样的练习，Claude 可能比 DeepSeek 贵得多。
 

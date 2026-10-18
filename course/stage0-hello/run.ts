@@ -1,5 +1,8 @@
 /** Stage 0 — the smallest possible thing that proves the wiring works. */
-import { ask, preflight, spend } from "../cafe/llm";
+import { loadLlm } from "../preflight";
+
+// Dynamic import: the dependency check has to run before the SDK is linked.
+const { ask, preflight, spend } = await loadLlm();
 
 // ---------------------------------------------------------------------------
 // TODO: ask the model something. Anything. The point is not the answer, it is

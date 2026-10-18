@@ -26,6 +26,8 @@ npx tsx course/check.ts 5b
 
 `npx tsx course/check.ts 5` 给两个步骤一起打分。通过这一阶段，标准仍然是下了两笔订单，并且给经理发了邮件。
 
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md#第-5-阶段)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
+
 ## 要注意什么
 
 `cafe/tools.ts` 里的工具是故意做了手脚的：

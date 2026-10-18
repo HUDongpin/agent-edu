@@ -14,6 +14,8 @@ Two `TODO`s: the router, and the reviewer node. Then:
 npx tsx course/check.ts 7
 ```
 
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-7), then [SOLUTIONS.md](../SOLUTIONS.md).
+
 ## What to notice
 
 `run.ts` sends the same complaint through twice — once with the reviewer node wired in, once with it bypassed — and prints what would have gone to the customer.

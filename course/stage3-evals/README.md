@@ -16,6 +16,8 @@ There is one `TODO`: import your stage-2 prompt and point the eval at it.
 npx tsx course/check.ts 3
 ```
 
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-3), then [SOLUTIONS.md](../SOLUTIONS.md).
+
 ## What to notice
 
 You just scored your stage-2 prompt out of 20. **Write the number down**, next to your guess. Every remaining stage gets compared to it.

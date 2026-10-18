@@ -14,6 +14,8 @@ npx tsx course/stage7-graph/run.ts
 npx tsx course/check.ts 7
 ```
 
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md#第-7-阶段)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
+
 ## 要注意什么
 
 `run.ts` 会把同一封投诉送两遍 —— 一遍接上审阅节点，一遍绕过它 —— 然后打印本来会发给顾客的内容。

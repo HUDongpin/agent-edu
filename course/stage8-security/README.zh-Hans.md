@@ -14,6 +14,8 @@ npx tsx course/stage8-security/run.ts
 npx tsx course/check.ts 8
 ```
 
+**卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md#第-8-阶段)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
+
 ## 要注意什么
 
 这一阶段的顾客邮件后面多了一段，是写给模型而不是写给你的。这是最直白的版本 —— 不需要任何花招。

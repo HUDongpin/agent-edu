@@ -14,6 +14,8 @@ Four `TODO`s, one per harness part. Then:
 npx tsx course/check.ts 6
 ```
 
+**Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-6), then [SOLUTIONS.md](../SOLUTIONS.md).
+
 ## What to notice
 
 `run.ts` runs the same job five times: once with everything on, then once with each of the four parts switched off. The model, the prompt and the tools are **identical** in every run. Only the code around them changes.
