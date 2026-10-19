@@ -146,7 +146,7 @@
   "status.soon": "即將推出",
   "c.handbook.title": "手冊",
   "c.handbook.blurb": "十一個圖解章節，說清楚執行時究竟由誰決定下一步。",
-  "c.handbook.prerequisite": "不需先備知識。所有範例都依照腳本模擬，不需要模型金鑰。",
+  "c.handbook.prerequisite": "不需先備知識。所有範例都是照腳本預先寫好的，不需要模型金鑰。",
   "c.handbook.outcome": "判斷一個問題應該把多少執行時控制權交給模型。",
   "c.handbook.artifact": "一份完成全部 10 份任務簡報的「控制室」結果，以及需要回頭複習的對應章節。",
   "c.handbook.evidence": "提交全部 10 份簡報才算完成；只是打開章節不算。",
