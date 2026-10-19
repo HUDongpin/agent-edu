@@ -113,8 +113,8 @@ test("the saved run is not five different answers, and the prose says so", () =>
   assert.match(stage2, /No session produced five different answers/);
   assert.match(stage2, /npx tsx course\/stage2-prompt\/recorded\.ts/);
   assert.doesNotMatch(stage2, /Usually it is not one/);
-  assert.match(stage2zh, /十一个只有 1 种回答，九个有 2 种/);
-  assert.match(stage2zh, /没有一个会话给出五种不同的回答/);
+  assert.match(stage2zh, /11 个会话只有 1 种回答，9 个有 2 种/);
+  assert.match(stage2zh, /没有哪个会话出现五种不同的回答/);
   assert.match(stage2zh, /npx tsx course\/stage2-prompt\/recorded\.ts/);
   assert.doesNotMatch(stage2zh, /通常不是一种/);
   assert.match(course, /\*\*a repeated answer can still be wrong\*\*/);
