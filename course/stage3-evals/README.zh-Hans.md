@@ -16,6 +16,8 @@ npx tsx course/stage3-evals/run.ts
 npx tsx course/check.ts 3
 ```
 
+也可以把猜测和分数放在一起。命令不会读键盘，所以接在管道里时不会卡在这个问题上。`npx tsx course/check.ts 3 --predict 12` 在检查通过时把 `prediction` 写进 `progress.json`。`npx tsx course/report.ts` 接着会印出：你预测 12，这次实际得了多少。不带 `--predict` 再跑过一次，会清掉旧的猜测，免得两个不相干的时刻被配成一对。检查没通过时什么都不记。纸上的那一笔仍然算数。
+
 **卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](../HINTS.zh-Hans.md#第-3-阶段)，然后看 [SOLUTIONS.md](../SOLUTIONS.md)。
 
 ## 要注意什么

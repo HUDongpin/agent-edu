@@ -1,5 +1,7 @@
 # A worked Stage 9 — the returns desk at a public library
 
+**The short version.** A library returns desk. The model reads the note. Code matches the loan and does the arithmetic. A person decides fines above five pounds, and lost items. The keyword rule dies on “the cover came off”. Putting the loan record in the prompt moves 8 of 20 to 16 of 20. The gate is code, and it runs before the network. The write-up scores 11 of 12 because the run log keeps the patron's words with no retention decision.
+
 This is one person's completed transfer project, filled into the template in
 this folder. It exists because everything up to Stage 8 hands you a worked
 example — the café — and Stage 8 is where it stops. Removing the scaffolding is

@@ -886,6 +886,11 @@ export default function Lab() {
             <p className="steplede">
               <Rich k={stage === 2 ? "lab.s3.lede" : "lab.s4.lede"} />
             </p>
+            {stage === 2 && (
+              <div className="langnote">
+                <Rich k="lab.s3.langNote" />
+              </div>
+            )}
             <div className="card"><div className="card-b">
               <div className="labscaffold">
                 <div>

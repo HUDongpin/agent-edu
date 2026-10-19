@@ -8,10 +8,10 @@
 
 ## 开始之前
 
-下面所有命令都从 **仓库根目录** 运行 —— 课程和网站共用一份 `package.json`，这个文件夹里没有额外要装的东西。
+你需要 Node.js 24.x（用 `node -v` 检查）、Git，并在仓库根目录打开终端。下面的命令都从那里运行。课程和网站共用一份 `package.json`，这个文件夹里没有额外要装的东西。
 
 ```bash
-npm install
+npm ci
 export DEEPSEEK_API_KEY=your_key_here      # platform.deepseek.com/api_keys
 # ...or, if you'd rather run it on Claude:
 export ANTHROPIC_API_KEY=your_key_here     # console.anthropic.com
@@ -66,7 +66,7 @@ export CAFE_MODEL=deepseek-v4-pro   # or a Provider-supported model
 | 结构化输出 | 原生 —— 回复的形状 **不可能** 错 | **接受了，然后默默忽略。** 你拿到的是散文。`llm.ts` 在提示词里开口要，再自己校验答案 |
 | 「再想认真一点」 | `output_config.effort` | `thinking: {type:"disabled"}` —— 如果开着思考、又把 `max_tokens` 设得很小，它会把整段预算都花在思考上，然后返回一个 **没有报错的空字符串** |
 | token 计数 | 数你的文本 | 数整次请求，大约 83 个脚手架 token 也算进去，所以 `llm.ts` 会把这个底数减掉 |
-| 价格 | 本课程快照里是一口价 | Flash/Pro、缓存命中/未命中和输出使用带日期的共享表；高峰窗口是 UTC 周一到周五 01:00–04:00 和 06:00–10:00；周末是非高峰 |
+| 价格 | 本课程快照里是一口价 | Flash/Pro、缓存命中/未命中和输出使用带日期的共享表。高峰和低谷时段以 `lib/byok/pricing.ts` 里的快照 `DEEPSEEK_PRICING` 为准（核对日期 2026-09-22；[来源](https://api-docs.deepseek.com/quick_start/pricing/)）。中国的法定节假日在那里按高峰计价，这只会把费用估高 |
 
 这才是服务商抽象真正要做的事。不是「换个 URL」——谁都会。而是弄清你的哪些假设其实是厂商行为，而唯一的办法，就是拿同一套评测去打两家。
 

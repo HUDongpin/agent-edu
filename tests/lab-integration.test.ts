@@ -536,7 +536,7 @@ test("a complete run survives a reload, and a restored run is never counted agai
   /* And the reset confirmation must name the saved runs it erases. */
   const savedRuns: Record<(typeof LOCALES)[number], string> = {
     en: "eval runs", es: "ejecución de evaluación", fr: "exécution de l'évaluation", de: "Evaluationsläufen",
-    "zh-Hans": "Eval 运行", "zh-Hant": "Eval 執行", ja: "Eval実行", ko: "Eval 실행", ar: "تشغيلات Eval",
+    "zh-Hans": "评测（Eval）运行", "zh-Hant": "Eval 執行", ja: "Eval実行", ko: "Eval 실행", ar: "تشغيلات Eval",
   };
   /* The key does live on this device, in the tab's session storage; the note
      once denied it outright. */
@@ -553,6 +553,13 @@ test("a complete run survives a reload, and a restored run is never counted agai
     const preview = messages["lab.draft.preview"];
     assert.ok(preview.includes("{done}") && preview.includes("{total}"),
       `${locale}: lab.draft.preview must carry {done} and {total}`);
+  }
+});
+
+test("the prompt step says the English orders are deliberate, and the eval step does not", () => {
+  assert.match(source, /stage === 2 && \([\s\S]*?lab\.s3\.langNote/);
+  for (const locale of LOCALES) {
+    assert.ok(siteMessages(locale)["lab.s3.langNote"]?.trim(), `${locale}: lab.s3.langNote missing`);
   }
 });
 

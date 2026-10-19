@@ -4,7 +4,24 @@
 
 The café was shared practice. This stage asks you to make the control boundary explicit in a domain you actually know.
 
-There is no model call and no automatic pass/fail checker here. The deliverable is an inspectable argument supported by a small working artifact:
+## The first hour
+
+Three steps, then stop and look. The rest of the stage is what you do with what these show you.
+
+1. Pick a domain you have actually worked in. One sentence: who is standing there, and what they are trying to finish.
+2. Write three inputs that would break a keyword rule. If a short list of words would mishandle them, you have found the wall.
+3. Write five eval cases in the shape of [`eval-template.json`](eval-template.json): one ordinary, one at the boundary, one hostile, and two more taken from the inputs above.
+
+Check the file from the repo root. The first command checks the template in this folder. The second passes that same file by path:
+
+```bash
+npx tsx course/stage9-project/validate.ts
+npx tsx course/stage9-project/validate.ts course/stage9-project/eval-template.json
+```
+
+Either command accepts the three placeholders and prints a note. A file of your own, passed the same way, needs at least five cases. There is no model call. Passing the check is not the project score. [`RUBRIC.md`](RUBRIC.md) is still how the work is judged.
+
+The deliverable is an inspectable argument supported by a small working artifact:
 
 1. Copy [`artifact-template.md`](artifact-template.md) into your project notes.
 2. Copy [`eval-template.json`](eval-template.json) and replace the placeholder cases with inputs from your domain.
