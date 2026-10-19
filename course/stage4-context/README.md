@@ -16,6 +16,8 @@ One `TODO`: put the menu and the edge-case rules into the prompt. Then:
 npx tsx course/check.ts 4
 ```
 
+The same optional flag as stage 3, still with nothing reading the keyboard: `npx tsx course/check.ts 4 --predict 16` stores `prediction` in `progress.json` when the check passes. `npx tsx course/report.ts` prints you predicted 16, got the score of that run. This stage only passes at 16 or above, and a failed check stores nothing, so a guess under that line is not written down here. Leave `--predict` off and a later passing run clears an old guess.
+
 `check.ts` asks for **at least 16/20** — a real improvement over the stage-2 baseline, not a one-case wobble.
 
 **Stuck?** Hint 1 and 2 in [HINTS.md](../HINTS.md#stage-4), then [SOLUTIONS.md](../SOLUTIONS.md).

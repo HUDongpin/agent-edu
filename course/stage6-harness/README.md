@@ -33,7 +33,7 @@ When someone says "the model failed", it is very often this file that failed.
 
 The **permission gate**. Everything else costs you a bad night; this one costs money you cannot get back.
 
-Note where it lives: in the code that *executes* the tool, not in the prompt. "Never order more than £100 without asking" written in a system prompt is a request. The same rule written as an `if` in your tool runner is a guarantee. A model can be talked out of a request. It cannot be talked out of an `if`.
+Note where it lives: in the code that *executes* the tool, not in the prompt. "Never order more than $100 without asking" written in a system prompt is a request. That $100 is `APPROVAL_THRESHOLD` in `run.ts`. The same rule written as an `if` in your tool runner is a guarantee. A model can be talked out of a request. It cannot be talked out of an `if`.
 
 ## Cheap and boring beats clever
 

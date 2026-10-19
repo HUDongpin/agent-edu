@@ -445,5 +445,16 @@
   "teach.rubricReview": "Reflection: failures, regressions, cost, trade-offs and the next test.",
   "teach.evidenceTitle": "Accept evidence, not one approved answer",
   "teach.evidenceBody": "Secret-free console output, a small JSON or Markdown result, a code link, one failed-case trace or a local report card can all be valid. The rubric does not require a particular framework, Provider or prompt.",
-  "teach.privacyBody": "Keep pilot observation sheets local. Never put learner keys, prompts, raw Provider bodies, replies or identifiable work into this site, screenshots or CI logs."
+  "teach.privacyBody": "Keep pilot observation sheets local. Never put learner keys, prompts, raw Provider bodies, replies or identifiable work into this site, screenshots or CI logs.",
+  "home.progCheck": "Checklist",
+  "home.progNext": "Next step",
+  "home.progNextHandbook": "Start the Handbook",
+  "home.progNextContinue": "Continue the Handbook",
+  "home.progNextRoom": "Finish the Control Room",
+  "home.progNextLab": "Lab step {n}: {name}",
+  "home.progNextBuild": "Open Part 3 on your machine",
+  "home.progNextDone": "All three parts are recorded on this browser.",
+  "home.progBuildNote": "Your own mark. This site cannot see the course on your machine.",
+  "home.progLabSteps": "Lab steps",
+  "lab.s3.langNote": "The orders are in English on purpose. You can write your prompt in your own language."
 }

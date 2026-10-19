@@ -25,6 +25,30 @@ const FILE = join(dirname(fileURLToPath(import.meta.url)), "progress.json");
 type Entry = Record<string, number | boolean>;
 type Data = Record<string, Entry>;
 
+export type PredictionArg =
+  | { status: "absent" }
+  | { status: "ok"; value: number }
+  | { status: "bad"; message: string };
+
+/**
+ * Optional score guess for stages 3 and 4.
+ *
+ * Read from the command line only. There is no prompt: this process is piped
+ * and run in CI, and waiting on stdin would hang it.
+ */
+export function parsePrediction(argv: readonly string[]): PredictionArg {
+  const at = argv.indexOf("--predict");
+  if (at < 0) return { status: "absent" };
+  const raw = argv[at + 1];
+  if (raw === undefined || !/^(?:0|[1-9]\d*)$/.test(raw)) {
+    return {
+      status: "bad",
+      message: "--predict needs a whole number, for example: npx tsx course/check.ts 3 --predict 12",
+    };
+  }
+  return { status: "ok", value: Number(raw) };
+}
+
 const SHAPE: [number, string, string, (v: never) => string][] = [
   [0, "hello",    "ok",       () => "your key works"],
   [1, "kiosk",    "passing",  (v) => `${v} rule-based phrasings handled`],
@@ -60,9 +84,21 @@ export function load(): Data {
  * `score` keeps its meaning so an existing progress.json still reads correctly;
  * `latest` is simply absent there, and the report falls back to the best.
  */
-export function record(stage: number, values: Entry): void {
-  const data = load();
-  const entry = data[String(stage)] ?? {};
+/**
+ * Merge one stage's result into a progress object.
+ *
+ * `drop` removes keys the new run did not supply. A prediction belongs to the
+ * run that stated it; leaving an old one beside a later score would pair two
+ * moments that never happened together.
+ */
+export function applyRecord(
+  data: Data,
+  stage: number,
+  values: Entry,
+  drop: readonly string[] = [],
+): Data {
+  const entry: Entry = { ...(data[String(stage)] ?? {}) };
+  for (const key of drop) delete entry[key];
   for (const [k, v] of Object.entries(values)) {
     if (k === "score" && typeof v === "number") {
       entry.latest = v;
@@ -71,7 +107,11 @@ export function record(stage: number, values: Entry): void {
     }
     entry[k] = v;
   }
-  data[String(stage)] = entry;
+  return { ...data, [String(stage)]: entry };
+}
+
+export function record(stage: number, values: Entry, drop: readonly string[] = []): void {
+  const data = applyRecord(load(), stage, values, drop);
   writeFileSync(FILE, JSON.stringify(data, null, 1));
 }
 
@@ -83,16 +123,15 @@ export function currentScore(entry: Entry | undefined): number | undefined {
   return typeof entry.score === "number" ? entry.score : undefined;
 }
 
-function main(): void {
-  const data = load();
+export function formatReport(data: Data): string {
+  const lines: string[] = [];
   if (!Object.keys(data).length) {
-    console.log("\n  Nothing recorded yet.\n\n  Pass a stage first:  npx tsx course/check.ts 1\n");
-    return;
+    return "\n  Nothing recorded yet.\n\n  Pass a stage first:  npx tsx course/check.ts 1\n";
   }
-  console.log("\n  YOUR REPORT CARD\n  " + "─".repeat(56));
+  lines.push("\n  YOUR REPORT CARD\n  " + "─".repeat(56));
   for (const [stage, label, key, render] of SHAPE) {
     const entry = data[String(stage)];
-    if (!entry || !(key in entry)) { console.log(`  ${stage}  ${label.padEnd(10)} ·`); continue; }
+    if (!entry || !(key in entry)) { lines.push(`  ${stage}  ${label.padEnd(10)} ·`); continue; }
     // Report the run that happened, and say so when an earlier one went better.
     // A regression you can see is the thing stage 3 is for; a regression the
     // report card swallows is the thing it warns you about.
@@ -102,9 +141,13 @@ function main(): void {
     if (key === "score" && typeof best === "number" && typeof shown === "number" && best > shown) {
       line += `   (your best was ${best}/20)`;
     }
-    console.log(`  ${stage}  ${label.padEnd(10)} ${line}`);
+    const prediction = entry.prediction;
+    if (key === "score" && typeof prediction === "number" && typeof shown === "number") {
+      line += `   (you predicted ${prediction}, got ${shown})`;
+    }
+    lines.push(`  ${stage}  ${label.padEnd(10)} ${line}`);
   }
-  console.log("  " + "─".repeat(56));
+  lines.push("  " + "─".repeat(56));
 
   // Compare the runs that actually happened, not two high-water marks that may
   // never have coexisted: a best-of-3 against a best-of-4 can show a jump the
@@ -113,24 +156,29 @@ function main(): void {
   const withCtx = currentScore(data["4"]);
   if (base !== undefined && withCtx !== undefined) {
     const delta = withCtx - base;
-    console.log(`\n  The only number that matters: ${base}/20 → ${withCtx}/20 (${delta >= 0 ? "+" : ""}${delta})`);
+    lines.push(`\n  The only number that matters: ${base}/20 → ${withCtx}/20 (${delta >= 0 ? "+" : ""}${delta})`);
     if (delta > 0) {
-      console.log("  Same model. Same twenty questions. You told it what it was");
-      console.log("  selling, and that was worth more than any prompt wording.");
+      lines.push("  Same model. Same twenty questions. You told it what it was");
+      lines.push("  selling, and that was worth more than any prompt wording.");
     } else if (delta === 0) {
-      console.log("  No movement. Worth knowing — and worth checking whether the");
-      console.log("  menu actually reached the prompt.");
+      lines.push("  No movement. Worth knowing — and worth checking whether the");
+      lines.push("  menu actually reached the prompt.");
     } else {
-      console.log("  It went down. Read the failures; something you added is");
-      console.log("  fighting something already there.");
+      lines.push("  It went down. Read the failures; something you added is");
+      lines.push("  fighting something already there.");
     }
   } else if (base !== undefined) {
-    console.log(`\n  Baseline ${base}/20. Do stage 4 and watch what moves it.`);
+    lines.push(`\n  Baseline ${base}/20. Do stage 4 and watch what moves it.`);
   } else {
-    console.log("\n  No eval score yet. Stage 3 is where this stops being opinion");
-    console.log("  and starts being measurement.");
+    lines.push("\n  No eval score yet. Stage 3 is where this stops being opinion");
+    lines.push("  and starts being measurement.");
   }
-  console.log();
+  lines.push("");
+  return lines.join("\n");
+}
+
+function main(): void {
+  console.log(formatReport(load()));
 }
 
 if (import.meta.filename === process.argv[1]) main();

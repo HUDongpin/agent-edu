@@ -2,12 +2,14 @@
 
 import { useSyncExternalStore, type ReactNode } from "react";
 import {
+  LAB_STEPS,
   readLearningState,
   readLearningStateOnServer,
   resetLearningState,
   selectCourseProgress,
   selectHandbookProgress,
   selectLabProgress,
+  selectNextLearningStep,
   subscribeLearningState,
 } from "@/lib/progress";
 import { clearLabDraft } from "@/lib/lab/draft";
@@ -16,7 +18,7 @@ import Link from "next/link";
 import { useI18n } from "./I18nProvider";
 import Rich from "./Rich";
 
-type Item = { label: string; done: boolean; note: ReactNode; href: string; action: string };
+type Item = { id: string; label: string; done: boolean; note: ReactNode; href: string; action: string };
 
 /**
  * Progress lives in localStorage and nowhere else — no account, nothing sent
@@ -52,8 +54,19 @@ export default function Progress({ locale }: { locale: string }) {
     if (p.kind === "external") return p.declaredComplete ? "review" : "start";
     return p.kind === "tracked" ? p.action : "start";
   };
+  const labStepName = ["lab.s1.name", "lab.s2.name", "lab.s3.name", "lab.s4.name"] as const;
+  const next = selectNextLearningStep(state, locale);
+  const nextLink = next.kind === "done" ? null : next.kind === "lab"
+    ? <Link href={next.href}><Rich k="home.progNextLab" vars={{ n: next.step, name: t(labStepName[next.step - 1]) }} /></Link>
+    : <Link href={next.href}>{t(
+        next.kind === "handbook-start" ? "home.progNextHandbook"
+        : next.kind === "handbook-continue" ? "home.progNextContinue"
+        : next.kind === "handbook-room" ? "home.progNextRoom"
+        : "home.progNextBuild",
+      )}</Link>;
   const items: Item[] = [
     {
+      id: "handbook",
       label: t("track.1.title"),
       done: handbook.completed,
       href: `/${locale}/handbook/`,
@@ -71,6 +84,7 @@ export default function Progress({ locale }: { locale: string }) {
       </>,
     },
     {
+      id: "lab",
       label: t("track.2.title"),
       done: lab.completed,
       href: `/${locale}/lab/`,
@@ -84,20 +98,65 @@ export default function Progress({ locale }: { locale: string }) {
       </>,
     },
     {
+      id: "build",
       label: t("track.3.title"),
       done: buildDone,
       href: `/${locale}/build/`,
       action: buildDone ? "review" : "start",
-      note: "",
+      note: t("home.progBuildNote"),
     },
   ];
   const started = handbook.status !== "not-started"
     || lab.status !== "not-started"
     || buildDone;
 
-  if (!started) return <div className="progwrap"><div className="muted">{t("home.progNone")}</div></div>;
-
   const done = items.filter((i) => i.done).length;
+  const checklist = (
+    <>
+      <h3 className="progcheck-h">{t("home.progCheck")}</h3>
+      <ul className="progcheck">
+        {items.map((i) => (
+          <li key={i.id} className={i.done ? "done" : ""}>
+            <span className="tick">{i.done ? "✓" : "○"}</span>
+            <span>
+              <Link href={i.href}>{i.label}</Link>
+              {i.id === "lab" && (
+                <ul className="progsteps" aria-label={t("home.progLabSteps")}>
+                  {LAB_STEPS.map((step, index) => {
+                    const stepDone = lab.completedSteps.includes(step);
+                    return (
+                      <li key={step} className={stepDone ? "done" : ""}>
+                        <span className="tick">{stepDone ? "✓" : "○"}</span>
+                        <span>{t(labStepName[index])}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              {i.note ? <>{"  "}{i.note}</> : ""}
+              {"  "}<span className="mono-note">{t(`cat.${i.action}`)}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="prognext">
+        {next.kind === "done" ? t("home.progNextDone") : <>
+          <span className="mono-note">{t("home.progNext")}</span>
+          {" "}
+          {nextLink}
+        </>}
+      </p>
+    </>
+  );
+
+  if (!started) {
+    return (
+      <div className="progwrap" data-locale={locale}>
+        <div className="muted">{t("home.progNone")}</div>
+        {checklist}
+      </div>
+    );
+  }
 
   return (
     <div className="progwrap" data-locale={locale}>
@@ -129,18 +188,7 @@ export default function Progress({ locale }: { locale: string }) {
         </button>
       </div>
       <div className="progbar"><span style={{ width: `${(done / items.length) * 100}%` }} /></div>
-      <ul className="proglist">
-        {items.map((i) => (
-          <li key={i.label} className={i.done ? "done" : ""}>
-            <span className="tick">{i.done ? "✓" : "○"}</span>
-            <span>
-              <Link href={i.href}>{i.label}</Link>
-              {i.note ? <>{"  "}{i.note}</> : ""}
-              {"  "}<span className="mono-note">{t(`cat.${i.action}`)}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+      {checklist}
     </div>
   );
 }

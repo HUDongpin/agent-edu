@@ -846,3 +846,43 @@ export function declareCourseComplete(
 export function resetLearningState(scope: ResetScope): LearningStateV2 {
   return learningStore.resetLearningState(scope);
 }
+
+/**
+ * The first incomplete part, using only what this browser already stored.
+ *
+ * Handbook completion is a finished Control Room run. Lab completion is the
+ * four recorded steps, in order. Part 3 is the reader's own declaration: the
+ * site cannot see the course on their machine, so it is not inferred.
+ */
+export type NextLearningStep =
+  | { readonly kind: "handbook-start"; readonly href: string }
+  | { readonly kind: "handbook-continue"; readonly href: string }
+  | { readonly kind: "handbook-room"; readonly href: string }
+  | { readonly kind: "lab"; readonly href: string; readonly step: 1 | 2 | 3 | 4 }
+  | { readonly kind: "build"; readonly href: string }
+  | { readonly kind: "done" };
+
+export function selectNextLearningStep(state: LearningStateV2, locale: string): NextLearningStep {
+  const prefix = `/${locale}`;
+  const handbook = selectHandbookProgress(state);
+  if (!handbook.completed) {
+    if (handbook.status === "not-started") {
+      return { kind: "handbook-start", href: `${prefix}/handbook/` };
+    }
+    if (handbook.exploredSections >= handbook.totalSections) {
+      return { kind: "handbook-room", href: `${prefix}/handbook/#play` };
+    }
+    return { kind: "handbook-continue", href: `${prefix}/handbook/#${state.handbook.lastSection}` };
+  }
+  const lab = selectLabProgress(state);
+  if (!lab.completed) {
+    const index = LAB_STEPS.findIndex((step) => !lab.completedSteps.includes(step));
+    const step = (index + 1) as 1 | 2 | 3 | 4;
+    return { kind: "lab", href: `${prefix}/lab/`, step };
+  }
+  const build = selectCourseProgress(state, "build");
+  if (build.kind !== "external" || !build.declaredComplete) {
+    return { kind: "build", href: `${prefix}/build/` };
+  }
+  return { kind: "done" };
+}

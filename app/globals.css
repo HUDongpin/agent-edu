@@ -1389,3 +1389,14 @@ a.cinner:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .keyless .acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 .keyless .keyless-cmd{margin-top:12px}
 .keyless code{direction:ltr;unicode-bidi:isolate;font-family:var(--mono);font-size:12.5px}
+
+/* Home checklist. Logical margins only, so Arabic mirrors from dir="rtl". */
+.progcheck-h{font-size:13px;font-weight:650;margin-block-start:16px}
+.progcheck{list-style:none;padding:0;margin-block-start:10px;display:grid;gap:10px}
+.progcheck > li{font-size:13.5px;color:var(--ink-3);display:flex;gap:8px;align-items:flex-start}
+.progcheck > li.done{color:var(--ink)}
+.progcheck .tick{font-family:var(--mono);width:1.1em;flex:0 0 auto}
+.progcheck > li.done > .tick,.progsteps li.done .tick{color:var(--green)}
+.progsteps{list-style:none;padding:0;margin-block-start:6px;display:grid;gap:4px}
+.progsteps li{display:flex;gap:8px;align-items:baseline}
+.prognext{margin-block-start:14px;font-size:13.5px}

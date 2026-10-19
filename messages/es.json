@@ -445,5 +445,16 @@
   "teach.rubricReview": "Reflexión: fallos, regresiones, coste, compromisos y la siguiente prueba.",
   "teach.evidenceTitle": "Acepta evidencias, no una única respuesta aprobada",
   "teach.evidenceBody": "Pueden ser válidos una salida de consola sin secretos, un pequeño resultado en JSON o Markdown, un enlace al código, el rastro de un caso fallido o un informe local. La rúbrica no exige un framework, proveedor o prompt determinados.",
-  "teach.privacyBody": "Guarda localmente las hojas de observación del piloto. Nunca introduzcas claves del alumnado, prompts, cuerpos sin procesar del proveedor, respuestas ni trabajos identificables en este sitio, capturas de pantalla o registros de CI."
+  "teach.privacyBody": "Guarda localmente las hojas de observación del piloto. Nunca introduzcas claves del alumnado, prompts, cuerpos sin procesar del proveedor, respuestas ni trabajos identificables en este sitio, capturas de pantalla o registros de CI.",
+  "home.progCheck": "Lista",
+  "home.progNext": "Siguiente paso",
+  "home.progNextHandbook": "Empieza por el Manual",
+  "home.progNextContinue": "Sigue con el Manual",
+  "home.progNextRoom": "Termina la Sala de control",
+  "home.progNextLab": "Paso {n} del laboratorio: {name}",
+  "home.progNextBuild": "Abre la parte 3 en tu ordenador",
+  "home.progNextDone": "Las tres partes constan en este navegador.",
+  "home.progBuildNote": "Es tu propia marca. Este sitio no puede ver el curso en tu ordenador.",
+  "home.progLabSteps": "Pasos del laboratorio",
+  "lab.s3.langNote": "Los pedidos están en inglés a propósito. Puedes escribir el prompt en tu propio idioma."
 }

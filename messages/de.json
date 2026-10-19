@@ -445,5 +445,16 @@
   "teach.rubricReview": "Reflexion: Fehler, Regressionen, Kosten, Kompromisse und der nächste Test.",
   "teach.evidenceTitle": "Nachweise akzeptieren, nicht nur eine genehmigte Antwort",
   "teach.evidenceBody": "Konsolenausgabe ohne Geheimnisse, ein kleines JSON- oder Markdown-Ergebnis, ein Codelink, die Ablaufspur eines fehlgeschlagenen Falls oder ein lokaler Bericht können gültig sein. Das Raster schreibt kein bestimmtes Framework, keinen Anbieter und keinen Prompt vor.",
-  "teach.privacyBody": "Bewahren Sie Beobachtungsbögen für Pilotversuche lokal auf. Stellen Sie Schlüssel, Prompts, rohe Anbieterdaten, Antworten oder identifizierbare Arbeiten von Lernenden niemals auf diese Website, in Screenshots oder CI-Protokolle."
+  "teach.privacyBody": "Bewahren Sie Beobachtungsbögen für Pilotversuche lokal auf. Stellen Sie Schlüssel, Prompts, rohe Anbieterdaten, Antworten oder identifizierbare Arbeiten von Lernenden niemals auf diese Website, in Screenshots oder CI-Protokolle.",
+  "home.progCheck": "Liste",
+  "home.progNext": "Nächster Schritt",
+  "home.progNextHandbook": "Mit dem Handbuch beginnen",
+  "home.progNextContinue": "Im Handbuch weiterlesen",
+  "home.progNextRoom": "Den Kontrollraum abschließen",
+  "home.progNextLab": "Labor-Schritt {n}: {name}",
+  "home.progNextBuild": "Teil 3 auf dem eigenen Rechner öffnen",
+  "home.progNextDone": "Alle drei Teile sind in diesem Browser verzeichnet.",
+  "home.progBuildNote": "Ihre eigene Markierung. Diese Website sieht den Kurs auf Ihrem Rechner nicht.",
+  "home.progLabSteps": "Schritte im Labor",
+  "lab.s3.langNote": "Die Bestellungen sind absichtlich auf Englisch. Sie können den Prompt in Ihrer eigenen Sprache schreiben."
 }
