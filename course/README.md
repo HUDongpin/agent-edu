@@ -41,7 +41,7 @@ npx tsx course/check.ts 4 --offline
 npm run course -- 4 --offline
 ```
 
-Every completed stage supports this path. Stage 2's lesson includes watching a real model answer the same question differently, which a deterministic stand-in cannot reproduce; if you later want that comparison, use a low-credit, revocable key of your own. Never borrow or share another person's credential.
+Every completed stage supports this path. The stand-in does not vary. Stage 2 prints a saved real run after that stand-in, labelled as recorded and not live. [recorded.ts](stage2-prompt/recorded.ts) prints the same run with no key: on the reference prompt and the default model, the vague question often repeated one answer, and the clear order repeated a price the menu does not charge. A live key shows what your own prompt does. Use a low-credit, revocable key of your own. Never borrow or share another person's credential.
 
 **Stuck?** Hint 1 and 2 in [HINTS.md](HINTS.md), then [SOLUTIONS.md](SOLUTIONS.md). [`SOLUTIONS.md`](SOLUTIONS.md) has every `TODO` filled in, one section per stage.
 
@@ -76,7 +76,7 @@ This is what a provider abstraction is actually for. Not "swap the URL" — anyo
 |---|---|---|---|---|---|
 | 0 | [hello](stage0-hello/) | one API call | your key works | ★ | 10 min |
 | 1 | [kiosk](stage1-kiosk/) | if/else rules | the wall that starts all of this | ★ | 15 min |
-| 2 | [prompt](stage2-prompt/) | a system prompt | **the same question, five different answers** | ★★ | 20 min |
+| 2 | [prompt](stage2-prompt/) | a system prompt | **a repeated answer can still be wrong** | ★★ | 20 min |
 | 3 | [evals](stage3-evals/) | wire up 20 cases | variable model output needs evals; deterministic code still needs unit tests | ★ | 15 min |
 | 4 | [context](stage4-context/) | the menu, in the prompt | most "bad model" is "never told" | ★★ | 25 min |
 | 5 | [loop](stage5-loop/) | one tool call, then the loop | tools, failure, recovery, a step limit | ★★★ | 40 min |

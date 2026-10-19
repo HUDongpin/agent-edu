@@ -30,7 +30,7 @@ npx tsx course/check.ts 0
 npx tsx course/stage0-hello/run.ts --offline
 ```
 
-离线模式是退路，不是这门课。第 2 阶段里你最该看见的一件事，是一个实时模型对 *同一个问题给出不同的回答*，而结果确定的替身做不到这一点。
+离线模式是退路，不是这门课。第 2 阶段留着参考提示词的一次真实运行：含糊的问题常常重复同一个回答，清楚的订单重复了一个错误的价格。替身不会产生那份记录。[recorded.ts](../stage2-prompt/recorded.ts) 不需要密钥就能打印它，第 2 阶段加上 `--offline` 也会打印。
 
 ## 逐条讲解 TODO
 

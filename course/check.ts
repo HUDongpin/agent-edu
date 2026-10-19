@@ -261,6 +261,14 @@ async function check5loop(m: any, writeRecord: boolean): Promise<void> {
   if (writeRecord) record(5, { orders: placed });
 }
 
+/** Saved real replies for keyless stage 2. Printed only on the offline path. */
+async function printRecordedStage2(): Promise<void> {
+  // Dynamic so a missing recording fails this stage, not every other one at import.
+  const { formatRecordedStage2 } = await import("./stage2-prompt/recorded");
+  console.log();
+  console.log(formatRecordedStage2());
+}
+
 const CHECKS: Record<number, (m: any) => Promise<void>> = {
   async 0(m) {
     if (!m.QUESTION?.trim()) {
@@ -318,6 +326,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
 
   async 2(m) {
     if (!m.SYSTEM?.trim()) {
+      if (OFFLINE) await printRecordedStage2();
       bad(
         "SYSTEM is still empty",
         "write a system prompt that turns one customer sentence into an order with items, total and needs_confirmation — leave the menu for stage 4",
@@ -345,6 +354,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
       seen.add(JSON.stringify(await m.takeOrder("something warm for my kid, no coffee", i)));
     }
     record(2, { distinct: seen.size });
+    if (OFFLINE) await printRecordedStage2();
   },
 
   async 3(m) {

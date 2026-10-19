@@ -28,7 +28,7 @@ It will not be 20. Read the failures — most of them are prices, because the mo
 
 ## Why this complements unit testing
 
-In stage 1 you could write `assert.equal(takeOrder("tea")?.price, 2.80)` and it held forever. From stage 2 on, an exact assertion against the generated reply is a coin flip, because the same input can give different wording.
+In stage 1 you could write `assert.equal(takeOrder("tea")?.price, 2.80)` and it held forever. From stage 2 on, pinning one generated reply to an exact value does not hold. The same input can come back worded differently, and it can come back identical and still be wrong.
 
 Keep unit tests for deterministic parsers, schemas, tools and safety gates. For the variable model output, stop asserting one exact answer and start measuring a rate over many cases. `cafe/evalset.ts` has twenty; look at it. Twelve are checked by a plain TypeScript function — exact, free, instant. Only eight need a second model call to judge, because "did it handle the vague order sensibly?" has no `===` you can write.
 

@@ -8,6 +8,12 @@
 npx tsx course/stage2-prompt/run.ts
 ```
 
+No key? Fill in `SYSTEM`, then run the same file with `--offline`. The stand-in is deterministic. After it, the script prints a saved real run. To read that run on its own:
+
+```bash
+npx tsx course/stage2-prompt/recorded.ts
+```
+
 There is one `TODO`: write the prompt. Then:
 
 ```bash
@@ -20,15 +26,15 @@ npx tsx course/check.ts 2
 
 **`"could I grab a large flat white when you get a sec"` now works**, and you never wrote a rule for it. That is the whole reason anyone puts a model in a program. Then the script runs three probes, and each one takes something away from you.
 
-**Probe 1 — is it stable?** The same vague question, five times, counting distinct answers. Usually it is not one. That is not a bug and you cannot prompt it away entirely; you can only narrow it.
+**Probe 1 — is it stable?** The same vague question, five times, counting distinct answers. It may be one answer. A saved run of the reference prompt, on the course default (`deepseek-flash`, effort low, temperature left unset, thinking off), is in [stage2.json](../cafe/recordings/stage2.json): 20 sessions, eleven with 1 distinct answer and nine with 2. 91 of the 100 replies were an empty order with `needs_confirmation` true. The other nine named a drink. No session produced five different answers. Your prompt can land somewhere else. The saved run is what this model and this prompt did, not a promise about the next one.
 
-**Probe 2 — is it right?** Different question, and the one that matters. It compares the price it quoted against the real menu. You never gave it the menu, so anything it says is invented. Watch for the bad case: if it invents the *same* wrong price five times in a row, probe 1 says "stable" and probe 1 is worthless. **Consistency is not correctness.** A model that wobbles is obviously guessing; a model that repeats itself is guessing too, and hides it better.
+**Probe 2 — is it right?** Different question, and the one that matters. It compares a quoted price with the real menu. You never gave it the menu, so a number it prints was not looked up. In that saved run the clear order was the same five times: flat white, large, 4.50, and `needs_confirmation` false. The menu charges 5.10 for that drink. Stable, and wrong. An empty vague order is not a checked order either. **Consistency is not correctness.** A model that wobbles is obviously guessing; a model that repeats itself is guessing too, and hides it better.
 
-**Probe 3 — does the wording move it?** Five ways of asking for the same drink. Real customers never repeat themselves verbatim, so this is the variation that actually reaches you. Watch `needs_confirmation` — the flag deciding whether you ask before charging someone — flip on phrasing alone.
+**Probe 3 — does the wording move it?** Five ways of asking for the same drink. Real customers never repeat themselves verbatim. Watch `needs_confirmation` — the flag that decides whether you ask before charging someone — and watch the item. In the saved run the flag stayed true on every phrasing, in all three sessions. The item did not stay put: some phrasings came back empty, some named a drink, and the name and the price were not one value. Wording moved the order. It did not flip the flag.
 
-Notice where the variation lives: the clear order comes back stable, the vague one doesn't. **The model is not being random — it is filling a gap you left.** Stage 4 is about closing gaps deliberately.
+The clear order was the stable one, and its price was still invented. The vague question was mostly one empty order, with a second answer in nine sessions. **The model is not a dice you can count on, and it is not a lookup. It fills a gap you left, or it refuses to, and neither one is correctness.** Stage 4 closes that gap on purpose. Five calls cannot tell you which. Stage 3 counts.
 
-If your numbers look different from a friend's, that is the point too. Try `CAFE_PROVIDER=anthropic` or `CAFE_MODEL=deepseek-v4-pro` — how stable a model is, is a property *of that model*, not of the task.
+If your numbers look different from a friend's, or from this recording, that is the point too. Try `CAFE_PROVIDER=anthropic` or `CAFE_MODEL=deepseek-v4-pro`. How stable a model is, is a property of that model and that prompt, not of the task.
 
 ## About the JSON
 
