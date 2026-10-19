@@ -354,7 +354,7 @@
   "hb.body.p-harness.34": "Next: how do you test it? →",
   "hb.body.p-evals.01": "07 — Evaluation engineering",
   "hb.body.p-evals.02": "How do you test a thing that answers differently every time?",
-  "hb.body.p-evals.03": "§01 gave the same answer twelve times running. §02 gave five different answers to one prompt. The moment that happened, ordinary testing broke — and this is what replaces it.",
+  "hb.body.p-evals.03": "§01 gave the same answer twelve times running. §02 could answer the same prompt differently from one run to the next. The moment that happened, ordinary testing broke — and this is what replaces it.",
   "hb.body.p-evals.04": "🛠️ The method, in four steps",
   "hb.attr.p-evals.01": "Four-step loop: collect real cases, define what good means, run the whole set for a pass rate, change one thing and re-run — and every bug report becomes a new case.",
   "hb.body.p-evals.05": "🗣️ In plain English",

@@ -354,7 +354,7 @@
   "hb.body.p-harness.34": "Weiter: Wie testest du das? →",
   "hb.body.p-evals.01": "07 — Evaluations-Engineering",
   "hb.body.p-evals.02": "Wie testest du etwas, das jedes Mal anders antwortet?",
-  "hb.body.p-evals.03": "§01 gab zwölf Mal hintereinander dieselbe Antwort. §02 gab fünf verschiedene Antworten auf einen einzigen Prompt. In dem Moment war das gewohnte Testen kaputt — und das hier tritt an seine Stelle.",
+  "hb.body.p-evals.03": "§01 gab zwölf Mal hintereinander dieselbe Antwort. §02 konnte auf denselben Prompt von Lauf zu Lauf unterschiedlich antworten. In dem Moment war das gewohnte Testen kaputt — und das hier tritt an seine Stelle.",
   "hb.body.p-evals.04": "🛠️ Die Methode in vier Schritten",
   "hb.attr.p-evals.01": "Vier-Schritt-Schleife: echte Fälle sammeln, festlegen, was gut heißt, den ganzen Satz für eine Erfolgsquote laufen lassen, eine Sache ändern und erneut laufen lassen — und jede Fehlermeldung wird ein neuer Fall.",
   "hb.body.p-evals.05": "🗣️ Ganz einfach gesagt",

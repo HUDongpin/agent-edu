@@ -354,7 +354,7 @@
   "hb.body.p-harness.34": "Siguiente: ¿cómo se prueba esto? →",
   "hb.body.p-evals.01": "07 — Ingeniería de evaluación",
   "hb.body.p-evals.02": "¿Cómo se prueba algo que responde distinto cada vez?",
-  "hb.body.p-evals.03": "§01 dio la misma respuesta doce veces seguidas. §02 dio cinco respuestas distintas a un mismo prompt. En cuanto eso pasó, las pruebas de siempre dejaron de servir, y esto es lo que las sustituye.",
+  "hb.body.p-evals.03": "§01 dio la misma respuesta doce veces seguidas. §02 podía responder de forma distinta al mismo prompt de una ejecución a otra. En cuanto eso pasó, las pruebas de siempre dejaron de servir, y esto es lo que las sustituye.",
   "hb.body.p-evals.04": "🛠️ El método, en cuatro pasos",
   "hb.attr.p-evals.01": "Bucle de cuatro pasos: reúne casos reales, define qué significa «bien», ejecuta todo el conjunto para obtener una tasa de aciertos, cambia una cosa y vuelve a ejecutar; y cada informe de error se convierte en un caso nuevo.",
   "hb.body.p-evals.05": "🗣️ En palabras sencillas",

@@ -354,7 +354,7 @@
   "hb.body.p-harness.34": "Suivant : comment tester tout ça ? →",
   "hb.body.p-evals.01": "07 — Ingénierie de l'évaluation",
   "hb.body.p-evals.02": "Comment tester une chose qui répond différemment à chaque fois ?",
-  "hb.body.p-evals.03": "Le §01 a donné douze fois de suite la même réponse. Le §02 a donné cinq réponses différentes à un seul prompt. À cet instant précis, les tests ordinaires ont cessé de fonctionner — et voici ce qui les remplace.",
+  "hb.body.p-evals.03": "Le §01 a donné douze fois de suite la même réponse. Le §02 pouvait répondre différemment au même prompt d'une exécution à l'autre. À cet instant précis, les tests ordinaires ont cessé de fonctionner — et voici ce qui les remplace.",
   "hb.body.p-evals.04": "🛠️ La méthode, en quatre étapes",
   "hb.attr.p-evals.01": "Boucle en quatre étapes : rassembler de vrais cas, définir ce que « bon » veut dire, exécuter tout le jeu pour obtenir un taux de réussite, changer une chose et relancer — et chaque rapport de bug devient un nouveau cas.",
   "hb.body.p-evals.05": "🗣️ Dit simplement",
