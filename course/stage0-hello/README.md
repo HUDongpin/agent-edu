@@ -30,6 +30,6 @@ If you have no API key, every stage uses the bundled scripted stand-in with `--o
 npx tsx course/stage0-hello/run.ts --offline
 ```
 
-Offline mode is a fallback, not the course. The single most important thing you will see in stage 2 is a live model giving you a *different answer to the same question*, and a deterministic stand-in cannot show you that.
+Offline mode is a fallback, not the course. Stage 2 keeps a saved real run of the reference prompt: the vague question often repeated one answer, and the clear order repeated a wrong price. The stand-in does not produce that run. [recorded.ts](../stage2-prompt/recorded.ts) prints it with no key, and so does stage 2 with `--offline`.
 
 **Next:** [stage 1 — the kiosk that can't](../stage1-kiosk/README.md)

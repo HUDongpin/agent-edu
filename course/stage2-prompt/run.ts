@@ -1,20 +1,25 @@
 /** Stage 2 — the same job as stage 1, but with a model. */
 import { loadEvalset, loadLlm } from "../preflight";
 import { priceOf, type Order } from "../cafe/menu";
+import { formatRecordedStage2 } from "./recorded";
 
 // Dynamic import: the dependency check has to run before the SDK is linked.
-const { ask, preflight, spend } = await loadLlm();
+const { ask, preflight, spend, OFFLINE } = await loadLlm();
 const { ORDER_SCHEMA } = await loadEvalset();
 
 /** Five ways a real customer asks for one thing. Real people do not repeat
  *  themselves verbatim, so this is the variation that actually reaches you. */
-const SAME_INTENT = [
+export const SAME_INTENT = [
   "something warm for my kid, no coffee",
   "a warm drink for my little one, nothing with coffee in it",
   "my son wants something hot — he can't have caffeine",
   "got anything warm and caffeine-free for a child?",
   "a hot drink for my daughter please, decaf or no coffee",
 ];
+
+/** The clear order and the vague question the probes below repeat. */
+export const CLEAR_ORDER = "could I grab a large flat white when you get a sec";
+export const VAGUE_QUESTION = "something warm for my kid, no coffee";
 
 // ---------------------------------------------------------------------------
 // TODO: write the prompt.
@@ -35,21 +40,26 @@ export function takeOrder(said: string, variant = 0): Promise<Order> {
 
 if (import.meta.filename === process.argv[1]) {
   preflight();
-  if (!SYSTEM.trim()) throw new Error("Write the SYSTEM prompt above, then run this again.");
+  if (!SYSTEM.trim()) {
+    if (OFFLINE) {
+      console.log(formatRecordedStage2());
+      console.log("\n  The stand-in did not run: SYSTEM is still empty.");
+    }
+    throw new Error("Write the SYSTEM prompt above, then run this again.");
+  }
 
-  const clear = "could I grab a large flat white when you get a sec";
-  console.log(`\nA phrasing you never wrote a rule for:\n  ${JSON.stringify(clear)}`);
-  console.log("  ->", JSON.stringify(await takeOrder(clear)));
+  console.log(`\nA phrasing you never wrote a rule for:\n  ${JSON.stringify(CLEAR_ORDER)}`);
+  console.log("  ->", JSON.stringify(await takeOrder(CLEAR_ORDER)));
 
   // ---- probe 1: is it stable? ---------------------------------------------
-  const vague = "something warm for my kid, no coffee";
-  console.log(`\nThe same vague question, five times:\n  ${JSON.stringify(vague)}`);
+  console.log(`\nThe same vague question, five times:\n  ${JSON.stringify(VAGUE_QUESTION)}`);
   const seen = new Set<string>();
-  const quotes = [];
+  const quotes: { name?: string; size?: string; price?: number }[] = [];
   for (let i = 0; i < 5; i++) {
-    const got = await takeOrder(vague, i);
+    const got = await takeOrder(VAGUE_QUESTION, i);
     seen.add(JSON.stringify(got));
-    quotes.push((got.items ?? [{}])[0] as { name?: string; size?: string; price?: number });
+    // An empty items array has no [0]. The reference prompt often returns one.
+    quotes.push(got.items?.[0] ?? {});
     console.log(`  ${i + 1}. ${JSON.stringify(got)}`);
   }
   console.log(`\n  ${seen.size} distinct answer(s) from 5 identical questions.`);
@@ -59,10 +69,13 @@ if (import.meta.filename === process.argv[1]) {
   // A model that wobbles is obviously guessing; one that says the same wrong
   // thing five times is guessing too, and hides it better.
   const asked = quotes.map((q) => q.price);
-  const real = priceOf(quotes[0].name ?? "", quotes[0].size ?? "S");
+  const named = quotes.find((q) => q.name);
+  const first = named ?? quotes[0] ?? {};
+  const real = priceOf(first.name ?? "", first.size ?? "S");
   console.log(`\n  it quoted : ${JSON.stringify(asked)}`);
   console.log(`  menu says : ${real}`);
-  if (real === undefined) console.log("  -> that item is not on the menu at all. It invented one.");
+  if (!named) console.log("  -> it named no item. Empty can be the stable answer. It is still not a checked one.");
+  else if (real === undefined) console.log("  -> that item is not on the menu at all. It invented one.");
   else if (new Set(asked).size > 1) console.log("  -> it invented the price, differently each time.");
   else if (asked[0] !== real) console.log("  -> it invented the price. Confidently. Every single time.");
   else console.log("  -> right this time — but nobody told it the menu, so that is luck.");
@@ -82,4 +95,8 @@ if (import.meta.filename === process.argv[1]) {
   console.log("\n  One sample never settles any of this. Stage 3 is how you stop");
   console.log("  guessing and start counting.");
   console.log(`\ncost  : ${spend()}`);
+  if (OFFLINE) {
+    console.log();
+    console.log(formatRecordedStage2());
+  }
 }

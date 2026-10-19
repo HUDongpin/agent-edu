@@ -41,7 +41,7 @@ npx tsx course/check.ts 4 --offline
 npm run course -- 4 --offline
 ```
 
-每个已完成的阶段都支持这条路径。第 2 阶段的课包含：看一个真实模型对同一问题给出不同回答，而结果确定的替身做不到这一点；如果你之后想看这种对比，请用一把你自己的、额度低、可撤销的密钥。绝不要借用或分享别人的凭证。
+每个完成的阶段都可以这样跑。替身的输出每次都一样，所以第 2 阶段在替身输出之后，还会打印一份标明「录制结果，不是实时调用」的真实运行记录。用 [recorded.ts](stage2-prompt/recorded.ts) 不需要密钥也能查看这份记录：用参考提示词和默认模型时，那个含糊的问题常常得到同一个回答，而清楚的订单反复报出一个和菜单不符的价格。有了实时密钥，你看到的则是你自己的提示词的表现。请用一把你自己的、额度低、可撤销的密钥。绝不要借用或分享别人的凭证。
 
 **卡住了？** 提示 1 和提示 2 在 [HINTS.zh-Hans.md](HINTS.zh-Hans.md)，然后看 [SOLUTIONS.md](SOLUTIONS.md)。[`SOLUTIONS.md`](SOLUTIONS.md) 里每个 `TODO` 都填好了，一个阶段一节。这份参考解答目前只有英文。
 
@@ -76,7 +76,7 @@ export CAFE_MODEL=deepseek-v4-pro   # or a Provider-supported model
 |---|---|---|---|---|---|
 | 0 | [hello](stage0-hello/README.zh-Hans.md) | 一次 API 调用 | 你的密钥能用 | ★ | 10 分钟 |
 | 1 | [kiosk](stage1-kiosk/README.zh-Hans.md) | if/else 规则 | 把这一切逼出来的那堵墙 | ★ | 15 分钟 |
-| 2 | [prompt](stage2-prompt/README.zh-Hans.md) | 一条系统提示词 | **同一个问题，五种不同的回答** | ★★ | 20 分钟 |
+| 2 | [prompt](stage2-prompt/README.zh-Hans.md) | 一条系统提示词 | **重复的回答仍可能是错的** | ★★ | 20 分钟 |
 | 3 | [evals](stage3-evals/README.zh-Hans.md) | 接上 20 个用例 | 会变的模型输出需要评测；确定的代码仍然需要单元测试 | ★ | 15 分钟 |
 | 4 | [context](stage4-context/README.zh-Hans.md) | 把菜单放进提示词 | 多数「模型很差」其实是「从没告诉它」 | ★★ | 25 分钟 |
 | 5 | [loop](stage5-loop/README.zh-Hans.md) | 一次工具调用，然后是循环 | 工具、失败、恢复、步数上限 | ★★★ | 40 分钟 |

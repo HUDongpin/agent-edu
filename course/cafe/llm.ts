@@ -29,6 +29,7 @@ import {
   priceAnthropicCourseUsage,
   priceDeepSeekCourseUsage,
   recordCourseUsage,
+  type CourseUsageLedger,
 } from "./pricing";
 
 /* ---------------------------------------------------------------------------
@@ -284,6 +285,11 @@ export function meter(response: unknown): void {
     ? (response as Record<string, unknown>).usage
     : undefined;
   spent = recordCourseUsage(spent, usage);
+}
+
+/** Copy of the ledger `meter` fills, so a caller can price between calls. */
+export function courseSpendLedger(): CourseUsageLedger {
+  return { ...spent };
 }
 
 let baseline: number | null = null;

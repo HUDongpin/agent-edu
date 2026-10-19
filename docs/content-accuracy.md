@@ -83,7 +83,9 @@ Credit where it is due — reuse these rather than inventing parallel machinery.
   before a release ships.
 - **`course/cafe/offline.ts`** — the offline stand-in is *synthesised*, not
   recorded model output, and says so in its header. Recorded fixtures rot;
-  this cannot. Do not "improve" it by recording real replies.
+  this cannot. Do not "improve" the stand-in by pasting real replies into it.
+  A separately labelled, dated recording may sit beside it (stage 2). It has
+  to say it is not live, and it is not edited to invent variation.
 
 ---
 
@@ -375,9 +377,11 @@ feel current is how a good course decays.
   the Anthropic model in exactly one place and no document repeats it — that
   is why the model can change in a one-line diff. `course/README.md:53` says
   "or a Provider-supported model" rather than naming one. Keep it that way.
-- **Do not record live model output into fixtures.** `offline.ts` is
-  synthesised on purpose. Recorded replies are stale the moment the model
-  updates and, being plausible, nobody notices.
+- **Do not replace the synthesised stand-in with live replies.** `offline.ts`
+  is synthesised on purpose. Recorded replies are stale the moment the model
+  updates and, being plausible, nobody notices. A labelled dated recording
+  (stage 2) is a different artifact: it must say which model and day, say
+  that it is not a live call, and keep whatever that run actually returned.
 - **Do not touch `lib/flowchart.ts`, `lib/handbook/behaviour.ts` or
   `lib/handbook/markup.ts`** for accuracy work. Handbook wording changes go
   through `markup.ts` and `npm run handbook:extract`, per the house rules —

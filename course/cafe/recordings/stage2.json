@@ -1,0 +1,1997 @@
+{
+  "kind": "recorded-real-run",
+  "notLive": true,
+  "recordedAt": "2026-10-19T04:42:07.186Z",
+  "provider": "deepseek",
+  "model": "deepseek-flash",
+  "settings": {
+    "effort": "low",
+    "maxTokens": 2000,
+    "temperature": null,
+    "requestTuning": {
+      "thinking": {
+        "type": "disabled"
+      }
+    },
+    "jsonSchema": false,
+    "variantSentToProvider": false
+  },
+  "system": "You are the order-taking system for a café.\nTurn one customer message into a structured order.\n\nGive every item a name, a size (S or L), and a price. Add up the total.\nIf the customer has not said clearly enough what they want, set\nneeds_confirmation to true so a barista can check.\n\nDo not chat. Return only the order.",
+  "clearCalls": [
+    {
+      "input": "Customer said: \"could I grab a large flat white when you get a sec\"",
+      "variant": 0,
+      "output": {
+        "items": [
+          {
+            "name": "flat white",
+            "size": "L",
+            "price": 4.5
+          }
+        ],
+        "total": 4.5,
+        "needs_confirmation": false
+      },
+      "usage": {
+        "inputTokens": 315,
+        "cachedInputTokens": 128,
+        "cacheCreationInputTokens": 0,
+        "outputTokens": 33
+      }
+    },
+    {
+      "input": "Customer said: \"could I grab a large flat white when you get a sec\"",
+      "variant": 0,
+      "output": {
+        "items": [
+          {
+            "name": "flat white",
+            "size": "L",
+            "price": 4.5
+          }
+        ],
+        "total": 4.5,
+        "needs_confirmation": false
+      },
+      "usage": {
+        "inputTokens": 315,
+        "cachedInputTokens": 128,
+        "cacheCreationInputTokens": 0,
+        "outputTokens": 33
+      }
+    },
+    {
+      "input": "Customer said: \"could I grab a large flat white when you get a sec\"",
+      "variant": 0,
+      "output": {
+        "items": [
+          {
+            "name": "flat white",
+            "size": "L",
+            "price": 4.5
+          }
+        ],
+        "total": 4.5,
+        "needs_confirmation": false
+      },
+      "usage": {
+        "inputTokens": 315,
+        "cachedInputTokens": 128,
+        "cacheCreationInputTokens": 0,
+        "outputTokens": 33
+      }
+    },
+    {
+      "input": "Customer said: \"could I grab a large flat white when you get a sec\"",
+      "variant": 0,
+      "output": {
+        "items": [
+          {
+            "name": "flat white",
+            "size": "L",
+            "price": 4.5
+          }
+        ],
+        "total": 4.5,
+        "needs_confirmation": false
+      },
+      "usage": {
+        "inputTokens": 315,
+        "cachedInputTokens": 128,
+        "cacheCreationInputTokens": 0,
+        "outputTokens": 33
+      }
+    },
+    {
+      "input": "Customer said: \"could I grab a large flat white when you get a sec\"",
+      "variant": 0,
+      "output": {
+        "items": [
+          {
+            "name": "flat white",
+            "size": "L",
+            "price": 4.5
+          }
+        ],
+        "total": 4.5,
+        "needs_confirmation": false
+      },
+      "usage": {
+        "inputTokens": 315,
+        "cachedInputTokens": 128,
+        "cacheCreationInputTokens": 0,
+        "outputTokens": 33
+      }
+    }
+  ],
+  "vagueSessions": [
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [
+            {
+              "name": "hot chocolate",
+              "size": "S",
+              "price": 3
+            }
+          ],
+          "total": 3,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 33
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [
+            {
+              "name": "something warm (non-coffee, kid-friendly)",
+              "size": "S",
+              "price": 0
+            }
+          ],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 37
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [
+            {
+              "name": "hot chocolate",
+              "size": "S",
+              "price": 2.5
+            }
+          ],
+          "total": 2.5,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 33
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [
+            {
+              "name": "steamed milk",
+              "size": "S",
+              "price": 2.5
+            }
+          ],
+          "total": 2.5,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 34
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [
+            {
+              "name": "hot chocolate",
+              "size": "S",
+              "price": 3
+            }
+          ],
+          "total": 3,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 33
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [
+            {
+              "name": "hot chocolate",
+              "size": "S",
+              "price": 3
+            }
+          ],
+          "total": 3,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 33
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [
+            {
+              "name": "café order (warm drink, no coffee)",
+              "size": "S",
+              "price": 0
+            }
+          ],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 39
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [
+            {
+              "name": "hot chocolate",
+              "size": "S",
+              "price": 2.5
+            }
+          ],
+          "total": 2.5,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 33
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 23
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [
+            {
+              "name": "Hot chocolate",
+              "size": "S",
+              "price": 2.5
+            }
+          ],
+          "total": 2.5,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 33
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 0,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 1,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 2,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 3,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 4,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ]
+  ],
+  "phrasingSessions": [
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 10,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"a warm drink for my little one, nothing with coffee in it\"",
+        "variant": 11,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 316,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"my son wants something hot — he can't have caffeine\"",
+        "variant": 12,
+        "output": {
+          "items": [
+            {
+              "name": "hot drink (caffeine-free)",
+              "size": "S",
+              "price": 0
+            }
+          ],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 314,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 34
+        }
+      },
+      {
+        "input": "Customer said: \"got anything warm and caffeine-free for a child?\"",
+        "variant": 13,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 312,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"a hot drink for my daughter please, decaf or no coffee\"",
+        "variant": 14,
+        "output": {
+          "items": [
+            {
+              "name": "hot drink",
+              "size": "S",
+              "price": 0
+            }
+          ],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 316,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 29
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 10,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"a warm drink for my little one, nothing with coffee in it\"",
+        "variant": 11,
+        "output": {
+          "items": [
+            {
+              "name": "hot chocolate",
+              "size": "S",
+              "price": 2.5
+            }
+          ],
+          "total": 2.5,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 316,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 33
+        }
+      },
+      {
+        "input": "Customer said: \"my son wants something hot — he can't have caffeine\"",
+        "variant": 12,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 314,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"got anything warm and caffeine-free for a child?\"",
+        "variant": 13,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 312,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"a hot drink for my daughter please, decaf or no coffee\"",
+        "variant": 14,
+        "output": {
+          "items": [
+            {
+              "name": "Decaf hot drink",
+              "size": "S",
+              "price": 0
+            }
+          ],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 316,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 53
+        }
+      }
+    ],
+    [
+      {
+        "input": "Customer said: \"something warm for my kid, no coffee\"",
+        "variant": 10,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 311,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"a warm drink for my little one, nothing with coffee in it\"",
+        "variant": 11,
+        "output": {
+          "items": [
+            {
+              "name": "warm drink (non-coffee, e.g. hot chocolate)",
+              "size": "S",
+              "price": 2.5
+            }
+          ],
+          "total": 2.5,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 316,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 45
+        }
+      },
+      {
+        "input": "Customer said: \"my son wants something hot — he can't have caffeine\"",
+        "variant": 12,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 314,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"got anything warm and caffeine-free for a child?\"",
+        "variant": 13,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 312,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      },
+      {
+        "input": "Customer said: \"a hot drink for my daughter please, decaf or no coffee\"",
+        "variant": 14,
+        "output": {
+          "items": [],
+          "total": 0,
+          "needs_confirmation": true
+        },
+        "usage": {
+          "inputTokens": 316,
+          "cachedInputTokens": 128,
+          "cacheCreationInputTokens": 0,
+          "outputTokens": 16
+        }
+      }
+    ]
+  ],
+  "usage": {
+    "inputTokens": 37382,
+    "cachedInputTokens": 15360,
+    "cacheCreationInputTokens": 0,
+    "outputTokens": 2290,
+    "calls": 120,
+    "unknownCalls": 0
+  },
+  "estimatedCostUsd": 0.004723379999999999,
+  "priceBand": "off-peak",
+  "pricesCheckedAt": "2026-09-22"
+}
