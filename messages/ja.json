@@ -443,7 +443,7 @@
   "teach.evidenceBody": "機密情報を含まないコンソール出力、小さなJSONまたはMarkdown結果、コードへのリンク、不合格ケース一つのトレース、ローカルのレポートカードは、いずれも有効な証拠になり得ます。特定のフレームワーク、提供元、プロンプトは要求しません。",
   "teach.privacyBody": "試行授業の観察シートはローカルに保管してください。学習者のキー、プロンプト、提供元の生の本文、応答、個人を特定できる成果物を、本サイト、スクリーンショット、CIログへ入れてはいけません。",
   "home.progCheck": "チェックリスト",
-  "home.progNext": "次の一歩",
+  "home.progNext": "次のステップ",
   "home.progNextHandbook": "ハンドブックから始める",
   "home.progNextContinue": "ハンドブックの続きへ",
   "home.progNextRoom": "コントロールルームを終える",
