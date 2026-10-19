@@ -81,7 +81,7 @@
   "w.code.fc.norm2": "y elimina los espacios",
   "w.code.fc.isIt": "¿es",
   "w.code.fc.out": "✅ {label}: ${price}",
-  "w.code.fc.fail": "🛑 \"Lo siento, no lo entiendo\".",
+  "w.code.fc.fail": "🛑 \"Lo siento, no lo entiendo.\"",
   "w.code.fc.yes": "sí",
   "w.code.fc.no": "No",
   "w.code.pick": "Elige una entrada de arriba.",
