@@ -125,7 +125,7 @@ test("the saved run is not five different answers, and the prose says so", () =>
   assert.match(readFileSync("course/stage0-hello/README.md", "utf8"), /stage2-prompt\/recorded\.ts/);
   assert.match(readFileSync("course/stage0-hello/README.zh-Hans.md", "utf8"), /stage2-prompt\/recorded\.ts/);
   assert.match(readFileSync("course/stage3-evals/README.md", "utf8"), /identical and still be wrong/);
-  assert.match(readFileSync("course/stage3-evals/README.zh-Hans.md", "utf8"), /原样回来，却仍然是错的/);
+  assert.match(readFileSync("course/stage3-evals/README.zh-Hans.md", "utf8"), /原样返回，却仍然是错的/);
 });
 
 function offlineEnv(): NodeJS.ProcessEnv {
