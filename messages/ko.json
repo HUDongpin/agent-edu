@@ -446,11 +446,11 @@
   "home.progNext": "다음 단계",
   "home.progNextHandbook": "핸드북부터 시작",
   "home.progNextContinue": "핸드북 이어 보기",
-  "home.progNextRoom": "컨트롤 룸을 마치기",
+  "home.progNextRoom": "제어실을 마치기",
   "home.progNextLab": "실습실 {n}단계: {name}",
   "home.progNextBuild": "내 컴퓨터에서 3부를 열기",
   "home.progNextDone": "세 부분이 이 브라우저에 모두 기록되어 있습니다.",
   "home.progBuildNote": "직접 표시한 것입니다. 이 사이트는 내 컴퓨터의 과정을 보지 못합니다.",
   "home.progLabSteps": "실습실 단계",
-  "lab.s3.langNote": "주문은 일부러 영어로 되어 있습니다. 프롬프트는 자기 언어로 써도 됩니다."
+  "lab.s3.langNote": "주문은 일부러 영어로 되어 있습니다. 프롬프트는 자신의 언어로 써도 됩니다."
 }

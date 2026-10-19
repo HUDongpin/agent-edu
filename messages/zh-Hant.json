@@ -449,7 +449,7 @@
   "home.progNextRoom": "做完控制室",
   "home.progNextLab": "實驗室第 {n} 步：{name}",
   "home.progNextBuild": "在你自己的電腦上打開第三部分",
-  "home.progNextDone": "三個部分在這個瀏覽器裡都已記下。",
+  "home.progNextDone": "三個部分都已記錄在這個瀏覽器中。",
   "home.progBuildNote": "這是你自己的標記。本網站看不到你電腦上的課程。",
   "home.progLabSteps": "實驗室的步驟",
   "lab.s3.langNote": "這些訂單故意用英文。你可以用自己的語言寫提示詞。"
