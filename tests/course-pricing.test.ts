@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   EMPTY_COURSE_USAGE_LEDGER,
+  formatCourseUsd,
   parseCourseUsage,
   ANTHROPIC_COURSE_PRICING,
   priceAnthropicCourseUsage,
@@ -342,4 +343,25 @@ test("the Stage 6 public tool boundary defaults to the unattended fail-closed ap
   const source = readFileSync("course/stage6-harness/run.ts", "utf8");
   assert.match(source, /approve:\s*\(q: string\) => boolean = nobodyIsAwake/);
   assert.doesNotMatch(source, /approve:\s*\(q: string\) => boolean = \(\) => true/);
+});
+
+test("the CLI cost line never shows a real call as $0", () => {
+  /* The first recorded stage 2 call (315 in, 128 cache-hit, 33 out) at the
+     off-peak Flash rate, and a stage-0-sized call. Four decimals printed both
+     as "$0.0000". */
+  const recorded = priceDeepSeekCourseUsage("deepseek-flash", {
+    inputTokens: 315,
+    cachedInputTokens: 128,
+    cacheCreationInputTokens: 0,
+    outputTokens: 33,
+  }, "off-peak");
+  assert.equal(recorded.known, true);
+  if (recorded.known) assert.equal(formatCourseUsd(recorded.usd), "$0.00005");
+  assert.equal(formatCourseUsd(0.00001965), "$0.00002");
+  assert.equal(formatCourseUsd(0.000001), "<$0.00001");
+  assert.equal(formatCourseUsd(0), "$0.00000");
+  assert.equal(formatCourseUsd(1.5), "$1.50000");
+
+  const source = readFileSync("course/cafe/llm.ts", "utf8");
+  assert.doesNotMatch(source, /priced\.usd\.toFixed\(4\)/);
 });

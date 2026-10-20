@@ -27,6 +27,7 @@ import {
   EMPTY_COURSE_USAGE_LEDGER,
   ANTHROPIC_COURSE_PRICING,
   priceAnthropicCourseUsage,
+  formatCourseUsd,
   priceDeepSeekCourseUsage,
   recordCourseUsage,
   type CourseUsageLedger,
@@ -343,7 +344,7 @@ export function spend(): string {
       return `${usage} · cost unknown on ${MODEL} ` +
         `(not safely priceable from the ${priced.checkedAt} DeepSeek snapshot)`;
     }
-    return `${usage} · $${priced.usd.toFixed(4)} on ${MODEL} · ${band} rate · ` +
+    return `${usage} · ${formatCourseUsd(priced.usd)} on ${MODEL} · ${band} rate · ` +
       `prices checked ${DEEPSEEK_PRICING.checkedAt}`;
   }
 
@@ -368,7 +369,7 @@ export function spend(): string {
         : "usage is not safely priceable";
     return `${usage} · cost unknown on ${MODEL} (${detail})`;
   }
-  return `${usage} · $${priced.usd.toFixed(4)} on ${MODEL} · ` +
+  return `${usage} · ${formatCourseUsd(priced.usd)} on ${MODEL} · ` +
     `prices checked ${priced.checkedAt}`;
 }
 
