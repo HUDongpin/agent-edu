@@ -365,3 +365,17 @@ export function priceAnthropicCourseUsage(
   if (!Number.isFinite(usd)) return unknown("invalid-usage");
   return { ...common, known: true, usd };
 }
+
+/**
+ * A course call's dollar figure for the CLI cost line.
+ *
+ * One DeepSeek Flash call at the off-peak rate is about $0.00002–$0.00005, so
+ * the four decimals this line used to print read "$0.0000" next to non-zero
+ * token counts — a real call shown as free. Five decimals match the Lab's
+ * figures, and anything still too small to show says so instead of rounding
+ * to zero.
+ */
+export function formatCourseUsd(usd: number): string {
+  if (usd > 0 && usd < 0.000005) return "<$0.00001";
+  return `$${usd.toFixed(5)}`;
+}
