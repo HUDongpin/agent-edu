@@ -28,7 +28,11 @@ const nextConfig: NextConfig = {
     tsconfigPath: isBuild ? "tsconfig.build.json" : "tsconfig.json",
   },
   experimental: { globalNotFound: true },
-  trailingSlash: true,           // so /es/handbook/ resolves on plain file hosts
+  // Directory URLs, so /es/handbook/ resolves on a plain file host.
+  // vercel.json sets the same trailingSlash. The handbook's ../lab/ and
+  // ../build/ links leave the locale when /es/handbook is served without
+  // a redirect onto the slash.
+  trailingSlash: true,
   images: { unoptimized: true }, // no image server in a static export
 };
 
