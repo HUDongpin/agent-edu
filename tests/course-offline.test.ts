@@ -136,6 +136,93 @@ test("an unfinished stage 5 stops on its own TODO and does not record progress",
   assert.equal(snapshot(), before);
 });
 
+function copyCourseTree(): string {
+  const dir = mkdtempSync(join(tmpdir(), "stage5-check-"));
+  for (const entry of readdirSync(".")) {
+    if (entry === "course" || entry.startsWith(".")) continue;
+    symlinkSync(join(process.cwd(), entry), join(dir, entry));
+  }
+  cpSync("course", join(dir, "course"), { recursive: true });
+  return dir;
+}
+
+test("stage 5a grades a mutating first tool against a reset store, not a second call", () => {
+  const dir = copyCourseTree();
+  try {
+    const runPath = join(dir, "course", "stage5-loop", "run.ts");
+    let src = readFileSync(runPath, "utf8");
+    const inspect = src.match(/export async function inspectOneCall\(verbose = true\) \{[\s\S]*?\n\}/);
+    assert.ok(inspect, "inspectOneCall missing");
+    src = src.replace(inspect[0], `export async function inspectOneCall(verbose = true) {
+  const response = {
+    content: [{ type: "tool_use", id: "call-place", name: "place_order", input: { item: "tea", qty: 1 } }],
+  };
+  const noted = ["tool_use call-place place_order"];
+  if (verbose) console.log(noted[0]);
+  const messages: any[] = [{ role: "user", content: GOAL }];
+  messages.push({ role: "assistant", content: response.content });
+  const output = String(tools.RUNNERS.place_order(response.content[0].input));
+  messages.push({
+    role: "user",
+    content: [{ type: "tool_result", tool_use_id: "call-place", content: output }],
+  });
+  const block = response.content[0];
+  return {
+    messages,
+    seen: { type: block.type, id: block.id, name: block.name, input: block.input },
+    response,
+    noted,
+  };
+}`);
+    writeFileSync(runPath, src);
+    const result = spawnSync(
+      process.execPath,
+      ["--import", "tsx", "course/check.ts", "5a", "--offline"],
+      {
+        cwd: dir,
+        encoding: "utf8",
+        env: { ...process.env, DEEPSEEK_API_KEY: "", ANTHROPIC_API_KEY: "" },
+        timeout: 30_000,
+      },
+    );
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /stage 5a complete/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("stage 5a reports a FAIL when the first tool throws, not a stack trace", () => {
+  const dir = copyCourseTree();
+  try {
+    const runPath = join(dir, "course", "stage5-loop", "run.ts");
+    let src = readFileSync(runPath, "utf8");
+    const inspect = src.match(/export async function inspectOneCall\(verbose = true\) \{[\s\S]*?\n\}/);
+    assert.ok(inspect, "inspectOneCall missing");
+    src = src.replace(inspect[0], `export async function inspectOneCall(verbose = true) {
+  return tools.RUNNERS.place_order({ item: "cups_12oz", qty: 270 });
+}`);
+    writeFileSync(runPath, src);
+    const result = spawnSync(
+      process.execPath,
+      ["--import", "tsx", "course/check.ts", "5a", "--offline"],
+      {
+        cwd: dir,
+        encoding: "utf8",
+        env: { ...process.env, DEEPSEEK_API_KEY: "", ANTHROPIC_API_KEY: "" },
+        timeout: 30_000,
+      },
+    );
+    const out = `${result.stdout}\n${result.stderr}`;
+    assert.equal(result.status, 1, out);
+    assert.match(result.stdout, /FAIL {2}inspectOneCall threw before a tool_result was built/);
+    assert.match(result.stdout, /HINTS\.md, Stage 5a, Hint 1/);
+    assert.doesNotMatch(out, /supplier minimum/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("the stage 5 reference solution passes 5a, 5b and 5 offline", () => {
   const dir = mkdtempSync(join(tmpdir(), "stage5-solution-"));
   try {

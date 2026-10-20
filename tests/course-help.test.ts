@@ -225,4 +225,6 @@ test("a failing check names the next edit and points at Hint 1", () => {
   assert.match(check, /SYSTEM never tells the model what the café sells or charges/);
   assert.match(check, /re-read course\/\$\{STAGES\[checking\]\}\/README\.md/);
   assert.match(check, /function bad\(m: string, hint\?: string\): never/);
+  // DeepSeek ignores json_schema; a missing or non-array items used to throw.
+  assert.match(check, /Array\.isArray\(order\.items\)/);
 });
