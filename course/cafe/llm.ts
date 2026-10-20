@@ -17,7 +17,7 @@
  *
  *     export DEEPSEEK_API_KEY=sk-...        # then just run any stage
  *     export ANTHROPIC_API_KEY=sk-ant-...   # or this one
- *     export CAFE_PROVIDER=deepseek         # only needed if you have both
+ *     export CAFE_PROVIDER=anthropic        # only needed if you have both
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -92,8 +92,10 @@ function pickProvider(): string {
     }
     return chosen;
   }
-  for (const [name, cfg] of Object.entries(PROVIDERS)) {
-    if (process.env[cfg.env]) return name;
+  // DeepSeek first: with both keys set, the cheaper provider wins, as the
+  // course README promises. CAFE_PROVIDER=anthropic opts into Claude.
+  for (const name of ["deepseek", "anthropic"]) {
+    if (process.env[PROVIDERS[name].env]) return name;
   }
   return "deepseek"; // nothing set: the cheaper default, so preflight points
                      // a new learner at the smaller bill
