@@ -147,12 +147,27 @@ function groupByPrefix(keys, catalogId) {
  */
 function changedSince(ref) {
   if (!ref) return null;
+  // Resolve the ref once up front. Without this a typo fell into the per-file
+  // catch below, so every string in every catalogue came out "new" and the
+  // packet told the reviewer all of it was the review.
+  try {
+    execFileSync("git", ["rev-parse", "--verify", "--quiet", `${ref}^{commit}`], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+  } catch {
+    console.error(`review packet: --since=${ref} is not a commit in this repository`);
+    process.exit(1);
+  }
   const changed = new Map();
   for (const catalog of CATALOGS) {
     const path = catalog.path("en");
     let before = {};
     try {
-      before = JSON.parse(execFileSync("git", ["show", `${ref}:${path}`], { encoding: "utf8" }));
+      before = JSON.parse(execFileSync("git", ["show", `${ref}:${path}`], {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      }));
     } catch {
       // The file did not exist at that ref: everything in it is new.
     }
