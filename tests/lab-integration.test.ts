@@ -338,11 +338,12 @@ test("the scripted run is offered only without a key, and never dressed as a mod
     if (!c.before) assert.ok(c.why.trim(), `${c.id} failed without a reason`);
   }
 
-  assert.match(source, /stage === 3 && !getKey\(\) && \(/);
+  assert.match(source, /useSyncExternalStore\(\s*subscribeKey,\s*hasKey,\s*hasKeyOnServer/);
+  assert.match(source, /stage === 3 && !hasPaidKey && \(/);
   assert.match(source, /t\("lab\.s4\.recordedCta"\)/);
   // No meter and no jump banner: a scripted score must not borrow the shape of
   // an earned one.
-  const block = source.slice(source.indexOf("stage === 3 && !getKey()"));
+  const block = source.slice(source.indexOf("stage === 3 && !hasPaidKey"));
   const untilNext = block.slice(0, block.indexOf("partialRows.length > 0"));
   assert.doesNotMatch(untilNext, /className="meter"|lab\.s4\.jump/);
 
