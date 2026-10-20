@@ -147,8 +147,16 @@ function txt(s){ return document.createTextNode(s); }
     const b=e.target.closest('[data-goto]');
     if (b) show(b.dataset.goto);
   });
+  /* Malformed percent-encoding (% , %ZZ, truncated UTF-8) throws URIError
+     from decodeURIComponent. Without a catch, a crafted #hash aborts init
+     mid-pass (widgets after this point stay dead) and any later hashchange
+     throws uncaught. Empty string falls through to start / lastSection. */
+  const hashName=()=>{
+    try{return decodeURIComponent(location.hash.slice(1));}
+    catch(e){return '';}
+  };
   const restoreLocation=()=>{
-    const h=decodeURIComponent(location.hash.slice(1));
+    const h=hashName();
     show(NAMES.has(h)?h:'start',{replace:true,focus:false,silent:true});
   };
   window.addEventListener('popstate',restoreLocation);
@@ -159,7 +167,7 @@ function txt(s){ return document.createTextNode(s); }
   syncOrientation();
 
   // a link to #loop wins; otherwise pick up where they left off
-  const fromHash=decodeURIComponent(location.hash.slice(1));
+  const fromHash=hashName();
   const initial = NAMES.has(fromHash) ? fromHash : readLearningState().handbook.lastSection;
   show(initial,{replace:true,focus:false,silent:true});
 

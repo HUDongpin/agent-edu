@@ -132,6 +132,27 @@ test("deep links, history, and saved-section restoration share the same show pat
   assert.match(behaviour, /window\.addEventListener\('hashchange',restoreLocation\)/);
   assert.match(behaviour, /const initial = NAMES\.has\(fromHash\) \? fromHash : readLearningState\(\)\.handbook\.lastSection/);
   assert.match(behaviour, /show\(initial,\{replace:true,focus:false,silent:true\}\)/);
+  /* Both the initial restore and later hashchange/popstate reads go through
+     one helper that catches URIError from decodeURIComponent — a bare call
+     would abort initHandbook mid-pass on #% or #%ZZ. */
+  assert.match(behaviour, /const hashName=\(\)=>\{/);
+  assert.match(behaviour, /const fromHash=hashName\(\)/);
+  assert.match(behaviour, /catch\(e\)\{return '';\}/);
+  assert.equal((behaviour.match(/decodeURIComponent\(location\.hash\.slice\(1\)\)/g) ?? []).length, 1);
+});
+
+test("malformed handbook hashes are treated as absent, not thrown", () => {
+  /* Mirrors hashName()'s contract without mounting the full widget suite. */
+  const hashName = (raw: string) => {
+    try { return decodeURIComponent(raw); }
+    catch { return ""; }
+  };
+  assert.equal(hashName("loop"), "loop");
+  assert.equal(hashName("code"), "code");
+  assert.equal(hashName("%"), "");
+  assert.equal(hashName("%ZZ"), "");
+  assert.equal(hashName("%E0%A4%A"), "");
+  assert.equal(hashName(""), "");
 });
 
 test("Handbook visits and Control Room finishes write only through progress v2", () => {

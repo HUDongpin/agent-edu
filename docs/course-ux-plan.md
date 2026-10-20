@@ -89,7 +89,7 @@ from re-proposing them:
   That is placement, not absence, and §5.3 argues against moving it.
 - **"The live eval progress and the handbook widgets are probably silent to a
   screen reader."** Wrong. The Lab carries eleven live regions, including
-  `aria-atomic` on the result block, and `lib/handbook/behaviour.ts:175` gives
+  `aria-atomic` on the result block, and `lib/handbook/behaviour.ts:183` gives
   thirteen output sinks `aria-live` and `aria-atomic`, with the graph log getting
   `aria-relevant` so it reads as additions rather than re-reading itself.
   Announcement of dynamic output is deliberate and thorough.
@@ -711,7 +711,7 @@ swaps.
 
 > **Landed** (`6ae5828e`). Copy only. The verdict now credits the attack it actually stopped rather than the technique, and points at the three defences that exist because a better-written attack gets through.
 
-`lib/handbook/behaviour.ts:1499` decides the outcome with `const fooled=!on.label;`
+`lib/handbook/behaviour.ts:1507` decides the outcome with `const fooled=!on.label;`
 — a single boolean. Labelling the untrusted text as data makes the model immune
 no matter what else is off; turn only that toggle off and it is fooled every
 time. The verdict the reader sees says the attack was handled "because the text
