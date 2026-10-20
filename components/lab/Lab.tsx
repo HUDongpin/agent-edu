@@ -17,8 +17,11 @@ import {
   conservativePromptTokenUpperBound,
   errorKey,
   getKey,
+  hasKey,
+  hasKeyOnServer,
   keyStatusSnapshot,
   subscribeBilling,
+  subscribeKey,
   type Model,
 } from "@/lib/deepseek";
 import {
@@ -160,6 +163,11 @@ export default function Lab() {
     readLearningState,
     readLearningStateOnServer,
   );
+  /* KeyBar already subscribes; this page must too. The scripted-run offer is
+     gated on "no key stored", and reading getKey() during render without a
+     subscription left that offer on screen after Save and hidden after Forget
+     until some unrelated Lab state happened to update. */
+  const hasPaidKey = useSyncExternalStore(subscribeKey, hasKey, hasKeyOnServer);
   const done = useMemo(() => {
     const completed = selectLabProgress(learning).completedSteps;
     return LAB_STEPS.map((step) => completed.includes(step));
@@ -1136,7 +1144,7 @@ export default function Lab() {
                 and the copy beside it says so rather than dressing it up. It has
                 no order column because RECORDED_RUN carries no orders: add them by
                 regenerating lib/lab/recorded.ts, never by hand. */}
-            {stage === 3 && !getKey() && (
+            {stage === 3 && !hasPaidKey && (
               showRecorded ? (
                 <>
                   <div className="langnote" style={{ marginTop: 14 }} ref={recordedNote} tabIndex={-1}>

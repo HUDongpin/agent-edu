@@ -62,7 +62,21 @@ function bad(m: string, hint?: string): never {
 async function check5a(m: any): Promise<void> {
   const tools = await import("./cafe/tools");
   tools.reset();
-  const out = await m.inspectOneCall(false);
+  // The injected read_sales failure is step 5b. Left on, a live model that
+  // calls it first throws out of answerOneTool and this checker printed a
+  // stack instead of a FAIL.
+  tools.FAIL_ONCE.read_sales = false;
+  let out: any;
+  try {
+    out = await m.inspectOneCall(false);
+  } catch (err) {
+    const msg = (err as Error).message ?? String(err);
+    if (/TODO/.test(msg)) throw err;
+    bad(
+      "inspectOneCall threw before a tool_result was built",
+      "step 5a answers one call that returns — when a tool throws, that is step 5b",
+    );
+  }
   const blocks = Array.isArray(out?.response?.content) ? out.response.content : [];
   const first = blocks.find((b: any) => b?.type === "tool_use");
   if (!first) {
@@ -134,7 +148,21 @@ async function check5a(m: any): Promise<void> {
       "the tool call names the tool to run — find the matching function among the café tools",
     );
   }
-  if (result.content !== String(runner(first.input))) {
+  // Re-run from a reset store. place_order's return value includes the order
+  // number, which advances on every call, so comparing against a second
+  // invocation on the already-mutated store failed a correct tool_result.
+  tools.reset();
+  tools.FAIL_ONCE.read_sales = false;
+  let expected: string;
+  try {
+    expected = String(runner(first.input));
+  } catch {
+    bad(
+      "the first tool_use throws, so step 5a cannot check the result",
+      "step 5a answers a call that returns — when a tool throws, that is step 5b",
+    );
+  }
+  if (result.content !== expected) {
     bad(
       "tool_result content should be the tool's return value, as a string",
       "the tool_result content should be what the tool itself returned, as text — not a summary you wrote",
@@ -334,6 +362,12 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
     }
     ok("you wrote a prompt");
     const order = await m.takeOrder("large flat white please");
+    if (!order || typeof order !== "object") {
+      bad(
+        "the reply is not an order object",
+        "the order needs items, total and needs_confirmation — ask already applies ORDER_SCHEMA, so name those fields in SYSTEM",
+      );
+    }
     for (const f of ["items", "total", "needs_confirmation"]) {
       if (!(f in order)) {
         bad(
@@ -342,7 +376,7 @@ const CHECKS: Record<number, (m: any) => Promise<void>> = {
         );
       }
     }
-    if (!order.items.length) {
+    if (!Array.isArray(order.items) || !order.items.length) {
       bad(
         "it ordered nothing",
         "a clear request such as \"large flat white please\" should come back with at least one item — say that in SYSTEM",
