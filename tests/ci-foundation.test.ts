@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { extname, join } from "node:path";
 import test from "node:test";
 import { LOCALE_CODES, LOCALES, coverage, isLocale, metaFor, translator } from "../lib/i18n";
 import { PAGES, alternatesFor, urlFor } from "../lib/seo";
@@ -119,4 +119,14 @@ test("slashless directory URLs redirect, because handbook links are relative", a
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("the preview server has a content type for every public asset", async () => {
+  const { TYPES } = await import("../scripts/serve-out.mjs") as { TYPES: Record<string, string> };
+  const walk = (dir: string): string[] => readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+    entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]);
+  const missing = [...new Set(walk("public").map((file) => extname(file).toLowerCase()))]
+    .filter((extension) => !(extension in TYPES));
+  assert.deepEqual(missing, []);
+  assert.equal(TYPES[".jpg"], "image/jpeg");
 });

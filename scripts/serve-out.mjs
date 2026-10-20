@@ -50,9 +50,14 @@ function acceptsGzip(request) {
   return typeof header === "string" && /\bgzip\b/i.test(header);
 }
 
-const TYPES = {
+/* Every extension under public/ needs an entry: responses carry `nosniff`, so
+   a file served as application/octet-stream is not rendered — the About page
+   portraits are .jpg. */
+export const TYPES = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
+  ".jpeg": "image/jpeg",
+  ".jpg": "image/jpeg",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".png": "image/png",
