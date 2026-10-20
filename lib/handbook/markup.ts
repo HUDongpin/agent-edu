@@ -107,6 +107,13 @@ const ACCESSIBLE_MARKUP = MARKUP
   .replace(
     '🖐️ How to use this page — about 45 minutes end to end',
     '🖐️ How to use this page — about 30 minutes to read, about an hour if you run everything',
+  )
+  /* The two callout cards thicken the physical left edge. Arabic lays the
+     page out from the right, so that accent stayed on the end of the line.
+     inline-start is the left edge in English and the right edge in Arabic. */
+  .replaceAll(
+    "border-left-width:5px",
+    "border-inline-start-width:5px",
   );
 
 export default ACCESSIBLE_MARKUP;

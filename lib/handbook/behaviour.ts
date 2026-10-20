@@ -988,7 +988,7 @@ const RECALL={
       '<i class="good" style="width:'+scale(t.good)+'%"></i>'+
       '<i class="junk" style="width:'+scale(t.junk)+'%"></i>'+
       // when you overflow, show WHERE the ceiling was — otherwise a full bar looks the same either way
-      (over ? '<b class="lim" style="left:'+(LIMIT/used*100).toFixed(1)+'%"></b>' : '');
+      (over ? '<b class="lim" style="inset-inline-start:'+(LIMIT/used*100).toFixed(1)+'%"></b>' : '');
     $('#winUsed').textContent = C.t('w.context.used',{used:used.toLocaleString(),limit:LIMIT.toLocaleString()})+
       (over?C.t('w.context.over',{n:over.toLocaleString()}):'');
     $('#winUsed').style.color = over?'var(--red)':'var(--ink-3)';
