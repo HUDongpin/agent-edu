@@ -61,9 +61,54 @@ const SHAPE: [number, string, string, (v: never) => string][] = [
   [8, "security", "capped",   (v) => `refund capped at $${Number(v).toFixed(2)} despite the injection`],
 ];
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isEntry(value: unknown): value is Entry {
+  return isRecord(value);
+}
+
+export type ProgressFile =
+  | { readonly status: "missing" }
+  | { readonly status: "invalid"; readonly message: string }
+  | { readonly status: "ok"; readonly data: Data };
+
+/**
+ * Read the bytes of a progress file.
+ *
+ * A missing file is an empty report. A file that does not parse is not an
+ * empty report: `record` used to treat the two the same and then overwrite
+ * the file, so a half-written record disappeared on the run that should have
+ * added one line.
+ */
+export function parseProgress(text: string): Exclude<ProgressFile, { status: "missing" }> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { status: "invalid", message };
+  }
+  if (!isRecord(parsed)) {
+    return { status: "invalid", message: "progress.json must be a JSON object" };
+  }
+  return { status: "ok", data: parsed as Data };
+}
+
+function unreadable(message: string): string {
+  return `${FILE} could not be read (${message}).\nIt was left unchanged.`;
+}
+
+export function readProgressFile(): ProgressFile {
+  if (!existsSync(FILE)) return { status: "missing" };
+  return parseProgress(readFileSync(FILE, "utf8"));
+}
+
 export function load(): Data {
-  if (!existsSync(FILE)) return {};
-  try { return JSON.parse(readFileSync(FILE, "utf8")) as Data; } catch { return {}; }
+  const read = readProgressFile();
+  if (read.status === "invalid") throw new Error(unreadable(read.message));
+  return read.status === "ok" ? read.data : {};
 }
 
 /**
@@ -97,7 +142,9 @@ export function applyRecord(
   values: Entry,
   drop: readonly string[] = [],
 ): Data {
-  const entry: Entry = { ...(data[String(stage)] ?? {}) };
+  const previous = data[String(stage)];
+  // A string or array spreads into index keys and the next write keeps them.
+  const entry: Entry = isEntry(previous) ? { ...previous } : {};
   for (const key of drop) delete entry[key];
   for (const [k, v] of Object.entries(values)) {
     if (k === "score" && typeof v === "number") {
@@ -111,8 +158,14 @@ export function applyRecord(
 }
 
 export function record(stage: number, values: Entry, drop: readonly string[] = []): void {
-  const data = applyRecord(load(), stage, values, drop);
-  writeFileSync(FILE, JSON.stringify(data, null, 1));
+  let data: Data;
+  try {
+    data = load();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+  writeFileSync(FILE, JSON.stringify(applyRecord(data, stage, values, drop), null, 1));
 }
 
 /** What the last run scored, falling back to the best for records written before `latest` existed. */
@@ -125,17 +178,23 @@ export function currentScore(entry: Entry | undefined): number | undefined {
 
 export function formatReport(data: Data): string {
   const lines: string[] = [];
-  if (!Object.keys(data).length) {
+  if (!isRecord(data) || !Object.keys(data).length) {
     return "\n  Nothing recorded yet.\n\n  Pass a stage first:  npx tsx course/check.ts 1\n";
   }
   lines.push("\n  YOUR REPORT CARD\n  " + "─".repeat(56));
   for (const [stage, label, key, render] of SHAPE) {
     const entry = data[String(stage)];
-    if (!entry || !(key in entry)) { lines.push(`  ${stage}  ${label.padEnd(10)} ·`); continue; }
+    if (!isEntry(entry) || !(key in entry)) { lines.push(`  ${stage}  ${label.padEnd(10)} ·`); continue; }
     // Report the run that happened, and say so when an earlier one went better.
     // A regression you can see is the thing stage 3 is for; a regression the
     // report card swallows is the thing it warns you about.
     const shown = key === "score" ? currentScore(entry) : entry[key];
+    // Stage 0 stores a boolean and ignores the value. Every later key is a
+    // number; anything else would print "undefined/20" or "$NaN".
+    if (key === "score" ? typeof shown !== "number" : key !== "ok" && typeof shown !== "number") {
+      lines.push(`  ${stage}  ${label.padEnd(10)} ·`);
+      continue;
+    }
     let line = render(shown as never);
     const best = entry.score;
     if (key === "score" && typeof best === "number" && typeof shown === "number" && best > shown) {
@@ -178,7 +237,12 @@ export function formatReport(data: Data): string {
 }
 
 function main(): void {
-  console.log(formatReport(load()));
+  try {
+    console.log(formatReport(load()));
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
 }
 
 if (import.meta.filename === process.argv[1]) main();

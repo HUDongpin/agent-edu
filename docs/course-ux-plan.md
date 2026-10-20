@@ -344,7 +344,7 @@ and the recording doubles as the fallback for B1 and B3.
 > **Landed** (`5d0f7729`). `score` keeps its ceiling so existing records still read; `latest` records the run that happened, and the card says "(your best was N/20)" only when an earlier run really went better. The headline compares the two latest values rather than two high-water marks.
 
 The report card records a stage's score with `Math.max`, at
-`course/report.ts:105`, under a comment saying scores only ever go up. The
+`course/report.ts:152`, under a comment saying scores only ever go up. The
 worksheet the same project ships asks the learner to record one improvement and
 one regression and not to hide inconvenient cases.
 
