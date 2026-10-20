@@ -22,7 +22,7 @@ import {
   type Model,
 } from "@/lib/deepseek";
 import { RECOMMENDED_LAB_JOURNEY } from "@/lib/lab/plans";
-import { formatCost, formatCount, formatSeconds, spendText } from "@/lib/lab/cost";
+import { embedLtr, formatCost, formatCount, formatSeconds, spendText } from "@/lib/lab/cost";
 
 const PROVIDER = "https://platform.deepseek.com/api_keys";
 
@@ -263,10 +263,11 @@ export default function KeyBar({
         {t("lab.callPlan")
           .replace("{cost}", formatEstimate(journeyEstimate, locale))
           .replace("{calls}", String(RECOMMENDED_LAB_JOURNEY.calls))
-          .replace("{tokens}", formatCount(RECOMMENDED_LAB_JOURNEY.maxOutputTokens, locale))}
+          .replace("{tokens}", formatCount(RECOMMENDED_LAB_JOURNEY.maxOutputTokens, locale))
+          .replace("(1 + 3 + 28 + 28)", embedLtr("(1 + 3 + 28 + 28)", locale))}
       </p>
       <p className="keysafe">
-        {t("lab.pricingDisclosure").replace("{date}", DEEPSEEK_PRICING.checkedAt)}{" "}
+        {t("lab.pricingDisclosure").replace("{date}", embedLtr(DEEPSEEK_PRICING.checkedAt, locale))}{" "}
         <a
           href={DEEPSEEK_PRICING.sourceUrl}
           target="_blank"

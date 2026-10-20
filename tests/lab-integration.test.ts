@@ -160,6 +160,13 @@ test("the key panel names a price before the reader is asked to fund an account"
     assert.ok(plan.includes("{calls}") && plan.includes("{tokens}"),
       `${locale}: lab.callPlan must keep its existing placeholders`);
   }
+  /* The mix and the price-snapshot date are European runs inside an Arabic
+     sentence. KeyBar isolates that ASCII run; LTR locales receive the same
+     characters, and Chinese and Japanese keep their fullwidth parentheses. */
+  assert.ok(siteMessages("ar")["lab.callPlan"].includes("(1 + 3 + 28 + 28)"),
+    "Arabic lab.callPlan must keep the call mix KeyBar isolates");
+  assert.match(keyBarSource, /embedLtr\(DEEPSEEK_PRICING\.checkedAt, locale\)/);
+  assert.match(keyBarSource, /\.replace\("\(1 \+ 3 \+ 28 \+ 28\)", embedLtr\("\(1 \+ 3 \+ 28 \+ 28\)", locale\)\)/);
 
   /* Computed from the same conservativePrice path as the per-step disclosures,
      so the figure shown before funding cannot disagree with the ones met later. */
@@ -177,7 +184,7 @@ test("costs are written in the reader's language, never assembled in English ord
   /* The billing line glued counts to noun phrases with `+` in English order,
      twice, and every amount was "$" plus toFixed. In Arabic the bidi algorithm,
      not a translator, decided where the pieces landed. */
-  const { billingText, formatCost, formatCount } = await import("../lib/lab/cost");
+  const { billingText, embedLtr, formatCost, formatCount } = await import("../lib/lab/cost");
   /* The café menu's own prices stay as they are: the menu is exercise data and
      stays English (lab.enData). Everything the reader pays goes through here. */
   assert.doesNotMatch(keyBarSource, /toFixed\(|toLocaleString\(/, "money and counts go through lib/lab/cost");
@@ -225,6 +232,19 @@ test("costs are written in the reader's language, never assembled in English ord
   assert.match(formatCost(0.001234, "de"), /^0,00123\s\$$/);
   assert.match(formatCost(0.001234, "ar"), /0\.00123/);
   assert.equal(formatCost(0.05, "en", 2), "$0.05");
+
+  /* Intl's Arabic currency is a European run with a leading RLM, so an RTL
+     paragraph paints "$US 0.00012". One LRI/PDI pair keeps the source order.
+     LTR locales stay the characters they had, including German's trailing $. */
+  const arCost = formatCost(0.00012, "ar");
+  const arPlain = arCost.replaceAll("\u2066", "").replaceAll("\u2069", "");
+  assert.equal(arCost, `\u2066${arPlain}\u2069`);
+  assert.match(arPlain, /0\.00012/);
+  assert.equal(formatCost(0.00012, "en").includes("\u2066"), false);
+  assert.equal(formatCost(0.001234, "de").includes("\u2066"), false);
+  assert.equal(embedLtr("2026-09-22", "ar"), "\u20662026-09-22\u2069");
+  assert.equal(embedLtr("2026-09-22", "en"), "2026-09-22");
+  assert.equal(embedLtr("(1 + 3 + 28 + 28)", "de"), "(1 + 3 + 28 + 28)");
   assert.equal(formatCount(7600, "en"), "7,600");
   assert.equal(formatCount(7600, "de"), "7.600");
   assert.match(formatCount(7600, "ar"), /^7.600$/);

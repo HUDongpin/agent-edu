@@ -19,21 +19,41 @@
  */
 import type { BillingSnapshot } from "../byok/ledger";
 import { DEEPSEEK_PRICING } from "../byok/pricing";
+import { metaFor } from "../i18n";
 import { formatCount, pluralKey } from "../plural";
 
 export { formatCount };
 
 const DIGITS = { numberingSystem: "latn" } as const;
 
+/* LRI / PDI. An Arabic sentence is one RTL paragraph, and the bidi algorithm
+   reorders neutrals that sit between European numbers: Intl's "0.00012 US$"
+   paints as "$US 0.00012", and an ISO date "2026-09-22" paints as "22-09-2026".
+   Wrapping the run in isolates keeps the source order without changing how an
+   LTR language reads the same string. */
+const LRI = "\u2066";
+const PDI = "\u2069";
+
+/** One left-to-right run, safe to drop into an Arabic sentence. */
+export function isolateLtr(text: string): string {
+  return `${LRI}${text}${PDI}`;
+}
+
+/** Isolate only where the page is RTL. LTR locales keep the exact characters they had. */
+export function embedLtr(text: string, locale: string): string {
+  return metaFor(locale).dir === "rtl" ? isolateLtr(text) : text;
+}
+
 /** An amount in the price snapshot's currency. Five decimals, because each call costs a fraction of a cent. */
 export function formatCost(amount: number, locale: string, fractionDigits = 5): string {
-  return new Intl.NumberFormat(locale, {
+  const formatted = new Intl.NumberFormat(locale, {
     ...DIGITS,
     style: "currency",
     currency: DEEPSEEK_PRICING.currency,
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
   }).format(amount);
+  return embedLtr(formatted, locale);
 }
 
 /** A cap in whole seconds, written the way a {seconds} placeholder is read. */

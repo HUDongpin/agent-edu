@@ -57,3 +57,48 @@ test("the spend line is one whole, correctly pluralised sentence in every langua
   assert.match(spendText(snapshot(2), ta, "ar"), /^استدعاءان/);
   assert.match(spendText(snapshot(5), ta, "ar"), /استدعاءات/);
 });
+
+test("embedLtr isolates LTR runs only for RTL locales", async () => {
+  const { embedLtr, isolateLtr, formatCost } = await import("../lib/lab/cost");
+  const LRI = "\u2066";
+  const PDI = "\u2069";
+  const date = "2026-09-22";
+  const formula = "(1 + 3 + 28 + 28)";
+
+  assert.equal(isolateLtr(date), `${LRI}${date}${PDI}`);
+  assert.equal(embedLtr(date, "en"), date);
+  assert.equal(embedLtr(date, "zh-Hans"), date);
+  assert.equal(embedLtr(date, "ar"), `${LRI}${date}${PDI}`);
+  assert.equal(embedLtr(formula, "ar"), `${LRI}${formula}${PDI}`);
+  assert.equal(embedLtr(formula, "de"), formula);
+
+  const enCost = formatCost(0.00012, "en");
+  assert.equal(enCost, "$0.00012");
+  assert.doesNotMatch(enCost, new RegExp(LRI));
+
+  const arCost = formatCost(0.00012, "ar");
+  assert.ok(arCost.startsWith(LRI), `Arabic cost missing LRI: ${JSON.stringify(arCost)}`);
+  assert.ok(arCost.endsWith(PDI), `Arabic cost missing PDI: ${JSON.stringify(arCost)}`);
+  assert.match(arCost, /0\.00012/);
+});
+
+test("Arabic spendText keeps currency inside an LTR isolate", async () => {
+  const { spendText } = await import("../lib/lab/cost");
+  const LRI = "\u2066";
+  const PDI = "\u2069";
+  const ar = messages("ar");
+  const t = (key: string) => ar[key] ?? key;
+  const out = spendText(snapshot(1), t, "ar");
+  assert.match(out, new RegExp(`${LRI}[^${PDI}]*0\\.00012[^${PDI}]*${PDI}`));
+  // English exact strings must stay byte-identical (no invisible marks).
+  const en = messages("en");
+  const te = (key: string) => en[key] ?? key;
+  assert.equal(spendText(snapshot(1), te, "en"), "1 call · known subtotal $0.00012");
+});
+
+test("KeyBar wraps the journey formula and pricing date for RTL", () => {
+  const source = readFileSync("components/lab/KeyBar.tsx", "utf8");
+  assert.match(source, /embedLtr\("\(1 \+ 3 \+ 28 \+ 28\)"/);
+  assert.match(source, /embedLtr\(DEEPSEEK_PRICING\.checkedAt/);
+  assert.match(source, /embedLtr, formatCost/);
+});
