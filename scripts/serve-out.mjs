@@ -1,6 +1,7 @@
 import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, resolve, sep } from "node:path";
+import { pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 
 const ROOT = resolve(process.cwd(), "out");
@@ -60,6 +61,39 @@ const TYPES = {
   ".xml": "application/xml; charset=utf-8",
 };
 
+/**
+ * Where a slashless directory URL must go.
+ *
+ * `/en/handbook` and `/en/handbook/` are the same file. The handbook links
+ * with `../lab/` and `../build/`, which the browser resolves from the URL it
+ * is actually on: without the slash, `handbook` is a file and those links
+ * leave the locale. Vercel does this redirect when `trailingSlash` is true.
+ * This server is what the smoke run hits, so it has to do the same.
+ *
+ * Paths with an extension stay put (`/sitemap.xml`, `/favicon.svg`).
+ * Returns the Location path, or null when the request should be served.
+ */
+export function directorySlashRedirect(root, rawUrl) {
+  let url;
+  try {
+    url = new URL(rawUrl || "/", "http://127.0.0.1");
+  } catch {
+    return null;
+  }
+  let pathname;
+  try {
+    pathname = decodeURIComponent(url.pathname);
+  } catch {
+    return null;
+  }
+  if (pathname.includes("\0") || pathname.endsWith("/") || extname(pathname)) return null;
+  const target = resolve(root, "." + pathname);
+  if (target !== root && !target.startsWith(root + sep)) return null;
+  const index = join(target, "index.html");
+  if (!existsSync(index) || !statSync(index).isFile()) return null;
+  return pathname + "/" + url.search;
+}
+
 function resolveRequest(rawUrl) {
   let pathname;
   try {
@@ -77,57 +111,69 @@ function resolveRequest(rawUrl) {
   return candidates.find((candidate) => existsSync(candidate) && statSync(candidate).isFile()) ?? null;
 }
 
-if (!existsSync(ROOT)) {
-  console.error("static server: out/ is missing; run npm run build first");
-  process.exit(1);
-}
-
-const server = createServer((request, response) => {
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    response.writeHead(405, { Allow: "GET, HEAD" });
-    response.end();
-    return;
+function start() {
+  if (!existsSync(ROOT)) {
+    console.error("static server: out/ is missing; run npm run build first");
+    process.exit(1);
   }
 
-  const file = resolveRequest(request.url);
-  const body = file ?? join(ROOT, "404.html");
-  const status = file ? 200 : 404;
-  const extension = extname(body);
-  const compress = COMPRESSIBLE.has(extension)
-    && acceptsGzip(request)
-    && statSync(body).size >= MIN_COMPRESS_BYTES;
+  const server = createServer((request, response) => {
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      response.writeHead(405, { Allow: "GET, HEAD" });
+      response.end();
+      return;
+    }
 
-  const headers = {
-    "Cache-Control": CACHE_CONTROL,
-    "Content-Type": TYPES[extension] ?? "application/octet-stream",
-    "X-Content-Type-Options": "nosniff",
-    /* Declared whenever the body could have been compressed, so a cache
-       keyed on this header behaves the same as the one in front of the real
-       site — including for the client that did not ask for it. */
-    ...(COMPRESSIBLE.has(extension) ? { Vary: "Accept-Encoding" } : {}),
-  };
+    const redirect = directorySlashRedirect(ROOT, request.url);
+    if (redirect) {
+      response.writeHead(308, { Location: redirect, "Cache-Control": "no-store" });
+      response.end();
+      return;
+    }
 
-  if (!compress) {
-    response.writeHead(status, headers);
+    const file = resolveRequest(request.url);
+    const body = file ?? join(ROOT, "404.html");
+    const status = file ? 200 : 404;
+    const extension = extname(body);
+    const compress = COMPRESSIBLE.has(extension)
+      && acceptsGzip(request)
+      && statSync(body).size >= MIN_COMPRESS_BYTES;
+
+    const headers = {
+      "Cache-Control": CACHE_CONTROL,
+      "Content-Type": TYPES[extension] ?? "application/octet-stream",
+      "X-Content-Type-Options": "nosniff",
+      /* Declared whenever the body could have been compressed, so a cache
+         keyed on this header behaves the same as the one in front of the real
+         site — including for the client that did not ask for it. */
+      ...(COMPRESSIBLE.has(extension) ? { Vary: "Accept-Encoding" } : {}),
+    };
+
+    if (!compress) {
+      response.writeHead(status, headers);
+      if (request.method === "HEAD") response.end();
+      else createReadStream(body).pipe(response);
+      return;
+    }
+
+    const encoded = gzipFor(body);
+    response.writeHead(status, {
+      ...headers,
+      "Content-Encoding": "gzip",
+      "Content-Length": String(encoded.length),
+    });
     if (request.method === "HEAD") response.end();
-    else createReadStream(body).pipe(response);
-    return;
-  }
-
-  const encoded = gzipFor(body);
-  response.writeHead(status, {
-    ...headers,
-    "Content-Encoding": "gzip",
-    "Content-Length": String(encoded.length),
+    else response.end(encoded);
   });
-  if (request.method === "HEAD") response.end();
-  else response.end(encoded);
-});
 
-server.listen(PORT, HOST, () => {
-  console.log("static server ready on http://" + HOST + ":" + PORT);
-});
+  server.listen(PORT, HOST, () => {
+    console.log("static server ready on http://" + HOST + ":" + PORT);
+  });
 
-for (const signal of ["SIGINT", "SIGTERM"]) {
-  process.on(signal, () => server.close(() => process.exit(0)));
+  for (const signal of ["SIGINT", "SIGTERM"]) {
+    process.on(signal, () => server.close(() => process.exit(0)));
+  }
 }
+
+const invoked = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+if (invoked) start();

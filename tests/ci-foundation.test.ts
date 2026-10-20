@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import { LOCALE_CODES, LOCALES, coverage, isLocale, metaFor, translator } from "../lib/i18n";
 import { PAGES, alternatesFor, urlFor } from "../lib/seo";
@@ -91,4 +93,30 @@ test("the deploy build type-checks only files present in the Vercel upload", () 
   const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
   assert.match(workflow, /quality:[\s\S]*?- run: npm run typecheck[\s\S]*?- run: npm run build/);
   assert.match(workflow, /hashFiles\([^\n]*'tsconfig\.json', 'tsconfig\.build\.json'\)/);
+});
+
+test("slashless directory URLs redirect, because handbook links are relative", async () => {
+  const vercel = JSON.parse(readFileSync("vercel.json", "utf8")) as { trailingSlash?: boolean };
+  assert.equal(vercel.trailingSlash, true);
+  assert.match(readFileSync("next.config.ts", "utf8"), /trailingSlash:\s*true/);
+  const markup = readFileSync("lib/handbook/markup.ts", "utf8");
+  assert.match(markup, /href=\\"\.\.\/lab\/\\"/);
+  assert.match(markup, /href=\\"\.\.\/build\/\\"/);
+
+  const { directorySlashRedirect } = await import("../scripts/serve-out.mjs") as {
+    directorySlashRedirect: (root: string, rawUrl: string) => string | null;
+  };
+  const root = mkdtempSync(join(tmpdir(), "slash-redirect-"));
+  try {
+    mkdirSync(join(root, "en", "handbook"), { recursive: true });
+    writeFileSync(join(root, "en", "handbook", "index.html"), "<a href=\"../build/\">");
+    writeFileSync(join(root, "favicon.svg"), "<svg></svg>");
+    assert.equal(directorySlashRedirect(root, "/en/handbook"), "/en/handbook/");
+    assert.equal(directorySlashRedirect(root, "/en/handbook?x=1"), "/en/handbook/?x=1");
+    assert.equal(directorySlashRedirect(root, "/en/handbook/"), null);
+    assert.equal(directorySlashRedirect(root, "/favicon.svg"), null);
+    assert.equal(directorySlashRedirect(root, "/missing"), null);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
