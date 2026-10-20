@@ -12,9 +12,15 @@ import { useI18n } from "./I18nProvider";
  *
  * The menu is driven from the keyboard as well as the mouse: opening it moves
  * focus onto the language you are already on, the arrow keys walk the list,
- * and Escape puts focus back on the button. Nine languages is a long list to
- * reach with Tab alone.
+ * and Escape, a click on the page, or a choice puts focus back on the button.
+ * Nine languages is a long list to reach with Tab alone.
  */
+
+/* Choosing a language navigates, and the button that had focus is replaced by
+   the one on the next page. The mark survives that client navigation so the
+   new button can take focus, and the mount below removes it. */
+const FOCUS_LANG = "ae.focus.lang";
+
 export default function LanguageMenu({ coverage }: { coverage: Record<string, number> }) {
   const { t, locale } = useI18n();
   const [open, setOpen] = useState(false);
@@ -25,9 +31,32 @@ export default function LanguageMenu({ coverage }: { coverage: Record<string, nu
   const pathname = usePathname() || "/";
 
   useEffect(() => {
+    let pending = false;
+    try { pending = sessionStorage.getItem(FOCUS_LANG) === "1"; }
+    catch { /* private browsing */ }
+    if (!pending) return;
+    try { sessionStorage.removeItem(FOCUS_LANG); }
+    catch { /* private browsing */ }
+    trigger.current?.focus();
+  }, []);
+
+  useEffect(() => {
     if (!open) return;
     const away = (e: MouseEvent) => {
-      if (wrap.current && !wrap.current.contains(e.target as Node)) setOpen(false);
+      if (!wrap.current || wrap.current.contains(e.target as Node)) return;
+      setOpen(false);
+      // Focus is on a menu item, and closing removes that item. A press on a
+      // control focuses the control by itself. A press on the page focuses
+      // the body after this listener returns, which would undo a focus()
+      // call made here, so stop that and put focus back on the opener.
+      const node = e.target instanceof Element ? e.target : (e.target as Node).parentElement;
+      const hit = node?.closest("a,button,input,select,textarea,summary,[tabindex]:not([tabindex='-1'])");
+      const takesFocus = hit instanceof HTMLElement
+        && !hit.hasAttribute("disabled")
+        && hit.getAttribute("aria-disabled") !== "true";
+      if (takesFocus) return;
+      e.preventDefault();
+      trigger.current?.focus();
     };
     const esc = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
@@ -70,6 +99,13 @@ export default function LanguageMenu({ coverage }: { coverage: Record<string, nu
       /* private browsing */
     }
     setOpen(false);
+    // The same language does not remount this button, so focus it now. A
+    // different language replaces the page, and the mount above takes focus.
+    if (code === locale) trigger.current?.focus();
+    else {
+      try { sessionStorage.setItem(FOCUS_LANG, "1"); }
+      catch { /* private browsing: focus will not be restored */ }
+    }
     router.push(`/${code}/${rest.join("/")}${rest.length ? "/" : ""}`);
   }
 
