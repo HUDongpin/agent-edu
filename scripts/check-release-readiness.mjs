@@ -1393,15 +1393,13 @@ function sampleSuffix(summary, field) {
 
 export function formatReadinessReport(result) {
   if (result.ready) {
+    /* List the signed gates from the evidence summary itself. A hand-written
+       list here once left out the Anthropic course snapshot gate, so a PASS
+       report spoke for six of the seven gates it had actually required. */
     return [
       "release readiness: PASS",
       "- [x] message key, placeholder, plural, and explained-English checks",
-      "- [x] eight native-language reviews",
-      "- [x] Arabic RTL matrix",
-      "- [x] Provider canary and reconciliation",
-      "- [x] Vercel CSP response headers",
-      "- [x] GitHub required checks and three stable green runs",
-      "- [x] rollback target and ordinary revert validation",
+      ...result.evidence.map((group) => `- [x] ${group.label}`),
     ].join("\n");
   }
 

@@ -281,7 +281,12 @@ test("fully signed fixture evidence and complete locale fixtures pass", () => {
   assert.equal(result.ready, true);
   assert.deepEqual(result.configIssues, []);
   assert.deepEqual(result.messageIssues, []);
-  assert.match(formatReadinessReport(result), /release readiness: PASS/);
+  const report = formatReadinessReport(result);
+  assert.match(report, /release readiness: PASS/);
+  assert.equal(result.evidence.length, 7);
+  for (const group of result.evidence) {
+    assert.ok(report.includes(`- [x] ${group.label}`), `PASS report must list ${group.id}`);
+  }
 });
 
 test("valid pending evidence blocks release without becoming a schema error", () => {
